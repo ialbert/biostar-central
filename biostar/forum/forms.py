@@ -235,6 +235,9 @@ class PostModForm(forms.Form):
         pid = self.cleaned_data.get("pid")
         offtopic = self.cleaned_data.get("comment")
 
+        if not self.user.profile.is_moderator:
+            raise forms.ValidationError("You need to be a moderator to preform that action.")
+
         if (action is None) and not (dupes or pid or offtopic):
             raise forms.ValidationError("Select an action.")
 

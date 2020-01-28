@@ -8,7 +8,7 @@ from django.core import signing
 from django.conf import settings
 from django.urls import reverse
 
-from . import util
+from biostar.utils.helpers import fake_request, get_uuid
 
 
 logger = logging.getLogger('engine')
@@ -79,7 +79,7 @@ class LoginTest(TestCase):
 
     def setUp(self):
         self.password = "testing"
-        self.user = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        self.user = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
         self.user.set_password(self.password)
         self.user.save()
 
@@ -118,7 +118,7 @@ class LoginTest(TestCase):
         data = {"payload": payload}
         url = reverse("external")
 
-        request = util.fake_request(url=url, data=data, user=self.user, method="GET")
+        request = fake_request(url=url, data=data, user=self.user, method="GET")
         response = views.external_login(request=request)
 
         self.assertEqual(response.status_code, 302)
@@ -166,7 +166,7 @@ class ProfileTest(TestCase):
 
     def setUp(self):
         self.password = "testing"
-        self.user = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        self.user = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
 
         self.user.set_password(self.password)
         self.user.save()
@@ -179,7 +179,7 @@ class ProfileTest(TestCase):
         data = {}
         url = reverse("user_profile", kwargs=dict(uid=self.user.profile.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.user, method="GET")
+        request = fake_request(url=url, data=data, user=self.user, method="GET")
 
         response = views.user_profile(request=request, uid=self.user.profile.uid)
         self.assertEqual(response.status_code, 200, "Can not load user profile")
@@ -195,7 +195,7 @@ class ProfileTest(TestCase):
 
         url = reverse("edit_profile")
 
-        request = util.fake_request(url=url, data=data, user=self.user)
+        request = fake_request(url=url, data=data, user=self.user)
 
         response = views.edit_profile(request=request)
 
@@ -206,7 +206,7 @@ class ProfileTest(TestCase):
 
         url = reverse("toggle_notify")
 
-        request = util.fake_request(url=url, data={}, user=self.user)
+        request = fake_request(url=url, data={}, user=self.user)
 
         response = views.toggle_notify(request=request)
 

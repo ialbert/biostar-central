@@ -2,7 +2,6 @@ from functools import wraps
 
 from django.contrib import messages
 from django.shortcuts import redirect, reverse
-from django.utils.decorators import available_attrs
 from django.conf import settings
 from django.http import HttpResponse
 
@@ -25,7 +24,7 @@ class read_access:
 
     def __call__(self, function, *args, **kwargs):
         # Pass function attributes to the wrapper
-        @wraps(function, assigned=available_attrs(function))
+        @wraps(function)
         def wrapper(request, *args, **kwargs):
 
             # Allow read access for the allowed CORS website.
@@ -89,7 +88,7 @@ class write_access:
         """
 
         # Pass function attributes to the wrapper
-        @wraps(function, assigned=available_attrs(function))
+        @wraps(function)
         def _wrapped_view(request, *args, **kwargs):
             # Each wrapped view must take an alphanumeric uid as parameter.
             uid = kwargs.get('uid')
@@ -146,7 +145,7 @@ class require_api_key:
     def __call__(self, func, *args, **kwargs):
 
         # Pass function attributes to the wrapper
-        @wraps(func, assigned=available_attrs(func))
+        @wraps(func)
         def _api_view(request, *args, **kwargs):
             # Each wrapped view must take an alphanumeric uid as parameter.
             api_key = parse_api_key(request=request)
@@ -157,17 +156,17 @@ class require_api_key:
 
             if not obj:
                 msg = dict(error="Object does not exist.")
-                return HttpResponse(content=msg, status=status.HTTP_404_NOT_FOUND)
+                return HttpResponse(content=msg, status=404)
 
             # All PUT requests will require an API key.
             if request.method == "PUT" and settings.API_KEY != api_key:
                 msg = dict(error="API key is required for all PUT requests.")
-                return HttpResponse(content=msg, status=status.HTTP_401_UNAUTHORIZED)
+                return HttpResponse(content=msg, status=401)
 
             # API key required when asking for GET requests of private recipes.
             elif request.method == "GET" and settings.API_KEY != api_key and obj.project.is_private:
                 msg = dict(error="Private recipes can not be accessed without an API key param (?k=).")
-                return HttpResponse(content=msg, status=status.HTTP_401_UNAUTHORIZED)
+                return HttpResponse(content=msg, status=401)
 
             return func(request, *args, **kwargs)
 

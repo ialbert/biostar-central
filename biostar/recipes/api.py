@@ -3,17 +3,36 @@ import hjson
 import json
 import logging
 import os
-
+from functools import wraps
 from django.conf import settings
 from django.http import HttpResponse
-from rest_framework import status
-from rest_framework.decorators import api_view
 
 from biostar.recipes.models import Analysis, Project, image_path
 from biostar.recipes.decorators import require_api_key
 
 
 logger = logging.getLogger("engine")
+
+
+class api_error_wrapper:
+    """
+    Used as decorator to trap/display  errors in the ajax calls
+    """
+
+    def __init__(self, methods=['GET']):
+        self.methods = methods
+
+    def __call__(self, func, *args, **kwargs):
+
+        @wraps(func)
+        def _ajax_view(request, *args, **kwargs):
+
+            if request.method not in self.methods:
+                return HttpResponse(content=f'{self.methods} method must be used.')
+
+            return func(request, *args, **kwargs)
+
+        return _ajax_view
 
 
 def get_thumbnail():
@@ -41,13 +60,13 @@ def tabular_list():
     return "\n".join(output)
 
 
-@api_view(['GET'])
+@api_error_wrapper(['GET'])
 def api_list(request):
     payload = tabular_list()
     return HttpResponse(content=payload, content_type="text/plain")
 
 
-@api_view(['GET', 'PUT'])
+@api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Project)
 def project_info(request, uid):
     """
@@ -70,7 +89,7 @@ def project_info(request, uid):
     return HttpResponse(content=payload, content_type="text/plain")
 
 
-@api_view(['GET', 'PUT'])
+@api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Project)
 def project_image(request, uid):
     """
@@ -89,7 +108,7 @@ def project_image(request, uid):
     return HttpResponse(content=data, content_type="image/jpeg")
 
 
-@api_view(['GET', 'PUT'])
+@api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
 def recipe_image(request, uid):
     """
@@ -109,7 +128,7 @@ def recipe_image(request, uid):
     return HttpResponse(content=data, content_type="image/jpeg")
 
 
-@api_view(['GET'])
+@api_error_wrapper(['GET'])
 def recipe_api_list(request, uid):
 
     api_key = request.GET.get("k", "")
@@ -129,7 +148,7 @@ def recipe_api_list(request, uid):
     return HttpResponse(content=payload, content_type="text/plain")
 
 
-@api_view(['GET', 'PUT'])
+@api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
 def recipe_json(request, uid):
     """
@@ -156,7 +175,7 @@ def recipe_json(request, uid):
     return HttpResponse(content=payload, content_type="text/plain")
 
 
-@api_view(['GET', 'PUT'])
+@api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
 def recipe_template(request, uid):
     """

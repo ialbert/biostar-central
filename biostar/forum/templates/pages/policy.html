@@ -1,0 +1,12 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+
+{% block headtitle %}
+    Policy
+{% endblock %}
+
+{% block content %}
+
+    {% markdown_file "docs/forum/policy.md" %}
+
+{% endblock %}

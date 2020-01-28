@@ -17,7 +17,7 @@ def get_uuid(limit=32):
 logger = logging.getLogger('engine')
 
 
-class ForumNavigation(TestCase):
+class PlanetNavigation(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
@@ -50,23 +50,7 @@ class ForumNavigation(TestCase):
         "Checking public forum pages"
 
         urls = [
-            reverse("post_list"),
-            reverse("bookmarks"),
-            reverse("following"),
-            reverse("myposts"),
-            reverse("myvotes"),
-            reverse('post_create'),
-            reverse('about'),
-            reverse('faq'),
-            reverse('policy'),
-            reverse("community_list"),
-            reverse('badge_list'),
-            reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
-
-            reverse('post_view', kwargs=dict(uid=self.post.uid)),
-            reverse('post_edit', kwargs=dict(uid=self.post.uid)),
-            reverse('post_create'),
-
+            reverse("blog_list"),
 
         ]
 

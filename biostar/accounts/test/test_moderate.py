@@ -3,8 +3,7 @@ import logging
 from django.test import TestCase
 from django.shortcuts import reverse
 from biostar.accounts.models import User
-from biostar.accounts.util import get_uuid
-from biostar.accounts.test.util import fake_request
+from biostar.utils.helpers import fake_request
 from biostar.accounts import views, forms
 
 

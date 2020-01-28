@@ -16,7 +16,6 @@ from django.template import Template, Context
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 from sendfile import sendfile
-
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
 from biostar.recipes.decorators import read_access, write_access

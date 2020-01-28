@@ -1,7 +1,7 @@
-django >=2.2, <3
+django >=3
 django-ratelimit
-django-compressor
-django-taggit
+django-compressor >= 2.4
+django-taggit>=1.2
 whoosh
 psycopg2
 hjson
@@ -15,10 +15,9 @@ mistune
 django-pagedown
 django-webtest
 django-sendfile
-django-allauth
+django-allauth>=0.41.0
 django-debug-toolbar
 django-recaptcha2
-djangorestframework
 django-filter
 sparkpost
 pillow

@@ -55,7 +55,6 @@ DEFAULT_APPS = [
     'compressor',
     'taggit',
     'snowpenguin.django.recaptcha2',
-    'rest_framework',
 ]
 
 # Enabled apps.

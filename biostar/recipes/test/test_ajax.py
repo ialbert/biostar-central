@@ -8,10 +8,10 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from biostar.recipes import models, auth, ajax
-from . import util
+from biostar.utils.helpers import fake_request, get_uuid
 
-
-TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+__MODULE_DIR = os.path.dirname(auth.__file__)
+TEST_ROOT = os.path.join(__MODULE_DIR, 'test')
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -25,7 +25,7 @@ class AjaxTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
         self.owner.set_password("tested")
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
@@ -51,7 +51,7 @@ class AjaxTest(TestCase):
 
         url = reverse('ajax_check_job', kwargs=dict(uid=self.job.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.owner, method='GET')
+        request = fake_request(url=url, data=data, user=self.owner, method='GET')
 
         json_response = ajax.check_job(request=request, uid=self.job.uid)
         self.process_response(json_response)
@@ -64,7 +64,7 @@ class AjaxTest(TestCase):
 
         url = reverse('snippet_code')
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         json_response = ajax.snippet_code(request=request)
 
@@ -85,12 +85,12 @@ class AjaxTest(TestCase):
         url = reverse('snippet_form')
 
         # Test rendering category form
-        request = util.fake_request(url=url, data=category_data, user=self.owner)
+        request = fake_request(url=url, data=category_data, user=self.owner)
         json_response = ajax.snippet_form(request=request)
         self.process_response(json_response)
 
         # Test rendering snippet form
-        request = util.fake_request(url=url, data=snippet_data, user=self.owner)
+        request = fake_request(url=url, data=snippet_data, user=self.owner)
         json_response = ajax.snippet_form(request=request)
 
         self.process_response(json_response)
@@ -107,7 +107,7 @@ class AjaxTest(TestCase):
 
         url = reverse('create_snippet_type')
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         json_response = ajax.create_snippet_type(request=request)
 
@@ -124,7 +124,7 @@ class AjaxTest(TestCase):
         url = reverse('create_snippet')
 
         # Test creating a snippet
-        request = util.fake_request(url=url, data=create_data, user=self.owner)
+        request = fake_request(url=url, data=create_data, user=self.owner)
         json_response = ajax.create_snippet(request=request)
 
         self.process_response(json_response)
@@ -140,7 +140,7 @@ class AjaxTest(TestCase):
         url = reverse('create_snippet')
 
         # Test creating a snippet
-        request = util.fake_request(url=url, data=edit_data, user=self.owner)
+        request = fake_request(url=url, data=edit_data, user=self.owner)
         json_response = ajax.create_snippet(request=request)
 
         self.process_response(json_response)
@@ -154,7 +154,7 @@ class AjaxTest(TestCase):
                 'uid': self.recipe.uid, 'project_uid': self.recipe.project.uid}
 
         url = reverse('preview_template')
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
         json_response = ajax.preview_template(request=request)
 
         self.process_response(json_response)
@@ -168,7 +168,7 @@ class AjaxTest(TestCase):
                 'json_text': self.recipe.json_text}
 
         url = reverse('preview_json')
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
         json_response = ajax.preview_json(request=request)
 
         self.process_response(json_response)
@@ -187,7 +187,7 @@ class AjaxTest(TestCase):
         for dtype in display_types:
             data = {'json_text': json_text, 'display_types': dtype}
 
-            request = util.fake_request(url=url, data=data, user=self.owner)
+            request = fake_request(url=url, data=data, user=self.owner)
             json_response = ajax.add_to_interface(request=request)
             self.process_response(json_response)
 

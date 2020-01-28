@@ -7,7 +7,6 @@ from django.shortcuts import reverse
 from django.template import loader
 from django.template import Template, Context
 from django.http import JsonResponse
-from django.utils.decorators import available_attrs
 from django.template import loader
 from django.conf import settings
 from biostar.accounts.models import User
@@ -54,7 +53,7 @@ class ajax_error_wrapper:
 
     def __call__(self, func, *args, **kwargs):
 
-        @wraps(func, assigned=available_attrs(func))
+        @wraps(func)
         def _ajax_view(request, *args, **kwargs):
 
             if request.method != self.method:

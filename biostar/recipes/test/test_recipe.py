@@ -9,7 +9,7 @@ from django.urls import reverse
 
 from biostar.recipes import auth, const
 from biostar.recipes import models, views, api
-from . import util
+from biostar.utils.helpers import fake_request, get_uuid
 
 logger = logging.getLogger('engine')
 
@@ -20,7 +20,7 @@ class RecipeRunTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com",
+        self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com",
                                                      is_staff=True, is_superuser=True)
         self.owner.set_password("tested")
         self.factory = RequestFactory()
@@ -41,7 +41,7 @@ class RecipeRunTest(TestCase):
 
         self.assertTrue(auth.authorize_run(user1, recipe), "Authorized users can not run recipes.")
 
-        user2 = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        user2 = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
 
         self.assertFalse(auth.authorize_run(user2, recipe), "Unauthorized users can run recipes.")
         return
@@ -53,7 +53,7 @@ class RecipeViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com",
+        self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com",
                                                      is_staff=True, is_superuser=True)
         self.owner.set_password("tested")
         self.factory = RequestFactory()
@@ -72,7 +72,7 @@ class RecipeViewTest(TestCase):
 
         url = reverse('recipe_run', kwargs=dict(uid=self.recipe.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         self.recipe.security = models.Analysis.AUTHORIZED
         self.recipe.save()
@@ -88,7 +88,7 @@ class RecipeViewTest(TestCase):
         data = {'action': "SAVE", 'template': '#tested change', 'json': "{}"}
         url = reverse('recipe_code_edit', kwargs=dict(uid=self.recipe.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.recipe_code_edit(request=request, uid=self.recipe.uid)
 
@@ -102,7 +102,7 @@ class RecipeViewTest(TestCase):
                 "uid": "tested", 'json_text':'{}', 'template':'# Code here'}
         url = reverse('recipe_edit', kwargs=dict(uid=self.recipe.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.recipe_edit(request=request, uid=self.recipe.uid)
         self.process_response(response=response, data=data, save=True)
@@ -111,7 +111,7 @@ class RecipeViewTest(TestCase):
         "Test recipe code download "
 
         url = reverse("recipe_download", kwargs=dict(uid=self.recipe.uid))
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = fake_request(url=url, data={}, user=self.owner)
         response = views.recipe_code_download(request=request, uid=self.recipe.uid)
 
         self.assertTrue(response.content.decode() == self.recipe.template,
@@ -124,7 +124,7 @@ class RecipeViewTest(TestCase):
 
         url = reverse('recipe_copy', kwargs=dict(uid=self.recipe.uid))
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = fake_request(url=url, data={}, user=self.owner)
 
         response = views.recipe_copy(request=request, uid=self.recipe.uid)
 
@@ -135,7 +135,7 @@ class RecipeViewTest(TestCase):
 
         url = reverse('recipe_paste', kwargs=dict(uid=self.recipe.project.uid))
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = fake_request(url=url, data={}, user=self.owner)
 
         request.session[settings.CLIPBOARD_NAME] = {const.COPIED_RECIPES: self.recipe.uid}
 
@@ -148,7 +148,7 @@ class RecipeViewTest(TestCase):
 
         url = reverse('recipe_delete', kwargs=dict(uid=self.recipe.uid))
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = fake_request(url=url, data={}, user=self.owner)
 
         response = views.recipe_delete(request=request, uid=self.recipe.uid)
 
@@ -167,7 +167,7 @@ class RecipeViewTest(TestCase):
             for data in [api_list, api_json, api_template]:
                 url, view_func, params = data
 
-                request = util.fake_request(url=url, data={'k': settings.API_KEY}, user=self.owner)
+                request = fake_request(url=url, data={'k': settings.API_KEY}, user=self.owner)
 
                 response = view_func(request=request, **params)
 

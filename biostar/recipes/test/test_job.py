@@ -7,7 +7,7 @@ from django.conf import settings
 from biostar.recipes import auth, const
 from biostar.recipes import models, views
 
-from . import util
+from biostar.utils.helpers import fake_request, get_uuid
 
 logger = logging.getLogger('engine')
 
@@ -21,7 +21,7 @@ class JobViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com")
+        self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
         self.owner.set_password("tested")
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
@@ -42,7 +42,7 @@ class JobViewTest(TestCase):
         data = {'name':'tested', 'text':"tested" }
         url  = reverse('job_edit', kwargs=dict(uid=self.job.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.job_edit(request=request, uid=self.job.uid)
         self.process_response(response=response, data=data, save=True)
@@ -56,7 +56,7 @@ class JobViewTest(TestCase):
     def test_job_copy_and_paste(self):
 
         url = reverse("job_copy", kwargs=dict(uid=self.job.uid))
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = fake_request(url=url, data={}, user=self.owner)
         response = views.job_copy(request=request, uid=self.job.uid)
         self.process_response(response, data={})
 
@@ -71,7 +71,7 @@ class JobViewTest(TestCase):
 
         url = reverse('job_delete', kwargs=dict(uid=self.job.uid))
 
-        request = util.fake_request(url=url, data={}, user=self.owner)
+        request = fake_request(url=url, data={}, user=self.owner)
 
         response = views.job_delete(request=request, uid=self.job.uid)
 
@@ -82,12 +82,12 @@ class JobViewTest(TestCase):
 
         data = {settings.CLIPBOARD_NAME: const.COPIED_FILES, 'path': self.job.get_data_dir()}
         copy_url = reverse("job_file_copy", kwargs=dict(uid=self.job.uid, path=self.job.get_data_dir()))
-        copy_request = util.fake_request(url=copy_url, data=data, user=self.owner)
+        copy_request = fake_request(url=copy_url, data=data, user=self.owner)
         copy_response = views.job_file_copy(request=copy_request, uid=self.job.uid, path=self.job.get_data_dir())
         self.process_response(copy_response, data={})
 
         paste_url = reverse("file_paste", kwargs=dict(uid=self.project.uid))
-        paste_request = util.fake_request(url=paste_url, data=data, user=self.owner)
+        paste_request = fake_request(url=paste_url, data=data, user=self.owner)
         paste_response = views.file_paste(request=paste_request, uid=self.project.uid)
         self.process_response(paste_response, data={})
 
@@ -101,7 +101,7 @@ class JobViewTest(TestCase):
 
         data = {"paths":"runlog/input.json"}
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.job_serve(request=request, uid=self.job.uid, path=data["paths"])
 

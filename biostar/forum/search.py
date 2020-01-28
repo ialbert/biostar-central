@@ -62,6 +62,7 @@ class SearchResult(object):
     def __init__(self, **kwargs):
         self.title = ''
         self.content = ''
+        self.total = 0
         self.url = ''
         self.type_display = ''
         self.content_length = ''
@@ -79,6 +80,9 @@ class SearchResult(object):
         self.author_uid = ''
         self.author_url = ''
         self.__dict__.update(kwargs)
+
+    def __iter__(self):
+        yield
 
 
 def close(r):
@@ -323,6 +327,7 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     # Do not preform search if the index does not exist.
     if not index_exists() or len(query) < settings.SEARCH_CHAR_MIN:
         return []
+
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
     ix = init_index()
     searcher = ix.searcher()
@@ -403,14 +408,6 @@ def whoosh_more_like_this(uid):
         close(results)
 
     return final_results
-
-
-# def elastic_more_like_this(post, fields=[]):
-#
-#     fields = fields or ['tag_val', 'title', 'content']
-#     similar_posts = more_like_this(post, fields=fields)
-#
-#     return similar_posts
 
 
 def map_db_fields(fields):

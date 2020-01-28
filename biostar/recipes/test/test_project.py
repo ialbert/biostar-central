@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from biostar.recipes import auth
 from biostar.recipes import models, views, forms
-from . import util
+from biostar.utils.helpers import fake_request, get_uuid
 
 __MODULE_DIR = os.path.dirname(auth.__file__)
 TEST_ROOT = os.path.join(__MODULE_DIR, 'test')
@@ -22,7 +22,7 @@ class ProjectViewTest(TestCase):
         logger.setLevel(logging.WARNING)
 
         # Set up generic owner
-        self.owner = models.User.objects.create_user(username=f"tested{util.get_uuid(10)}", email="tested@l.com",
+        self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com",
                                                      is_staff=True)
         self.owner.set_password("tested")
 
@@ -42,7 +42,7 @@ class ProjectViewTest(TestCase):
         data = {'name': 'My project', 'uid': 'example', "summary": "summary", "rank": 100,
                 'text': 'tested', "privacy": models.Project.PRIVATE, "image": image_stream}
 
-        request = util.fake_request(url=reverse('project_create'), data=data, user=self.owner)
+        request = fake_request(url=reverse('project_create'), data=data, user=self.owner)
         response = views.project_create(request)
 
         image_stream.close()
@@ -54,7 +54,7 @@ class ProjectViewTest(TestCase):
 
         url = reverse('project_delete', kwargs=dict(uid=self.owner.profile.uid))
 
-        request = util.fake_request(url=url, method='GET', data={}, user=self.owner)
+        request = fake_request(url=url, method='GET', data={}, user=self.owner)
 
         response = views.project_delete(request, uid=self.project.uid)
 
@@ -72,7 +72,7 @@ class ProjectViewTest(TestCase):
 
         url = reverse('project_edit', kwargs=dict(uid=self.project.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.project_edit(request, uid=self.project.uid)
 
@@ -89,7 +89,7 @@ class ProjectViewTest(TestCase):
 
         url = reverse('project_users', kwargs=dict(uid=self.project.uid))
 
-        request = util.fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.owner)
 
         response = views.project_users(request, uid=self.project.uid)
 

@@ -439,8 +439,9 @@ function mark_spam(post_id, elem) {
             ContentType: 'application/json',
             data: {},
             success: function (data) {
+                //alert(elem.html());
                 if (data.status === 'error') {
-                    popup_message(elem, data.msg, data.status);
+                    popup_message(elem.parent().parent(), data.msg, data.status);
 
                 } else {
                     popup_message(elem.parent().parent(), data.msg, data.status);

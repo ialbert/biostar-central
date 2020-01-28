@@ -93,8 +93,9 @@ def validate_tags(tags):
 
 
 class EditProfile(forms.Form):
-    name = forms.CharField(label='Name', max_length=100)
-    username = forms.CharField(label="Handler", max_length=100)
+    name = forms.CharField(label='Name', max_length=100, required=True)
+    email = forms.CharField(label='Email', max_length=100, required=True)
+    username = forms.CharField(label="Handler", max_length=100, required=True)
     location = forms.CharField(label="Location", max_length=100, required=False)
     website = forms.URLField(label="Website", max_length=225, required=False)
     twitter = forms.CharField(label="Twitter Id", max_length=100, required=False)
@@ -111,7 +112,7 @@ class EditProfile(forms.Form):
                               Add a tag by typing a word then adding a comma or press ENTER or SPACE.
                               """, widget=forms.HiddenInput())
     watched_tags = forms.CharField(label="Watched tags", max_length=50, required=False,
-                              help_text="""
+                                   help_text="""
                               Add a tag by typing a word then adding a comma or press ENTER or SPACE.
                               """, widget=forms.HiddenInput())
 
@@ -132,6 +133,18 @@ class EditProfile(forms.Form):
             raise forms.ValidationError("This handler is already being used.")
 
         return data
+
+    def clean_email(self):
+        cleaned_data = self.cleaned_data['email']
+        email = User.objects.filter(email=cleaned_data).exclude(pk=self.user.pk).first()
+
+        if email:
+            raise forms.ValidationError("Email already exists.")
+
+        if self.user.is_superuser and cleaned_data != self.user.email:
+            raise forms.ValidationError("Admins are required to change emails using the Django Admin Interface.")
+
+        return cleaned_data
 
     def clean_my_tags(self):
         my_tags = self.cleaned_data['my_tags']
@@ -172,10 +185,11 @@ class UserModerate(forms.Form):
     def clean(self):
         cleaned_data = super(UserModerate, self).clean()
         action = cleaned_data['action']
-        if not self.source.profile.is_moderator:
-            forms.ValidationError("You need to be a moderator to perform that action")
 
-        if action == 'banned' and not self.source.is_superuser:
+        if not self.source.profile.is_moderator:
+            raise forms.ValidationError("You need to be a moderator to perform that action")
+
+        if action == Profile.BANNED and not self.source.is_superuser:
             raise forms.ValidationError("You need to be an admin to ban users.")
 
         if self.target.profile.is_moderator and not self.source.is_superuser:

@@ -753,11 +753,7 @@ def traverse_comments(request, post, tree, template_name):
         html = body.render(cont)
         source = f"indent-{node.uid}"
         target = f"'{node.uid}'"
-        if request.user.is_authenticated and request.user.profile.is_moderator:
-            # ondragover="allowDrop(event);" ondrop="drop(event, {target})"
-            collect.append(f'<div class="indent " ondragover="allowDrop(event);" ondrop="drop(event, {target}) id="{source}" ><div class="comment">{html}</div>')
-        else:
-            collect.append(f'<div class="indent "><div class="comment">{html}</div>')
+        collect.append(f'<div class="indent " ondragover="allowDrop(event);" ondrop="drop(event, {target}) id="{source}" ><div class="comment">{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:

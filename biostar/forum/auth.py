@@ -159,9 +159,9 @@ def post_tree(user, root):
             comment_tree.setdefault(post.parent_id, []).append(post)
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
-        post.can_accept = not post.is_toplevel and (user == post.root.author or (user.is_authenticated and user.profile.is_moderator))
-        post.can_moderate = user.is_authenticated and user.profile.is_moderator
-        post.is_editable = user.is_authenticated and (user == post.author or (user.is_authenticated and user.profile.is_moderator))
+        post.can_accept = True #not post.is_toplevel and (user == post.root.author or (user.is_authenticated and user.profile.is_moderator))
+        post.can_moderate = True #user.is_authenticated and user.profile.is_moderator
+        post.is_editable = True #user.is_authenticated and (user == post.author or (user.is_authenticated and user.profile.is_moderator))
         return post
 
     # Decorate the objects for easier access

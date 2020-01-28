@@ -33,7 +33,8 @@ class Command(BaseCommand):
 
         add_fname = options['add']
         if add_fname:
-            auth.add_blogs(add_fname)
+            fname = os.path.abspath(os.path.join(settings.PLANET_DIR, add_fname))
+            auth.add_blogs(fname)
 
         if options['download']:
             auth.download_blogs()

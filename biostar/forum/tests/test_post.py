@@ -1,11 +1,20 @@
 import logging
-from django.test import TestCase
+import os
+import shutil
 from django.urls import reverse
-from biostar.forum import models, views, auth, ajax
-from biostar.forum.tests.util import fake_request
+from django.test import TestCase, override_settings
+from django.conf import settings
+from biostar.forum import models, views, search
+from biostar.utils.helpers import fake_request
 from biostar.accounts.models import User
 
 logger = logging.getLogger('engine')
+
+__MODULE_DIR = os.path.dirname(models.__file__)
+TEST_ROOT = os.path.join(__MODULE_DIR, 'tests')
+TEST_DATABASE_NAME = f"test_{settings.DATABASES}"
+TEST_INDEX_DIR = os.path.join(TEST_ROOT, "index")
+TEST_INDEX_NAME = "test"
 
 
 class PostTest(TestCase):
@@ -82,7 +91,6 @@ class PostTest(TestCase):
         data = dict(content="testing answer", parent_uid=self.post.uid)
         request = fake_request(url=url, data=data, user=self.owner)
         response = views.post_view(request=request, uid=self.post.uid)
-        #self.process_response(response)
         return
 
     def test_markdown(self):
@@ -98,4 +106,56 @@ class PostTest(TestCase):
                          f"Could not redirect :\nresponse:{response}")
 
 
+@override_settings(INDEX_DIR=TEST_INDEX_DIR, INDEX_NAME=TEST_INDEX_NAME, DATABASE_NAME=TEST_DATABASE_NAME)
+class PostSearchTest(TestCase):
 
+    def setUp(self):
+        self.owner = User.objects.create(username=f"test", email="tested@tested.com", password="tested")
+
+        # Delete test search index on each start up.
+        if os.path.exists(TEST_INDEX_DIR):
+            shutil.rmtree(TEST_INDEX_DIR)
+
+        # Create some posts to index.
+        self.limit = 10
+        for p in range(self.limit):
+            # Create an existing tested post
+            self.post = models.Post.objects.create(title=f"Test post-{p} ", author=self.owner,
+                                                   content=f"Test post-{p} ",
+                                                   type=models.Post.QUESTION)
+        self.owner.save()
+
+        # Crawl through posts and create test index.
+        search.crawl(reindex=True, overwrite=True, limit=1000)
+
+        # There should not be any more unidexed posts.
+        unindexed_posts = models.Post.objects.filter(indexed=False).exists()
+
+        self.assertFalse(unindexed_posts, "Posts not correctly indexed.")
+
+    def test_search_view(self):
+        """
+        Test search view
+        """
+
+        url = reverse("post_search")
+
+        # Get form data
+        data = dict(query="Test post")
+        request = fake_request(url=url, data=data, method="GET", user=self.owner)
+
+        # Preform search on test index
+        response = views.post_search(request=request)
+
+        self.assertEqual(response.status_code, 200, "Error preforming search.")
+
+    def test_search_funcs(self):
+        """
+        Test functions associated with search.
+        """
+        query = "Test"
+        whoosh_search = search.preform_search(query, db_search=False)
+        #db_search = search.preform_search(query, db_search=True)
+
+        self.assertTrue(len(whoosh_search), f"Whoosh search returned no results. At least {self.limit} expected")
+        #self.assertTrue(len(db_search), f"Database search returned no results. At least {self.limit} expected")

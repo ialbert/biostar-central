@@ -1,0 +1,13 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+
+
+{% block headtitle %}
+    FAQ
+{% endblock %}
+
+{% block content %}
+
+    {% markdown_file "docs/forum/faq.md" %}
+
+{% endblock %}

@@ -11,7 +11,6 @@ from django.contrib import messages
 from django import template, forms
 from django.shortcuts import reverse
 from django.conf import settings
-from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.template import defaultfilters
@@ -369,7 +368,7 @@ def img(obj):
     if obj.image:
         return obj.image.url
     else:
-        return static("images/placeholder.png")
+        return os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
 
 
 @register.inclusion_tag('widgets/show_messages.html')
