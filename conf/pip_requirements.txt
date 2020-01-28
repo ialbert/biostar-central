@@ -7,7 +7,7 @@ django-sendfile
 django-allauth>=0.41.0
 django-debug-toolbar
 django-recaptcha2
-django-mailer =>2
+django-mailer>=2
 whoosh
 hjson
 pytz
