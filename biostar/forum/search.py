@@ -405,14 +405,6 @@ def whoosh_more_like_this(uid):
     return final_results
 
 
-# def elastic_more_like_this(post, fields=[]):
-#
-#     fields = fields or ['tag_val', 'title', 'content']
-#     similar_posts = more_like_this(post, fields=fields)
-#
-#     return similar_posts
-
-
 def map_db_fields(fields):
     """
     Map search fields to database appropriate values.

@@ -464,11 +464,6 @@ def inplace_form(request):
     return ajax_success(msg="success", inplace_form=form)
 
 
-def close(r):
-    # Ensure the searcher object gets closed.
-    r.searcher.close() if isinstance(r, Results) else None
-    return
-
 
 def similar_posts(request, uid):
     """

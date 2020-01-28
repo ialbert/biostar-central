@@ -10,8 +10,8 @@ from django.urls import reverse
 from biostar.recipes import models, auth, ajax
 from biostar.utils.helpers import fake_request, get_uuid
 
-
-TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+__MODULE_DIR = os.path.dirname(auth.__file__)
+TEST_ROOT = os.path.join(__MODULE_DIR, 'test')
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
