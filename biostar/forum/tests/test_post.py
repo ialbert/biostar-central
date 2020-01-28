@@ -113,7 +113,8 @@ class PostSearchTest(TestCase):
         self.owner = User.objects.create(username=f"test", email="tested@tested.com", password="tested")
 
         # Delete test search index on each start up.
-        shutil.rmtree(TEST_INDEX_DIR)
+        if os.path.exists(TEST_INDEX_DIR):
+            shutil.rmtree(TEST_INDEX_DIR)
 
         # Create some posts to index.
         self.limit = 10
