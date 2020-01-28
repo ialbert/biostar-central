@@ -410,7 +410,7 @@ def map_db_fields(fields):
     Map search fields to database appropriate values.
     """
     db_map = dict(author_handle='author__username',
-                  author_score='author__profile__score',
+                  #author_score='author__profile__score',
                   author_email='author__email',
                   author_uid='author__profile__uid',
                   tags='tag_val'
