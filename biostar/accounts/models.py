@@ -201,7 +201,7 @@ class Profile(models.Model):
     @property
     def low_rep(self):
         """
-        User has a low reputation
+        User has a low score 
         """
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
 
