@@ -15,7 +15,5 @@ coverage
 bleach
 mistune
 Pillow
-coverage
-pandas
 requests
 feedparser
