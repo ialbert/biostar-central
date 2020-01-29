@@ -2,19 +2,12 @@ import logging
 import os
 import time
 from itertools import count, islice
-from functools import reduce
 from collections import defaultdict
 
 # Postgres specific queries should go into separate module.
 from django.conf import settings
-from django.utils.text import smart_split
-from django.db.models import Q
 from whoosh import writing
 from whoosh.analysis import StemmingAnalyzer
-#from django_elasticsearch_dsl.search import Search
-#from elasticsearch_dsl.query import MoreLikeThis
-from whoosh.qparser import MultifieldParser, OrGroup
-from whoosh.sorting import FieldFacet, ScoreFacet
 from whoosh.writing import AsyncWriter
 from whoosh.searching import Results
 
@@ -24,13 +17,13 @@ from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
 from biostar.forum.models import Post
-from biostar.forum.auth import gravatar
-#from biostar.forum.documents import PostDocument
+
 logger = logging.getLogger('biostar')
 
 # Stop words ignored where searching.
 STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
 STOP = set(STOP)
+
 
 def timer_func():
     """
@@ -88,30 +81,18 @@ def close(r):
     return
 
 
-def parse_result(result):
+def normalize_result(result):
     "Return a bunch object for result."
 
     # Result is a database object.
-    if isinstance(result, Post):
-        bunched = SearchResult(title=result.title, content=result.content, url=result.get_absolute_url(),
-                               type_display=result.get_type_display(), content_length=len(result.content),
-                               type=result.type, lastedit_date=result.lastedit_date, is_toplevel=result.is_toplevel,
-                               rank=result.rank, uid=result.uid, author_handle=result.author.username,
-                               author=result.author.profile.name, author_email=result.author.email,
-                               author_score=result.author.profile.score, thread_votecount=result.thread_votecount,
-                               vote_count=result.vote_count, author_uid=result.author.profile.uid,
-                               author_url=result.author.profile.get_absolute_url())
-
-    # Result is a dictionary returned from indexed searched
-    else:
-        bunched = SearchResult(title=result['title'], content=result['content'], url=result['url'],
-                               type_display=result['type_display'], content_length=result['content_length'],
-                               type=result['type'], lastedit_date=result['lastedit_date'],
-                               is_toplevel=result['is_toplevel'], rank=result['rank'], uid=result['uid'],
-                               author_handle=result['author_handle'], author=result['author'],
-                               author_score=result['author_score'],
-                               thread_votecount=result['thread_votecount'], vote_count=result['vote_count'],
-                               author_uid=result['author_uid'], author_url=result['author_url'])
+    bunched = SearchResult(title=result['title'], content=result['content'], url=result['url'],
+                           type_display=result['type_display'], content_length=result['content_length'],
+                           type=result['type'], lastedit_date=result['lastedit_date'],
+                           is_toplevel=result['is_toplevel'], rank=result['rank'], uid=result['uid'],
+                           author_handle=result['author_handle'], author=result['author'],
+                           author_score=result['author_score'],
+                           thread_votecount=result['thread_votecount'], vote_count=result['vote_count'],
+                           author_uid=result['author_uid'], author_url=result['author_url'])
 
     return bunched
 
@@ -278,26 +259,6 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def sql_search(query, fields=None):
-    """search_fields example: ['name', 'category__name', '@description', '=id']
-    """
-
-    query_string = query.strip()
-
-    filters = []
-
-    query_list = [s for s in smart_split(query_string) if s not in STOP]
-    for bit in query_list:
-        queries = [Q(**{f"{field_name}__icontains": bit}) for field_name in fields]
-        filters.append(reduce(Q.__or__, queries))
-
-    filters = reduce(Q.__and__, filters) if len(filters) else Q(pk=None)
-
-    results = Post.objects.filter(filters)
-    logger.info("Preform sql lite search.")
-    return results
-
-
 def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     """
         Query the indexed, looking for a match in the specified fields.
@@ -350,26 +311,6 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     return results
 
 
-def preform_db_search(query='', fields=None, filter_for=Q()):
-    """
-    Preform a db search
-    """
-
-    if 'postgres' in settings.DATABASES['default']['ENGINE']:
-        # Preform search using postgres
-        results = []
-    else:
-        # Preform search using sql lite.
-        results = sql_search(query=query, fields=fields)
-
-    results = results.filter(filter_for)
-    results = results.order_by('type', '-lastedit_date', '-rank')
-    results = results[:settings.SEARCH_LIMIT]
-
-    logger.info("Preformed db query.")
-    return results
-
-
 def whoosh_more_like_this(uid):
     """
     Return posts similar to the uid given.
@@ -382,7 +323,7 @@ def whoosh_more_like_this(uid):
         results = filter(lambda p: p['is_toplevel'] is True, results)
 
     # Ensure results types stay consistent.
-    final_results = list(map(parse_result, results))
+    final_results = list(map(normalize_result, results))
     if isinstance(results, Results):
         # Ensure searcher object gets closed.
         close(results)
@@ -409,16 +350,10 @@ def map_db_fields(fields):
 def preform_search(query, fields=None, db_search=False):
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
 
-    if db_search:
-        # Preform a full text search on database.
-        fields = map_db_fields(fields)
-        results = preform_db_search(query=query, fields=fields)
-    else:
-        # Preform search on indexed posts.
-        results = preform_whoosh_search(query=query, fields=fields)
+    results = preform_whoosh_search(query=query, fields=fields)
 
     # Ensure returned results types stay consistent.
-    final_results = list(map(parse_result, results))
+    final_results = list(map(normalize_result, results))
     if isinstance(results, Results):
         # Ensure searcher object gets closed.
         close(results)

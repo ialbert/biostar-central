@@ -533,7 +533,7 @@ function change_digest(elem, item) {
         })
 }
 
-function change_subs(elem) {
+function change_subs(elem, value, $item) {
     var post_id = elem.attr("data-uid");
     // Currently selected item
     var active = $('#sub-active');
@@ -665,7 +665,7 @@ $(document).ready(function () {
             action: 'hide',
             onChange: function (value, text, $item) {
                 var elem = $(this);
-                change_subs(elem);
+                change_subs(elem, value, $item);
             }
         });
 
