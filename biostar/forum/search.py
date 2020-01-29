@@ -6,9 +6,6 @@ from functools import reduce
 from collections import defaultdict
 
 # Postgres specific queries should go into separate module.
-from django.contrib.postgres.aggregates import StringAgg
-from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
-
 from django.conf import settings
 from django.utils.text import smart_split
 from django.db.models import Q
@@ -301,23 +298,6 @@ def sql_search(query, fields=None):
     return results
 
 
-def postgres_search(query, fields=None):
-    query_string = query.strip()
-
-    vector = reduce(SearchVector.__add__, [SearchVector(f) for f in fields])
-
-    # List of Q() filters used to preform search
-    filters = reduce(SearchQuery.__or__, [SearchQuery(s) for s in smart_split(query_string)])
-
-    # print(filters, "filters", "*"*10)
-    # vector = SearchVector('title') + SearchVector('content')
-
-    results = Post.objects.annotate(search=vector).filter(search=filters)
-    logger.info("Preform postgres search.")
-
-    return results
-
-
 def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     """
         Query the indexed, looking for a match in the specified fields.
@@ -377,7 +357,7 @@ def preform_db_search(query='', fields=None, filter_for=Q()):
 
     if 'postgres' in settings.DATABASES['default']['ENGINE']:
         # Preform search using postgres
-        results = postgres_search(query=query, fields=fields)
+        results = []
     else:
         # Preform search using sql lite.
         results = sql_search(query=query, fields=fields)

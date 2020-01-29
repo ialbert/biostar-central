@@ -5,7 +5,6 @@ from django.shortcuts import redirect, reverse
 from django.conf import settings
 from django.http import HttpResponse
 
-from rest_framework import status
 from . import models, auth
 
 # Share the logger with models

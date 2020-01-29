@@ -308,6 +308,7 @@ def validate_post_fields(fields={}, is_toplevel=False):
     check_captcha = user.profile.require_recaptcha() and settings.RECAPTCHA_PRIVATE_KEY != ''
 
     if check_captcha:
+        #print(check_captcha, recaptcha_token, "FOOOOO")
         valid_captcha, msg = validate_recaptcha(recaptcha_token)
         if not valid_captcha:
             return False, msg
@@ -462,7 +463,6 @@ def inplace_form(request):
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)
-
 
 
 def similar_posts(request, uid):

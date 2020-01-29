@@ -130,6 +130,85 @@
         $('.editing-drag-off').attr('draggable', true);
     });
 
+    function edit_post(uid) {
+
+        var edit_url = '/ajax/edit/' + uid + '/';
+        // Rendered form element
+        var form_elem = $('#post-form');
+        // Inplace form container
+        var form_container = $('#new-edit');
+        // Hidden elements
+        var hidden = $('.hide-on-edit');
+
+        // Post title inside of the form
+        var title = $('#title');
+        var content = $('#wmd-input');
+        var post_type = $('#type').dropdown('get value');
+        var tag_val = $('#tag-menu').dropdown('get value');
+
+        // Current post content and title to replace
+        // with returned values.
+        var post_content = $('.editable[data-value="' + uid + '"]');
+        var post_title = $('.post-title[data-value="' + uid + '"]');
+        var post_tags = $('.post-tags[data-value="' + uid + '"]');
+
+        //alert(content.val());
+        // Title is null and type are null
+        // meaning current post is not top level.
+        if (title.val() == null) {
+            title.val('')
+        }
+        if (!($.isNumeric(post_type))) {
+            post_type = -1
+        }
+
+        {% if user.profile.require_recaptcha and captcha_key %}
+            var cap_response = grecaptcha.getResponse(captchaWidgetId);
+        {% else %}
+            var cap_response = '';
+        {% endif %}
+
+        $.ajax(edit_url,
+            {
+                type: 'POST',
+                dataType: 'json',
+                ContentType: 'application/json',
+                traditional: true,
+                data: {
+                    'content': content.val(),
+                    'title': title.val(),
+                    'type': post_type,
+                    'tag_val': tag_val,
+                    'recaptcha_response': cap_response
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('.error-msg'), data.msg, data.status, 3000);
+                    } else {
+                        // Clear and hide inplace form
+                        form_elem.html('');
+                        form_container.hide();
+
+                        // Show hidden items
+                        hidden.show();
+
+                        // Replace current post info with edited data
+                        post_content.html(data.html).show().focus();
+                        post_title.html(data.title).show();
+                        post_tags.html(data.tag_html).show();
+
+                        // Highlight the markdown in content
+                        post_content.find('pre').addClass('language-bash');
+                        post_content.find('code').addClass('language-bash');
+                        Prism.highlightAll();
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message(form_elem, xhr, status, text)
+                }
+            })
+    }
+
     function create_comment() {
 
         var create_url = '/ajax/comment/create/';

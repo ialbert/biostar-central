@@ -17,6 +17,13 @@
         - reload supervisor
         - restart nginx
 
+    - name: Install pip requirements
+      become: yes
+      shell: "source /home/www/miniconda3/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
+
     - name: Restart servers
       shell: ls
       notify:
