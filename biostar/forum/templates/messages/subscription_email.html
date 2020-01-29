@@ -1,4 +1,4 @@
-
+{% load accounts_tags %}
 {%  block subject %}
 
     [Biostar] {{ post.title|truncatechars:60 }}
@@ -7,18 +7,20 @@
 
 {% block html %}
 
-    Activity on a post you are following on <a href="http://{{ domain }}">Biostar support</a>
+    There is activity on a post you are following on <a href="{{ protocol }}://{{ domain }}{% http_port %}">Biostar</a>
     <p>
-        User <a href="http://{{ domain }}{{ post.author.profile.get_absolute_url }}">{{ post.author.profile.name }}</a> wrote
-        <a href="http://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>:
+        User <a href="{{ protocol }}://{{ domain }}{% http_port %}{{ post.author.profile.get_absolute_url }}">
+        {{ post.author.profile.name }}</a> wrote
+
+        <a href="{{ protocol }}://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>:
     </p>
     <p>
         {{ post.html|safe }}
     </p>
 
     <hr>
-    <p style="color:#666666">
-        You may visit http://{{ domain }}{{ post.get_absolute_url }}
+    <p class="muted" >
+        You may visit {{ protocol }}://{{ domain }}{% http_port %}{{ post.get_absolute_url }}
     </p>
 
     <p>The Biostar Team</p>
@@ -27,13 +29,13 @@
 
 {% block text %}
 
-    Activity on a post you are following on {{ domain }}
+    There is activity on a post you are following on {{ domain }}
 
     User {{ user.profile.name }} wrote {{ post.title }}:
 
     {{ post.content }}
 
-    You may visit http://{{ domain }}{{ post.get_absolute_url }}
+    You may visit {{ protocol }}://{{ domain }}{% http_port %}{{ post.get_absolute_url }}
 
     The Biostar Team
 
