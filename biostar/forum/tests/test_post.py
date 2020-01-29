@@ -154,7 +154,7 @@ class PostSearchTest(TestCase):
         Test functions associated with search.
         """
         query = "Test"
-        whoosh_search = search.preform_search(query, db_search=False)
+        whoosh_search = search.preform_search(query)
         #db_search = search.preform_search(query, db_search=True)
 
         self.assertTrue(len(whoosh_search), f"Whoosh search returned no results. At least {self.limit} expected")

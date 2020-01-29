@@ -322,29 +322,12 @@ def whoosh_more_like_this(uid):
         # Filter results for toplevel posts.
         results = filter(lambda p: p['is_toplevel'] is True, results)
 
-    # Ensure results types stay consistent.
     final_results = list(map(normalize_result, results))
     if isinstance(results, Results):
         # Ensure searcher object gets closed.
         close(results)
 
     return final_results
-
-
-def map_db_fields(fields):
-    """
-    Map search fields to database appropriate values.
-    """
-    db_map = dict(author_handle='author__username',
-                  author_score='author__profile__score',
-                  author_email='author__email',
-                  author_uid='author__profile__uid',
-                  tags='tag_val'
-                  )
-
-    fields = [db_map.get(f, f) for f in fields]
-
-    return fields
 
 
 def preform_search(query, fields=None, db_search=False):
