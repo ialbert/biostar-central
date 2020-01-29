@@ -25,6 +25,9 @@ body > .widen.container {
     background-color: #ECECEC;
 }
 
+.post  .bug.icon {
+    opacity: .25;
+}
 
 .subs {
     text-align: center;

@@ -183,21 +183,28 @@ class Profile(models.Model):
 
     @property
     def is_spammer(self):
-        return self.role == self.SPAMMER
+        return self.state == self.SPAMMER
 
     @property
     def is_valid(self):
-        """ User is not banned, suspended, or banned"""
+        """
+        User is not banned, suspended, or banned
+        """
         return not self.is_spammer and not self.is_suspended and not self.is_banned
 
     @property
-    def is_new(self):
-        is_new = (util.now() - self.date_joined).days > 30
-        return is_new
+    def recently_joined(self):
+        """
+        User that joined X amount of days are considered new.
+        """
+        recent = (util.now() - self.date_joined).days > settings.RECENTLY_JOINED_DAYS
+        return recent
 
     @property
     def low_rep(self):
-        """User has a low reputation"""
+        """
+        User has a low score
+        """
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
 
 
