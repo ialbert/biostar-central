@@ -14,3 +14,5 @@ ROOT_URLCONF = 'biostar.test.test_urls'
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 INIT_PLANET = False
+
+#print(DATABASES, "FOOO")
