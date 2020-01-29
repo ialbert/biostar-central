@@ -3,14 +3,20 @@
 {% if user.is_authenticated %}
     {% counts as counts %}
 
-    <div class="ui top attached {{ counts.css }} six item menu" id="menu-topics">
+    <div class="ui top attached six item menu" id="menu-topics">
 
-        <a class="item messages" href="{% url 'inbox' %}">
-            <i class="envelope icon"></i> Messages {{ counts.messages.count }}
+        <a class="item" href="{% url 'inbox' %}">
+            <i class="envelope icon"></i> Messages
+            {% if counts.messages.count %}
+                <span class="ui green label">{{ counts.messages.count }}</span>
+            {% endif %}
         </a>
-        <a class="item  votes {% activate tab "myvotes" %}"
+        <a class="item {% activate tab "myvotes" %}"
            href="{% url 'myvotes' %}">
-            <i class="heart icon"></i> Votes {{ counts.votes.count }}
+            <i class="heart icon"></i> Votes
+            {% if counts.votes.count %}
+                <span class="ui green label">{{ counts.votes.count }}</span>
+            {% endif %}
         </a>
 
         <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">

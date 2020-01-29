@@ -26,7 +26,7 @@ body > .widen.container {
 }
 
 .post  .bug.icon {
-    opacity: .35;
+    opacity: .25;
 }
 
 .subs {
@@ -786,7 +786,7 @@ pre {
 }
 
 .post .icon {
-    font-size: 100%;
+    font-size: 130%;
 }
 
 .ui.items > .item.post > .image + .content {

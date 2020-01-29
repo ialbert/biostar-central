@@ -97,18 +97,12 @@ def bignum(number):
 def counts(context):
 
     request = context['request']
-    vcounts = get_count(request, 'vote_count') or ''
-    mcounts = get_count(request, 'message_count') or ''
+    vcounts = get_count(request, 'vote_count') or 0
+    mcounts = get_count(request, 'message_count') or 0
     votes = dict(count=vcounts)
     messages = dict(count=mcounts)
 
-    css = ''
-    if mcounts:
-        css += 'new-msg'
-    if vcounts:
-        css += ' new-vote'
-
-    return dict(votes=votes, messages=messages, css=css)
+    return dict(votes=votes, messages=messages)
 
 
 @register.inclusion_tag('widgets/inplace_form.html')
