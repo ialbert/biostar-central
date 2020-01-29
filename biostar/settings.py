@@ -89,6 +89,7 @@ API_KEY = "api-key"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",

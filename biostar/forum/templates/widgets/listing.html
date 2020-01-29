@@ -60,13 +60,11 @@
                     <div class="left floated">
                         {% post_tags post spaced=False %}
                     </div>
-
-                    {#% if post.author.profile.low_rep and request.user.profile.is_moderator %#}
-                    {% if request.user.is_authenticated %}
+                    {% if post.author.profile.low_rep and request.user.is_authenticated %}
                         <div class="ui dropdown">
                             <i class="bug orange icon"></i>
                             <div class="menu">
-                                <div class="mark-spam item">Report as Spam</div>
+                                <div class="mark-spam item">Mark as Spam</div>
                             </div>
                         </div>
                     {% endif %}

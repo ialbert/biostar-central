@@ -25,6 +25,9 @@ body > .widen.container {
     background-color: #ECECEC;
 }
 
+.post  .bug.icon {
+    opacity: .35;
+}
 
 .subs {
     text-align: center;
@@ -783,7 +786,7 @@ pre {
 }
 
 .post .icon {
-    font-size: 130%;
+    font-size: 100%;
 }
 
 .ui.items > .item.post > .image + .content {

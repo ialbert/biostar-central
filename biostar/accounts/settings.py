@@ -31,6 +31,9 @@ DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
 # User score threshold to be considered low reputation.
 LOW_REP_THRESHOLD = 0
 
+# Users below this threshold are considered to have recently joined.
+RECENTLY_JOINED_DAYS = 30
+
 # In MB
 MAX_UPLOAD_SIZE = 10
 
