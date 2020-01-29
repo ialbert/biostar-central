@@ -78,7 +78,7 @@ class ProjectViewTest(TestCase):
 
         self.process_response(response=response, data=data, save=True)
 
-    def Xtest_users_view(self):
+    def test_users_view(self):
         "Test project_users with POST request"
 
         new_user = models.User.objects.create_user(username="test2", email="test2@l.com")
@@ -94,7 +94,22 @@ class ProjectViewTest(TestCase):
         response = views.project_users(request, uid=self.project.uid)
 
         data['uid'] = self.project.uid
-        self.process_response(response=response, data=data)
+        self.assertEqual(response.status_code, 200, f"Error with response code :\nresponse:{response}")
+
+    def test_project_share(self):
+        "Test project share by access it using a sharable token."
+
+        url = reverse('project_share', kwargs=dict(token=self.project.sharable_token))
+
+        self.project.privacy = models.Project.SHAREABLE
+        self.project.save()
+
+        request = fake_request(url=url, method='GET', data={}, user=self.owner)
+        response = views.project_share(request, token=self.project.sharable_token)
+
+        self.process_response(response, data={})
+
+        pass
 
     def test_project_update(self):
         "Test updating the project"

@@ -57,8 +57,8 @@ class FactoryTest(TestCase):
 
     def setUp(self):
         logger.setLevel(logging.WARNING)
-        owner = models.User.objects.filter(is_superuser=True).first()
-        self.project = auth.create_project(user=owner, name="tested",
+        self.owner = models.User.objects.filter(is_superuser=True).first()
+        self.project = auth.create_project(user=self.owner, name="tested",
                                            text="Text", summary="summary", uid="tested")
 
     def test_factory_fields(self):
@@ -99,11 +99,20 @@ class FactoryTest(TestCase):
     def test_data_generator(self):
         "Test data generator"
 
-        field = factory.data_field_generator(field={}, project=self.project)
+        field = factory.data_field_generator(field={}, type="DATA", project=self.project)
 
         if not field:
             self.assertFalse(f"data field generator failed")
 
+    def test_import_file(self):
+        "Test import files tab view"
+        url = reverse('file_list', kwargs=dict(path=' '))
+
+        request = fake_request(url=url, data={}, user=self.owner)
+
+        response = views.import_files(request, path=' ')
+
+        self.assertEqual(response.status_code, 200, f"Error with file listing in import tab.")
 
 
 class UtilTests(TestCase):
