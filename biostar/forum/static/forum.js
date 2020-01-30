@@ -495,7 +495,8 @@ function similar_posts(elem) {
     var uid = elem.attr('post_uid');
     // Construct the similar posts link.
     var feed_url = '/similar/posts/' + uid + '/';
-
+    var dimm_elem = $('#dim-similar');
+    dimm_elem.dimmer('show');
 
     $.ajax(feed_url,
         {
@@ -508,9 +509,12 @@ function similar_posts(elem) {
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status);
+                    dimm_elem.dimmer('hide');
                 } else {
                     // Populate the feed.
-                    elem.html(data.html)
+                    dimm_elem.dimmer('hide');
+                    elem.html(data.html);
+
                 }
             },
             error: function (xhr, status, text) {

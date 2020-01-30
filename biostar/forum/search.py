@@ -296,7 +296,8 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     if page:
         # Return a pagenated version of the results.
 
-        results = searcher.search_page(parser, pagenum=page, pagelen=per_page, sortedby=["lastedit_date"],
+        results = searcher.search_page(parser,
+                                       pagenum=page, pagelen=per_page, sortedby=["lastedit_date"],
                                        reverse=True,
                                        terms=True, **kwargs)
         results.results.fragmenter.maxchars = 100
@@ -304,7 +305,8 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
         # Show more context before and after
         results.results.fragmenter.surround = 100
     else:
-        results = searcher.search(parser, limit=settings.SEARCH_LIMIT, terms=True, **kwargs)
+        results = searcher.search(parser, limit=settings.SEARCH_LIMIT, sortedby=["lastedit_date"], reverse=True,
+                                  terms=True, **kwargs)
         # Allow larger fragments
         results.fragmenter.maxchars = 100
         # results.fragmenter.charlimit = None

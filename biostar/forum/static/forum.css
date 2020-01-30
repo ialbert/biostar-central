@@ -424,6 +424,10 @@ figure {
     opacity: .6;
 }
 
+#dim-similar{
+    height: 90px;
+    padding: 0;
+}
 
 .ui.horizontal.segments.top-menu > .ui.segment {
     padding: 0;

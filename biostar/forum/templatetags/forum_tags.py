@@ -508,6 +508,14 @@ def default_feed(user):
 
 
 @register.simple_tag
+def planet_gravatar(planet_author):
+
+    email = planet_author.replace(' ', '')
+    email = f"{email}@planet.org"
+    email = email.encode('utf-8')
+    return auth.gravatar_url(email=email, style='wavatar')
+
+@register.simple_tag
 def get_icon(string, default=""):
     icon = ICON_MAP.get(string) or ICON_MAP.get(default)
     return icon
