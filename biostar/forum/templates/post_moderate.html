@@ -16,6 +16,15 @@
                 {{ form.action }}
             </div>
         </div>
+        <button type="submit" class="ui green enter button">
+            <i class="check icon"></i>
+            Submit
+        </button>
+
+        <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+            <i class="cancel icon"></i>
+            Cancel
+        </a>
         {% if form.dupe %}
             <div class="ui segment">
                 <div class="field">
@@ -26,6 +35,15 @@
                     </div>
                 </div>
             </div>
+            <button type="submit" class="ui green enter button">
+                <i class="check icon"></i>
+                Submit
+            </button>
+
+            <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+                <i class="cancel icon"></i>
+                Cancel
+            </a>
         {% endif %}
 
         {% if form.pid %}
@@ -38,17 +56,17 @@
                     </div>
                 </div>
             </div>
+            <button type="submit" class="ui green enter button">
+                <i class="check icon"></i>
+                Submit
+            </button>
+
+            <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+                <i class="cancel icon"></i>
+                Cancel
+            </a>
         {% endif %}
 
-        <button type="submit" class="ui green enter button">
-            <i class="check icon"></i>
-            Submit
-        </button>
-
-        <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
-            <i class="cancel icon"></i>
-            Cancel
-        </a>
 
     </form>
 

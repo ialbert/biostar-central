@@ -439,6 +439,7 @@ figure {
     padding: 0;
     border: none;
     box-shadow: none;
+    margin: 0;
 }
 
 .user_box.muted {

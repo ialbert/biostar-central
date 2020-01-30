@@ -265,7 +265,7 @@ function inplace_post_edit(elem) {
                     popup_message(elem, data.msg, data.status, 3000);
                     dim_elem.dimmer('hide');
                 } else {
-                    $('.editing-drag-off[id="'+ uid + '"]').attr('draggable', false);
+                    $('.editing-drag-off[id="' + uid + '"]').attr('draggable', false);
                     //alert($('.editing-drag-off[data-value="'+ uid + '"]').attr('draggable'));
                     elem.hide();
                     hidden.hide();
@@ -286,13 +286,28 @@ function inplace_post_edit(elem) {
 
 
 function highlight(text, preview) {
+    var con = markdownit({
+        html: true,
+        highlight: function (str, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return '<pre class="hljs"><code>' +
+                        hljs.highlight(lang, str, true).value +
+                        '</code></pre>';
+                } catch (__) {
+                }
+            }
 
-    var con = markdownit();
+            return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+        }
+    });
+
     var res = con.render(text);
     //var preview = $('#preview');
     preview.html(res);
     preview.find('pre').addClass('language-bash');
     preview.find('code').addClass('language-bash');
+
     //Prism.highlightAll()
 }
 
@@ -445,7 +460,7 @@ function mark_spam(post_id, elem) {
 
                 } else {
                     popup_message(elem.parent().parent(), data.msg, data.status);
-                    $('#'+ post_id).removeClass('open').addClass('spam');
+                    $('#' + post_id).removeClass('open').addClass('spam');
                 }
 
             },
