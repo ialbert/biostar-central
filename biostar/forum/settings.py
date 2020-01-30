@@ -28,6 +28,8 @@ INDEX_SECS_INTERVAL = 10
 # Number of results to display in total.
 SEARCH_LIMIT = 20
 
+INIT_PLANET = False
+
 # Minimum amount of characters to preform searches
 SEARCH_CHAR_MIN = 1
 

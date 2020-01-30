@@ -1,6 +1,7 @@
 import logging
 import os
 import shutil
+from django.core import management
 from django.urls import reverse
 from django.test import TestCase, override_settings
 from django.conf import settings
@@ -15,6 +16,8 @@ TEST_ROOT = os.path.join(__MODULE_DIR, 'tests')
 TEST_DATABASE_NAME = f"test_{settings.DATABASES}"
 TEST_INDEX_DIR = os.path.join(TEST_ROOT, "index")
 TEST_INDEX_NAME = "test"
+TEST_DEBUG = True
+
 
 
 class PostTest(TestCase):
@@ -22,6 +25,8 @@ class PostTest(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
         self.owner = User.objects.create(username=f"test", email="tested@tested.com", password="tested")
+        self.staff_user = User.objects.create(username=f"test2", is_superuser=True, is_staff=True,
+                                              email="tested@staff.com", password="tested")
 
         # Create an existing tested post
         self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test",
@@ -93,6 +98,12 @@ class PostTest(TestCase):
         response = views.post_view(request=request, uid=self.post.uid)
         return
 
+    @override_settings(DEBUG=TEST_DEBUG)
+    def test_populate(self):
+        "Test forum populating "
+
+        management.call_command('populate', n_users=10, n_messages=10, n_votes=10, n_posts=10)
+
     def test_markdown(self):
         "Test the markdown rendering"
         from django.core import management
@@ -155,7 +166,7 @@ class PostSearchTest(TestCase):
         """
         query = "Test"
         whoosh_search = search.preform_search(query)
-        #db_search = search.preform_search(query, db_search=True)
+
+        search.print_info()
 
         self.assertTrue(len(whoosh_search), f"Whoosh search returned no results. At least {self.limit} expected")
-        #self.assertTrue(len(db_search), f"Database search returned no results. At least {self.limit} expected")

@@ -122,6 +122,7 @@ class Command(BaseCommand):
             return
 
         logger.info("Populating")
+
         if nusers or nposts:
             init_post(nposts=nposts, nusers=nusers)
         if nmsgs:
