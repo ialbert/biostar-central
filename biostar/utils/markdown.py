@@ -167,7 +167,9 @@ class BiostarInlineLexer(MonkeyPatch):
     def output_anchor_link(self, m):
         uid = m.group("uid")
         alt, link = f"{uid}", m.group(0)
-        return f'<a href="{link}">ANCHOR: {alt}</a>'
+        post = Post.objects.filter(uid=uid).first()
+        title = post.title if post else "Post not found"
+        return f'<a href="{link}">{title}</a>'
 
     def enable_user_link(self):
         self.rules.user_link = USER_PATTERN

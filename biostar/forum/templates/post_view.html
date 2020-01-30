@@ -1,5 +1,6 @@
 {% extends "forum_list.html" %}
 {% load forum_tags %}
+{% load cache %}
 
 {% block headtitle %}
     {{ post.title }}
@@ -40,7 +41,15 @@
 
 {% block sidebar %}
 
-    <div id="similar-feed" post_uid="{{ post.uid }}"></div>
+    {#  Cache every hour #}
+    {% cache 3600 sidebar %}
+        <div id="similar-feed" post_uid="{{ post.uid }}"></div>
+        <div class="ui inverted dimmer">
+            <div class="ui text loader">
+                <div class="muted">Entering edit mode</div>
+            </div>
+        </div>
+    {% endcache %}
 
 {% endblock %}
 

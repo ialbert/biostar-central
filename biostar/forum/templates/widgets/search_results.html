@@ -12,6 +12,7 @@
     <div class="ui page-bar segment">
         {% pages_search results %}
     </div>
+
     <div class="ui divided items" id="search-results" data-query="{{ query }}" data-stop="{{ stop_words }}">
         {% for result in results %}
 
@@ -81,6 +82,7 @@
             </div>
         {% endfor %}
     </div>
+
     <div class="ui page-bar segment">
         {% pages_search results %}
     </div>

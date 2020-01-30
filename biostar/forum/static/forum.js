@@ -480,6 +480,7 @@ function similar_posts(elem) {
     // Construct the similar posts link.
     var feed_url = '/similar/posts/' + uid + '/';
 
+
     $.ajax(feed_url,
         {
             type: 'GET',

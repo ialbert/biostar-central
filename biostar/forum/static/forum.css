@@ -71,7 +71,7 @@ body > .widen.container {
 
 .ui.fluid.input > .search-input {
     background-color: #f8f8f9 !important;
-    border: none
+    //border: none
 }
 
 #inplace-modal {
