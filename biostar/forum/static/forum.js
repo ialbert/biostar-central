@@ -470,9 +470,10 @@ function moderate(elem, url) {
 
     var container = $('.moderate-insert[data-value="' + data_uid + '"]');
     var mod_url = url + data_uid + '/';
-
+    //alert("FOOO");
     var page = $('<div id="modpanel"></div>').load(mod_url);
-    container.after(page)
+    container.after(page);
+    alert(container.html());
 }
 
 function similar_posts(elem) {

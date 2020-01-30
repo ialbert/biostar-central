@@ -69,8 +69,12 @@ body > .widen.container {
 
 }
 
-.ui.fluid.input > .search-input {
+.ui.search > .ui.input{
+    width: 50%;
+}
+.ui.input > .search-input {
     background-color: #f8f8f9 !important;
+
     //border: none
 }
 

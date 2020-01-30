@@ -42,13 +42,8 @@
 {% block sidebar %}
 
     {#  Cache every hour #}
-    {% cache 3600 sidebar %}
+    {% cache 3600 similar post.uid %}
         <div id="similar-feed" post_uid="{{ post.uid }}"></div>
-        <div class="ui inverted dimmer">
-            <div class="ui text loader">
-                <div class="muted">Entering edit mode</div>
-            </div>
-        </div>
     {% endcache %}
 
 {% endblock %}

@@ -60,6 +60,8 @@ class SearchResult(object):
         self.lastedit_date = ''
         self.is_toplevel = ''
         self.rank = ''
+        self.pagenum = 0
+        self.pagecount = 0
         self.uid = ''
         self.author_handle = ''
         self.author = ''
@@ -73,6 +75,9 @@ class SearchResult(object):
 
     def __iter__(self):
         yield
+
+    def is_last_page(self):
+        return True
 
 
 def close(r):
@@ -267,7 +272,7 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
 
     # Do not preform search if the index does not exist.
     if not index_exists() or len(query) < settings.SEARCH_CHAR_MIN:
-        return []
+        return SearchResult()
 
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
     ix = init_index()
