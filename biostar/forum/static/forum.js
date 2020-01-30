@@ -473,7 +473,7 @@ function moderate(elem, url) {
     //alert("FOOO");
     var page = $('<div id="modpanel"></div>').load(mod_url);
     container.after(page);
-    alert(container.html());
+    //alert(container.html());
 }
 
 function similar_posts(elem) {
