@@ -265,7 +265,7 @@ function inplace_post_edit(elem) {
                     popup_message(elem, data.msg, data.status, 3000);
                     dim_elem.dimmer('hide');
                 } else {
-                    $('.editing-drag-off[id="'+ uid + '"]').attr('draggable', false);
+                    $('.editing-drag-off[id="' + uid + '"]').attr('draggable', false);
                     //alert($('.editing-drag-off[data-value="'+ uid + '"]').attr('draggable'));
                     elem.hide();
                     hidden.hide();
@@ -286,13 +286,28 @@ function inplace_post_edit(elem) {
 
 
 function highlight(text, preview) {
+    var con = markdownit({
+        html: true,
+        highlight: function (str, lang) {
+            if (lang && hljs.getLanguage(lang)) {
+                try {
+                    return '<pre class="hljs"><code>' +
+                        hljs.highlight(lang, str, true).value +
+                        '</code></pre>';
+                } catch (__) {
+                }
+            }
 
-    var con = markdownit();
+            return '<pre class="hljs"><code>' + con.utils.escapeHtml(str) + '</code></pre>';
+        }
+    });
+
     var res = con.render(text);
     //var preview = $('#preview');
     preview.html(res);
     preview.find('pre').addClass('language-bash');
     preview.find('code').addClass('language-bash');
+
     //Prism.highlightAll()
 }
 
@@ -445,7 +460,7 @@ function mark_spam(post_id, elem) {
 
                 } else {
                     popup_message(elem.parent().parent(), data.msg, data.status);
-                    $('#'+ post_id).removeClass('open').addClass('spam');
+                    $('#' + post_id).removeClass('open').addClass('spam');
                 }
 
             },
@@ -470,15 +485,18 @@ function moderate(elem, url) {
 
     var container = $('.moderate-insert[data-value="' + data_uid + '"]');
     var mod_url = url + data_uid + '/';
-
+    //alert("FOOO");
     var page = $('<div id="modpanel"></div>').load(mod_url);
-    container.after(page)
+    container.after(page);
+    //alert(container.html());
 }
 
 function similar_posts(elem) {
     var uid = elem.attr('post_uid');
     // Construct the similar posts link.
     var feed_url = '/similar/posts/' + uid + '/';
+    var dimm_elem = $('#dim-similar');
+    dimm_elem.dimmer('show');
 
     $.ajax(feed_url,
         {
@@ -491,9 +509,12 @@ function similar_posts(elem) {
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status);
+                    dimm_elem.dimmer('hide');
                 } else {
                     // Populate the feed.
-                    elem.html(data.html)
+                    dimm_elem.dimmer('hide');
+                    elem.html(data.html);
+
                 }
             },
             error: function (xhr, status, text) {
@@ -533,7 +554,7 @@ function change_digest(elem, item) {
         })
 }
 
-function change_subs(elem) {
+function change_subs(elem, value, $item) {
     var post_id = elem.attr("data-uid");
     // Currently selected item
     var active = $('#sub-active');
@@ -665,7 +686,7 @@ $(document).ready(function () {
             action: 'hide',
             onChange: function (value, text, $item) {
                 var elem = $(this);
-                change_subs(elem);
+                change_subs(elem, value, $item);
             }
         });
 

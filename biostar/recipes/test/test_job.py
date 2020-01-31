@@ -77,6 +77,17 @@ class JobViewTest(TestCase):
 
         self.process_response(response=response, data={})
 
+    def test_job_rerun(self):
+        "Test Job rerun"
+        url = reverse('job_delete', kwargs=dict(uid=self.job.uid))
+
+        request = fake_request(url=url, data={}, user=self.owner)
+
+        response = views.job_rerun(request=request, uid=self.job.uid)
+
+        self.process_response(response=response, data={})
+
+
     def test_job_file_copy(self):
         "Test the job file copying interface"
 

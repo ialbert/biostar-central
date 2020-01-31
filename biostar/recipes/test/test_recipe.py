@@ -82,16 +82,15 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data=data, save=True, model=models.Job)
 
     @patch('biostar.recipes.models.Analysis.save', MagicMock(name="save"))
-    def Xtest_recipe_code_edit(self):
-        "Test the recipe preview/save code view with POST request"
-
-        data = {'action': "SAVE", 'template': '#tested change', 'json': "{}"}
-        url = reverse('recipe_code_edit', kwargs=dict(uid=self.recipe.uid))
+    def test_recipe_create(self):
+        "Test recipe create with POST request"
+        data = {"name": "tested", "summary": "summary", "text": "text", "rank": 100,
+                "uid": "tested", 'json_text':'{}', 'template':'# Code here'}
+        url = reverse('recipe_edit', kwargs=dict(uid=self.project.uid))
 
         request = fake_request(url=url, data=data, user=self.owner)
 
-        response = views.recipe_code_edit(request=request, uid=self.recipe.uid)
-
+        response = views.recipe_create(request=request, uid=self.project.uid)
         self.process_response(response=response, data=data, save=True)
 
     @patch('biostar.recipes.models.Analysis.save', MagicMock(name="save"))
@@ -117,7 +116,6 @@ class RecipeViewTest(TestCase):
         self.assertTrue(response.content.decode() == self.recipe.template,
                         f"Error downloading code. Expected: {self.recipe.template} "
                         f"received: {response.content.decode()}")
-
 
     def test_recipe_copy(self):
         "Test recipe copy interface"
@@ -154,8 +152,7 @@ class RecipeViewTest(TestCase):
 
         self.process_response(response=response, data={})
 
-
-    def Xtest_api(self):
+    def test_api(self):
             "Test the recipe api"
 
             api_list = reverse('api_list'), api.recipe_api_list, {}

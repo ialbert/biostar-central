@@ -6,6 +6,10 @@
        href="{% url 'post_search' %}?query={{ query }}&page={{ previous_page }}">
         <i class="ui angle  double left icon"> </i>
     </a>
+{% else %}
+    <div class="ui small basic button no-shadow">
+        <i class="ui angle  double left icon"> </i>
+    </div>
 {% endif %}
 
 <span class="phone">{{ results.total|intcomma }}
@@ -20,4 +24,8 @@
 
         <i class="ui angle  double right icon"></i>
     </a>
+    {% else %}
+    <div class="ui small basic button no-shadow">
+        <i class="ui angle  double right icon"></i>
+    </div>
 {% endif %}

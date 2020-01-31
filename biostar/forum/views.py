@@ -404,7 +404,6 @@ def post_view(request, uid):
             # Create answer to root
             answer = Post.objects.create(title=post.title, parent=post, author=author,
                                          content=content, type=Post.ANSWER, root=post.root)
-            #tasks.created_post.spool(pid=answer.id)
             return redirect(answer.get_absolute_url())
         messages.error(request, form.errors)
 

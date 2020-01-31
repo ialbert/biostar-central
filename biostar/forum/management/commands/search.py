@@ -64,7 +64,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
 
-        parser.add_argument('-db', '--db_search', action='store_true', default=False, help="Preform a database.")
         parser.add_argument('--uid', type=str, required=False,
                             help="Search for posts similar to this one (more list this).")
         parser.add_argument('-q', '--query', type=str, required=False, default='test search index',
@@ -76,7 +75,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info(f"Database: {settings.DATABASE_NAME}. Index : {settings.INDEX_DIR}")
 
-        db_search = options['db_search']
         uid = options['uid']
         query = options['query']
         limit = options['limit']
@@ -92,13 +90,13 @@ class Command(BaseCommand):
             logger.info(f"Searching for similar posts: {post.title}")
             print(uid)
             finish, results = time_func(whoosh_more_like_this, kwargs=dict(uid=uid))
-            logger.info(f"Post uid: {uid}. Database search: {db_search}")
+            logger.info(f"Post uid: {uid}.")
             print_results(results=results, limit=limit, verbosity=verbosity, query=uid, finish_time=finish)
 
             return
 
-        finish, results = time_func(preform_search, kwargs=dict(query=query, db_search=db_search))
-        logger.info(f"Query: {query}. Database search: {db_search}")
+        finish, results = time_func(preform_search, kwargs=dict(query=query))
+        logger.info(f"Query: {query}")
         print_results(results=results, limit=limit, query=query, verbosity=verbosity, finish_time=finish)
 
 

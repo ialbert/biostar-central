@@ -59,6 +59,7 @@ class ForumNavigation(TestCase):
             reverse('about'),
             reverse('faq'),
             reverse('policy'),
+            reverse('tags_list'),
             reverse("community_list"),
             reverse('badge_list'),
             reverse('badge_view', kwargs=dict(uid=self.badge.uid)),

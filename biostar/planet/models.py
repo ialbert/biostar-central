@@ -57,7 +57,7 @@ class Blog(models.Model):
         except Exception as exc:
             logger.error(f"Error downloading {exc}")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
 

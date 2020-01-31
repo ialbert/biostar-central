@@ -16,7 +16,7 @@ TEST_ROOT = os.path.join(__MODULE_DIR, 'tests')
 
 logger = logging.getLogger('biostar')
 
-PLANET_DIR = os.path.abspath(os.path.join(TEST_ROOT))
+PLANET_DIR = os.path.abspath(os.path.join(TEST_ROOT, "feeds"))
 
 
 @override_settings(PLANET_DIR=PLANET_DIR)
@@ -38,6 +38,10 @@ class PlanetTest(TestCase):
         feed = open(fname, 'r').readline()
 
         # Check to see if the blog post has been created
-        blog = models.Blog.objects.filter(feed=feed).exists()
+        blog_query = models.Blog.objects.filter(feed=feed)
 
-        self.assertTrue(blog)
+        blog = blog_query.first()
+        print(blog.fname)
+        blog.download()
+        self.assertTrue(blog_query.exists(), "Error creating blog in database")
+        self.assertTrue(blog.parse() is not None, "Error parsing blog")

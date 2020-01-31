@@ -147,7 +147,7 @@ def user_profile(request, uid):
     # User viewing profile is a moderator
     is_mod = (request.user.is_authenticated and request.user.profile.is_moderator)
 
-    can_moderate = True #is_mod and request.user != profile.user
+    can_moderate = is_mod and request.user != profile.user
     show_info = is_mod or (profile.is_valid and not profile.low_rep)
 
     context = dict(target=profile.user, active=active, debugging=settings.DEBUG, show_info=show_info,

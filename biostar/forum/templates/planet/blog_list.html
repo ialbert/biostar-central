@@ -13,20 +13,26 @@
 
     <div class="ui relaxed list">
         {% for post in blogposts %}
-
-            <div class="blog-post">
-                <div>
-                    <h3><a href="{{ post.link }}">{{ post.title }}</a></h3>
-                </div>
-                <div>
-                    <h4>
+            <div class="ui basic segment" style="padding-top: 0;padding-left: 0; padding-right: 0;">
+                <div class="blog-post">
+                    <div>
+                        <h3><a href="{{ post.link }}">{{ post.title }}</a></h3>
+                    </div>
+                    <div>
+                        {{ post.content|truncatewords:100 }}
+                    </div>
+                    <div class="right floated muted" style="float: right; padding-bottom: 5px">
                         written {{ post.creation_date|timesince }}
-                        by <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
-                    </h4>
+                        by
+                        <div class="ui avatar image">
+                            <img class="ui tiny centered  image thread-users"
+                                 src="{% planet_gravatar  planet_author=post.blog.title %}">
+                        </div>
+
+                        <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
+                    </div>
                 </div>
-                <div>
-                    {{ post.content|truncatewords:100 }}
-                </div>
+
             </div>
             <div class="ui divider"></div>
         {% endfor %}
@@ -41,15 +47,18 @@
 
 {% block sidebar %}
 
-        <h4>Planet Feeds</h4>
-        {% for blog in blogs %}
-            <div class="blog-feed">
-                <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
-                <div>{{ blog.desc|safe }}</div>
-                <div class="muted">{{ blog.count }} post{{ blog.count|pluralize }} - last updated {{ blog.updated_date|timesince }} ago </div>
+    <h4>Planet Feeds</h4>
+
+    {% for blog in blogs %}
+        <div class="blog-feed">
+            <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
+            <div>{{ blog.desc|safe }}</div>
+            <div class="muted">{{ blog.count }} post{{ blog.count|pluralize }} - last
+                updated {{ blog.updated_date|timesince }} ago
             </div>
-            <div class="ui divider"></div>
-        {% endfor %}
+        </div>
+        <div class="ui divider"></div>
+    {% endfor %}
 
 
 

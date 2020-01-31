@@ -5,7 +5,7 @@
 
     <div class="ui top attached six item menu" id="menu-topics">
 
-        <a class="item" href="{% url 'inbox' %}">
+        <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             <i class="envelope icon"></i> Messages
             {% if counts.messages.count %}
                 <span class="ui green label">{{ counts.messages.count }}</span>

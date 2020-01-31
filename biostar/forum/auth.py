@@ -345,8 +345,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         context = dict(user=post.author, dupes=dupes, comment=comment)
         content = tmpl.render(context)
 
-        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
-        post = Post.objects.create(content=content, type=Post.COMMENT, parent=post, author=user)
+        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, root=post.root, author=user)
         url = post.get_absolute_url()
         messages.success(request, "Marked duplicated post as off topic.")
         log_action(user=user, log_text=f"Marked post={post.uid} as duplicate.")
@@ -358,9 +357,8 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         context = dict(user=post.author, comment=comment)
         content = tmpl.render(context)
 
-        Post.objects.filter(uid=post.uid).update(status=Post.OFFTOPIC)
         # Load answer explaining post being off topic.
-        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, author=user)
+        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, root=post.root, author=user)
         url = post.get_absolute_url()
         messages.success(request, "Marked the post as off topic.")
         log_action(user=user, log_text=f"Marked post={post.uid} as off topic.")
