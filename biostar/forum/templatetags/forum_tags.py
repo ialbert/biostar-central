@@ -63,18 +63,8 @@ def get_count(request, key, default=0):
 
 @register.simple_tag(takes_context=True)
 def activate(context, state, target):
-    label = "active" if state == target else ""
-    request = context['request']
-    value = 0
-
-    # Special casing a few targets to generate an extra css class.
-    if target == "messages":
-        value = get_count(request, "message_count")
-    elif target == "votes":
-        value = get_count(request, "vote_count")
-
-    # Generate a broader css if necessary.
-    label = f"new {label}" if value else label
+    targets = target.split(',')
+    label = "active" if state in targets else ""
 
     return label
 

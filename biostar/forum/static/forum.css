@@ -87,7 +87,13 @@ body > .widen.container {
 }
 
 .ui.pointing.menu .active.item:after {
-    background-color: #FBFDEB;
+    color: #1a69a4;
+    font-weight: bold;
+}
+
+#menu-topics .item:hover {
+    background: rgba(0,0,0,.05);
+    //background: red;
 }
 
 
@@ -99,7 +105,8 @@ body > .widen.container {
 
 
 #menu-header .item.active {
-    background-color: #fbfdef;
+    color: #1a69a4;
+    font-weight: bold;
 }
 
 #menu-topics .item.active {
