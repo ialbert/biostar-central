@@ -71,11 +71,9 @@ body > .widen.container {
 
 .ui.search > .ui.input{
     width: 50%;
-    //left: 1.5%;
 }
 .ui.input > .search-input {
     background-color: #f8f8f9 !important;
-    //border: none
 }
 
 
@@ -95,16 +93,7 @@ body > .widen.container {
 
 #menu-topics .item:hover {
     background: rgba(0,0,0,.05);
-    //background: red;
 }
-
-
-#menu-header .item:not(.header) {
-    //padding-left: 35px;
-    // padding-right: 35px;
-/ / background: none;
-}
-
 
 #menu-header .item.active {
     color: #1a69a4;
