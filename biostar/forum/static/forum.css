@@ -81,9 +81,7 @@ body > .widen.container {
     //border: none
 }
 
-.ui.form input[class=search-input]{
-    box-shadow: 0 .1em .1em 0 rgba(34,36,38,.12), 0 2px 10px 0 rgba(34,36,38,.15)
-}
+
 
 #inplace-modal {
     width: auto;

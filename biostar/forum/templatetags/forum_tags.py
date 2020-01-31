@@ -503,7 +503,7 @@ def planet_gravatar(planet_author):
     email = planet_author.replace(' ', '')
     email = f"{email}@planet.org"
     email = email.encode('utf-8')
-    return auth.gravatar_url(email=email, style='wavatar')
+    return auth.gravatar_url(email=email, style='retro')
 
 @register.simple_tag
 def get_icon(string, default=""):
