@@ -69,9 +69,6 @@ body > .widen.container {
 
 }
 
-.home > .ui.basic.search-bar.segment {
-    left:1.3%;
-}
 .ui.search > .ui.input{
     width: 50%;
     //left: 1.5%;
