@@ -298,7 +298,7 @@ function highlight(text, preview) {
                 }
             }
 
-            return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+            return '<pre class="hljs"><code>' + con.utils.escapeHtml(str) + '</code></pre>';
         }
     });
 
