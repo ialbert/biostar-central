@@ -26,7 +26,7 @@ TIME_REQUESTS = True
 INDEX_SECS_INTERVAL = 10
 
 # Number of results to display in total.
-SEARCH_LIMIT = 500
+SEARCH_LIMIT = 20
 
 INIT_PLANET = False
 
