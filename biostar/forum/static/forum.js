@@ -587,6 +587,9 @@ function change_subs(elem, value, $item) {
 
 $(document).ready(function () {
 
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
     $('.mark-spam.item').click(function (event) {
         var post_id = $(this).closest('.post').attr('id');
 
