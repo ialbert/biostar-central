@@ -1,7 +1,11 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
+{% load static %}
 
-
+<link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
 {% block headtitle %}
     New Post
 {% endblock %}
@@ -51,16 +55,11 @@
                         <div class="ui form-wrap segment">
                             <div class="required input field">
                                 {% include 'widgets/posting_msg.html' %}
-                                <div class="wmd-wrapper"
-                                     id="wmd-wrapper">
-                                    <div>
+
                                         <div id="wmd-button-bar">
-                                            <div class="wmd-button-row"
-                                 id="wmd-button-row"></div>
                                         </div>
                                         <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input" rows="17">{{ content }}</textarea>
-                                    </div>
-                                </div>
+                              
                             </div>
                         </div>
 
@@ -95,7 +94,6 @@
         {% endblock %}
     </div>
 {% endblock %}
-
 
 <script>
 
