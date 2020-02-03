@@ -887,5 +887,192 @@ $(document).ready(function () {
 
     });
 
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
+
+    $('.ui.dropdown').dropdown();
+
+
+    $('#post-form .save').click(function () {
+        event.preventDefault();
+        // Send data with the form data using AJAX.
+
+    });
+
+    function edit_post(uid) {
+
+        var edit_url = '/ajax/edit/' + uid + '/';
+        // Rendered form element
+        var form_elem = $('#post-form');
+        // Inplace form container
+        var form_container = $('#new-edit');
+        // Hidden elements
+        var hidden = $('.hide-on-edit');
+
+        // Post title inside of the form
+        var title = $('#title');
+        var content = $('#wmd-input');
+        var post_type = $('#type').dropdown('get value');
+        var tag_val = $('#tag-menu').dropdown('get value');
+
+        // Current post content and title to replace
+        // with returned values.
+        var post_content = $('.editable[data-value="' + uid + '"]');
+        var post_title = $('.post-title[data-value="' + uid + '"]');
+        var post_tags = $('.post-tags[data-value="' + uid + '"]');
+
+        //alert(content.val());
+        // Title is null and type are null
+        // meaning current post is not top level.
+        if (title.val() == null) {
+            title.val('')
+        }
+        if (!($.isNumeric(post_type))) {
+            post_type = -1
+        }
+
+
+        $.ajax(edit_url,
+            {
+                type: 'POST',
+                dataType: 'json',
+                ContentType: 'application/json',
+                traditional: true,
+                data: {
+                    'content': content.val(),
+                    'title': title.val(),
+                    'type': post_type,
+                    'tag_val': tag_val,
+                    'recaptcha_response': cap_response
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('.error-msg'), data.msg, data.status, 3000);
+                    } else {
+                        // Clear and hide inplace form
+                        form_elem.html('');
+                        form_container.hide();
+
+                        // Show hidden items
+                        hidden.show();
+
+                        // Replace current post info with edited data
+                        post_content.html(data.html).show().focus();
+                        post_title.html(data.title).show();
+                        post_tags.html(data.tag_html).show();
+
+                        // Highlight the markdown in content
+                        post_content.find('pre').addClass('language-bash');
+                        post_content.find('code').addClass('language-bash');
+                        Prism.highlightAll();
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message(form_elem, xhr, status, text)
+                }
+            })
+    }
+
+    function create_comment() {
+
+        var create_url = '/ajax/comment/create/';
+        // Get the fields to submit
+        var form_elem = $('#post-form');
+        var content = $('#wmd-input');
+
+
+        $.ajax(create_url,
+            {
+                type: 'POST',
+                dataType: 'json',
+                ContentType: 'html',
+                traditional: true,
+                data: {
+                    'content': content.val(),
+                    'parent': '{{ post.uid }}',
+                    'recaptcha_response': cap_response,
+                },
+                success: function (data) {
+                    if (data.status === 'error') {
+                        popup_message($('.error-msg'), data.msg, data.status, 3000);
+                        popup_message(form_elem, data.msg, data.status, 3000);
+                    } else {
+                        // Redirect user to the new post view.
+                        window.location = data.redirect;
+                        {% if not is_toplevel %}
+                            window.location.reload();
+                        {% endif %}
+                    }
+                },
+                error: function (xhr, status, text) {
+                    error_message(form_elem, xhr, status, text)
+                }
+            })
+    }
+
+    $('.tag-field').dropdown({
+        allowAdditions: true,
+        onChange: function (value, text, $selectedItem) {
+            // Get form field to add to
+            var tagid = $("#tag-menu").attr('field_id');
+            var tag_field = $('#{0}'.f(tagid));
+            // Add selected tag to field
+            //alert(value);
+            tag_field.val(value);
+        }
+    });
+
+    $('.tag-field >input.search').keydown(function (event) {
+        //event.stopPropagation();
+        // Prevent submitting form when adding tag by pressing ENTER.
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            //event.stopPropagation();
+        }
+        // Set value with SPACE bar
+        if (event.keyCode === 32) {
+            event.preventDefault();
+            //event.stopPropagation();
+            $("#tag-menu").dropdown('set selected', $(this).val().trim());
+            $(this).val('')
+        }
+
+    });
+
+    $('a').click(function (e) {
+        var form_is_visible = $('#post-form').is(':visible');
+        var content = $('#wmd-input').val().length;
+        if (form_is_visible && content) {
+            var in_form = $(this).parents('#post-form').length;
+            if (in_form) {
+                return
+            }
+
+            $('.ui.modal').modal('show');
+            e.preventDefault();
+        }
+    });
+
+    $('#cancel-inplace').click(function () {
+        $('#new-comment').remove();
+        cancel_inplace();
+        $('#add-answer').html('');
+        $('.ui.modal').modal('hide');
+
+    });
+    $('#stay').click(function () {
+        $('.ui.mini.modal').modal('hide');
+
+    });
+    $('#wmd-input').keyup(function (event) {
+        // Submit form with CTRL-ENTER
+        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+
+        }
+    });
+
+    //var users = $('#wmd-input').data("users").split(',');
+    //autocomplete_users(users)
 })
 ;
