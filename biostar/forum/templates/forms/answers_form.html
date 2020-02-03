@@ -30,14 +30,14 @@
 {#                        <div class="wmd_button_bar" id="wmd_button_bar"></div>#}
 {#                        <textarea id="wmd-input" class="wmd-input" rows="17">foo</textarea>#}
 {##}
-                        <div class="{{ form.content.id_for_label }}_wmd_button_bar" id="{ form.content.id_for_label }}_wmd_button_bar"></div>
+                        <div class="wmd_button_bar" id="wmd_button_bar"></div>
 
-                        <textarea class="wmd-input-{{ form.content.id_for_label }} answer droptarget"
+                        <textarea class="wmd-input answer droptarget"
                                   data-value="NEW" ondragover="drag_over(event, $(this))"
                                   ondragleave="drag_leave(event, $(this))"
                                   rows="17"
                                   name="{{ form.content.name }}"
-                                  id="wmd-input-{{ form.content.id_for_label }}"></textarea>
+                                  id="wmd-input"></textarea>
 
                     </div>
                 </div>
