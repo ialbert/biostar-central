@@ -19,7 +19,6 @@
 
     {# Load JQuery. #}
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
     <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
 
@@ -37,7 +36,7 @@
 
     {# Javascript compression. #}
     {% compress js %}
-
+        <script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'at.who.js' %}"></script>
         <script src="{% static 'caret.js' %}"></script>
