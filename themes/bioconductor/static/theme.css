@@ -11,6 +11,9 @@ body {
     background-color: #87B13F;
 }
 
+.ui.search > .ui.input{
+    width: 100%;
+}
 .add-comment.ui.label {
     cursor: pointer;
     color: white;

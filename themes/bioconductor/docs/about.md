@@ -19,5 +19,5 @@ Biostar is copyright by the BioStar team. Cite Biostar as:
 
 Parnell LD, Lindenbaum P, Shameer K, Dall'Olio GM, Swan DC, et al. 2011
 **BioStar: An Online Question & Answer Resource for the Bioinformatics
-Community.**  _PLoS Comput Biol 7(10)_ : e1002216.
+Community.**  *PLoS Comput Biol 7(10)* : e1002216.
 doi:10.1371/journal.pcbi.1002216
