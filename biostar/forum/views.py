@@ -161,6 +161,10 @@ def post_search(request):
         return redirect(reverse('post_list'))
 
     results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+
+    if isinstance(results, list) or not len(results):
+        results = search.SearchResult()
+
     total = results.total
     template_name = "widgets/search_results.html"
 
