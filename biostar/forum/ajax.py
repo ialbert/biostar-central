@@ -308,7 +308,6 @@ def validate_post_fields(fields={}, is_toplevel=False):
     check_captcha = user.profile.require_recaptcha() and settings.RECAPTCHA_PRIVATE_KEY != ''
 
     if check_captcha:
-        #print(check_captcha, recaptcha_token, "FOOOOO")
         valid_captcha, msg = validate_recaptcha(recaptcha_token)
         if not valid_captcha:
             return False, msg
@@ -350,21 +349,6 @@ def get_fields(request, post=None):
     return fields
 
 
-def set_post(fields, post, save=True):
-
-    if post.is_toplevel:
-        post.title = fields.get('title', post.title)
-        post.type = fields.get('post_type', post.type)
-        post.tag_val = fields.get('tag_val', post.tag_val)
-
-    post.lastedit_user = fields.get('user', post.lastedit_user)
-    post.content = fields.get('content', post.content)
-    if save:
-        post.save()
-
-    return post
-
-
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -392,7 +376,14 @@ def ajax_edit(request, uid):
         return ajax_error(msg=msg)
 
     # Set the fields for this post.
-    post = set_post(post=post, fields=fields)
+    if post.is_toplevel:
+        post.title = fields.get('title', post.title)
+        post.type = fields.get('post_type', post.type)
+        post.tag_val = fields.get('tag_val', post.tag_val)
+    post.lastedit_user = request.user
+    post.lastedit_date = util.now()
+    post.content = fields.get('content', post.content)
+    post.save()
 
     # Get the newly set tags to render
     tags = post.tag_val.split(",")
