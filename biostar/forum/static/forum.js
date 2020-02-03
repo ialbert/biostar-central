@@ -587,7 +587,6 @@ function change_subs(elem, value, $item) {
 
 $(document).ready(function () {
 
-
     $('.mark-spam.item').click(function (event) {
         var post_id = $(this).closest('.post').attr('id');
 
