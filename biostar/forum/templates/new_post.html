@@ -1,4 +1,4 @@
-{% extends "forum_base.html" %}
+{#% extends "forum_base.html" %#}
 {% load forum_tags %}
 {% load static %}
 
@@ -56,10 +56,9 @@
                             <div class="required input field">
                                 {% include 'widgets/posting_msg.html' %}
 
-                                        <div id="wmd-button-bar">
-                                        </div>
+                                        <div id="wmd-button-bar"></div>
                                         <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input" rows="17">{{ content }}</textarea>
-                              
+
                             </div>
                         </div>
 
