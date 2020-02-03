@@ -79,6 +79,9 @@ class SearchResult(object):
     def is_last_page(self):
         return True
 
+    def __len__(self):
+        return self.total
+
 
 def close(r):
     # Ensure the searcher object gets closed.
@@ -272,7 +275,7 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
 
     # Do not preform search if the index does not exist.
     if not index_exists() or len(query) < settings.SEARCH_CHAR_MIN:
-        return SearchResult()
+        return []
 
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
     ix = init_index()
@@ -324,10 +327,13 @@ def whoosh_more_like_this(uid):
     """
 
     results = preform_whoosh_search(query=uid, fields=['uid'])
-    if len(results):
-        results = results[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
-        # Filter results for toplevel posts.
-        results = filter(lambda p: p['is_toplevel'] is True, results)
+
+    if isinstance(results, list) or not len(results):
+        return SearchResult()
+
+    results = results[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
+    # Filter results for toplevel posts.
+    results = filter(lambda p: p['is_toplevel'] is True, results)
 
     final_results = list(map(normalize_result, results))
     if isinstance(results, Results):
@@ -341,6 +347,8 @@ def preform_search(query, fields=None, db_search=False):
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
 
     results = preform_whoosh_search(query=query, fields=fields)
+    if isinstance(results, list) or not len(results):
+        return SearchResult()
 
     # Ensure returned results types stay consistent.
     final_results = list(map(normalize_result, results))
