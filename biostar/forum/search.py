@@ -79,6 +79,9 @@ class SearchResult(object):
     def is_last_page(self):
         return True
 
+    def __len__(self):
+        return self.total
+    
 
 def close(r):
     # Ensure the searcher object gets closed.
