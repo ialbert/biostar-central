@@ -42,7 +42,7 @@
 {% block sidebar %}
 
     {#  Cache every hour #}
-    {% cache 3600 similar-feed post.uid %}
+
         <b>Similar Posts </b>
 
         <div class="ui basic segment" id="dim-similar">
@@ -55,9 +55,6 @@
                 </div>
             </div>
         </div>
-
-    {% endcache %}
-
 
 
 

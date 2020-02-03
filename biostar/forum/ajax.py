@@ -8,6 +8,7 @@ from urllib.parse import urlencode
 from datetime import datetime, timedelta
 from urllib.parse import quote
 
+from django.core.cache import cache
 from django.conf import settings
 from django.db.models import Q, Count
 from django.shortcuts import reverse, redirect
@@ -17,7 +18,7 @@ from django.http import JsonResponse
 from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
-from . import auth, util, forms, tasks, search, views
+from . import auth, util, forms, tasks, search, views, const
 from .models import Post, Vote, Subscription
 
 
@@ -465,7 +466,16 @@ def similar_posts(request, uid):
     if not post:
         ajax_error(msg='Post does not exist.')
 
-    results = search.whoosh_more_like_this(uid=post.uid)
+    cache_key = f"{const.SIMILAR_CACHE_KEY}-{post.uid}"
+    results = cache.get(cache_key)
+
+    if results is None:
+        logger.info("Setting similar posts cache.")
+
+        results = search.whoosh_more_like_this(uid=post.uid)
+        # Set the results cache for 1 hour
+        cache.set(cache_key, results, 3600)
+
     template_name = 'widgets/similar_posts.html'
 
     tmpl = loader.get_template(template_name)
