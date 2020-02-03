@@ -1,11 +1,7 @@
-{#% extends "forum_base.html" %#}
+{% extends "forum_base.html" %}
 {% load forum_tags %}
 {% load static %}
 
-<link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
-<script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-<script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-<script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
 {% block headtitle %}
     New Post
 {% endblock %}
@@ -93,10 +89,3 @@
         {% endblock %}
     </div>
 {% endblock %}
-
-<script>
-
-    var converter = new Markdown.getSanitizingConverter();
-    var editor = new Markdown.Editor(converter);
-    editor.run();
-</script>
