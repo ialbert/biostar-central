@@ -634,27 +634,27 @@ $(document).ready(function () {
     });
 
     $(this).on('click', '#wmd-button-bar', function (event) {
-        setTimeout(function () {
-            var text = $('#wmd-input').val();
-            var preview = $('#preview');
-            highlight(text, preview);
-        }, 10);
+        // setTimeout(function () {
+        //     var text = $('#wmd-input').val();
+        //     var preview = $('#preview');
+        //     highlight(text, preview);
+        // }, 10);
 
     });
 
     $(this).on('keyup', '#wmd-input-id_content', function (event) {
-        var text = $(this).val();
-        var preview = $('#answer-preview');
-        highlight(text, preview);
+        // var text = $(this).val();
+        // var preview = $('#answer-preview');
+        // highlight(text, preview);
     });
 
 
     $(this).on('click', '#wmd-button-bar-id_content', function (event) {
-        setTimeout(function () {
-            var text = $('#wmd-input-id_content').val();
-            var preview = $('#answer-preview');
-            highlight(text, preview);
-        }, 10);
+        // setTimeout(function () {
+        //     var text = $('#wmd-input-id_content').val();
+        //     var preview = $('#answer-preview');
+        //     highlight(text, preview);
+        // }, 10);
 
     });
 
