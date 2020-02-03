@@ -70,7 +70,7 @@ SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
-    'pagedown',
+    'pagedown.apps.PagedownConfig',
 
 ]
 
