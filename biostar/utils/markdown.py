@@ -7,6 +7,7 @@ import mistune
 import requests
 from django.shortcuts import reverse
 from django.db.models import F
+import bleach
 from django.conf import settings
 from mistune import Renderer, InlineLexer, InlineGrammar
 
@@ -256,6 +257,8 @@ def parse(text, post=None):
 
     html = markdown(text)
 
+    # Clean the html of any
+    html = bleach.clean(html)
     return html
 
 
