@@ -1,6 +1,7 @@
 
 # Frequently Asked Questions
 
+
 This is the FAQ for the *Bioconductor* Support Site. Please visit
 [Bioconductor.org](https://bioconductor.org/) for additional project and package information. A list of
 current *Bioconductor* packages can be found [here](https://bioconductor.org/packages/release/BiocViews.html)
@@ -28,7 +29,7 @@ current *Bioconductor* packages can be found [here](https://bioconductor.org/pac
     * How do I update my profile picture?
     * What is a handle and how do I update it?
     * What are the different notification options?
-    * What is the different between 'My Tags' and 'Watched Tags'?
+    * [What is the different between 'My Tags' and 'Watched Tags'?](#profile-tags)
     * Does selecting a digest option change my notification option?
     * How are awards generated?
     * What awards are available to earn?
@@ -221,7 +222,7 @@ from. The following describe the options:
   * Local Messages:
   * No Messages:
 
-### What is the different between 'My Tags' and 'Watched Tags'?
+### What is the different between 'My Tags' and 'Watched Tags'?<a name="profile-tags"></a>
 
 'My Tags' controls which posts can be seen in the 'My Tags' tab. Any post with
 the tags listed will show up in the tab. 'Watched Tags' controls email

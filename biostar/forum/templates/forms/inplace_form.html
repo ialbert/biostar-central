@@ -283,13 +283,13 @@
 
     $('a').click(function (e) {
         var form_is_visible = $('#post-form').is(':visible');
-        var content = $('#wmd-input').val().length;
+        var content = $('#wmd-input').val();
+
         if (form_is_visible && content) {
             var in_form = $(this).parents('#post-form').length;
             if (in_form) {
                 return
             }
-
             $('.ui.modal').modal('show');
             e.preventDefault();
         }

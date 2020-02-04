@@ -28,16 +28,13 @@
                             on creating a post.<br>
                         </div>
 
-                        <div id="wmd-button-bar-{{ form.content.id_for_label }}">
-                        </div>
-
-                        <textarea class="wmd-input-{{ form.content.id_for_label }} answer droptarget"
+                        <div id="wmd-button-bar" class="answer"></div>
+                        <textarea class="wmd-input answer droptarget"
                                   data-value="NEW" ondragover="drag_over(event, $(this))"
                                   ondragleave="drag_leave(event, $(this))"
                                   rows="17"
                                   name="{{ form.content.name }}"
-                                  id="wmd-input-{{ form.content.id_for_label }}"></textarea>
-
+                                  id="wmd-input"></textarea>
                     </div>
                 </div>
             </div>
