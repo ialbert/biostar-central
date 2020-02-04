@@ -2,10 +2,10 @@
 # Frequently Asked Questions
 
 This is the FAQ for the *Bioconductor* Support Site. Please visit
-Bioconductor.org for additional project and package information. A list of
-current *Bioconductor* packages can be found here
+[Bioconductor.org](https://bioconductor.org/) for additional project and package information. A list of
+current *Bioconductor* packages can be found [here](https://bioconductor.org/packages/release/BiocViews.html)
 
-  * General
+  * [General](#general)
     * What is the difference between the support site and the bioc-devel mailing list?
     * What questions should I post?
     * How do I contact you?
@@ -43,6 +43,8 @@ current *Bioconductor* packages can be found here
     * What does selecting a digest option do? Does it effect my notification option?
   * Other
 
+<a name="general"></a>
+
 ## General
 
 ### What is the difference between the support site and the bioc-devel mailing list?
@@ -60,8 +62,10 @@ The support site is for questions related to usage of *Bioconductor* packages.
 to the support site and are expected to answer questions regarding their
 packages at this location. General questions about bioinformatics,
 computational genomics, biological data analysis and software unrelated to
-Bioconductor can be asked on biostars or seqanswers. General R questions can
-be asked on the R-help mailing list or StackOverflow.
+Bioconductor can be asked on [biostars](https://www.biostars.org/) or
+[seqanswers](http://seqanswers.com/). General R questions can be asked on the
+[R-help mailing list](https://stat.ethz.ch/mailman/listinfo/r-help) or
+[StackOverflow](https://stackoverflow.com/questions/tagged/r).
 
 ### How do I contact you?
 
@@ -74,12 +78,12 @@ No site is perfect and you may come across things that you feel are not
 working as they should be. This site is based on a fork of Biostars so we have
 the power to correct many problems as they are discovered. If you find a
 problem with this website, we ask that you please post such questions to our
-github repository for it here.
+[github repository](https://github.com/Bioconductor/support.bioconductor.org/issues).
 
 ### Where can I suggest new features to the support site?
 
-New feature requests can be made by opening an issue on the github repository
-for this site here.
+New feature requests can be made by opening an issue on the [github
+repository](https://github.com/Bioconductor/support.bioconductor.org/issues).
 
 ### What about offensive content?
 
@@ -97,20 +101,22 @@ offensvie please notify webmaster@bioconductor.org. Post not relating to
 
 One of the biggest things that new users struggle with is how to ask questions
 in a way that allows people to answer them. So if you are unfamiliar please
-have a look at the posting guide for some great advice and the tutorial for
-help on using the markdown editor.  
-If a *Bioconductor* package reports an error that you cannot debug and are
-requesting assistance, Please check and include the following:
+have a look at the [posting
+guide](http://www.bioconductor.org/help/support/posting-guide/) for some great
+advice and the [tutorial](https://support.bioconductor.org/p/117436/) for help
+on using the markdown editor. If a *Bioconductor* package reports an error that
+you cannot debug and are requesting assistance, Please check and include the
+following:
 
   * That `BiocManager::valid()` reports your packages are of the correct version.
   * Record the output of `traceback()` immediately after the error occurs.
   * Include the output of `sessionInfo()`.
-  * Provide minimal code necessary to try and reproduce the issue. StackOverflow has suggestions for making a reproducible example.
+  * Provide minimal code necessary to try and reproduce the issue. StackOverflow has suggestions for making a [reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).
 
 ### How do I format a post?
 
 The support site usese a markdown editor. There is a useful tutorial post with
-additional helpful links found here.
+additional helpful links found [here](https://support.bioconductor.org/p/117436/).
 
 ### How do I put images into my posts?
 
@@ -269,6 +275,6 @@ for the main post, as well as any answer, comment, or reply.
 ## Other
 
 Can't find what your looking for? Consider opening an issue on the
-support.bioconductor.org github issues page found here.
+support.bioconductor.org [github issues](https://github.com/Bioconductor/support.bioconductor.org/issues).
 
 
