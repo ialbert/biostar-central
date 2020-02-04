@@ -6,99 +6,108 @@
     New Post
 {% endblock %}
 
+
 {% block container %}
+    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+
     <div class="ui bottom attached create-post segment">
         {% show_messages messages %}
         {% block content %}
 
             {% form_errors form=form wmd_prefix='wmd-input' override_content=True %}
 
-                <div class="ui basic compact segment no-shadow">
+            <div class="ui basic compact segment no-shadow">
 
-                    <div class="ui medium header">Create a new post</div>
-                    <div class="ui divider"></div>
-                    <form method="post" class="ui  form" action="{{ action_url }}">
+                <div class="ui medium header">Create a new post</div>
+                <div class="ui divider"></div>
+                <form method="post" class="ui  form" action="{{ action_url }}">
 
-                        {{ form.media }}
-                        {% csrf_token %}
+                    {{ form.media }}
+                    {% csrf_token %}
 
-                        <div class="ui form-wrap segment">
-                            <div class="required field">
-                                <label>{{ form.title.label }}</label>
-                                {{ form.title }}
-                                <p class="muted">{{ form.title.help_text }}</p>
-                            </div>
+                    <div class="ui form-wrap segment">
+                        <div class="required field">
+                            <label>{{ form.title.label }}</label>
+                            {{ form.title }}
+                            <p class="muted">{{ form.title.help_text }}</p>
                         </div>
+                    </div>
 
-                        <div class="ui form-wrap segment">
-                            <div class="required field">
-                                <label>{{ form.post_type.label }}</label>
-                                {{ form.post_type }}
-                                     <p class="muted" style="display: contents; ">{{ form.post_type.help_text }} Click here for more</p> {% include 'forms/help_text.html' %}
-
-                            </div>
-                        </div>
-
-                        <div class="ui form-wrap segment">
-
-                            <div class="required field">
-                                <label>{{ form.tag_val.label }}</label>
-                                {% tags_field form_field=form.tag_val initial=tag_val %}
-                                <p class="muted">{{ form.tag_val.help_text }}</p>
-                            </div>
+                    <div class="ui form-wrap segment">
+                        <div class="required field">
+                            <label>{{ form.post_type.label }}</label>
+                            {{ form.post_type }}
+                            <p class="muted" style="display: contents; ">{{ form.post_type.help_text }} Click here for
+                                more</p> {% include 'forms/help_text.html' %}
 
                         </div>
+                    </div>
 
-                        <div class="ui form-wrap segment">
-                            <div class="required input field">
-                                {% include 'widgets/posting_msg.html' %}
+                    <div class="ui form-wrap segment">
 
-                                        <div id="wmd-button-bar"></div>
-                                        <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input" rows="17">{{ content }}</textarea>
-
-                            </div>
+                        <div class="required field">
+                            <label>{{ form.tag_val.label }}</label>
+                            {% tags_field form_field=form.tag_val initial=tag_val %}
+                            <p class="muted">{{ form.tag_val.help_text }}</p>
                         </div>
 
-                        <div class="ui preview segment">
-                            <div class="field">
-                                <label>Preview</label>
-                                <div id="preview" class="wmd-preview"></div>
-                            </div>
+                    </div>
+
+                    <div class="ui form-wrap segment">
+                        <div class="required input field">
+                            {% include 'widgets/posting_msg.html' %}
+
+                            <div id="wmd-button-bar"></div>
+                            <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input"
+                                      rows="17">{{ content }}</textarea>
+
                         </div>
+                    </div>
 
-                        {% if form.captcha %}
-                            <div class="top-padding">
-                                <div class="required field">
-                                    {{ form.captcha }}
-                                </div>
-                            </div>
-                        {% endif %}
+                    <div class="ui preview segment">
+                        <div class="field">
+                            <label>Preview</label>
+                            <div id="preview" class="wmd-preview"></div>
+                        </div>
+                    </div>
 
+                    {% if form.captcha %}
                         <div class="top-padding">
-                            <button type="submit" class="ui submit green button">
-                                <i class="check icon"></i>Save
-                            </button>
-                            <a class="ui right floated button" onclick="window.history.back()">
-                                <i class="undo icon"></i>Cancel
-                            </a>
+                            <div class="required field">
+                                {{ form.captcha }}
+                            </div>
                         </div>
+                    {% endif %}
 
-                    </form>
+                    <div class="top-padding">
+                        <button type="submit" class="ui submit green button">
+                            <i class="check icon"></i>Save
+                        </button>
+                        <a class="ui right floated button" onclick="window.history.back()">
+                            <i class="undo icon"></i>Cancel
+                        </a>
+                    </div>
 
-                </div>
+                </form>
+
+            </div>
 
         {% endblock %}
     </div>
+
+
+    <script>
+
+        $(document).ready(function () {
+
+            var converter = new Markdown.getSanitizingConverter();
+            var editor = new Markdown.Editor(converter);
+            editor.run();
+        })
+
+    </script>
 {% endblock %}
-
-<script>
-
-$(document).ready(function () {
-
-    var converter = new Markdown.getSanitizingConverter();
-    var editor = new Markdown.Editor(converter);
-    editor.run();
-})
-
-</script>
-
