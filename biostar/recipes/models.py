@@ -132,6 +132,10 @@ class Project(models.Model):
 
     sharable_token = models.CharField(max_length=32, null=True, unique=True)
 
+    data_count = models.IntegerField(default=0, null=True, db_index=True)
+    recipes_count = models.IntegerField(default=0, null=True, db_index=True)
+    jobs_count = models.IntegerField(default=0, null=True, db_index=True)
+
     objects = Manager()
 
     def save(self, *args, **kwargs):
@@ -143,6 +147,8 @@ class Project(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.owner
         self.lastedit_date = self.lastedit_date or now
+
+        self.set_counts(save=False)
 
         if not os.path.isdir(self.get_project_dir()):
             os.makedirs(self.get_project_dir())
@@ -166,6 +172,20 @@ class Project(models.Model):
     def get_data_dir(self):
         "Match consistency of data dir calls"
         return self.get_project_dir()
+
+    def set_counts(self, save=False):
+        """
+        Set the data, recipe, and job count for this project
+        """
+        data_count = self.data_set.filter(deleted=False).count()
+        recipes_count = self.analysis_set.filter(deleted=False).count()
+        job_count = self.job_set.filter(deleted=False).count()
+
+        self.data_count = data_count
+        self.recipes_count = recipes_count
+        self.jobs_count = job_count
+        if save:
+            self.save()
 
     @property
     def is_public(self):
@@ -329,6 +349,8 @@ class Data(models.Model):
         if not os.path.isfile(self.file):
             with open(self.file, 'wt') as fp:
                 pass
+        # Set the counts
+        self.project.set_counts(save=True)
 
         super(Data, self).save(*args, **kwargs)
 
@@ -535,6 +557,7 @@ class Analysis(models.Model):
 
         Project.objects.filter(uid=self.project.uid).update(lastedit_date=now,
                                                             lastedit_user=self.lastedit_user)
+        self.project.set_counts(save=True)
         super(Analysis, self).save(*args, **kwargs)
 
     def get_project_dir(self):
@@ -736,6 +759,7 @@ class Job(models.Model):
 
         if not os.path.isdir(self.path):
             os.makedirs(self.path)
+        self.project.set_counts(save=True)
 
         super(Job, self).save(*args, **kwargs)
 

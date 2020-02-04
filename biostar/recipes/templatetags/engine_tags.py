@@ -106,19 +106,15 @@ def user_icon(user):
 def list_projects(context, target):
     user = context["request"].user
     request = context["request"]
-    projects = auth.get_project_list(user=target)
+    projects = auth.get_project_list(user=target).filter(owner=target)
 
     # Don't show private projects non owners
     if user != target:
         projects = projects.exclude(privacy=Project.PRIVATE)
 
-    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(deleted=False)),
-                                 job_count=Count('job', distinct=True, filter=Q(deleted=False)),
-                                 recipe_count=Count('analysis', distinct=True, filter=Q(deleted=False)),
-                                 )
     projects = projects.order_by("-rank", "-lastedit_date")
 
-    return dict(projects=projects, user=target)
+    return dict(projects=projects, user=user, target=target)
 
 
 @register.simple_tag
@@ -368,7 +364,7 @@ def img(obj):
     if obj.image:
         return obj.image.url
     else:
-        return os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+        return urllib.parse.urljoin(settings.STATIC_URL, "images/placeholder.png")
 
 
 @register.inclusion_tag('widgets/show_messages.html')
@@ -377,7 +373,6 @@ def show_messages(messages):
     Renders the messages
     """
     return dict(messages=messages)
-
 
 
 @register.inclusion_tag('widgets/project_title.html', takes_context=True)
@@ -413,7 +408,7 @@ def image_field(default=''):
     else:
         image_field = forms.ImageField(required=False)
     image_field.widget.attrs.update({'id': 'image'})
-    placeholder = os.path.join(settings.STATIC_ROOT, 'images', 'placeholder.png')
+    placeholder = urllib.parse.urljoin(settings.STATIC_URL, "images/placeholder.png")
     image_widget = image_field.widget.render('image', value=placeholder)
 
     return mark_safe(image_widget)
@@ -486,8 +481,9 @@ def access_form(project, user, extra_class=''):
 
 @register.filter
 def get_access_label(user, project):
+    #TODO
 
-    access = Access.objects.filter(user=user, project=project).first()
+    access = Access.objects.filter(user=user, project=project).select_related('project').first()
 
     access = access or Access(access=Access.NO_ACCESS, user=user, project=project)
 
@@ -531,7 +527,7 @@ def get_access_label(project, user):
     if user.is_anonymous:
         return 'Public Access'
 
-    access = Access.objects.filter(project=project, user=user).first()
+    access = Access.objects.filter(user=user, project=project).first()
 
     # If the access is not read, write, or share
     # and the project is public, then it is seen as 'Readable'

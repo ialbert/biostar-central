@@ -87,7 +87,7 @@ def recycle_bin(request):
         query_dict = dict(project__in=projects, owner=user)
 
     projects = projects.filter(deleted=True).order_by("date")
-    projects = annotate_projects(projects)
+    #projects = annotate_projectsannotate_projects(projects)
     data = Data.objects.filter(**query_dict, deleted=True).order_by("date")
     recipes = Analysis.objects.filter(**query_dict, deleted=True).order_by("date")
     jobs = Job.objects.filter(**query_dict, deleted=True).order_by("date")
@@ -200,15 +200,6 @@ def project_info(request, uid):
     return render(request, "project_info.html", context)
 
 
-def annotate_projects(projects):
-    projects = projects.annotate(data_count=Count('data', distinct=True, filter=Q(data__deleted=False)),
-                                 job_count=Count('job', distinct=True, filter=Q(job__deleted=False)),
-                                 recipe_count=Count('analysis', distinct=True,
-                                                    filter=Q(analysis__deleted=False)))
-
-    return projects
-
-
 def project_list_private(request):
     """Only list private projects belonging to a user."""
 
@@ -220,8 +211,6 @@ def project_list_private(request):
         empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
     else:
         projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
-
-        projects = annotate_projects(projects)
 
     context = dict(projects=projects, empty_msg=empty_msg, active="projects", icon='briefcase',
                    title='Private Projects',
@@ -237,7 +226,6 @@ def project_list_public(request):
     # Exclude private projects
     projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
-    projects = annotate_projects(projects)
 
     context = dict(projects=projects, active="projects", icon='list', title='Public Projects',
                    public='active', empty_msg="No projects found.")
@@ -283,10 +271,10 @@ def job_list(request, uid):
 
 
 def get_counts(project, user=None):
-    data_count = project.data_set.filter(deleted=False).count()
-    recipe_count = project.analysis_set.filter(deleted=False).count()
+    data_count = project.data_count
+    recipe_count = project.recipes_count
 
-    result_count = project.job_set.filter(deleted=False).count()
+    result_count = project.jobs_count
     discussion_count = 0
 
     return dict(
