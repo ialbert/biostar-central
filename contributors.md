@@ -3,8 +3,4 @@
 * **István Albert** - Creator and Project Manager 
 * **Aswathy Sebastian** - Computational Biologist 
 * **Natay Aberra** - Programmer 
-* [piggybit] - Site Tester
-
-
-[piggybit]: [https://github.com/piggybit]
-
+* piggybit - Site Tester
