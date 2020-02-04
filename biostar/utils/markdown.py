@@ -238,7 +238,7 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def parse(text, post=None):
+def parse(text, post=None, sanatize=True, escape=True):
     """
     Parses markdown into html.
     Expands certain patterns into HTML.
@@ -258,8 +258,9 @@ def parse(text, post=None):
     inline.enable_ftp_link()
     inline.enable_twitter_link()
 
-    markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline)
-    text = bleach.clean(text, attributes=ALLOWED_ATTRIBUTES)
+    markdown = mistune.Markdown(escape=escape, hard_wrap=True, inline=inline)
+    if sanatize:
+        text = bleach.clean(text)
     html = markdown(text)
 
     return html

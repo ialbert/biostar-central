@@ -1,7 +1,7 @@
 
 # Frequently Asked Questions
 
-
+<a name=top></a>
 This is the FAQ for the *Bioconductor* Support Site. Please visit
 Bioconductor.org for additional project and package information. A list of
 current *Bioconductor* packages can be found here
@@ -135,6 +135,9 @@ add the tags that you want tracked into your user profile. 'My Tags' will put
 posts that match your tagging criteria into a special tab that you can check
 whenever you log in. And 'Watched Tags' should actually email you whenever
 someone posts using a tag that you are interested in.
+
+
+<div style="text-align: right"> [ <a href="#top">Back to top</a> ] </div>
 
 ### What are the different post types?
 
