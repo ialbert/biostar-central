@@ -2,10 +2,10 @@ from biostar.recipes.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-DEBUG = False
+DEBUG = True
 
 # Show debug toolbar
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = True
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:

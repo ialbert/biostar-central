@@ -258,8 +258,6 @@ def parse(text, post=None):
     text = bleach.clean(text)
     html = markdown(text)
 
-    # Clean the html of any
-
     return html
 
 
