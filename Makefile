@@ -39,6 +39,11 @@ emailer:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
+recipes_pg:
+	$(eval DJANGO_SETTINGS_MODULE := conf.examples.pg.recipes_pg_settings)
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
+
 pg:
 	$(eval DJANGO_SETTINGS_MODULE := conf.examples.pg.pg_settings)
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}

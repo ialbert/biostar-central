@@ -28,19 +28,16 @@
                             on creating a post.<br>
                         </div>
 
-                        <div class="wmd-wrapper" id="wmd-wrapper-{{ form.content.id_for_label }}">
-                            <div class="">
-                                <div id="wmd-button-bar-{{ form.content.id_for_label }}"></div>
-                                <textarea class="wmd-input-{{ form.content.id_for_label }} answer droptarget"
-
-                                          data-value="NEW" ondragover="drag_over(event, $(this))"
-                                          ondragleave="drag_leave(event, $(this))"
-
-                                          rows="17"
-                                          name="{{ form.content.name }}"
-                                          id="wmd-input-{{ form.content.id_for_label }}"></textarea>
-                            </div>
+                        <div id="wmd-button-bar-{{ form.content.id_for_label }}">
                         </div>
+
+                        <textarea class="wmd-input-{{ form.content.id_for_label }} answer droptarget"
+                                  data-value="NEW" ondragover="drag_over(event, $(this))"
+                                  ondragleave="drag_leave(event, $(this))"
+                                  rows="17"
+                                  name="{{ form.content.name }}"
+                                  id="wmd-input-{{ form.content.id_for_label }}"></textarea>
+
                     </div>
                 </div>
             </div>

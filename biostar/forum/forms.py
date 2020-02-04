@@ -21,6 +21,27 @@ MIN_CONTENT = 5
 MAX_TITLE = 400
 MAX_TAGS = 5
 
+
+class CustomPageDownWidget(forms.Textarea):
+    template_name = 'pagedown/forms/widgets/default.html'
+    def __init__(self, attrs=None):
+        super(CustomPageDownWidget, self).__init__(attrs=attrs)
+        # Add wmd-input class for easier styling
+        self.attrs['class'] = '{} wmd-input'.format(
+            self.attrs.get('class', ''))
+
+    class Media:
+        css = {
+            'all': ('pagedown/demo/browser/demo.css',)
+        }
+        js = ('pagedown/Markdown.Converter.js',
+              'pagedown-extra/pagedown/Markdown.Converter.js',
+              'pagedown/Markdown.Sanitizer.js',
+              'pagedown/Markdown.Editor.js',
+              'pagedown-extra/Markdown.Extra.js',
+              'pagedown_init.js')
+
+
 def english_only(text):
     try:
         text.encode('ascii')
@@ -95,7 +116,8 @@ class PostLongForm(forms.Form):
                               """,
                               widget=forms.HiddenInput())
 
-    content = forms.CharField(widget=PagedownWidget, validators=[english_only],
+    content = forms.CharField(widget=CustomPageDownWidget,
+                              validators=[english_only],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
     def __init__(self, post=None, user=None, *args, **kwargs):
@@ -145,7 +167,7 @@ class PostLongForm(forms.Form):
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32)
-    content = forms.CharField(widget=PagedownWidget(),
+    content = forms.CharField(widget=forms.Textarea(),
                               min_length=MIN_LEN, max_length=MAX_LEN, strip=False)
 
     def __init__(self, user=None, post=None, recaptcha=True, *args, **kwargs):

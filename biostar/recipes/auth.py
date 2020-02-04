@@ -232,6 +232,7 @@ def get_project_list(user, include_public=True, include_deleted=False):
     else:
         query = Project.objects.filter(cond, deleted=False).distinct()
 
+    #query = query.prefetch_related('access_set', 'data_set', 'analysis_set', 'job_set').select_related('owner', 'owner__profile')
     return query
 
 

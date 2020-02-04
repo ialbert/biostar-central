@@ -1,10 +1,11 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
-
+{% load static %}
 
 {% block headtitle %}
     New Post
 {% endblock %}
+
 {% block container %}
     <div class="ui bottom attached create-post segment">
         {% show_messages messages %}
@@ -51,13 +52,10 @@
                         <div class="ui form-wrap segment">
                             <div class="required input field">
                                 {% include 'widgets/posting_msg.html' %}
-                                <div class="wmd-wrapper"
-                                     id="wmd-wrapper">
-                                    <div>
+
                                         <div id="wmd-button-bar"></div>
-                                        <textarea id="wmd-input" name="{{ form.content.name }}"class="wmd-input" rows="17">{{ content }}</textarea>
-                                    </div>
-                                </div>
+                                        <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input" rows="17">{{ content }}</textarea>
+
                             </div>
                         </div>
 
@@ -92,3 +90,10 @@
         {% endblock %}
     </div>
 {% endblock %}
+
+<script>
+
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
+    </script>
