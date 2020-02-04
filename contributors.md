@@ -1,6 +1,7 @@
-## List of contributors that help maintain Biostars
+## List of contributors
 
-* **István Albert** - Creator and Project Manager 
-* **Aswathy Sebastian** - Computational Biologist 
-* **Natay Aberra** - Programmer 
-* piggybit - Site Tester
+* **István Albert** - [@ialbert](https://github.com/ialbert)
+* **Natay Aberra** 
+* **Aswathy Sebastian** 
+* **piggybit**  - [@piggybit](https://github.com/piggybit)
+* **Ram** 
