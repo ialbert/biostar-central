@@ -19,7 +19,7 @@ class read_access:
     def __init__(self, type, allowed_cors=None):
         self.type = type
         self.allowed_cors = allowed_cors
-        self.fallback_url = lambda : reverse("project_list")
+        self.fallback_url = lambda: reverse("project_list")
 
     def __call__(self, function, *args, **kwargs):
         # Pass function attributes to the wrapper

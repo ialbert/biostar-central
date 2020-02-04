@@ -1,9 +1,9 @@
 
 # Frequently Asked Questions
 
-This is the FAQ for the _Bioconductor_ Support Site. Please visit
+This is the FAQ for the *Bioconductor* Support Site. Please visit
 Bioconductor.org for additional project and package information. A list of
-current _Bioconductor_ packages can be found here
+current *Bioconductor* packages can be found here
 
   * General
     * What is the difference between the support site and the bioc-devel mailing list?
@@ -48,15 +48,15 @@ current _Bioconductor_ packages can be found here
 ### What is the difference between the support site and the bioc-devel mailing list?
 
 Do not post to both locations! The support site is for questions related to
-usage of _Bioconductor_ packages and troubleshooting; This site is appropriate
-for most questions. For guidance on developing a _Bioconductor_ package,
+usage of *Bioconductor* packages and troubleshooting; This site is appropriate
+for most questions. For guidance on developing a *Bioconductor* package,
 including current and future implementation of functions and features, please
 use the bioc-devel mailing list
 
 ### What questions should I post?
 
-The support site is for questions related to usage of _Bioconductor_ packages.
-_Bioconductor_ package maintainers are required upon submission to subscribe
+The support site is for questions related to usage of *Bioconductor* packages.
+*Bioconductor* package maintainers are required upon submission to subscribe
 to the support site and are expected to answer questions regarding their
 packages at this location. General questions about bioinformatics,
 computational genomics, biological data analysis and software unrelated to
@@ -89,7 +89,7 @@ section as long as the topic aligns with the main focus of this site. Users
 posting obvious spam will be immediately suspended or banned. Moderators will
 try to remove offensive content in a timely fashion but if you find something
 offensvie please notify webmaster@bioconductor.org. Post not relating to
-_Bioconductor_ content will generally be removed by moderators.
+*Bioconductor* content will generally be removed by moderators.
 
 ## Posts
 
@@ -99,7 +99,7 @@ One of the biggest things that new users struggle with is how to ask questions
 in a way that allows people to answer them. So if you are unfamiliar please
 have a look at the posting guide for some great advice and the tutorial for
 help on using the markdown editor.  
-If a _Bioconductor_ package reports an error that you cannot debug and are
+If a *Bioconductor* package reports an error that you cannot debug and are
 requesting assistance, Please check and include the following:
 
   * That `BiocManager::valid()` reports your packages are of the correct version.
@@ -125,7 +125,7 @@ your post.
 
 When creating a post, a user is required to enter at least one 'Post Tag'.
 There will be automatically suggested tags. These tags are generated from the
-current list of _Bioconductor_ packages as well as biocViews.
+current list of *Bioconductor* packages as well as biocViews.
 
 ### How can I keep track of topics that interest me?
 
@@ -142,9 +142,9 @@ should keep the "Ask a question" as the selected 'Post Type'. The four options
 are:
 
   * Ask a question: For general questions and help
-  * Post a Job Opening: For recruiting new hires by posting open job opportunities for a related field appropriate to the _Bioconductor_ community
-  * Share a Tutorial: Share a tutorial for a bioinformatic analysis or _Bioconductor_ package
-  * Announce News: Announce breaking news about _Bioconductor_ or package to the community at large
+  * Post a Job Opening: For recruiting new hires by posting open job opportunities for a related field appropriate to the *Bioconductor* community
+  * Share a Tutorial: Share a tutorial for a bioinformatic analysis or *Bioconductor* package
+  * Announce News: Announce breaking news about *Bioconductor* or package to the community at large
 
 ### How do I post a Job, Tutorial, or News item?
 
@@ -234,7 +234,7 @@ milestones required for the award.
 
 ### Becoming a moderator
 
-Moderators are selected by _Bioconductor_ core team members. The
+Moderators are selected by *Bioconductor* core team members. The
 responsibility of moderating posts is given to long-term trusted users.
 
 ## Banner

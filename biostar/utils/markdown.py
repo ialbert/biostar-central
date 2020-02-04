@@ -57,6 +57,7 @@ SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
 # Biostar patterns
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
 
+# Mistune returns h3 and p tags for markdown
 USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/accounts/profile/(?P<uid>[\w_.-]+)(/)?")
 POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/(?P<uid>(\w+))(/)?$")
 POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/\w+/\#(?P<uid>(\w+))(/)?")
@@ -116,7 +117,7 @@ class BiostarInlineGrammer(InlineGrammar):
     This excludes characters around the '@' symbol from being seen by other rules.
     This subclass overrides the 'text' rule to contain `@` as a stop element in the lookahead assertion
 
-    Also the '_' character not considered special.
+    Also the '_' character not considered special use * instead
     """
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
 
@@ -254,11 +255,9 @@ def parse(text, post=None):
     inline.enable_twitter_link()
 
     markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline)
-
+    text = bleach.clean(text)
     html = markdown(text)
 
-    # Clean the html of any
-    html = bleach.clean(html)
     return html
 
 
