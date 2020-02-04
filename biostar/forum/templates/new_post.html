@@ -91,3 +91,14 @@
     </div>
 {% endblock %}
 
+<script>
+
+$(document).ready(function () {
+
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
+})
+
+</script>
+
