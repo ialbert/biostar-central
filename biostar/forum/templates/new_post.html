@@ -52,7 +52,10 @@
                         <div class="ui form-wrap segment">
                             <div class="required input field">
                                 {% include 'widgets/posting_msg.html' %}
-                                {{ form.content }}
+
+                                        <div id="wmd-button-bar"></div>
+                                        <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input" rows="17">{{ content }}</textarea>
+
                             </div>
                         </div>
 
