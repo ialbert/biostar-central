@@ -65,6 +65,10 @@ POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/\w+/\#(?P<uid>(\
 # These characters are allowed in handles: _  .  -
 MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.'-]+))")
 
+ALLOWED_ATTRIBUTES = {
+    'a': ['href', 'title', 'name'],
+}
+
 # Youtube pattern.
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
@@ -255,7 +259,7 @@ def parse(text, post=None):
     inline.enable_twitter_link()
 
     markdown = mistune.Markdown(escape=True, hard_wrap=True, inline=inline)
-    text = bleach.clean(text)
+    text = bleach.clean(text, attributes=ALLOWED_ATTRIBUTES)
     html = markdown(text)
 
     return html
