@@ -81,21 +81,6 @@ def post_exists(func):
     return _wrapper_
 
 
-def policy(request):
-    context = dict()
-    return render(request, template_name="pages/policy.html", context=context)
-
-
-def about(request):
-    context = dict()
-    return render(request, template_name="pages/about.html", context=context)
-
-
-def faq(request):
-    context = dict()
-    return render(request, template_name="pages/faq.html", context=context)
-
-
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.
@@ -202,13 +187,19 @@ class CachedPaginator(Paginator):
 def pages(request, doc):
     # Get all files in the directory root.
     dir_list = os.listdir(os.path.abspath(settings.DOCS_ROOT))
+    dir_list = list(filter(lambda d: d.endswith(f"{doc}.md"), dir_list))
 
-    print(dir_list)
+    if not len(dir_list):
+        messages.error(request, f"Page does not exist: {doc}")
+        return redirect("/")
 
-    #recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes', 'recipes.md')
-    #recipe_docs = open(recipe_docs, 'r').read()
+    # Get the first match
+    target_doc = dir_list[0]
+    # Get fill path to markdown file
+    markdown_file = os.path.join(settings.DOCS_ROOT, target_doc)
+    context = dict(markdown_file=markdown_file, tab=doc)
 
-    return
+    return render(request, 'pages.html', context=context)
 
 
 @ensure_csrf_cookie
