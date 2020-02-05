@@ -91,6 +91,9 @@ body > .widen.container {
     color: #1a69a4;
     font-weight: bold;
 }
+.ui.dropdown .helpers.menu>.disabled.item {
+    opacity: 1;
+}
 
 #menu-topics .item:hover {
     background: rgba(0,0,0,.05);
