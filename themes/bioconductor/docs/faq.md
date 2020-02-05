@@ -47,11 +47,11 @@ current *Bioconductor* packages can be found [here](https://bioconductor.org/pac
 
 <a name="general"></a>
 
-## General
+# General
 
 <a name="g1"></a>
 
-### What is the difference between the support site and the bioc-devel mailing list?
+#### What is the difference between the support site and the bioc-devel mailing list?
 
 Do not post to both locations! The support site is for questions related to
 usage of *Bioconductor* packages and troubleshooting; This site is appropriate
@@ -61,7 +61,7 @@ use the bioc-devel mailing list
 
 <a name="g2"></a>
 
-### What questions should I post?
+#### What questions should I post?
 
 The support site is for questions related to usage of *Bioconductor* packages.
 *Bioconductor* package maintainers are required upon submission to subscribe
@@ -75,14 +75,14 @@ Bioconductor can be asked on [biostars](https://www.biostars.org/) or
 
 <a name="g3"></a>
 
-### How do I contact you?
+#### How do I contact you?
 
 Those of us who maintain this site read the posts that are made here. So users
 who wish to contact us are encouraged to post to this site.
 
 <a name="g4"></a>
 
-### What if I find a bug with the support site?
+#### What if I find a bug with the support site?
 
 No site is perfect and you may come across things that you feel are not
 working as they should be. This site is based on a fork of Biostars so we have
@@ -92,14 +92,14 @@ problem with this website, we ask that you please post such questions to our
 
 <a name="g5"></a>
 
-### Where can I suggest new features to the support site?
+#### Where can I suggest new features to the support site?
 
 New feature requests can be made by opening an issue on the [github
 repository](https://github.com/Bioconductor/support.bioconductor.org/issues).
 
 <a name="g6"></a>
 
-### What about offensive content?
+#### What about offensive content?
 
 Users posting content that does not belong to the site will be notified and
 required to edit their content. Users may post job postings to the 'Jobs'
@@ -113,11 +113,11 @@ offensvie please notify webmaster@bioconductor.org. Post not relating to
 
 <a name="posts"></a>
 
-## Posts
+# Posts
 
 <a name="p1"></a>
 
-### How do I write good posts?
+#### How do I write good posts?
 
 One of the biggest things that new users struggle with is how to ask questions
 in a way that allows people to answer them. So if you are unfamiliar please
@@ -135,14 +135,14 @@ following:
 
 <a name="p2"></a>
 
-### How do I format a post?
+#### How do I format a post?
 
 The support site usese a markdown editor. There is a useful tutorial post with
 additional helpful links found [here](https://support.bioconductor.org/p/117436/).
 
 <a name="p3"></a>
 
-### How do I put images into my posts?
+#### How do I put images into my posts?
 
 You can also put images and plots into your posts. All you need to do is
 create (or login to) a free account with http://imgur.com and upload any
@@ -153,7 +153,7 @@ your post.
 
 <a name="p4"></a>
 
-### What post tags are automatically suggested?
+#### What post tags are automatically suggested?
 
 When creating a post, a user is required to enter at least one 'Post Tag'.
 There will be automatically suggested tags. These tags are generated from the
@@ -161,7 +161,7 @@ current list of *Bioconductor* packages as well as biocViews.
 
 <a name="p5"></a>
 
-### How can I keep track of topics that interest me?
+#### How can I keep track of topics that interest me?
 
 This site offers two ways to track posts when they use certain tags. You can
 add the tags that you want tracked into your user profile. 'My Tags' will put
@@ -171,7 +171,7 @@ someone posts using a tag that you are interested in.
 
 <a name="p6"></a>
 
-### What are the different post types?
+#### What are the different post types?
 
 When ASK A QUESTION is selected there are four options. Most often a user
 should keep the "Ask a question" as the selected 'Post Type'. The four options
@@ -184,14 +184,14 @@ are:
 
 <a name="p7"></a>
 
-### How do I post a Job, Tutorial, or News item?
+#### How do I post a Job, Tutorial, or News item?
 
 Follow the ASK A QUESTION link and choose the appropriate field in the 'Post
 Type' drop down box.
 
 <a name="p8"></a>
 
-### How do I filter posts?
+#### How do I filter posts?
 
 There are a number of different ways to filter posts. A user can edit their
 'My Tags' in their profile to allow specific posts in the 'My Tags' section of
@@ -199,13 +199,15 @@ the banner. To filter the main posting list, a user could search for a
 specific term in the search field above the post listings. A user could also
 filter using the 'Limit' and 'Sort' drop down boxes above the post listings.
 
+<div style="text-align: right"> [ <a href="#top">Back to top</a> ] </div>
+
 <a name="account"></a>
 
-## Account
+# Account
 
 <a name="a1"></a>
 
-### How do I merge multiple previous acccounts?
+#### How do I merge multiple previous acccounts?
 
 So perhaps you have been using the Bioconductor mailing list for a long time
 and during that time you have been using multiple different aliases. And now
@@ -230,14 +232,14 @@ primary account for this site.
 
 <a name="a2"></a>
 
-### User reputation
+#### User reputation
 
 The number next to a user's name is the sum of upvotes and accepted answers
 that user has collected. Upvotes boost your reputation on the site.
 
 <a name="a3"></a>
 
-### How do I edit my profile?
+#### How do I edit my profile?
 
 Navigate to your user account by either clicking on your name or go to the
 list of users, search for your user name, and click on it. From this page, you
@@ -245,11 +247,11 @@ should be able to select 'Edit profile' under your gravatar/profile picture.
 
 <a name="a4"></a>
 
-### How do I update my profile picture?
+#### How do I update my profile picture?
 
 <a name="a5"></a>
 
-### What is a handle and how do I update it?
+#### What is a handle and how do I update it?
 
 A handle is a convenient way for other users to tag you in a post so you
 receive a email notification regarding the posting. If a users handle was
@@ -259,7 +261,7 @@ their profile. See previous section on editing profile.
 
 <a name="a6"></a>
 
-### What are the different notification options?
+#### What are the different notification options?
 
 When editing your profile there are different notification options to choose
 from. The following describe the options:
@@ -271,7 +273,7 @@ from. The following describe the options:
 
 <a name="a7"></a>
 
-### What is the different between 'My Tags' and 'Watched Tags'?
+#### What is the different between 'My Tags' and 'Watched Tags'?
 
 'My Tags' controls which posts can be seen in the 'My Tags' tab. Any post with
 the tags listed will show up in the tab. 'Watched Tags' controls email
@@ -281,75 +283,80 @@ for at minimum 'Watched Tags'.
 
 <a name="a8"></a>
 
-### Does selecting a digest option change my notification option?
+#### Does selecting a digest option change my notification option?
 
 <a name="a9"></a>
 
-### How are awards generated?
+#### How are awards generated?
 
 Awards are triggered automatically by performing actions or reaching
 milestones required for the award.
 
 <a name="a10"></a>
 
-### What awards are available to earn?
+#### What awards are available to earn?
 
 <a name="a11"></a>
 
-### Becoming a moderator
+#### Becoming a moderator
 
 Moderators are selected by *Bioconductor* core team members. The
 responsibility of moderating posts is given to long-term trusted users.
 
+<div style="text-align: right"> [ <a href="#top">Back to top</a> ] </div>
+
 <a name="banner"></a>
 
-## Banner
+# Banner
 
 <a name="b1"></a>
 
-### What shows up in 'Messages'?
+#### What shows up in 'Messages'?
 
 The Messages tab shows awards earned and comments on posts.
 
 <a name="b2"></a>
 
-### What shows up in 'Votes'?
+#### What shows up in 'Votes'?
 
 The Votes tab shows posts that have received an upvote, accepted answer, or if
 someone has bookmarked your post.
 
 <a name="b3"></a>
 
-### What shows up in 'My Posts'
+#### What shows up in 'My Posts'
 
 Any post that you have created, answered or commented appear in this tab.
 
 <a name="b4"></a>
 
-### What shows up in 'My Tags'
+#### What shows up in 'My Tags'
 
 Any post with the tags identified in 'My Tags' of a user's profile are listed
 under this tab. These can be edited by updating/editing your user profile.
 
 <a name="b5"></a>
 
-### What shows up in 'Follow'?
+#### What shows up in 'Follow'?
 
 <a name="b6"></a>
 
-### What shows up in 'Bookmarks'? / How do I bookmark a post?
+#### What shows up in 'Bookmarks'? / How do I bookmark a post?
 
 After selecting a post, there is a bookmark icon underneath the upvote count
 for the main post, as well as any answer, comment, or reply.
 
 <a name="b7"></a>
 
-### What does selecting a digest option do? Does it effect my notification option?
+#### What does selecting a digest option do? Does it effect my notification option?
+
+<div style="text-align: right"> [ <a href="#top">Back to top</a> ] </div>
 
 <a name="other"></a>
 
-## Other
+# Other
 
 Can't find what your looking for? Consider opening an issue on the
 support.bioconductor.org [github issues](https://github.com/Bioconductor/support.bioconductor.org/issues).
 
+<div style="text-align: right"> [ <a href="#top">Back to top</a> ] </div>
