@@ -418,9 +418,9 @@ function copy_object(uid, project_uid, clipboard) {
     )
 }
 
-function copy_file(path) {
-    let elem = $('.copy_msg[data-path="' + path + '"]');
-
+function copy_file(path, rel_path) {
+    let elem = $('.copy_msg[data-rel="' + rel_path + '"]');
+    //alert(elem.html());
     $.ajax('/file/copy/', {
             type: 'POST',
             dataType: 'json',
@@ -734,7 +734,9 @@ $(document).ready(function () {
 
     $(this).on('click', '.copy_file', function () {
         let path = $(this).data('path');
-        copy_file(path)
+        let rel_path = $(this).data('rel');
+        //alert(rel_path);
+        copy_file(path, rel_path)
     });
 
 

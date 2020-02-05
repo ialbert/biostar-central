@@ -642,16 +642,26 @@ $(document).ready(function () {
 
     });
 
-    $(this).on('keyup', '#wmd-input-id_content', function (event) {
+    $(this).on('click', '#wmd-button-bar.answer', function (event) {
+        setTimeout(function () {
+            var text = $('textarea.answer').val();
+            var preview = $('#answer-preview');
+            highlight(text, preview);
+        }, 10);
+
+    });
+
+
+    $(this).on('keyup', 'textarea.answer', function (event) {
         var text = $(this).val();
         var preview = $('#answer-preview');
         highlight(text, preview);
     });
 
 
-    $(this).on('click', '#wmd-button-bar-id_content', function (event) {
+    $(this).on('click', 'textarea.answer', function (event) {
         setTimeout(function () {
-            var text = $('#wmd-input-id_content').val();
+            var text = $('textarea.answer').val();
             var preview = $('#answer-preview');
             highlight(text, preview);
         }, 10);

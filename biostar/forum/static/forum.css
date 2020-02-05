@@ -12,6 +12,7 @@ body > .widen.container {
     width: 97%;
 }
 
+
 #logo {
     padding: 10px;
     width: 220px;
@@ -89,6 +90,9 @@ body > .widen.container {
 .ui.pointing.menu .active.item:after {
     color: #1a69a4;
     font-weight: bold;
+}
+.ui.dropdown .helpers.menu>.disabled.item {
+    opacity: 1;
 }
 
 #menu-topics .item:hover {

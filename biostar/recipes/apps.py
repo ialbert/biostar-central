@@ -15,21 +15,6 @@ class EngineConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(init_app, sender=self)
         post_migrate.connect(init_snippets, sender=self)
-        post_migrate.connect(apply_counts, sender=self)
-        pass
-
-
-def apply_counts(sender, **kwargs):
-    """
-    Temporary function used to set counts in the project.
-    """
-    from biostar.recipes.models import Project
-    projects = Project.objects.filter()
-
-    for project in projects:
-        project.set_counts(save=True)
-
-    return
 
 
 def init_snippets(sender, **kwargs):

@@ -564,8 +564,9 @@ def file_listing(root, limit=None):
             if dir_names[0] == '':
                 dir_names = []
             last_name = elems[-1]
+            dir_name = os.path.dirname(path)
             is_image = last_name.split(".")[-1] in IMAGE_EXT
-            return rel_path, dir_names, last_name, tstamp, size, is_image
+            return rel_path, dir_names, last_name, tstamp, size, is_image, dir_name
 
         # Transform the paths.
         paths = map(transform, paths)

@@ -1,6 +1,6 @@
 {% extends "forum_list.html" %}
 {% load forum_tags %}
-{% load cache %}
+{% load static %}
 
 {% block headtitle %}
     {{ post.title }}
@@ -8,6 +8,10 @@
 
 
 {% block body %}
+    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
 
     {# The toplevel post #}
     <div class="ui vertical segment">
@@ -37,27 +41,35 @@
 
     {% endif %}
 
+    <script>
+
+        $(document).ready(function () {
+
+            var converter = new Markdown.getSanitizingConverter();
+            var editor = new Markdown.Editor(converter);
+            editor.run();
+        })
+
+    </script>
+
 {% endblock %}
 
 {% block sidebar %}
 
     {#  Cache every hour #}
 
-        <b>Similar Posts </b>
+    <b>Similar Posts </b>
 
-        <div class="ui basic segment" id="dim-similar">
-            <div id="similar-feed" post_uid="{{ post.uid }}"></div>
-            <div class="ui inverted dimmer">
-                <div class="content">
-                    <div class="ui text loader">
-                        <div class="muted">Loading Similar Posts</div>
-                    </div>
+    <div class="ui basic segment" id="dim-similar">
+        <div id="similar-feed" post_uid="{{ post.uid }}"></div>
+        <div class="ui inverted dimmer">
+            <div class="content">
+                <div class="ui text loader">
+                    <div class="muted">Loading Similar Posts</div>
                 </div>
             </div>
         </div>
-
-
-
+    </div>
 
 {% endblock %}
 
