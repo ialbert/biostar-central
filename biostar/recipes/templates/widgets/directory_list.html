@@ -2,23 +2,26 @@
 
 {% if paths %}
     <div class="ui relaxed divided list">
-        {% for  rel_path, dir_names, last_name, tstamp, size, is_image in paths %}
+        {% for  rel_path, dir_names, last_name, tstamp, size, is_image, dir_name in paths %}
 
             <div class="item">
-
 
                 <a href="{% url serve_url uid=obj.uid path=rel_path %}">
 
                     {% if is_image %}
                         <img class="ui small middle aligned image" src="{% url serve_url  uid=obj.uid path=rel_path %}">
                     {% endif %}
+
                     {% for dname in dir_names %}
                         <span class="dirname">{{ dname }}</span> /
                     {% endfor %}
                     {{ last_name }}</a>
 
                 {% if user.is_authenticated %}
-                    <a href="{% url copy_url uid=obj.uid path=rel_path %}" class="ui small right floated label"> COPY</a>
+                    <a href="{% url copy_url uid=obj.uid path=rel_path %}" class="ui small right floated label"> Copy File</a>
+                     <a data-path="{{ dir_name }}" class="ui small right floated label copy_file"> Copy Directory
+                        <span class="copy_msg" data-path="{{ dir_name }}"></span>
+                    </a>
                 {% endif %}
 
                 {% if rel_path|is_qiime_archive %}

@@ -89,13 +89,27 @@ def create_user_awards(user_id):
             message("award %s created for %s" % (badge.name, user.email))
 
 
-@spool(pass_arguments=True)
-def notify_watched_tags(post, author, extra_context={}):
-    """
-    Generate notification for users that have watched tags present in the post.
-    """
-    
-    return
+# @spool(pass_arguments=True)
+# def notify_watched_tags(post):
+#     """
+#     Generate notification for users that have watched tags present in the post.
+#     """
+#     # from biostar.accounts.models import User, Profile
+#     #
+#     # # Get the tags for this post
+#     # tags_list = post.tag_val.split(",")
+#     # emails = set()
+#     # # Tag list will always have 5 or less values.
+#     # for tag in tags_list:
+#     #
+#     #     users = User.objects.filter(profile__watched_tags__contains=tag)
+#     #     email_list = users.values("email", "profile__watched_tags")
+#     #
+#     #     print(email_list, "HOO")
+#     #     #emails.update(email_list)
+#
+#     print("FOOO", post.tag_val)
+#     #return
 
 
 @spool(pass_arguments=True)
