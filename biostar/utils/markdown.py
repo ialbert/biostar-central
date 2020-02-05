@@ -48,7 +48,6 @@ http://test.biostars.org/p/p371285/
 
 '''
 
-
 # Shortcut to re.compile
 rec = re.compile
 SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"

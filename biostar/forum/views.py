@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 from functools import wraps
+import os
 
 from whoosh.searching import Results
 from django.conf import settings
@@ -196,6 +197,18 @@ class CachedPaginator(Paginator):
         value = cache.get(self.count_key)
 
         return value
+
+
+def pages(request, doc):
+    # Get all files in the directory root.
+    dir_list = os.listdir(os.path.abspath(settings.DOCS_ROOT))
+
+    print(dir_list)
+
+    #recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes', 'recipes.md')
+    #recipe_docs = open(recipe_docs, 'r').read()
+
+    return
 
 
 @ensure_csrf_cookie
