@@ -793,7 +793,8 @@ def markdown_file(pattern):
         text = f"    file '{pattern}': '{path}' not found"
 
     try:
-        html = markdown.parse(text)
+
+        html = markdown.parse(text, sanatize=False, escape=False)
         html = bleach.linkify(html, callbacks=[top_level_only], skip_tags=['pre'])
         html = mark_safe(html)
     except Exception as e:
