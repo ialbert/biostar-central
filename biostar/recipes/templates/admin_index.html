@@ -82,7 +82,7 @@
                                 <div class="ui {% job_color job %} label">{{ job.get_state_display }}</div>
                             </td>
                             <td class="{% if job.deleted %}negative{% endif %}">
-                                <a href="{{ job.url }}">{{ job.get_name }}</a>
+                                <a href="{{ job.url }}">{{ job.get_name|truncatechars:40  }}</a>
                             </td>
 
                             <td>
