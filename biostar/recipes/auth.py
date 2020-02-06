@@ -157,16 +157,6 @@ def detect_cores(request):
     return ''
 
 
-def text_diff(text1, text2):
-    # Empty template is seen as no change ( False)
-    text1 = text1.splitlines(keepends=True)
-    text2 = text2.splitlines(keepends=True)
-
-    change = list(difflib.unified_diff(text1, text2))
-
-    return change
-
-
 def link_file(source, target_dir):
     base, filename = os.path.split(source)
     target = os.path.join(target_dir, filename)

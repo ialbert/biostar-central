@@ -25,37 +25,36 @@ def created_post(pid):
 # https://github.com/unbit/uwsgi/issues/1369
 #
 
-#@timer(secs=180)
-def update_index(*args):
-    """
-    Index 1000 posts every 3 minutes
-    """
-    from biostar.forum.models import Post
-    from biostar.forum import search
-    from django.conf import settings
-
-    # Get un-indexed posts
-    posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
-
-    # Nothing to be done.
-    if not posts:
-        message("No new posts found")
-        return
-
-    message(f"Indexing {len(posts)} posts.")
-
-    # Update indexed field on posts.
-    Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
-
-    try:
-        search.index_posts(posts=posts)
-        message(f"Updated search index with {len(posts)} posts.")
-    except Exception as exc:
-        message(f'Error updating index: {exc}')
-        Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
-
-    return
-
+# #@timer(secs=180)
+# def update_index(*args):
+#     """
+#     Index 1000 posts every 3 minutes
+#     """
+#     from biostar.forum.models import Post
+#     from biostar.forum import search
+#     from django.conf import settings
+#
+#     # Get un-indexed posts
+#     posts = Post.objects.filter(indexed=False)[:settings.BATCH_INDEXING_SIZE]
+#
+#     # Nothing to be done.
+#     if not posts:
+#         message("No new posts found")
+#         return
+#
+#     message(f"Indexing {len(posts)} posts.")
+#
+#     # Update indexed field on posts.
+#     Post.objects.filter(id__in=posts.values('id')).update(indexed=True)
+#
+#     try:
+#         search.index_posts(posts=posts)
+#         message(f"Updated search index with {len(posts)} posts.")
+#     except Exception as exc:
+#         message(f'Error updating index: {exc}')
+#         Post.objects.filter(id__in=posts.values('id')).update(indexed=False)
+#
+#     return
 
 @spool(pass_arguments=True)
 def create_user_awards(user_id):

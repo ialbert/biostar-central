@@ -222,19 +222,19 @@ def create_snippet(request):
     return ajax_success(msg="Created snippet", html=created_form)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
-def delete_snippet(request):
-
-    snippet_uid = request.POST.get('snippet_uid', '')
-    # Get the snippet
-    snippet = Snippet.objects.filter(uid=snippet_uid).first()
-
-    if request.user != snippet.owner:
-        return ajax_error(msg="Only owners or superusers can delete their code snippets.")
-
-    return
+# @ratelimit(key='ip', rate='50/h')
+# @ratelimit(key='ip', rate='10/m')
+# @ajax_error_wrapper(method="POST")
+# def delete_snippet(request):
+#
+#     snippet_uid = request.POST.get('snippet_uid', '')
+#     # Get the snippet
+#     snippet = Snippet.objects.filter(uid=snippet_uid).first()
+#
+#     if request.user != snippet.owner:
+#         return ajax_error(msg="Only owners or superusers can delete their code snippets.")
+#
+#     return
 
 
 @ajax_error_wrapper(method="POST", login_required=False)
@@ -376,7 +376,6 @@ def file_copy(request):
     """
     path = request.POST.get('path')
     fullpath = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
-
     if not os.path.exists(fullpath):
         return ajax_error(msg="File path does not exist.")
 
