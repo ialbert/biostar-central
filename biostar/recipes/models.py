@@ -349,10 +349,11 @@ class Data(models.Model):
         if not os.path.isfile(self.file):
             with open(self.file, 'wt') as fp:
                 pass
-        # Set the counts
-        self.project.set_counts(save=True)
 
         super(Data, self).save(*args, **kwargs)
+
+        # Set the counts
+        self.project.set_counts(save=True)
 
     def peek(self):
         """

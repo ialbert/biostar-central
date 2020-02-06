@@ -29,7 +29,7 @@
                         </div>
 
                         <div id="wmd-button-bar" class="answer"></div>
-                        <textarea class="wmd-input answer droptarget"
+                        <textarea class="wmd-input answer autocomplete droptarget"
                                   data-value="NEW" ondragover="drag_over(event, $(this))"
                                   ondragleave="drag_leave(event, $(this))"
                                   rows="17"
@@ -64,3 +64,13 @@
     </form>
 
 </div>
+
+
+<script>
+
+    $(document).ready(function () {
+        var users = "{{ users_list }}".split(',');
+        autocomplete_users(users)
+    })
+
+</script>

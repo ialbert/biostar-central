@@ -22,6 +22,11 @@
 
                 </div>
                 <div class="extra">
+                    Recipe created
+                        by <a href="{% url 'user_profile'  recipe.owner.profile.uid %}">
+                        {{ recipe.owner.profile.name }}
+                    </a>
+                   &bull;
                     {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
                 </div>
             </div>

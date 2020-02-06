@@ -95,14 +95,6 @@ def counts(context):
     return dict(votes=votes, messages=messages)
 
 
-@register.inclusion_tag('widgets/inplace_form.html')
-def inplace_form(post, width='100%'):
-    pad = 4 if post.type == Post.COMMENT else 7
-    rows = len(post.content.split("\n")) + pad
-    context = dict(post=post, width=width, rows=rows)
-    return context
-
-
 @register.inclusion_tag('widgets/post_user_line_search.html')
 def post_search_line(result, avatar=True):
     return dict(post=result, avatar=avatar)

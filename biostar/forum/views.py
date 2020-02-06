@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 from functools import wraps
 import os
+import zlib
 
 from whoosh.searching import Results
 from django.conf import settings
@@ -418,7 +419,9 @@ def post_view(request, uid):
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
-    context = dict(post=root, tree=comment_tree, form=form, answers=answers)
+    users = ','.join(User.objects.all().values_list('username', flat=True))
+    context = dict(post=root, tree=comment_tree, form=form, answers=answers, users=users,
+                   users_list=users)
 
     return render(request, "post_view.html", context=context)
 

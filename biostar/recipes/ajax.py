@@ -408,6 +408,8 @@ def toggle_delete(request):
     # Toggle the delete state if the user has write access
     if access:
         auth.delete_object(obj=obj, request=request)
+        # Re-set project counts
+        obj.project.set_counts(save=True)
         counts = obj_model.objects.filter(project=obj.project, deleted=False).count()
         return ajax_success(msg='Toggled delete', counts=counts)
 

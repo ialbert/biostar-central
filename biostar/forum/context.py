@@ -13,5 +13,4 @@ def forum(request):
 
     params = dict(user=request.user, width=width, height=height,
                   VERSION=VERSION, request=request, site_name=settings.SITE_NAME, )
-
     return params

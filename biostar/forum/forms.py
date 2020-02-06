@@ -166,11 +166,11 @@ def mod_choices(post):
     Return available moderation options for a post.
     """
     choices = [
-        (BUMP_POST, "Bump thread rank."),
+        (BUMP_POST, "Bump post."),
         (MOVE_ANSWER, "Move comment to answer."),
         (OPEN_POST, "Open post"),
         (DELETE, "Delete post."),
-        (REPORT_SPAM, "Report as spam.")
+        (REPORT_SPAM, "Mark as spam.")
     ]
 
     # Moderation options for top level posts
