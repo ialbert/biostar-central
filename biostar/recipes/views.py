@@ -669,10 +669,8 @@ def recipe_run(request, uid):
             # Create the job from the recipe and incoming json data.
             job = auth.create_job(analysis=analysis, user=request.user, fill_with=form.cleaned_data)
 
-            # Spool the job right away if UWSGI exists.
-            if tasks.HAS_UWSGI:
-                # Spool via UWSGI.
-                tasks.execute_job.spool(job_id=job.id)
+            # Spool via UWSGI or start it synchronously.
+            tasks.execute_job.spool(job_id=job.id)
 
             return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
     else:
@@ -708,10 +706,8 @@ def job_rerun(request, uid):
     # Create a new job
     job = auth.create_job(analysis=recipe, user=request.user, json_data=json_data)
 
-    # Spool the job right away if UWSGI exists.
-    if tasks.HAS_UWSGI:
-        # Spool via UWSGI.
-        tasks.execute_job.spool(job_id=job.id)
+    # Spool via UWSGI or run it synchronously.
+    tasks.execute_job.spool(job_id=job.id)
 
     return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
 

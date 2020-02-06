@@ -78,6 +78,7 @@ class SiteNavigation(TestCase):
         urls = [
             reverse('index'),
             reverse('logout'),
+            reverse('about'),
             reverse('login'),
             reverse('search'),
             reverse('project_list'),

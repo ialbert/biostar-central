@@ -130,3 +130,4 @@ class UtilTests(TestCase):
 
             with self.assertRaises(ValidationError):
                 forms.check_size(File(open(fname, "r")), maxsize=0.000001)
+

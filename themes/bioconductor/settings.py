@@ -52,6 +52,7 @@ TEMPLATES = [
     },
 ]
 
+DOCS_ROOT = os.path.join(CUSTOM_THEME, 'docs')
 
 # How many recent objects to show in the feed.
 VOTE_FEED_COUNT = 5

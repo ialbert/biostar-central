@@ -93,6 +93,8 @@ PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css',)
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ACCOUNTS_APPS + EMAILER_APP
 
+
+DOCS_ROOT = os.path.join(DOCS_ROOT, "forum")
 # Directory for the planets app.
 #PLANET_DIR = ''
 

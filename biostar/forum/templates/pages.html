@@ -1,12 +1,13 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
 
+
 {% block headtitle %}
-    About Biostar
+    {{ tab }}
 {% endblock %}
 
 {% block content %}
 
-    {% markdown_file "docs/forum/about.md" %}
+    {% markdown_file markdown_file %}
 
- {%  endblock %}
+{% endblock %}
