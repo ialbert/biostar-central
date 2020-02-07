@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import F, Q
 from django.utils.timezone import utc
-
+from django.core.cache import cache
 from biostar.accounts.models import Profile, Logger
 from . import util
 from .const import *
@@ -46,6 +46,23 @@ def gravatar_url(email, style='mp', size=80):
     }
     )
     return url
+
+
+def get_users_str():
+    """
+    Return comma separated string of username used for autocomplete
+    """
+
+    cache_days = 5
+    cache_secs = 60 * 60 * 24 * cache_days
+
+    users_str = cache.get(USERS_CACHE_KEY)
+    if users_str is None:
+        users_str = ','.join(User.objects.all().values_list('username', flat=True))
+        cache.set(USERS_CACHE_KEY, users_str, cache_secs)
+
+    return users_str
+
 
 
 def gravatar(user, size=80):

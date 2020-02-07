@@ -34,6 +34,15 @@ class JobViewTest(TestCase):
         self.job.save()
 
 
+    def test_scheduler(self):
+        """
+        Test task scheduler used to run queued jobs.
+        """
+        from biostar.recipes.tasks import scheduler
+        self.job = auth.create_job(analysis=self.recipe, user=self.owner)
+        self.job.state = models.Job.QUEUED
+        self.job.save()
+        scheduler.timer([])
 
     @patch('biostar.recipes.models.Job.save', MagicMock(name="save"))
     def test_job_edit(self):

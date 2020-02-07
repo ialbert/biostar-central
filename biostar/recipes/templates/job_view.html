@@ -21,7 +21,7 @@
                         <i class="bar chart icon"></i>{{ job.get_name }}
                     </a>
 
-                    <div class="description">{{ job.analysis.summary }}</div>
+                    <div class="description">{{ job.analysis.summary|markdown|safe }}</div>
 
                     <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}</span>
                         &bull;

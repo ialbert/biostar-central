@@ -125,8 +125,8 @@ def now():
 
 @register.simple_tag
 def gravatar(user=None, user_uid=None, size=80):
-
-    if user_uid:
+    hasattr(user, 'profile')
+    if user_uid and hasattr(user, 'profile'):
         user = User.objects.filter(profile__uid=user_uid).first()
 
     return auth.gravatar(user=user, size=size)
@@ -187,8 +187,8 @@ def postuid_user_line(context, uid, avatar=True, user_info=True):
 
 
 @register.inclusion_tag('widgets/user_card.html', takes_context=True)
-def user_card(context, user):
-    context.update(dict(user=user))
+def user_card(context, target):
+    context.update(dict(target=target))
     return context
 
 

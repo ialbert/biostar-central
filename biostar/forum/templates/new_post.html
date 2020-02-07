@@ -62,7 +62,7 @@
                             {% include 'widgets/posting_msg.html' %}
 
                             <div id="wmd-button-bar"></div>
-                            <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input"
+                            <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete"
                                       rows="17">{{ content }}</textarea>
 
                         </div>
@@ -106,7 +106,11 @@
             var converter = new Markdown.getSanitizingConverter();
             var editor = new Markdown.Editor(converter);
             editor.run();
-        })
+        });
+
+
+        var users = "{{ users_str }}".split(',');
+        autocomplete_users(users);
 
     </script>
 

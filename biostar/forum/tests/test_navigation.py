@@ -63,7 +63,7 @@ class ForumNavigation(TestCase):
             reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
 
             reverse('post_view', kwargs=dict(uid=self.post.uid)),
-            reverse('post_edit', kwargs=dict(uid=self.post.uid)),
+            #reverse('post_edit', kwargs=dict(uid=self.post.uid)),
             reverse('post_create'),
 
 

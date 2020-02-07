@@ -17,7 +17,7 @@ from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
 
 from biostar.accounts.models import Profile
-from . import forms, auth, tasks, util, search
+from . import forms, auth, tasks, util, search, const
 from .const import *
 from .models import Post, Vote, Badge
 
@@ -419,9 +419,9 @@ def post_view(request, uid):
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
-    users = ','.join(User.objects.all().values_list('username', flat=True))
-    context = dict(post=root, tree=comment_tree, form=form, answers=answers, users=users,
-                   users_list=users)
+    users_str = auth.get_users_str()
+
+    context = dict(post=root, tree=comment_tree, form=form, answers=answers, users_str=users_str)
 
     return render(request, "post_view.html", context=context)
 
@@ -455,8 +455,9 @@ def new_post(request):
 
     # Action url for the form is the current view
     action_url = reverse("post_create")
-
-    context = dict(form=form, tab="new", tag_val=tag_val, action_url=action_url, content=content)
+    users_str = auth.get_users_str()
+    context = dict(form=form, tab="new", tag_val=tag_val, action_url=action_url,
+                   content=content, users_str=users_str)
 
     return render(request, "new_post.html", context=context)
 
@@ -491,27 +492,3 @@ def post_moderate(request, uid):
     context = dict(form=form, post=post)
     return render(request, "post_moderate.html", context)
 
-
-@post_exists
-@login_required
-def edit_post(request, uid):
-    """
-    Edit an existing post"
-    """
-    post = Post.objects.filter(uid=uid).first()
-    action_url = reverse("post_edit", kwargs=dict(uid=post.uid))
-    user = request.user
-    initial = dict(content=post.content, title=post.title, tag_val=post.tag_val, post_type=post.type)
-
-    form = forms.PostLongForm(post=post, initial=initial, user=user)
-
-    if request.method == "POST":
-        form = forms.PostLongForm(post=post, initial=initial, data=request.POST, user=user)
-        if form.is_valid():
-            form.edit()
-            messages.success(request, f"Edited :{post.title}")
-            return redirect(post.get_absolute_url())
-
-    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post", content=post.content)
-
-    return render(request, "new_post.html", context)
