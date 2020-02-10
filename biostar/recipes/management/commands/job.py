@@ -9,6 +9,7 @@ from django.utils.encoding import force_text
 
 from biostar.recipes.models import Job
 from biostar.recipes import auth
+from django.conf import settings
 from django.utils import timezone
 from biostar.emailer.tasks import send_email
 
@@ -19,6 +20,23 @@ logger.setLevel(logging.DEBUG)
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
+
+def create_logs(job):
+
+    work_dir = job.path
+
+    # Runtime information will be saved in the log files.
+    stdout_fname = os.path.join(work_dir, settings.JOB_STDOUT)
+    stderr_fname = os.path.join(work_dir, settings.JOB_STDERR)
+
+    # Initial create each of the stdout, stderr file placeholders.
+    for path in [stdout_fname, stderr_fname]:
+        dirname = os.path.dirname(path)
+        os.makedirs(dirname, exist_ok=True)
+        with open(path, 'wt') as fp:
+            pass
+
+    return stdout_fname, stderr_fname
 
 
 def run(job, options={}):
@@ -34,11 +52,8 @@ def run(job, options={}):
     use_json = options.get('use_json')
     verbosity = options.get('verbosity', 0)
 
-    # Defined in case we bail on errors before setting it.
-    script = command = proc = None
-
-    stdout_log = []
-    stderr_log = []
+    # Create log directories and files
+    stdout_fname, stderr_fname = create_logs(job)
 
     try:
         # Find the json and the template.
@@ -97,16 +112,8 @@ def run(job, options={}):
         # The name of the file that contain the commands.
         script_name = execute.get("script_name", "recipe.sh")
 
-        # Make the log directory that stores sdout, stderr.
-        LOG_DIR = 'runlog'
-        log_dir = os.path.join(work_dir, f"{LOG_DIR}")
-        if not os.path.isdir(log_dir):
-            os.mkdir(log_dir)
-
         # Runtime information will be saved in the log files.
-        json_fname = f"{log_dir}/input.json"
-        stdout_fname = f"{log_dir}/stdout.txt"
-        stderr_fname = f"{log_dir}/stderr.txt"
+        json_fname = os.path.join(job.path, f"{settings.JOB_LOGDIR}", "input.json")
 
         # Build the command line
         command = execute.get("command", f"bash {script_name}")
@@ -137,8 +144,7 @@ def run(job, options={}):
 
         # Make the output directory
         logger.info(f'Job id={job.id} work_dir: {work_dir}')
-        if not os.path.isdir(work_dir):
-            os.mkdir(work_dir)
+        os.makedirs(work_dir, exist_ok=True)
 
         # Create the script in the output directory.
         with open(os.path.join(work_dir, script_name), 'wt') as fp:
@@ -148,17 +154,12 @@ def run(job, options={}):
         with open(json_fname, 'wt') as fp:
             fp.write(hjson.dumps(json_data, indent=4))
 
-        # Initial create each of the stdout, stderr file placeholders.
-        for path in [stdout_fname, stderr_fname]:
-            with open(path, 'wt') as fp:
-                pass
-
         # Show the command that is executed.
         logger.info(f'Job id={job.id} executing: {full_command}')
 
         # Job must be authorized to run.
         if job.security != Job.AUTHORIZED:
-            raise Exception(f"Job security error: {job.get_security_display()}")
+            raise Exception(f"Job security error: {job.get_security_display()}. Recipe security : {job.analysis.get_security_display()}")
 
         # Switch the job state to RUNNING and save the script field.
         Job.objects.filter(pk=job.pk).update(state=Job.RUNNING,
@@ -166,7 +167,8 @@ def run(job, options={}):
                                              script=script)
         # Run the command.
         proc = subprocess.run(command, cwd=work_dir, shell=True,
-                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                              stdout=open(stdout_fname, "w"),
+                              stderr=open(stderr_fname, "w"))
 
         # Raise an error if returncode is anything but 0.
         proc.check_returncode()
@@ -176,31 +178,21 @@ def run(job, options={}):
         Job.objects.filter(pk=job.pk).update(state=Job.COMPLETED)
 
     except Exception as exc:
+        # Write error to log file
+        open(stderr_fname, "a").write(f"\n{exc}")
         # Handle all errors here.
         Job.objects.filter(pk=job.pk).update(state=Job.ERROR)
-        stderr_log.append(f'{exc}')
         logger.error(f'job id={job.pk} error {exc}')
 
-    # Collect the output.
-    if proc:
-        stdout_log.extend(force_text(proc.stdout, errors="backslashreplace").splitlines())
-        stderr_log.extend(force_text(proc.stderr, errors="backslashreplace").splitlines())
-
+    stdout_log = open(stdout_fname, "r").read()
+    stderr_log = open(stderr_fname, "r").read()
     # Save the logs and end time
     Job.objects.filter(pk=job.pk).update(end_date=timezone.now(),
-                                         stdout_log="\n".join(stdout_log),
-                                         stderr_log="\n".join(stderr_log))
+                                         stdout_log=stdout_log,
+                                         stderr_log=stderr_log)
 
     # Reselect the job to get refresh fields.
     job = Job.objects.filter(pk=job.pk).first()
-
-    # Create a log script in the output directory as well.
-    with open(stdout_fname, 'wt') as fp:
-        fp.write(job.stdout_log)
-
-    # Create a log script in the output directory as well.
-    with open(stderr_fname, 'wt') as fp:
-        fp.write(job.stderr_log)
 
     # Log job status.
     logger.info(f'Job id={job.id} finished, status={job.get_state_display()}')
@@ -286,7 +278,7 @@ class Command(BaseCommand):
 
             job = Job.objects.filter(uid=jobuid) or Job.objects.filter(id=jobid)
             if not job:
-                logger.info(f'job for id={jobid}/uid={jobuid} missing')
+                logger.info(f'job for id={jobid}/uid="{jobuid}"" missing')
             else:
                 run(job.first(), options=options)
             return

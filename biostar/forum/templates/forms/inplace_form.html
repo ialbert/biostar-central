@@ -35,7 +35,7 @@
             {% if post.is_comment or add_comment %}
                 <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="8">{% if not add_comment %}{{ post.content }}{% endif %}</textarea>
             {% else %}
-                <textarea id="wmd-input" class="wmd-input" rows="17">{{ post.content }}</textarea>
+                <textarea id="wmd-input" class="wmd-input autocomplete" rows="17">{{ post.content }}</textarea>
             {% endif %}
 
         </div>
@@ -318,6 +318,6 @@
         }
     });
 
-    //var users = $('#wmd-input').data("users").split(',');
-    //autocomplete_users(users)
+    var users = "{{ users_str }}".split(',');
+    autocomplete_users(users)
 </script>

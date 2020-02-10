@@ -22,10 +22,6 @@ from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Acce
 logger = logging.getLogger("engine")
 register = template.Library()
 
-JOB_COLORS = {Job.SPOOLED: "spooled",
-              Job.ERROR: "errored", Job.QUEUED: "queued",
-              Job.RUNNING: "running", Job.COMPLETED: "completed"
-              }
 DATA_COLORS = {
     Data.PENDING: "teal", Data.READY: "green", Data.ERROR: "red"
 }
@@ -313,12 +309,8 @@ def job_color(job):
     """
     Returns a color based on job status.
     """
-    try:
-        if isinstance(job, Job):
-            return JOB_COLORS.get(job.state, "")
-    except Exception as exc:
-        logger.error(exc)
-        return ''
+    return auth.job_color(job)
+
 
 
 @register.simple_tag
@@ -499,7 +491,7 @@ def get_access(user, project):
 
 
 @register.inclusion_tag('widgets/job_elapsed.html')
-def job_minutes(job):
+def job_minutes(job, view=False):
     check_back = ''
     # Add a tag to check a state change every ~5 seconds and update tag
     if job.state in [Job.SPOOLED, Job.RUNNING, Job.QUEUED]:
@@ -581,36 +573,11 @@ def file_listing(root, limit=None):
     return paths
 
 
-def listing(root):
-    paths = []
-
-    try:
-        paths = os.listdir(root)
-
-        def transform(path):
-            path = os.path.join(root, path)
-            tstamp = os.stat(path).st_mtime
-            size = os.stat(path).st_size
-            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
-            is_dir = os.path.isdir(path)
-            basename = os.path.basename(path)
-            return rel_path, tstamp, size, is_dir, basename
-
-        paths = map(transform, paths)
-        # Sort files by timestamps
-        paths = sorted(paths, key=lambda x: x[1], reverse=True)
-
-    except Exception as exc:
-        logging.error(exc)
-
-    return paths
-
-
 @register.inclusion_tag('widgets/files_list.html', takes_context=True)
 def files_list(context, rel_path):
     # Limit to the first 100 files.
     root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))
-    paths = listing(root=root)
+    paths = auth.listing(root=root)
     user = context['request'].user
     return dict(paths=paths, user=user, root=root)
 
@@ -630,7 +597,8 @@ def directory_list(context, obj):
 
     paths = file_listing(root=root)
 
-    return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url, user=context["request"].user)
+    return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url,
+                user=context["request"].user)
 
 
 @register.inclusion_tag('widgets/form_errors.html')

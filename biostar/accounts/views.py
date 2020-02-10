@@ -243,7 +243,6 @@ def user_logout(request):
 
 def user_login(request):
     form = forms.LoginForm()
-
     if request.method == "POST":
         form = forms.LoginForm(data=request.POST)
 

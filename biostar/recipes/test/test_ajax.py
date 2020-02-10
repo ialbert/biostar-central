@@ -149,12 +149,12 @@ class AjaxTest(TestCase):
 
         # Test rendering category form
         request = fake_request(url=url, data=category_data, user=self.owner)
-        json_response = ajax.snippet_form(request=request)
+        json_response = ajax.snippet_form(request)
         self.process_response(json_response)
 
         # Test rendering snippet form
         request = fake_request(url=url, data=snippet_data, user=self.owner)
-        json_response = ajax.snippet_form(request=request)
+        json_response = ajax.snippet_form(request)
 
         self.process_response(json_response)
 
@@ -172,7 +172,7 @@ class AjaxTest(TestCase):
 
         request = fake_request(url=url, data=data, user=self.owner)
 
-        json_response = ajax.create_snippet_type(request=request)
+        json_response = ajax.create_snippet_type(request)
 
         self.process_response(json_response)
         image_stream.close()
@@ -188,7 +188,7 @@ class AjaxTest(TestCase):
 
         # Test creating a snippet
         request = fake_request(url=url, data=create_data, user=self.owner)
-        json_response = ajax.create_snippet(request=request)
+        json_response = ajax.create_snippet(request)
 
         self.process_response(json_response)
 
@@ -204,7 +204,7 @@ class AjaxTest(TestCase):
 
         # Test creating a snippet
         request = fake_request(url=url, data=edit_data, user=self.owner)
-        json_response = ajax.create_snippet(request=request)
+        json_response = ajax.create_snippet(request)
 
         self.process_response(json_response)
 

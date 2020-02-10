@@ -95,14 +95,6 @@ def counts(context):
     return dict(votes=votes, messages=messages)
 
 
-@register.inclusion_tag('widgets/inplace_form.html')
-def inplace_form(post, width='100%'):
-    pad = 4 if post.type == Post.COMMENT else 7
-    rows = len(post.content.split("\n")) + pad
-    context = dict(post=post, width=width, rows=rows)
-    return context
-
-
 @register.inclusion_tag('widgets/post_user_line_search.html')
 def post_search_line(result, avatar=True):
     return dict(post=result, avatar=avatar)
@@ -133,8 +125,8 @@ def now():
 
 @register.simple_tag
 def gravatar(user=None, user_uid=None, size=80):
-
-    if user_uid:
+    hasattr(user, 'profile')
+    if user_uid and hasattr(user, 'profile'):
         user = User.objects.filter(profile__uid=user_uid).first()
 
     return auth.gravatar(user=user, size=size)
@@ -195,8 +187,8 @@ def postuid_user_line(context, uid, avatar=True, user_info=True):
 
 
 @register.inclusion_tag('widgets/user_card.html', takes_context=True)
-def user_card(context, user):
-    context.update(dict(user=user))
+def user_card(context, target):
+    context.update(dict(target=target))
     return context
 
 

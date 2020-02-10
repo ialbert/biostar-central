@@ -66,10 +66,42 @@ class ajax_error_wrapper:
         return _ajax_view
 
 
+# @ratelimit(key='ip', rate='50/h')
+# @ratelimit(key='ip', rate='10/m')
+# @ajax_error_wrapper(method="POST", login_required=True)
+# def ajax_inplace_form(request, uid):
+#
+#     recipe = Analysis.objects.filter(uid=uid).first()
+#
+#     if not recipe:
+#         return ajax_error(msg="Recipe does not exist.")
+#
+#     is_writable = auth.writeable_recipe(user=request.user, source=recipe, project=recipe.project)
+#
+#     if not is_writable:
+#         return ajax_error(msg="You need write access to the original recipe to edit.")
+#
+#     rows = len(recipe.template.split("\n"))
+#     rows = rows if rows and rows < 200 else 180
+#
+#     # Load the content and form template
+#     template = 'widgets/inplace_template_field.html'
+#     tmpl = loader.get_template(template_name=template)
+#
+#     #users_str = auth.get_users_str()
+#     context = dict(script=recipe.template, project=recipe.project, recipe=recipe, request=request, rows=rows)
+#     template = tmpl.render(context)
+#     #print(template, "FOOOO")
+#     return ajax_success(template=template, msg="success")
+
+
+
 def check_job(request, uid):
 
     job = Job.objects.filter(uid=uid).first()
     check_back = 'check_back' if job.state in [Job.SPOOLED, Job.RUNNING] else ''
+    stdout_path = os.path.join(job.path, settings.JOB_STDOUT)
+    stderr_path = os.path.join(job.path, settings.JOB_STDERR)
 
     try:
         state_changed = int(request.GET.get('state')) != job.state
@@ -77,11 +109,20 @@ def check_job(request, uid):
         logger.error(f'Error checking job:{exc}')
         state_changed = False
 
+    if os.path.exists(stdout_path) and os.path.exists(stderr_path):
+        stdout = open(stdout_path, 'r').read()
+        stderr = open(stderr_path, 'r').read()
+        Job.objects.filter(uid=job.uid).update(stderr_log = stderr, stdout_log=stdout)
+    else:
+        stdout = stderr = None
+
     context = dict(job=job, check_back=check_back)
     tmpl = loader.get_template('widgets/job_elapsed.html')
     template = tmpl.render(context=context)
 
-    return ajax_success(msg='success', html=template, state=job.get_state_display(), state_changed=state_changed)
+    return ajax_success(msg='success', html=template, state=job.get_state_display(),
+                        stdout=stdout, stderr=stderr, job_color=auth.job_color(job),
+                        state_changed=state_changed)
 
 
 @ajax_error_wrapper(method="POST", login_required=False)
@@ -106,8 +147,8 @@ def snippet_code(request):
     return ajax_success(code=code, msg="Rendered the template", html=template_field)
 
 
-#@ratelimit(key='ip', rate='50/h')
-#@ratelimit(key='ip', rate='10/m')
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=False)
 def snippet_form(request):
 
@@ -143,8 +184,8 @@ def check_size(fobj, maxsize=0.3):
     return "Valid", True
 
 
-#@ratelimit(key='ip', rate='50/h')
-#@ratelimit(key='ip', rate='10/m')
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def create_snippet_type(request):
     name = request.POST.get('name', '')
@@ -175,8 +216,8 @@ def create_snippet_type(request):
     return ajax_success(msg="Created snippet", html=new_type)
 
 
-#@ratelimit(key='ip', rate='50/h')
-#@ratelimit(key='ip', rate='10/m')
+@ratelimit(key='ip', rate='50/h')
+@ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def create_snippet(request):
 
@@ -408,6 +449,8 @@ def toggle_delete(request):
     # Toggle the delete state if the user has write access
     if access:
         auth.delete_object(obj=obj, request=request)
+        # Re-set project counts
+        obj.project.set_counts(save=True)
         counts = obj_model.objects.filter(project=obj.project, deleted=False).count()
         return ajax_success(msg='Toggled delete', counts=counts)
 

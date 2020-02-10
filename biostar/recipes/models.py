@@ -349,10 +349,11 @@ class Data(models.Model):
         if not os.path.isfile(self.file):
             with open(self.file, 'wt') as fp:
                 pass
-        # Set the counts
-        self.project.set_counts(save=True)
 
         super(Data, self).save(*args, **kwargs)
+
+        # Set the counts
+        self.project.set_counts(save=True)
 
     def peek(self):
         """
@@ -746,6 +747,7 @@ class Job(models.Model):
         now = timezone.now()
         self.name = self.name or f"Results for: {self.analysis.name}"
         self.date = self.date or now
+        self.text = self.text or self.analysis.text
         self.html = make_html(self.text, user=self.lastedit_user)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
@@ -754,6 +756,7 @@ class Job(models.Model):
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
         self.path = self.make_path()
+
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
@@ -774,6 +777,13 @@ class Job(models.Model):
         result = template.render(context)
 
         return result
+
+    def runnable(self):
+        """
+        Job is authorized to run
+        """
+        authorized = self.analysis.runnable() and self.security == self.AUTHORIZED
+        return authorized
 
     def get_name(self):
         if self.deleted:

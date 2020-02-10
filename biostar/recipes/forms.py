@@ -299,10 +299,9 @@ class DataEditForm(forms.ModelForm):
                           check_name=False)
 
     def clean_type(self):
+
         cleaned_data = super(DataEditForm, self).clean()
-
         datatype = cleaned_data.get('type')
-
         datatype = datatype.upper()
 
         return datatype
@@ -329,7 +328,7 @@ class RecipeForm(forms.ModelForm):
 
         # Admins get an added field
         if self.user.is_superuser:
-            authorized = self.instance.security == Analysis.AUTHORIZED
+            authorized = self.instance.runnable()
             self.fields['authorized'] = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'ui checkbox'}),
                                                            initial=authorized, required=False)
 

@@ -18,6 +18,7 @@ urlpatterns = [
 
     # Ajax calls
     path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),
+    #path(r'inplace/recipe/form/<str:uid>/', ajax.ajax_inplace_form, name='ajax_inplace_form'),
     path(r'add/recipe/fields/', ajax.add_to_interface, name="add_recipe_fields"),
     path(r'snippet/code/', ajax.snippet_code, name="snippet_code"),
     path(r'add/vars/', ajax.add_variables, name="add_vars"),

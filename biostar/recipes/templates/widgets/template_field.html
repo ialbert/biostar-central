@@ -1,27 +1,38 @@
- <textarea class="code" rows="40" cols="55" name="template" id="template">{{ template }}</textarea>
+{% load static %}
 
 
-    <script type="text/javascript">
-        $(document).ready(function () {
+<link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+<script src="{% static 'codemirror/codemirror.js' %}"></script>
+<script src="{% static 'codemirror/mode/simple.js' %}"></script>
+<script src="{% static 'codemirror/mode/engine.js' %}"></script>
 
-            var template_edit = CodeMirror.fromTextArea(
-                document.getElementById("template"),
-                {
-                    lineNumbers: true,
-                    mode: "engine"
-                }
-            );
-            function updateTemplate() {
-                template_edit.save();
+
+<textarea class="code" rows="40" cols="55" name="template" id="template">{{ template }}</textarea>
+
+<script>
+
+    $(document).ready(function () {
+
+        var template_edit = CodeMirror.fromTextArea(
+            document.getElementById("template"),
+            {
+                lineNumbers: true,
+                mode: "engine"
             }
+        );
 
-            template_edit.on('change', updateTemplate);
-            {% if focus %}
-                 template_edit.focus();
-            {% endif %}
-            {% if scroll_to_bottom %}
-                template_edit.setCursor(template_edit.lineCount(), 0);
-            {% endif %}
-        });
+        function updateTemplate() {
+            template_edit.save();
+        }
 
-    </script>
+        template_edit.on('change', updateTemplate);
+        {#% if focus %#}
+        template_edit.focus();
+        {#% endif %#}
+        {#% if scroll_to_bottom %#}
+        template_edit.setCursor(template_edit.lineCount(), 0);
+        {#% endif %#}
+
+
+    })
+</script>
