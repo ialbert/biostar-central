@@ -1,4 +1,4 @@
-seq 1 100 | parallel -j 1 "(echo sleeping {} && sleep 1)"String.prototype.format = String.prototype.f = function () {
+String.prototype.format = String.prototype.f = function () {
     var s = this,
         i = arguments.length;
 
