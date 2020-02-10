@@ -278,7 +278,7 @@ class Command(BaseCommand):
 
             job = Job.objects.filter(uid=jobuid) or Job.objects.filter(id=jobid)
             if not job:
-                logger.info(f'job for id={jobid}/uid={jobuid} missing')
+                logger.info(f'job for id={jobid}/uid="{jobuid}"" missing')
             else:
                 run(job.first(), options=options)
             return

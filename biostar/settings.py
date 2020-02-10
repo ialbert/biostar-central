@@ -20,6 +20,7 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+DEFAULT_PASSWORD = "recipesbuddy"
 
 # Allowed CORES websites
 CORS_ORIGIN_WHITELIST = [
