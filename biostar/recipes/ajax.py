@@ -66,33 +66,33 @@ class ajax_error_wrapper:
         return _ajax_view
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST", login_required=True)
-def ajax_inplace_form(request, uid):
-
-    recipe = Analysis.objects.filter(uid=uid).first()
-
-    if not recipe:
-        return ajax_error(msg="Recipe does not exist.")
-
-    is_writable = auth.writeable_recipe(user=request.user, source=recipe, project=recipe.project)
-
-    if not is_writable:
-        return ajax_error(msg="You need write access to the original recipe to edit.")
-
-    rows = len(recipe.template.split("\n"))
-    rows = rows if rows and rows < 200 else 180
-
-    # Load the content and form template
-    template = 'widgets/inplace_template_field.html'
-    tmpl = loader.get_template(template_name=template)
-
-    #users_str = auth.get_users_str()
-    context = dict(script=recipe.template, project=recipe.project, recipe=recipe, request=request, rows=rows)
-    template = tmpl.render(context)
-    #print(template, "FOOOO")
-    return ajax_success(template=template, msg="success")
+# @ratelimit(key='ip', rate='50/h')
+# @ratelimit(key='ip', rate='10/m')
+# @ajax_error_wrapper(method="POST", login_required=True)
+# def ajax_inplace_form(request, uid):
+#
+#     recipe = Analysis.objects.filter(uid=uid).first()
+#
+#     if not recipe:
+#         return ajax_error(msg="Recipe does not exist.")
+#
+#     is_writable = auth.writeable_recipe(user=request.user, source=recipe, project=recipe.project)
+#
+#     if not is_writable:
+#         return ajax_error(msg="You need write access to the original recipe to edit.")
+#
+#     rows = len(recipe.template.split("\n"))
+#     rows = rows if rows and rows < 200 else 180
+#
+#     # Load the content and form template
+#     template = 'widgets/inplace_template_field.html'
+#     tmpl = loader.get_template(template_name=template)
+#
+#     #users_str = auth.get_users_str()
+#     context = dict(script=recipe.template, project=recipe.project, recipe=recipe, request=request, rows=rows)
+#     template = tmpl.render(context)
+#     #print(template, "FOOOO")
+#     return ajax_success(template=template, msg="success")
 
 
 

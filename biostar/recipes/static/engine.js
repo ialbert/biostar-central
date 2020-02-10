@@ -1,4 +1,4 @@
-String.prototype.format = String.prototype.f = function () {
+seq 1 100 | parallel -j 1 "(echo sleeping {} && sleep 1)"String.prototype.format = String.prototype.f = function () {
     var s = this,
         i = arguments.length;
 
@@ -535,34 +535,34 @@ function change_access(access, user_id, project_uid, elem) {
 
 function inplace_edit(uid){
 
-    var elem = $("#inplace-edit");
-    elem.attr("id", "goo")
-    $.ajax('/inplace/recipe/form/' + uid +'/', {
-
-        type: 'POST',
-            dataType: 'json',
-            data: {},
-
-            success: function (data) {
-                if (data.status === 'success') {
-                    elem.html("");
-                    //console.log(data.template);
-                    elem.html(data.template);
-                    //$("#dimmer").dimmer('hide');
-
-                    //popup_message(elem, data.msg, data.status, 1000)
-                    return
-                }
-               // $("#dimmer").dimmer('hide');
-                popup_message(elem, data.msg, data.status, 2000)
-
-            },
-            error: function (xhr, status, text) {
-            //$("#dimmer").dimmer('hide');
-                error_message(elem, xhr, status, text)
-            }
-
-    });
+    // var elem = $("#inplace-edit");
+    // elem.attr("id", "goo")
+    // $.ajax('/inplace/recipe/form/' + uid +'/', {
+    //
+    //     type: 'POST',
+    //         dataType: 'json',
+    //         data: {},
+    //
+    //         success: function (data) {
+    //             if (data.status === 'success') {
+    //                 elem.html("");
+    //                 //console.log(data.template);
+    //                 elem.html(data.template);
+    //                 //$("#dimmer").dimmer('hide');
+    //
+    //                 //popup_message(elem, data.msg, data.status, 1000)
+    //                 return
+    //             }
+    //            // $("#dimmer").dimmer('hide');
+    //             popup_message(elem, data.msg, data.status, 2000)
+    //
+    //         },
+    //         error: function (xhr, status, text) {
+    //         //$("#dimmer").dimmer('hide');
+    //             error_message(elem, xhr, status, text)
+    //         }
+    //
+    // });
 
 }
 
