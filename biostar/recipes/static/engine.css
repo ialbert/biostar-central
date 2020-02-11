@@ -17,12 +17,17 @@ body {
     display: inline;
 }
 
+
 #job-img.dimmer{
     display: block;
     position: relative;
     height:0px;
-     width: fit-content;
-    padding: 0;
+    width: fit-content;
+    padding-right: 1.5em;
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+
     margin-left: 0px
 }
 
