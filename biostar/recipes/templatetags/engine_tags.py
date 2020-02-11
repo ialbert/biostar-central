@@ -478,7 +478,6 @@ def access_form(project, user, extra_class=''):
 
 @register.filter
 def get_access_label(user, project):
-    #TODO
 
     access = Access.objects.filter(user=user, project=project).select_related('project').first()
 

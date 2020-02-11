@@ -695,6 +695,14 @@ class Job(models.Model):
     def is_running(self):
         return self.state == Job.RUNNING
 
+
+    def is_started(self):
+        """
+        This job has been initiated.
+        """
+        print(self.state in [Job.QUEUED, Job.SPOOLED, Job.RUNNING, Job], "FOOOOO")
+        return self.state in [Job.QUEUED, Job.SPOOLED, Job.RUNNING, Job]
+
     def __str__(self):
         return self.name
 

@@ -40,6 +40,19 @@ body {
 }
 
 
+.ui.ribbon.label.projects{
+    right: 10.1em;
+}
+
+.ui.ribbon.label.obj{
+    left: 92.1%;
+    //float: right;
+}
+
+.ui.ribbon.label.info{
+    left: 14.3%;
+    float: right;
+}
 
 .recipe-form {
     text-align: -webkit-center;
