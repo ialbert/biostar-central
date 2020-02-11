@@ -133,6 +133,7 @@ function check_job() {
         // Get the uid and state
         var job_uid = $(this).data('value');
         var state = $(this).data('state');
+        var imag = $('#job-img[data-uid="' + job_uid + '"]');
         // Bail out when a job uid is not provided.
         if (job_uid === null || job_uid === undefined) {
             return
@@ -151,8 +152,20 @@ function check_job() {
                     $('.job-container-' + job_uid).html(data.html);
                     var job_item = $('.job-item-' + job_uid);
                     job_item.transition('pulse');
-
                 }
+                if (data.is_running) {
+                    $('.loader[data-uid="' + job_uid + '"]').html('<div class="ui log message">\n' +
+                        '                     <span class="ui active small inline loader"></span>\n' +
+                        '                     <span>Running</span>\n' +
+                        '</div>');
+                    $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid + '/#log')
+
+                } else {
+                    $('.loader[data-uid="' + job_uid + '"]').html("");
+                }
+
+                imag.replaceWith(data.img_tmpl);
+
                 if (data.stdout) {
                     var stdout = $('#stdout');
                     //alert($('#stdout').html());
@@ -533,7 +546,7 @@ function change_access(access, user_id, project_uid, elem) {
 }
 
 
-function inplace_edit(uid){
+function inplace_edit(uid) {
 
     // var elem = $("#inplace-edit");
     // elem.attr("id", "goo")
@@ -568,6 +581,7 @@ function inplace_edit(uid){
 
 $(document).ready(function () {
 
+    $().progress('.indicating.progress');
     $('.access-dropdown').dropdown({
         onChange: function (value, text, $selectedItem) {
             let user = $(this).data('user');

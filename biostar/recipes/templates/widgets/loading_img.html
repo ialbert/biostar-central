@@ -1,0 +1,15 @@
+{% load engine_tags %}
+
+{% if job.is_running %}
+
+    <div class="ui active inverted dimmer" id="job-img" data-uid="{{ job.uid }}" style="display: block;position: relative; height:0px;
+     width: fit-content; padding: 0;margin-left: 0px">
+        <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}" style="opacity: .6">
+        <div class="ui indeterminate text inline loader" style="top: 20px;width: 79px !important;"></div>
+    </div>
+
+{% else %}
+
+    <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}" id="job-img" data-uid="{{ job.uid }}">
+
+{% endif %}

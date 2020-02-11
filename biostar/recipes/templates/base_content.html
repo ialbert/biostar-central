@@ -9,13 +9,17 @@
 {% block body %}
 
     {% project_title project %}
+    <a class="ui ribbon label" href="{% url 'project_list' %}">
+        <i class="database icon"></i> Projects
+    </a>
 
     <div class="ui vertical segment" id="clipboard_anchor">
 
-        <div class="ui top attached large tabular  {% job_color job %} menu">
+        <div class="ui top attached large tabular  menu">
+
 
             <a class="{% activate 'info' active %}  item" href="{% url 'project_info' project.uid %}">
-                <i class="info circle icon"></i><span class="phone">Project</span>
+                <i class="info circle icon"></i><span class="phone">Project </span>
             </a>
 
             <a class="{% activate 'data' active %}  item" href="{% url 'data_list' project.uid %}">
@@ -29,8 +33,9 @@
                 <i class="bar chart icon"></i><span id="job_count">{{ result_count }}</span><span class="phone">&nbsp;Results</span>
             </a>
 
+
             {% if activate %}
-                <div class="active {% job_color job %} item" id="job_item">
+                <div class="active item" id="job_item">
                     <i class="angle double down icon"></i> <span class="tablet">{{ activate }}</span>
                 </div>
 
@@ -42,17 +47,17 @@
 
         </div>
 
-    {% block contain %}
-        <div class="ui bottom attached {% job_color job %} large segment">
+        {% block contain %}
+            <div class="ui bottom attached large segment">
 
 
-            {% show_messages messages %}
+                {% show_messages messages %}
                 {% block content %}
                     Content
                 {% endblock %}
 
-        </div>
-    {% endblock %}
+            </div>
+        {% endblock %}
 
     </div>
 

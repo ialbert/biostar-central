@@ -29,6 +29,13 @@ body {
     text-align: initial;
 }
 
+.ui.message.log{
+    width: 20%;
+}
+
+.ui.message.log > span:nth-child(2) {
+    padding-right: 5px
+}
 
 .ui.cloned.vertical.segment {
 / / border-bottom: 2 px solid #2185d0 !important;

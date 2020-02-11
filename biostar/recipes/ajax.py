@@ -95,7 +95,6 @@ class ajax_error_wrapper:
 #     return ajax_success(template=template, msg="success")
 
 
-
 def check_job(request, uid):
 
     job = Job.objects.filter(uid=uid).first()
@@ -116,13 +115,18 @@ def check_job(request, uid):
     else:
         stdout = stderr = None
 
+    # Get an the loading image icon
+    context = dict(job=job)
+    tmpl = loader.get_template('widgets/loading_img.html')
+    image_tmpl = tmpl.render(context=context)
+
     context = dict(job=job, check_back=check_back)
     tmpl = loader.get_template('widgets/job_elapsed.html')
     template = tmpl.render(context=context)
 
-    return ajax_success(msg='success', html=template, state=job.get_state_display(),
+    return ajax_success(msg='success', html=template, state=job.get_state_display(), is_running=job.is_running(),
                         stdout=stdout, stderr=stderr, job_color=auth.job_color(job),
-                        state_changed=state_changed)
+                        state_changed=state_changed, img_tmpl=image_tmpl)
 
 
 @ajax_error_wrapper(method="POST", login_required=False)

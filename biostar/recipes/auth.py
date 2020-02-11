@@ -446,8 +446,11 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
         job.save()
 
         # Update the projects lastedit user when a job is created
+        #job_count = project.job_set.filter(deleted=False).count()
+        job_count = Job.objects.filter(deleted=False, project=project).count()
         Project.objects.filter(uid=project.uid).update(lastedit_user=owner,
-                                                       lastedit_date=now())
+                                                       lastedit_date=now(),
+                                                       jobs_count=job_count)
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
@@ -460,6 +463,13 @@ def delete_object(obj, request):
     if access:
         obj.deleted = not obj.deleted
         obj.save()
+        data_count = Data.objects.filter(deleted=False, project=obj.project).count()
+        recipes_count = Analysis.objects.filter(deleted=False, project=obj.project).count()
+        job_count = Job.objects.filter(deleted=False, project=obj.project).count()
+
+        Project.objects.filter(uid=obj.project.uid).update(data_count=data_count,
+                                                           recipes_count=recipes_count,
+                                                           jobs_count=job_count)
 
     return obj.deleted
 

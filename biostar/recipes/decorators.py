@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.shortcuts import redirect, reverse
 from django.conf import settings
 from django.http import HttpResponse
+from django.http import QueryDict
 
 from . import models, auth
 
@@ -125,8 +126,9 @@ class write_access:
 def parse_api_key(request):
 
     empty = ""
+
     if request.method == "PUT":
-        return request.data.get("k", empty)
+        return QueryDict(request.body)
     elif request.method == "GET":
         return request.GET.get("k", empty)
 

@@ -4,9 +4,9 @@ from unittest.mock import patch, MagicMock
 
 from django.test import TestCase, override_settings
 from django.urls import reverse
-
+from  django.conf import settings
 from biostar.recipes import auth
-from biostar.recipes import models, views, forms
+from biostar.recipes import models, views, forms, api
 from biostar.utils.helpers import fake_request, get_uuid
 
 __MODULE_DIR = os.path.dirname(auth.__file__)
@@ -57,6 +57,20 @@ class ProjectViewTest(TestCase):
         request = fake_request(url=url, method='GET', data={}, user=self.owner)
 
         response = views.project_delete(request, uid=self.project.uid)
+
+        self.process_response(response, data={})
+
+        return
+
+    def Xtest_api_project_info(self):
+        """
+        Test replace project info using PUT request
+        """
+        url = reverse('project_api_info', kwargs=dict(uid=self.project.uid))
+
+        request = fake_request(url=url, method='PUT', data={'k': settings.API_KEY}, user=self.owner)
+
+        response = api.project_info(request, uid=self.project.uid)
 
         self.process_response(response, data={})
 
