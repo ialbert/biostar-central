@@ -854,6 +854,7 @@ def job_view(request, uid):
     stdout = job.stdout_log
     stderr = job.stderr_log
     if job.is_running():
+        # Pass the most current stderr and stdout
         stdout_path = os.path.join(job.path, settings.JOB_STDOUT)
         stderr_path = os.path.join(job.path, settings.JOB_STDERR)
         stdout = open(stdout_path, 'r').read()
