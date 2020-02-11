@@ -17,6 +17,22 @@ body {
     display: inline;
 }
 
+#job-img.dimmer{
+    display: block;
+    position: relative;
+    height:0px;
+     width: fit-content;
+    padding: 0;
+    margin-left: 0px
+}
+
+#job-img.dimmer > .mytiny.image{
+    opacity: .5
+}
+#job-img.dimmer > .loader{
+    top: 20px;
+    width: 79px !important;
+}
 
 
 

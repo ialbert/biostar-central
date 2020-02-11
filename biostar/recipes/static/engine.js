@@ -162,6 +162,7 @@ function check_job() {
 
                 } else {
                     $('.loader[data-uid="' + job_uid + '"]').html("");
+                    $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid)
                 }
 
                 imag.replaceWith(data.img_tmpl);
