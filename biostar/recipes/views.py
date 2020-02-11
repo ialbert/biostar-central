@@ -302,7 +302,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
-    job_list = project.job_set.filter(deleted=False).order_by("-date").all()
+    job_list = project.job_set.filter(deleted=False).order_by("-lastedit_date").all()
 
     # Filter job results by analysis
     filter_uid = request.GET.get('filter', '')
@@ -660,19 +660,17 @@ def recipe_run(request, uid):
 
     # Form submission.
     if request.method == "POST":
-
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
                                      data=request.POST, files=request.FILES)
         # The form validation will authorize the job.
         if form.is_valid():
-
             # Create the job from the recipe and incoming json data.
             job = auth.create_job(analysis=analysis, user=request.user, fill_with=form.cleaned_data)
 
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
 
-            return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
     else:
         initial = dict(name=f"Results for: {analysis.name}")
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
@@ -807,7 +805,6 @@ def recipe_delete(request, uid):
         msg = "Can not delete a cloned recipe."
         messages.success(request, msg)
     else:
-
         auth.delete_object(obj=recipe, request=request)
         msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
         messages.success(request, mark_safe(msg))
@@ -854,7 +851,17 @@ def job_view(request, uid):
     # The path is a GET parameter
     path = request.GET.get('path', "")
 
-    context = dict(job=job, project=project, activate='View Result', path=path)
+    stdout = job.stdout_log
+    stderr = job.stderr_log
+    if job.is_running():
+        # Pass the most current stderr and stdout
+        stdout_path = os.path.join(job.path, settings.JOB_STDOUT)
+        stderr_path = os.path.join(job.path, settings.JOB_STDERR)
+        stdout = open(stdout_path, 'r').read()
+        stderr = open(stderr_path, 'r').read()
+
+    context = dict(job=job, project=project, stderr=stderr, stdout=stdout,
+                   activate='View Result', path=path)
 
     counts = get_counts(project)
     context.update(counts)

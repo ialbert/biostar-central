@@ -462,6 +462,11 @@ def created_by(date, user=None, prefix="Updated"):
     return dict(date=date, user=user, prefix=prefix)
 
 
+@register.inclusion_tag('widgets/loading_img.html')
+def job_img(job):
+    return dict(job=job)
+
+
 @register.inclusion_tag('widgets/access_form.html')
 def access_form(project, user, extra_class=''):
     """

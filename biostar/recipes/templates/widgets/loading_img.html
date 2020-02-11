@@ -1,0 +1,14 @@
+{% load engine_tags %}
+
+{% if job.is_running %}
+
+    <div class="ui active inverted dimmer" id="job-img" data-uid="{{ job.uid }}">
+        <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
+        <div class="ui indeterminate text inline loader"></div>
+    </div>
+
+{% else %}
+
+    <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}" id="job-img" data-uid="{{ job.uid }}">
+
+{% endif %}

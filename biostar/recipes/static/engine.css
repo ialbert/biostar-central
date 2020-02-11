@@ -18,6 +18,27 @@ body {
 }
 
 
+#job-img.dimmer{
+    display: block;
+    position: relative;
+    height:0px;
+    width: fit-content;
+    padding-right: .6em;
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    margin-left: 0px
+}
+
+#job-img.dimmer > .mytiny.image{
+    opacity: .5
+}
+#job-img.dimmer > .loader{
+    top: 20px;
+    width: 79px !important;
+}
+
 
 
 .recipe-form {
@@ -29,6 +50,13 @@ body {
     text-align: initial;
 }
 
+.ui.message.log{
+    width: 20%;
+}
+
+.ui.message.log > span:nth-child(2) {
+    padding-right: 5px
+}
 
 .ui.cloned.vertical.segment {
 / / border-bottom: 2 px solid #2185d0 !important;
