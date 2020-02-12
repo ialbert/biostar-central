@@ -16,9 +16,14 @@
 
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
 
-            <i class="envelope icon"></i> Messages
+
             {% if counts.messages.count %}
-                <div class="ui green label">{{ counts.messages.count }}</div>
+
+                <div class="ui green label">
+                    <i class="envelope icon"></i>New Messages ({{ counts.messages.count }})
+                   </div>
+            {%  else %}
+                 <i class="envelope icon"></i> Messages
             {% endif %}
 
 
@@ -26,10 +31,13 @@
         </a>
         <a class="item {% activate tab "myvotes" %}"
            href="{% url 'myvotes' %}">
-            <i class="heart icon"></i> Votes
+
             {% if counts.votes.count %}
-                <div class="ui green label">{{ counts.votes.count }}</div>
+                <div class="ui pink label"><i class="heart icon"></i> New Votes ({{ counts.votes.count }})</div>
+            {%  else %}
+                <i class="heart icon"></i> Votes
             {% endif %}
+
         </a>
 
         <a class="item {% activate tab "mytags" %}" href="{% url 'mytags' %}">
