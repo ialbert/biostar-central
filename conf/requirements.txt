@@ -4,7 +4,7 @@ certifi==2019.11.28
 chardet==3.0.4
 coverage==5.0.3
 defusedxml==0.6.0
-Django==3.0.2
+Django==3.0.3
 django-allauth==0.41.0
 django-appconf==1.0.3
 django-compressor==2.4
