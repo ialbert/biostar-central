@@ -98,6 +98,7 @@ class ajax_error_wrapper:
 def check_job(request, uid):
 
     job = Job.objects.filter(uid=uid).first()
+
     check_back = 'check_back' if job.state in [Job.SPOOLED, Job.RUNNING] else ''
     stdout_path = os.path.join(job.path, settings.JOB_STDOUT)
     stderr_path = os.path.join(job.path, settings.JOB_STDERR)
@@ -115,8 +116,8 @@ def check_job(request, uid):
     else:
         stdout = stderr = None
 
-    redir = job.url() if job.is_finished() else ""
     # Get an the loading image icon
+    redir = job.url() if job.is_finished() else ""
     context = dict(job=job)
     tmpl = loader.get_template('widgets/loading_img.html')
     image_tmpl = tmpl.render(context=context)
@@ -125,7 +126,8 @@ def check_job(request, uid):
     tmpl = loader.get_template('widgets/job_elapsed.html')
     template = tmpl.render(context=context)
 
-    return ajax_success(msg='success', redir=redir, html=template, state=job.get_state_display(), is_running=job.is_running(),
+    return ajax_success(msg='success', redir=redir,
+                        html=template, state=job.get_state_display(), is_running=job.is_running(),
                         stdout=stdout, stderr=stderr, job_color=auth.job_color(job),
                         state_changed=state_changed, img_tmpl=image_tmpl)
 

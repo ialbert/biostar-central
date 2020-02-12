@@ -21,12 +21,25 @@
         }
 
         template_edit.on('change', updateTemplate);
-        {% if focus %}
+        {#% if focus %#}
         template_edit.focus();
-        {% endif %}
-        {% if scroll_to_bottom %}
+        {#% endif %#}
+        {#% if scroll_to_bottom %#}
         template_edit.setCursor(template_edit.lineCount(), 0);
-        {% endif %}
+        {#% endif %#}
+
+    $(this).on('click', "#edit-side > .script", function (){
+        $(this).addClass("active");
+        $("#script-col").show();
+        $("#detail-col").hide();
+        $("#interface-col").hide();
+        $("#edit-side > .recipe").removeClass("active");
+        $("#edit-side > .interface").removeClass("active");
+        template_edit.refresh();
+        template_edit.focus();
+        template_edit.setCursor(template_edit.lineCount(), 0);
+
+    });
 
         template_edit.setSize(null,700)
 

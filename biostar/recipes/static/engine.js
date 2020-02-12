@@ -607,15 +607,6 @@ $(document).ready(function () {
         $("#interface-col").hide();
 
     });
-    $(this).on('click', "#edit-side > .script", function (){
-        $(this).addClass("active");
-        $("#script-col").show();
-        $("#detail-col").hide();
-        $("#interface-col").hide();
-        $("#edit-side > .recipe").removeClass("active");
-        $("#edit-side > .interface").removeClass("active");
-
-    });
 
 
     //$('.ui.selection.dropdown').dropdown();

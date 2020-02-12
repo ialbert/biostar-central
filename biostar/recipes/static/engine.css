@@ -44,7 +44,26 @@ body {
   height: auto;
 }
 
+#detail-col > .ui.form .inline.field>input, .ui.form .inline.field>select, .ui.form .inline.fields .field>input {
+    border: none;
+    width: 290px;
 
+}
+
+#detail-col  .field{
+    padding-bottom: 9px;
+    padding-left: 1px;
+}
+
+
+
+#detail-col > .ui.form .inline.fields .field {
+    padding-bottom: 900px;
+    padding-left: 1px;
+}
+#clipboard_anchor {
+    border-bottom:none;
+}
 .CodeMirror-gutters {
     background-color: white !important;
 }

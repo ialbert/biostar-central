@@ -21,10 +21,10 @@
             }
 
             json_edit.on('change', updateJson);
-            {% if focus %}
+            {#% if focus %#}
                 json_edit.focus();
                 json_edit.setCursor(json_edit.lineCount(), 0);
-            {% endif %}
+            {#% endif %#}
 
 
     $(this).on('click', "#edit-side > .interface", function (){
@@ -36,9 +36,10 @@
         $("#interface-col").show();
 
         json_edit.refresh();
+        json_edit.focus();
     });
 
 
-        json_edit.setSize(null, 700)
+        json_edit.setSize(null, 900)
         });
     </script>
