@@ -115,6 +115,7 @@ def check_job(request, uid):
     else:
         stdout = stderr = None
 
+    redir = job.url() if job.is_finished() else ""
     # Get an the loading image icon
     context = dict(job=job)
     tmpl = loader.get_template('widgets/loading_img.html')
@@ -124,7 +125,7 @@ def check_job(request, uid):
     tmpl = loader.get_template('widgets/job_elapsed.html')
     template = tmpl.render(context=context)
 
-    return ajax_success(msg='success', html=template, state=job.get_state_display(), is_running=job.is_running(),
+    return ajax_success(msg='success', redir=redir, html=template, state=job.get_state_display(), is_running=job.is_running(),
                         stdout=stdout, stderr=stderr, job_color=auth.job_color(job),
                         state_changed=state_changed, img_tmpl=image_tmpl)
 

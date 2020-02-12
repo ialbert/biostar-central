@@ -39,6 +39,16 @@ body {
     width: 79px !important;
 }
 
+.CodeMirror {
+  border: none;
+  height: auto;
+}
+
+
+.CodeMirror-gutters {
+    background-color: white !important;
+}
+
 
 .ui.ribbon.label.projects{
     right: 10.1em;

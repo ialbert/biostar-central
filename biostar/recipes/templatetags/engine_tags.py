@@ -499,9 +499,10 @@ def job_minutes(job, view=False):
     check_back = ''
     # Add a tag to check a state change every ~5 seconds and update tag
     if job.state in [Job.SPOOLED, Job.RUNNING, Job.QUEUED]:
+
         check_back = 'check_back'
 
-    return dict(job=job, check_back=check_back)
+    return dict(job=job, check_back=check_back, view=view)
 
 
 @register.simple_tag

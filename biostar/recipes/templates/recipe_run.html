@@ -41,8 +41,7 @@
 
                 {{ analysis.summary|markdown|safe }}
 
-                <form method="post" class="ui form" enctype="multipart/form-data"
-                      action="{% url 'recipe_run' analysis.uid %}">
+                <form method="POST" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' analysis.uid %}">
 
                     <div class="ui form">
 

@@ -143,7 +143,8 @@ function check_job() {
         $.ajax('/ajax/check/job/' + job_uid + '/', {
             type: 'GET',
             dataType: 'json',
-            data: {'state': state},
+            data: {'state': state,
+            },
             ContentType: 'application/json',
             success: function (data) {
                 // Only replace and activate effects when the state has actually changed.
@@ -163,6 +164,11 @@ function check_job() {
                 } else {
                     $('.loader[data-uid="' + job_uid + '"]').html("");
                     $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid)
+                }
+
+                if (data.redir && $("#view").length){
+                    window.location = data.redir;
+                    return
                 }
 
                 imag.replaceWith(data.img_tmpl);
@@ -591,6 +597,27 @@ $(document).ready(function () {
         }
     });
 
+
+    $(this).on('click', "#edit-side > .recipe", function (){
+        $(this).addClass("active");
+        $("#detail-col").show();
+        $("#edit-side > .script").removeClass("active");
+        $("#edit-side > .interface").removeClass("active");
+        $("#script-col").hide();
+        $("#interface-col").hide();
+
+    });
+    $(this).on('click', "#edit-side > .script", function (){
+        $(this).addClass("active");
+        $("#script-col").show();
+        $("#detail-col").hide();
+        $("#interface-col").hide();
+        $("#edit-side > .recipe").removeClass("active");
+        $("#edit-side > .interface").removeClass("active");
+
+    });
+
+
     //$('.ui.selection.dropdown').dropdown();
 
     $('select').dropdown();
@@ -599,7 +626,6 @@ $(document).ready(function () {
 
     $('#code_add').dropdown();
 
-    $('.ui.sticky').sticky();
 
     $(this).on('click', '#json_preview', function () {
         event.preventDefault();
