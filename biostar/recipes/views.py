@@ -738,7 +738,7 @@ def recipe_edit(request, uid):
                    action_url=action_url)
     counts = get_counts(project)
     context.update(counts)
-    return render(request, 'recipe_edit2.html', context)
+    return render(request, 'recipe_edit.html', context)
 
 
 @read_access(type=Project)
@@ -772,7 +772,7 @@ def recipe_create(request, uid):
                    activate='Create Recipe', name=name)
     counts = get_counts(project)
     context.update(counts)
-    return render(request, 'recipe_edit2.html', context)
+    return render(request, 'recipe_edit.html', context)
 
 
 @write_access(type=Job, fallback_view="job_view")
