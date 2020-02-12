@@ -20,9 +20,9 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
-DEFAULT_PASSWORD = "recipesbuddy"
+DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
-# Allowed CORES websites
+# Allowed CORS websites
 CORS_ORIGIN_WHITELIST = [
     'https://view.qiime2.org',
 ]

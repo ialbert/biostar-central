@@ -3,28 +3,33 @@
 {% if user.is_authenticated %}
     {% counts as counts %}
 
-    <div class="ui top attached six item menu" id="menu-topics">
+    <div class="ui small attached six item pointing  menu" id="menu-topics">
+
+
+        <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
+            <i class="comments icon"></i> My Posts
+        </a>
+
+         <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
+            <i class="bookmark icon"></i> Bookmarks
+        </a>
 
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
+
             <i class="envelope icon"></i> Messages
             {% if counts.messages.count %}
-                <span class="ui green label">{{ counts.messages.count }}</span>
+                <div class="ui green label">{{ counts.messages.count }}</div>
             {% endif %}
+
+
+
         </a>
         <a class="item {% activate tab "myvotes" %}"
            href="{% url 'myvotes' %}">
             <i class="heart icon"></i> Votes
             {% if counts.votes.count %}
-                <span class="ui green label">{{ counts.votes.count }}</span>
+                <div class="ui green label">{{ counts.votes.count }}</div>
             {% endif %}
-        </a>
-
-        <a class="item {% activate tab "bookmarks" %}" href="{% url 'bookmarks' %}">
-            <i class="bookmark icon"></i> Bookmarks
-        </a>
-
-        <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
-            <i class="comments icon"></i> My Posts
         </a>
 
         <a class="item {% activate tab "mytags" %}" href="{% url 'mytags' %}">
