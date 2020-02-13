@@ -68,6 +68,15 @@ To run a demonstration version of the `forum` app execute:
 
 Visit <http://127.0.0.1:8000/> to view the site.
 
+## Default users
+
+All users listed in the `ADMINS` attribute of the Django `settings.py` module when the site is initialized. The
+`DEFAULT_ADMIN_PASSWORD` attribute will be set as their password. By default the value for both is:
+
+    admin@localhost
+
+Use the username and password above to log into the site as an administrator.
+
 ## Executing multiple tasks
 
 The Makefile has several tasks that demonstrate the commands that may be chained together:

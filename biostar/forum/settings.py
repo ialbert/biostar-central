@@ -1,4 +1,5 @@
 # Inherit from the main settings file.
+from biostar.accounts.settings import *
 
 # Inherit from the accounts settings file.
 from biostar.planet.settings import *
