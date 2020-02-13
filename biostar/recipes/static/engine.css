@@ -30,12 +30,12 @@ body {
     top: 0px;
     right: 22%;
     font-size: 67px;
-    opacity: .5;
+    opacity: .7;
 }
+
 #job-img i.success{
     color: green;
 }
-
 
 #job-img i.error{
     color: red;
