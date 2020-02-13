@@ -36,10 +36,10 @@
                         <a class="subheader" id="job-link" data-uid="{{ job.uid }}" href="{% url 'job_view' job.uid %}{% if job.is_running %}#log{% endif %}">
                             <i class="bar chart icon"></i>{{ job.get_name }}
                         </a>
-
+                    <div class="ui text container" style="margin-left: 0 !important;margin-right: 0 !important; max-width: 806px !important;">
                         <div class="meta">{{ job.analysis.summary|markdown }}</div>
-
-                        <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}
+                    </div>
+                        <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job view=False %}
                         </span>
                             &bull;
                             {% created_by date=job.lastedit_date user=job.lastedit_user %}

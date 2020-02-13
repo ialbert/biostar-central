@@ -478,7 +478,6 @@ def access_form(project, user, extra_class=''):
 
 @register.filter
 def get_access_label(user, project):
-    #TODO
 
     access = Access.objects.filter(user=user, project=project).select_related('project').first()
 
@@ -500,9 +499,10 @@ def job_minutes(job, view=False):
     check_back = ''
     # Add a tag to check a state change every ~5 seconds and update tag
     if job.state in [Job.SPOOLED, Job.RUNNING, Job.QUEUED]:
+
         check_back = 'check_back'
 
-    return dict(job=job, check_back=check_back)
+    return dict(job=job, check_back=check_back, view=view)
 
 
 @register.simple_tag

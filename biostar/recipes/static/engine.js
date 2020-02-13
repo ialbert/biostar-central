@@ -143,15 +143,18 @@ function check_job() {
         $.ajax('/ajax/check/job/' + job_uid + '/', {
             type: 'GET',
             dataType: 'json',
-            data: {'state': state},
+            data: {'state': state,
+            },
             ContentType: 'application/json',
             success: function (data) {
                 // Only replace and activate effects when the state has actually changed.
 
                 if (data.state_changed) {
+                    // TODO: Taking this type of styling out
                     $('.job-container-' + job_uid).html(data.html);
                     var job_item = $('.job-item-' + job_uid);
                     job_item.transition('pulse');
+
                 }
                 if (data.is_running) {
                     $('.loader[data-uid="' + job_uid + '"]').html('<div class="ui log message">\n' +
@@ -165,6 +168,8 @@ function check_job() {
                     $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid)
                 }
 
+
+                //alert(data.redir)
                 imag.replaceWith(data.img_tmpl);
 
                 if (data.stdout) {
@@ -179,6 +184,10 @@ function check_job() {
                     var stderr = $('#stderr');
                     stderr.text(data.stderr);
 
+                }
+               if (data.redir && $("#view").length){
+                   window.location.replace( data.redir + "#flist");
+                    window.location.reload()
                 }
 
             },
@@ -581,7 +590,11 @@ function inplace_edit(uid) {
 }
 
 $(document).ready(function () {
-
+    // $('.dim')
+    //   .dimmer({
+    //     on: 'hover'
+    //   })
+    // ;
     $().progress('.indicating.progress');
     $('.access-dropdown').dropdown({
         onChange: function (value, text, $selectedItem) {
@@ -591,6 +604,18 @@ $(document).ready(function () {
         }
     });
 
+
+    $(this).on('click', "#edit-side > .recipe", function (){
+        $(this).addClass("active");
+        $("#detail-col").show();
+        $("#edit-side > .script").removeClass("active");
+        $("#edit-side > .interface").removeClass("active");
+        $("#script-col").hide();
+        $("#interface-col").hide();
+
+    });
+
+
     //$('.ui.selection.dropdown').dropdown();
 
     $('select').dropdown();
@@ -599,7 +624,6 @@ $(document).ready(function () {
 
     $('#code_add').dropdown();
 
-    $('.ui.sticky').sticky();
 
     $(this).on('click', '#json_preview', function () {
         event.preventDefault();

@@ -390,7 +390,6 @@ class RecipeForm(forms.ModelForm):
         # Update the recipe security when template or JSON have been
         # touched by non admin users.
         if (json_changed or template_changed) and not_superuser and not self.creating:
-            Analysis.objects.filter(uid=self.instance.uid).update(security=Analysis.NOT_AUTHORIZED)
             self.instance.security = Analysis.NOT_AUTHORIZED
             self.instance.save()
 
@@ -434,9 +433,6 @@ class RecipeForm(forms.ModelForm):
                                                                      lastedit_user=self.user)
         image = self.cleaned_data['image']
         self.instance.image = image or self.instance.image
-        if self.user.is_superuser:
-            security = Analysis.AUTHORIZED if self.cleaned_data.get('authorized') else Analysis.NOT_AUTHORIZED
-            self.instance.security = security
 
         return super().save(commit)
 

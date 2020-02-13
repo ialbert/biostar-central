@@ -10,6 +10,7 @@
 {% endblock %}
 
 {% block content %}
+
     <div class="recipe-form">
         <div class="ui raised segment inputcolor">
             <div class="ui center aligned header">
@@ -40,8 +41,7 @@
 
                 {{ analysis.summary|markdown|safe }}
 
-                <form method="post" class="ui form" enctype="multipart/form-data"
-                      action="{% url 'recipe_run' analysis.uid %}">
+                <form method="POST" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' analysis.uid %}">
 
                     <div class="ui form">
 

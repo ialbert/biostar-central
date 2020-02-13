@@ -291,9 +291,13 @@ class PostView(models.Model):
 
 class Subscription(models.Model):
     "Connects a post to a user"
+
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES = range(3)
     SUB_CHOICES = [(LOCAL_MESSAGE, "Local messages"), (EMAIL_MESSAGE, "Email message"), (NO_MESSAGES, "Not subscribed")]
-
+    TYPE_MAP = {Profile.NO_MESSAGES: NO_MESSAGES,
+                Profile.EMAIL_MESSAGE: EMAIL_MESSAGE,
+                Profile.LOCAL_MESSAGE: LOCAL_MESSAGE,
+                Profile.DEFAULT_MESSAGES: LOCAL_MESSAGE}
     class Meta:
         unique_together = (("user", "post"))
 
@@ -310,15 +314,18 @@ class Subscription(models.Model):
         # Set the date to current time if missing.
         self.date = self.date or util.now()
         self.uid = self.uid or util.get_uuid(limit=16)
+
+        if self.type is None:
+            self.type = self.TYPE_MAP.get(self.user.profile.message_prefs, self.NO_MESSAGES)
+
+        super(Subscription, self).save(*args, **kwargs)
+
+    def profile_type_mapper(self):
         type_map = {Profile.NO_MESSAGES: self.NO_MESSAGES,
                     Profile.EMAIL_MESSAGE: self.EMAIL_MESSAGE,
                     Profile.LOCAL_MESSAGE: self.LOCAL_MESSAGE,
                     Profile.DEFAULT_MESSAGES: self.LOCAL_MESSAGE}
-
-        if self.type is None:
-            self.type = type_map.get(self.user.profile.message_prefs, self.NO_MESSAGES)
-
-        super(Subscription, self).save(*args, **kwargs)
+        return type_map
 
     @staticmethod
     def get_sub(post, user):

@@ -265,14 +265,13 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
     return project
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='',
+def create_analysis(project, json_text, template, uid=None, user=None, summary='', rank=100,
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
                     root=None):
 
     owner = user or project.owner
 
     analysis = Analysis.objects.filter(uid=uid)
-
 
     # Only update when there is a flag
     if analysis and update:
@@ -282,13 +281,13 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         name = name or current.name
         template = template or current.template
         json_text = json_text or current.json_text
-        analysis.update(text=text, name=name, template=template, json_text=json_text)
+        analysis.update(text=text, name=name, template=template, json_text=json_text, rank=rank)
         analysis = analysis.first()
         logger.info(f"Updated analysis: uid={analysis.uid} name={analysis.name}")
     else:
         # Create a new analysis
         uid = None if analysis else uid
-        analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
+        analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text, rank=rank,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, root=root)
 

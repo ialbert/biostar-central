@@ -695,6 +695,24 @@ class Job(models.Model):
     def is_running(self):
         return self.state == Job.RUNNING
 
+    def is_success(self):
+        return self.state == Job.COMPLETED
+
+    def is_error(self):
+        return self.state == Job.ERROR
+
+    def is_started(self):
+        """
+        This job has been initiated.
+        """
+        return self.state in [Job.QUEUED, Job.SPOOLED, Job.RUNNING]
+
+    def is_finished(self):
+        """
+        This job is fishined
+        """
+        return self.state in [Job.ERROR, Job.COMPLETED]
+
     def __str__(self):
         return self.name
 

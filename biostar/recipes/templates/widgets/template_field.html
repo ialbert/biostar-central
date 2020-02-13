@@ -1,12 +1,5 @@
 {% load static %}
 
-
-<link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
-<script src="{% static 'codemirror/codemirror.js' %}"></script>
-<script src="{% static 'codemirror/mode/simple.js' %}"></script>
-<script src="{% static 'codemirror/mode/engine.js' %}"></script>
-
-
 <textarea class="code" rows="40" cols="55" name="template" id="template">{{ template }}</textarea>
 
 <script>
@@ -17,7 +10,10 @@
             document.getElementById("template"),
             {
                 lineNumbers: true,
-                mode: "engine"
+                mode:'engine',
+                //mode: "engine",
+                //autoRefresh:true,
+               //spellcheck:true,
             }
         );
 
@@ -33,6 +29,20 @@
         template_edit.setCursor(template_edit.lineCount(), 0);
         {#% endif %#}
 
+    $(this).on('click', "#edit-side > .script", function (){
+        $(this).addClass("active");
+        $("#script-col").show();
+        $("#detail-col").hide();
+        $("#interface-col").hide();
+        $("#edit-side > .recipe").removeClass("active");
+        $("#edit-side > .interface").removeClass("active");
+        template_edit.refresh();
+        template_edit.focus();
+        template_edit.setCursor(template_edit.lineCount(), 0);
+
+    });
+
+        template_edit.setSize(null,800)
 
     })
 </script>

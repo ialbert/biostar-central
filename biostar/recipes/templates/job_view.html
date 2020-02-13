@@ -11,10 +11,10 @@
 
         <div class="ui divided link items ">
 
-            <div class="item">
+            <div class="item job-item-{{ job.uid }}">
 
                 {% job_img job %}
-
+<div class="ui text container" style="margin-left: 0 !important;margin-right: 0 !important;max-width: 955px !important;">
                 <div class="content imgpad">
                     <a class="subheader"  href="{% url 'job_view' job.uid %}">
                         <i class="bar chart icon"></i>{{ job.get_name }}
@@ -22,11 +22,12 @@
 
                     <div class="description">{{ job.analysis.summary|markdown|safe }}</div>
 
-                    <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}</span>
+                    <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job view=True %}</span>
                         &bull;
                         {% created_by date=job.lastedit_date user=job.lastedit_user %}
                     </div>
                 </div>
+</div>
             </div>
 
         </div>
@@ -76,7 +77,7 @@
         {{ job.html|safe }}
     </div>
 
-    <div class="ui vertical large segment">
+    <div class="ui vertical large segment" id="flist">
         <div class="ui aligned header">File List</div>
         <div>Files created by the recipe run:</div>
         {% directory_list job %}

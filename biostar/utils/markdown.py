@@ -145,7 +145,6 @@ class BiostarInlineLexer(MonkeyPatch):
 
         handle = m.group("handle")
         # Query user and get the link
-        #print(handle)
         user = User.objects.filter(username=handle).first()
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
@@ -153,7 +152,7 @@ class BiostarInlineLexer(MonkeyPatch):
             # Subscribe mentioned users to post.
             if self.root:
                 # Create user subscription if it does not already exist.
-                auth.create_subscription(post=self.root, user=user, delete_exisiting=False)
+                auth.create_subscription(post=self.root, user=user, update=True)
         else:
             link = m.group(0)
 

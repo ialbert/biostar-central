@@ -5,7 +5,7 @@ django-taggit>=1.2
 django-pagedown
 django-sendfile
 django-allauth>=0.41.0
-django-debug-toolbar
+django-debug-toolbar>=2.2
 django-recaptcha2
 django-mailer>=2
 whoosh

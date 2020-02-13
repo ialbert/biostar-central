@@ -1,7 +1,8 @@
 {% load humanize %}
-{% load engine_tags %}
 
+{% load engine_tags %}
     <div class="ui {% job_color job %} label {{ check_back }}" data-value="{{ job.uid }}" data-state="{{ job.state }}">
+
         {% if job.state == job.SPOOLED or job.state == job.RUNNING %}
             <i class="loading circle notch icon"></i>
 

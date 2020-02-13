@@ -6,12 +6,24 @@
     {{ project.get_name }}
 {% endblock %}
 
+
 {% block body %}
 
     {% project_title project %}
-    <a class="ui ribbon label" href="{% url 'project_list' %}">
+
+    <a class="ui left ribbon projects label"  href="{% url 'project_list' %}">
         <i class="database icon"></i> All Projects
     </a>
+
+{% block ribbon %}
+    {% if user.is_authenticated %}
+
+        <a class="ui right ribbon obj label" href="{% url 'recipe_create' project.uid %}">
+          <i class="plus icon"></i>New Recipe
+        </a>
+    {% endif %}
+
+{% endblock %}
 
     <div class="ui vertical segment" id="clipboard_anchor">
 
@@ -40,12 +52,8 @@
                 </div>
 
             {% endif %}
-
-            {% block rightmenu %}
-
-            {% endblock %}
-
         </div>
+
 
         {% block contain %}
             <div class="ui bottom attached large segment">
@@ -59,6 +67,6 @@
             </div>
         {% endblock %}
 
-    </div>
+
 
 {% endblock %}

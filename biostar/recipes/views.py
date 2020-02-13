@@ -753,17 +753,25 @@ def recipe_create(request, uid):
     form = forms.RecipeForm(user=request.user, initial=initial, project=project)
 
     if request.method == "POST":
+
         form = forms.RecipeForm(data=request.POST, creating=True, project=project, files=request.FILES,
                                 user=request.user)
         if form.is_valid():
+
             image = form.cleaned_data['image']
             recipe_uid = form.cleaned_data['uid']
             name = form.cleaned_data['name']
             json_text = form.cleaned_data['json_text']
             template = form.cleaned_data['template']
-            recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name,
+            text = form.cleaned_data['text']
+            rank = form.cleaned_data['rank']
+            recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name, rank=rank,
                                           json_text=json_text, template=template,
-                                          project=project, user=request.user)
+                                          project=project, user=request.user, text=text)
+            if request.user.is_superuser:
+                security = Analysis.AUTHORIZED if form.cleaned_data.get('authorized') else Analysis.NOT_AUTHORIZED
+                recipe.security = security
+                recipe.save()
 
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
