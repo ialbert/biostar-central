@@ -150,9 +150,11 @@ function check_job() {
                 // Only replace and activate effects when the state has actually changed.
 
                 if (data.state_changed) {
+                    // TODO: Taking this type of styling out
                     $('.job-container-' + job_uid).html(data.html);
                     var job_item = $('.job-item-' + job_uid);
                     job_item.transition('pulse');
+
                 }
                 if (data.is_running) {
                     $('.loader[data-uid="' + job_uid + '"]').html('<div class="ui log message">\n' +

@@ -19,70 +19,59 @@
     <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
         <div class="ui grid">
             <div class="row">
-                <div class="three wide column" style="width: 17% !important;">
+
+                <div class="three wide column" id="recipe-sidemenu">
+
                     <div class="field">
-                        <a href="{% if recipe %}{{ recipe.url }}{% endif %}" style="margin-bottom: 20px">
+                        <a href="{% if recipe %}{{ recipe.url }}{% endif %}">
                             <i class="left chevron icon icon"></i>Back
                         </a>
                     </div>
+
                     <div class="ui divider"></div>
                     <div class="ui vertical text menu" id="edit-side">
-                        <a class="{% activate side 'info' %} item recipe"><i class="info icon"></i> Info
-                        </a>
-                        <a class="{% activate side 'script' %} item script"><i class="code icon"></i> Script
-                        </a>
-                        <a class="{% activate side 'interface' %} item interface" style="display: inline"><i
-                                class="keyboard icon"></i> Interface
-                        </a>
 
+                        <a class="{% activate side 'info' %} item recipe"><i class="circle info icon"></i> Edit Info</a>
+                        <a class="{% activate side 'script' %} item script"><i class="code icon"></i> Edit Script</a>
+                        <a class="{% activate side 'interface' %} item interface"><i class="keyboard icon"></i> Edit Interface</a>
                         <div class="ui top pointing dropdown muted" id="json_add">
                             <i class="caret down icon"></i>
                             {% interface_options %}
                         </div>
-                        <div class="ui divider"></div>
+                    <div class="ui divider"></div>
                         <div class="item">
-
-                            <a class="ui  fluid button" data-value="{{ project.uid }}" id="json_preview">
+                            <a class="ui fluid button" data-value="{{ project.uid }}" id="json_preview">
                                 <i class="eye icon"></i>View Interface
                             </a>
-
                         </div>
                         <div class="item">
-                            <a class="ui  fluid button"
+                            <a class="ui fluid button"
                                data-project_uid={{ project.uid }} id="template_preview">
                                 <i class="file icon"></i>View Script
                             </a>
-
                         </div>
-
                         <div class="item">
                             <button type="submit" class="ui green fluid button">
                                 <i class="save icon"></i>Submit
                             </button>
                         </div>
-
                     </div>
                 </div>
-
 
                 <div class="thirteen wide column" id="script-col">
                     {% form_errors form %}
                     {% csrf_token %}
-
                     <div class="field" id="template_field">
                         {% template_field form.template.value %}
                     </div>
-
                     <div class="ui tiny inputcolor modal" id="template_modal">
                         <div id="template_preview_cont"></div>
                     </div>
                 </div>
 
-
-                <div class="thirteen wide column" id="interface-col" style="display: none;">
+                <div class="thirteen wide column" id="interface-col">
                     {% form_errors form %}
                     {% csrf_token %}
-
                     <div class="field" id="json_field">
                         {% json_field form.json_text.value %}
                     </div>
@@ -90,27 +79,18 @@
                     <div class="ui tiny inputcolor modal" id="json_modal">
                         <div id="json_preview_cont"></div>
                     </div>
-
                 </div>
 
-                <div class="thirteen wide column" id="detail-col" style="display: none">
-                    <div class="ui segment" style="border-top: none;
-                        border-right: none;
-                        box-shadow: none;
-                        border-radius: 0;
-                         padding-left: 18px;
-                        border-bottom: none;">
+                <div class="thirteen wide column" id="detail-col">
+                    <div class="ui segment">
                         {% form_errors form %}
                         {% csrf_token %}
-
-
                         <div class="inline fields ">
-                            <div class="inline field" style="width: 500px;">
+                            <div class="inline field" style="width: 400px;">
                                 <span><b>Name</b> : </span>
                                 {{ form.name }}
                                 <div class="muted">What do you want to call the recipe</div>
                             </div>
-
                             <div class="inline field">
                                 <span><b>Uid</b> : 	&nbsp;</span>
                                 {{ form.uid }}
@@ -119,37 +99,29 @@
                         </div>
 
                         <div class="inline fields ">
-
-                            <div class="inline field" style=" width: 500px;">
+                            <div class="inline field" style=" width: 400px;">
                                 <span><b>Image</b> : </span>
                                 {{ form.image.errors }}
                                 {{ form.image }}
                                 <div class="muted">Optional image for the recipe ( 500px Maximum ).</div>
                             </div>
-
                             <div class="inline field">
                                 <span><b>Rank</b>: </span>
                                 {{ form.rank }}
                                 <div class="muted">Used to order recipes (optional).</div>
                             </div>
-
-
                         </div>
 
                         {% if request.user.is_superuser %}
-
                             <div class="field">
                                 <div class="ui checkbox">
                                     {{ form.authorized }} <label>Authorized Recipe</label>
                                 </div>
-
                                 <p class="muted">Check if this recipe is safe to run by trusted users.</p>
                             </div>
-
                         {% endif %}
 
                         <div class="field segment" style="padding-top: 10px">
-
                             {{ form.text }}
                             <div class="muted">A detailed explanation of what the recipe does (markdown OK).</div>
                         </div>
@@ -160,11 +132,5 @@
             </div>
         </div>
     </form>
-
-
-
-
-
-
 
 {% endblock %}

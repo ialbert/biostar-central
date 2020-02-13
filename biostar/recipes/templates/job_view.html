@@ -11,10 +11,10 @@
 
         <div class="ui divided link items ">
 
-            <div class="item">
+            <div class="item job-item-{{ job.uid }}">
 
                 {% job_img job %}
-
+<div class="ui text container" style="margin-left: 0 !important;margin-right: 0 !important;max-width: 955px !important;">
                 <div class="content imgpad">
                     <a class="subheader"  href="{% url 'job_view' job.uid %}">
                         <i class="bar chart icon"></i>{{ job.get_name }}
@@ -27,6 +27,7 @@
                         {% created_by date=job.lastedit_date user=job.lastedit_user %}
                     </div>
                 </div>
+</div>
             </div>
 
         </div>

@@ -13,7 +13,7 @@ CodeMirror.defineSimpleMode("engine", {
      token: ["keyword", null, "variable-2"]},
     // Rules are matched in the order in which they appear, so there is
     // no ambiguity between this one and the one above
-    {regex: /(?:settings|name|image|index|summary|help|path|value|link|label|choices|type|display|source|range|python|cat|mkdir)\b/,
+    {regex: /(?:settings|name|image|index|summary|help|path|value|link|label|choices|type|display|source|range|python|cat|mkdir|echo)\b/,
      token: "keyword"},
     {regex: /true|false|INTEGER|DROPDOWN|TEXT|PROJECT|FASTQ|FASTA|=|\:/, token: "atom"},
     {regex: /\$\{[\w\.]+\}|\{[\w\.]+\}|\$\w+/, token: "atom"},

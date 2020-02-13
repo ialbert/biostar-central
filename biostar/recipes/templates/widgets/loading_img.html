@@ -1,7 +1,7 @@
 {% load engine_tags %}
 
 {% if job.is_started %}
-        <div class="ui active inverted dimmer" id="job-img" data-uid="{{ job.uid }}">
+        <div class="ui active inverted running dimmer" id="job-img" data-uid="{{ job.uid }}">
         <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
         <div class="ui indeterminate text inline loader"></div>
     </div>
@@ -9,22 +9,14 @@
 {% elif job.is_success %}
 <div class="ui active inverted dimmer dim" id="job-img" data-uid="{{ job.uid }}">
     <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
-      <i class="large check icon" style="position: absolute;
-    top: 20px;
-    right: 47%;
-    /* margin-right: 200px; */
-    color: green;"></i>
+          <i class="large check success icon"></i>
 </div>
 
 
 {% elif job.is_error %}
     <div class="ui active inverted dimmer dim" id="job-img" data-uid="{{ job.uid }}">
     <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
-      <i class="large times icon" style="position: absolute;
-    top: 20px;
-    right: 47%;
-    /* margin-right: 200px; */
-    color: red;"></i>
+      <i class="large times error icon"></i>
 </div>
 
 {% else %}
