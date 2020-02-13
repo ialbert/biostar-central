@@ -216,12 +216,21 @@ class Visit(object):
 
 
 # Seconds
-TIME_PERIOD = 1
+TIME_PERIOD = 24 * 3600
 
 # How many visit within that time period.
-MAX_VISITS = 2
+MAX_VISITS = 50
+
+# Allowed IPs, triplets
+WHITE_LIST = [
+
+]
+
+# Make lookup faster.
+WHITE_LIST = set(WHITE_LIST)
 
 from django.shortcuts import redirect
+
 class Ban(object):
     """
     Sets visit specific parameters on objects.
@@ -231,23 +240,26 @@ class Ban(object):
 
         user = request.user
 
-        if user.is_anonymous:
+        if user.is_anonymous():
             oip = get_ip(request)
             ips = oip.split(".")[:-1]
             ip = ".".join(ips)
+
+            if ip in WHITE_LIST:
+                return
 
             if ip not in cache:
                 cache.set(ip, 0, TIME_PERIOD)
 
             value = cache.get(ip)
-
             if value >= MAX_VISITS:
-                # Raide redirect exception
+                # Raise redirect exception
                 now = const.now()
-                message = "%s\tbanned\t%s\t%s\taccess\t%s\n" % (now, ip, oip, value)
+                message = "%s\tbanned\t%s\t%s\n" % (now, ip, oip)
                 logger.error(message)
-                fp = open("banned-ips.txt", "a")
+                fp = open("/home/www-data/biostar-central/banned-ips.txt", "a")
                 fp.write(message)
                 fp.close()
                 return redirect('/static/message.txt')
-
+            else:
+                cache.incr(ip)

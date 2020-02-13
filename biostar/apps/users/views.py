@@ -132,7 +132,8 @@ class EditUser(LoginRequiredMixin, FormView):
         if form.is_valid():
             f = form.cleaned_data
 
-            if User.objects.filter(email=f['email']).exclude(pk=request.user.id):
+            email = f.get('email')
+            if email and User.objects.filter(email=email).exclude(pk=request.user.id):
                 # Changing email to one that already belongs to someone else.
                 messages.error(request, "The email that you've entered is already registered to another user!")
                 return render(request, self.template_name, {'form': form})
