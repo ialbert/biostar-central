@@ -695,6 +695,12 @@ class Job(models.Model):
     def is_running(self):
         return self.state == Job.RUNNING
 
+    def is_success(self):
+        return self.state == Job.COMPLETED
+
+    def is_error(self):
+        return self.state == Job.ERROR
+
     def is_started(self):
         """
         This job has been initiated.

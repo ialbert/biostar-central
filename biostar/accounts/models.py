@@ -209,7 +209,7 @@ class Profile(models.Model):
 
 
 class Logger(models.Model):
-
+    # Put in delte
     MODERATING, CREATION, EDIT, LOGIN, LOGOUT, BROWSING = range(6)
 
     ACTIONS_CHOICES = [(MODERATING, "Preformed a moderation action."),

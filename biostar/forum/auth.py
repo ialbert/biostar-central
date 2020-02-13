@@ -111,19 +111,26 @@ def walk_down_thread(parent, collect=set()):
     return collect
 
 
-def create_subscription(post, user, sub_type=None, delete_exisiting=True):
+def create_subscription(post, user, sub_type=None, update=False):
     """
     Creates subscription to a post. Returns a list of subscriptions.
     """
-    # Drop all existing subscriptions for the user by default.
-    if delete_exisiting:
-        Subscription.objects.filter(post=post.root, user=user).delete()
-        # Create new subscription to the user.
-        Subscription.objects.create(post=post.root, user=user, type=sub_type)
-    # Update an existing subscription type.
+    subs = Subscription.objects.filter(post=post.root, user=user)
+    sub = subs.first()
+
+    default = Subscription.TYPE_MAP.get(user.profile.message_prefs,
+                                        Subscription.LOCAL_MESSAGE)
+    sub_type = sub_type or (sub.type if sub else None) or default
+
+    # Ensure the sub type is not set to something wrote
+    if sub and update:
+        # Update an existing subscription
+        sub.type = sub_type
+        sub.save()
     else:
-        sub, created = Subscription.objects.get_or_create(post=post.root, user=user)
-        Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
+        # Drop all existing subscriptions for the user by default.
+        subs.delete()
+        Subscription.objects.create(post=post.root, user=user, type=sub_type)
 
     # Recompute post subscription.
     subs_count = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES).count()

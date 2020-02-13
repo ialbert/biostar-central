@@ -81,7 +81,8 @@ def create_messages(template, rec_list, sender=None, extra_context={}):
 
     # Load the template and context
     tmpl = loader.get_template(template_name=template)
-    context = dict(sender=sender)
+    port = f":{settings.HTTP_PORT}" if settings.HTTP_PORT else ""
+    context = dict(sender=sender, port=port)
     context.update(extra_context)
 
     body = tmpl.render(context)

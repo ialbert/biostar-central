@@ -45,9 +45,13 @@ body {
 }
 
 #detail-col > .ui.form .inline.field>input, .ui.form .inline.field>select, .ui.form .inline.fields .field>input {
-    border: none;
+    //border: none;
     width: 290px;
 
+}
+
+#edit-side{
+    width: 11rem;
 }
 
 #detail-col  .field{
@@ -63,9 +67,6 @@ body {
 }
 #clipboard_anchor {
     border-bottom:none;
-}
-.CodeMirror-gutters {
-    background-color: white !important;
 }
 
 

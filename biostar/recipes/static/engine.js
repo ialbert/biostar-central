@@ -587,7 +587,11 @@ function inplace_edit(uid) {
 }
 
 $(document).ready(function () {
-
+    // $('.dim')
+    //   .dimmer({
+    //     on: 'hover'
+    //   })
+    // ;
     $().progress('.indicating.progress');
     $('.access-dropdown').dropdown({
         onChange: function (value, text, $selectedItem) {
