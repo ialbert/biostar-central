@@ -764,9 +764,14 @@ def recipe_create(request, uid):
             json_text = form.cleaned_data['json_text']
             template = form.cleaned_data['template']
             text = form.cleaned_data['text']
-            recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name,
+            rank = form.cleaned_data['rank']
+            recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name, rank=rank,
                                           json_text=json_text, template=template,
                                           project=project, user=request.user, text=text)
+            if request.user.is_superuser:
+                security = Analysis.AUTHORIZED if form.cleaned_data.get('authorized') else Analysis.NOT_AUTHORIZED
+                recipe.security = security
+                recipe.save()
 
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
