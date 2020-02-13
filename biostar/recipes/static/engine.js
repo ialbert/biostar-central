@@ -166,11 +166,8 @@ function check_job() {
                     $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid)
                 }
 
-                if (data.redir && $("#view").length){
-                    window.location = data.redir;
-                    return
-                }
 
+                //alert(data.redir)
                 imag.replaceWith(data.img_tmpl);
 
                 if (data.stdout) {
@@ -185,6 +182,10 @@ function check_job() {
                     var stderr = $('#stderr');
                     stderr.text(data.stderr);
 
+                }
+               if (data.redir && $("#view").length){
+                   window.location.replace( data.redir + "#flist");
+                    window.location.reload()
                 }
 
             },
