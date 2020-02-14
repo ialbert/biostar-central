@@ -333,7 +333,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
     url = post.get_absolute_url()
 
     if action == BUMP_POST:
-        Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp(), last_contributor=request.user)
+        Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp())
         messages.success(request, "Post bumped")
         log_action(user=user, log_text=f"Bumped post={post.uid}")
         return url

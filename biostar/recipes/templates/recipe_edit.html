@@ -3,10 +3,11 @@
 {% load engine_tags %}
 
 {% block js %}
-    <link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}">
+    <link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}{% randparam %}">
     <script src="{% static 'codemirror/codemirror.js' %}"></script>
     <script src="{% static 'codemirror/mode/simple.js' %}"></script>
     <script src="{% static 'codemirror/mode/engine.js' %}"></script>
+     <script src="{% static 'codemirror/mode/shell.js' %}"></script>
 {% endblock %}
 
 {% block headtitle %}
@@ -32,26 +33,33 @@
                     <div class="ui vertical text menu" id="edit-side">
 
                         <a class="{% activate side 'info' %} item recipe"><i class="circle info icon"></i> Edit Info</a>
+
                         <a class="{% activate side 'script' %} item script"><i class="code icon"></i> Edit Script</a>
+                        <div class="ui top pointing dropdown muted" id="code_add">
+                            <a><i class="caret down icon"></i></a>
+                            {% snippet_list %}
+                        </div>
+
                         <a class="{% activate side 'interface' %} item interface"><i class="keyboard icon"></i> Edit Interface</a>
                         <div class="ui top pointing dropdown muted" id="json_add">
-                            <i class="caret down icon"></i>
+                            <a><i class="caret down icon"></i></a>
                             {% interface_options %}
                         </div>
+
                     <div class="ui divider"></div>
                         <div class="item">
-                            <a class="ui fluid button" data-value="{{ project.uid }}" id="json_preview">
-                                <i class="eye icon"></i>View Interface
+                            <a href="#" data-value="{{ project.uid }}" id="json_preview">
+                                <i class="eye icon"></i>Preview Interface
                             </a>
                         </div>
                         <div class="item">
-                            <a class="ui fluid button"
+                            <a href="#"
                                data-project_uid={{ project.uid }} id="template_preview">
-                                <i class="file icon"></i>View Script
+                                <i class="file icon"></i>Preview Script
                             </a>
                         </div>
                         <div class="item">
-                            <button type="submit" class="ui green fluid button">
+                            <button type="submit" class="ui green fluid label">
                                 <i class="save icon"></i>Submit
                             </button>
                         </div>

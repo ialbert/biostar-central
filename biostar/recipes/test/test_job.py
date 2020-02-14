@@ -71,7 +71,7 @@ class JobViewTest(TestCase):
 
         board = request.session.get(settings.CLIPBOARD_NAME, {}).get(const.COPIED_RESULTS, [])
         success = len(board) == 1 and board[0] == self.job.uid
-
+        auth.generate_script(self.job)
         self.assertTrue(success, "Job uid not copied to clipboard")
         return
 
@@ -93,7 +93,6 @@ class JobViewTest(TestCase):
         request = fake_request(url=url, data={}, user=self.owner)
 
         response = views.job_rerun(request=request, uid=self.job.uid)
-
         self.process_response(response=response, data={})
 
 

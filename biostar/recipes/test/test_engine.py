@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.forms import ValidationError
 from django.core.files import File
 from django.urls import reverse
-from biostar.recipes import models, views, auth, factory, forms, const
+from biostar.recipes import models, views, auth, factory, forms, const, api
 from biostar.recipes import util as engine_util
 from django.conf import settings
 
@@ -60,6 +60,18 @@ class FactoryTest(TestCase):
         self.owner = models.User.objects.filter(is_superuser=True).first()
         self.project = auth.create_project(user=self.owner, name="tested",
                                            text="Text", summary="summary", uid="tested")
+
+    def Xtest_api_change_obj(self):
+        """
+        Change object image
+        """
+
+        new_img = open(os.path.join(TEST_ROOT, "data", "image.png"))
+
+        api.change_image(obj=self.project, fname=new_img)
+
+
+        return
 
     def test_factory_fields(self):
         "Testing factory module that generates fields"
