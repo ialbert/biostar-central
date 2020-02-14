@@ -64,15 +64,16 @@ code {
 }
 
 #json_add i {
-    vertical-align: middle;
+    //vertical-align: middle;
 }
 
-#edit-side .interface {
-    display: inline;
+#edit-side .interface, #edit-side .script {
+    display: inline-block;;
 }
 
 
-#code code {
+
+#code code, #template_preview_cont code {
     font-size: 1em !important;
 }
 

@@ -9,6 +9,13 @@
     {{ hidden_field }}
 {% endfor %}
 
+{% comment %}<div class="ui right labeled input">
+    <a class="ui basic label" style="border: 1px solid rgba(34,36,38,.15);">
+        <i style="margin-right: 0;" class="minus icon"></i></a>
+    <input type="number" placeholder="Amount" id="amount" style="width: 173px">
+    <a class="ui basic label"> <i class="plus icon" style="margin-right: 0;"></i></a>
+</div>{% endcomment %}
+
 {# Iterate over all form fields #}
 {% for field in form.visible_fields %}
     {{ field.errors }}
@@ -19,6 +26,9 @@
             {{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         </div>
         {% else %}
+        {#% if field|is_number %#}
+
+        {#% endif %#}
         {{ field.label_tag|safe }}
         {{ field }}
         {% endif %}

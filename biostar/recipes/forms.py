@@ -410,7 +410,7 @@ class RecipeForm(forms.ModelForm):
         try:
             hjson.loads(json_text)
         except Exception as exc:
-            raise forms.ValidationError(f'Error with recipe JSON:{exc}')
+            raise forms.ValidationError(f'Error with recipe interface:{exc}')
 
         return json_text
 
