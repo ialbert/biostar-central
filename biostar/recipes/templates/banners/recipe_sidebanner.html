@@ -1,0 +1,64 @@
+{% load engine_tags %}
+
+<div class="ui vertical text menu edit-side">
+
+    <a class="{% activate side 'info' %} item recipe">Edit Recipe</a>
+
+    <div class="item">
+        <div class="{% activate side 'script' %} script" style="display: inline">Edit Script</div>
+        <div class="ui top pointing dropdown muted" id="code_add" style="float: right;">
+            <a><i class="caret down icon"></i></a>
+            {% snippet_list %}
+        </div>
+        <a href="#" data-project_uid={{ project.uid }} id="template_preview">
+            <i class="eye icon" style="float: right"></i>
+        </a>
+    </div>
+
+    <div class="item">
+        <div class="{% activate side 'interface' %} interface" style="display: inline">Edit Interface
+        </div>
+        <div class="ui top pointing dropdown muted" id="json_add" style="float: right;">
+            <a><i class="caret down icon"></i></a>
+            {% interface_options %}
+        </div>
+        <a href="#" data-value="{{ project.uid }}" id="json_preview">
+            <i class="eye icon" style="float: right"></i>
+        </a>
+    </div>
+{% if recipe %}
+    <a class="{% activate side 'info' %} item open-desc">View Description</a>
+
+    <div class="ui divider"></div>
+
+    <div class="item">
+        <a class="ui fluid button open-run" id="" style="padding: 5px;">
+            <i class="spinner icon"></i>Run
+        </a>
+    </div>
+        {% if enable_save %}
+    <div class="item">
+        <button class="ui blue fluid button" style="padding: 5px;">
+            <i class="save icon"></i>Save
+        </button>
+    </div>
+    {% endif %}
+
+{% else %}
+     <div class="item">
+        <button class="ui blue fluid button" style="padding: 5px;">
+            <i class="plus circle icon"></i>Create
+        </button>
+    </div>
+{% endif %}
+
+
+{% if recipe %}
+    <div class="item">
+        <a class="ui green fluid button" id="" href="{% url 'recipe_download' recipe.uid %}" style="padding: 5px;">
+            <i class="Download icon"></i>Download
+        </a>
+    </div>
+{% endif %}
+
+</div>

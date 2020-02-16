@@ -64,13 +64,15 @@ LOGIN_REDIRECT_URL = "/project/list/private/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 ENGINE_APPS = [
-    'biostar.recipes.apps.EngineConfig'
+    'biostar.recipes.apps.EngineConfig',
+    'django.contrib.redirects'
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 # Additional middleware.
 MIDDLEWARE += [
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'biostar.recipes.middleware.recipes_middleware',
 ]
 

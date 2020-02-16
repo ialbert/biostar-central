@@ -143,7 +143,8 @@ function check_job() {
         $.ajax('/ajax/check/job/' + job_uid + '/', {
             type: 'GET',
             dataType: 'json',
-            data: {'state': state,
+            data: {
+                'state': state,
             },
             ContentType: 'application/json',
             success: function (data) {
@@ -185,8 +186,8 @@ function check_job() {
                     stderr.text(data.stderr);
 
                 }
-               if (data.redir && $("#view").length){
-                   window.location.replace( data.redir + "#flist");
+                if (data.redir && $("#view").length) {
+                    window.location.replace(data.redir + "#flist");
                     window.location.reload()
                 }
 
@@ -266,7 +267,6 @@ function add_to_interface(display_type) {
 
     let json_text = $('#json').val();
     //let display_type = $(this).attr('id');
-
     $.ajax('/add/recipe/fields/', {
         type: 'POST',
         dataType: 'json',
@@ -604,12 +604,37 @@ $(document).ready(function () {
         }
     });
 
+    $(this).on('click', ".edit-side .open-run", function () {
+        //alert("FPP");
 
-    $(this).on('click', "#edit-side > .recipe", function (){
+        $(".recipe-edit").hide();
+        $(".runform").show();
+    });
+
+    $(this).on('click', ".edit-side .open-desc", function () {
+        //alert("FPP");
+
+      $(".recipe-edit").show();
+        $(".runform").hide();
+        $(this).addClass("active");
+        $("#desc-col").show();
+        $(".edit-side .script").removeClass("active");
+        $(".edit-side  .interface").removeClass("active");
+        $(".edit-side  .recipe").removeClass("active");
+        $("#script-col").hide();
+        $("#interface-col").hide();
+        $("#detail-col").hide();
+    });
+
+
+    $(this).on('click', ".edit-side .recipe", function () {
+        $(".recipe-edit").show();
+        $(".runform").hide();
+        $("#desc-col").hide();
         $(this).addClass("active");
         $("#detail-col").show();
-        $("#edit-side > .script").removeClass("active");
-        $("#edit-side > .interface").removeClass("active");
+        $(".edit-side .script").removeClass("active");
+        $(".edit-side  .interface").removeClass("active");
         $("#script-col").hide();
         $("#interface-col").hide();
 

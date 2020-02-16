@@ -593,18 +593,15 @@ def data_upload(request, uid):
 
 
 @read_access(type=Analysis)
-def recipe_view(request, uid):
+def Xrecipe_view(request, uid):
     """
     Returns a recipe view based on its id.
     """
-    recipe = Analysis.objects.filter(uid=uid).first()
+    #recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job")).first()
+
     project = recipe.project
-
     context = dict(recipe=recipe, project=project, activate='Recipe View')
-
-    # How many results for this recipe
-    rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
-    counts = get_counts(project)
 
     try:
         # Fill in the script with json data.
@@ -616,9 +613,11 @@ def recipe_view(request, uid):
         messages.error(request, f"Error rendering code: {exc}")
         script = recipe.template
 
-    context.update(counts, rcount=rcount, script=script)
+    context.update(script=script, rcount=recipe.job_count)
+    counts = get_counts(project)
 
-    return render(request, "recipe_view.html", context)
+    context.update(counts)
+    return render(request, "recipe_edit.html", context)
 
 
 @read_access(type=Analysis)
@@ -711,7 +710,7 @@ def job_rerun(request, uid):
 
 
 @read_access(type=Analysis)
-def recipe_edit(request, uid):
+def recipe_view(request, uid):
     """
     Edit meta-data associated with a recipe.
     """
@@ -728,13 +727,22 @@ def recipe_edit(request, uid):
                                 project=project)
         if form.is_valid():
             form.save()
+            messages.success(request, "Editted Recipe")
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
         form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
-    context = dict(recipe=recipe, project=project, form=form, name=recipe.name, activate='Edit Recipe',
+    initial = dict(name=f"Results for: {recipe.name}")
+    run_form = forms.RecipeInterface(request=request, analysis=recipe,
+                                     json_data=recipe.json_data, initial=initial)
+
+    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
+    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job")).first()
+
+    context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,
+                   activate='Recipe View', run_form=run_form,
                    action_url=action_url)
     counts = get_counts(project)
     context.update(counts)
