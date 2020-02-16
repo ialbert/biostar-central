@@ -734,6 +734,7 @@ def recipe_edit(request, uid):
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
     initial = dict(name=f"Results for: {recipe.name}")
+    #print(recipe.json_data)
     run_form = forms.RecipeInterface(request=request, analysis=recipe,
                                      json_data=recipe.json_data, initial=initial)
 

@@ -266,7 +266,6 @@ function add_to_interface(display_type) {
 
     let json_text = $('#json').val();
     //let display_type = $(this).attr('id');
-    alert("GOO")
     $.ajax('/add/recipe/fields/', {
         type: 'POST',
         dataType: 'json',

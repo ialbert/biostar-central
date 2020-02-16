@@ -524,7 +524,11 @@ class Analysis(models.Model):
         """
         Returns the json_text as parsed json_data
         """
-        json_data = hjson.loads(self.json_text)
+        try:
+            json_data = hjson.loads(self.json_text)
+        except Exception as exc:
+            logger.error(f"{exc}")
+            json_data = {}
 
         # Generates file names
         base = f"{'_'.join(self.name.split())}_{self.project.uid}_{self.pk}"
