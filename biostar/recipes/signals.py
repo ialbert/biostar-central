@@ -1,7 +1,7 @@
 import os
 import logging
 
-import hjson
+import toml as hjson
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from biostar.recipes.models import Project, Access, Analysis

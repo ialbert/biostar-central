@@ -1,6 +1,8 @@
 from functools import wraps, partial
 import logging
-import hjson, json
+
+import toml as hjson
+
 from ratelimit.decorators import ratelimit
 
 from django.shortcuts import reverse
@@ -22,6 +24,7 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
               Job.RUNNING: "running", Job.COMPLETED: "completed"
               }
 
+
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
     payload.update(kwargs)
@@ -30,7 +33,6 @@ def ajax_msg(msg, status, **kwargs):
 
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
-
 
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
@@ -96,7 +98,6 @@ class ajax_error_wrapper:
 
 
 def check_job(request, uid):
-
     job = Job.objects.filter(uid=uid).first()
 
     check_back = 'check_back' if job.state in [Job.SPOOLED, Job.RUNNING] else ''
@@ -112,7 +113,7 @@ def check_job(request, uid):
     if os.path.exists(stdout_path) and os.path.exists(stderr_path):
         stdout = open(stdout_path, 'r').read()
         stderr = open(stderr_path, 'r').read()
-        Job.objects.filter(uid=job.uid).update(stderr_log = stderr, stdout_log=stdout)
+        Job.objects.filter(uid=job.uid).update(stderr_log=stderr, stdout_log=stdout)
     else:
         stdout = stderr = None
 
@@ -134,7 +135,6 @@ def check_job(request, uid):
 
 @ajax_error_wrapper(method="POST", login_required=False)
 def snippet_code(request):
-
     command_uid = request.POST.get('command', '')
     current_code = request.POST.get('template', '')
 
@@ -158,7 +158,6 @@ def snippet_code(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=False)
 def snippet_form(request):
-
     is_category = request.POST.get("is_category", 0)
     is_category = bool(int(is_category))
 
@@ -227,7 +226,6 @@ def create_snippet_type(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def create_snippet(request):
-
     snippet = request.POST.get('snippet', '')
     help_text = request.POST.get('help_text', '')
     type_uid = request.POST.get('type_uid')
@@ -287,7 +285,6 @@ def create_snippet(request):
 
 @ajax_error_wrapper(method="POST", login_required=False)
 def preview_template(request):
-
     source_template = request.POST.get('template', '# Code goes here')
     source_json = request.POST.get('json_text', '{}')
     name = request.POST.get('name', 'Name')
@@ -315,7 +312,6 @@ def preview_template(request):
 
 @ajax_error_wrapper(method="POST", login_required=False)
 def preview_json(request):
-
     # Get the recipe
     recipe_name = request.POST.get('name')
     project_uid = request.POST.get('project_uid')
@@ -467,7 +463,6 @@ def toggle_delete(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
 def manage_access(request):
-
     access_map = dict(none=Access.NO_ACCESS, read=Access.READ_ACCESS,
                       write=Access.WRITE_ACCESS, share=Access.SHARE_ACCESS)
 
@@ -522,7 +517,6 @@ def copy_object(request):
 
     project = Project.objects.filter(uid=project_uid).first()
     if not project:
-
         return ajax_error("Project does not exist.")
 
     is_readable = auth.is_readable(user=request.user, project=project)
@@ -537,7 +531,6 @@ def copy_object(request):
 
 
 def add_variables(request):
-
     # Get the most recent template and json.
     json_text = request.POST.get('json_text', '')
     template = request.POST.get('template', '')
