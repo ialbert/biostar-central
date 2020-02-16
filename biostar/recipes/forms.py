@@ -1,6 +1,6 @@
 import copy
 import shlex
-import hjson
+import toml as hjson
 import io
 import re
 

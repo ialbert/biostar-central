@@ -1,5 +1,5 @@
 
-import hjson
+import toml as hjson
 import json
 import logging
 import os

@@ -1,6 +1,6 @@
 import logging
 import os
-import hjson
+import toml as hjson
 import hashlib
 import itertools
 import mistune
