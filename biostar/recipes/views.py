@@ -597,14 +597,11 @@ def recipe_view(request, uid):
     """
     Returns a recipe view based on its id.
     """
-    recipe = Analysis.objects.filter(uid=uid).first()
+    #recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job")).first()
+
     project = recipe.project
-
     context = dict(recipe=recipe, project=project, activate='Recipe View')
-
-    # How many results for this recipe
-    rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
-    counts = get_counts(project)
 
     try:
         # Fill in the script with json data.
@@ -616,8 +613,10 @@ def recipe_view(request, uid):
         messages.error(request, f"Error rendering code: {exc}")
         script = recipe.template
 
-    context.update(counts, rcount=rcount, script=script)
+    context.update(script=script, rcount=recipe.job_count)
+    counts = get_counts(project)
 
+    context.update(counts)
     return render(request, "recipe_view.html", context)
 
 
@@ -734,7 +733,17 @@ def recipe_edit(request, uid):
         form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
-    context = dict(recipe=recipe, project=project, form=form, name=recipe.name, activate='Edit Recipe',
+    initial = dict(name=f"Results for: {recipe.name}")
+    run_form = forms.RecipeInterface(request=request, analysis=recipe,
+                                     json_data=recipe.json_data, initial=initial)
+
+    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
+
+    #rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
+    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job")).first()
+
+    context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,
+                   activate='Recipe View', run_form=run_form,
                    action_url=action_url)
     counts = get_counts(project)
     context.update(counts)

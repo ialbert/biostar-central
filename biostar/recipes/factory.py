@@ -8,6 +8,11 @@ from biostar.recipes import const, models, util
 logger = models.logger
 
 
+class NumberWidget(forms.NumberInput):
+    input_type = 'number'
+    template_name = 'widgets/integer_field.html'
+
+
 def float_field(data):
     numrange = data.get("range", [1.0, 100000.0])
     min_value, max_value = numrange[0], numrange[1]
@@ -147,7 +152,7 @@ def number_field(data):
     numrange = data.get("range", [0, 1])
     min_value, max_value = min(numrange), max(numrange)
     label = data.get("label", "")
-    widget = forms.NumberInput()
+    widget = NumberWidget()
     help_text = data.get("help", f"Range: {min_value} and {max_value}")
     initial = data.get("value", 0)
 

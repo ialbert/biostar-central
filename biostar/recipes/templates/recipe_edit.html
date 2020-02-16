@@ -8,65 +8,81 @@
     <script src="{% static 'codemirror/mode/simple.js' %}"></script>
     <script src="{% static 'codemirror/mode/engine.js' %}"></script>
      <script src="{% static 'codemirror/mode/shell.js' %}"></script>
+    <script src="{% static 'codemirror/mode/r.js' %}"></script>
 {% endblock %}
 
 {% block headtitle %}
 
-    Editing: {{ name }}
+    RecipeView
 {% endblock %}
 
 {% block content %}
+      <div class="ui large basic segment" style="padding-right: 0;padding-left: 0">
 
-    <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
-        <div class="ui grid">
-            <div class="row">
+    <div class="ui divided link items" >
 
-                <div class="three wide column" id="recipe-sidemenu">
+    {% recipe_details %}
+                {% if recipe.is_cloned %}
+            <div class="ui vertical cloned segment" style="padding-top: 5px">
+            <span class="muted">
+                <i class="linkify icon"></i>
+                This recipe is a clone.
+                It remains synchronized with the <a href="{{ recipe.root.url }}">parent recipe</a>
+                written by <a
+                    href="{{ recipe.root.owner.profile.get_absolute_url }}">{{ recipe.root.owner.profile.name|truncatechars:30 }}</a>.
 
-                    <div class="field">
-                        <a href="{% if recipe %}{{ recipe.url }}{% endif %}">
-                            <i class="left chevron icon icon"></i>Back
-                        </a>
-                    </div>
+            </span>
+            </div>
+        {% endif %}
+    </div>
+      </div>
 
-                    <div class="ui divider"></div>
-                    <div class="ui vertical text menu" id="edit-side">
+    <form method="post" class="ui form recipe-edit" action="{{ action_url }}" enctype='multipart/form-data' style="display: none">
+    <div class="ui grid">
 
-                        <a class="{% activate side 'info' %} item recipe"><i class="circle info icon"></i> Edit Info</a>
+                <div class="four wide column recipe-sidemenu">
 
-                        <a class="{% activate side 'script' %} item script"><i class="code icon"></i> Edit Script</a>
-                        <div class="ui top pointing dropdown muted" id="code_add">
-                            <a><i class="caret down icon"></i></a>
+                    <div class="ui vertical text menu edit-side" >
+
+                        <a class="{% activate side 'info' %} item recipe">Edit Recipe</a>
+                        <div class="ui top pointing dropdown muted" id="code_add" style="float: right;margin-bottom: 5px;margin-top: 11px;">
+                            <a><i class="caret down icon" ></i></a>
                             {% snippet_list %}
                         </div>
+                        <a href="#" data-project_uid={{ project.uid }} id="template_preview">
+                            <i class="eye icon" style="float: right;margin-bottom: 5px; margin-top: 11px;margin-right: 20px"></i>
+                        </a>
+                        <a class="{% activate side 'script' %} item script">Edit Script</a>
 
-                        <a class="{% activate side 'interface' %} item interface"><i class="keyboard icon"></i> Edit Interface</a>
-                        <div class="ui top pointing dropdown muted" id="json_add">
+
+                        <div class="ui top pointing dropdown muted" id="json_add" style="float: right;margin-bottom: 5px;margin-top: 11px ">
                             <a><i class="caret down icon"></i></a>
                             {% interface_options %}
                         </div>
+                            <a href="#" data-value="{{ project.uid }}" id="json_preview">
+                               <i class="eye icon"style="float: right;margin-bottom: 5px;margin-top: 11px;margin-right: 20px"></i>
+                            </a>
+                        <a class="{% activate side 'interface' %} item interface">Edit Interface</a>
+
+
+         <a class="{% activate side 'info' %} item recipe">View Description</a>
 
                     <div class="ui divider"></div>
-                        <div class="item">
-                            <a href="#" data-value="{{ project.uid }}" id="json_preview">
-                                <i class="eye icon"></i>Preview Interface
+                                 <div class="item">
+                            <a class="ui green fluid button open-run" style="padding: 5px;">
+                                <i class="spinner icon"></i>Run
                             </a>
                         </div>
+
                         <div class="item">
-                            <a href="#"
-                               data-project_uid={{ project.uid }} id="template_preview">
-                                <i class="file icon"></i>Preview Script
-                            </a>
-                        </div>
-                        <div class="item">
-                            <button type="submit" class="ui green fluid label">
-                                <i class="save icon"></i>Submit
+                            <button type="submit" class="ui blue fluid button" style="padding: 5px;">
+                                <i class="save icon"></i>Save
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <div class="thirteen wide column" id="script-col">
+                <div class="twelve wide column" id="script-col">
                     {% form_errors form %}
                     {% csrf_token %}
                     <div class="field" id="template_field">
@@ -77,7 +93,7 @@
                     </div>
                 </div>
 
-                <div class="thirteen wide column" id="interface-col">
+                <div class="twelve wide column" id="interface-col">
                     {% form_errors form %}
                     {% csrf_token %}
                     <div class="field" id="json_field">
@@ -89,7 +105,7 @@
                     </div>
                 </div>
 
-                <div class="thirteen wide column" id="detail-col">
+                <div class="twelve wide column" id="detail-col">
                     <div class="ui segment">
                         {% form_errors form %}
                         {% csrf_token %}
@@ -137,8 +153,103 @@
                     </div>
 
                 </div>
-            </div>
-        </div>
+</div>
+
+
+
     </form>
+
+    <form method="POST" class="ui form runform" enctype="multipart/form-data" action="{% url 'recipe_run' recipe.uid %}">
+<div class="ui grid">
+
+                <div class="four wide column recipe-sidemenu" >
+
+                    <div class="ui vertical text menu edit-side">
+
+                        <a class="{% activate side 'info' %} item recipe">Edit Recipe</a>
+
+                        <a class="{% activate side 'script' %} item script">Edit Script</a>
+                        <div class="ui top pointing dropdown muted" id="code_add" style="float: right;margin-bottom: 5px;margin-top: 11px;">
+                            <a><i class="caret down icon" ></i></a>
+                            {% snippet_list %}
+                        </div>
+                            <a href="#" data-project_uid={{ project.uid }} id="template_preview">
+                        <i class="eye icon" style="float: right;margin-bottom: 5px; margin-top: 11px;margin-right: 20px"></i>
+                        </a>
+
+
+                        <a class="{% activate side 'interface' %} item interface">Edit Interface</a>
+                        <div class="ui top pointing dropdown muted" id="json_add" style="float: right;margin-bottom: 5px;margin-top: 11px ">
+                            <a><i class="caret down icon"></i></a>
+                            {% interface_options %}
+                        </div>
+                            <a href="#" data-value="{{ project.uid }}" id="json_preview">
+                               <i class="eye icon"style="float: right;margin-bottom: 5px;margin-top: 11px;margin-right: 20px"></i>
+                            </a>
+
+         <a class="{% activate side 'info' %} item recipe">View Description</a>
+
+                    <div class="ui divider"></div>
+
+                                 <div class="item">
+                            <a href="#" class="ui green fluid button open-run" id="" style="padding: 5px;">
+                                <i class="spinner icon"></i>Run
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="twelve wide column" id="script-col" >
+
+        <div class="ui raised segment inputcolor" style="border: none">
+
+            <div class="ui vertical detail segment">
+                {% if recipe.runnable %}
+                    <div class="ui right ribbon green label" id="recipe-run" >
+                        <i class="check icon"></i>
+                        Authorized
+                    </div>
+                {% else %}
+                    <div class="ui right ribbon orange label" id="recipe-run">
+                        <i class="hand paper icon"></i>
+                        Pending authorization
+                    </div>
+                {% endif %}
+
+                    <div class="ui form">
+
+                        {% csrf_token %}
+                        {{ run_form.media }}
+
+                        {% recipe_form run_form %}
+
+                        <div class="field">
+                            {% if is_runnable %}
+                                <button type="submit" class="ui green button">
+                                    <i class="check icon"></i>Run
+                                </button>
+                            {% else %}
+                                <button type="submit" class="ui disabled green button">
+                                    <i class="check icon"></i>Run
+                                </button>
+                            {% endif %}
+
+                            <a class="ui button" href="{% url 'recipe_view' recipe.uid %}">
+                                <i class="redo icon"></i>Cancel
+                            </a>
+                        </div>
+
+                        <div class="field">
+                            {% security_label recipe %}
+                        </div>
+                    </div>
+
+            </div>
+
+        </div>
+
+ </form>
+
 
 {% endblock %}

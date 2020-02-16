@@ -12,49 +12,13 @@
 
         {% show_messages messages %}
 
-
         {% block content %}
-
 
             <div class="ui large basic segment">
 
                 <div class="ui divided link items">
                     {% for recipe in recipe_list %}
-                        <div class="item">
-                            <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
-                            <div class="content">
-
-                                <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                                    {% if recipe.is_cloned %}
-                                        <i class="linkify icon"></i>
-                                    {% else %}
-                                        <i class="setting icon"></i>
-                                    {% endif %}
-                                    {{ recipe.name }}
-                                </a>
-
-                                <div class="meta">
-                                    {{ recipe.summary |markdown }}
-                                </div>
-
-                                <div class="extra">
-                                    <i class="bar chart icon"></i>Runs:<a
-                                        href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-
-                                    {{ recipe.job_count }}
-                                    result{{ recipe.job_count|pluralize }}</a>
-                                    &bull;
-                                    {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
-                                    &bull;
-                                    {% if recipe.runnable %}
-                                        Authorized
-                                    {% else %}
-                                        Pending Authorization
-                                    {% endif %}
-
-                                </div>
-                            </div>
-                        </div>
+                        {% recipe_details recipe %}
                     {% empty %}
                         <div class="item">
                             <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet

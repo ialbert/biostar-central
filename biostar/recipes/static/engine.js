@@ -266,7 +266,7 @@ function add_to_interface(display_type) {
 
     let json_text = $('#json').val();
     //let display_type = $(this).attr('id');
-
+    alert("GOO")
     $.ajax('/add/recipe/fields/', {
         type: 'POST',
         dataType: 'json',
@@ -604,12 +604,21 @@ $(document).ready(function () {
         }
     });
 
+    $(this).on('click', ".edit-side .open-run", function (){
+        //alert("FPP");
 
-    $(this).on('click', "#edit-side > .recipe", function (){
+        $(".recipe-edit").hide();
+        $(".runform").show();
+    });
+
+
+    $(this).on('click', ".edit-side .recipe", function (){
+        $(".recipe-edit").show();
+        $(".runform").hide();
         $(this).addClass("active");
         $("#detail-col").show();
-        $("#edit-side > .script").removeClass("active");
-        $("#edit-side > .interface").removeClass("active");
+        $(".edit-side .script").removeClass("active");
+        $(".edit-side  .interface").removeClass("active");
         $("#script-col").hide();
         $("#interface-col").hide();
 

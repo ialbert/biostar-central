@@ -388,9 +388,10 @@ def interface_options():
     return dict()
 
 
-@register.inclusion_tag('widgets/recipe_details.html')
-def recipe_details(recipe):
-    return dict(recipe=recipe)
+@register.inclusion_tag('widgets/recipe_details.html', takes_context=True)
+def recipe_details(context, recipe=None):
+
+    return context
 
 
 @register.simple_tag

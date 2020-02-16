@@ -379,7 +379,7 @@ def get_display_dict(display_type):
         return dict(label='Dropdown Field Label',
                     display=DROPDOWN,
                     help="Pick an option from a dropdown.",
-                    choices=[('1', 'Choices 1'), ('2', 'Choices 2')],
+                    choices=[('1', 'Choices 0001'), ('2', 'Choices 2')],
                     value='1')
     if display == UPLOAD:
         return dict(label='Upload a file',

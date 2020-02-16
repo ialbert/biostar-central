@@ -9,13 +9,26 @@
     {{ hidden_field }}
 {% endfor %}
 
-{% comment %}<div class="ui right labeled input">
-    <a class="ui basic label" style="border: 1px solid rgba(34,36,38,.15);">
-        <i style="margin-right: 0;" class="minus icon"></i></a>
-    <input type="number" placeholder="Amount" id="amount" style="width: 173px">
-    <a class="ui basic label"> <i class="plus icon" style="margin-right: 0;"></i></a>
-</div>{% endcomment %}
 
+
+{% comment %}  <div class="inline field">
+    <div class="ui toggle checkbox">
+      <input type="checkbox" tabindex="0" class="hidden">
+      <label>Toggle</label>
+    </div>
+  </div>
+    <div class="field">
+      <div class="ui radio checkbox">
+        <input type="radio" name="fruit" checked="" tabindex="0" class="hidden">
+        <label>Apples</label>
+      </div>
+    </div>
+    <div class="field">
+      <div class="ui radio checkbox">
+        <input type="radio" name="fruit" tabindex="0" class="hidden">
+        <label>Oranges</label>
+      </div>
+    </div>{% endcomment %}
 {# Iterate over all form fields #}
 {% for field in form.visible_fields %}
     {{ field.errors }}

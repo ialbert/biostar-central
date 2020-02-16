@@ -1,0 +1,8 @@
+
+<div class="ui right labeled input">
+    <a class="ui basic label" style="border: 1px solid rgba(34,36,38,.15);">
+        <i style="margin-right: 0;" class="minus icon"></i></a>
+
+    <input type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value %} value="{{ widget.value }}"{% endif %} {% for name, value in widget.attrs.items %}{% if value %}{{ name }}"="{{ value }}{% endif %}{% endfor %}>
+    <a class="ui basic label"> <i class="plus icon" style="margin-right: 0;"></i></a>
+</div>

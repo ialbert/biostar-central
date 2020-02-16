@@ -27,10 +27,12 @@
             {#% endif %#}
 
 
-    $(this).on('click', "#edit-side > .interface", function (){
+    $(this).on('click', ".edit-side .interface", function (){
+        $(".runform").hide();
+        $(".recipe-edit").show();
         $(this).addClass("active");
-        $("#edit-side > .script").removeClass("active");
-        $("#edit-side > .recipe").removeClass("active");
+        $(".edit-side .script").removeClass("active");
+        $(".edit-side .recipe").removeClass("active");
         $("#script-col").hide();
         $("#detail-col").hide();
         $("#interface-col").show();

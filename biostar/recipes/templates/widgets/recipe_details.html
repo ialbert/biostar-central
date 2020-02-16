@@ -2,34 +2,60 @@
 {% load engine_tags %}
 
 {% if recipe %}
-    <div class="ui divided link items" style="margin-bottom: 0px">
 
-        <div class="item">
+                    <div class="item">
+                            <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
+                            <div class="content">
 
-                <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
+                                <a class="subheader" href="{% url 'recipe_edit' recipe.uid %}">
+                                    {% if recipe.is_cloned %}
+                                        <i class="linkify icon"></i>
+                                    {% else %}
+                                        <i class="setting icon"></i>
+                                    {% endif %}
+                                    {{ recipe.name }}
+                                </a>
 
-            <div class="content ">
-                <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
-                    {% if recipe.is_cloned %}
-                        <i class="linkify icon"></i>
-                    {% else %}
-                        <i class="setting icon"></i>
+                                <div class="meta">
+                                    {{ recipe.summary |markdown }}
+                                </div>
+
+                                <div class="extra">
+                                    <i class="bar chart icon"></i>Runs:<a
+                                        href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+
+                                    {{ recipe.job_count }}
+                                    result{{ recipe.job_count|pluralize }}</a>
+                                    &bull;
+                                    {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
+                                    &bull;
+                                    {% if recipe.runnable %}
+                                        Authorized
+                                    {% else %}
+                                        Pending Authorization
+                                    {% endif %}
+
+                                </div>
+                            </div>
+                                                                 {% if user.is_authenticated %}
+                        <div class="ui small buttons">
+                            <a class="ui right button rerun" style="font-size: x-small;"
+                               href="{% url "job_rerun" job.uid %}?next={% url 'job_list' job.project.uid %}">
+                                <i class="redo icon"></i>Copy
+                            </a>
+                            <div class="or" style="font-size: x-small;"></div>
+
+                            <a class="ui right button rerun toggle_delete" data-value="{{ job.uid }}" data-type="job"
+                               data-count='job_count'
+                               style="font-size: x-small;">
+
+                                <i class="trash icon"></i> <span class="fitme">Delete</span>
+
+                            </a>
+
+                        </div>
+
                     {% endif %}
-                    {{ recipe.name }}
-                </a>
+                        </div>
 
-                <div class="meta">
-                    {{ recipe.summary|markdown }}
-                </div>
-                <div class="extra">
-                    Recipe created
-                        by <a href="{% url 'user_profile'  recipe.owner.profile.uid %}">
-                        {{ recipe.owner.profile.name }}
-                    </a>
-                   &bull;
-                    {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
-                </div>
-            </div>
-        </div>
-    </div>
 {% endif %}

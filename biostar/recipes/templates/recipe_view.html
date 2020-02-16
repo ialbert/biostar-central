@@ -25,8 +25,10 @@
 {% block content %}
 
     <div class="ui large vertical segment" id="view">
+   <div class="ui divided link items" style="">
 
         {% recipe_details recipe %}
+   </div>
         {% if recipe.is_cloned %}
             <div class="ui vertical cloned segment" style="padding-top: 5px">
             <span class="muted">
