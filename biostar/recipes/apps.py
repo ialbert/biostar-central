@@ -1,6 +1,7 @@
 import os
 import csv
 from django.db.models.signals import post_migrate
+#from django.contrib.redirects.models import Redirect
 from django.core.files import File
 from django.apps import AppConfig
 from django.conf import settings
@@ -16,6 +17,7 @@ class EngineConfig(AppConfig):
         post_migrate.connect(init_app, sender=self)
         post_migrate.connect(init_snippets, sender=self)
         #post_migrate.connect(set_visible_uids, sender=self)
+        # post_migrate.connect(init_redirects, sender=self)
 
 
 def set_visible_uids(sender, **kwargs):
@@ -33,12 +35,19 @@ def set_visible_uids(sender, **kwargs):
 
 def init_redirects(sender, **kwargs):
     from biostar.recipes.models import Project
+    from django.shortcuts import reverse
+
     # Redirect the old projects to the new ones.
     projects = Project.objects.all()
-
+    #site = Site.objects.get(pk=settings.SITE_ID)
     for project in projects:
 
-        # Get the old url
+        # Get the old and new paths for the project
+        old_path = f"/project/view/{project.uid}"
+        new_path = project.url()
+
+        #Redirect.objects.create(site=site, old_path=old_path, new_path='/')
+        # Create redirect object for each project.
         pass
 
 
