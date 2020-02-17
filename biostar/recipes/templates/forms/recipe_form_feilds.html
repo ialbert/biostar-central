@@ -1,0 +1,47 @@
+{% load  engine_tags %}
+
+<div class="ui segment">
+    {% form_errors form %}
+    {% csrf_token %}
+    <div class="inline fields ">
+        <div class="inline field" style="width: 400px;">
+            <span><b>Name</b> : </span>
+            {{ form.name }}
+            <div class="muted">What do you want to call the recipe</div>
+        </div>
+        <div class="inline field">
+            <span><b>Uid</b> : 	&nbsp;</span>
+            {{ form.uid }}
+            <div class="muted">Unique identifier, change if needed.</div>
+        </div>
+    </div>
+
+    <div class="inline fields ">
+        <div class="inline field" style=" width: 400px;">
+            <span><b>Image</b> : </span>
+            {{ form.image.errors }}
+            {{ form.image }}
+            <div class="muted">Optional image for the recipe ( 500px Maximum ).</div>
+        </div>
+        <div class="inline field">
+            <span><b>Rank</b>: </span>
+            {{ form.rank }}
+            <div class="muted">Used to order recipes (optional).</div>
+        </div>
+    </div>
+
+    {% if request.user.is_superuser %}
+        <div class="field">
+            <div class="ui checkbox">
+                {{ form.authorized }} <label>Authorized Recipe</label>
+            </div>
+            <p class="muted">Check if this recipe is safe to run by trusted users.</p>
+        </div>
+    {% endif %}
+
+    <div class="field segment" style="padding-top: 10px">
+        {{ form.text }}
+        <div class="muted">A detailed explanation of what the recipe does (markdown OK).</div>
+    </div>
+
+</div>

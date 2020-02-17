@@ -313,7 +313,7 @@ class RecipeForm(forms.ModelForm):
     """
     image = forms.ImageField(required=False)
     uid = forms.CharField(max_length=32, validators=[validate_slug], required=True)
-    json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="{}", required=True)
+    json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="", required=False)
     template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# Code goes here", required=True)
     name = forms.CharField(max_length=MAX_NAME_LEN, required=True)
     rank = forms.FloatField(required=True, initial=100)

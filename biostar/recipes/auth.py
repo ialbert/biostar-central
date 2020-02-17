@@ -270,7 +270,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
                     root=None):
 
     owner = user or project.owner
-
     analysis = Analysis.objects.filter(uid=uid)
 
     # Only update when there is a flag

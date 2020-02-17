@@ -592,33 +592,6 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@read_access(type=Analysis)
-def recipe_view(request, uid):
-    """
-    Returns a recipe view based on its id.
-    """
-    #recipe = Analysis.objects.filter(uid=uid).first()
-    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job")).first()
-
-    project = recipe.project
-    context = dict(recipe=recipe, project=project, activate='Recipe View')
-
-    try:
-        # Fill in the script with json data.
-        json_data = auth.fill_data_by_name(project=project, json_data=recipe.json_data)
-        ctx = Context(json_data)
-        script_template = Template(recipe.template)
-        script = script_template.render(ctx)
-    except Exception as exc:
-        messages.error(request, f"Error rendering code: {exc}")
-        script = recipe.template
-
-    context.update(script=script, rcount=recipe.job_count)
-    counts = get_counts(project)
-
-    context.update(counts)
-    return render(request, "recipe_view.html", context)
-
 
 @read_access(type=Analysis)
 def recipe_code_download(request, uid):
@@ -672,7 +645,8 @@ def recipe_run(request, uid):
             return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
     else:
         initial = dict(name=f"Results for: {analysis.name}")
-        form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
+        form = forms.RecipeInterface(request=request, analysis=analysis,
+                                     json_data=analysis.json_data, initial=initial)
 
     is_runnable = auth.authorize_run(user=request.user, recipe=analysis)
 
@@ -710,7 +684,7 @@ def job_rerun(request, uid):
 
 
 @read_access(type=Analysis)
-def recipe_edit(request, uid):
+def recipe_view(request, uid):
     """
     Edit meta-data associated with a recipe.
     """
@@ -727,6 +701,7 @@ def recipe_edit(request, uid):
                                 project=project)
         if form.is_valid():
             form.save()
+            messages.success(request, "Editted Recipe")
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
@@ -734,21 +709,21 @@ def recipe_edit(request, uid):
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
     initial = dict(name=f"Results for: {recipe.name}")
-    #print(recipe.json_data)
+
     run_form = forms.RecipeInterface(request=request, analysis=recipe,
                                      json_data=recipe.json_data, initial=initial)
 
     is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
 
-    #rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
-    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job")).first()
+    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job", filter=Q(job__deleted=False))).first()
 
     context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,
                    activate='Recipe View', run_form=run_form,
                    action_url=action_url)
+
     counts = get_counts(project)
     context.update(counts)
-    return render(request, 'recipe_edit.html', context)
+    return render(request, 'recipe_view.html', context)
 
 
 @read_access(type=Project)
@@ -790,7 +765,8 @@ def recipe_create(request, uid):
                    activate='Create Recipe', name=name)
     counts = get_counts(project)
     context.update(counts)
-    return render(request, 'recipe_edit.html', context)
+    #1/0
+    return render(request, 'recipe_view.html', context)
 
 
 @write_access(type=Job, fallback_view="job_view")

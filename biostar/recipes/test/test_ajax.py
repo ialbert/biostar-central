@@ -213,7 +213,7 @@ class AjaxTest(TestCase):
         Test AJAX function used to preview recipe scripts
         """
 
-        data = {'template': '# recipe code', 'json_text': '{}', 'name': self.recipe.name,
+        data = {'template': '# recipe code', 'json_text': '', 'name': self.recipe.name,
                 'uid': self.recipe.uid, 'project_uid': self.recipe.project.uid}
 
         url = reverse('preview_template')
@@ -244,7 +244,7 @@ class AjaxTest(TestCase):
         display_types = ['radio', 'data', 'integer', 'textbox', 'float', 'checkbox',
                          'dropdown']
 
-        json_text = '{}'
+        json_text = ''
         url = reverse('add_recipe_fields')
 
         for dtype in display_types:

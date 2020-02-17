@@ -1,8 +1,7 @@
 from functools import wraps, partial
 import logging
 
-import toml as hjson
-
+import toml
 from ratelimit.decorators import ratelimit
 
 from django.shortcuts import reverse
@@ -292,7 +291,7 @@ def preview_template(request):
     project = Project.objects.filter(uid=project_uid).first()
 
     try:
-        source_json = hjson.loads(source_json)
+        source_json = toml.loads(source_json)
         # Fill json information by name for the preview.
         source_json = auth.fill_data_by_name(project=project, json_data=source_json)
         # Fill in the script with json data.
@@ -316,9 +315,9 @@ def preview_json(request):
     recipe_name = request.POST.get('name')
     project_uid = request.POST.get('project_uid')
 
-    json_text = request.POST.get('json_text', '{}')
+    json_text = request.POST.get('json_text', '')
     try:
-        json_data = hjson.loads(json_text)
+        json_data = toml.loads(json_text)
     except Exception as exc:
         return ajax_error(msg=f"{exc}")
 
@@ -352,20 +351,20 @@ def get_display_dict(display_type):
     if display == RADIO:
         return dict(label='Radio Field Label',
                     display=RADIO, help='Choose an option.',
-                    choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
+                    choices=[("1", 'Option 1'), ("2", 'Option 2')], value=2)
     if display == INTEGER:
         return dict(label='Integer Field Label',
                     display=INTEGER,
                     help='Enter an integer between -100 and 100.',
-                    range=[-100, 100], value=0)
+                    range=[0, 100], value=0)
     if display == TEXTBOX:
         return dict(label='Text box Field Label', display=TEXTBOX,
                     help='Enter text.',
                     value='text')
     if display == FLOAT:
         return dict(label='Float Field Label',
-                    help='Enter a float, decimal number, between -100.0 and 100.0.',
-                    display=FLOAT, range=[-100.0, 100.0],
+                    help='Enter a float, decimal number, between 0 and 100.0.',
+                    display=FLOAT, range=[0, 100.0],
                     value=0.5)
     if display == CHECKBOX:
         return dict(label='Checkbox Field Label',
@@ -394,17 +393,17 @@ def add_to_interface(request):
 
     display_dict = get_display_dict(display_type=display_type)
 
-    json_data = hjson.loads(json_text)
-    field_name = display_type
+    json_data = toml.loads(json_text)
+    field_name = "Parameter"
     count = 0
     # Check if the field name exists
     while field_name in json_data:
-        field_name = display_type + f'{count}'
+        field_name = "Parameter" + f'{count}'
         count += 1
 
     new_field = {field_name: display_dict}
     json_data.update(new_field)
-    new_json = hjson.dumps(json_data)
+    new_json = toml.dumps(json_data)
 
     tmpl = loader.get_template('widgets/json_field.html')
     context = dict(json_text=new_json, focus=True)
@@ -535,7 +534,7 @@ def add_variables(request):
     json_text = request.POST.get('json_text', '')
     template = request.POST.get('template', '')
 
-    json_data = hjson.loads(json_text)
+    json_data = toml.loads(json_text)
 
     # Create a set with all template variables
     all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}
