@@ -55,6 +55,8 @@ body {
     font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
 }
 
+
+
 code {
     font-size: .88em !important;
 }
@@ -103,7 +105,7 @@ code {
     border: none;
     height: auto;
     //max-width: 927px;
-    //width: 104.1%;
+    width: 107.6%;
 }
 
 #detail-col > .ui.form .inline.field > input, .ui.form .inline.field > select, .ui.form .inline.fields .field > input {

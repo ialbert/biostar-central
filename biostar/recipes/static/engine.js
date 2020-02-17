@@ -618,23 +618,25 @@ $(document).ready(function () {
         $(".runform").hide();
         $(this).addClass("active");
         $("#desc-col").show();
-        $(".edit-side .script").removeClass("active");
-        $(".edit-side  .interface").removeClass("active");
-        $(".edit-side  .recipe").removeClass("active");
+        $(".edit-side .script").parent().removeClass("active");
+        $(".edit-side  .interface").parent().removeClass("active");
+        $(".edit-side  .recipe").parent().removeClass("active");
         $("#script-col").hide();
         $("#interface-col").hide();
         $("#detail-col").hide();
     });
 
 
-    $(this).on('click', ".edit-side .recipe", function () {
+    $(this).on('click', ".edit-side .recipe", function (event) {
+        event.preventDefault();
         $(".recipe-edit").show();
         $(".runform").hide();
         $("#desc-col").hide();
-        $(this).addClass("active");
+        $(this).parent().addClass("active");
         $("#detail-col").show();
-        $(".edit-side .script").removeClass("active");
-        $(".edit-side  .interface").removeClass("active");
+        $(".edit-side .script").parent().removeClass("active");
+        $(".edit-side  .interface").parent().removeClass("active");
+        $(".edit-side  .open-desc").removeClass("active");
         $("#script-col").hide();
         $("#interface-col").hide();
 

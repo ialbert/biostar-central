@@ -26,13 +26,15 @@
             {#% endif %#}
 
 
-    $(this).on('click', ".edit-side .interface", function (){
+    $(this).on('click', ".edit-side .interface", function (event){
+        event.preventDefault();
         $(".runform").hide();
         $(".recipe-edit").show();
          $("#desc-col").hide();
-        $(this).addClass("active");
-        $(".edit-side .script").removeClass("active");
-        $(".edit-side .recipe").removeClass("active");
+        $(this).parent().addClass("active");
+        $(".edit-side .script").parent().removeClass("active");
+        $(".edit-side .recipe").parent().removeClass("active");
+        $(".edit-side .open-desc").removeClass("active");
         $("#script-col").hide();
         $("#detail-col").hide();
         $("#interface-col").show();

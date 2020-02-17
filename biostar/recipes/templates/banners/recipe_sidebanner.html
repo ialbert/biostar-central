@@ -1,11 +1,14 @@
 {% load engine_tags %}
 
 <div class="ui vertical text menu edit-side">
-
-    <a class="{% activate side 'info' %} item recipe">Edit Recipe</a>
-
+{% if recipe %}
+    <a class="{% activate side 'desc' %} item open-desc">View Description</a>
+{% endif %}
+<div class="item">
+    <a href="#" class="{% activate side 'info' %} recipe" style="color: inherit">Edit Recipe</a>
+</div>
     <div class="item">
-        <div class="{% activate side 'script' %} script" style="display: inline">Edit Script</div>
+        <a href="#" class="{% activate side 'script' %} script" style="display: inline;color: inherit">Edit Script</a>
         <div class="ui top pointing dropdown muted" id="code_add" style="float: right;">
             <a><i class="caret down icon"></i></a>
             {% snippet_list %}
@@ -16,8 +19,8 @@
     </div>
 
     <div class="item">
-        <div class="{% activate side 'interface' %} interface" style="display: inline">Edit Interface
-        </div>
+        <a href="#" class="{% activate side 'interface' %} interface" style="display: inline;color: inherit;">Edit Interface
+        </a>
         <div class="ui top pointing dropdown muted" id="json_add" style="float: right;">
             <a><i class="caret down icon"></i></a>
             {% interface_options %}
@@ -27,8 +30,6 @@
         </a>
     </div>
 {% if recipe %}
-    <a class="{% activate side 'info' %} item open-desc">View Description</a>
-
     <div class="ui divider"></div>
 
     <div class="item">
@@ -45,6 +46,7 @@
     {% endif %}
 
 {% else %}
+    <div class="ui divider"></div>
      <div class="item">
         <button class="ui blue fluid button" style="padding: 5px;">
             <i class="plus circle icon"></i>Create

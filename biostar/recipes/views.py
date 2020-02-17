@@ -713,11 +713,12 @@ def recipe_view(request, uid):
                                      json_data=recipe.json_data, initial=initial)
 
     is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
-    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job")).first()
+    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job", filter=Q(job__deleted=False))).first()
 
     context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,
                    activate='Recipe View', run_form=run_form,
                    action_url=action_url)
+
     counts = get_counts(project)
     context.update(counts)
     return render(request, 'recipe_view.html', context)
