@@ -10,26 +10,6 @@
 {% endfor %}
 
 
-
-{% comment %}  <div class="inline field">
-    <div class="ui toggle checkbox">
-      <input type="checkbox" tabindex="0" class="hidden">
-      <label>Toggle</label>
-    </div>
-  </div>
-    <div class="field">
-      <div class="ui radio checkbox">
-        <input type="radio" name="fruit" checked="" tabindex="0" class="hidden">
-        <label>Apples</label>
-      </div>
-    </div>
-    <div class="field">
-      <div class="ui radio checkbox">
-        <input type="radio" name="fruit" tabindex="0" class="hidden">
-        <label>Oranges</label>
-      </div>
-    </div>{% endcomment %}
-{# Iterate over all form fields #}
 {% for field in form.visible_fields %}
     {{ field.errors }}
 
