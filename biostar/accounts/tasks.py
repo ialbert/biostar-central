@@ -1,7 +1,7 @@
 import logging
 from urllib.request import urlopen, Request
 
-import hjson
+import toml as hjson
 import mistune
 from django.conf import settings
 from django.template import loader

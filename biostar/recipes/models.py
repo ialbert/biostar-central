@@ -1,6 +1,6 @@
 import logging
 
-import hjson
+import toml as hjson
 import mistune
 from django.db import models
 from django.db.models.signals import post_save
@@ -502,7 +502,7 @@ class Analysis(models.Model):
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
+    json_text = models.TextField(default="", max_length=MAX_TEXT_LEN)
 
     # Use this just to trigger a data migration.
     phony_field = models.TextField(default="{}", max_length=MAX_TEXT_LEN)

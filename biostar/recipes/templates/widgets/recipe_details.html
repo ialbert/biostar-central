@@ -7,7 +7,7 @@
         <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
         <div class="content">
 
-            <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
+            <a class="subheader" href="{% url 'recipe_edit' recipe.uid %}">
                 {% if recipe.is_cloned %}
                     <i class="linkify icon"></i>
                 {% else %}
@@ -23,6 +23,7 @@
             <div class="extra">
                 <i class="bar chart icon"></i>Runs:<a
                     href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+
                 {{ recipe.job_count }}
                 result{{ recipe.job_count|pluralize }}</a>
                 &bull;
@@ -39,14 +40,19 @@
         {% if user.is_authenticated %}
             <div class="ui small buttons">
                 <a class="ui right button rerun" style="font-size: x-small;"
-                   href="{% url "recipe_copy" recipe.uid %}?next={% url "recipe_view" recipe.uid %}">
-                    <i class="copy icon"></i>Copy
+                   href="{% url "job_rerun" job.uid %}?next={% url 'job_list' job.project.uid %}">
+                    <i class="redo icon"></i>Copy
                 </a>
                 <div class="or" style="font-size: x-small;"></div>
-                <a class="ui right rerun button" href="{% url 'recipe_delete' recipe.uid %}"
+
+                <a class="ui right button rerun toggle_delete" data-value="{{ job.uid }}" data-type="job"
+                   data-count='job_count'
                    style="font-size: x-small;">
+
                     <i class="trash icon"></i> <span class="fitme">Delete</span>
+
                 </a>
+
             </div>
 
         {% endif %}

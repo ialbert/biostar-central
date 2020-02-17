@@ -26,6 +26,7 @@
             {#% endif %#}
 
 
+
     $(this).on('click', ".edit-side .interface", function (event){
         event.preventDefault();
         $(".runform").hide();
@@ -35,6 +36,7 @@
         $(".edit-side .script").parent().removeClass("active");
         $(".edit-side .recipe").parent().removeClass("active");
         $(".edit-side .open-desc").removeClass("active");
+
         $("#script-col").hide();
         $("#detail-col").hide();
         $("#interface-col").show();

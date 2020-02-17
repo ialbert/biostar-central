@@ -1,6 +1,7 @@
 from functools import wraps, partial
 import logging
-import hjson, json
+
+import toml
 from ratelimit.decorators import ratelimit
 
 from django.shortcuts import reverse
@@ -22,6 +23,7 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
               Job.RUNNING: "running", Job.COMPLETED: "completed"
               }
 
+
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
     payload.update(kwargs)
@@ -30,7 +32,6 @@ def ajax_msg(msg, status, **kwargs):
 
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
-
 
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
@@ -96,7 +97,6 @@ class ajax_error_wrapper:
 
 
 def check_job(request, uid):
-
     job = Job.objects.filter(uid=uid).first()
 
     check_back = 'check_back' if job.state in [Job.SPOOLED, Job.RUNNING] else ''
@@ -112,7 +112,7 @@ def check_job(request, uid):
     if os.path.exists(stdout_path) and os.path.exists(stderr_path):
         stdout = open(stdout_path, 'r').read()
         stderr = open(stderr_path, 'r').read()
-        Job.objects.filter(uid=job.uid).update(stderr_log = stderr, stdout_log=stdout)
+        Job.objects.filter(uid=job.uid).update(stderr_log=stderr, stdout_log=stdout)
     else:
         stdout = stderr = None
 
@@ -134,7 +134,6 @@ def check_job(request, uid):
 
 @ajax_error_wrapper(method="POST", login_required=False)
 def snippet_code(request):
-
     command_uid = request.POST.get('command', '')
     current_code = request.POST.get('template', '')
 
@@ -158,7 +157,6 @@ def snippet_code(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=False)
 def snippet_form(request):
-
     is_category = request.POST.get("is_category", 0)
     is_category = bool(int(is_category))
 
@@ -227,7 +225,6 @@ def create_snippet_type(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST")
 def create_snippet(request):
-
     snippet = request.POST.get('snippet', '')
     help_text = request.POST.get('help_text', '')
     type_uid = request.POST.get('type_uid')
@@ -287,7 +284,6 @@ def create_snippet(request):
 
 @ajax_error_wrapper(method="POST", login_required=False)
 def preview_template(request):
-
     source_template = request.POST.get('template', '# Code goes here')
     source_json = request.POST.get('json_text', '{}')
     name = request.POST.get('name', 'Name')
@@ -295,7 +291,7 @@ def preview_template(request):
     project = Project.objects.filter(uid=project_uid).first()
 
     try:
-        source_json = hjson.loads(source_json)
+        source_json = toml.loads(source_json)
         # Fill json information by name for the preview.
         source_json = auth.fill_data_by_name(project=project, json_data=source_json)
         # Fill in the script with json data.
@@ -315,14 +311,13 @@ def preview_template(request):
 
 @ajax_error_wrapper(method="POST", login_required=False)
 def preview_json(request):
-
     # Get the recipe
     recipe_name = request.POST.get('name')
     project_uid = request.POST.get('project_uid')
 
-    json_text = request.POST.get('json_text', '{}')
+    json_text = request.POST.get('json_text', '')
     try:
-        json_data = hjson.loads(json_text)
+        json_data = toml.loads(json_text)
     except Exception as exc:
         return ajax_error(msg=f"{exc}")
 
@@ -356,20 +351,20 @@ def get_display_dict(display_type):
     if display == RADIO:
         return dict(label='Radio Field Label',
                     display=RADIO, help='Choose an option.',
-                    choices=[(1, 'Option 1'), (2, 'Option 2')], value=2)
+                    choices=[("1", 'Option 1'), ("2", 'Option 2')], value=2)
     if display == INTEGER:
         return dict(label='Integer Field Label',
                     display=INTEGER,
                     help='Enter an integer between -100 and 100.',
-                    range=[-100, 100], value=0)
+                    range=[0, 100], value=0)
     if display == TEXTBOX:
         return dict(label='Text box Field Label', display=TEXTBOX,
                     help='Enter text.',
                     value='text')
     if display == FLOAT:
         return dict(label='Float Field Label',
-                    help='Enter a float, decimal number, between -100.0 and 100.0.',
-                    display=FLOAT, range=[-100.0, 100.0],
+                    help='Enter a float, decimal number, between 0 and 100.0.',
+                    display=FLOAT, range=[0, 100.0],
                     value=0.5)
     if display == CHECKBOX:
         return dict(label='Checkbox Field Label',
@@ -379,7 +374,7 @@ def get_display_dict(display_type):
         return dict(label='Dropdown Field Label',
                     display=DROPDOWN,
                     help="Pick an option from a dropdown.",
-                    choices=[('1', 'Choices 1'), ('2', 'Choices 2')],
+                    choices=[('1', 'Choices 0001'), ('2', 'Choices 2')],
                     value='1')
     if display == UPLOAD:
         return dict(label='Upload a file',
@@ -398,17 +393,17 @@ def add_to_interface(request):
 
     display_dict = get_display_dict(display_type=display_type)
 
-    json_data = hjson.loads(json_text)
-    field_name = display_type
+    json_data = toml.loads(json_text)
+    field_name = "Parameter"
     count = 0
     # Check if the field name exists
     while field_name in json_data:
-        field_name = display_type + f'{count}'
+        field_name = "Parameter" + f'{count}'
         count += 1
 
     new_field = {field_name: display_dict}
     json_data.update(new_field)
-    new_json = hjson.dumps(json_data)
+    new_json = toml.dumps(json_data)
 
     tmpl = loader.get_template('widgets/json_field.html')
     context = dict(json_text=new_json, focus=True)
@@ -467,7 +462,6 @@ def toggle_delete(request):
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
 def manage_access(request):
-
     access_map = dict(none=Access.NO_ACCESS, read=Access.READ_ACCESS,
                       write=Access.WRITE_ACCESS, share=Access.SHARE_ACCESS)
 
@@ -522,7 +516,6 @@ def copy_object(request):
 
     project = Project.objects.filter(uid=project_uid).first()
     if not project:
-
         return ajax_error("Project does not exist.")
 
     is_readable = auth.is_readable(user=request.user, project=project)
@@ -537,12 +530,11 @@ def copy_object(request):
 
 
 def add_variables(request):
-
     # Get the most recent template and json.
     json_text = request.POST.get('json_text', '')
     template = request.POST.get('template', '')
 
-    json_data = hjson.loads(json_text)
+    json_data = toml.loads(json_text)
 
     # Create a set with all template variables
     all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}

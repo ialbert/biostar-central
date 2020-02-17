@@ -604,12 +604,14 @@ $(document).ready(function () {
         }
     });
 
+
     $(this).on('click', ".edit-side .open-run", function () {
         //alert("FPP");
 
         $(".recipe-edit").hide();
         $(".runform").show();
     });
+
 
     $(this).on('click', ".edit-side .open-desc", function () {
         //alert("FPP");
@@ -634,6 +636,7 @@ $(document).ready(function () {
         $("#desc-col").hide();
         $(this).parent().addClass("active");
         $("#detail-col").show();
+
         $(".edit-side .script").parent().removeClass("active");
         $(".edit-side  .interface").parent().removeClass("active");
         $(".edit-side  .open-desc").removeClass("active");

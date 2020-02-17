@@ -1,6 +1,6 @@
 import logging
 import os
-import hjson
+import toml as hjson
 import hashlib
 import itertools
 import mistune
@@ -709,10 +709,12 @@ def recipe_view(request, uid):
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
     initial = dict(name=f"Results for: {recipe.name}")
+
     run_form = forms.RecipeInterface(request=request, analysis=recipe,
                                      json_data=recipe.json_data, initial=initial)
 
     is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
+
     recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job", filter=Q(job__deleted=False))).first()
 
     context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,

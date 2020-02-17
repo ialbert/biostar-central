@@ -29,18 +29,22 @@
         //template_edit.setCursor(template_edit.lineCount(), 0);
         {#% endif %#}
 
+
     $(this).on('click', ".edit-side  .script", function (event){
         event.preventDefault();
         $(this).parent().addClass("active");
+
         $(".recipe-edit").show();
         $(".runform").hide();
         $("#script-col").show();
         $("#detail-col").hide();
         $("#desc-col").hide();
         $("#interface-col").hide();
+
         $(".edit-side .recipe").parent().removeClass("active");
         $(".edit-side .interface").parent().removeClass("active");
         $(".edit-side .open-desc").removeClass("active");
+
         template_edit.refresh();
         template_edit.focus();
         //template_edit.setCursor(template_edit.lineCount(), 0);
