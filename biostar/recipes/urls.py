@@ -35,7 +35,11 @@ urlpatterns = [
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
     path(r'project/create/', views.project_create, name='project_create'),
     path(r'project/list/', views.project_list, name='project_list'),
+
+
     path(r'project/view/<str:uid>/', views.project_info, name='project_view'),
+
+
     path(r'<str:uid>/view/', views.project_info, name='project_view'),
     path(r'project/edit/<str:uid>/', views.project_edit, name='project_edit'),
     path(r'project/info/<str:uid>/', views.project_info, name='project_info'),
@@ -55,7 +59,10 @@ urlpatterns = [
     path(r'data/delete/<str:uid>/', views.data_delete, name='data_delete'),
 
     # Recipes
-    path(r'recipe/list/<str:uid>/', views.recipe_list, name='recipe_list'),
+    #path(r'recipe/list/<str:uid>/', views.recipe_list_redirect, name='recipe_list_redirect'),
+    path(r'view/recipes/<str:uid>/', views.recipe_list, name='recipe_list'),
+
+
     path(r'recipe/view/<str:uid>/', views.recipe_view, name='recipe_view'),
     path(r'recipe/run/<str:uid>/', views.recipe_run, name='recipe_run'),
     path(r'recipe/edit/<str:uid>/', views.recipe_view, name='recipe_edit'),
