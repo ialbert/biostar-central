@@ -72,7 +72,6 @@ INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 # Additional middleware.
 MIDDLEWARE += [
-    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'biostar.recipes.middleware.recipes_middleware',
 ]
 
@@ -84,12 +83,6 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'biostar.recipes.context.engine'
 ]
 
-# The rest framework.
-# REST_FRAMEWORK = {
-#     'DEFAULT_PARSER_CLASSES': (
-#         'rest_framework.parsers.MultiPartParser',
-#     ),
-# }
 
 # Directory where files are extracted to
 EXTRACT_TO = join(BASE_DIR, "export", "extracted")

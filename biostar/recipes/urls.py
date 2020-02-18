@@ -39,8 +39,8 @@ urlpatterns = [
 
     path(r'project/view/<str:uid>/', views.project_info, name='project_view'),
 
+    path(r'<str:label>/view/', views.project_viewing, name='project_viewing'),
 
-    path(r'<str:uid>/view/', views.project_info, name='project_view'),
     path(r'project/edit/<str:uid>/', views.project_edit, name='project_edit'),
     path(r'project/info/<str:uid>/', views.project_info, name='project_info'),
     path(r'project/list/private/', views.project_list_private, name='project_list_private'),
@@ -50,6 +50,7 @@ urlpatterns = [
     re_path(r'project/share/(?P<token>[-\w]+)/', views.project_share, name='project_share'),
 
     # Data
+    path(r'<str:label>/data/', views.data_listing, name='data_listing'),
     path(r'data/list/<str:uid>/', views.data_list, name='data_list'),
     path(r'data/view/<str:uid>/', views.data_view, name='data_view'),
     path(r'data/edit/<str:uid>/', views.data_edit, name='data_edit'),
@@ -59,9 +60,8 @@ urlpatterns = [
     path(r'data/delete/<str:uid>/', views.data_delete, name='data_delete'),
 
     # Recipes
-    #path(r'recipe/list/<str:uid>/', views.recipe_list_redirect, name='recipe_list_redirect'),
-    path(r'view/recipes/<str:uid>/', views.recipe_list, name='recipe_list'),
-
+    path(r'<str:label>/recipes/', views.recipe_listing, name='recipe_listing'),
+    path(r'recipe/list/<str:uid>/', views.recipe_list, name='recipe_list'),
 
     path(r'recipe/view/<str:uid>/', views.recipe_view, name='recipe_view'),
     path(r'recipe/run/<str:uid>/', views.recipe_run, name='recipe_run'),
@@ -82,6 +82,7 @@ urlpatterns = [
     path(r"search/", views.search_bar, name='search'),
 
     # Jobs
+    path(r'<str:label>/results/', views.job_listing, name='job_listing'),
     path(r'job/list/<str:uid>/', views.job_list, name='job_list'),
     path(r'job/view/<str:uid>/', views.job_view, name='job_view'),
     path(r'job/edit/<str:uid>/', views.job_edit, name='job_edit'),

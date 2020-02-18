@@ -4,6 +4,11 @@ from django.conf import settings
 from biostar.accounts.models import Profile
 from biostar.recipes.auth import detect_cores
 
+
+#def redirect_middleware():
+#    return
+
+
 def recipes_middleware(get_response):
 
     def middleware(request):

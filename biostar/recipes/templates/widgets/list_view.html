@@ -7,14 +7,13 @@
 
         <div class="ui divided items">
             {% for project in projects %}
-
                 <div class="item">
 
                     <img class="ui mytiny circular fancy image" src="{% img project %}"/>
 
                     <div class="content">
 
-                        <a class="subheader" href="{% url 'recipe_list' project.uid %}">
+                        <a class="subheader" href="{% url 'recipe_listing' project.label %}">
                             <i class="database icon"></i>{{ project.get_name }}
                         </a>
                         {% if user.is_authenticated %}
@@ -29,16 +28,17 @@
                             {% privacy_label project %}
 
                             <a
-                                    href="{% url 'data_list' project.uid %}">
+                                    href="{% url 'data_listing' project.label %}">
                                 <i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
 
                             <a
-                                    href="{% url 'recipe_list' project.uid %}">
+                                    href="{% url 'recipe_listing' project.label %}">
                                 <i class="setting icon"></i>{{ project.recipes_count }}
                                 recipe{{ project.recipes_count|pluralize }}</a>&bull;
 
                             <a
-                                    href="{% url 'job_list' project.uid %}">
+                                    {% url 'job_listing' project.label %}
+                                    href="{% url 'job_listing' project.label %}">
                                 <i class="bar chart icon"></i>{{ project.jobs_count }}
                                 result{{ project.jobs_count|pluralize }}</a>
 

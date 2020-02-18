@@ -10,6 +10,7 @@ django-recaptcha2
 django-mailer>=2
 whoosh
 hjson
+toml
 pytz
 coverage
 bleach

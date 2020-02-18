@@ -2,7 +2,7 @@ import logging
 import os
 import textwrap
 
-import hjson
+import toml as hjson
 from django.core.management.base import BaseCommand
 
 from biostar.recipes import auth

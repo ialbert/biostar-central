@@ -12,6 +12,36 @@ from . import models, auth
 logger = models.logger
 
 
+class exists:
+    """
+    Used as decorator to trap/display  errors in the ajax calls
+    """
+
+    def __init__(self, otype, login_required=False):
+        self.otype = otype
+        self.login_required = login_required
+
+    def __call__(self, func, *args, **kwargs):
+
+        @wraps(func)
+        def _view(request, *args, **kwargs):
+            label = kwargs.get('label')
+            instance = self.otype.objects.filter(label=label).first()
+            if request.user.is_anonymous and self.login_required:
+                messages.error(request, "You need to be logged in.")
+                return redirect(reverse("project_list"))
+
+            # Object does not exist.
+            if not instance:
+                messages.error(request, f"Object label={label} does not exist")
+                return redirect(reverse("project_list"))
+
+            return func(request, *args, **kwargs)
+
+        return _view
+
+
+
 class read_access:
     """
     Controls READ level access to urls.

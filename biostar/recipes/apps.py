@@ -16,42 +16,6 @@ class EngineConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(init_app, sender=self)
         post_migrate.connect(init_snippets, sender=self)
-        #post_migrate.connect(set_visible_uids, sender=self)
-        # post_migrate.connect(init_redirects, sender=self)
-
-
-def set_visible_uids(sender, **kwargs):
-    """
-    Temporary function used to make the
-    """
-    from biostar.recipes.models import Project
-    # Redirect the old projects to the new ones.
-    projects = Project.objects.filter(visible_uid=None)
-
-    for project in projects:
-        project.visible_uid = project.uid
-        project.save()
-
-
-def init_redirects(sender, **kwargs):
-    from biostar.recipes.models import Project
-    from django.shortcuts import reverse
-
-    # Redirect the old projects to the new ones.
-    projects = Project.objects.all()
-    #site = Site.objects.get(pk=settings.SITE_ID)
-    for project in projects:
-
-        # Get the old and new paths for the project
-        old_path = f"/project/view/{project.uid}"
-        new_path = project.url()
-
-        #Redirect.objects.create(site=site, old_path=old_path, new_path='/')
-        # Create redirect object for each project.
-        pass
-
-
-    return
 
 
 def init_snippets(sender, **kwargs):

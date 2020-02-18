@@ -37,15 +37,12 @@
 
         <div class="ui six buttons">
             <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#code">
-                <i class="setting icon"></i> <span class="fitme">Recipe Code</span>
+                <i class="setting icon"></i> <span class="fitme">Recipe</span>
             </a>
             <a class="ui button" href="{% url "job_rerun" job.uid %}">
                 <i class="redo icon"></i> <span class="fitme">Rerun Recipe</span>
             </a>
 
-            <a class="ui button" href="{% url 'recipe_edit' job.analysis.uid %}">
-                <i class="settings icon"></i> <span class="fitme">Edit Recipe</span>
-            </a>
             <a class="ui button" href="{% url "job_edit" job.uid %}">
                 <i class="edit icon"></i> <span class="fitme">Edit Results</span>
             </a>
