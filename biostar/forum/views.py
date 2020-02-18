@@ -196,15 +196,17 @@ def pages(request, doc):
         messages.error(request, f"Page does not exist: {doc}")
         return redirect("/")
 
-    # Get the relative directory of the current doc
+    # Get the relative path of the current doc
     rel_dir = os.path.relpath(settings.FORUM_DOCS, settings.DOCS_ROOT)
     rel_path = os.path.join(rel_dir, dir_list[0])
 
-    # Find this file in the static folder.
+    # Find file in the static folder.
     results = finders.find(rel_path, all=True)
     results = list(filter(lambda p: p.startswith(settings.STATIC_ROOT), results))
-    # Return the first file found.
+
+    # Return the first file mathcing the file name.
     file_path = results[0] if results else ""
+
     # Get fill path to markdown file_path
     context = dict(file_path=file_path, tab=doc)
 
