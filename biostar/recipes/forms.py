@@ -37,9 +37,7 @@ def join(*args):
 def ascii_only(text):
     try:
         text.encode('ascii')
-
     except Exception:
-        1/0
         raise forms.ValidationError('Text may only contain plain text (ASCII) characters')
 
 
