@@ -17,7 +17,7 @@ class exists:
     Used as decorator to trap/display  errors in the ajax calls
     """
 
-    def __init__(self, otype, login_required=True):
+    def __init__(self, otype, login_required=False):
         self.otype = otype
         self.login_required = login_required
 
@@ -29,7 +29,7 @@ class exists:
             instance = self.otype.objects.filter(label=label).first()
             if request.user.is_anonymous and self.login_required:
                 messages.error(request, "You need to be logged in.")
-                return redirect(request)
+                return redirect(reverse("project_list"))
 
             # Object does not exist.
             if not instance:

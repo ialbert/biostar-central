@@ -292,7 +292,6 @@ def recipe_listing(request, label):
 @exists(otype=Project)
 def project_viewing(request, label):
     project = Project.objects.filter(label=label).first()
-    print(label, "FOOOOOOOO")
     return project_view(request=request, uid=project.uid)
 
 
