@@ -2,13 +2,13 @@
 
 <div class="ui vertical text menu edit-side">
 {% if recipe %}
-    <a class="{% activate side 'desc' %} item open-desc">View Description</a>
+    <a class="{% activate side 'desc' %} item open-desc">Recipe Description</a>
 {% endif %}
 <div class="item">
     <a href="#" class="{% activate side 'info' %} recipe" style="color: inherit">Edit Recipe</a>
 </div>
     <div class="item">
-        <a href="#" class="{% activate side 'script' %} script" style="display: inline;color: inherit">Edit Script</a>
+        <a href="#" class="{% activate side 'script' %} script" style="display: inline;color: inherit">Recipe Script</a>
         <div class="ui top pointing dropdown muted" id="code_add" style="float: right;">
             <a><i class="caret down icon"></i></a>
             {% snippet_list %}
@@ -19,7 +19,7 @@
     </div>
 
     <div class="item">
-        <a href="#" class="{% activate side 'interface' %} interface" style="display: inline;color: inherit;">Edit Interface
+        <a href="#" class="{% activate side 'interface' %} interface" style="display: inline;color: inherit;">Recipe Interface
         </a>
         <div class="ui top pointing dropdown muted" id="json_add" style="float: right;">
             <a><i class="caret down icon"></i></a>

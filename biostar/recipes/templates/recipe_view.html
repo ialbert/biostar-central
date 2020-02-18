@@ -17,14 +17,10 @@
 
 {% block content %}
 
- {% if recipe %}
-    <div class="ui large basic segment" style="padding-right: 0;padding-left: 0">
-        <div class="ui divided link items">
-     {% recipe_details %}
-            {% endif %}
 
-            {% if recipe.is_cloned %}
-                <div class="ui vertical cloned segment" style="padding-top: 5px">
+    {% if recipe.is_cloned %}
+
+        <div class="ui vertical cloned segment" style="padding-top: 5px">
             <span class="muted">
                 <i class="linkify icon"></i>
                 This recipe is a clone.
@@ -32,19 +28,25 @@
                 written by <a href="{{ recipe.root.owner.profile.get_absolute_url }}">
                 {{ recipe.root.owner.profile.name|truncatechars:30 }}</a>.
             </span>
-                </div>
-
         </div>
-    </div>
- {% endif %}
+
+    {% endif %}
+
 
     <form method="post" class="ui form recipe-edit" action="{{ action_url }}" enctype='multipart/form-data'>
         <div class="ui grid">
 
+
             <div class="four wide column recipe-sidemenu">
                 {% recipe_sidebar enable_save=True %}
             </div>
+
             <div class="twelve wide column" id="script-col">
+                {% if recipe %}
+                    <div class="ui divided link items" style="width: 106%">
+                        {% recipe_details %}
+                    </div>
+                {% endif %}
                 {% form_errors form %}
                 {% csrf_token %}
 
@@ -56,6 +58,11 @@
                 </div>
             </div>
             <div class="twelve wide column" id="interface-col">
+                {% if recipe %}
+                    <div class="ui divided link items" style="width: 106%">
+                        {% recipe_details %}
+                    </div>
+                {% endif %}
                 {% form_errors form %}
                 {% csrf_token %}
                 <div class="field" id="json_field">
@@ -66,13 +73,24 @@
                 </div>
             </div>
             <div class="twelve wide column" id="detail-col">
+                {% if recipe %}
+                    <div class="ui divided link items" style="width: 106%">
+                        {% recipe_details %}
+                    </div>
+                {% endif %}
                 {% recipe_info_form %}
+
             </div>
 
             {% if recipe %}
                 <div class="twelve wide column" id="desc-col">
+                    {% if recipe %}
+                        <div class="ui divided link items" style="width: 106%">
+                            {% recipe_details %}
+                        </div>
+                    {% endif %}
                     <div class="ui large vertical segment" style="overflow-y: auto">
-                        <div class="ui subheader">Recipe Description</div>
+
                         <p> {{ recipe.html |safe }} </p>
                     </div>
                 </div>
@@ -86,17 +104,22 @@
               action="{% url 'recipe_run' recipe.uid %}" style="display: none">
             <div class="ui grid">
                 <div class="four wide column recipe-sidemenu">
+
                     {% recipe_sidebar %}
                 </div>
 
                 <div class="twelve wide column" id="script-col">
+                    {% if recipe %}
+                        <div class="ui divided link items" style="width: 106%">
+                            {% recipe_details %}
+                        </div>
+                    {% endif %}
                     {% recipe_run_form %}
                 </div>
             </div>
 
         </form>
     {% endif %}
-
 
 
 {% endblock %}

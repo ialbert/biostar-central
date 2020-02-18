@@ -42,14 +42,10 @@ body {
 
 }
 
-#detail-col .ui.segment:first-child {
-    border-top: none;
-    border-right: none;
-    box-shadow: none;
-    border-radius: 0;
-    padding-left: 18px;
-    border-bottom: none;
+.recipe-edit, .runform{
+    padding-top: 10px !important;
 }
+
 
 .CodeMirror-sizer {
     font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
