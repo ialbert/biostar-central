@@ -1,4 +1,4 @@
-import hjson
+import toml as hjson
 import time
 import os, logging, subprocess, pprint
 
@@ -95,7 +95,7 @@ def run(job, options={}):
 
         # Print the json.
         if show_json:
-            print(hjson.dumps(json_data, indent=4))
+            print(hjson.dumps(json_data))
             return
 
         # Print the template.
@@ -152,7 +152,7 @@ def run(job, options={}):
 
         # Create a file that stores the json data for reference.
         with open(json_fname, 'wt') as fp:
-            fp.write(hjson.dumps(json_data, indent=4))
+            fp.write(hjson.dumps(json_data))
 
         # Show the command that is executed.
         logger.info(f'Job id={job.id} executing: {full_command}')

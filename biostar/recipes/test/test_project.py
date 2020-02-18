@@ -40,7 +40,8 @@ class ProjectViewTest(TestCase):
 
         # Create fake request
         data = {'name': 'My project', 'uid': 'example', "summary": "summary", "rank": 100,
-                'text': 'tested', "privacy": models.Project.PRIVATE, "image": image_stream}
+                'text': 'tested', "privacy": models.Project.PRIVATE, "image": image_stream,
+                "label":"foo"}
 
         request = fake_request(url=reverse('project_create'), data=data, user=self.owner)
         response = views.project_create(request)

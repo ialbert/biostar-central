@@ -1,28 +1,5 @@
-{
-  integer:
-  {
-    label: Example Integer field
-    display: INTEGER
-    value:10
-    range:[0, 100]
-  }
-  settings:
-  {
-    recipe_uid: hello
-    uid: hello
-    name: Hello World
-    template: hello-world.sh
-    image: hello-world.png
-    project_uid: 2bc43f11
-    url: http://localhost:8000
-    summary: This recipe prints: Hello World!
-    help:
-      '''
-      This recipe prints **Hello World!** to the console.
-
-      Note how the console output is captured in the standard output of the results.
-
-      You may use `Markdown` in the summary and in the help.
-      '''
-  }
-}
+[parameter]
+label = "Example Integer field"
+display = "INTEGER"
+value = 10
+range = [ 0, 100,]

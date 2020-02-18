@@ -64,7 +64,8 @@ LOGIN_REDIRECT_URL = "/project/list/private/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 ENGINE_APPS = [
-    'biostar.recipes.apps.EngineConfig'
+    'biostar.recipes.apps.EngineConfig',
+    'django.contrib.redirects'
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
@@ -82,12 +83,6 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'biostar.recipes.context.engine'
 ]
 
-# The rest framework.
-# REST_FRAMEWORK = {
-#     'DEFAULT_PARSER_CLASSES': (
-#         'rest_framework.parsers.MultiPartParser',
-#     ),
-# }
 
 # Directory where files are extracted to
 EXTRACT_TO = join(BASE_DIR, "export", "extracted")

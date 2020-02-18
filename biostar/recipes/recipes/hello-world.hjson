@@ -1,5 +1,5 @@
 {
-  integer:
+  parameter:
   {
     label: Example Integer field
     display: INTEGER

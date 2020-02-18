@@ -1,6 +1,7 @@
 import os
 import logging
 
+import toml
 import hjson
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -26,30 +27,44 @@ def update_access(sender, instance, created, raw, update_fields, **kwargs):
         entry = Access.objects.create(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
 
 
+def load_text(text):
+    """
+    Load text into a data dict.
+    """
+    try:
+        # Try and load text as toml
+        data = toml.loads(text)
+    except Exception:
+        # Try to load text as json
+        data = hjson.loads(text)
+
+    return data
+
+
 def strip_json(json_text):
     """
     Strip settings parameter in json_text to only contain execute options
     Deletes the 'settings' parameter if there are no execute options.
     """
     try:
-        local_json = hjson.loads(json_text)
+        local_dict = load_text(json_text)
     except Exception as exep:
         logger.error(f'Error loading json text: {exep}')
-        return
+        return ""
 
     # Fetch the execute options
-    execute_options = local_json.get('settings', {}).get('execute', {})
+    execute_options = local_dict.get('settings', {}).get('execute', {})
 
     # Check to see if it is present
     if execute_options:
         # Strip run settings of every thing but execute options
-        local_json['settings'] = dict(execute=execute_options)
+        local_dict['settings'] = dict(execute=execute_options)
     else:
         # NOTE: Delete 'settings' from json text
-        local_json['settings'] = ''
-        del local_json['settings']
+        local_dict['settings'] = ''
+        del local_dict['settings']
 
-    new_json = hjson.dumps(local_json)
+    new_json = toml.dumps(local_dict)
     return new_json
 
 
@@ -81,7 +96,6 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
     # Strip json of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
-
     # Update information of all children belonging to this root.
     if instance.is_root:
         instance.update_children()

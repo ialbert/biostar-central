@@ -5,7 +5,7 @@ import os
 import subprocess
 from mimetypes import guess_type
 
-import hjson
+import toml as hjson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.storage import fallback
@@ -231,7 +231,7 @@ def get_project_list(user, include_public=True, include_deleted=False):
     return query
 
 
-def create_project(user, name, uid=None, summary='', text='', stream=None,
+def create_project(user, name, uid=None, summary='', text='', stream=None, label=None,
                    privacy=Project.PRIVATE, update=False):
     # Set or create the project uid.
     uid = uid or util.get_uuid(8)
@@ -253,7 +253,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
         # Create a new project.
-        project = Project.objects.create(
+        project = Project.objects.create(label=label,
             name=name, uid=uid, text=text, owner=user, privacy=privacy)
 
         logger.info(f"Created project: {project.name} uid: {project.uid}")
@@ -270,7 +270,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
                     root=None):
 
     owner = user or project.owner
-
     analysis = Analysis.objects.filter(uid=uid)
 
     # Only update when there is a flag

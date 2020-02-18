@@ -42,6 +42,21 @@ def mask_path(val='', obj={}):
     return val
 
 
+@register.inclusion_tag("forms/recipe_form_feilds.html", takes_context=True)
+def recipe_info_form(context):
+    return context
+
+
+@register.inclusion_tag("forms/run_form_feilds.html", takes_context=True)
+def recipe_run_form(context):
+
+    return context
+
+@register.inclusion_tag("banners/recipe_sidebanner.html", takes_context=True)
+def recipe_sidebar(context, enable_save=False):
+    context.update(dict(enable_save=enable_save))
+    return context
+
 @register.filter
 def time_ago(date):
     pluralize = lambda value, word: f"{value} {word}s" if value > 1 else f'{value} {word}'
@@ -64,7 +79,6 @@ def time_ago(date):
         diff = delta.days / 365.0
         unit = '%0.1f years' % diff
     return "%s ago" % unit
-
 
 
 def join(*args):
@@ -283,9 +297,8 @@ def privacy_label(project):
 
 @register.inclusion_tag('widgets/authorization_required.html', takes_context=True)
 def security_label(context, analysis):
-
     user = context['request'].user
-    
+
     if user.is_anonymous:
         is_readable = False
     else:
@@ -310,7 +323,6 @@ def job_color(job):
     Returns a color based on job status.
     """
     return auth.job_color(job)
-
 
 
 @register.simple_tag
@@ -388,9 +400,9 @@ def interface_options():
     return dict()
 
 
-@register.inclusion_tag('widgets/recipe_details.html')
-def recipe_details(recipe):
-    return dict(recipe=recipe)
+@register.inclusion_tag('widgets/recipe_details.html', takes_context=True)
+def recipe_details(context, recipe=None):
+    return context
 
 
 @register.simple_tag
@@ -478,7 +490,6 @@ def access_form(project, user, extra_class=''):
 
 @register.filter
 def get_access_label(user, project):
-
     access = Access.objects.filter(user=user, project=project).select_related('project').first()
 
     access = access or Access(access=Access.NO_ACCESS, user=user, project=project)
@@ -499,7 +510,6 @@ def job_minutes(job, view=False):
     check_back = ''
     # Add a tag to check a state change every ~5 seconds and update tag
     if job.state in [Job.SPOOLED, Job.RUNNING, Job.QUEUED]:
-
         check_back = 'check_back'
 
     return dict(job=job, check_back=check_back, view=view)

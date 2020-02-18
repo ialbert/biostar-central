@@ -1,10 +1,9 @@
-
 <textarea class="code" rows="40" cols="55" name="json_text" id="json">{{ json_text }}</textarea>
 
 
     <script type="text/javascript">
         $(document).ready(function () {
-            
+
 
             var json_edit = CodeMirror.fromTextArea(
                 document.getElementById("json"), {
@@ -27,10 +26,17 @@
             {#% endif %#}
 
 
-    $(this).on('click', "#edit-side > .interface", function (){
-        $(this).addClass("active");
-        $("#edit-side > .script").removeClass("active");
-        $("#edit-side > .recipe").removeClass("active");
+
+    $(this).on('click', ".edit-side .interface", function (event){
+        event.preventDefault();
+        $(".runform").hide();
+        $(".recipe-edit").show();
+         $("#desc-col").hide();
+        $(this).parent().addClass("active");
+        $(".edit-side .script").parent().removeClass("active");
+        $(".edit-side .recipe").parent().removeClass("active");
+        $(".edit-side .open-desc").removeClass("active");
+
         $("#script-col").hide();
         $("#detail-col").hide();
         $("#interface-col").show();
