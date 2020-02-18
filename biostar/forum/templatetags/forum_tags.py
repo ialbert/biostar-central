@@ -776,13 +776,12 @@ def markdown_file(pattern):
     Returns the content of a file matched by the pattern.
     Returns an error message if the pattern cannot be found.
     """
-    #path = find_file(pattern=pattern)
     path = pattern
     path = os.path.abspath(path)
     if os.path.isfile(path):
         text = open(path).read()
     else:
-        text = f"    file '{pattern}': '{path}' not found"
+        text = f" file '{pattern}': '{path}' not found"
 
     try:
 

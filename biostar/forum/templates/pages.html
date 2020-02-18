@@ -1,4 +1,5 @@
 {% extends "forum_base.html" %}
+{% load static %}
 {% load forum_tags %}
 
 
@@ -8,6 +9,7 @@
 
 {% block content %}
 
-    {% markdown_file markdown_file %}
+    {# Get the static file to serve #}
+    {% markdown_file file_path %}
 
 {% endblock %}
