@@ -74,6 +74,8 @@ YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN3 = rec(r"https://youtu.be/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_HTML = '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>'
 
+#https://gist.github.com/afrendeiro/6732a46b949e864d6803
+
 # Ftp link pattern.
 FTP_PATTERN = rec(r"^ftp://[\w\.]+(/?)$")
 
@@ -244,11 +246,12 @@ def parse(text, post=None, sanatize=True, escape=True):
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
     inline = BiostarInlineLexer(renderer=Renderer(), root=root)
+
     inline.enable_post_link()
     inline.enable_mention_link()
     inline.enable_anchor_link()
-    inline.enable_anchor_link()
     inline.enable_user_link()
+    inline.enable_gist_link()
 
     inline.enable_youtube_link1()
     inline.enable_youtube_link2()
