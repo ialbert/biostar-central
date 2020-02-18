@@ -15,34 +15,6 @@ class EngineConfig(AppConfig):
         # Triggered upon app initialization.
         post_migrate.connect(init_app, sender=self)
         post_migrate.connect(init_snippets, sender=self)
-        #post_migrate.connect(set_visible_uids, sender=self)
-
-
-def set_visible_uids(sender, **kwargs):
-    """
-    Temporary function used to make the
-    """
-    from biostar.recipes.models import Project
-    # Redirect the old projects to the new ones.
-    projects = Project.objects.filter(visible_uid=None)
-
-    for project in projects:
-        project.visible_uid = project.uid
-        project.save()
-
-
-def init_redirects(sender, **kwargs):
-    from biostar.recipes.models import Project
-    # Redirect the old projects to the new ones.
-    projects = Project.objects.all()
-
-    for project in projects:
-
-        # Get the old url
-        pass
-
-
-    return
 
 
 def init_snippets(sender, **kwargs):
