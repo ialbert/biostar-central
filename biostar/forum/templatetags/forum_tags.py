@@ -801,7 +801,7 @@ class MarkDownNode(template.Node):
 
     def render(self, context):
         text = self.nodelist.render(context)
-        text = markdown.parse(text)
+        text = markdown.parse(text, sanatize=False)
         text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
         return text
 
