@@ -29,7 +29,7 @@ class exists:
             instance = self.otype.objects.filter(label=label).first()
             if request.user.is_anonymous and self.login_required:
                 messages.error(request, "You need to be logged in.")
-                return redirect(request, 'You must be logged in.')
+                return redirect(request)
 
             # Object does not exist.
             if not instance:
