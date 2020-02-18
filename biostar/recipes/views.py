@@ -18,7 +18,7 @@ from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
-from biostar.recipes.decorators import read_access, write_access
+from biostar.recipes.decorators import read_access, write_access, exists
 from biostar.recipes.models import Project, Data, Analysis, Job, Access
 
 # The current directory
@@ -41,6 +41,7 @@ def valid_path(path):
 def index(request):
     context = dict(active="home")
     return render(request, 'index.html', context)
+
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -153,7 +154,7 @@ def project_users(request, uid):
     """
     Manage project users page
     """
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.filter(label=uid).first()
     # Get users that already have access to project.
     have_access = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
 
@@ -280,6 +281,30 @@ def get_counts(project, user=None):
         data_count=data_count, recipe_count=recipe_count, result_count=result_count,
         discussion_count=discussion_count
     )
+
+
+@exists(otype=Project)
+def recipe_listing(request, label):
+    project = Project.objects.filter(label=label).first()
+    return recipe_list(request, uid=project.uid)
+
+
+@exists(otype=Project)
+def project_viewing(request, label):
+    project = Project.objects.filter(label=label).first()
+    return project_view(request=request, uid=project.uid)
+
+
+@exists(otype=Project)
+def job_listing(request, label):
+    project = Project.objects.filter(label=label).first()
+    return job_list(request=request, uid=project.uid)
+
+
+@exists(otype=Project)
+def data_listing(request, label):
+    project = Project.objects.filter(label=label).first()
+    return data_list(request, uid=project.uid)
 
 
 @read_access(type=Project)

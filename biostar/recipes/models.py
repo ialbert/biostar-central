@@ -128,8 +128,10 @@ class Project(models.Model):
 
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
     date = models.DateTimeField(auto_now_add=True)
+    # Internal uid that is not editable.
     uid = models.CharField(max_length=32, unique=True)
-    visible_uid = models.CharField(max_length=32, unique=True, null=True)
+    # Unique project label that is editable.
+    label = models.CharField(max_length=32, unique=True, null=True)
 
     sharable_token = models.CharField(max_length=32, null=True, unique=True)
 
@@ -146,7 +148,7 @@ class Project(models.Model):
         self.html = make_html(self.text, user=self.lastedit_user)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
-        self.visible_uid = self.visible_uid or self.uid or util.get_uuid(8)
+        self.label = self.label or self.uid
         self.lastedit_user = self.lastedit_user or self.owner
         self.lastedit_date = self.lastedit_date or now
 
@@ -323,7 +325,6 @@ class Data(models.Model):
     file_count = models.IntegerField(default=0)
 
     uid = models.CharField(max_length=32, unique=True)
-    visible_uid = models.CharField(max_length=32, unique=True, null=True)
 
     objects = Manager()
 
@@ -340,7 +341,6 @@ class Data(models.Model):
         self.type = self.type.replace(" ", '')
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
-        self.visible_uid = self.visible_uid or self.uid or util.get_uuid(8)
         # Build the data directory.
         data_dir = self.get_data_dir()
         if not os.path.isdir(data_dir):
@@ -479,7 +479,6 @@ class Analysis(models.Model):
 
     deleted = models.BooleanField(default=False)
     uid = models.CharField(max_length=32, unique=True)
-    visible_uid = models.CharField(max_length=32, unique=True, null=True)
 
     name = models.CharField(max_length=MAX_NAME_LEN, default="New Recipe")
     text = models.TextField(default='This is the recipe description.', max_length=MAX_TEXT_LEN)
@@ -505,7 +504,7 @@ class Analysis(models.Model):
     json_text = models.TextField(default="", max_length=MAX_TEXT_LEN)
 
     # Use this just to trigger a data migration.
-    phony_field = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
+    #phony_field = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
 
     template = models.TextField(default="")
     last_valid = models.TextField(default='')
@@ -560,7 +559,6 @@ class Analysis(models.Model):
         self.date = self.date or now
         self.text = self.text or "Recipe description"
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
-        self.visible_uid = self.visible_uid or self.uid or util.get_uuid(8)
         self.html = make_html(self.text, user=self.lastedit_user)
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
@@ -685,7 +683,6 @@ class Job(models.Model):
     json_text = models.TextField(default="commands")
 
     uid = models.CharField(max_length=32)
-    visible_uid = models.CharField(max_length=32, unique=True, null=True)
 
     template = models.TextField(default="makefile")
 
@@ -785,7 +782,6 @@ class Job(models.Model):
         self.html = make_html(self.text, user=self.lastedit_user)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
-        self.visible_uid = self.visible_uid or self.uid or util.get_uuid(8)
         self.template = self.analysis.template
         self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
