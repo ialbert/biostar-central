@@ -34,6 +34,15 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+def ascii_only(text):
+    try:
+        text.encode('ascii')
+
+    except Exception:
+        1/0
+        raise forms.ValidationError('Text may only contain plain text (ASCII) characters')
+
+
 def check_size(fobj, maxsize=0.3, field=None):
     # maxsize in megabytes!
     error_msg = ''
@@ -114,7 +123,7 @@ def add_captcha_field(request, fields):
 
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
-
+    label = forms.CharField(required=False)
     # Should not edit uid because data directories get recreated
 
     def __init__(self, request, create=False, *args, **kwargs):
@@ -130,7 +139,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'text', 'privacy', 'rank', 'image']
+        fields = ['name', 'text', 'privacy', 'rank', 'image', 'label']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -138,6 +147,18 @@ class ProjectForm(forms.ModelForm):
         check_size(fobj=image)
 
         return image
+
+    def clean_label(self):
+        cleaned_data = super(ProjectForm, self).clean()
+        label = cleaned_data['label']
+
+        project = Project.objects.filter(label=label).exclude(id=self.instance.id).first()
+        ascii_only(label)
+
+        if project:
+            raise forms.ValidationError("Label already exists. ")
+        return label
+
 
     def clean(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -167,7 +188,9 @@ class ProjectForm(forms.ModelForm):
         name = self.cleaned_data["name"]
         text = self.cleaned_data["text"]
         stream = self.cleaned_data["image"]
-        project = auth.create_project(user=owner, name=name, text=text, stream=stream)
+        label = self.cleaned_data['label']
+        print(label)
+        project = auth.create_project(user=owner, label=label, name=name, text=text, stream=stream)
         project.save()
 
         return project

@@ -148,7 +148,7 @@ class Project(models.Model):
         self.html = make_html(self.text, user=self.lastedit_user)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
-        self.label = self.label or self.uid
+        self.label = self.label or self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.owner
         self.lastedit_date = self.lastedit_date or now
 

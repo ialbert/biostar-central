@@ -33,7 +33,7 @@ class exists:
 
             # Object does not exist.
             if not instance:
-                messages.error(request, f"Object label= {label} does not exist")
+                messages.error(request, f"Object label={label} does not exist")
                 return redirect(reverse("project_list"))
 
             return func(request, *args, **kwargs)

@@ -292,6 +292,7 @@ def recipe_listing(request, label):
 @exists(otype=Project)
 def project_viewing(request, label):
     project = Project.objects.filter(label=label).first()
+    print(label, "FOOOOOOOO")
     return project_view(request=request, uid=project.uid)
 
 
@@ -393,7 +394,9 @@ def project_create(request):
         form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
         if form.is_valid():
             project = form.custom_save(owner=request.user)
-            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
+            print(project, "LOLOLLLL", project.label)
+
+            return redirect(reverse("project_viewing", kwargs=dict(label=project.label)))
 
     context = dict(form=form)
     return render(request, "project_create.html", context=context)
