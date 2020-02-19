@@ -461,10 +461,13 @@ def list_posts(context, target):
 
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
-    recent_votes = Vote.objects.prefetch_related("post").exclude(post__status=Post.DELETED)
+    recent_votes = Vote.objects.prefetch_related("post").exclude(post__status=Post.DELETED,
+                                                                 post__root__spam=Post.SPAM)
+    recent_votes = recent_votes.exclude(post__root__status=Post.DELETED).exclude(post__root__spam=Post.SPAM)
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
-    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED])).prefetch_related("user")
+    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED,
+                                                                             Profile.SUSPENDED])).prefetch_related("user")
     recent_locations = recent_locations.order_by('-last_login')
     recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
 
@@ -473,14 +476,9 @@ def default_feed(user):
     recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
     #
     recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]).exclude(status=Post.DELETED)
+    recent_replies = recent_replies.exclude(root__status=Post.DELETED).exclude(root__spam=Post.SPAM)
     recent_replies = recent_replies.select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
-
-    #
-    # users = [dict(username=u.user.username, email=u.user.email, uid=u.uid, name=u.name,
-    #               url=u.get_absolute_url(), score=u.score,
-    #               gravatar=auth.gravatar(user=u.user, size=30))
-    #          for u in recent_locations]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=[],
                    recent_locations=recent_locations, recent_replies=recent_replies,
@@ -776,13 +774,12 @@ def markdown_file(pattern):
     Returns the content of a file matched by the pattern.
     Returns an error message if the pattern cannot be found.
     """
-    #path = find_file(pattern=pattern)
     path = pattern
     path = os.path.abspath(path)
     if os.path.isfile(path):
         text = open(path).read()
     else:
-        text = f"    file '{pattern}': '{path}' not found"
+        text = f" file '{pattern}': '{path}' not found"
 
     try:
 
@@ -801,7 +798,7 @@ class MarkDownNode(template.Node):
 
     def render(self, context):
         text = self.nodelist.render(context)
-        text = markdown.parse(text)
+        text = markdown.parse(text, sanatize=False)
         text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
         return text
 

@@ -151,9 +151,13 @@ class PostShortForm(forms.Form):
 
     def clean_content(self):
         content = self.cleaned_data["content"]
-
         return content
 
+    def clean(self):
+        cleaned_data = super(PostShortForm, self).clean()
+        if self.user.is_anonymous:
+            raise forms.ValidationError("You need to be logged in.")
+        return cleaned_data
 
 class CommentForm(forms.Form):
 

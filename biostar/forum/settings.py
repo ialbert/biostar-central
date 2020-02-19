@@ -94,8 +94,11 @@ PAGEDOWN_WIDGET_CSS = ('pagedown/demo/browser/demo.css',)
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ACCOUNTS_APPS + EMAILER_APP
 
+FORUM_DOCS = os.path.join(DOCS_ROOT, "forum")
 
-DOCS_ROOT = os.path.join(DOCS_ROOT, "forum")
+# Add docs to static files directory
+STATICFILES_DIRS += [DOCS_ROOT]
+
 # Directory for the planets app.
 #PLANET_DIR = ''
 

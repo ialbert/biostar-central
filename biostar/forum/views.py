@@ -6,6 +6,7 @@ import zlib
 
 from whoosh.searching import Results
 from django.conf import settings
+from django.contrib.staticfiles import finders
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -130,8 +131,8 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-        query = query.exclude(status=Post.DELETED)
-        query = query.exclude(spam=Post.SPAM)
+        query = query.exclude(status=Post.DELETED).exclude(root__status=Post.DELETED)
+        query = query.exclude(spam=Post.SPAM).exclude(root__spam=Post.SPAM)
 
     # Select related information used during rendering.
     query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile")
@@ -186,19 +187,28 @@ class CachedPaginator(Paginator):
 
 
 def pages(request, doc):
-    # Get all files in the directory root.
-    dir_list = os.listdir(os.path.abspath(settings.DOCS_ROOT))
+    # Get all available files in the directory root.
+    dir_list = os.listdir(os.path.abspath(settings.FORUM_DOCS))
     dir_list = list(filter(lambda d: d.endswith(f"{doc}.md"), dir_list))
 
+    # This doc does is not found in the root directory
     if not len(dir_list):
         messages.error(request, f"Page does not exist: {doc}")
         return redirect("/")
 
-    # Get the first match
-    target_doc = dir_list[0]
-    # Get fill path to markdown file
-    markdown_file = os.path.join(settings.DOCS_ROOT, target_doc)
-    context = dict(markdown_file=markdown_file, tab=doc)
+    # Get the relative path of the current doc
+    rel_dir = os.path.relpath(settings.FORUM_DOCS, settings.DOCS_ROOT)
+    rel_path = os.path.join(rel_dir, dir_list[0])
+
+    # Find file in the static folder.
+    results = finders.find(rel_path, all=True)
+    results = list(filter(lambda p: p.startswith(settings.STATIC_ROOT), results))
+
+    # Return the first file mathcing the file name.
+    file_path = results[0] if results else ""
+
+    # Get fill path to markdown file_path
+    context = dict(file_path=file_path, tab=doc)
 
     return render(request, 'pages.html', context=context)
 

@@ -526,7 +526,7 @@ class Analysis(models.Model):
         try:
             json_data = hjson.loads(self.json_text)
         except Exception as exc:
-            logger.error(f"{exc}")
+            logger.error(f"{exc}. json_text={self.json_text}")
             json_data = {}
 
         # Generates file names
@@ -749,7 +749,12 @@ class Job(models.Model):
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
-        return hjson.loads(self.json_text)
+        try:
+            data_dict = hjson.loads(self.json_text)
+        except Exception as exc:
+            logger.error(f"{exc}; text={self.json_text}")
+            data_dict = {}
+        return data_dict
 
     def elapsed(self):
         if not (self.start_date and self.end_date):
