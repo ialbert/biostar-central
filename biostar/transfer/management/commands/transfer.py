@@ -12,10 +12,9 @@ from django.conf import settings
 from taggit.models import Tag
 
 from biostar.accounts.models import User, Profile
-from biostar.forum import util
+from biostar.forum import util, markdown
 from biostar.forum.models import Post, Vote, Subscription, Badge, Award
 from biostar.transfer.models import UsersUser, PostsPost, PostsVote, PostsSubscription, BadgesAward, UsersProfile
-from biostar.utils import markdown
 
 logger = logging.getLogger("engine")
 
@@ -187,7 +186,7 @@ def bulk_copy_posts(limit):
                     content = post.content
                     logger.error(f"Failed parsing post={post.id}.")
 
-                html = markdown.parse(content)
+                html = markdown.parse(content, clean=False, escape=False)
             else:
                 content = post.content
                 html = post.html

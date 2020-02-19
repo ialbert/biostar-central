@@ -188,7 +188,7 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
 
         # Needs to be imported here to avoid circular imports.
-        from biostar.utils import markdown
+        from . import markdown
 
         self.lastedit_user = self.lastedit_user or self.author
 
@@ -197,7 +197,7 @@ class Post(models.Model):
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
-        self.html = markdown.parse(self.content, post=self)
+        self.html = markdown.parse(self.content, post=self, clean=True, escape=True)
         self.tag_val = self.tag_val.replace(' ', '')
         # Default tags
         self.tag_val = self.tag_val or "tag1,tag2"

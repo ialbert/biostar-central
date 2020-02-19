@@ -755,7 +755,7 @@ def traverse_comments(request, post, tree, template_name):
     return html
 
 import bleach
-from biostar.utils import markdown
+from biostar.forum import markdown
 
 def top_level_only(attrs, new=False):
     '''
@@ -767,6 +767,7 @@ def top_level_only(attrs, new=False):
     if not text.startswith(('http:', 'https:')):
         return None
     return attrs
+
 
 @register.simple_tag
 def markdown_file(pattern):
@@ -783,13 +784,14 @@ def markdown_file(pattern):
 
     try:
 
-        html = markdown.parse(text, sanatize=False, escape=False)
+        html = markdown.parse(text, clean=False, escape=False)
         html = bleach.linkify(html, callbacks=[top_level_only], skip_tags=['pre'])
         html = mark_safe(html)
     except Exception as e:
         html = f"Markdown rendering exception"
         logger.error(e)
     return html
+
 
 class MarkDownNode(template.Node):
     CALLBACKS = [ top_level_only ]
@@ -798,9 +800,10 @@ class MarkDownNode(template.Node):
 
     def render(self, context):
         text = self.nodelist.render(context)
-        text = markdown.parse(text, sanatize=False)
+        text = markdown.parse(text, clean=False, escape=False)
         text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
         return text
+
 
 @register.tag('markdown')
 def markdown_tag(parser, token):

@@ -10,6 +10,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        from biostar.utils import markdown
+        from biostar.forum import markdown
 
         print(markdown.test())

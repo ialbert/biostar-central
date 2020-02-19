@@ -13,7 +13,7 @@ urlpatterns = [
     # Main entry. Post listing.
     path('', views.latest, name='post_list'),
 
-    path(r'pages/<str:doc>/', views.pages, name='pages'),
+    path(r'pages/<str:fname>/', views.pages, name='pages'),
 
     path('votes/', views.myvotes, name='myvotes'),
     path('bookmarks/', views.bookmarks, name='bookmarks'),
@@ -29,7 +29,6 @@ urlpatterns = [
     path('t/list/', views.tags_list, name='tags_list'),
 
     path('b/view/<str:uid>/', views.badge_view, name='badge_view'),
-    #path('edit/post/<str:uid>/', views.edit_post, name='post_edit'),
 
     # Ajax calls
     path('ajax/digest/', ajax.ajax_digest, name='ajax_digest'),
