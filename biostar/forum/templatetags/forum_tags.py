@@ -4,16 +4,14 @@ import logging
 import random
 import re
 import os
-import urllib.parse
+
 import datetime
 from itertools import count, islice
 from datetime import timedelta
 
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+import bleach
 from taggit.models import Tag
 from django import template, forms
-from django.db.models import Count
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator
@@ -21,6 +19,7 @@ from django.shortcuts import reverse
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
+from biostar.forum import markdown
 
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const, auth
@@ -753,9 +752,6 @@ def traverse_comments(request, post, tree, template_name):
     html = '\n'.join(collect)
 
     return html
-
-import bleach
-from biostar.forum import markdown
 
 def top_level_only(attrs, new=False):
     '''

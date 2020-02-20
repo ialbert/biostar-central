@@ -188,7 +188,7 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
 
         # Needs to be imported here to avoid circular imports.
-        from . import markdown
+        from biostar.forum import markdown
 
         self.lastedit_user = self.lastedit_user or self.author
 
@@ -204,12 +204,12 @@ class Post(models.Model):
         # Set the top level state of the post.
         self.is_toplevel = self.type in Post.TOP_LEVEL
 
+        # This will trigger the signals
+        super(Post, self).save(*args, **kwargs)
+
         if self.type == Post.ANSWER:
             Post.objects.filter(uid=self.parent.uid).update(lastedit_date=self.lastedit_date,
                                                             lastedit_user=self.lastedit_user)
-
-        # This will trigger the signals
-        super(Post, self).save(*args, **kwargs)
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)

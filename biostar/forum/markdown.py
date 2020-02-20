@@ -50,16 +50,14 @@ http://test.biostars.org/p/p371285/
 
 # Shortcut to re.compile
 rec = re.compile
-SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
-
 
 # Biostar patterns
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
+SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
+USER_PATTERN = rec(fr"^http(s)?://{SITE_URL}/accounts/profile/(?P<uid>[\w_.-]+)(/)?")
+POST_TOPLEVEL = rec(fr"^http(s)?://{SITE_URL}/p/(?P<uid>(\w+))(/)?$")
+POST_ANCHOR = rec(fr"^http(s)?://{SITE_URL}/p/\w+/\#(?P<uid>(\w+))(/)?")
 
-# Mistune returns h3 and p tags for markdown
-USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/accounts/profile/(?P<uid>[\w_.-]+)(/)?")
-POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/(?P<uid>(\w+))(/)?$")
-POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/\w+/\#(?P<uid>(\w+))(/)?")
 # Match any alphanumeric characters after the @.
 # These characters are allowed in handles: _  .  -
 MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.'-]+))")
@@ -137,7 +135,6 @@ def absoulute_image_link(link, root="/static/"):
     link = "/static/" + link
 
     return link
-
 
 
 class BiostarInlineLexer(MonkeyPatch):
@@ -233,7 +230,6 @@ class BiostarInlineLexer(MonkeyPatch):
         link = m.group(0)
         profile = Profile.objects.filter(uid=uid).first()
         name = profile.name if profile else f"Invalid user uid: {uid}"
-
         return f'<a href="{link}">USER: {name}</a>'
 
     def enable_youtube_link1(self):
