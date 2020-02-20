@@ -130,7 +130,6 @@ def absoulute_image_link(link, root="/static/"):
     # Link is already a full path or an external link
     if link.startswith("/") or link.startswith("http"):
         return link
-
     # Make the link absoulute to a static url
     link = "/static/" + link
 
@@ -140,14 +139,14 @@ def absoulute_image_link(link, root="/static/"):
 class BiostarInlineLexer(MonkeyPatch):
     grammar_class = BiostarInlineGrammer
 
-    def __init__(self, root=None, serve_imgs=False, *args, **kwargs):
+    def __init__(self, root=None, img_from_static=False, *args, **kwargs):
         """
 
         :param root: Root post that is being pared
         :param static_imgs:
         """
         self.root = root
-        self.serve_imgs = serve_imgs
+        self.img_from_static = img_from_static
 
         super(BiostarInlineLexer, self).__init__(*args, **kwargs)
         self.enable_all()
@@ -176,7 +175,7 @@ class BiostarInlineLexer(MonkeyPatch):
         line = m.group(0)
         text = m.group(1)
         if line[0] == '!':
-            if self.serve_imgs:
+            if self.img_from_static:
                 # Ensure the link is a full url path found in to static directory.
                 link = absoulute_image_link(link)
 
@@ -281,19 +280,19 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def parse(text, post=None, clean=True, escape=True, static_imgs=False):
+def parse(text, post=None, clean=True, escape=True, img_from_static=False):
     """
     Parses markdown into html.
     Expands certain patterns into HTML.
 
     clean : further sanitizes html produced by mistune
     escape  : Escape html originally found in the markdown text.
-    static_imgs : Use static direcroty to serve images that have relative url paths
-                  eg. images/foo.png --> /static/images/foo.png
+    img_from_static : Serve images with relative url paths from the static directory.
+                  eg. images/foo.png -> /static/images/foo.png
     """
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
-    inline = BiostarInlineLexer(renderer=Renderer(), root=root, serve_imgs=True)
+    inline = BiostarInlineLexer(renderer=Renderer(), root=root, img_from_static=img_from_static)
 
     markdown = mistune.Markdown(escape=escape, hard_wrap=True, parse_block_html=True, inline=inline)
     if clean:
