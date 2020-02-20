@@ -1,7 +1,9 @@
 import logging
 from datetime import timedelta
 from functools import wraps
-
+import os
+import zlib
+from urllib.parse import urljoin
 from whoosh.searching import Results
 from django.conf import settings
 from django.contrib import messages
@@ -15,9 +17,9 @@ from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
 
 from biostar.accounts.models import Profile
-from . import forms, auth, tasks, util, search
-from .const import *
-from .models import Post, Vote, Badge
+from biostar.forum import forms, auth, tasks, util, search, const, markdown
+from biostar.forum.const import *
+from biostar.forum.models import Post, Vote, Badge
 
 
 User = get_user_model()
@@ -80,21 +82,6 @@ def post_exists(func):
     return _wrapper_
 
 
-def policy(request):
-    context = dict()
-    return render(request, template_name="pages/policy.html", context=context)
-
-
-def about(request):
-    context = dict()
-    return render(request, template_name="pages/about.html", context=context)
-
-
-def faq(request):
-    context = dict()
-    return render(request, template_name="pages/faq.html", context=context)
-
-
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.
@@ -143,8 +130,8 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Filter deleted items for anonymous and non-moderators.
     if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-        query = query.exclude(status=Post.DELETED)
-        query = query.exclude(spam=Post.SPAM)
+        query = query.exclude(status=Post.DELETED).exclude(root__status=Post.DELETED)
+        query = query.exclude(spam=Post.SPAM).exclude(root__spam=Post.SPAM)
 
     # Select related information used during rendering.
     query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile")
@@ -196,6 +183,48 @@ class CachedPaginator(Paginator):
         value = cache.get(self.count_key)
 
         return value
+
+
+def Xpages(request, fname):
+
+    # Add markdown file extension to markdown
+    infile = f"{fname}.md"
+    # Look for this file in static root.
+    doc = os.path.join(settings.STATIC_ROOT, "forum", infile)
+
+    if not os.path.exists(doc):
+        messages.error(request, "File does not exist.")
+        return redirect("post_list")
+
+    # Convert markdown to html and write it to file
+    fstream = open(doc, "r").read()
+    html = markdown.parse(text=fstream, clean=False, escape=False)
+
+    # Write html to file.
+    outfname = f"{fname}.html"
+    outfile = os.path.join(settings.STATIC_ROOT, "forum", outfname)
+    open(outfile, "w").write(html)
+
+    # Redirect to static url with the most recently created doc
+    url = f"{settings.STATIC_URL}forum/{outfname}"
+
+    return redirect(url)
+
+
+def pages(request, fname):
+
+    # Add markdown file extension to markdown
+    infile = f"{fname}.md"
+    # Look for this file in static root.
+    doc = os.path.join(settings.STATIC_ROOT, "forum", infile)
+
+    if not os.path.exists(doc):
+        messages.error(request, "File does not exist.")
+        return redirect("post_list")
+
+    context = dict(file_path=doc, tab=fname)
+
+    return render(request, 'pages.html', context=context)
 
 
 @ensure_csrf_cookie
@@ -414,7 +443,9 @@ def post_view(request, uid):
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
 
-    context = dict(post=root, tree=comment_tree, form=form, answers=answers)
+    users_str = auth.get_users_str()
+
+    context = dict(post=root, tree=comment_tree, form=form, answers=answers, users_str=users_str)
 
     return render(request, "post_view.html", context=context)
 
@@ -448,8 +479,9 @@ def new_post(request):
 
     # Action url for the form is the current view
     action_url = reverse("post_create")
-
-    context = dict(form=form, tab="new", tag_val=tag_val, action_url=action_url, content=content)
+    users_str = auth.get_users_str()
+    context = dict(form=form, tab="new", tag_val=tag_val, action_url=action_url,
+                   content=content, users_str=users_str)
 
     return render(request, "new_post.html", context=context)
 
@@ -484,27 +516,3 @@ def post_moderate(request, uid):
     context = dict(form=form, post=post)
     return render(request, "post_moderate.html", context)
 
-
-@post_exists
-@login_required
-def edit_post(request, uid):
-    """
-    Edit an existing post"
-    """
-    post = Post.objects.filter(uid=uid).first()
-    action_url = reverse("post_edit", kwargs=dict(uid=post.uid))
-    user = request.user
-    initial = dict(content=post.content, title=post.title, tag_val=post.tag_val, post_type=post.type)
-
-    form = forms.PostLongForm(post=post, initial=initial, user=user)
-
-    if request.method == "POST":
-        form = forms.PostLongForm(post=post, initial=initial, data=request.POST, user=user)
-        if form.is_valid():
-            form.edit()
-            messages.success(request, f"Edited :{post.title}")
-            return redirect(post.get_absolute_url())
-
-    context = dict(form=form, post=post, action_url=action_url, form_title="Edit post", content=post.content)
-
-    return render(request, "new_post.html", context)

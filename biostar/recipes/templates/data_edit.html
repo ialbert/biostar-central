@@ -4,7 +4,12 @@
 {% block headtitle %}
     Edit Data: {{ data.name }}
 {% endblock %}
-
+{% block ribbon %}
+    {% if user.is_authenticated %}
+        <a class="ui right ribbon obj label" href="{% url 'data_upload' project.uid %}">
+           <i class="plus icon"></i> New Data </a>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
 <div class="narrow">

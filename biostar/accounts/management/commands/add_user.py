@@ -32,7 +32,6 @@ class Command(BaseCommand):
         if not os.path.isfile(fname):
             logger.error(f'Not a valid filename: {fname}')
             return
-
         stream = open(fname, 'rU')
         for row in csv.DictReader(stream):
             name = row.get("Name", '')
@@ -53,7 +52,9 @@ class Command(BaseCommand):
                 logger.info(f"Skipped creation. User with email={email} already exists.")
             else:
                 username = handler or util.get_uuid(16)
-                user = User.objects.create(email=email, username=username, first_name=name)
-                user.set_password(settings.SECRET_KEY)
+                user = User.objects.create_user(email=email, username=username, first_name=name)
+                user.set_password(settings.DEFAULT_PASSWORD)
                 user.save()
                 logger.info(f"Created user name={name} email={email}")
+
+            #print(User.objects.filter(email=email))

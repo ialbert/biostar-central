@@ -3,8 +3,9 @@ import logging, functools
 logger = logging.getLogger('biostar')
 
 try:
-    # Loads up
+    # Loads up uwsgi
     from uwsgidecorators import spool, timer
+
 except Exception as exc:
     logger.warning("uwsgi decorators not found, tasks are synchronous")
 

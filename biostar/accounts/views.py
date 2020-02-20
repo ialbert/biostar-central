@@ -243,7 +243,6 @@ def user_logout(request):
 
 def user_login(request):
     form = forms.LoginForm()
-
     if request.method == "POST":
         form = forms.LoginForm(data=request.POST)
 
@@ -337,7 +336,18 @@ def password_reset(request):
     #     if not user:
     #         messages.error(request, "Email does not exist.")
     #         return redirect(reverse('password_reset'))
-
+    # The email template instance
+    # email = sender.EmailTemplate(template_name)
+    #
+    # # Default context added to each template.
+    # context = dict(domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
+    #                port=settings.HTTP_PORT, name=settings.SITE_NAME, subject=subject)
+    #
+    # # Additional context added to the template.
+    # context.update(extra_context)
+    #
+    # # Generate and send the email.
+    # email.render()
     return PasswordResetView.as_view(template_name="accounts/password_reset_form.html",
                                      subject_template_name="accounts/password_reset_subject.txt",
                                      email_template_name="accounts/password_reset_email.html"

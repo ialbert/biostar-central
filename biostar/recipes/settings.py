@@ -21,6 +21,13 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 # Maximum number of projects allowed
 MAX_PROJECTS = 20
 
+# Root directory relative to the job path usd to store logs.
+JOB_LOGDIR = 'runlog'
+
+# Stdout filename for each job relative to the log directory.
+JOB_STDOUT = os.path.join(JOB_LOGDIR, 'stdout.txt')
+JOB_STDERR = os.path.join(JOB_LOGDIR, 'stderr.txt')
+
 # Maximum amount of data allowed
 MAX_DATA = 100
 
@@ -57,7 +64,8 @@ LOGIN_REDIRECT_URL = "/project/list/private/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 ENGINE_APPS = [
-    'biostar.recipes.apps.EngineConfig'
+    'biostar.recipes.apps.EngineConfig',
+    'django.contrib.redirects'
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
@@ -75,12 +83,6 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'biostar.recipes.context.engine'
 ]
 
-# The rest framework.
-# REST_FRAMEWORK = {
-#     'DEFAULT_PARSER_CLASSES': (
-#         'rest_framework.parsers.MultiPartParser',
-#     ),
-# }
 
 # Directory where files are extracted to
 EXTRACT_TO = join(BASE_DIR, "export", "extracted")

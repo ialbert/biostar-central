@@ -1,6 +1,6 @@
 import logging
 import os
-import hjson
+import toml as hjson
 import hashlib
 import itertools
 import mistune
@@ -18,7 +18,7 @@ from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
-from biostar.recipes.decorators import read_access, write_access
+from biostar.recipes.decorators import read_access, write_access, exists
 from biostar.recipes.models import Project, Data, Analysis, Job, Access
 
 # The current directory
@@ -41,6 +41,7 @@ def valid_path(path):
 def index(request):
     context = dict(active="home")
     return render(request, 'index.html', context)
+
 
 
 @user_passes_test(lambda u: u.is_superuser)
@@ -153,7 +154,7 @@ def project_users(request, uid):
     """
     Manage project users page
     """
-    project = Project.objects.filter(uid=uid).first()
+    project = Project.objects.filter(label=uid).first()
     # Get users that already have access to project.
     have_access = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
 
@@ -282,6 +283,30 @@ def get_counts(project, user=None):
     )
 
 
+@exists(otype=Project)
+def recipe_listing(request, label):
+    project = Project.objects.filter(label=label).first()
+    return recipe_list(request, uid=project.uid)
+
+
+@exists(otype=Project)
+def project_viewing(request, label):
+    project = Project.objects.filter(label=label).first()
+    return project_view(request=request, uid=project.uid)
+
+
+@exists(otype=Project)
+def job_listing(request, label):
+    project = Project.objects.filter(label=label).first()
+    return job_list(request=request, uid=project.uid)
+
+
+@exists(otype=Project)
+def data_listing(request, label):
+    project = Project.objects.filter(label=label).first()
+    return data_list(request, uid=project.uid)
+
+
 @read_access(type=Project)
 def project_view(request, uid, template_name="project_info.html", active='info', show_summary=None,
                  extra_context={}):
@@ -302,7 +327,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
-    job_list = project.job_set.filter(deleted=False).order_by("-date").all()
+    job_list = project.job_set.filter(deleted=False).order_by("-lastedit_date").all()
 
     # Filter job results by analysis
     filter_uid = request.GET.get('filter', '')
@@ -368,7 +393,9 @@ def project_create(request):
         form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
         if form.is_valid():
             project = form.custom_save(owner=request.user)
-            return redirect(reverse("project_view", kwargs=dict(uid=project.uid)))
+            print(project, "LOLOLLLL", project.label)
+
+            return redirect(reverse("project_viewing", kwargs=dict(label=project.label)))
 
     context = dict(form=form)
     return render(request, "project_create.html", context=context)
@@ -592,34 +619,6 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-@read_access(type=Analysis)
-def recipe_view(request, uid):
-    """
-    Returns a recipe view based on its id.
-    """
-    recipe = Analysis.objects.filter(uid=uid).first()
-    project = recipe.project
-
-    context = dict(recipe=recipe, project=project, activate='Recipe View')
-
-    # How many results for this recipe
-    rcount = Job.objects.filter(analysis=recipe, deleted=False).count()
-    counts = get_counts(project)
-
-    try:
-        # Fill in the script with json data.
-        json_data = auth.fill_data_by_name(project=project, json_data=recipe.json_data)
-        ctx = Context(json_data)
-        script_template = Template(recipe.template)
-        script = script_template.render(ctx)
-    except Exception as exc:
-        messages.error(request, f"Error rendering code: {exc}")
-        script = recipe.template
-
-    context.update(counts, rcount=rcount, script=script)
-
-    return render(request, "recipe_view.html", context)
-
 
 @read_access(type=Analysis)
 def recipe_code_download(request, uid):
@@ -660,24 +659,21 @@ def recipe_run(request, uid):
 
     # Form submission.
     if request.method == "POST":
-
         form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
                                      data=request.POST, files=request.FILES)
         # The form validation will authorize the job.
         if form.is_valid():
-
             # Create the job from the recipe and incoming json data.
             job = auth.create_job(analysis=analysis, user=request.user, fill_with=form.cleaned_data)
 
-            # Spool the job right away if UWSGI exists.
-            if tasks.HAS_UWSGI:
-                # Spool via UWSGI.
-                tasks.execute_job.spool(job_id=job.id)
+            # Spool via UWSGI or start it synchronously.
+            tasks.execute_job.spool(job_id=job.id)
 
-            return redirect(reverse("job_list", kwargs=dict(uid=project.uid)))
+            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
     else:
         initial = dict(name=f"Results for: {analysis.name}")
-        form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data, initial=initial)
+        form = forms.RecipeInterface(request=request, analysis=analysis,
+                                     json_data=analysis.json_data, initial=initial)
 
     is_runnable = auth.authorize_run(user=request.user, recipe=analysis)
 
@@ -708,16 +704,14 @@ def job_rerun(request, uid):
     # Create a new job
     job = auth.create_job(analysis=recipe, user=request.user, json_data=json_data)
 
-    # Spool the job right away if UWSGI exists.
-    if tasks.HAS_UWSGI:
-        # Spool via UWSGI.
-        tasks.execute_job.spool(job_id=job.id)
+    # Spool via UWSGI or run it synchronously.
+    tasks.execute_job.spool(job_id=job.id)
 
     return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
 
 
 @read_access(type=Analysis)
-def recipe_edit(request, uid):
+def recipe_view(request, uid):
     """
     Edit meta-data associated with a recipe.
     """
@@ -734,17 +728,29 @@ def recipe_edit(request, uid):
                                 project=project)
         if form.is_valid():
             form.save()
+            messages.success(request, "Editted Recipe")
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
         form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
     action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
-    context = dict(recipe=recipe, project=project, form=form, name=recipe.name, activate='Edit Recipe',
+    initial = dict(name=f"Results for: {recipe.name}")
+
+    run_form = forms.RecipeInterface(request=request, analysis=recipe,
+                                     json_data=recipe.json_data, initial=initial)
+
+    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
+
+    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job", filter=Q(job__deleted=False))).first()
+
+    context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,
+                   activate='Recipe View', run_form=run_form,
                    action_url=action_url)
+
     counts = get_counts(project)
     context.update(counts)
-    return render(request, 'recipe_edit.html', context)
+    return render(request, 'recipe_view.html', context)
 
 
 @read_access(type=Project)
@@ -759,17 +765,25 @@ def recipe_create(request, uid):
     form = forms.RecipeForm(user=request.user, initial=initial, project=project)
 
     if request.method == "POST":
+
         form = forms.RecipeForm(data=request.POST, creating=True, project=project, files=request.FILES,
                                 user=request.user)
         if form.is_valid():
+
             image = form.cleaned_data['image']
             recipe_uid = form.cleaned_data['uid']
             name = form.cleaned_data['name']
             json_text = form.cleaned_data['json_text']
             template = form.cleaned_data['template']
-            recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name,
+            text = form.cleaned_data['text']
+            rank = form.cleaned_data['rank']
+            recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name, rank=rank,
                                           json_text=json_text, template=template,
-                                          project=project, user=request.user)
+                                          project=project, user=request.user, text=text)
+            if request.user.is_superuser:
+                security = Analysis.AUTHORIZED if form.cleaned_data.get('authorized') else Analysis.NOT_AUTHORIZED
+                recipe.security = security
+                recipe.save()
 
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
@@ -778,7 +792,7 @@ def recipe_create(request, uid):
                    activate='Create Recipe', name=name)
     counts = get_counts(project)
     context.update(counts)
-    return render(request, 'recipe_edit.html', context)
+    return render(request, 'recipe_view.html', context)
 
 
 @write_access(type=Job, fallback_view="job_view")
@@ -811,7 +825,6 @@ def recipe_delete(request, uid):
         msg = "Can not delete a cloned recipe."
         messages.success(request, msg)
     else:
-
         auth.delete_object(obj=recipe, request=request)
         msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
         messages.success(request, mark_safe(msg))
@@ -858,7 +871,17 @@ def job_view(request, uid):
     # The path is a GET parameter
     path = request.GET.get('path', "")
 
-    context = dict(job=job, project=project, activate='View Result', path=path)
+    stdout = job.stdout_log
+    stderr = job.stderr_log
+    if job.is_running():
+        # Pass the most current stderr and stdout
+        stdout_path = os.path.join(job.path, settings.JOB_STDOUT)
+        stderr_path = os.path.join(job.path, settings.JOB_STDERR)
+        stdout = open(stdout_path, 'r').read()
+        stderr = open(stderr_path, 'r').read()
+
+    context = dict(job=job, project=project, stderr=stderr, stdout=stdout,
+                   activate='View Result', path=path)
 
     counts = get_counts(project)
     context.update(counts)

@@ -20,8 +20,9 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
-# Allowed CORES websites
+# Allowed CORS websites
 CORS_ORIGIN_WHITELIST = [
     'https://view.qiime2.org',
 ]
@@ -68,6 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 # Site specific information

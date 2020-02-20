@@ -81,7 +81,6 @@ class EmailTemplate(object):
             logger.info(f"sending email to: {recipients}")
 
         subject, text, html = self.render(context)
-
         # Text may be indented in template.
         text = textwrap.dedent(text)
 

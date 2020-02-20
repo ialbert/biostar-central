@@ -1,7 +1,7 @@
 {% load forum_tags %}
 {% load static %}
 
-<div class="ui labeled icon attached evenly divided pointing menu" id="menu-header" user-id="{{ request.user.id }}">
+<div class="ui labeled icon top attached evenly divided menu" id="menu-header" user-id="{{ request.user.id }}">
 
     {% block headimg %}
         <div class="header item" id="logo">
@@ -66,7 +66,7 @@
 
         {% endif %}
 
-        <a class="item  {% activate tab "about" %}" href="{% url 'about' %}">
+        <a class="item  {% activate tab "about" %}" href="{% url 'pages' 'about' %}">
             <i class="info circle icon"></i>About
         </a>
 

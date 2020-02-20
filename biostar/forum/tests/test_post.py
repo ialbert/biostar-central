@@ -5,7 +5,7 @@ from django.core import management
 from django.urls import reverse
 from django.test import TestCase, override_settings
 from django.conf import settings
-from biostar.forum import models, views, search
+from biostar.forum import models, views, search, tasks
 from biostar.utils.helpers import fake_request
 from biostar.accounts.models import User
 
@@ -50,6 +50,17 @@ class PostTest(TestCase):
         response = views.new_post(request=request)
         #self.process_response(response=response)
 
+    def test_user_create_task(self):
+        """
+        Test task used to create user awards
+        """
+
+        self.owner.profile.text = "TESTING" * 1000
+        self.owner.profile.score = 1000
+        self.owner.profile.save()
+        tasks.create_user_awards(self.owner.id)
+
+
     def test_comment_traversal(self):
         """Test comment rendering pages"""
 
@@ -70,7 +81,7 @@ class PostTest(TestCase):
 
         self.assertTrue(response.status_code == 200, 'Error rendering comments')
 
-    def test_edit_post(self):
+    def Xtest_edit_post(self):
         """
         Test post edit for root and descendants
         """

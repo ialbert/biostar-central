@@ -3,7 +3,7 @@ import requests
 import io
 from urllib.parse import urljoin
 
-import hjson
+import toml as hjson
 from django.conf import settings
 from django.core.management.base import BaseCommand
 

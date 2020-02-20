@@ -1,6 +1,6 @@
 import copy
 import shlex
-import hjson
+import toml as hjson
 import io
 import re
 
@@ -32,6 +32,13 @@ MAX_RECIPE_FILE_MB = 5
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
+
+def ascii_only(text):
+    try:
+        text.encode('ascii')
+    except Exception:
+        raise forms.ValidationError('Text may only contain plain text (ASCII) characters')
 
 
 def check_size(fobj, maxsize=0.3, field=None):
@@ -114,7 +121,7 @@ def add_captcha_field(request, fields):
 
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
-
+    label = forms.CharField(required=False)
     # Should not edit uid because data directories get recreated
 
     def __init__(self, request, create=False, *args, **kwargs):
@@ -130,7 +137,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'text', 'privacy', 'rank', 'image']
+        fields = ['name', 'text', 'privacy', 'rank', 'image', 'label']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -138,6 +145,18 @@ class ProjectForm(forms.ModelForm):
         check_size(fobj=image)
 
         return image
+
+    def clean_label(self):
+        cleaned_data = super(ProjectForm, self).clean()
+        label = cleaned_data['label']
+
+        project = Project.objects.filter(label=label).exclude(id=self.instance.id).first()
+        ascii_only(label)
+
+        if project:
+            raise forms.ValidationError("Label already exists. ")
+        return label
+
 
     def clean(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -167,7 +186,9 @@ class ProjectForm(forms.ModelForm):
         name = self.cleaned_data["name"]
         text = self.cleaned_data["text"]
         stream = self.cleaned_data["image"]
-        project = auth.create_project(user=owner, name=name, text=text, stream=stream)
+        label = self.cleaned_data['label']
+        print(label)
+        project = auth.create_project(user=owner, label=label, name=name, text=text, stream=stream)
         project.save()
 
         return project
@@ -299,10 +320,9 @@ class DataEditForm(forms.ModelForm):
                           check_name=False)
 
     def clean_type(self):
+
         cleaned_data = super(DataEditForm, self).clean()
-
         datatype = cleaned_data.get('type')
-
         datatype = datatype.upper()
 
         return datatype
@@ -314,7 +334,7 @@ class RecipeForm(forms.ModelForm):
     """
     image = forms.ImageField(required=False)
     uid = forms.CharField(max_length=32, validators=[validate_slug], required=True)
-    json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="{}", required=True)
+    json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="", required=False)
     template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# Code goes here", required=True)
     name = forms.CharField(max_length=MAX_NAME_LEN, required=True)
     rank = forms.FloatField(required=True, initial=100)
@@ -329,7 +349,7 @@ class RecipeForm(forms.ModelForm):
 
         # Admins get an added field
         if self.user.is_superuser:
-            authorized = self.instance.security == Analysis.AUTHORIZED
+            authorized = self.instance.runnable()
             self.fields['authorized'] = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'ui checkbox'}),
                                                            initial=authorized, required=False)
 
@@ -391,7 +411,6 @@ class RecipeForm(forms.ModelForm):
         # Update the recipe security when template or JSON have been
         # touched by non admin users.
         if (json_changed or template_changed) and not_superuser and not self.creating:
-            Analysis.objects.filter(uid=self.instance.uid).update(security=Analysis.NOT_AUTHORIZED)
             self.instance.security = Analysis.NOT_AUTHORIZED
             self.instance.save()
 
@@ -412,7 +431,7 @@ class RecipeForm(forms.ModelForm):
         try:
             hjson.loads(json_text)
         except Exception as exc:
-            raise forms.ValidationError(f'Error with recipe JSON:{exc}')
+            raise forms.ValidationError(f'Error with recipe interface:{exc}')
 
         return json_text
 
@@ -435,9 +454,6 @@ class RecipeForm(forms.ModelForm):
                                                                      lastedit_user=self.user)
         image = self.cleaned_data['image']
         self.instance.image = image or self.instance.image
-        if self.user.is_superuser:
-            security = Analysis.AUTHORIZED if self.cleaned_data.get('authorized') else Analysis.NOT_AUTHORIZED
-            self.instance.security = security
 
         return super().save(commit)
 

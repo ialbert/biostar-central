@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import F, Q
 from django.utils.timezone import utc
-
+from django.core.cache import cache
 from biostar.accounts.models import Profile, Logger
 from . import util
 from .const import *
@@ -46,6 +46,23 @@ def gravatar_url(email, style='mp', size=80):
     }
     )
     return url
+
+
+def get_users_str():
+    """
+    Return comma separated string of username used for autocomplete
+    """
+
+    cache_days = 5
+    cache_secs = 60 * 60 * 24 * cache_days
+
+    users_str = cache.get(USERS_CACHE_KEY)
+    if users_str is None:
+        users_str = ','.join(User.objects.all().values_list('username', flat=True))
+        cache.set(USERS_CACHE_KEY, users_str, cache_secs)
+
+    return users_str
+
 
 
 def gravatar(user, size=80):
@@ -94,19 +111,26 @@ def walk_down_thread(parent, collect=set()):
     return collect
 
 
-def create_subscription(post, user, sub_type=None, delete_exisiting=True):
+def create_subscription(post, user, sub_type=None, update=False):
     """
     Creates subscription to a post. Returns a list of subscriptions.
     """
-    # Drop all existing subscriptions for the user by default.
-    if delete_exisiting:
-        Subscription.objects.filter(post=post.root, user=user).delete()
-        # Create new subscription to the user.
-        Subscription.objects.create(post=post.root, user=user, type=sub_type)
-    # Update an existing subscription type.
+    subs = Subscription.objects.filter(post=post.root, user=user)
+    sub = subs.first()
+
+    default = Subscription.TYPE_MAP.get(user.profile.message_prefs,
+                                        Subscription.LOCAL_MESSAGE)
+    sub_type = sub_type or (sub.type if sub else None) or default
+
+    # Ensure the sub type is not set to something wrote
+    if sub and update:
+        # Update an existing subscription
+        sub.type = sub_type
+        sub.save()
     else:
-        sub, created = Subscription.objects.get_or_create(post=post.root, user=user)
-        Subscription.objects.filter(pk=sub.pk).update(type=sub_type)
+        # Drop all existing subscriptions for the user by default.
+        subs.delete()
+        Subscription.objects.create(post=post.root, user=user, type=sub_type)
 
     # Recompute post subscription.
     subs_count = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES).count()
@@ -309,7 +333,7 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
     url = post.get_absolute_url()
 
     if action == BUMP_POST:
-        Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp(), last_contributor=request.user)
+        Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp())
         messages.success(request, "Post bumped")
         log_action(user=user, log_text=f"Bumped post={post.uid}")
         return url

@@ -22,10 +22,6 @@ from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Acce
 logger = logging.getLogger("engine")
 register = template.Library()
 
-JOB_COLORS = {Job.SPOOLED: "spooled",
-              Job.ERROR: "errored", Job.QUEUED: "queued",
-              Job.RUNNING: "running", Job.COMPLETED: "completed"
-              }
 DATA_COLORS = {
     Data.PENDING: "teal", Data.READY: "green", Data.ERROR: "red"
 }
@@ -45,6 +41,21 @@ def mask_path(val='', obj={}):
 
     return val
 
+
+@register.inclusion_tag("forms/recipe_form_feilds.html", takes_context=True)
+def recipe_info_form(context):
+    return context
+
+
+@register.inclusion_tag("forms/run_form_feilds.html", takes_context=True)
+def recipe_run_form(context):
+
+    return context
+
+@register.inclusion_tag("banners/recipe_sidebanner.html", takes_context=True)
+def recipe_sidebar(context, enable_save=False):
+    context.update(dict(enable_save=enable_save))
+    return context
 
 @register.filter
 def time_ago(date):
@@ -68,7 +79,6 @@ def time_ago(date):
         diff = delta.days / 365.0
         unit = '%0.1f years' % diff
     return "%s ago" % unit
-
 
 
 def join(*args):
@@ -287,9 +297,8 @@ def privacy_label(project):
 
 @register.inclusion_tag('widgets/authorization_required.html', takes_context=True)
 def security_label(context, analysis):
-
     user = context['request'].user
-    
+
     if user.is_anonymous:
         is_readable = False
     else:
@@ -313,12 +322,7 @@ def job_color(job):
     """
     Returns a color based on job status.
     """
-    try:
-        if isinstance(job, Job):
-            return JOB_COLORS.get(job.state, "")
-    except Exception as exc:
-        logger.error(exc)
-        return ''
+    return auth.job_color(job)
 
 
 @register.simple_tag
@@ -396,9 +400,9 @@ def interface_options():
     return dict()
 
 
-@register.inclusion_tag('widgets/recipe_details.html')
-def recipe_details(recipe):
-    return dict(recipe=recipe)
+@register.inclusion_tag('widgets/recipe_details.html', takes_context=True)
+def recipe_details(context, recipe=None):
+    return context
 
 
 @register.simple_tag
@@ -470,6 +474,11 @@ def created_by(date, user=None, prefix="Updated"):
     return dict(date=date, user=user, prefix=prefix)
 
 
+@register.inclusion_tag('widgets/loading_img.html')
+def job_img(job):
+    return dict(job=job)
+
+
 @register.inclusion_tag('widgets/access_form.html')
 def access_form(project, user, extra_class=''):
     """
@@ -481,8 +490,6 @@ def access_form(project, user, extra_class=''):
 
 @register.filter
 def get_access_label(user, project):
-    #TODO
-
     access = Access.objects.filter(user=user, project=project).select_related('project').first()
 
     access = access or Access(access=Access.NO_ACCESS, user=user, project=project)
@@ -499,13 +506,13 @@ def get_access(user, project):
 
 
 @register.inclusion_tag('widgets/job_elapsed.html')
-def job_minutes(job):
+def job_minutes(job, view=False):
     check_back = ''
     # Add a tag to check a state change every ~5 seconds and update tag
     if job.state in [Job.SPOOLED, Job.RUNNING, Job.QUEUED]:
         check_back = 'check_back'
 
-    return dict(job=job, check_back=check_back)
+    return dict(job=job, check_back=check_back, view=view)
 
 
 @register.simple_tag
@@ -581,36 +588,11 @@ def file_listing(root, limit=None):
     return paths
 
 
-def listing(root):
-    paths = []
-
-    try:
-        paths = os.listdir(root)
-
-        def transform(path):
-            path = os.path.join(root, path)
-            tstamp = os.stat(path).st_mtime
-            size = os.stat(path).st_size
-            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
-            is_dir = os.path.isdir(path)
-            basename = os.path.basename(path)
-            return rel_path, tstamp, size, is_dir, basename
-
-        paths = map(transform, paths)
-        # Sort files by timestamps
-        paths = sorted(paths, key=lambda x: x[1], reverse=True)
-
-    except Exception as exc:
-        logging.error(exc)
-
-    return paths
-
-
 @register.inclusion_tag('widgets/files_list.html', takes_context=True)
 def files_list(context, rel_path):
     # Limit to the first 100 files.
     root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))
-    paths = listing(root=root)
+    paths = auth.listing(root=root)
     user = context['request'].user
     return dict(paths=paths, user=user, root=root)
 
@@ -630,7 +612,8 @@ def directory_list(context, obj):
 
     paths = file_listing(root=root)
 
-    return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url, user=context["request"].user)
+    return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url,
+                user=context["request"].user)
 
 
 @register.inclusion_tag('widgets/form_errors.html')

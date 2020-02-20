@@ -1,27 +1,57 @@
- <textarea class="code" rows="40" cols="55" name="template" id="template">{{ template }}</textarea>
+{% load static %}
 
+<textarea class="code" rows="40" cols="55" name="template" id="template">{{ template }}</textarea>
 
-    <script type="text/javascript">
-        $(document).ready(function () {
+<script>
 
-            var template_edit = CodeMirror.fromTextArea(
-                document.getElementById("template"),
-                {
-                    lineNumbers: true,
-                    mode: "engine"
-                }
-            );
-            function updateTemplate() {
-                template_edit.save();
+    $(document).ready(function () {
+
+        var template_edit = CodeMirror.fromTextArea(
+            document.getElementById("template"),
+            {
+                lineNumbers: true,
+                mode:'shell',
+                //mode: "engine",
+                //autoRefresh:true,
+               //spellcheck:true,
             }
+        );
 
-            template_edit.on('change', updateTemplate);
-            {% if focus %}
-                 template_edit.focus();
-            {% endif %}
-            {% if scroll_to_bottom %}
-                template_edit.setCursor(template_edit.lineCount(), 0);
-            {% endif %}
-        });
+        function updateTemplate() {
+            template_edit.save();
+        }
 
-    </script>
+        template_edit.on('change', updateTemplate);
+        {#% if focus %#}
+        template_edit.focus();
+        {#% endif %#}
+        {#% if scroll_to_bottom %#}
+        //template_edit.setCursor(template_edit.lineCount(), 0);
+        {#% endif %#}
+
+
+    $(this).on('click', ".edit-side  .script", function (event){
+        event.preventDefault();
+        $(this).parent().addClass("active");
+
+        $(".recipe-edit").show();
+        $(".runform").hide();
+        $("#script-col").show();
+        $("#detail-col").hide();
+        $("#desc-col").hide();
+        $("#interface-col").hide();
+
+        $(".edit-side .recipe").parent().removeClass("active");
+        $(".edit-side .interface").parent().removeClass("active");
+        $(".edit-side .open-desc").removeClass("active");
+
+        template_edit.refresh();
+        template_edit.focus();
+        //template_edit.setCursor(template_edit.lineCount(), 0);
+
+    });
+
+        template_edit.setSize(null,950)
+
+    })
+</script>

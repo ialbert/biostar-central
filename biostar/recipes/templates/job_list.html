@@ -29,19 +29,17 @@
             {% for job in job_list %}
 
                 <div class="item toggle-item-{{ job.uid }} job-item-{{ job.uid }}">
-
-
-                    <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
-
+                    {% job_img job %}
 
                     <div class="content">
-                        <a class="subheader" href="{% url 'job_view' job.uid %}">
+
+                        <a class="subheader" id="job-link" data-uid="{{ job.uid }}" href="{% url 'job_view' job.uid %}{% if job.is_running %}#log{% endif %}">
                             <i class="bar chart icon"></i>{{ job.get_name }}
                         </a>
-
-                        <div class="meta">{{ job.analysis.summary }}</div>
-
-                        <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job %}
+                    <div class="ui text container" style="margin-left: 0 !important;margin-right: 0 !important; max-width: 806px !important;">
+                        <div class="meta">{{ job.analysis.summary|markdown }}</div>
+                    </div>
+                        <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job view=False %}
                         </span>
                             &bull;
                             {% created_by date=job.lastedit_date user=job.lastedit_user %}
@@ -53,7 +51,7 @@
                     {% if user.is_authenticated %}
                         <div class="ui tiny buttons">
                             <a class="ui right button rerun" style="font-size: x-small;"
-                               href="{% url "job_rerun" job.uid %}?next={% url 'job_list' job.project.uid %}">
+                               href="{% url "job_rerun" job.uid %}?next={% url 'job_listing' job.project.label %}">
                                 <i class="redo icon"></i>Rerun
                             </a>
                             <div class="or" style="font-size: x-small;"></div>

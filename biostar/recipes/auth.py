@@ -2,9 +2,10 @@ import difflib
 import logging
 import uuid, copy
 import os
+import subprocess
 from mimetypes import guess_type
 
-import hjson
+import toml as hjson
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.storage import fallback
@@ -22,6 +23,10 @@ from .models import Data, Analysis, Job, Project, Access
 
 logger = logging.getLogger("engine")
 
+JOB_COLORS = {Job.SPOOLED: "spooled",
+              Job.ERROR: "errored", Job.QUEUED: "queued",
+              Job.RUNNING: "running", Job.COMPLETED: "completed"
+              }
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -157,16 +162,6 @@ def detect_cores(request):
     return ''
 
 
-def text_diff(text1, text2):
-    # Empty template is seen as no change ( False)
-    text1 = text1.splitlines(keepends=True)
-    text2 = text2.splitlines(keepends=True)
-
-    change = list(difflib.unified_diff(text1, text2))
-
-    return change
-
-
 def link_file(source, target_dir):
     base, filename = os.path.split(source)
     target = os.path.join(target_dir, filename)
@@ -236,7 +231,7 @@ def get_project_list(user, include_public=True, include_deleted=False):
     return query
 
 
-def create_project(user, name, uid=None, summary='', text='', stream=None,
+def create_project(user, name, uid=None, summary='', text='', stream=None, label=None,
                    privacy=Project.PRIVATE, update=False):
     # Set or create the project uid.
     uid = uid or util.get_uuid(8)
@@ -258,7 +253,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
         # Create a new project.
-        project = Project.objects.create(
+        project = Project.objects.create(label=label,
             name=name, uid=uid, text=text, owner=user, privacy=privacy)
 
         logger.info(f"Created project: {project.name} uid: {project.uid}")
@@ -270,14 +265,12 @@ def create_project(user, name, uid=None, summary='', text='', stream=None,
     return project
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='',
+def create_analysis(project, json_text, template, uid=None, user=None, summary='', rank=100,
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
                     root=None):
 
     owner = user or project.owner
-
     analysis = Analysis.objects.filter(uid=uid)
-
 
     # Only update when there is a flag
     if analysis and update:
@@ -287,13 +280,13 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         name = name or current.name
         template = template or current.template
         json_text = json_text or current.json_text
-        analysis.update(text=text, name=name, template=template, json_text=json_text)
+        analysis.update(text=text, name=name, template=template, json_text=json_text, rank=rank)
         analysis = analysis.first()
         logger.info(f"Updated analysis: uid={analysis.uid} name={analysis.name}")
     else:
         # Create a new analysis
         uid = None if analysis else uid
-        analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text,
+        analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text, rank=rank,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, root=root)
 
@@ -451,8 +444,11 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
         job.save()
 
         # Update the projects lastedit user when a job is created
+        #job_count = project.job_set.filter(deleted=False).count()
+        job_count = Job.objects.filter(deleted=False, project=project).count()
         Project.objects.filter(uid=project.uid).update(lastedit_user=owner,
-                                                       lastedit_date=now())
+                                                       lastedit_date=now(),
+                                                       jobs_count=job_count)
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
@@ -465,9 +461,50 @@ def delete_object(obj, request):
     if access:
         obj.deleted = not obj.deleted
         obj.save()
+        data_count = Data.objects.filter(deleted=False, project=obj.project).count()
+        recipes_count = Analysis.objects.filter(deleted=False, project=obj.project).count()
+        job_count = Job.objects.filter(deleted=False, project=obj.project).count()
+
+        Project.objects.filter(uid=obj.project.uid).update(data_count=data_count,
+                                                           recipes_count=recipes_count,
+                                                           jobs_count=job_count)
 
     return obj.deleted
 
+
+def listing(root):
+    paths = []
+
+    try:
+        paths = os.listdir(root)
+
+        def transform(path):
+            path = os.path.join(root, path)
+            tstamp = os.stat(path).st_mtime
+            size = os.stat(path).st_size
+            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
+            is_dir = os.path.isdir(path)
+            basename = os.path.basename(path)
+            return rel_path, tstamp, size, is_dir, basename
+
+        paths = map(transform, paths)
+        # Sort files by timestamps
+        paths = sorted(paths, key=lambda x: x[1], reverse=True)
+
+    except Exception as exc:
+        logging.error(exc)
+
+    return paths
+
+def job_color(job):
+    try:
+        if isinstance(job, Job):
+            return JOB_COLORS.get(job.state, "")
+    except Exception as exc:
+        logger.error(exc)
+        return ''
+
+    return
 
 def guess_mimetype(fname):
     "Return mimetype for a known text filename"

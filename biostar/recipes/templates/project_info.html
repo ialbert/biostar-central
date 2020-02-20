@@ -5,14 +5,15 @@
     Data List
 {% endblock %}
 
+{% block ribbon %}
+    {% if user.is_authenticated %}
+        <a class="ui right ribbon obj label">
+           <i class="user icon"></i>{% get_access_label project user %} </a>
+    {% endif %}
+{% endblock %}
 
 {% block content %}
     <div>
-        {% if user.is_authenticated %}
-            <div class="ui right ribbon viewing label">
-                {% get_access_label project user %}
-            </div>
-        {% endif %}
 
         <h3 class="ui header">Project Information</h3>
         {{ project.html|safe }}

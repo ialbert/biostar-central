@@ -11,7 +11,7 @@ from itertools import islice
 from urllib.parse import quote
 from datetime import datetime
 from django.utils.timezone import utc
-import hjson
+import toml as hjson
 
 CHUNK = 1024 * 1024
 
@@ -41,7 +41,7 @@ def pp(json):
     """
     Pretty prints json
     """
-    text = hjson.dumps(json, indent=4)
+    text = hjson.dumps(json)
     return text
 
 

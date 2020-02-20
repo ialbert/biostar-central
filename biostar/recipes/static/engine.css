@@ -13,6 +13,137 @@ body {
     margin-right: 15%;
 }
 
+.show.item.visible.transition {
+    display: inline;
+}
+
+#interface-col {
+    display: none;
+}
+
+#detail-col {
+    display: none;
+}
+
+#job-img i{
+    position: absolute;
+    top: 0px;
+    right: 22%;
+    font-size: 67px;
+    opacity: .7;
+}
+
+#job-img i.success{
+    color: green;
+}
+
+#job-img i.error{
+    color: red;
+
+}
+
+.recipe-edit, .runform{
+    padding-top: 10px !important;
+}
+
+
+.CodeMirror-sizer {
+    font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+}
+
+
+
+code {
+    font-size: .88em !important;
+}
+
+.ui.grid>[class*="four wide"].column.recipe-sidemenu {
+    width: 21%!important;
+}
+
+#json_add i {
+    //vertical-align: middle;
+}
+
+.edit-side .interface, .edit-side .script {
+    display: inline-block;;
+}
+
+
+
+#code code, #template_preview_cont code {
+    font-size: 1em !important;
+}
+
+#job-img.dimmer {
+    display: block;
+    position: relative;
+    height: 0px;
+    width: fit-content;
+    padding-right: .6em;
+    padding-left: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    margin-left: 0px
+}
+
+#job-img.running.dimmer > .mytiny.image {
+    opacity: .5
+}
+
+#job-img.dimmer > .loader {
+    top: 20px;
+    width: 79px !important;
+}
+
+.CodeMirror {
+    border: none;
+    height: auto;
+    //max-width: 927px;
+    width: 107.6%;
+
+}
+
+#detail-col > .ui.form .inline.field > input, .ui.form .inline.field > select, .ui.form .inline.fields .field > input {
+/ / border: none;
+    width: 290px;
+
+}
+
+.edit-side.menu {
+    width: 11rem;
+}
+
+#detail-col .field {
+    padding-bottom: 9px;
+    padding-left: 1px;
+}
+
+
+#detail-col > .ui.form .inline.fields .field {
+    padding-bottom: 900px;
+    padding-left: 1px;
+}
+
+#clipboard_anchor {
+    border-bottom: none;
+}
+
+
+.ui.ribbon.label.projects {
+    right: 10.1em;
+}
+
+.ui.ribbon.label.obj {
+    left: 92.1%;
+/ / float: right;
+}
+
+.ui.ribbon.label.info {
+    left: 14.3%;
+    float: right;
+}
 
 .recipe-form {
     text-align: -webkit-center;
@@ -23,6 +154,13 @@ body {
     text-align: initial;
 }
 
+.ui.message.log {
+    width: 20%;
+}
+
+.ui.message.log > span:nth-child(2) {
+    padding-right: 5px
+}
 
 .ui.cloned.vertical.segment {
 / / border-bottom: 2 px solid #2185d0 !important;
@@ -130,6 +268,11 @@ body {
 
 .copied-item {
     display: contents;
+}
+
+
+#desc-col{
+    display: none;
 }
 
 .transition.hidden {

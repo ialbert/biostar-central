@@ -14,11 +14,11 @@ __MODULE_DIR = os.path.dirname(auth.__file__)
 TEST_ROOT = os.path.join(__MODULE_DIR, 'test')
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
-
+IMPORT_ROOT_DIR = os.path.join(TEST_ROOT, 'data')
 logger = logging.getLogger('engine')
 
 
-@override_settings(MEDIA_ROOT=TEST_ROOT)
+@override_settings(MEDIA_ROOT=TEST_ROOT, IMPORT_ROOT_DIR=IMPORT_ROOT_DIR)
 class AjaxTest(TestCase):
 
     def setUp(self):
@@ -27,6 +27,7 @@ class AjaxTest(TestCase):
         # Set up generic owner
         self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
         self.owner.set_password("tested")
+
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
@@ -55,6 +56,68 @@ class AjaxTest(TestCase):
 
         json_response = ajax.check_job(request=request, uid=self.job.uid)
         self.process_response(json_response)
+
+    def test_file_copy(self):
+        """
+        Test AJAX function used to copy file
+        """
+        data = {'path': "plain-text.txt"}
+
+        url = reverse('file_copy')
+
+        request = fake_request(url=url, data=data, user=self.owner)
+
+        json_response = ajax.file_copy(request=request)
+
+        self.process_response(json_response)
+
+
+    def test_toggle_delete(self):
+        """
+        Test AJAX function used to toggle delete on objects
+        """
+        data = {'uid': self.job.uid, "type": 'job'}
+
+        url = reverse('toggle_delete')
+
+        request = fake_request(url=url, data=data, user=self.owner)
+
+        json_response = ajax.toggle_delete(request=request)
+
+        self.process_response(json_response)
+
+    def test_manage_access(self):
+        """
+        Test AJAX function used to manage user access
+        """
+        user2 = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
+        data = {'user_id': user2.id, "project_uid": self.project.uid, "access": 'write'}
+
+        url = reverse('toggle_delete')
+
+        request = fake_request(url=url, data=data, user=self.owner)
+
+        json_response = ajax.manage_access(request)
+
+        self.process_response(json_response)
+
+    def test_copy_object(self):
+        """
+        Test AJAX function used to copy objects
+        """
+
+        user2 = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
+        data = {'user_id': user2.id, "project_uid": self.project.uid, "access": 'write'}
+
+        url = reverse('toggle_delete')
+
+        request = fake_request(url=url, data=data, user=self.owner)
+
+        json_response = ajax.manage_access(request)
+
+        self.process_response(json_response)
+
+
 
     def test_snippet_code(self):
         """
@@ -86,12 +149,12 @@ class AjaxTest(TestCase):
 
         # Test rendering category form
         request = fake_request(url=url, data=category_data, user=self.owner)
-        json_response = ajax.snippet_form(request=request)
+        json_response = ajax.snippet_form(request)
         self.process_response(json_response)
 
         # Test rendering snippet form
         request = fake_request(url=url, data=snippet_data, user=self.owner)
-        json_response = ajax.snippet_form(request=request)
+        json_response = ajax.snippet_form(request)
 
         self.process_response(json_response)
 
@@ -109,7 +172,7 @@ class AjaxTest(TestCase):
 
         request = fake_request(url=url, data=data, user=self.owner)
 
-        json_response = ajax.create_snippet_type(request=request)
+        json_response = ajax.create_snippet_type(request)
 
         self.process_response(json_response)
         image_stream.close()
@@ -125,7 +188,7 @@ class AjaxTest(TestCase):
 
         # Test creating a snippet
         request = fake_request(url=url, data=create_data, user=self.owner)
-        json_response = ajax.create_snippet(request=request)
+        json_response = ajax.create_snippet(request)
 
         self.process_response(json_response)
 
@@ -141,7 +204,7 @@ class AjaxTest(TestCase):
 
         # Test creating a snippet
         request = fake_request(url=url, data=edit_data, user=self.owner)
-        json_response = ajax.create_snippet(request=request)
+        json_response = ajax.create_snippet(request)
 
         self.process_response(json_response)
 
@@ -150,7 +213,7 @@ class AjaxTest(TestCase):
         Test AJAX function used to preview recipe scripts
         """
 
-        data = {'template': '# recipe code', 'json_text': '{}', 'name': self.recipe.name,
+        data = {'template': '# recipe code', 'json_text': '', 'name': self.recipe.name,
                 'uid': self.recipe.uid, 'project_uid': self.recipe.project.uid}
 
         url = reverse('preview_template')
@@ -181,7 +244,7 @@ class AjaxTest(TestCase):
         display_types = ['radio', 'data', 'integer', 'textbox', 'float', 'checkbox',
                          'dropdown']
 
-        json_text = '{}'
+        json_text = ''
         url = reverse('add_recipe_fields')
 
         for dtype in display_types:

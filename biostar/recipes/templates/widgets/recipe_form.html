@@ -9,6 +9,7 @@
     {{ hidden_field }}
 {% endfor %}
 
+
 {# Iterate over all form fields #}
 {% for field in form.visible_fields %}
     {{ field.errors }}
@@ -19,6 +20,9 @@
             {{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         </div>
         {% else %}
+        {#% if field|is_number %#}
+
+        {#% endif %#}
         {{ field.label_tag|safe }}
         {{ field }}
         {% endif %}

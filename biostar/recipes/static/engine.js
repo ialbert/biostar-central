@@ -133,6 +133,7 @@ function check_job() {
         // Get the uid and state
         var job_uid = $(this).data('value');
         var state = $(this).data('state');
+        var imag = $('#job-img[data-uid="' + job_uid + '"]');
         // Bail out when a job uid is not provided.
         if (job_uid === null || job_uid === undefined) {
             return
@@ -142,18 +143,54 @@ function check_job() {
         $.ajax('/ajax/check/job/' + job_uid + '/', {
             type: 'GET',
             dataType: 'json',
-            data: {'state': state},
+            data: {
+                'state': state,
+            },
             ContentType: 'application/json',
             success: function (data) {
                 // Only replace and activate effects when the state has actually changed.
 
                 if (data.state_changed) {
+                    // TODO: Taking this type of styling out
                     $('.job-container-' + job_uid).html(data.html);
-                       var job_item = $('.job-item-' + job_uid);
+                    var job_item = $('.job-item-' + job_uid);
                     job_item.transition('pulse');
 
+                }
+                if (data.is_running) {
+                    $('.loader[data-uid="' + job_uid + '"]').html('<div class="ui log message">\n' +
+                        '                     <span class="ui active small inline loader"></span>\n' +
+                        '                     <span>Running</span>\n' +
+                        '</div>');
+                    $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid + '/#log')
+
+                } else {
+                    $('.loader[data-uid="' + job_uid + '"]').html("");
+                    $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid)
+                }
+
+
+                //alert(data.redir)
+                imag.replaceWith(data.img_tmpl);
+
+                if (data.stdout) {
+                    var stdout = $('#stdout');
+                    //alert($('#stdout').html());
+                    stdout.text(data.stdout);
+                    //alert(data.stdout);
+                    //alert(stdout.html())
+                }
+
+                if (data.stderr) {
+                    var stderr = $('#stderr');
+                    stderr.text(data.stderr);
 
                 }
+                if (data.redir && $("#view").length) {
+                    window.location.replace(data.redir + "#flist");
+                    window.location.reload()
+                }
+
             },
             error: function (xhr, status, text) {
                 error_message($(this), xhr, status, text)
@@ -230,7 +267,6 @@ function add_to_interface(display_type) {
 
     let json_text = $('#json').val();
     //let display_type = $(this).attr('id');
-
     $.ajax('/add/recipe/fields/', {
         type: 'POST',
         dataType: 'json',
@@ -449,14 +485,14 @@ function toggle_delete(uid, type, count_elem) {
 
     // Get the job container
     let container = $('.toggle-item-' + uid);
-    let counts = $('#'+ count_elem);
+    let counts = $('#' + count_elem);
 
     $.ajax('/toggle/delete/', {
             type: 'POST',
             dataType: 'json',
             data: {
                 'uid': uid,
-                'type':type
+                'type': type
             },
 
             success: function (data) {
@@ -519,8 +555,47 @@ function change_access(access, user_id, project_uid, elem) {
 
 }
 
-$(document).ready(function () {
 
+function inplace_edit(uid) {
+
+    // var elem = $("#inplace-edit");
+    // elem.attr("id", "goo")
+    // $.ajax('/inplace/recipe/form/' + uid +'/', {
+    //
+    //     type: 'POST',
+    //         dataType: 'json',
+    //         data: {},
+    //
+    //         success: function (data) {
+    //             if (data.status === 'success') {
+    //                 elem.html("");
+    //                 //console.log(data.template);
+    //                 elem.html(data.template);
+    //                 //$("#dimmer").dimmer('hide');
+    //
+    //                 //popup_message(elem, data.msg, data.status, 1000)
+    //                 return
+    //             }
+    //            // $("#dimmer").dimmer('hide');
+    //             popup_message(elem, data.msg, data.status, 2000)
+    //
+    //         },
+    //         error: function (xhr, status, text) {
+    //         //$("#dimmer").dimmer('hide');
+    //             error_message(elem, xhr, status, text)
+    //         }
+    //
+    // });
+
+}
+
+$(document).ready(function () {
+    // $('.dim')
+    //   .dimmer({
+    //     on: 'hover'
+    //   })
+    // ;
+    $().progress('.indicating.progress');
     $('.access-dropdown').dropdown({
         onChange: function (value, text, $selectedItem) {
             let user = $(this).data('user');
@@ -528,6 +603,48 @@ $(document).ready(function () {
             change_access(value, user, project, $(this))
         }
     });
+
+
+    $(this).on('click', ".edit-side .open-run", function () {
+        //alert("FPP");
+
+        $(".recipe-edit").hide();
+        $(".runform").show();
+    });
+
+
+    $(this).on('click', ".edit-side .open-desc", function () {
+        //alert("FPP");
+
+      $(".recipe-edit").show();
+        $(".runform").hide();
+        $(this).addClass("active");
+        $("#desc-col").show();
+        $(".edit-side .script").parent().removeClass("active");
+        $(".edit-side  .interface").parent().removeClass("active");
+        $(".edit-side  .recipe").parent().removeClass("active");
+        $("#script-col").hide();
+        $("#interface-col").hide();
+        $("#detail-col").hide();
+    });
+
+
+    $(this).on('click', ".edit-side .recipe", function (event) {
+        event.preventDefault();
+        $(".recipe-edit").show();
+        $(".runform").hide();
+        $("#desc-col").hide();
+        $(this).parent().addClass("active");
+        $("#detail-col").show();
+
+        $(".edit-side .script").parent().removeClass("active");
+        $(".edit-side  .interface").parent().removeClass("active");
+        $(".edit-side  .open-desc").removeClass("active");
+        $("#script-col").hide();
+        $("#interface-col").hide();
+
+    });
+
 
     //$('.ui.selection.dropdown').dropdown();
 
@@ -537,7 +654,6 @@ $(document).ready(function () {
 
     $('#code_add').dropdown();
 
-    $('.ui.sticky').sticky();
 
     $(this).on('click', '#json_preview', function () {
         event.preventDefault();
@@ -551,8 +667,8 @@ $(document).ready(function () {
 
     remove_trigger();
 
-    // Check and update 'Running' and 'Spooled' jobs every 20 seconds.
-    setInterval(check_job, 5000);
+    // Check and update 'Running' and 'Spooled' jobs every 5 seconds.
+    setInterval(check_job, 5000)
 
     $(".copy-data").click(function (event) {
 
@@ -728,6 +844,7 @@ $(document).ready(function () {
 
 
     });
+
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();

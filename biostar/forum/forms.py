@@ -151,9 +151,13 @@ class PostShortForm(forms.Form):
 
     def clean_content(self):
         content = self.cleaned_data["content"]
-
         return content
 
+    def clean(self):
+        cleaned_data = super(PostShortForm, self).clean()
+        if self.user.is_anonymous:
+            raise forms.ValidationError("You need to be logged in.")
+        return cleaned_data
 
 class CommentForm(forms.Form):
 
@@ -166,11 +170,11 @@ def mod_choices(post):
     Return available moderation options for a post.
     """
     choices = [
-        (BUMP_POST, "Bump thread rank."),
+        (BUMP_POST, "Bump post."),
         (MOVE_ANSWER, "Move comment to answer."),
         (OPEN_POST, "Open post"),
         (DELETE, "Delete post."),
-        (REPORT_SPAM, "Report as spam.")
+        (REPORT_SPAM, "Mark as spam.")
     ]
 
     # Moderation options for top level posts

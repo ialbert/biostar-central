@@ -56,16 +56,14 @@ class ForumNavigation(TestCase):
             reverse("myposts"),
             reverse("myvotes"),
             reverse('post_create'),
-            reverse('about'),
-            reverse('faq'),
-            reverse('policy'),
+            reverse('pages', kwargs=dict(fname="faq")),
             reverse('tags_list'),
             reverse("community_list"),
             reverse('badge_list'),
             reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
 
             reverse('post_view', kwargs=dict(uid=self.post.uid)),
-            reverse('post_edit', kwargs=dict(uid=self.post.uid)),
+            #reverse('post_edit', kwargs=dict(uid=self.post.uid)),
             reverse('post_create'),
 
 

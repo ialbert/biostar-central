@@ -34,6 +34,15 @@ class JobViewTest(TestCase):
         self.job.save()
 
 
+    def test_scheduler(self):
+        """
+        Test task scheduler used to run queued jobs.
+        """
+        from biostar.recipes.tasks import scheduler
+        self.job = auth.create_job(analysis=self.recipe, user=self.owner)
+        self.job.state = models.Job.QUEUED
+        self.job.save()
+        scheduler.timer([])
 
     @patch('biostar.recipes.models.Job.save', MagicMock(name="save"))
     def test_job_edit(self):
@@ -62,7 +71,7 @@ class JobViewTest(TestCase):
 
         board = request.session.get(settings.CLIPBOARD_NAME, {}).get(const.COPIED_RESULTS, [])
         success = len(board) == 1 and board[0] == self.job.uid
-
+        auth.generate_script(self.job)
         self.assertTrue(success, "Job uid not copied to clipboard")
         return
 
@@ -84,7 +93,6 @@ class JobViewTest(TestCase):
         request = fake_request(url=url, data={}, user=self.owner)
 
         response = views.job_rerun(request=request, uid=self.job.uid)
-
         self.process_response(response=response, data={})
 
 

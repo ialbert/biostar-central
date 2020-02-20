@@ -1,6 +1,6 @@
 import logging
 
-import hjson
+import toml as hjson
 import mistune
 from django.db import models
 from django.db.models.signals import post_save
@@ -128,7 +128,10 @@ class Project(models.Model):
 
     html = models.TextField(default='html', max_length=MAX_LOG_LEN)
     date = models.DateTimeField(auto_now_add=True)
+    # Internal uid that is not editable.
     uid = models.CharField(max_length=32, unique=True)
+    # Unique project label that is editable.
+    label = models.CharField(max_length=32, unique=True, null=True)
 
     sharable_token = models.CharField(max_length=32, null=True, unique=True)
 
@@ -145,6 +148,7 @@ class Project(models.Model):
         self.html = make_html(self.text, user=self.lastedit_user)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
+        self.label = self.label or self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.owner
         self.lastedit_date = self.lastedit_date or now
 
@@ -349,10 +353,11 @@ class Data(models.Model):
         if not os.path.isfile(self.file):
             with open(self.file, 'wt') as fp:
                 pass
-        # Set the counts
-        self.project.set_counts(save=True)
 
         super(Data, self).save(*args, **kwargs)
+
+        # Set the counts
+        self.project.set_counts(save=True)
 
     def peek(self):
         """
@@ -491,12 +496,16 @@ class Analysis(models.Model):
     lastedit_date = models.DateTimeField(default=timezone.now)
 
     #TODO: remove diff fields
-    diff_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="diff_author", null=True)
-    diff_date = models.DateField(blank=True, auto_now_add=True)
+    #diff_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="diff_author", null=True)
+    #diff_date = models.DateField(blank=True, auto_now_add=True)
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
-    json_text = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
+    json_text = models.TextField(default="", max_length=MAX_TEXT_LEN)
+
+    # Use this just to trigger a data migration.
+    #phony_field = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
+
     template = models.TextField(default="")
     last_valid = models.TextField(default='')
 
@@ -514,7 +523,11 @@ class Analysis(models.Model):
         """
         Returns the json_text as parsed json_data
         """
-        json_data = hjson.loads(self.json_text)
+        try:
+            json_data = hjson.loads(self.json_text)
+        except Exception as exc:
+            logger.error(f"{exc}. json_text={self.json_text}")
+            json_data = {}
 
         # Generates file names
         base = f"{'_'.join(self.name.split())}_{self.project.uid}_{self.pk}"
@@ -670,6 +683,7 @@ class Job(models.Model):
     json_text = models.TextField(default="commands")
 
     uid = models.CharField(max_length=32)
+
     template = models.TextField(default="makefile")
 
     # Set the security level.
@@ -694,6 +708,24 @@ class Job(models.Model):
     def is_running(self):
         return self.state == Job.RUNNING
 
+    def is_success(self):
+        return self.state == Job.COMPLETED
+
+    def is_error(self):
+        return self.state == Job.ERROR
+
+    def is_started(self):
+        """
+        This job has been initiated.
+        """
+        return self.state in [Job.QUEUED, Job.SPOOLED, Job.RUNNING]
+
+    def is_finished(self):
+        """
+        This job is fishined
+        """
+        return self.state in [Job.ERROR, Job.COMPLETED]
+
     def __str__(self):
         return self.name
 
@@ -717,7 +749,12 @@ class Job(models.Model):
     @property
     def json_data(self):
         "Returns the json_text as parsed json_data"
-        return hjson.loads(self.json_text)
+        try:
+            data_dict = hjson.loads(self.json_text)
+        except Exception as exc:
+            logger.error(f"{exc}; text={self.json_text}")
+            data_dict = {}
+        return data_dict
 
     def elapsed(self):
         if not (self.start_date and self.end_date):
@@ -746,6 +783,7 @@ class Job(models.Model):
         now = timezone.now()
         self.name = self.name or f"Results for: {self.analysis.name}"
         self.date = self.date or now
+        self.text = self.text or self.analysis.text
         self.html = make_html(self.text, user=self.lastedit_user)
         self.name = self.name[:MAX_NAME_LEN]
         self.uid = self.uid or util.get_uuid(8)
@@ -754,6 +792,7 @@ class Job(models.Model):
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
         self.path = self.make_path()
+
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
@@ -774,6 +813,13 @@ class Job(models.Model):
         result = template.render(context)
 
         return result
+
+    def runnable(self):
+        """
+        Job is authorized to run
+        """
+        authorized = self.analysis.runnable() and self.security == self.AUTHORIZED
+        return authorized
 
     def get_name(self):
         if self.deleted:

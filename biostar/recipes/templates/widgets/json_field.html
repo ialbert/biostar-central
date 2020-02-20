@@ -1,27 +1,51 @@
-
 <textarea class="code" rows="40" cols="55" name="json_text" id="json">{{ json_text }}</textarea>
 
 
     <script type="text/javascript">
         $(document).ready(function () {
-            
+
 
             var json_edit = CodeMirror.fromTextArea(
                 document.getElementById("json"), {
                     lineNumbers: true,
                     mode: "engine",
+                    autoRefresh:true,
                 }
             );
+
+
 
             function updateJson() {
                 json_edit.save();
             }
 
             json_edit.on('change', updateJson);
-            {% if focus %}
+            {#% if focus %#}
                 json_edit.focus();
-                json_edit.setCursor(json_edit.lineCount(), 0);
-            {% endif %}
+                //json_edit.setCursor(json_edit.lineCount(), 0);
+            {#% endif %#}
 
+
+
+    $(this).on('click', ".edit-side .interface", function (event){
+        event.preventDefault();
+        $(".runform").hide();
+        $(".recipe-edit").show();
+         $("#desc-col").hide();
+        $(this).parent().addClass("active");
+        $(".edit-side .script").parent().removeClass("active");
+        $(".edit-side .recipe").parent().removeClass("active");
+        $(".edit-side .open-desc").removeClass("active");
+
+        $("#script-col").hide();
+        $("#detail-col").hide();
+        $("#interface-col").show();
+
+        json_edit.refresh();
+        json_edit.focus();
+    });
+
+
+        json_edit.setSize(null, 900)
         });
     </script>

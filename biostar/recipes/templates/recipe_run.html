@@ -10,18 +10,11 @@
 {% endblock %}
 
 {% block content %}
+
     <div class="recipe-form">
         <div class="ui raised segment inputcolor">
             <div class="ui center aligned header">
-                Run : <a href="{% url 'recipe_view' analysis.uid %}">
 
-                {% if analysis.is_cloned %}
-                    <i class="linkify icon"></i>
-                {% else %}
-                    <i class="setting icon"></i>
-                {% endif %}
-                {{ analysis.name }}
-            </a>
 
             </div>
 
@@ -37,11 +30,7 @@
                         Pending authorization
                     </div>
                 {% endif %}
-
-                {{ analysis.summary|markdown|safe }}
-
-                <form method="post" class="ui form" enctype="multipart/form-data"
-                      action="{% url 'recipe_run' analysis.uid %}">
+                <form method="POST" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' analysis.uid %}">
 
                     <div class="ui form">
 

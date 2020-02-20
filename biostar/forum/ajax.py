@@ -450,7 +450,8 @@ def inplace_form(request):
     # Load the content and form template
     template = "forms/inplace_form.html"
     tmpl = loader.get_template(template_name=template)
-    context = dict(user=user, post=post, rows=25, add_comment=add_comment,
+    users_str = auth.get_users_str()
+    context = dict(user=user, post=post, rows=25, add_comment=add_comment, users_str=users_str,
                    captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
     form = tmpl.render(context)
 
