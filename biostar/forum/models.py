@@ -207,10 +207,6 @@ class Post(models.Model):
         # This will trigger the signals
         super(Post, self).save(*args, **kwargs)
 
-        if self.type == Post.ANSWER:
-            Post.objects.filter(uid=self.parent.uid).update(lastedit_date=self.lastedit_date,
-                                                            lastedit_user=self.lastedit_user)
-
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
 
