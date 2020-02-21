@@ -72,12 +72,12 @@ YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN3 = rec(r"https://youtu.be/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_HTML = '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>'
 
-#https://gist.github.com/afrendeiro/6732a46b949e864d6803
 
 # Ftp link pattern.
 FTP_PATTERN = rec(r"^ftp://[\w\.]+(/?)$")
 
 # Gist pattern.
+#https://gist.github.com/afrendeiro/6732a46b949e864d6803
 GIST_PATTERN = rec(r"^https://gist.github.com/(?P<uid>([\w/]+))")
 GIST_HTML = '<script src="https://gist.github.com/%s.js"></script>'
 
@@ -285,9 +285,9 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     Parses markdown into html.
     Expands certain patterns into HTML.
 
-    clean : further sanitizes html produced by mistune
+    clean : applies bleach clean after mistune escapes unsafe characters. Also removes unbalanced tags.
     escape  : Escape html originally found in the markdown text.
-    img_from_static : Serve images with relative url paths from the static directory.
+    allow_rewrite : Serve images with relative url paths from the static directory.
                   eg. images/foo.png -> /static/images/foo.png
     """
     # Resolve the root if exists.
@@ -297,6 +297,7 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     markdown = mistune.Markdown(escape=escape, hard_wrap=True, parse_block_html=True, inline=inline)
     if clean:
         text = bleach.clean(text)
+
     html = markdown(text)
 
     return html
