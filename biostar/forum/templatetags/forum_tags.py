@@ -780,7 +780,7 @@ def markdown_file(pattern):
 
     try:
 
-        html = markdown.parse(text, clean=False, escape=False, img_from_static=True)
+        html = markdown.parse(text, clean=False, escape=False, allow_rewrite=True)
         html = bleach.linkify(html, callbacks=[top_level_only], skip_tags=['pre'])
         html = mark_safe(html)
     except Exception as e:
@@ -796,7 +796,7 @@ class MarkDownNode(template.Node):
 
     def render(self, context):
         text = self.nodelist.render(context)
-        text = markdown.parse(text, clean=False, escape=False, img_from_static=True)
+        text = markdown.parse(text, clean=False, escape=False, allow_rewrite=True)
         text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
         return text
 

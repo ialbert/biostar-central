@@ -127,7 +127,7 @@ test:
 	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage html --skip-covered
 
-test_all:init
+test_all:
 	#python manage.py test --settings biostar.test.test_settings -v 2 --failfast
 	coverage run manage.py test --settings biostar.test.test_settings -v 2 --failfast
 	coverage html --skip-covered

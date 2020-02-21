@@ -125,7 +125,7 @@ class BiostarInlineGrammer(InlineGrammar):
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
 
 
-def absolute_image_link(link):
+def rewrite_static(link):
 
     # Link is already a full path or external
     if link.startswith("/") or link.startswith("http"):
@@ -140,13 +140,13 @@ def absolute_image_link(link):
 class BiostarInlineLexer(MonkeyPatch):
     grammar_class = BiostarInlineGrammer
 
-    def __init__(self, root=None, img_from_static=False, *args, **kwargs):
+    def __init__(self, root=None, allow_rewrite=False, *args, **kwargs):
         """
         :param root: Root post that is being pared
         :param static_imgs:
         """
         self.root = root
-        self.img_from_static = img_from_static
+        self.allow_rewrite = allow_rewrite
 
         super(BiostarInlineLexer, self).__init__(*args, **kwargs)
         self.enable_all()
@@ -175,9 +175,9 @@ class BiostarInlineLexer(MonkeyPatch):
         line = m.group(0)
         text = m.group(1)
         if line[0] == '!':
-            if self.img_from_static:
+            if self.allow_rewrite:
                 # Ensure the link is a full url path found in to static directory.
-                link = absolute_image_link(link)
+                link = rewrite_static(link)
 
             return self.renderer.image(link, title, text)
 
@@ -280,7 +280,7 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def parse(text, post=None, clean=True, escape=True, img_from_static=False):
+def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     """
     Parses markdown into html.
     Expands certain patterns into HTML.
@@ -292,7 +292,7 @@ def parse(text, post=None, clean=True, escape=True, img_from_static=False):
     """
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
-    inline = BiostarInlineLexer(renderer=Renderer(), root=root, img_from_static=img_from_static)
+    inline = BiostarInlineLexer(renderer=Renderer(), root=root, allow_rewrite=allow_rewrite)
 
     markdown = mistune.Markdown(escape=escape, hard_wrap=True, parse_block_html=True, inline=inline)
     if clean:
