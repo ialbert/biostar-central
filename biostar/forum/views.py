@@ -185,30 +185,30 @@ class CachedPaginator(Paginator):
         return value
 
 
-def Xpages(request, fname):
-
-    # Add markdown file extension to markdown
-    infile = f"{fname}.md"
-    # Look for this file in static root.
-    doc = os.path.join(settings.STATIC_ROOT, "forum", infile)
-
-    if not os.path.exists(doc):
-        messages.error(request, "File does not exist.")
-        return redirect("post_list")
-
-    # Convert markdown to html and write it to file
-    fstream = open(doc, "r").read()
-    html = markdown.parse(text=fstream, clean=False, escape=False)
-
-    # Write html to file.
-    outfname = f"{fname}.html"
-    outfile = os.path.join(settings.STATIC_ROOT, "forum", outfname)
-    open(outfile, "w").write(html)
-
-    # Redirect to static url with the most recently created doc
-    url = f"{settings.STATIC_URL}forum/{outfname}"
-
-    return redirect(url)
+# def Xpages(request, fname):
+#
+#     # Add markdown file extension to markdown
+#     infile = f"{fname}.md"
+#     # Look for this file in static root.
+#     doc = os.path.join(settings.STATIC_ROOT, "forum", infile)
+#
+#     if not os.path.exists(doc):
+#         messages.error(request, "File does not exist.")
+#         return redirect("post_list")
+#
+#     # Convert markdown to html and write it to file
+#     fstream = open(doc, "r").read()
+#     html = markdown.parse(text=fstream, clean=False, escape=False)
+#
+#     # Write html to file.
+#     outfname = f"{fname}.html"
+#     outfile = os.path.join(settings.STATIC_ROOT, "forum", outfname)
+#     open(outfile, "w").write(html)
+#
+#     # Redirect to static url with the most recently created doc
+#     url = f"{settings.STATIC_URL}forum/{outfname}"
+#
+#     return redirect(url)
 
 
 def pages(request, fname):

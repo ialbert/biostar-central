@@ -125,12 +125,13 @@ class BiostarInlineGrammer(InlineGrammar):
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
 
 
-def absoulute_image_link(link, root="/static/"):
+def absolute_image_link(link):
 
-    # Link is already a full path or an external link
+    # Link is already a full path or external
     if link.startswith("/") or link.startswith("http"):
         return link
-    # Make the link absoulute to a static url
+
+    # Make the link absolute to the static url
     link = "/static/" + link
 
     return link
@@ -141,7 +142,6 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def __init__(self, root=None, img_from_static=False, *args, **kwargs):
         """
-
         :param root: Root post that is being pared
         :param static_imgs:
         """
@@ -177,7 +177,7 @@ class BiostarInlineLexer(MonkeyPatch):
         if line[0] == '!':
             if self.img_from_static:
                 # Ensure the link is a full url path found in to static directory.
-                link = absoulute_image_link(link)
+                link = absolute_image_link(link)
 
             return self.renderer.image(link, title, text)
 
