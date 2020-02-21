@@ -3,10 +3,9 @@ from datetime import timedelta
 from functools import wraps
 import os
 import zlib
-
+from urllib.parse import urljoin
 from whoosh.searching import Results
 from django.conf import settings
-from django.contrib.staticfiles import finders
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
@@ -18,9 +17,9 @@ from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
 
 from biostar.accounts.models import Profile
-from . import forms, auth, tasks, util, search, const
-from .const import *
-from .models import Post, Vote, Badge
+from biostar.forum import forms, auth, tasks, util, search, const, markdown
+from biostar.forum.const import *
+from biostar.forum.models import Post, Vote, Badge
 
 
 User = get_user_model()
@@ -186,29 +185,18 @@ class CachedPaginator(Paginator):
         return value
 
 
-def pages(request, doc):
-    # Get all available files in the directory root.
-    dir_list = os.listdir(os.path.abspath(settings.FORUM_DOCS))
-    dir_list = list(filter(lambda d: d.endswith(f"{doc}.md"), dir_list))
+def pages(request, fname):
 
-    # This doc does is not found in the root directory
-    if not len(dir_list):
-        messages.error(request, f"Page does not exist: {doc}")
-        return redirect("/")
+    # Add markdown file extension to markdown
+    infile = f"{fname}.md"
+    # Look for this file in static root.
+    doc = os.path.join(settings.STATIC_ROOT, "forum", infile)
 
-    # Get the relative path of the current doc
-    rel_dir = os.path.relpath(settings.FORUM_DOCS, settings.DOCS_ROOT)
-    rel_path = os.path.join(rel_dir, dir_list[0])
+    if not os.path.exists(doc):
+        messages.error(request, "File does not exist.")
+        return redirect("post_list")
 
-    # Find file in the static folder.
-    results = finders.find(rel_path, all=True)
-    results = list(filter(lambda p: p.startswith(settings.STATIC_ROOT), results))
-
-    # Return the first file mathcing the file name.
-    file_path = results[0] if results else ""
-
-    # Get fill path to markdown file_path
-    context = dict(file_path=file_path, tab=doc)
+    context = dict(file_path=doc, tab=fname)
 
     return render(request, 'pages.html', context=context)
 

@@ -1,6 +1,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
+from biostar.forum import markdown
 
 logger = logging.getLogger('engine')
 
@@ -10,6 +11,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        from biostar.utils import markdown
 
         print(markdown.test())

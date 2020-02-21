@@ -50,16 +50,14 @@ http://test.biostars.org/p/p371285/
 
 # Shortcut to re.compile
 rec = re.compile
-SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
-
 
 # Biostar patterns
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
+SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
+USER_PATTERN = rec(fr"^http(s)?://{SITE_URL}/accounts/profile/(?P<uid>[\w_.-]+)(/)?")
+POST_TOPLEVEL = rec(fr"^http(s)?://{SITE_URL}/p/(?P<uid>(\w+))(/)?$")
+POST_ANCHOR = rec(fr"^http(s)?://{SITE_URL}/p/\w+/\#(?P<uid>(\w+))(/)?")
 
-# Mistune returns h3 and p tags for markdown
-USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/accounts/profile/(?P<uid>[\w_.-]+)(/)?")
-POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/(?P<uid>(\w+))(/)?$")
-POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/\w+/\#(?P<uid>(\w+))(/)?")
 # Match any alphanumeric characters after the @.
 # These characters are allowed in handles: _  .  -
 MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.'-]+))")
@@ -127,13 +125,43 @@ class BiostarInlineGrammer(InlineGrammar):
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
 
 
+def rewrite_static(link):
+
+    # Link is already a full path or external
+    if link.startswith("/") or link.startswith("http"):
+        return link
+
+    # Make the link absolute to the static url
+    link = "/static/" + link
+
+    return link
+
+
 class BiostarInlineLexer(MonkeyPatch):
     grammar_class = BiostarInlineGrammer
 
-    def __init__(self, root=None, *args, **kwargs):
+    def __init__(self, root=None, allow_rewrite=False, *args, **kwargs):
+        """
+        :param root: Root post that is being pared
+        :param static_imgs:
+        """
         self.root = root
+        self.allow_rewrite = allow_rewrite
 
         super(BiostarInlineLexer, self).__init__(*args, **kwargs)
+        self.enable_all()
+
+    def enable_all(self):
+        self.enable_post_link()
+        self.enable_mention_link()
+        self.enable_anchor_link()
+        self.enable_user_link()
+        self.enable_gist_link()
+        self.enable_youtube_link1()
+        self.enable_youtube_link2()
+        self.enable_youtube_link3()
+        self.enable_ftp_link()
+        self.enable_twitter_link()
 
     def enable_post_link(self):
         self.rules.post_link = POST_TOPLEVEL
@@ -142,6 +170,21 @@ class BiostarInlineLexer(MonkeyPatch):
     def enable_mention_link(self):
         self.rules.mention_link = MENTINONED_USERS
         self.default_rules.insert(0, 'mention_link')
+
+    def _process_link(self, m, link, title=None):
+        line = m.group(0)
+        text = m.group(1)
+        if line[0] == '!':
+            if self.allow_rewrite:
+                # Ensure the link is a full url path found in to static directory.
+                link = rewrite_static(link)
+
+            return self.renderer.image(link, title, text)
+
+        self._in_link = True
+        text = self.output(text)
+        self._in_link = False
+        return self.renderer.link(link, title, text)
 
     def output_mention_link(self, m):
 
@@ -186,7 +229,6 @@ class BiostarInlineLexer(MonkeyPatch):
         link = m.group(0)
         profile = Profile.objects.filter(uid=uid).first()
         name = profile.name if profile else f"Invalid user uid: {uid}"
-
         return f'<a href="{link}">USER: {name}</a>'
 
     def enable_youtube_link1(self):
@@ -238,28 +280,22 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def parse(text, post=None, sanatize=True, escape=False):
+def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     """
     Parses markdown into html.
     Expands certain patterns into HTML.
+
+    clean : further sanitizes html produced by mistune
+    escape  : Escape html originally found in the markdown text.
+    img_from_static : Serve images with relative url paths from the static directory.
+                  eg. images/foo.png -> /static/images/foo.png
     """
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
-    inline = BiostarInlineLexer(renderer=Renderer(), root=root)
+    inline = BiostarInlineLexer(renderer=Renderer(), root=root, allow_rewrite=allow_rewrite)
 
-    inline.enable_post_link()
-    inline.enable_mention_link()
-    inline.enable_anchor_link()
-    inline.enable_user_link()
-    inline.enable_gist_link()
-
-    inline.enable_youtube_link1()
-    inline.enable_youtube_link2()
-    inline.enable_youtube_link3()
-    inline.enable_ftp_link()
-    inline.enable_twitter_link()
     markdown = mistune.Markdown(escape=escape, hard_wrap=True, parse_block_html=True, inline=inline)
-    if sanatize:
+    if clean:
         text = bleach.clean(text)
     html = markdown(text)
 

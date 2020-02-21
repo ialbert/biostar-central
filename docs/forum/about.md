@@ -11,7 +11,6 @@ But we recommend that you make use of the search services to see if your questio
 ## Contact
 
 To contact the site managers please email admin@biostars.org.
-
 ## Licensing
 
 Creative Commons License

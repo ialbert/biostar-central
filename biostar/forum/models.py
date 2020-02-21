@@ -188,7 +188,7 @@ class Post(models.Model):
     def save(self, *args, **kwargs):
 
         # Needs to be imported here to avoid circular imports.
-        from biostar.utils import markdown
+        from biostar.forum import markdown
 
         self.lastedit_user = self.lastedit_user or self.author
 
@@ -197,16 +197,12 @@ class Post(models.Model):
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
-        self.html = markdown.parse(self.content, post=self)
+        self.html = markdown.parse(self.content, post=self, clean=True, escape=True)
         self.tag_val = self.tag_val.replace(' ', '')
         # Default tags
         self.tag_val = self.tag_val or "tag1,tag2"
         # Set the top level state of the post.
         self.is_toplevel = self.type in Post.TOP_LEVEL
-
-        if self.type == Post.ANSWER:
-            Post.objects.filter(uid=self.parent.uid).update(lastedit_date=self.lastedit_date,
-                                                            lastedit_user=self.lastedit_user)
 
         # This will trigger the signals
         super(Post, self).save(*args, **kwargs)

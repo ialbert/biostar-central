@@ -56,7 +56,7 @@ class ForumNavigation(TestCase):
             reverse("myposts"),
             reverse("myvotes"),
             reverse('post_create'),
-            reverse('pages', kwargs=dict(doc="faq")),
+            reverse('pages', kwargs=dict(fname="faq")),
             reverse('tags_list'),
             reverse("community_list"),
             reverse('badge_list'),
