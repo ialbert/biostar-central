@@ -32,6 +32,13 @@ TEST_CASES = [
     # Mentioned user
     ("@test", '<p><a href="/recipes/accounts/profile/5/">tested2</a></p>')
 
+
+
+    # Test unclosed tags
+
+
+    # Test tags and attributes that make the
+
 ]
 
 

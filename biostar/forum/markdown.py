@@ -315,9 +315,13 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
 
     # Bleach clean the text before handing it over to mistune.
     if clean:
-        text = bleach.clean(text)
+        # strip=True strips all disallowed elements
+        text = bleach.clean(text, strip=True)
+
         # Unescape >, <, and & characters in the markdown text.
         text = unescape(text)
+
+    # Format text
 
     # Create final html.
     html = markdown(text)

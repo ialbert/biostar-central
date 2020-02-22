@@ -6,7 +6,6 @@
 {% endif %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
-
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
@@ -281,7 +280,7 @@
 
     });
 
-    $('a').click(function (e) {
+{% comment %}    $('a').click(function (e) {
         var form_is_visible = $('#post-form').is(':visible');
         var content = $('#wmd-input').val();
 
@@ -293,7 +292,7 @@
             $('.ui.modal').modal('show');
             e.preventDefault();
         }
-    });
+    });{% endcomment %}
 
     $('#cancel-inplace').click(function () {
         $('#new-comment').remove();
