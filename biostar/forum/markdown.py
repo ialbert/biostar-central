@@ -10,7 +10,8 @@ from django.db.models import F
 import bleach
 from django.conf import settings
 from mistune import Renderer, InlineLexer, InlineGrammar
-
+from xml.sax.saxutils import unescape
+from bleach import html5lib_shim
 from biostar.forum import auth
 from biostar.forum.models import Post, Subscription
 from biostar.accounts.models import Profile, User
@@ -67,6 +68,7 @@ ALLOWED_ATTRIBUTES = {
 }
 
 # Youtube pattern.
+# https://www.youtube.com/watch?v=dQw4w9WgXcQ
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN3 = rec(r"https://youtu.be/(?P<uid>([\w-]+))(/)?")
@@ -123,6 +125,21 @@ class BiostarInlineGrammer(InlineGrammar):
     Also the '_' character not considered special use * instead
     """
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
+
+
+def cleaner(text):
+    """
+    Apply bleach clean and ensure SAFE_CHARS are not escaped.
+    """
+
+    # Apply bleach clean
+    text = bleach.clean(text)
+    text = unescape(text)
+    # Un-escape special characters deemed safe.
+    #for un_escaped, escaped in SAFE_CHARS.items():
+    #    text = text.replace(escaped, un_escaped)
+
+    return text
 
 
 def rewrite_static(link):
@@ -285,7 +302,8 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     Parses markdown into html.
     Expands certain patterns into HTML.
 
-    clean : applies bleach clean after mistune escapes unsafe characters. Also removes unbalanced tags.
+    clean : Applies bleach clean BEFORE mistune escapes unsafe characters.
+            Also removes unbalanced tags at this stage.
     escape  : Escape html originally found in the markdown text.
     allow_rewrite : Serve images with relative url paths from the static directory.
                   eg. images/foo.png -> /static/images/foo.png
@@ -293,11 +311,15 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
     inline = BiostarInlineLexer(renderer=Renderer(), root=root, allow_rewrite=allow_rewrite)
+    markdown = mistune.Markdown(escape=escape, hard_wrap=True, inline=inline)
 
-    markdown = mistune.Markdown(escape=escape, hard_wrap=True, parse_block_html=True, inline=inline)
+    # Bleach clean the text before handing it over to mistune.
     if clean:
         text = bleach.clean(text)
+        # Unescape >, <, and & characters in the markdown text.
+        text = unescape(text)
 
+    # Create final html.
     html = markdown(text)
 
     return html
