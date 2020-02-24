@@ -67,8 +67,8 @@ ALLOWED_ATTRIBUTES = {
     'a': ['href', 'title', 'name'],
 }
 
-# Youtube pattern.
-# https://www.youtube.com/watch?v=dQw4w9WgXcQ
+# Youtube patterns
+# https://www.youtube.com/watch?v=G7RDn8Xtf_Y
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN3 = rec(r"https://youtu.be/(?P<uid>([\w-]+))(/)?")
@@ -79,11 +79,12 @@ YOUTUBE_HTML = '<iframe width="420" height="315" src="//www.youtube.com/embed/%s
 FTP_PATTERN = rec(r"^ftp://[\w\.]+(/?)$")
 
 # Gist pattern.
-#https://gist.github.com/afrendeiro/6732a46b949e864d6803
+# https://gist.github.com/afrendeiro/6732a46b949e864d6803
 GIST_PATTERN = rec(r"^https://gist.github.com/(?P<uid>([\w/]+))")
 GIST_HTML = '<script src="https://gist.github.com/%s.js"></script>'
 
 # Twitter pattern.
+# https://twitter.com/Linux/status/2311234267
 TWITTER_PATTERN = rec(r"http(s)?://(www)?.?twitter.com/\w+/status(es)?/(?P<uid>([\d]+))")
 
 
@@ -308,6 +309,8 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     allow_rewrite : Serve images with relative url paths from the static directory.
                   eg. images/foo.png -> /static/images/foo.png
     """
+    #from bs4 import BeautifulSoup
+
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
     inline = BiostarInlineLexer(renderer=Renderer(), root=root, allow_rewrite=allow_rewrite)
@@ -315,14 +318,20 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
 
     # Bleach clean the text before handing it over to mistune.
     if clean:
+
         # strip=True strips all disallowed elements
         text = bleach.clean(text, strip=True)
 
-        # Unescape >, <, and & characters in the markdown text that have been escaped by bleach.
+        # All unsafe characters and tags have been striped above
+        # so unescape >, <, and & characters.
         text = unescape(text)
 
     # Create final html.
     html = markdown(text)
+
+    # Ensure tags are closed correctly.
+    #soup = BeautifulSoup(html, features="html.parser")
+    #html = soup.prettify()
 
     return html
 

@@ -9,6 +9,7 @@
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+<script type="text/javascript" src="{% static 'editor.js' %}"></script>
 
 <div class="ui inplace post-form basic segment fit">
 
@@ -280,20 +281,6 @@
 
     });
 
-{% comment %}    $('a').click(function (e) {
-        var form_is_visible = $('#post-form').is(':visible');
-        var content = $('#wmd-input').val();
-
-        if (form_is_visible && content) {
-            var in_form = $(this).parents('#post-form').length;
-            if (in_form) {
-                return
-            }
-            $('.ui.modal').modal('show');
-            e.preventDefault();
-        }
-    });{% endcomment %}
-
     $('#cancel-inplace').click(function () {
         $('#new-comment').remove();
         cancel_inplace();
@@ -319,4 +306,5 @@
 
     var users = "{{ users_str }}".split(',');
     autocomplete_users(users)
+
 </script>
