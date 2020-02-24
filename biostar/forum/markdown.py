@@ -5,13 +5,13 @@ import re
 
 import mistune
 import requests
+from xml.sax.saxutils import unescape
 from django.shortcuts import reverse
 from django.db.models import F
 import bleach
 from django.conf import settings
 from mistune import Renderer, InlineLexer, InlineGrammar
-from xml.sax.saxutils import unescape
-from bleach import html5lib_shim
+
 from biostar.forum import auth
 from biostar.forum.models import Post, Subscription
 from biostar.accounts.models import Profile, User
@@ -128,21 +128,6 @@ class BiostarInlineGrammer(InlineGrammar):
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
 
 
-def cleaner(text):
-    """
-    Apply bleach clean and ensure SAFE_CHARS are not escaped.
-    """
-
-    # Apply bleach clean
-    text = bleach.clean(text)
-    text = unescape(text)
-    # Un-escape special characters deemed safe.
-    #for un_escaped, escaped in SAFE_CHARS.items():
-    #    text = text.replace(escaped, un_escaped)
-
-    return text
-
-
 def rewrite_static(link):
 
     # Link is already a full path or external
@@ -155,8 +140,8 @@ def rewrite_static(link):
     return link
 
 
-class BiostarInlineLexer(MonkeyPatch):
-    grammar_class = BiostarInlineGrammer
+class BiostarInlineLexer(InlineLexer):
+    grammar_class = InlineGrammar
 
     def __init__(self, root=None, allow_rewrite=False, *args, **kwargs):
         """
@@ -309,29 +294,25 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     allow_rewrite : Serve images with relative url paths from the static directory.
                   eg. images/foo.png -> /static/images/foo.png
     """
-    #from bs4 import BeautifulSoup
 
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
-    inline = BiostarInlineLexer(renderer=Renderer(), root=root, allow_rewrite=allow_rewrite)
-    markdown = mistune.Markdown(escape=escape, hard_wrap=True, inline=inline)
+    # Initialize the lexer
+    # parse_block_html: parse text only in block level html.
+    renderer = Renderer(escape=escape, parse_block_html=False)
+    inline = BiostarInlineLexer(renderer=renderer, root=root, allow_rewrite=allow_rewrite)
+
+    # Escape is left out of the
+    markdown = mistune.Markdown(hard_wrap=True, inline=inline)
 
     # Bleach clean the text before handing it over to mistune.
     if clean:
-
+        #1/0
         # strip=True strips all disallowed elements
-        text = bleach.clean(text, strip=True)
-
-        # All unsafe characters and tags have been striped above
-        # so unescape >, <, and & characters.
-        text = unescape(text)
+        text = bleach.clean(text)
 
     # Create final html.
     html = markdown(text)
-
-    # Ensure tags are closed correctly.
-    #soup = BeautifulSoup(html, features="html.parser")
-    #html = soup.prettify()
 
     return html
 
