@@ -318,10 +318,8 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
         # strip=True strips all disallowed elements
         text = bleach.clean(text, strip=True)
 
-        # Unescape >, <, and & characters in the markdown text.
+        # Unescape >, <, and & characters in the markdown text that have been escaped by bleach.
         text = unescape(text)
-
-    # Format text
 
     # Create final html.
     html = markdown(text)

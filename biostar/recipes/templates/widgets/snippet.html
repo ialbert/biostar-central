@@ -3,16 +3,14 @@
     {{ snippet.help_text|truncatechars:'60' }}
 
      {% if type.owner == request.user %}
-     <a  class="edit-snippet" style="float:right; padding-left:15px" data-snippet="{{ snippet.command }}" data-help_text="{{ snippet.help_text }}"
-         data-type_uid="{{ snippet.type.uid }}" data-snippet_uid="{{ snippet.uid }}" data-type_name="{{ snippet.type.name }}"
+     <a  class="edit-snippet" style="float:right; padding-left:15px"
+         data-snippet="{{ snippet.command }}"
+         data-help_text="{{ snippet.help_text }}"
+         data-type_uid="{{ snippet.type.uid }}"
+         data-snippet_uid="{{ snippet.uid }}"
+         data-type_name="{{ snippet.type.name }}"
          data-content="Edit snippet"><i class="edit icon"></i></a>
     {% endif %}
-
-{% comment %}
-    {% if type.owner == request.user %}
-        <a class="delete-snippet" data-content="Delete snippet"><i class="minus icon" style="float:right; color:red; padding-left:15px"></i></a>
-{% endif %}
-{% endcomment %}
 
     <p></p>
 
