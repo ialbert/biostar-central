@@ -654,30 +654,30 @@ def recipe_run(request, uid):
     View used to execute recipes and start a 'Queued' job.
     """
 
-    analysis = Analysis.objects.filter(uid=uid).first()
-    project = analysis.project
+    recipe = Analysis.objects.filter(uid=uid).first()
+    project = recipe.project
 
     # Form submission.
     if request.method == "POST":
-        form = forms.RecipeInterface(request=request, analysis=analysis, json_data=analysis.json_data,
+        form = forms.RecipeInterface(request=request, analysis=recipe, json_data=recipe.json_data,
                                      data=request.POST, files=request.FILES)
         # The form validation will authorize the job.
         if form.is_valid():
             # Create the job from the recipe and incoming json data.
-            job = auth.create_job(analysis=analysis, user=request.user, fill_with=form.cleaned_data)
+            job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data)
 
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
 
             return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
     else:
-        initial = dict(name=f"Results for: {analysis.name}")
-        form = forms.RecipeInterface(request=request, analysis=analysis,
-                                     json_data=analysis.json_data, initial=initial)
+        initial = dict(name=f"Results for: {recipe.name}")
+        form = forms.RecipeInterface(request=request, analysis=recipe,
+                                     json_data=recipe.json_data, initial=initial)
 
-    is_runnable = auth.authorize_run(user=request.user, recipe=analysis)
+    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
 
-    context = dict(project=project, analysis=analysis, form=form, is_runnable=is_runnable, activate='Run Recipe')
+    context = dict(project=project, recipe=recipe, form=form, is_runnable=is_runnable, activate='Run Recipe')
     context.update(get_counts(project))
 
     return render(request, 'recipe_run.html', context)
@@ -777,22 +777,22 @@ def recipe_create(request, uid):
             template = form.cleaned_data['template']
             text = form.cleaned_data['text']
             rank = form.cleaned_data['rank']
+            authorized = form.cleaned_data.get('authorized')
             recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name, rank=rank,
                                           json_text=json_text, template=template,
                                           project=project, user=request.user, text=text)
             if request.user.is_superuser:
-                security = Analysis.AUTHORIZED if form.cleaned_data.get('authorized') else Analysis.NOT_AUTHORIZED
-                recipe.security = security
+                recipe.security = Analysis.AUTHORIZED if authorized else Analysis.NOT_AUTHORIZED
                 recipe.save()
 
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
-    action_url = reverse('recipe_create', kwargs=dict(uid=uid))
+    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
     context = dict(project=project, form=form, action_url=action_url,
                    activate='Create Recipe', name=name)
     counts = get_counts(project)
     context.update(counts)
-    return render(request, 'recipe_view.html', context)
+    return render(request, 'recipe_create.html', context)
 
 
 @write_access(type=Job, fallback_view="job_view")

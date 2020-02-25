@@ -2,11 +2,11 @@
 {% load engine_tags %}
 
 {% block headtitle %}
-    {{ analysis.name }}
+    {{ recipe.name }}
 {% endblock %}
 
 {% block title %}
-    Run {{ analysis.name }}
+    Run {{ recipe.name }}
 {% endblock %}
 
 {% block content %}
@@ -14,12 +14,13 @@
     <div class="recipe-form">
         <div class="ui raised segment inputcolor">
             <div class="ui center aligned header">
-
-
+                <div>
+                 <i class="settings icon"></i>Recipe:  <a href="{{ recipe.url }}">{{ recipe.name|truncatechars:100 }}</a>
+                </div>
             </div>
 
             <div class="ui vertical detail segment">
-                {% if analysis.runnable %}
+                {% if recipe.runnable %}
                     <div class="ui right ribbon green label" id="recipe-run" >
                         <i class="check icon"></i>
                         Authorized
@@ -30,7 +31,7 @@
                         Pending authorization
                     </div>
                 {% endif %}
-                <form method="POST" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' analysis.uid %}">
+                <form method="POST" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' recipe.uid %}">
 
                     <div class="ui form">
 
@@ -50,13 +51,13 @@
                                 </button>
                             {% endif %}
 
-                            <a class="ui  button" href="{% url 'recipe_view' analysis.uid %}">
+                            <a class="ui  button" href="{% url 'recipe_view' recipe.uid %}">
                                 <i class="redo icon"></i>Cancel
                             </a>
                         </div>
 
                         <div class="field">
-                            {% security_label analysis %}
+                            {% security_label recipe %}
                         </div>
                     </div>
                 </form>

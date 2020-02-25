@@ -21,11 +21,28 @@ TEST_CASES = [
     # Twitter link
     ("https://twitter.com/Linux/status/2311234267", '<p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">w00t! 10,000 followers!</p>&mdash; Linux (@Linux) <a href="https://twitter.com/Linux/status/2311234267?ref_src=twsrc%5Etfw">June 24, 2009</a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>'),
 
+    # Youtube link
+    #("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '<p><a href="http://localhost:8000/p/1/#2">Comment: Test</a></p>'),
+
+    # Gist link
+
     # <code> blocks
-    ("""```print 123http://www.psu.edu```""", """<p><code>print 123http://www.psu.edu</code></p>"""),
+    ("""```print &><123http://www.psu.edu```""", """<p><code>print &amp;&gt;&lt;123http://www.psu.edu</code></p>"""),
 
     # Mentioned user
     ("@test", '<p><a href="/recipes/accounts/profile/5/">tested2</a></p>')
+
+    # Url auto-link tests
+
+    # No linking in code block test
+
+
+
+
+    # Test unclosed tags
+
+
+    # Test tags and attributes that make the
 
 ]
 
@@ -54,6 +71,6 @@ class MarkdownTest(TestCase):
         for test in TEST_CASES:
             given, expected = test
 
-            html = markdown.parse(given)
+            html = markdown.parse(given, clean=True, escape=False)
             html = html.replace("\n", "")
             self.assertEqual(html, expected, f"Error with markdown parsing. input={given}, expexted={expected}, html={html}")

@@ -42,20 +42,12 @@ def mask_path(val='', obj={}):
     return val
 
 
-@register.inclusion_tag("forms/recipe_form_feilds.html", takes_context=True)
-def recipe_info_form(context):
-    return context
-
-
-@register.inclusion_tag("forms/run_form_feilds.html", takes_context=True)
-def recipe_run_form(context):
-
-    return context
-
 @register.inclusion_tag("banners/recipe_sidebanner.html", takes_context=True)
-def recipe_sidebar(context, enable_save=False):
-    context.update(dict(enable_save=enable_save))
-    return context
+def recipe_sidebar(context, recipe=None, project=None):
+    user = context['request'].user
+    project = recipe.project if recipe else project
+    return dict(recipe=recipe, project=project, user=user)
+
 
 @register.filter
 def time_ago(date):
@@ -401,8 +393,10 @@ def interface_options():
 
 
 @register.inclusion_tag('widgets/recipe_details.html', takes_context=True)
-def recipe_details(context, recipe=None):
-    return context
+def recipe_details(context, recipe):
+    user = context['request'].user
+
+    return dict(user=user, recipe=recipe, project=recipe.project)
 
 
 @register.simple_tag
@@ -418,30 +412,28 @@ def image_field(default=''):
     return mark_safe(image_widget)
 
 
-@register.inclusion_tag('widgets/snippet_list.html', takes_context=True)
-def snippet_list(context):
-    user = context['request'].user
+@register.inclusion_tag('widgets/snippet_list.html')
+def snippet_list(user):
+
     if user.is_anonymous:
         command_types = SnippetType.objects.filter(default=True).order_by('-pk')
     else:
         command_types = SnippetType.objects.filter(Q(owner=user) | Q(default=True)).order_by('-pk')
 
-    extra_context = dict(command_types=command_types)
-    context.update(extra_context)
+    context = dict(command_types=command_types, user=user)
     return context
 
 
-@register.inclusion_tag('widgets/snippet.html', takes_context=True)
-def snippet_item(context, snippet):
-    extra_context = dict(snippet=snippet)
-    context.update(extra_context)
+@register.inclusion_tag('widgets/snippet.html')
+def snippet_item(user, snippet):
+    context = dict(snippet=snippet, user=user)
     return context
 
 
-@register.inclusion_tag('widgets/snippet_type.html', takes_context=True)
-def snippet_type(context, snip_type):
-    extra_context = dict(type=snip_type)
-    context.update(extra_context)
+@register.inclusion_tag('widgets/snippet_type.html')
+def snippet_type(user, snip_type):
+
+    context = dict(type=snip_type, user=user)
     return context
 
 
