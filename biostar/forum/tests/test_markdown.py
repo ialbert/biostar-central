@@ -32,6 +32,11 @@ TEST_CASES = [
     # Mentioned user
     ("@test", '<p><a href="/recipes/accounts/profile/5/">tested2</a></p>')
 
+    # Url auto-link tests
+
+    # No linking in code block test
+
+
 
 
     # Test unclosed tags

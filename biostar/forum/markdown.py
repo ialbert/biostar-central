@@ -150,7 +150,9 @@ class BiostarRenderer(Renderer):
         return '<code>%s</code>' % text
 
     def block_code(self, code, lang=None):
-        """Rendering block level code. ``pre > code``.
+        """
+        This is overrides to turn smart_amp=True
+        Rendering block level code. ``pre > code``.
 
         :param code: text content of the code block.
         :param lang: language of the given code.
@@ -336,6 +338,7 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     root = post.parent.root if (post and post.parent) else None
     # Initialize the lexer
     renderer = BiostarRenderer(escape=escape)
+    #renderer = Renderer(escape=escape)
     inline = BiostarInlineLexer(renderer=renderer, root=root, allow_rewrite=allow_rewrite)
 
     markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
