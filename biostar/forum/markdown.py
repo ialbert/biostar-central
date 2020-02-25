@@ -11,6 +11,7 @@ from django.db.models import F
 import bleach
 from django.conf import settings
 from mistune import Renderer, InlineLexer, InlineGrammar
+from mistune import escape as escape_text
 
 from biostar.forum import auth
 from biostar.forum.models import Post, Subscription
@@ -64,8 +65,18 @@ POST_ANCHOR = rec(fr"^http(s)?://{SITE_URL}/p/\w+/\#(?P<uid>(\w+))(/)?")
 MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.'-]+))")
 
 ALLOWED_ATTRIBUTES = {
-    'a': ['href', 'title', 'name'],
+    '*': ['class', 'style'],
+    'a': ['href', 'rel'],
+    'img': ['src', 'alt', 'width', 'height'],
+    'table': ['border', 'cellpadding', 'cellspacing'],
 }
+
+ALLOWED_TAGS = ['p', 'div', 'br', 'code', 'pre', 'h1', 'h2' 'h3' 'h4', 'hr', 'span', 's',
+                'sub', 'sup', 'b', 'i', 'img', 'strong', 'strike', 'em', 'underline',
+                'super', 'table', 'thead', 'tr', 'th', 'td', 'tbody']
+
+ALLOWED_TAGS = bleach.ALLOWED_TAGS + ALLOWED_TAGS
+ALLOWED_STYLES = ['color', 'font-weight', 'background-color', 'width height']
 
 # Youtube patterns
 # https://www.youtube.com/watch?v=G7RDn8Xtf_Y
@@ -73,7 +84,6 @@ YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(
 YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN3 = rec(r"https://youtu.be/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_HTML = '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>'
-
 
 # Ftp link pattern.
 FTP_PATTERN = rec(r"^ftp://[\w\.]+(/?)$")
@@ -112,6 +122,7 @@ class MonkeyPatch(InlineLexer):
     between different instances of the parser.
     This subclass moves the default_rules to instance attributes.
     """
+
     def __init__(self, *args, **kwds):
         super(MonkeyPatch, self).__init__(*args, **kwds)
         self.default_rules = list(InlineLexer.default_rules)
@@ -128,8 +139,34 @@ class BiostarInlineGrammer(InlineGrammar):
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
 
 
-def rewrite_static(link):
+class BiostarRenderer(Renderer):
 
+    def codespan(self, text):
+        """Rendering inline `code` text.
+
+        :param text: text content for inline code.
+        """
+        text = escape_text(text.rstrip(), smart_amp=True)
+        return '<code>%s</code>' % text
+
+    def block_code(self, code, lang=None):
+        """Rendering block level code. ``pre > code``.
+
+        :param code: text content of the code block.
+        :param lang: language of the given code.
+
+        Turn smart_amp=True here to prevent &gt; changing to &amp;gt; after bleach clean.
+
+        """
+        code = code.rstrip('\n')
+        if not lang:
+            code = escape_text(code, smart_amp=True)
+            return '<pre><code>%s\n</code></pre>\n' % code
+        code = escape_text(code, quote=True, smart_amp=True)
+        return '<pre><code class="lang-%s">%s\n</code></pre>\n' % (lang, code)
+
+
+def rewrite_static(link):
     # Link is already a full path or external
     if link.startswith("/") or link.startswith("http"):
         return link
@@ -140,8 +177,8 @@ def rewrite_static(link):
     return link
 
 
-class BiostarInlineLexer(InlineLexer):
-    grammar_class = InlineGrammar
+class BiostarInlineLexer(MonkeyPatch):
+    grammar_class = BiostarInlineGrammer
 
     def __init__(self, root=None, allow_rewrite=False, *args, **kwargs):
         """
@@ -298,19 +335,17 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
     # Initialize the lexer
-    # parse_block_html: parse text only in block level html.
-    renderer = Renderer(escape=escape, parse_block_html=False)
+    renderer = BiostarRenderer(escape=escape)
     inline = BiostarInlineLexer(renderer=renderer, root=root, allow_rewrite=allow_rewrite)
 
-    # Escape is left out of the
-    markdown = mistune.Markdown(hard_wrap=True, inline=inline)
+    markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
 
     # Bleach clean the text before handing it over to mistune.
     if clean:
-        #1/0
-        # strip=True strips all disallowed elements
-        text = bleach.clean(text)
 
+        # strip=True strips all disallowed elements
+        text = bleach.clean(text, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES,
+                            attributes=ALLOWED_ATTRIBUTES)
     # Create final html.
     html = markdown(text)
 
@@ -323,6 +358,5 @@ def test():
 
 
 if __name__ == '__main__':
-
     html = test()
     print(html)

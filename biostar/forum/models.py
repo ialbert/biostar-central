@@ -197,7 +197,7 @@ class Post(models.Model):
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
-        self.html = markdown.parse(self.content, post=self, clean=False, escape=False)
+        self.html = markdown.parse(self.content, post=self, clean=True, escape=False)
         self.tag_val = self.tag_val.replace(' ', '')
         # Default tags
         self.tag_val = self.tag_val or "tag1,tag2"

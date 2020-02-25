@@ -66,6 +66,6 @@ class MarkdownTest(TestCase):
         for test in TEST_CASES:
             given, expected = test
 
-            html = markdown.parse(given, clean=True, escape=True)
+            html = markdown.parse(given, clean=True, escape=False)
             html = html.replace("\n", "")
             self.assertEqual(html, expected, f"Error with markdown parsing. input={given}, expexted={expected}, html={html}")
