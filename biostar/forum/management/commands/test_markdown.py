@@ -87,7 +87,7 @@ class Command(BaseCommand):
         # print('MISTUNE', '-'*50)
 
         # escape = False to allow html in the markdown.
-        html = markdown.parse(test4, escape=False, clean=True, allow_rewrite=False)
+        html = markdown.parse(test5, escape=False, clean=True, allow_rewrite=False)
         #html = bleach.clean(html, tags=['p', 'b'])
         print()
         print(html)

@@ -69,7 +69,17 @@ code {
     display: none;
 }
 
+.recipe.menu .item.script, .recipe.menu .item.interface{
+    display: inline-block
+}
 
+.recipe.menu .script-options{
+    margin-left: 33px
+}
+
+.recipe.menu .interface-options{
+    margin-left: 9px
+}
 
 #code code, #template_preview_cont code {
     font-size: 1em !important;
