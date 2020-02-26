@@ -336,6 +336,13 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
 
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
+
+    # Bleach clean the text before handing it over to mistune.
+    if clean:
+        # strip=True strips all disallowed elements
+        text = bleach.clean(text, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES,
+                            attributes=ALLOWED_ATTRIBUTES)
+
     # Initialize the renderer
     # parse_block_html=True ensures unbalanced tags are dealt with without being escaped.
     renderer = BiostarRenderer(escape=escape, parse_block_html=True)
@@ -344,12 +351,6 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     inline = BiostarInlineLexer(renderer=renderer, root=root, allow_rewrite=allow_rewrite)
 
     markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
-
-    # Bleach clean the text before handing it over to mistune.
-    if clean:
-        # strip=True strips all disallowed elements
-        text = bleach.clean(text, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES,
-                            attributes=ALLOWED_ATTRIBUTES)
 
     # Create final html.
     html = markdown(text)

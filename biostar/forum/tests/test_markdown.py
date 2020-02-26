@@ -56,7 +56,6 @@ TEST_CASES = [
     # Character rendering test.
     ("@test", '<p><a href="/recipes/accounts/profile/5/">tested2</a></p>'),
 
-
     # Test unclosed tags
     ("<b> foo", '<p><b> foo</b></p>'),
 

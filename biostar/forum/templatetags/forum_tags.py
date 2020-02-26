@@ -474,7 +474,7 @@ def default_feed(user):
     recent_awards = recent_awards.order_by("-pk")[:settings.AWARDS_FEED_COUNT]
 
     # Get valid posts
-    recent_replies = Post.objects.valid_posts().select_related("author__profile", "author")
+    recent_replies = Post.objects.valid_posts().filter(is_toplevel=False).select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=[],
