@@ -22,21 +22,6 @@
 
 {% block content %}
 
-    {% if recipe.is_cloned %}
-
-        <div class="ui vertical cloned segment" style="padding-top: 5px">
-            <span class="muted">
-                <i class="linkify icon"></i>
-                This recipe is a clone.
-                It remains synchronized with the <a href="{{ recipe.root.url }}">parent recipe</a>
-                written by <a href="{{ recipe.root.owner.profile.get_absolute_url }}">
-                {{ recipe.root.owner.profile.name|truncatechars:30 }}</a>.
-            </span>
-        </div>
-
-    {% endif %}
-
-
     <form method="post" class="ui form edit-recipe" action="{{ action_url }}" enctype='multipart/form-data'>
 
         {% csrf_token %}
@@ -44,21 +29,19 @@
         <div class="ui grid">
 
             <div class="three wide column">
-                {% recipe_sidebar recipe=recipe %}
+                {% recipe_sidebar project=project %}
             </div>
 
             <div class="thirteen wide column">
                 {% form_errors form %}
-                {#  Recipe info. #}
-                <div class="ui divided link items">
-                    {% recipe_details recipe %}
-                </div>
 
                 {# Edit recipe meta data. #}
                 <div class="ui basic segment" id="metadata">
 
+                    {% form_errors form %}
+                    {% csrf_token %}
                     <div class="inline fields ">
-                        <div class="inline field" >
+                        <div class="inline field">
                             <span><b>Name</b> : </span>
                             {{ form.name }}
                             <div class="muted">What do you want to call the recipe</div>
@@ -89,7 +72,7 @@
                             <div class="ui checkbox">
                                 {{ form.authorized }} <label>Authorized Recipe</label>
                             </div>
-                            <p class="muted"> This recipe is safe to run by trusted users.</p>
+                            <p class="muted">Check if this recipe is safe to run by trusted users.</p>
                         </div>
                     {% endif %}
 
@@ -97,12 +80,6 @@
                         {{ form.text }}
                         <div class="muted">A detailed explanation of what the recipe does (markdown OK).</div>
                     </div>
-
-                </div>
-
-                {#  Description #}
-                <div class="ui basic segment" id="description">
-                    {{ recipe.html | safe }}
                 </div>
 
                 {#  Script #}

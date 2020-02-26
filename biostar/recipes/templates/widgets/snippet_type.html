@@ -1,11 +1,13 @@
 {% load engine_tags %}
 {% load static %}
 <div class="item">
-    {% if type.image %}
+
+{% if type.image %}
     <img class="ui mini image" style="height: 17px; width:17px;" src="/media/{{ type.image.name }}">
 {% else %}
         <img class="ui mini image" style="height: 17px; width:17px;" src="{% static 'images/placeholder.png' %}">
 {% endif %}
+
     <a>
         {{ type.name|capfirst|truncatechars:'10' }}
     </a>
@@ -20,7 +22,7 @@
                     Add snippet.
                 </span>
 
-                {% if type.owner == request.user %}
+                {% if type.owner == user %}
                 <a class="delete-snippet" data-content="Delete all snippets" >
                     <i class="minus icon"></i>
                 </a>
@@ -32,9 +34,10 @@
 
         <div class="holder-{{ type.uid }}"></div>
 
-        {% get_snippets user=request.user snip_type=type as snippets%}
+
+        {% get_snippets user=user snip_type=type as snippets%}
         {% for snippet in snippets %}
-            {% snippet_item snippet %}
+            {% snippet_item user snippet %}
         {% endfor %}
 
     </div>

@@ -215,7 +215,8 @@ function inplace_post_edit(elem) {
 
 function highlight(text, preview) {
     var con = markdownit({
-        html: true,
+        // ESCAPES when html=true
+        html: false,
         highlight: function (str, lang) {
             if (lang && hljs.getLanguage(lang)) {
                 try {
@@ -225,13 +226,11 @@ function highlight(text, preview) {
                 } catch (__) {
                 }
             }
-
             return '<pre class="hljs"><code>' + con.utils.escapeHtml(str) + '</code></pre>';
         }
     });
 
     var res = con.render(text);
-    //var preview = $('#preview');
     preview.html(res);
     preview.find('pre').addClass('language-bash');
     preview.find('code').addClass('language-bash');
@@ -514,6 +513,7 @@ function change_subs(elem, value, $item) {
 }
 
 $(document).ready(function () {
+
 
     $('.mark-spam.item').click(function (event) {
         var post_id = $(this).closest('.post').attr('id');
@@ -821,5 +821,9 @@ $(document).ready(function () {
         }
 
     });
+
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
 })
 ;

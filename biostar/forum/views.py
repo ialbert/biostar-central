@@ -91,8 +91,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
-
-    query = Post.objects.filter(is_toplevel=True)
+    query = Post.objects.valid_posts(user=user).filter(is_toplevel=True)
 
     # Determines how to start the preform_search.
     if post_type:
@@ -127,11 +126,6 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     if days:
         delta = util.now() - timedelta(days=days)
         query = query.filter(lastedit_date__gt=delta)
-
-    # Filter deleted items for anonymous and non-moderators.
-    if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-        query = query.exclude(status=Post.DELETED).exclude(root__status=Post.DELETED)
-        query = query.exclude(spam=Post.SPAM).exclude(root__spam=Post.SPAM)
 
     # Select related information used during rendering.
     query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile")
@@ -183,32 +177,6 @@ class CachedPaginator(Paginator):
         value = cache.get(self.count_key)
 
         return value
-
-
-def Xpages(request, fname):
-
-    # Add markdown file extension to markdown
-    infile = f"{fname}.md"
-    # Look for this file in static root.
-    doc = os.path.join(settings.STATIC_ROOT, "forum", infile)
-
-    if not os.path.exists(doc):
-        messages.error(request, "File does not exist.")
-        return redirect("post_list")
-
-    # Convert markdown to html and write it to file
-    fstream = open(doc, "r").read()
-    html = markdown.parse(text=fstream, clean=False, escape=False)
-
-    # Write html to file.
-    outfname = f"{fname}.html"
-    outfile = os.path.join(settings.STATIC_ROOT, "forum", outfname)
-    open(outfile, "w").write(html)
-
-    # Redirect to static url with the most recently created doc
-    url = f"{settings.STATIC_URL}forum/{outfname}"
-
-    return redirect(url)
 
 
 def pages(request, fname):
@@ -380,7 +348,7 @@ def community_list(request):
         users = users.filter(db_query)
 
     order = ORDER_MAPPER.get(ordering, "visit")
-    users = users.exclude(profile__state__in=[Profile.SUSPENDED, Profile.BANNED])
+    users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
     users = users.order_by(order)
 
     paginator = CachedPaginator("USERS", users, settings.USERS_PER_PAGE)
@@ -404,7 +372,8 @@ def badge_view(request, uid):
         messages.error(request, f"Badge with id={uid} does not exist.")
         return redirect(reverse("badge_list"))
 
-    awards = badge.award_set.order_by("-pk")[:100]
+    awards = badge.award_set.valid_awards().order_by("-pk")[:100]
+
     awards = awards.prefetch_related("user", "user__profile", "post", "post__root")
     context = dict(awards=awards, badge=badge)
 

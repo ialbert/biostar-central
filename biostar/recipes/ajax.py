@@ -215,7 +215,7 @@ def create_snippet_type(request):
         cmd_type.save()
 
     tmpl = loader.get_template('widgets/snippet_type.html')
-    context = dict(type=cmd_type, request=request)
+    context = dict(type=cmd_type, request=request, user=request.user)
     new_type = tmpl.render(context=context)
 
     return ajax_success(msg="Created snippet", html=new_type)
@@ -286,10 +286,8 @@ def create_snippet(request):
 def preview_template(request):
     source_template = request.POST.get('template', '# Code goes here')
     source_json = request.POST.get('json_text', '{}')
-    name = request.POST.get('name', 'Name')
     project_uid = request.POST.get('project_uid')
     project = Project.objects.filter(uid=project_uid).first()
-
     try:
         source_json = toml.loads(source_json)
         # Fill json information by name for the preview.
@@ -302,11 +300,7 @@ def preview_template(request):
         return ajax_error(f"Error rendering code: {exc}")
 
     # Load the html containing the script
-    tmpl = loader.get_template('widgets/preview_template.html')
-    context = dict(script=script, name=name)
-    template = tmpl.render(context=context)
-
-    return ajax_success(html=template, msg="Rendered script")
+    return ajax_success(script=script, msg="Rendered script")
 
 
 @ajax_error_wrapper(method="POST", login_required=False)
@@ -364,7 +358,7 @@ def get_display_dict(display_type):
     if display == FLOAT:
         return dict(label='Float Field Label',
                     help='Enter a float, decimal number, between 0 and 100.0.',
-                    display=FLOAT, range=[0, 100.0],
+                    display=FLOAT, range=[0, 100],
                     value=0.5)
     if display == CHECKBOX:
         return dict(label='Checkbox Field Label',
@@ -374,7 +368,7 @@ def get_display_dict(display_type):
         return dict(label='Dropdown Field Label',
                     display=DROPDOWN,
                     help="Pick an option from a dropdown.",
-                    choices=[('1', 'Choices 0001'), ('2', 'Choices 2')],
+                    choices=[('1', 'Choices'), ('2', 'Choices 2')],
                     value='1')
     if display == UPLOAD:
         return dict(label='Upload a file',
@@ -392,8 +386,11 @@ def add_to_interface(request):
     json_text = request.POST.get('json_text', '')
 
     display_dict = get_display_dict(display_type=display_type)
+    try:
+        json_data = toml.loads(json_text)
+    except Exception as exc:
+        return ajax_error(msg=f"{exc}")
 
-    json_data = toml.loads(json_text)
     prefix = "Parameter"
     field_name = prefix
     count = 0

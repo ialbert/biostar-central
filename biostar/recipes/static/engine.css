@@ -65,11 +65,21 @@ code {
     //vertical-align: middle;
 }
 
-.edit-side .interface, .edit-side .script {
-    display: inline-block;;
+.edit-recipe #interface, .edit-recipe #description, .edit-recipe #metadata {
+    display: none;
 }
 
+.recipe.menu .item.script, .recipe.menu .item.interface{
+    display: inline-block
+}
 
+.recipe.menu .script-options{
+    margin-left: 33px
+}
+
+.recipe.menu .interface-options{
+    margin-left: 9px
+}
 
 #code code, #template_preview_cont code {
     font-size: 1em !important;
@@ -101,8 +111,12 @@ code {
     border: none;
     height: auto;
     //max-width: 927px;
-    width: 107.6%;
+    //width: 107.6%;
 
+}
+
+.small-font{
+    font-size: x-small !important;
 }
 
 #detail-col > .ui.form .inline.field > input, .ui.form .inline.field > select, .ui.form .inline.fields .field > input {

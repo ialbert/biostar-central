@@ -10,11 +10,10 @@
     </a>
 
     <div class="ui snippet divider" ></div>
-
     <div id="new-type-holder"></div>
 
     {% for type in command_types %}
-        {% snippet_type type %}
+        {% snippet_type user type %}
     {% endfor %}
 
   <div class="ui snippet divider"></div>

@@ -12,7 +12,7 @@ urlpatterns = [
     url(r'^', include(forum_urls)),
 
     # Include messages urls
-    url(r'^engine/', include(engine_urls)),
+    url(r'^recipes/', include(engine_urls)),
 
     # Include the accounts urls
     # Already included with above urls.

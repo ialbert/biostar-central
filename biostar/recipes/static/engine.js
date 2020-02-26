@@ -201,10 +201,9 @@ function check_job() {
 }
 
 
-function preview_template(uid, project_uid) {
+function preview_template(project_uid) {
     let template = $('#template').val();
     let json_text = $('#json').val();
-    let name = $('#id_name').val();
     $.ajax('/preview/template/',
         {
             type: 'POST',
@@ -213,20 +212,23 @@ function preview_template(uid, project_uid) {
             data: {
                 'template': template,
                 'json_text': json_text,
-                'name': name,
-                'uid': uid,
                 'project_uid': project_uid
             },
             success: function (data) {
 
                 if (data.status === 'success') {
-                    $('#template_preview_cont').html(data.html);
-                    $('#template_modal').modal('show');
+                    $('#preview_cont').html('<h4 class="ui center aligned header">\n' +
+                        '\n' +
+                        '    <div class="muted">Press ESC to close window</div>\n' +
+                        '</h4>\n' +
+                        '\n' +
+                        '<pre><code class=" language-bash line-numbers ">' + data.script +'</code></pre>\n');
+                    $('#preview_modal').modal('show');
                     Prism.highlightAll();
-                    return
+                }else{
+                    popup_message($("#template"), data.msg, data.status);
                 }
 
-                popup_message($("#template"), data.msg, data.status);
             },
             error: function (xhr, status, text) {
                 error_message($(this), xhr, status, text)
@@ -276,9 +278,13 @@ function add_to_interface(display_type) {
         },
 
         success: function (data) {
-            $('#json').val(data.json_text);
-            $('#json_field').html(data.html);
-
+            if (data.status === 'success') {
+                $('#json').val(data.json_text);
+                $('#json_field').html(data.html);
+            }else{
+                //($('#json_field'), xhr, status, text)
+                popup_message($('#json_field'), data.msg, data.status)
+            }
 
             //$('#search-results').html(data);
         },
@@ -335,8 +341,7 @@ function json_preview(project_uid) {
                     popup_message($("#json_field"), data.msg, data.status, 5000);
                     return
                 }
-
-                $('#json_preview_cont').html('<form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
+                $('#preview_cont').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
                     '                        <button type="submit" class="ui green disabled button">\n' +
                     '                            <i class="check icon"></i>Run\n' +
                     '                        </button>\n' +
@@ -344,13 +349,12 @@ function json_preview(project_uid) {
                     '                        <a class="ui disabled button">\n' +
                     '                            <i class="redo icon"></i>Cancel\n' +
                     '                        </a>\n' +
-                    '                    </div></form>'.format(data.html));
+                    '                    </div></form></div>'.format(data.html));
 
                 //$('#json_preview_cont').children('.ui.dropdown').css("color", 'red !important');
-                //$('#json_modal').show();
                 //$('#id_dropdown').dropdown({ showOnFocus:false });
                 //$('#id_dropdown').hide()
-                $('#json_modal').modal({autofocus: false}).modal('show')
+                $('#preview_modal').modal({autofocus: false}).modal('show')
 
                 //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
             },
@@ -590,12 +594,7 @@ function inplace_edit(uid) {
 }
 
 $(document).ready(function () {
-    // $('.dim')
-    //   .dimmer({
-    //     on: 'hover'
-    //   })
-    // ;
-    $().progress('.indicating.progress');
+
     $('.access-dropdown').dropdown({
         onChange: function (value, text, $selectedItem) {
             let user = $(this).data('user');
@@ -605,60 +604,28 @@ $(document).ready(function () {
     });
 
 
-    $(this).on('click', ".edit-side .open-run", function () {
-        //alert("FPP");
-
-        $(".recipe-edit").hide();
-        $(".runform").show();
+    $(this).on('click', ".recipe.menu .metadata", function () {
+        show_metadata();
     });
 
-
-    $(this).on('click', ".edit-side .open-desc", function () {
-        //alert("FPP");
-
-      $(".recipe-edit").show();
-        $(".runform").hide();
-        $(this).addClass("active");
-        $("#desc-col").show();
-        $(".edit-side .script").parent().removeClass("active");
-        $(".edit-side  .interface").parent().removeClass("active");
-        $(".edit-side  .recipe").parent().removeClass("active");
-        $("#script-col").hide();
-        $("#interface-col").hide();
-        $("#detail-col").hide();
-    });
-
-
-    $(this).on('click', ".edit-side .recipe", function (event) {
-        event.preventDefault();
-        $(".recipe-edit").show();
-        $(".runform").hide();
-        $("#desc-col").hide();
-        $(this).parent().addClass("active");
-        $("#detail-col").show();
-
-        $(".edit-side .script").parent().removeClass("active");
-        $(".edit-side  .interface").parent().removeClass("active");
-        $(".edit-side  .open-desc").removeClass("active");
-        $("#script-col").hide();
-        $("#interface-col").hide();
+    $(this).on('click', ".recipe.menu .description", function () {
+        show_description();
 
     });
 
 
-    //$('.ui.selection.dropdown').dropdown();
+    $('.ui.dropdown').dropdown();
 
     $('select').dropdown();
 
-    $('#json_add').dropdown();
+    //$('#json_add').dropdown();
 
-    $('#code_add').dropdown();
+    //$('#code_add').dropdown();
 
 
     $(this).on('click', '#json_preview', function () {
         event.preventDefault();
         let project_uid = $(this).data('value');
-
         json_preview(project_uid);
         $('.ui.dropdown').dropdown();
         $('select').dropdown();
@@ -668,7 +635,7 @@ $(document).ready(function () {
     remove_trigger();
 
     // Check and update 'Running' and 'Spooled' jobs every 5 seconds.
-    setInterval(check_job, 5000)
+    setInterval(check_job, 5000);
 
     $(".copy-data").click(function (event) {
 
@@ -732,18 +699,6 @@ $(document).ready(function () {
         on: 'hover'
     });
 
-    $('.close_opts').click(function () {
-        $('#json_add').dropdown({onShow: false});
-    });
-
-    $('.close_codes').click(function () {
-        $('#code_add').dropdown({
-            onShow: function () {
-                return false
-            }
-        })
-    });
-
     $(this).on('click', '#add_vars', function () {
         add_vars()
     });
@@ -772,9 +727,9 @@ $(document).ready(function () {
 
     $(this).on('click', '#template_preview', function () {
         event.preventDefault();
-        let uid = $(this).data('value');
-        let project_uid = $(this).data('project_uid');
-        preview_template(uid, project_uid)
+        //let uid = $(this).data('value');
+        let project_uid = $(this).data('value');
+        preview_template(project_uid)
 
     });
 

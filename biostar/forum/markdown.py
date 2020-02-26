@@ -5,11 +5,13 @@ import re
 
 import mistune
 import requests
+from xml.sax.saxutils import unescape
 from django.shortcuts import reverse
 from django.db.models import F
 import bleach
 from django.conf import settings
 from mistune import Renderer, InlineLexer, InlineGrammar
+from mistune import escape as escape_text
 
 from biostar.forum import auth
 from biostar.forum.models import Post, Subscription
@@ -50,40 +52,49 @@ http://test.biostars.org/p/p371285/
 
 # Shortcut to re.compile
 rec = re.compile
-SITE_URL = f"{settings.SITE_DOMAIN}{settings.HTTP_PORT}"
-
 
 # Biostar patterns
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
+SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
+USER_PATTERN = rec(fr"^http(s)?://{SITE_URL}/accounts/profile/(?P<uid>[\w_.-]+)(/)?")
+POST_TOPLEVEL = rec(fr"^http(s)?://{SITE_URL}/p/(?P<uid>(\w+))(/)?$")
+POST_ANCHOR = rec(fr"^http(s)?://{SITE_URL}/p/\w+/\#(?P<uid>(\w+))(/)?")
 
-# Mistune returns h3 and p tags for markdown
-USER_PATTERN = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/accounts/profile/(?P<uid>[\w_.-]+)(/)?")
-POST_TOPLEVEL = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/(?P<uid>(\w+))(/)?$")
-POST_ANCHOR = rec(fr"^http(s)?://{settings.SITE_DOMAIN}{PORT}/p/\w+/\#(?P<uid>(\w+))(/)?")
 # Match any alphanumeric characters after the @.
 # These characters are allowed in handles: _  .  -
 MENTINONED_USERS = rec(r"(\@(?P<handle>[\w_.'-]+))")
 
 ALLOWED_ATTRIBUTES = {
-    'a': ['href', 'title', 'name'],
+    '*': ['class', 'style'],
+    'a': ['href', 'rel'],
+    'img': ['src', 'alt', 'width', 'height'],
+    'table': ['border', 'cellpadding', 'cellspacing'],
 }
 
-# Youtube pattern.
+ALLOWED_TAGS = ['p', 'div', 'br', 'code', 'pre', 'h1', 'h2' 'h3' 'h4', 'hr', 'span', 's',
+                'sub', 'sup', 'b', 'i', 'img', 'strong', 'strike', 'em', 'underline',
+                'super', 'table', 'thead', 'tr', 'th', 'td', 'tbody']
+
+ALLOWED_TAGS = bleach.ALLOWED_TAGS + ALLOWED_TAGS
+ALLOWED_STYLES = ['color', 'font-weight', 'background-color', 'width height']
+
+# Youtube patterns
+# https://www.youtube.com/watch?v=G7RDn8Xtf_Y
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_PATTERN3 = rec(r"https://youtu.be/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_HTML = '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>'
 
-#https://gist.github.com/afrendeiro/6732a46b949e864d6803
-
 # Ftp link pattern.
 FTP_PATTERN = rec(r"^ftp://[\w\.]+(/?)$")
 
 # Gist pattern.
+# https://gist.github.com/afrendeiro/6732a46b949e864d6803
 GIST_PATTERN = rec(r"^https://gist.github.com/(?P<uid>([\w/]+))")
 GIST_HTML = '<script src="https://gist.github.com/%s.js"></script>'
 
 # Twitter pattern.
+# https://twitter.com/Linux/status/2311234267
 TWITTER_PATTERN = rec(r"http(s)?://(www)?.?twitter.com/\w+/status(es)?/(?P<uid>([\d]+))")
 
 
@@ -111,6 +122,7 @@ class MonkeyPatch(InlineLexer):
     between different instances of the parser.
     This subclass moves the default_rules to instance attributes.
     """
+
     def __init__(self, *args, **kwds):
         super(MonkeyPatch, self).__init__(*args, **kwds)
         self.default_rules = list(InlineLexer.default_rules)
@@ -127,30 +139,56 @@ class BiostarInlineGrammer(InlineGrammar):
     text = re.compile(r'^[\s\S]+?(?=[\\<!\[*`~@]|https?://| {2,}\n|$)')
 
 
-def absoulute_image_link(link, root="/static/"):
+class BiostarRenderer(Renderer):
 
-    # Link is already a full path or an external link
+    def codespan(self, text):
+        """Rendering inline `code` text.
+
+        :param text: text content for inline code.
+        """
+        text = escape_text(text.rstrip(), smart_amp=True)
+        return '<code>%s</code>' % text
+
+    def block_code(self, code, lang=None):
+        """
+        This is overrides to turn smart_amp=True
+        Rendering block level code. ``pre > code``.
+
+        :param code: text content of the code block.
+        :param lang: language of the given code.
+
+        Turn smart_amp=True here to prevent &gt; changing to &amp;gt; after bleach clean.
+
+        """
+        code = code.rstrip('\n')
+        if not lang:
+            code = escape_text(code, smart_amp=True)
+            return '<pre><code>%s\n</code></pre>\n' % code
+        code = escape_text(code, quote=True, smart_amp=True)
+        return '<pre><code class="lang-%s">%s\n</code></pre>\n' % (lang, code)
+
+
+def rewrite_static(link):
+    # Link is already a full path or external
     if link.startswith("/") or link.startswith("http"):
         return link
 
-    # Make the link absoulute to a static url
+    # Make the link absolute to the static url
     link = "/static/" + link
 
     return link
 
 
-
 class BiostarInlineLexer(MonkeyPatch):
     grammar_class = BiostarInlineGrammer
 
-    def __init__(self, root=None, serve_imgs=False, *args, **kwargs):
+    def __init__(self, root=None, allow_rewrite=False, *args, **kwargs):
         """
-
         :param root: Root post that is being pared
         :param static_imgs:
         """
         self.root = root
-        self.serve_imgs = serve_imgs
+        self.allow_rewrite = allow_rewrite
 
         super(BiostarInlineLexer, self).__init__(*args, **kwargs)
         self.enable_all()
@@ -179,9 +217,9 @@ class BiostarInlineLexer(MonkeyPatch):
         line = m.group(0)
         text = m.group(1)
         if line[0] == '!':
-            if self.serve_imgs:
+            if self.allow_rewrite:
                 # Ensure the link is a full url path found in to static directory.
-                link = absoulute_image_link(link)
+                link = rewrite_static(link)
 
             return self.renderer.image(link, title, text)
 
@@ -233,7 +271,6 @@ class BiostarInlineLexer(MonkeyPatch):
         link = m.group(0)
         profile = Profile.objects.filter(uid=uid).first()
         name = profile.name if profile else f"Invalid user uid: {uid}"
-
         return f'<a href="{link}">USER: {name}</a>'
 
     def enable_youtube_link1(self):
@@ -285,23 +322,37 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def parse(text, post=None, clean=True, escape=True, static_imgs=False):
+def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     """
     Parses markdown into html.
     Expands certain patterns into HTML.
 
-    clean : further sanitizes html produced by mistune
+    clean : Applies bleach clean BEFORE mistune escapes unsafe characters.
+            Also removes unbalanced tags at this stage.
     escape  : Escape html originally found in the markdown text.
-    static_imgs : Use static direcroty to serve images that have relative url paths
-                  eg. images/foo.png --> /static/images/foo.png
+    allow_rewrite : Serve images with relative url paths from the static directory.
+                  eg. images/foo.png -> /static/images/foo.png
     """
+
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
-    inline = BiostarInlineLexer(renderer=Renderer(), root=root, serve_imgs=True)
 
-    markdown = mistune.Markdown(escape=escape, hard_wrap=True, parse_block_html=True, inline=inline)
+    # Bleach clean the text before handing it over to mistune.
     if clean:
-        text = bleach.clean(text)
+        # strip=True strips all disallowed elements
+        text = bleach.clean(text, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES,
+                            attributes=ALLOWED_ATTRIBUTES)
+
+    # Initialize the renderer
+    # parse_block_html=True ensures unbalanced tags are dealt with without being escaped.
+    renderer = BiostarRenderer(escape=escape, parse_block_html=True)
+
+    # Initialize the lexer 
+    inline = BiostarInlineLexer(renderer=renderer, root=root, allow_rewrite=allow_rewrite)
+
+    markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
+
+    # Create final html.
     html = markdown(text)
 
     return html
@@ -313,6 +364,5 @@ def test():
 
 
 if __name__ == '__main__':
-
     html = test()
     print(html)

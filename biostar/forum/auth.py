@@ -321,7 +321,7 @@ def handle_spam_post(post, user):
     post.author.profile.save()
 
     # Label all posts by this users as spam.
-    Post.objects.filter(author=post.author).update(spam=Post.SPAM)
+    Post.objects.filter(author=post.author).update(spam=Post.SPAM, status=Post.OFFTOPIC)
     log_action(user=user, log_text=f"Reported post={post.uid} as spam.")
     return url
 

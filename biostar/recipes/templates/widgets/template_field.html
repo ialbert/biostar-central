@@ -1,57 +1,13 @@
-{% load static %}
 
 <textarea class="code" rows="40" cols="55" name="template" id="template">{{ template }}</textarea>
 
 <script>
-
     $(document).ready(function () {
-
-        var template_edit = CodeMirror.fromTextArea(
-            document.getElementById("template"),
-            {
-                lineNumbers: true,
-                mode:'shell',
-                //mode: "engine",
-                //autoRefresh:true,
-               //spellcheck:true,
-            }
-        );
-
-        function updateTemplate() {
-            template_edit.save();
-        }
-
-        template_edit.on('change', updateTemplate);
-        {#% if focus %#}
-        template_edit.focus();
-        {#% endif %#}
-        {#% if scroll_to_bottom %#}
-        //template_edit.setCursor(template_edit.lineCount(), 0);
-        {#% endif %#}
-
-
-    $(this).on('click', ".edit-side  .script", function (event){
-        event.preventDefault();
-        $(this).parent().addClass("active");
-
-        $(".recipe-edit").show();
-        $(".runform").hide();
-        $("#script-col").show();
-        $("#detail-col").hide();
-        $("#desc-col").hide();
-        $("#interface-col").hide();
-
-        $(".edit-side .recipe").parent().removeClass("active");
-        $(".edit-side .interface").parent().removeClass("active");
-        $(".edit-side .open-desc").removeClass("active");
-
-        template_edit.refresh();
-        template_edit.focus();
-        //template_edit.setCursor(template_edit.lineCount(), 0);
+        var template_edit = prepare_script();
+        $(this).on('click', ".recipe.menu .script", function () {
+            show_script();
+            template_edit.refresh();
+        });
 
     });
-
-        template_edit.setSize(null,950)
-
-    })
 </script>

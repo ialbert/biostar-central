@@ -101,14 +101,6 @@
 
     <script>
 
-        $(document).ready(function () {
-
-            var converter = new Markdown.getSanitizingConverter();
-            var editor = new Markdown.Editor(converter);
-            editor.run();
-        });
-
-
         var users = "{{ users_str }}".split(',');
         autocomplete_users(users);
 
