@@ -22,27 +22,46 @@ TEST_CASES = [
     ("https://twitter.com/Linux/status/2311234267", '<p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">w00t! 10,000 followers!</p>&mdash; Linux (@Linux) <a href="https://twitter.com/Linux/status/2311234267?ref_src=twsrc%5Etfw">June 24, 2009</a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>'),
 
     # Youtube link
-    #("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '<p><a href="http://localhost:8000/p/1/#2">Comment: Test</a></p>'),
+    ("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '<p><iframe width="420" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></p>'),
 
     # Gist link
-
-    # <code> blocks
-    ("""```print &><123http://www.psu.edu```""", """<p><code>print &amp;&gt;&lt;123http://www.psu.edu</code></p>"""),
-
-    # Mentioned user
-    ("@test", '<p><a href="/recipes/accounts/profile/5/">tested2</a></p>')
-
-    # Url auto-link tests
+    ("https://gist.github.com/afrendeiro/6732a46b949e864d6803", '<p><script src="https://gist.github.com/afrendeiro/6732a46b949e864d6803.js"></script></p>'),
 
     # No linking in code block test
+    ("""```print http://www.psu.edu```""", """<p><code>print http://www.psu.edu</code></p>"""),
 
+    # <code> block test
+    ("""```print 123```""", """<p><code>print 123</code></p>"""),
 
+    # <pre> <code> block test
+    ("""
+        print 123
+    """, "<pre><code>    print 123</code></pre>"),
+
+    # Test <, >, and & rendering
+    ("1 > 0    1 < 2    foo & bar", "<p>1 &gt; 0    1 &lt; 2    foo &amp; bar</p>"),
+
+    # Test <, >, and & in code block
+    ("```1 > 0    1 < 2    foo & bar```", "<p><code>1 &gt; 0    1 &lt; 2    foo &amp; bar</code></p>"),
+
+    # Mentioned user
+    ("@test", '<p><a href="/recipes/accounts/profile/5/">tested2</a></p>'),
+
+    # Url auto-link tests
+    ("http://www.psu.edu", '<p><a href="http://www.psu.edu">http://www.psu.edu</a></p>'),
+
+    # Auto-link enclosed by parenthesis
+    ("(http://www.psu.edu)", '<p>(<a href="http://www.psu.edu">http://www.psu.edu</a>)</p>'),
+
+    # Character rendering test.
+    ("@test", '<p><a href="/recipes/accounts/profile/5/">tested2</a></p>'),
 
 
     # Test unclosed tags
+    ("<b> foo", '<p><b> foo</b></p>'),
 
-
-    # Test tags and attributes that make the
+    # Test nested unclosed tags
+    ("<b><b><b><b>foo  ", '<p><b><b><b><b>foo  </b></b></b></b></p>'),
 
 ]
 
@@ -73,4 +92,4 @@ class MarkdownTest(TestCase):
 
             html = markdown.parse(given, clean=True, escape=False)
             html = html.replace("\n", "")
-            self.assertEqual(html, expected, f"Error with markdown parsing. input={given}, expexted={expected}, html={html}")
+            self.assertEqual(html, expected, f"Error with markdown parsing. input={given}, expected={expected}, html={html}")

@@ -24,6 +24,19 @@ MAX_TEXT_LEN = 10000
 MAX_FIELD_LEN = 1024
 
 
+class ProfileManager(models.Manager):
+
+    def valid_users(self):
+        """
+        Return valid user queryset, filtering new and trusted users.
+        """
+
+        # Filter for new or trusted users.
+        query = super().get_queryset().filter(models.Q(state=Profile.TRUSTED) | models.Q(state=Profile.NEW))
+
+        return query
+
+
 class Profile(models.Model):
     NEW, TRUSTED, SUSPENDED, BANNED, SPAMMER = range(5)
     STATE_CHOICES = [(NEW, "New"), (TRUSTED, "Active"), (SPAMMER, "Spammer"),
@@ -115,6 +128,8 @@ class Profile(models.Model):
 
     # Opt-in to all messages from the site
     opt_in = models.BooleanField(default=False)
+
+    objects = ProfileManager()
 
     def __str__(self):
         return self.name

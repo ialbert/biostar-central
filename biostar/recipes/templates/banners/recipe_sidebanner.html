@@ -15,24 +15,24 @@
         <i class="code icon"></i>
         Recipe code
     </a>
-
+<span style="margin-left: 33px">
     <div class="ui dropdown" id="code_add"><a><i class="caret down icon"></i></a>
         {% snippet_list user %}
     </div>
     <a id="template_preview" data-value={{ project.uid }}><i class="eye icon"></i> </a>
-
+</span>
 
     <a class="item interface" style="display: inline-block">
         <i class="tv icon"></i>
         Recipe interface
     </a>
-
+<span style="margin-left: 9px">
     <div class="ui dropdown" id="json_add"><a><i class="caret down icon"></i></a>
         {% interface_options %}
     </div>
 
     <a id="json_preview" data-value="{{ project.uid }}"><i class="eye icon"></i></a>
-
+</span>
 
     {% if recipe %}
 
