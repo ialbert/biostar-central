@@ -16,7 +16,7 @@ def recipes_middleware(get_response):
         user = request.user
 
         # Banned and suspended users are not allowed
-        if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED):
+        if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED, Profile.SPAMMER):
             messages.error(request, f"Account is {user.profile.get_state_display()}")
             logout(request)
 

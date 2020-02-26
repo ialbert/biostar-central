@@ -460,23 +460,21 @@ def list_posts(context, target):
 
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
-    recent_votes = Vote.objects.prefetch_related("post").exclude(post__status=Post.DELETED,
-                                                                 post__root__spam=Post.SPAM)
-    recent_votes = recent_votes.exclude(post__root__status=Post.DELETED).exclude(post__root__spam=Post.SPAM)
+
+    recent_votes = Vote.objects.filter(post__status=Post.OPEN,
+                                       post__root__status=Post.OPEN).prefetch_related("post")
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
 
-    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED,
-                                                                             Profile.SUSPENDED])).prefetch_related("user")
-    recent_locations = recent_locations.order_by('-last_login')
-    recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
+    # Get valid users that have a location set in profile.
+    recent_locations = Profile.objects.valid_users().exclude(location="").prefetch_related("user")
+    recent_locations = recent_locations.order_by('-last_login')[:settings.LOCATION_FEED_COUNT]
 
-    recent_awards = Award.objects.order_by("-pk").select_related("badge", "user", "user__profile")
-    recent_awards = recent_awards.exclude(user__profile__state__in=[Profile.BANNED, Profile.SUSPENDED])
-    recent_awards = recent_awards[:settings.AWARDS_FEED_COUNT]
-    #
-    recent_replies = Post.objects.filter(type__in=[Post.COMMENT, Post.ANSWER]).exclude(status=Post.DELETED)
-    recent_replies = recent_replies.exclude(root__status=Post.DELETED).exclude(root__spam=Post.SPAM)
-    recent_replies = recent_replies.select_related("author__profile", "author")
+    # Get valid results
+    recent_awards = Award.objects.valid_awards().select_related("badge", "user", "user__profile")
+    recent_awards = recent_awards.order_by("-pk")[:settings.AWARDS_FEED_COUNT]
+
+    # Get valid posts
+    recent_replies = Post.objects.valid_posts().filter(is_toplevel=False).select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
     context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=[],

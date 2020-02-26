@@ -23,6 +23,46 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 logger = logging.getLogger("engine")
 
 
+class PostManager(models.Manager):
+
+    def valid_posts(self, user=None):
+        """
+        Returns posts that are not closed or marked as spam.
+        """
+        query = super().get_queryset()
+
+        # Moderators get to see all posts by default.
+        if user and user.is_authenticated and user.profile.is_moderator:
+            return query
+
+        # Filter for open posts that are not spam.
+        query = query.filter(
+
+            models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT),
+            models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT),
+
+            status=Post.OPEN,
+            root__status=Post.OPEN)
+
+        return query
+
+
+class AwardManager(models.Manager):
+
+    def valid_awards(self):
+        """
+        Returns queryset with valid posts.
+        """
+        query = super().get_queryset()
+        # Filter for valid users
+        query = query.filter(user__profile__state__in=[Profile.NEW, Profile.TRUSTED])
+
+        # Filter for valid posts
+        query = query.filter(models.Q(post__status=Post.OPEN) | models.Q(post__root__status=Post.OPEN))
+
+        return query
+
+
 class Post(models.Model):
     "Represents a post in a forum"
 
@@ -142,6 +182,8 @@ class Post(models.Model):
 
     # Unique id for the post.
     uid = models.CharField(max_length=32, unique=True, db_index=True)
+
+    objects = PostManager()
 
     def parse_tags(self):
         return [tag.lower() for tag in self.tag_val.split(",") if tag]
@@ -366,6 +408,8 @@ class Award(models.Model):
     date = models.DateTimeField()
     # context = models.CharField(max_length=1000, default='')
     uid = models.CharField(max_length=32, unique=True)
+
+    objects = AwardManager()
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
