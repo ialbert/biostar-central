@@ -8,6 +8,11 @@ body {
 
 }
 
+.ui.basic.segment.collapse {
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
 .narrow {
     margin-left: 15%;
     margin-right: 15%;
