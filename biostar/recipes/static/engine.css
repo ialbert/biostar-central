@@ -9,9 +9,12 @@ body {
 }
 
 .ui.basic.segment.collapse {
-    padding-top: 0px;
+    padding-top: 1ex;
     margin-top: 0px;
+    border-radius: .28571429rem;
 }
+
+
 
 .narrow {
     margin-left: 15%;
@@ -22,7 +25,7 @@ body {
     display: inline;
 }
 
-#job-img i{
+#job-img i {
     position: absolute;
     top: 0px;
     right: 22%;
@@ -30,11 +33,11 @@ body {
     opacity: .7;
 }
 
-#job-img i.success{
+#job-img i.success {
     color: green;
 }
 
-#job-img i.error{
+#job-img i.error {
     color: red;
 }
 
@@ -46,8 +49,8 @@ code {
     font-size: .88em !important;
 }
 
-.ui.grid>[class*="four wide"].column.recipe-sidemenu {
-    width: 21%!important;
+.ui.grid > [class*="four wide"].column.recipe-sidemenu {
+    width: 21% !important;
 }
 
 
@@ -76,12 +79,12 @@ code {
 .CodeMirror {
     border: none;
     height: auto;
-    //max-width: 927px;
-    //width: 107.6%;
+/ / max-width: 927 px;
+/ / width: 107.6 %;
 
 }
 
-.small-font{
+.small-font {
     font-size: x-small !important;
 }
 
@@ -403,6 +406,13 @@ figure {
     background: #fff8db !important;
 }
 
+.formstyle {
+    background: #fff8db !important;
+}
+
+.ui.text.menu .active.item {
+    font-weight: bold;
+}
 
 #cmd_form > .ui.form > .field > .CodeMirror {
     height: 3em !important;

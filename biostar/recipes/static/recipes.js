@@ -23,6 +23,41 @@ function prepare_codemirror(element, size) {
     return area
 }
 
+// Toggles visible panels in recipe view.
+function toggle_panels(elem_id, quick) {
+
+    // Identify the element
+    var elem = $(elem_id)
+
+    // Move the element so it is first, thus always opens downwards.
+    $(elem).parent().prepend(elem)
+
+    // Select collapsible elements
+    var collapse = $(".collapse")
+
+    //Hide should always be fast
+    collapse.hide()
+
+    // Close all collapsible elements.
+    if (quick) {
+        elem.show()
+    } else {
+        elem.show("slow", function () {
+            // Animation complete.
+        });
+    }
+
+    // Set the window location hash
+    window.location.hash = elem_id;
+
+    // Remove active class on clickable object.
+    $(".click").removeClass("active")
+
+    // Highlight the selector.
+    $('[data-value="' + elem_id + '"]').addClass("active")
+
+}
+
 $(document).ready(function () {
 
     var script = prepare_codemirror($('#code textarea'), 700);
@@ -31,19 +66,13 @@ $(document).ready(function () {
     //script.refresh();
     //interface.refresh();
 
-    // Select open item or the default
-    hash = window.location.hash || "#description" ;
+    // Select default open item.
+    var open_id = window.location.hash || "#description";
 
-    // Select collapsable elements
-    collapse = $(".collapse")
+    // Initial toggle has no animation.
+    toggle_panels(open_id, 1)
 
-    // Hide all collapsable elements.
-    collapse.hide()
-
-    // Show only the selected tab.
-    $(hash).show()
-
-    $(".clickable > .item").click(function (event) {
+    $(".click").click(function (event) {
 
         // Don't trigger other behaviors.
         event.preventDefault();
@@ -52,31 +81,15 @@ $(document).ready(function () {
         var elem = $(this)
 
         // Find the targeted element.
-        var target_id = '#' + elem.data('value')
-
-        // Find the current hash
-        var current_id = window.location.hash;
+        var target_id = elem.data('value')
 
         // The selected page is already active.
-        if (target_id === current_id){
+        if (target_id === window.location.hash) {
             return;
         }
 
-        // Move the target so it is first, thus always opens downwards.
-        $(target_id).parent().prepend($(target_id))
-
-        // Rewrite the window  with current id.
-        window.location.hash = target_id;
-
-        // Close all open elements.
-        collapse.hide("slow", function () {
-            // Animation complete.
-        });
-
-        // Open the current element.
-        $(target_id).show("slow", function () {
-            // Animation complete.
-        });
+        // Toggle panels more slowly.
+        toggle_panels(target_id, 0)
 
     });
 
