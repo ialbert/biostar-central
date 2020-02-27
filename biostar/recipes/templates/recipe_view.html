@@ -47,7 +47,7 @@
                 <div class="ui vertical text menu">
                     <a class="item" href="#" data-value="description">Recipe description</a>
                     <a class="item" href="#" data-value="edit">Recipe edit</a>
-                    <a class="item" href="#" data-value="script">Recipe code</a>
+                    <a class="item" href="#" data-value="code">Recipe code</a>
                     <a class="item" href="#" data-value="interface">Recipe interface</a>
                     <a class="item" href="{% url 'recipe_run' recipe.uid %}">Run recipe</a>
                     <a class="item" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
@@ -80,9 +80,9 @@
                 </div>
 
                 {#  Script #}
-                <div class="ui basic segment collapse" id="script">
+                <div class="ui basic segment collapse" id="code">
                     <div class="ui vertical segment">
-                        <div class="ui title header">Recipe Script</div>
+                        <div class="ui title header">Recipe Code</div>
                     </div>
                     <div class="field" id="template_field">
                         <textarea class="code" rows="40" cols="55" name="template">{{ form.template.value }}</textarea>

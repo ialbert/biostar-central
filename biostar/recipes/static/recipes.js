@@ -25,8 +25,10 @@ function prepare_codemirror(element, size) {
 
 $(document).ready(function () {
 
-    var script = prepare_codemirror($('#script textarea'), 900);
-    var interface = prepare_codemirror($('#interface textarea'), 900);
+    var script = prepare_codemirror($('#code textarea'), 700);
+    var interface = prepare_codemirror($('#interface textarea'), 700);
+
+    hash = window.location.hash || "#description" ;
 
     //script.refresh();
     //interface.refresh();
@@ -36,17 +38,26 @@ $(document).ready(function () {
 
     collapse.hide()
 
-   window.location.hash ="BAR";
+    //Show selected tab.
+    $(hash).show()
+
 
     $(".item").click(function (event) {
         event.preventDefault();
 
         target = $(this)
         hash = target.data('value')
+
         console.log(target)
         console.log(hash)
 
         var current = window.location.hash;
+
+        console.log(hash, current)
+
+        if ('#' + hash === current){
+            return;
+        }
 
         window.location.hash = hash;
 
