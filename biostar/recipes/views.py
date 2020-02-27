@@ -43,7 +43,6 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-
 @user_passes_test(lambda u: u.is_superuser)
 def site_admin(request):
     '''
@@ -53,24 +52,6 @@ def site_admin(request):
     context = dict(jobs=jobs)
 
     return render(request, 'admin_index.html', context=context)
-
-
-def about(request):
-    """
-    Added an about page with the
-    """
-
-    # Get the docs
-    try:
-        recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes', 'recipes.md')
-        recipe_docs = open(recipe_docs, 'r').read()
-        html = mistune.markdown(recipe_docs, escape=False)
-    except Exception as exc:
-        logger.error(f'Error loading about page: {exc}')
-        html = "About page"
-    html = mark_safe(html)
-    context = dict(html=html)
-    return render(request, 'about.html', context=context)
 
 
 @login_required
@@ -139,14 +120,6 @@ def search_bar(request):
                    min_length=min_length, no_results=no_results)
 
     return render(request, "search.html", context)
-
-
-def data_download(request, uid):
-    """
-    Download data of given uid.
-    """
-
-    return
 
 
 @write_access(type=Project, fallback_view="data_list")
@@ -401,7 +374,7 @@ def project_create(request):
     return render(request, "project_create.html", context=context)
 
 
-@read_access(type=Data)
+@read_access(type=Data, fallback_view="data_view", login_required=True)
 def data_copy(request, uid):
     data = Data.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
@@ -411,7 +384,7 @@ def data_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(type=Analysis)
+@read_access(type=Analysis, fallback_view="recipe_view", login_required=True)
 def recipe_copy(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
@@ -421,7 +394,7 @@ def recipe_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(type=Job)
+@read_access(type=Job, fallback_view="job_view", login_required=True)
 def job_copy(request, uid):
     job = Job.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
@@ -431,7 +404,7 @@ def job_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(type=Data)
+@read_access(type=Data, fallback_view="data_view", login_required=True)
 def data_file_copy(request, uid, path):
     # Get the root data where the file exists
     data = Data.objects.filter(uid=uid).first()
@@ -442,7 +415,7 @@ def data_file_copy(request, uid, path):
     return redirect(reverse("data_view", kwargs=dict(uid=uid)))
 
 
-@read_access(type=Job)
+@read_access(type=Job, fallback_view="job_view", login_required=True)
 def job_file_copy(request, uid, path):
     # Get the root data where the file exists
     job = Job.objects.filter(uid=uid).first()
@@ -617,7 +590,6 @@ def data_upload(request, uid):
     context.update(counts)
 
     return render(request, 'data_upload.html', context)
-
 
 
 @read_access(type=Analysis)

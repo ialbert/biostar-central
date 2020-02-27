@@ -222,10 +222,10 @@ function preview_template(project_uid) {
                         '    <div class="muted">Press ESC to close window</div>\n' +
                         '</h4>\n' +
                         '\n' +
-                        '<pre><code class=" language-bash line-numbers ">' + data.script +'</code></pre>\n');
+                        '<pre><code class=" language-bash line-numbers ">' + data.script + '</code></pre>\n');
                     $('#preview_modal').modal('show');
                     Prism.highlightAll();
-                }else{
+                } else {
                     popup_message($("#template"), data.msg, data.status);
                 }
 
@@ -281,7 +281,7 @@ function add_to_interface(display_type) {
             if (data.status === 'success') {
                 $('#json').val(data.json_text);
                 $('#json_field').html(data.html);
-            }else{
+            } else {
                 //($('#json_field'), xhr, status, text)
                 popup_message($('#json_field'), data.msg, data.status)
             }
@@ -523,7 +523,7 @@ function toggle_delete(uid, type, count_elem) {
 
 function change_access(access, user_id, project_uid, elem) {
     let container = $('.container-' + user_id);
-
+    //alert(container.html());
     $.ajax('/manage/access/', {
             type: 'POST',
             dataType: 'json',
@@ -535,6 +535,7 @@ function change_access(access, user_id, project_uid, elem) {
 
             success: function (data) {
                 if (data.status === 'success') {
+
                     container.transition('bounce').transition({
                         animation: 'pulse', onComplete: function () {
                             if (data.no_access) {
@@ -544,11 +545,9 @@ function change_access(access, user_id, project_uid, elem) {
                             }
                         }
                     });
-
-                    //popup_message(elem, data.msg, data.status, 1000)
                     return
                 }
-                popup_message(elem, data.msg, data.status, 2000)
+                popup_message(container, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -559,60 +558,16 @@ function change_access(access, user_id, project_uid, elem) {
 
 }
 
-
-function inplace_edit(uid) {
-
-    // var elem = $("#inplace-edit");
-    // elem.attr("id", "goo")
-    // $.ajax('/inplace/recipe/form/' + uid +'/', {
-    //
-    //     type: 'POST',
-    //         dataType: 'json',
-    //         data: {},
-    //
-    //         success: function (data) {
-    //             if (data.status === 'success') {
-    //                 elem.html("");
-    //                 //console.log(data.template);
-    //                 elem.html(data.template);
-    //                 //$("#dimmer").dimmer('hide');
-    //
-    //                 //popup_message(elem, data.msg, data.status, 1000)
-    //                 return
-    //             }
-    //            // $("#dimmer").dimmer('hide');
-    //             popup_message(elem, data.msg, data.status, 2000)
-    //
-    //         },
-    //         error: function (xhr, status, text) {
-    //         //$("#dimmer").dimmer('hide');
-    //             error_message(elem, xhr, status, text)
-    //         }
-    //
-    // });
-
-}
-
 $(document).ready(function () {
 
-    $('.access-dropdown').dropdown({
-        onChange: function (value, text, $selectedItem) {
-            let user = $(this).data('user');
-            let project = $(this).data('project');
-            change_access(value, user, project, $(this))
-        }
-    });
-
-
-    $(this).on('click', ".recipe.menu .metadata", function () {
-        show_metadata();
-    });
-
-    $(this).on('click', ".recipe.menu .description", function () {
-        show_description();
+    $('.access-dropdown').dropdown();
+    $(this).on('click', '.access-dropdown .menu .item', function () {
+        let user = $(this).parent().data('user');
+        let project = $(this).parent().data('project');
+        let value = $(this).data("value");
+        change_access(value, user, project)
 
     });
-
 
     $('.ui.dropdown').dropdown();
 
@@ -632,7 +587,7 @@ $(document).ready(function () {
 
     });
 
-    remove_trigger();
+    //remove_trigger();
 
     // Check and update 'Running' and 'Spooled' jobs every 5 seconds.
     setInterval(check_job, 5000);
@@ -789,14 +744,6 @@ $(document).ready(function () {
         let project_uid = $(this).data('project');
         let clipboard = $(this).data('clipboard');
         copy_object(uid, project_uid, clipboard);
-
-    });
-
-    $(this).on('click', '.expand', function (event) {
-        event.preventDefault();
-        let board = $(this).data('value');
-        $('.expand-' + board).transition('fade down')
-
 
     });
 

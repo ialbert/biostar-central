@@ -33,7 +33,6 @@ class JobViewTest(TestCase):
         self.job = auth.create_job(analysis=self.recipe, user=self.owner)
         self.job.save()
 
-
     def test_scheduler(self):
         """
         Test task scheduler used to run queued jobs.
@@ -94,7 +93,6 @@ class JobViewTest(TestCase):
 
         response = views.job_rerun(request=request, uid=self.job.uid)
         self.process_response(response=response, data={})
-
 
     def test_job_file_copy(self):
         "Test the job file copying interface"

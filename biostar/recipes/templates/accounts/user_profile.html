@@ -1,6 +1,7 @@
 {% extends "accounts/profile_base.html" %}
 {% load engine_tags %}
 {% load accounts_tags %}
+{% load humanize %}
 
 {% block headtitle %}{{ target.profile.name }}{% endblock %}
 
@@ -97,7 +98,7 @@
 
                 <tr>
                     <td>Joined:</td>
-                    <td>{{ target.profile.date_joined|time_ago }}</td>
+                    <td>{{ target.profile.date_joined|timesince }}</td>
                 </tr>
 
                  {% if target.profile.twitter %}
@@ -121,7 +122,7 @@
 
                 <tr>
                     <td>Last seen:</td>
-                    <td>{{ target.profile.last_login |time_ago }}</td>
+                    <td>{{ target.profile.last_login |timesince }}</td>
                 </tr>
 
                 <tr>

@@ -33,46 +33,6 @@ def randparam():
     return f"?randval={random.randint(1, 10000000)}" if settings.DEBUG else ""
 
 
-@register.filter
-def mask_path(val='', obj={}):
-    is_path = obj.get('display') == const.UPLOAD
-    if is_path:
-        return os.path.basename(str(val)) if val else ''
-
-    return val
-
-
-@register.inclusion_tag("banners/recipe_sidebanner.html", takes_context=True)
-def recipe_sidebar(context, recipe=None, project=None):
-    user = context['request'].user
-    project = recipe.project if recipe else project
-    return dict(recipe=recipe, project=project, user=user)
-
-
-@register.filter
-def time_ago(date):
-    pluralize = lambda value, word: f"{value} {word}s" if value > 1 else f'{value} {word}'
-    if not date:
-        return ''
-    delta = util.now() - date
-    if delta < timedelta(minutes=1):
-        return 'just now'
-    elif delta < timedelta(hours=1):
-        unit = pluralize(delta.seconds // 60, "minute")
-    elif delta < timedelta(days=1):
-        unit = pluralize(delta.seconds // 3600, "hour")
-    elif delta < timedelta(days=30):
-        unit = pluralize(delta.days, "day")
-    elif delta < timedelta(days=90):
-        unit = pluralize(int(delta.days / 7), "week")
-    elif delta < timedelta(days=730):
-        unit = pluralize(int(delta.days / 30), "month")
-    else:
-        diff = delta.days / 365.0
-        unit = '%0.1f years' % diff
-    return "%s ago" % unit
-
-
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -106,8 +66,9 @@ def user_icon(user):
 
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_projects(context, target):
+    """List projects belonging to a specific user
+    """
     user = context["request"].user
-    request = context["request"]
     projects = auth.get_project_list(user=target).filter(owner=target)
 
     # Don't show private projects non owners
@@ -193,28 +154,6 @@ def resolve_clipboard_urls(board, project_uid):
     return paste_url, next_url
 
 
-def annotate_values(board, vals):
-    obj_map = {const.COPIED_DATA: (Data, 'file icon'),
-               const.COPIED_RESULTS: (Job, 'chart bar icon'),
-               const.COPIED_RECIPES: (Analysis, 'setting icon')
-               }
-    named_vals = []
-    for val in vals:
-        obj_model, icon = obj_map.get(board, (None, ''))
-        if not obj_model:
-            name = os.path.basename(val)
-            url = ''
-            icon = 'folder icon'
-        else:
-            obj = obj_model.objects.filter(uid=val).first()
-            name = obj.name if obj else ""
-            url = obj.url() if obj else ""
-
-        named_vals.append((val, name, url, icon))
-
-    return named_vals
-
-
 def get_label(board):
     label_map = {const.COPIED_DATA: 'copied data',
                  const.COPIED_RECIPES: 'recipe',
@@ -242,20 +181,19 @@ def paste(context, project, current=","):
         # Get the paste and next url.
         paste_url, next_url = resolve_clipboard_urls(board=target, project_uid=project.uid)
         vals = items_in_board.get(target, [])
-        vals = annotate_values(board=target, vals=vals)
         label = get_label(board=target)
         count = len(vals)
         # Current target is going to be cloned.
         to_clone = target == const.COPIED_RECIPES
-        content = dict(vals=vals, paste_url=paste_url, next_url=next_url, label=label, count=count,
+        content = dict(paste_url=paste_url, next_url=next_url, label=label, count=count,
                        to_clone=to_clone)
         # Clean the clipboard of empty values
         if count:
             items_to_paste.setdefault(target, content)
 
-    empty_css = "empty-clipboard" if not items_to_paste else ""
+    has_items = True if items_to_paste else False
     extra_context = dict(project=project, current=','.join(current), board_count=len(items_to_paste),
-                         clipboard=items_to_paste.items(), context=context, empty_css=empty_css)
+                         clipboard=items_to_paste.items(), context=context, has_items=has_items)
 
     context.update(extra_context)
     return context
@@ -279,12 +217,6 @@ def is_qiime_archive(file=None):
     filename = file if isinstance(file, str) else file.path
 
     return filename.endswith(".qza") or filename.endswith(".qzv")
-
-
-@register.simple_tag
-def privacy_label(project):
-    label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>')
-    return label
 
 
 @register.inclusion_tag('widgets/authorization_required.html', takes_context=True)
@@ -326,30 +258,12 @@ def activate(value1, value2):
 
 
 @register.simple_tag
-def data_color(data):
-    "Return a color based on data status."
-
-    return DATA_COLORS.get(data.state, "")
-
-
-@register.simple_tag
 def type_label(data):
     if data.type:
         label = lambda x: f"<span class='ui label' > {x} </span>"
         types = [label(t) for t in data.type.split(',')]
         return mark_safe(''.join(types))
     return ""
-
-
-@register.simple_tag
-def state_label(data, error_only=False):
-    label = f'<span class="ui {DATA_COLORS.get(data.state, "")} label"> {data.get_state_display()} </span>'
-
-    # Error produce error only.
-    if error_only and data.state not in (Data.ERROR, Data.PENDING):
-        label = ""
-
-    return mark_safe(label)
 
 
 @register.simple_tag
@@ -369,14 +283,6 @@ def show_messages(messages):
     Renders the messages
     """
     return dict(messages=messages)
-
-
-@register.inclusion_tag('widgets/project_title.html', takes_context=True)
-def project_title(context, project):
-    """
-    Returns a label for project.
-    """
-    return dict(project=project)
 
 
 @register.inclusion_tag('widgets/recipe_form.html')
@@ -410,40 +316,6 @@ def image_field(default=''):
     image_widget = image_field.widget.render('image', value=placeholder)
 
     return mark_safe(image_widget)
-
-
-@register.inclusion_tag('widgets/snippet_list.html')
-def snippet_list(user):
-
-    if user.is_anonymous:
-        command_types = SnippetType.objects.filter(default=True).order_by('-pk')
-    else:
-        command_types = SnippetType.objects.filter(Q(owner=user) | Q(default=True)).order_by('-pk')
-
-    context = dict(command_types=command_types, user=user)
-    return context
-
-
-@register.inclusion_tag('widgets/snippet.html')
-def snippet_item(user, snippet):
-    context = dict(snippet=snippet, user=user)
-    return context
-
-
-@register.inclusion_tag('widgets/snippet_type.html')
-def snippet_type(user, snip_type):
-
-    context = dict(type=snip_type, user=user)
-    return context
-
-
-@register.simple_tag
-def get_snippets(user, snip_type):
-    if user.is_authenticated:
-        snippets = snip_type.snippet_set.filter(Q(owner=user) | Q(default=True))
-    else:
-        snippets = snip_type.snippet_set.filter(default=True)
-    return snippets
 
 
 @register.inclusion_tag('widgets/json_field.html')

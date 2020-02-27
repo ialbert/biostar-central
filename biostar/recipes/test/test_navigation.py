@@ -34,6 +34,9 @@ class SiteNavigation(TestCase):
         self.data_params = dict(uid=data.uid)
         self.job_params = dict(uid=self.job.uid)
 
+        self.data_file_params = dict(uid=data.uid, path="foo.txt")
+        self.job_file_params = dict(uid=self.job.uid, path="foo.txt")
+
     def visit_urls(self, urls, codes, anon_urls=[]):
         c = Client()
         # Used to test norname urls
@@ -72,13 +75,13 @@ class SiteNavigation(TestCase):
         anon_urls = [
             reverse("index"),
             reverse("project_list"),
-            reverse('project_view', kwargs=self.proj_params)
+            reverse('project_view', kwargs=self.proj_params),
+            reverse("recipe_run", kwargs=self.analysis_params),
         ]
 
         urls = [
             reverse('index'),
             reverse('logout'),
-            reverse('about'),
             reverse('login'),
             reverse('search'),
             reverse('project_list'),
@@ -111,15 +114,51 @@ class SiteNavigation(TestCase):
         self.visit_urls(urls=api_urls, codes=[200])
         self.visit_urls(urls=ajax_urls, codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
+        self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
 
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"
+
+        # Test cases to handle anonymous users .
+        anon_urls = [
+            reverse("job_delete", kwargs=self.job_params),
+            reverse("project_delete", kwargs=self.proj_params),
+            reverse("project_users", kwargs=self.proj_params),
+            reverse("project_edit", kwargs=self.proj_params),
+            reverse("data_copy", kwargs=self.data_params),
+            reverse("recipe_copy", kwargs=self.analysis_params),
+            reverse("job_copy", kwargs=self.job_params),
+            reverse("job_copy", kwargs=self.job_params),
+            reverse("data_file_copy", kwargs=self.data_file_params),
+            reverse("job_file_copy", kwargs=self.job_file_params),
+            reverse("recipe_paste", kwargs=self.proj_params),
+            reverse("data_paste", kwargs=self.proj_params),
+            reverse("file_paste", kwargs=self.proj_params),
+            reverse("data_edit", kwargs=self.data_params),
+            reverse("data_upload", kwargs=self.proj_params),
+            reverse("job_rerun", kwargs=self.job_params),
+            reverse("job_rerun", kwargs=self.job_params),
+            reverse("job_edit", kwargs=self.job_params),
+            reverse("recipe_delete", kwargs=self.analysis_params),
+            reverse("job_delete", kwargs=self.job_params),
+            reverse("data_delete", kwargs=self.data_params),
+            
+
+
+            #data_upload, recipe_run job_rerun
+
+
+        ]
         urls = [
             reverse('signup'),
             reverse("recycle_bin"),
+            reverse('index'),
+            reverse('logout'),
+            reverse('login'),
         ]
 
         self.visit_urls(urls, [302, 200])
+        self.visit_urls(anon_urls=anon_urls, codes=[302], urls=[])
 
 
 

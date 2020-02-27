@@ -2,12 +2,11 @@
 
 <div class="item container-{{ user.id }} {{ extra_class }}">
     <div class="right floated content">
-        <div class="ui selection dropdown access-dropdown" data-user="{{ user.id }}"
-             data-project="{{ project.uid }}">
+        <div class="ui selection dropdown access-dropdown">
             <div class="text tablet"
                  id="digest-active">{{ user|get_access_label:project }}</div>
             <i class="dropdown icon"></i>
-            <div class="menu">
+            <div class="menu" data-user="{{ user.id }}" data-project="{{ project.uid }}">
                 <div class="item" data-value="read">
                     Read Access
                 </div>
