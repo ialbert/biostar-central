@@ -30,9 +30,9 @@
         {% endif %}
 
         {% if user.is_superuser %}
-                <a class="ui blue item"  href="{% url 'site_admin' %}">
-                    <i class="dashboard icon"></i> Site Admin
-                </a>
+            <a class="ui blue item" href="{% url 'site_admin' %}">
+                <i class="dashboard icon"></i> Site Admin
+            </a>
         {% endif %}
 
         {% if user.is_authenticated %}
@@ -45,8 +45,54 @@
 
     </div>
     <div class="ui bottom attached large segment">
-        {% list_view projects=projects %}
 
+        <div class="ui vertical large segment">
+            <div class="ui divided items">
+                {% for project in projects %}
+                    <div class="item">
+
+                        <img class="ui mytiny circular fancy image" src="{% img project %}"/>
+
+                        <div class="content">
+
+                            <a class="subheader" href="{% url 'recipe_listing' project.label %}">
+                                <i class="database icon"></i>{{ project.get_name }}
+                            </a>
+                            {% if user.is_authenticated %}
+                                <div class="ui right ribbon label listing">
+                                    {% get_access_label project user %}
+                                </div>
+                            {% endif %}
+                            <div class="meta">{{ project.summary|markdown|safe }}
+                            </div>
+                            <div class="extra">
+
+                                <span class ="ui label">{{ project.get_privacy_display }}</span>
+
+                                <a
+                                        href="{% url 'data_listing' project.label %}">
+                                    <i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
+
+                                <a
+                                        href="{% url 'recipe_listing' project.label %}">
+                                    <i class="setting icon"></i>{{ project.recipes_count }}
+                                    recipe{{ project.recipes_count|pluralize }}</a>&bull;
+
+                                <a
+                                        {% url 'job_listing' project.label %}
+                                        href="{% url 'job_listing' project.label %}">
+                                    <i class="bar chart icon"></i>{{ project.jobs_count }}
+                                    result{{ project.jobs_count|pluralize }}</a>
+
+                                {% created_by date=project.lastedit_date user=project.lastedit_user %}
+
+                            </div>
+
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
         {% if not projects %}
             <div class="item ">
                 <div class="ui warning message"><i class="ui warning circle icon"></i>{{ empty_msg }}</div>

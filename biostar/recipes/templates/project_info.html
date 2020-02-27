@@ -18,7 +18,7 @@
         <h3 class="ui header">Project Information</h3>
         {{ project.html|safe }}
         <div class="muted">
-            {% privacy_label project %}
+            <span class ="ui label">{{ project.get_privacy_display }}</span>
             Project owned by <a href="{% url 'user_profile'  project.owner.profile.uid %}">
             {{ project.owner.profile.name }}
         </a>&bull;

@@ -67,6 +67,8 @@ test4 = """
 
 test5 = "<b><b>foo</b></b>"
 
+test6 = "<p><p>foo</p></p>"
+
 
 gist_test = "https://gist.github.com/afrendeiro/6732a46b949e864d6803"
 
@@ -75,6 +77,7 @@ class Command(BaseCommand):
     help = 'Used to test markdown rendering'
 
     def handle(self, *args, **options):
+
         # import markdown2
         # import bleach
         # html_classes = dict(code="language-bash", pre="pre")

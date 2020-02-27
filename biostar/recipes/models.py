@@ -627,11 +627,6 @@ class Analysis(models.Model):
         return reverse('recipe_edit', kwargs=dict(uid=self.uid))
 
     @property
-    def running_css(self):
-        "css display for running and not running jobs"
-        return "runnable" if self.security == self.AUTHORIZED else "not_runnable"
-
-    @property
     def summary(self):
         """
         Returns first line of text
@@ -639,7 +634,6 @@ class Analysis(models.Model):
         lines = self.text.splitlines() or ['']
         first = lines[0]
         return first
-
 
     def get_name(self):
         if self.deleted:

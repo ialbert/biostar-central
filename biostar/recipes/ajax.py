@@ -67,35 +67,6 @@ class ajax_error_wrapper:
         return _ajax_view
 
 
-# @ratelimit(key='ip', rate='50/h')
-# @ratelimit(key='ip', rate='10/m')
-# @ajax_error_wrapper(method="POST", login_required=True)
-# def ajax_inplace_form(request, uid):
-#
-#     recipe = Analysis.objects.filter(uid=uid).first()
-#
-#     if not recipe:
-#         return ajax_error(msg="Recipe does not exist.")
-#
-#     is_writable = auth.writeable_recipe(user=request.user, source=recipe, project=recipe.project)
-#
-#     if not is_writable:
-#         return ajax_error(msg="You need write access to the original recipe to edit.")
-#
-#     rows = len(recipe.template.split("\n"))
-#     rows = rows if rows and rows < 200 else 180
-#
-#     # Load the content and form template
-#     template = 'widgets/inplace_template_field.html'
-#     tmpl = loader.get_template(template_name=template)
-#
-#     #users_str = auth.get_users_str()
-#     context = dict(script=recipe.template, project=recipe.project, recipe=recipe, request=request, rows=rows)
-#     template = tmpl.render(context)
-#     #print(template, "FOOOO")
-#     return ajax_success(template=template, msg="success")
-
-
 def check_job(request, uid):
     job = Job.objects.filter(uid=uid).first()
 
@@ -131,50 +102,6 @@ def check_job(request, uid):
                         stdout=stdout, stderr=stderr, job_color=auth.job_color(job),
                         state_changed=state_changed, img_tmpl=image_tmpl)
 
-
-@ajax_error_wrapper(method="POST", login_required=False)
-def snippet_code(request):
-    command_uid = request.POST.get('command', '')
-    current_code = request.POST.get('template', '')
-
-    cmd = Snippet.objects.filter(uid=command_uid).first()
-
-    if not cmd:
-        return ajax_error(msg='Command not found.')
-
-    command = cmd.command
-    comment = f'# { cmd.help_text }' if cmd.help_text else ' '
-    code = current_code + '\n' + comment + '\n' + command
-
-    tmpl = loader.get_template('widgets/template_field.html')
-    context = dict(template=code, scroll_to_bottom=True)
-    template_field = tmpl.render(context=context)
-
-    return ajax_success(code=code, msg="Rendered the template", html=template_field)
-
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST", login_required=False)
-def snippet_form(request):
-    is_category = request.POST.get("is_category", 0)
-    is_category = bool(int(is_category))
-
-    type_name = request.POST.get('type_name')
-    type_uid = request.POST.get('type_uid')
-    snippet_uid = request.POST.get('snippet_uid', '')
-    snippet = request.POST.get('snippet', '')
-    help_text = request.POST.get('help_text', '')
-
-    tmpl = loader.get_template('widgets/snippet_form.html')
-
-    context = dict(is_category=is_category, type_name=type_name, snippet=snippet, help_text=help_text,
-                   type_uid=type_uid, snippet_uid=snippet_uid)
-    cmd_form = tmpl.render(context=context)
-
-    return ajax_success(html=cmd_form, msg="Rendered form")
-
-
 def check_size(fobj, maxsize=0.3):
     # maxsize in megabytes!
 
@@ -187,99 +114,6 @@ def check_size(fobj, maxsize=0.3):
         return f"File size validation error: {exc}", False
 
     return "Valid", True
-
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
-def create_snippet_type(request):
-    name = request.POST.get('name', '')
-    image = request.FILES.get('image', '')
-
-    if not name:
-        return ajax_error(msg="Name is required.")
-
-    user_types = SnippetType.objects.filter(owner=request.user)
-
-    if user_types.count() >= MAX_SNIPPETS_CATEGORIES and not request.user.is_superuser:
-        return ajax_error(msg="Maximum amount of snippets reached.")
-
-    # Get the type of code this is: Bash, r, Matlab, etc...
-    cmd_type = SnippetType.objects.create(name=name, owner=request.user)
-
-    if image:
-        msg, valid = check_size(fobj=image)
-        if not valid:
-            return ajax_error(msg=msg)
-        cmd_type.image = image
-        cmd_type.save()
-
-    tmpl = loader.get_template('widgets/snippet_type.html')
-    context = dict(type=cmd_type, request=request, user=request.user)
-    new_type = tmpl.render(context=context)
-
-    return ajax_success(msg="Created snippet", html=new_type)
-
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
-def create_snippet(request):
-    snippet = request.POST.get('snippet', '')
-    help_text = request.POST.get('help_text', '')
-    type_uid = request.POST.get('type_uid')
-    snippet_uid = request.POST.get('snippet_uid', '')
-
-    if not (help_text and snippet):
-        return ajax_error(msg="Snippet and help text are required.")
-
-    # Get the type of code this this: Bash, r, Matlab, etc...
-    cmd_type = SnippetType.objects.filter(uid=type_uid).first()
-    if not cmd_type:
-        return ajax_error(msg=f"Snippet does not have a valid type:{cmd_type}")
-
-    snippets = Snippet.objects.filter(type__owner=request.user, type=cmd_type)
-
-    if snippets.count() >= MAX_SNIPPETS_PER_CATEGORY:
-        return ajax_error(msg="Maximum number of snippets reached.")
-
-    if len(snippet) >= MAX_SNIPPET or len(help_text) >= MAX_HELP:
-        msg = "Snippet" if len(snippet) >= MAX_TEXT_LEN else "Help Text"
-        return ajax_error(msg=msg + " input is too long.")
-
-    # Get existing snippet for edit
-    if snippet_uid:
-        snippet_obj = Snippet.objects.filter(uid=snippet_uid).first()
-        if not snippet:
-            return ajax_error(msg=f"Editing error: snippet id does not exist {snippet_uid}.")
-        # Update the snippet and help_text
-        Snippet.objects.filter(uid=snippet_obj.uid).update(help_text=help_text, command=snippet)
-        # Re-fetch the snippet after the edit.
-        snippet = Snippet.objects.filter(uid=snippet_obj.uid).first()
-    else:
-        snippet = Snippet.objects.create(command=snippet, type=cmd_type, help_text=help_text, owner=request.user)
-
-    # Load snippet into template
-    tmpl = loader.get_template('widgets/snippet.html')
-    context = dict(snippet=snippet)
-    created_form = tmpl.render(context=context)
-
-    return ajax_success(msg="Created snippet", html=created_form)
-
-
-# @ratelimit(key='ip', rate='50/h')
-# @ratelimit(key='ip', rate='10/m')
-# @ajax_error_wrapper(method="POST")
-# def delete_snippet(request):
-#
-#     snippet_uid = request.POST.get('snippet_uid', '')
-#     # Get the snippet
-#     snippet = Snippet.objects.filter(uid=snippet_uid).first()
-#
-#     if request.user != snippet.owner:
-#         return ajax_error(msg="Only owners or superusers can delete their code snippets.")
-#
-#     return
 
 
 @ajax_error_wrapper(method="POST", login_required=False)

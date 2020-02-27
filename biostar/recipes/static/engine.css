@@ -17,14 +17,6 @@ body {
     display: inline;
 }
 
-#interface-col {
-    display: none;
-}
-
-#detail-col {
-    display: none;
-}
-
 #job-img i{
     position: absolute;
     top: 0px;
@@ -39,19 +31,11 @@ body {
 
 #job-img i.error{
     color: red;
-
 }
-
-.recipe-edit, .runform{
-    padding-top: 10px !important;
-}
-
 
 .CodeMirror-sizer {
     font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
 }
-
-
 
 code {
     font-size: .88em !important;
@@ -61,29 +45,6 @@ code {
     width: 21%!important;
 }
 
-#json_add i {
-    //vertical-align: middle;
-}
-
-.edit-recipe #interface, .edit-recipe #description, .edit-recipe #metadata {
-    display: none;
-}
-
-.recipe.menu .item.script, .recipe.menu .item.interface{
-    display: inline-block
-}
-
-.recipe.menu .script-options{
-    margin-left: 33px
-}
-
-.recipe.menu .interface-options{
-    margin-left: 9px
-}
-
-#code code, #template_preview_cont code {
-    font-size: 1em !important;
-}
 
 #job-img.dimmer {
     display: block;
@@ -119,26 +80,6 @@ code {
     font-size: x-small !important;
 }
 
-#detail-col > .ui.form .inline.field > input, .ui.form .inline.field > select, .ui.form .inline.fields .field > input {
-/ / border: none;
-    width: 290px;
-
-}
-
-.edit-side.menu {
-    width: 11rem;
-}
-
-#detail-col .field {
-    padding-bottom: 9px;
-    padding-left: 1px;
-}
-
-
-#detail-col > .ui.form .inline.fields .field {
-    padding-bottom: 900px;
-    padding-left: 1px;
-}
 
 #clipboard_anchor {
     border-bottom: none;
@@ -159,14 +100,6 @@ code {
     float: right;
 }
 
-.recipe-form {
-    text-align: -webkit-center;
-}
-
-.recipe-form > .segment {
-    width: 70%;
-    text-align: initial;
-}
 
 .ui.message.log {
     width: 20%;
@@ -195,9 +128,13 @@ code {
     margin-bottom: 15px;
 }
 
+.recipe-form > .segment {
+    width: 70%;
+    text-align: initial;
+}
 
-.recipe-form > .segment > .ui.detail.segment {
-    padding-top: 0px;
+.recipe-form {
+    text-align: -webkit-center;
 }
 
 .completed {
@@ -285,17 +222,10 @@ code {
 }
 
 
-#desc-col{
-    display: none;
-}
-
 .transition.hidden {
     display: none !important;
 }
 
-.ui.items > .job.item:first-child {
-
-}
 
 .listing.ribbon.label {
     position: absolute;
@@ -335,10 +265,6 @@ code {
     box-shadow: 0 2px 4px 0 rgba(34, 36, 38, .12), 0 .01em .001em 0 rgba(34, 36, 38, .15) !important;
 }
 
-.empty-clipboard {
-    display: none;
-}
-
 .file.item:hover {
     background-color: #f2f2f2;
 }
@@ -359,14 +285,6 @@ code {
     text-align: initial;
 }
 
-.ui.list.questions > .item > {
-
-}
-
-.ui.list.questions > .item > .header {
-    #font-size: 1.2em;
-    #margin: 1ex 0em 1ex 0em;
-}
 
 .ui.list.questions > .item > .description {
 / / font-size: 1.1 em;
@@ -374,17 +292,8 @@ code {
     line-height: 1.5;
 }
 
-.jobpad {
-    padding-right: 15 !important;
-}
-
 .ui.items > .item > .content > a.header {
     color: #4183c4;
-}
-
-#json_modal {
-    padding: 20px;
-    width: 48%;
 }
 
 ol {
@@ -418,31 +327,6 @@ figure {
     padding: 0px 5px 0px 5px;
 }
 
-.extrainfo {
-    margin-top: 30;
-    padding: 0;
-}
-
-.imgpad {
-    margin-left: -0.5em !important;
-}
-
-
-.searchfield {
-    width: 100% !important;
-    color: red;
-}
-
-.searchfield input:hover {
-    background-color: #eff0f2 !important;
-    border: none !important;
-}
-
-.searchfield input {
-    border: none;
-    background: #f7f9fc;
-}
-
 
 .searchblock {
     background: #f4fced !important;
@@ -470,20 +354,10 @@ figure {
     padding: 1ex 0ex 1ex 0ex !important;
 }
 
-.ui.userinfo.segment {
-    margin: 0;
-    padding: 0;
-}
-
 .ui.title.segment {
     margin: 0em;
     padding-top: 0px;
 }
-
-.ui.divided.items > .post.item {
-    padding-bottom: 0;
-}
-
 
 .ui.transparent.label {
     background: none #fff;
@@ -492,24 +366,17 @@ figure {
 
 
 .socialbox {
-    width: 450 !important;
+    width: 450px !important;
     margin-left: auto !important;
     margin-right: auto !important;
 
 }
 
 .logintext {
-    padding-top: 5 !important;
-    padding-left: 5 !important;
+    padding-top: 5px !important;
+    padding-left: 5px !important;
     margin-bottom: 0 !important;
 }
-
-
-.not_runnable {
-    background-color: #f7e4de !important;
-
-}
-
 
 .actionbar {
     margin-top: -20px !important;
@@ -527,17 +394,10 @@ figure {
     font-size: 1.08em;
 }
 
-.runcolor {
-    background: rgba(33, 186, 69, 0.13) !important;
-}
-
 .inputcolor {
     background: #fff8db !important;
 }
 
-.CodeMirror {
-/ / height: 30 em !important;
-}
 
 #cmd_form > .ui.form > .field > .CodeMirror {
     height: 3em !important;
@@ -556,18 +416,6 @@ figure {
 }
 
 .edit-snippet:hover {
-    opacity: 1;
-}
-
-.delete-snippet {
-    float: right;
-    color: red;
-    opacity: .6;
-}
-
-.delete-snippet:hover {
-    float: right;
-    color: red;
     opacity: 1;
 }
 
@@ -602,11 +450,6 @@ figure {
     margin: 0 !important;
 }
 
-#cmd_modal {
-    padding: 20px;
-    width: 33%;
-}
-
 .popover.error {
     background-color: #f2dede;
     border-color: #ebccd1;
@@ -618,11 +461,6 @@ figure {
     color: #2c662d;
     box-shadow: 0 0 0 1px #a3c293 inset, 0 0 0 0 transparent;
     border-color: #ebccd1;
-}
-
-#template_modal {
-    padding: 8px;
-    width: 56%;
 }
 
 #json_add_menu > .ui.divider {
@@ -743,12 +581,9 @@ pre {
     font-size: smaller;
 }
 
-.widescreen {
-
-}
 
 .profile {
-    margin-top: 17 !important;
+    margin-top: 17px !important;
 
 }
 

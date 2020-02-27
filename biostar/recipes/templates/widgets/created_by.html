@@ -1,6 +1,8 @@
 {% load accounts_tags %}
 {% load engine_tags %}
-{{ prefix }} {{ date|time_ago }}
+{% load humanize %}
+
+{{ prefix }} {{ date|timesince }}
 
 {% if user %}
     by <a href="{% url 'user_profile'  user.profile.uid %}" >

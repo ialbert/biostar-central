@@ -27,20 +27,28 @@
         {% csrf_token %}
 
         <div class="ui grid">
-
             <div class="three wide column">
-                {% recipe_sidebar project=project %}
+                <div class="ui vertical text recipe menu">
+                    <a class="item" href="#edit">Recipe edit</a>
+                    <a class="item" href="#script">Recipe code</a>
+                    <a class="item" href="#interface">Recipe interface</a>
+                    <div class="item">
+                        <button class="ui blue button" type="submit">
+                            <i class="save icon"></i>Save
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="thirteen wide column">
                 {% form_errors form %}
 
                 {# Edit recipe meta data. #}
-                <div class="ui basic segment" id="metadata">
-
+                <div class="ui vertical segment"><div class="ui title header">Edit Recipe</div></div>
+                <div class="ui basic segment" id="edit">
                     {% form_errors form %}
                     {% csrf_token %}
-                    <div class="inline fields ">
+                    <div class=" fields ">
                         <div class="inline field">
                             <span><b>Name</b> : </span>
                             {{ form.name }}
@@ -84,15 +92,17 @@
 
                 {#  Script #}
                 <div class="ui basic segment" id="script">
+                    <div class="ui vertical segment"><div class="ui title header">Recipe Script</div></div>
                     <div class="field" id="template_field">
-                        {% template_field form.template.value %}
+                       <textarea class="code" rows="40" cols="55" name="template" id="template">{{ form.template.value }}</textarea>
                     </div>
                 </div>
 
                 {#  Interface #}
                 <div class="ui basic segment" id="interface">
+                     <div class="ui vertical segment"><div class="ui title header">Recipe Interface</div></div>
                     <div class="field" id="json_field">
-                        {% json_field form.json_text.value %}
+                        <textarea class="code" rows="40" cols="55" name="json_text" id="json">{{ form.json_text.value }}</textarea>
                     </div>
                 </div>
 

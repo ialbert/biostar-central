@@ -43,7 +43,6 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-
 @user_passes_test(lambda u: u.is_superuser)
 def site_admin(request):
     '''
@@ -53,24 +52,6 @@ def site_admin(request):
     context = dict(jobs=jobs)
 
     return render(request, 'admin_index.html', context=context)
-
-
-def about(request):
-    """
-    Added an about page with the
-    """
-
-    # Get the docs
-    try:
-        recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes', 'recipes.md')
-        recipe_docs = open(recipe_docs, 'r').read()
-        html = mistune.markdown(recipe_docs, escape=False)
-    except Exception as exc:
-        logger.error(f'Error loading about page: {exc}')
-        html = "About page"
-    html = mark_safe(html)
-    context = dict(html=html)
-    return render(request, 'about.html', context=context)
 
 
 @login_required

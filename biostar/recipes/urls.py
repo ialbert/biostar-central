@@ -14,19 +14,17 @@ urlpatterns = [
     # Site
     path(r'site/admin/', views.site_admin, name='site_admin'),
     path(r'site/bin/', views.recycle_bin, name='recycle_bin'),
-    path(r'about/', views.about, name='about'),
 
     # Ajax calls
     path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),
     #path(r'inplace/recipe/form/<str:uid>/', ajax.ajax_inplace_form, name='ajax_inplace_form'),
     path(r'add/recipe/fields/', ajax.add_to_interface, name="add_recipe_fields"),
-    path(r'snippet/code/', ajax.snippet_code, name="snippet_code"),
+
+
     path(r'add/vars/', ajax.add_variables, name="add_vars"),
-    path(r'snippet/form/', ajax.snippet_form, name="snippet_form"),
-    path(r'create/snippet/', ajax.create_snippet, name="create_snippet"),
     path(r'preview/template/', ajax.preview_template, name="preview_template"),
     path(r'preview/json/', ajax.preview_json, name="preview_json"),
-    path(r'create/snippet/type/', ajax.create_snippet_type, name="create_snippet_type"),
+
     path(r'toggle/delete/', ajax.toggle_delete, name="toggle_delete"),
     path(r'copy/object/', ajax.copy_object, name="copy_object"),
     path(r'manage/access/', ajax.manage_access, name="manage_access"),

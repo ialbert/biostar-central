@@ -1,38 +1,37 @@
 {% load engine_tags %}
 
-<div class="ui center aligned basic segment paste {{ empty_css }}">
+{% if has_items %}
+<div class="ui center aligned basic segment paste">
     <div class="ui  compact large message">
-
 
         <div class="ui relaxed divided paste list">
 
             {% for item,values in clipboard %}
-                {% if values.count %}
+
                     <div class="item">
                         <p class="copied-item">
-                            <a href="#" class="expand" data-value="{{ item }}"><i class="dropdown icon"></i>Clipboard contains
+                            <a href="#" data-value="{{ item }}">
+                                Clipboard contains
                                 <b>{{ values.count }} </b> {{ values.label }}{{ values.count |pluralize }}.
                             </a>
 
                         <div class="ui mini paste buttons">
 
                             {% if values.to_clone %}
-                                <a class="ui green large button"
-                                   href="{{ values.paste_url }}?board={{ item }}&target=clone">
+                                <a class="ui green large button" href="{{ values.paste_url }}?board={{ item }}&target=clone">
                                     <i class="clone outline icon"></i> Paste as Clone
                                 </a>
                                 <div class="or"></div>
                             {% endif %}
+
                             <a class="ui blue  large button" href="{{ values.paste_url }}?board={{ item }}">
                                 <i class="sticky note icon"></i> Paste as New
                             </a>
                             <div class="or"></div>
-                            <a class="ui large button"
-                               href="{% url 'clear_clipboard' project.uid %}?next={{ values.next_url }}&board={{ item }}">
+                            <a class="ui large button" href="{% url 'clear_clipboard' project.uid %}?next={{ values.next_url }}&board={{ item }}">
                                 <i class="window close icon"></i> Cancel Paste
                             </a>
                         </div>
-
 
                         </p>
                         {% if values.to_clone %}
@@ -40,25 +39,8 @@
                                 A cloned recipe remains synchronized with the original recipe.
                             </div>
                         {% endif %}
-
-                        <div style="display: none" class="ui segment expand-{{ item }}">
-                            <ul class="ui list">
-                                {% for vals,name, url, icon in values.vals %}
-
-                                    {% if url %}
-
-                                        <a class="item" href="{{ url }}"><i
-                                                class="{{ icon }} icon"></i> {{ name|truncatechars:50 }}</a>
-
-                                    {% else %}
-                                        <div class="item"><i class="{{ icon }} icon"></i>{{ name|truncatechars:50 }}
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            </ul>
-                        </div>
                     </div>
-                {% endif %}
+
             {% endfor %}
 
 
@@ -66,4 +48,5 @@
     </div>
 
 </div>
+{% endif %}
 
