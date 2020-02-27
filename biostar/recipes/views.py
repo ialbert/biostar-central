@@ -700,7 +700,7 @@ def recipe_view(request, uid):
                                 project=project)
         if form.is_valid():
             form.save()
-            messages.success(request, "Editted Recipe")
+            messages.success(request, "Edited Recipe")
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
     else:
         # Initial form loading via a GET request.
