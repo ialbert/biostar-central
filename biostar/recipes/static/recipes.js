@@ -42,7 +42,7 @@ $(document).ready(function () {
     $(hash).show()
 
 
-    $(".item").click(function (event) {
+    $(".clickable > .item").click(function (event) {
         event.preventDefault();
 
         target = $(this)
