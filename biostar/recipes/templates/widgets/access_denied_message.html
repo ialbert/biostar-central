@@ -1,0 +1,8 @@
+{% if user.is_anonymous %}
+
+   <i class="warning circle icon"></i> You must be logged in to perform that action.
+
+{% else %}
+  You need <span class="ui green label"><i class="unlock icon"></i> {{needed_access}}</span> to perform that action.
+
+{%  endif %}
