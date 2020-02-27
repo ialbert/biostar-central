@@ -12,6 +12,7 @@
     <script src="{% static 'codemirror/mode/shell.js' %}"></script>
 
     {#  Javascript code that handles the recipe interfaces. #}
+    <script src="{% static 'setup.js' %}{% randparam %}"></script>
     <script src="{% static 'recipes.js' %}{% randparam %}"></script>
 
 {% endblock %}
@@ -36,94 +37,94 @@
 
     {% endif %}
 
-    <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
 
-        {% csrf_token %}
+    <div class="ui grid">
 
-        <div class="ui grid">
+        {# Side bar #}
+        <div class="three wide column">
+            <div class="ui vertical large text menu">
 
-            {# Side bar #}
-            <div class="three wide column">
-                <div class="ui vertical large text menu">
+                <a class="item click" href="#" data-value="#info">
+                    <i class="info circle icon"></i> Recipe description
+                </a>
 
-                    <a class="item click" href="#" data-value="#description">
-                        <i class="info circle icon"></i> Recipe description
+
+                <a class="item click" href="#" data-value="#code">
+                    <i class="code icon"></i> Recipe code
+                </a>
+
+
+                <a class="item click" href="#" data-value="#interface">
+                    <i class="tv icon"></i> Recipe interface
+                </a>
+
+                <a class="item" href="{% url 'recipe_download' recipe.uid %}">
+                    <i class="download icon"></i> Download recipe
+                </a>
+
+
+                <a class="item" href="{% url 'recipe_run' recipe.uid %}">
+                    <i class="setting icon"></i> Run recipe
+                </a>
+
+                <a class="item" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                    <i class="settings icon"></i> Recipe results ({{ recipe.job_count }})
+                </a>
+
+            </div>
+        </div>
+
+        <div class="thirteen wide column">
+
+            {#  Description #}
+            <div class="ui basic segment collapse" id="info">
+
+                {#  Recipe info. #}
+                <div class="ui divided link items">
+                    {% recipe_details recipe %}
+                </div>
+
+                <div class="ui vertical segment">
+                    {{ recipe.html | safe }}
+                </div>
+
+                <div class="ui center aligned vertical segment">
+                    <a class="ui gray button click" href="#" data-value="#edit">
+                        <i class="edit icon"></i> Edit description
                     </a>
-
-
-                    <a class="item click" href="#" data-value="#code">
-                        <i class="code icon"></i> Recipe code
-                    </a>
-
-
-                    <a class="item click" href="#" data-value="#interface">
-                        <i class="tv icon"></i> Recipe interface
-                    </a>
-
-                    <a class="item" href="{% url 'recipe_download' recipe.uid %}">
-                        <i class="download icon"></i> Download recipe
-                    </a>
-
-
-                    <a class="item" href="{% url 'recipe_run' recipe.uid %}">
-                        <i class="setting icon"></i> Run recipe
-                    </a>
-
-                    <a class="item" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-                        <i class="settings icon"></i> Recipe results ({{ recipe.job_count }})
-                    </a>
-
                 </div>
             </div>
 
-            <div class="thirteen wide column">
-                {% form_errors form %}
-
-                {#  Description #}
-                <div class="ui basic segment collapse" id="description">
-
-                    {#  Recipe info. #}
-                    <div class="ui divided link items">
-                        {% recipe_details recipe %}
-                    </div>
-
-                    <div class="ui vertical segment">
-                        {{ recipe.html | safe }}
-                    </div>
-
-                    <div class="ui center aligned vertical segment">
-                        <a class="ui gray button click" href="#" data-value="#edit">
-                            <i class="edit icon"></i> Edit description
-                        </a>
-                    </div>
+            {#  Script #}
+            <div class="ui basic segment collapse" id="code">
+                <div class="ui vertical segment">
+                    <div class="ui title header">Recipe Code</div>
                 </div>
-
-                {#  Script #}
-                <div class="ui basic segment collapse" id="code">
-                    <div class="ui vertical segment">
-                        <div class="ui title header">Recipe Code</div>
-                    </div>
-                    <div class="field" id="template_field">
+                <div class="field" id="template_field">
                             <textarea class="code" rows="40" cols="55"
                                       name="template">{{ form.template.value }}</textarea>
-                    </div>
                 </div>
+            </div>
 
-                {#  Interface #}
-                <div class="ui basic segment collapse" id="interface">
-                    <div class="ui vertical segment">
-                        <div class="ui title header">Recipe Interface</div>
-                    </div>
-                    <div class="field" id="json_field">
+            {#  Interface #}
+            <div class="ui basic segment collapse" id="interface">
+                <div class="ui vertical segment">
+                    <div class="ui title header">Recipe Interface</div>
+                </div>
+                <div class="field" id="json_field">
                         <textarea class="code" rows="40" cols="55"
                                   name="json_text">{{ form.json_text.value }}</textarea>
-                    </div>
                 </div>
+            </div>
 
-                {# Edit recipe meta data. #}
-                <div class="ui basic segment collapse formstyle" id="edit">
+            {# Edit recipe meta data. #}
+            <div class="ui basic segment collapse formstyle" id="edit">
+
+                <form method="post" class="ui form" action="#" enctype='multipart/form-data'>
+
                     <div class="ui title header">Edit Recipe</div>
 
+                    <span id="notify"></span>
 
                     <div class="two fields">
                         <div class="field">
@@ -165,20 +166,24 @@
                         </div>
                     </div>
 
+                    <input type="hidden" name="uid" value="{{ recipe.uid }}">
+
                     <div class="item">
                         <button class="ui green button" type="submit">
                             <i class="save icon"></i> Save
                         </button>
-                        <button class="ui right floated gray button click" data-value="#description">
-                            <i class="arrow left icon"></i> Cancel
-                        </button>
-                    </div>
-                </div>
 
+                        <a class="ui right floated gray button click" data-value="#info">
+                            <i class="arrow left icon"></i> Back
+                        </a>
+                    </div>
+                </form>
             </div>
+
 
         </div>
 
-    </form>
+    </div>
+
 
 {% endblock %}

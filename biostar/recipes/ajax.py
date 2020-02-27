@@ -61,10 +61,45 @@ class ajax_error_wrapper:
                 return ajax_error(f'{self.method} method must be used.')
             if request.user.is_anonymous and self.login_required:
                 return ajax_error('You must be logged in.')
-
             return func(request, *args, **kwargs)
 
         return _ajax_view
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_edit(request, uid):
+    """
+    Edit recipes.
+    """
+
+    # The recipe that needs to be edited.
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+    url = reverse("recipe_view", kwargs=dict(uid=uid))
+    hash = '#info'
+
+    # The project that recipe belongs to.
+    project = recipe.project
+    user = request.user
+
+    if request.method == "POST":
+        # Form has been submitted
+        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
+                                project=project)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Edited Recipe")
+            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+        else:
+            print(form.errors)
+            messages.error(request, "Form data not valid")
+
+    else:
+        # This view supports only POST
+        messages.error(request, "This view supports POST requests only")
+
+    return redirect(url + hash)
+
 
 
 def check_job(request, uid):
