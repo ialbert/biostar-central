@@ -28,46 +28,54 @@ $(document).ready(function () {
     var script = prepare_codemirror($('#code textarea'), 700);
     var interface = prepare_codemirror($('#interface textarea'), 700);
 
-    hash = window.location.hash || "#description" ;
-
     //script.refresh();
     //interface.refresh();
 
-    // All collapsable elements
+    // Select open item or the default
+    hash = window.location.hash || "#description" ;
+
+    // Select collapsable elements
     collapse = $(".collapse")
 
+    // Hide all collapsable elements.
     collapse.hide()
 
-    //Show selected tab.
+    // Show only the selected tab.
     $(hash).show()
 
-
     $(".clickable > .item").click(function (event) {
+
+        // Don't trigger other behaviors.
         event.preventDefault();
 
-        target = $(this)
-        hash = target.data('value')
+        // The clicked element
+        var elem = $(this)
 
-        console.log(target)
-        console.log(hash)
+        // Find the targeted element.
+        var target_id = '#' + elem.data('value')
 
-        var current = window.location.hash;
+        // Find the current hash
+        var current_id = window.location.hash;
 
-        console.log(hash, current)
-
-        if ('#' + hash === current){
+        // The selected page is already active.
+        if (target_id === current_id){
             return;
         }
 
-        window.location.hash = hash;
+        // Move the target so it is first, thus always opens downwards.
+        $(target_id).parent().prepend($(target_id))
 
+        // Rewrite the window  with current id.
+        window.location.hash = target_id;
+
+        // Close all open elements.
         collapse.hide("slow", function () {
             // Animation complete.
         });
 
-        $("#" + hash ).show("slow", function () {
+        // Open the current element.
+        $(target_id).show("slow", function () {
             // Animation complete.
-            //window.location.hash = hash;
         });
 
     });
