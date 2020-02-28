@@ -366,8 +366,6 @@ def project_create(request):
         form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
         if form.is_valid():
             project = form.custom_save(owner=request.user)
-            print(project, "LOLOLLLL", project.label)
-
             return redirect(reverse("project_viewing", kwargs=dict(label=project.label)))
 
     context = dict(form=form)

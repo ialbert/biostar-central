@@ -453,6 +453,11 @@ figure {
     width: fit-content;
 }
 
+
+#interface .preview{
+    float: right;
+}
+
 #add_vars {
     background-color: #f1fff0;
     padding-top: 25px !important;

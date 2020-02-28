@@ -102,7 +102,7 @@ class SiteNavigation(TestCase):
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
-            reverse('recipe_edit', kwargs=self.recipes_id_param),
+
             reverse('job_list', kwargs=self.proj_params),
             reverse('job_listing', kwargs=dict(label=self.project.label)),
             reverse('job_view', kwargs=self.job_params),
@@ -156,6 +156,7 @@ class SiteNavigation(TestCase):
             reverse('logout'),
             reverse('login'),
             reverse('recipe_create', kwargs=self.proj_params),
+            reverse('recipe_edit', kwargs=self.analysis_params),
         ]
 
         self.visit_urls(urls, [302, 200])
