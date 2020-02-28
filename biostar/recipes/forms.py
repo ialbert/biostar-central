@@ -492,9 +492,6 @@ class RecipeInterface(forms.Form):
             if field:
                 self.fields[name] = field
 
-        if 0:
-            add_captcha_field(request=request, fields=self.fields)
-
     def clean(self):
 
         # Validate default fields.

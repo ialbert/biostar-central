@@ -41,8 +41,6 @@ class exists:
         return _view
 
 
-from django.http import JsonResponse
-
 class read_access:
     """
     Controls READ level access to urls.

@@ -70,6 +70,7 @@ LOGGING = {
         'django': {
             'handlers': ['console'],
             'level': 'ERROR',
+
         },
 
         'engine': {

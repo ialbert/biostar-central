@@ -31,6 +31,7 @@ class SiteNavigation(TestCase):
 
         self.proj_params = dict(uid=self.project.uid)
         self.analysis_params = dict(uid=analysis.uid)
+        self.recipes_id_param = dict(id=analysis.id)
         self.data_params = dict(uid=data.uid)
         self.job_params = dict(uid=self.job.uid)
 
@@ -101,8 +102,7 @@ class SiteNavigation(TestCase):
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
-            reverse('recipe_edit', kwargs=self.analysis_params),
-            reverse('recipe_create', kwargs=self.proj_params),
+            reverse('recipe_edit', kwargs=self.recipes_id_param),
             reverse('job_list', kwargs=self.proj_params),
             reverse('job_listing', kwargs=dict(label=self.project.label)),
             reverse('job_view', kwargs=self.job_params),
@@ -142,7 +142,7 @@ class SiteNavigation(TestCase):
             reverse("recipe_delete", kwargs=self.analysis_params),
             reverse("job_delete", kwargs=self.job_params),
             reverse("data_delete", kwargs=self.data_params),
-            
+
 
 
             #data_upload, recipe_run job_rerun
@@ -155,6 +155,7 @@ class SiteNavigation(TestCase):
             reverse('index'),
             reverse('logout'),
             reverse('login'),
+            reverse('recipe_create', kwargs=self.proj_params),
         ]
 
         self.visit_urls(urls, [302, 200])

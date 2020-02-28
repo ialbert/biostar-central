@@ -2,11 +2,7 @@
 
 <script>
     $(document).ready(function () {
-        var json_edit = prepare_interface();
-        $(this).on('click', ".recipe.menu .interface", function () {
-            show_interface();
-            json_edit.refresh();
-        });
+        prepare_codemirror($('#interface textarea'), 700, 'engine');
 
     });
 </script>

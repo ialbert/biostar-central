@@ -1,6 +1,5 @@
 /*
 Code that handles recipe interface goes here.
-
 Must call setup.js first load up functions used here.
 */
 
@@ -131,7 +130,7 @@ $(document).ready(function () {
     var open_id = window.location.hash || "#info";
 
     // Initial toggle has no animation.
-    toggle_panels(open_id, 1)
+    toggle_panels(open_id, 1);
 
     $(".click").click(function (event) {
 
@@ -139,7 +138,7 @@ $(document).ready(function () {
         event.preventDefault();
 
         // Find the targeted element is in the data-value of the clicked element.
-        var target_id = $(this).data('value')
+        var target_id = $(this).data('value');
 
         // The selected page is already active.
         if (target_id === window.location.hash) {

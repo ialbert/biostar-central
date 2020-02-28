@@ -700,12 +700,12 @@ def recipe_view(request, uid):
                                 project=project)
         if form.is_valid():
             form.save()
-            messages.success(request, "Editted Recipe")
+            messages.success(request, "Edited Recipe")
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+        print(form.errors, "FOOOO")
     else:
         # Initial form loading via a GET request.
         form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
-
 
     initial = dict()
 
@@ -732,6 +732,7 @@ def recipe_create(request, uid):
                                   template="echo 'Hello World!'")
     url = reverse("recipe_view", kwargs=dict(uid=recipe.uid))
     return redirect(url)
+
 
 @write_access(type=Job, fallback_view="job_view")
 def job_edit(request, uid):
