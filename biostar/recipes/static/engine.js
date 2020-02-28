@@ -255,7 +255,7 @@ function json_preview(project_uid) {
                     '                        <a class="ui disabled button">\n' +
                     '                            <i class="redo icon"></i>Cancel\n' +
                     '                        </a>\n' +
-                    '                    </div></form></div>'.format(data.html));
+                    '                    </div></form></div>');
 
                 $('#preview').modal({autofocus: false}).modal('show')
 

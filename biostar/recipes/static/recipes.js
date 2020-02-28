@@ -31,8 +31,36 @@ function remove_notify() {
 function show_message(elem, mesg, status) {
     remove_notify()
     var node = $("<div class='notify'>{0}</div>".format(mesg));
-    node.addClass("ui {0} message".format(status));
+    node.addClass("ui {0} message popover".format(status));
     elem.closest("form").addClass(status).prepend(node)
+    node.delay(1000).fadeOut(500, function () {
+        $(this).remove()
+    });
+}
+
+function popup_message(elem, message, cls, timeout) {
+    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
+
+    elem = elem.find("textarea")
+
+    var text = $('<div class="popover"></div>');
+    var tag = $(text).insertBefore(elem)
+    tag.addClass(cls)
+    tag.text(message)
+    tag.delay(timeout).fadeOut(500, function () {
+        $(this).remove()
+    });
+}
+
+function flash(cls){
+    elem = $(".CodeMirror")
+    function explode(){
+        elem.removeClass(cls)
+        elem.addClass("fadeout")
+    }
+    setTimeout(explode, 1000);
+    elem.removeClass("fadeout")
+    elem.addClass(cls)
 }
 
 
@@ -42,18 +70,17 @@ function submit_form(elem) {
     // The form the button belongs to.
     form = elem.closest("form");
 
-
     // Get the data from the form.
     var data = {
         'json_text': form.find("textarea[name=json_text]").val() || '',
-        'template':  form.find("textarea[name=template]").val() || '',
+        'template': form.find("textarea[name=template]").val() || '',
         // This variable is special and is used as submit id.
         'id': form.find('input[name=id]').val()
     };
 
     // Recipe id must be used here.
     var url = '/recipe/ajax/edit/{0}/'.format(data.id)
-
+    
     $.ajax(url, {
             type: 'POST',
             dataType: 'json',
@@ -63,7 +90,8 @@ function submit_form(elem) {
                 if (res.status === 'error') {
                     show_message(elem, res.msg, res.status)
                 } else {
-                    show_message(elem, res.msg, "success")
+                    //show_message(elem, res.msg, "success")
+                    flash("fadein_success")
                 }
             },
             error: function (xhr, status, error) {

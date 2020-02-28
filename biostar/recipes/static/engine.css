@@ -408,6 +408,20 @@ figure {
     background: #fff8db !important;
 }
 
+.CodeMirror.fadein_success{
+    background-color: #fcfff5;
+}
+
+.CodeMirror.fadeout {
+    background-color: white;
+    -o-transition-duration: 0.8s;
+    -moz-transition-duration: 0.8s;
+    -ms-transition-duration: 0.8s;
+    -webkit-transition-duration: 0.8s;
+    transition-duration: 0.8s;
+}
+
+
 .ui.text.menu .active.item {
     font-weight: bold;
 }
@@ -454,7 +468,7 @@ figure {
 }
 
 
-#interface .preview{
+#interface .preview {
     float: right;
 }
 
