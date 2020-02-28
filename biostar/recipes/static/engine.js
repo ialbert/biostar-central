@@ -58,72 +58,6 @@ function error_message(elem, xhr, status, text) {
 }
 
 
-function snippet_form(elem, is_category) {
-    let type_name = elem.data('type_name');
-    let type_uid = elem.data('type_uid');
-    let snippet_uid = elem.data('snippet_uid');
-    let snippet = elem.data('snippet');
-    let help_text = elem.data('help_text');
-
-    $.ajax('/snippet/form/', {
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'is_category': is_category,
-                'type_uid': type_uid,
-                'type_name': type_name,
-                'snippet': snippet,
-                'help_text': help_text,
-                'snippet_uid': snippet_uid
-            },
-            success: function (data) {
-
-                $('#cmd_form').html(data.html);
-
-                $('#cmd_modal').modal('show');
-                //$('#search-results').html(data);
-
-            },
-            error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
-            }
-
-        }
-    );
-
-}
-
-
-function add_to_template(elem) {
-
-    let snippet = elem.attr('id');
-    let template = $('#template').val();
-    //alert(snippet);
-
-    $.ajax('/snippet/code/', {
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            'command': snippet,
-            'template': template,
-        },
-
-        success: function (data) {
-            // Inject the fields into the
-            //alert(data.json_text);
-            //alert("ffffff")
-            if (data.status === 'error') {
-                popup_message($('#template'), data.msg, data.status);
-            }
-            $('#template').val(data.code);
-            $('#template_field').html(data.html);
-            //$('#search-results').html(data);
-        },
-        error: function () {
-            error_message($(this), xhr, status, text)
-        }
-    });
-}
 
 
 function check_job() {
@@ -237,38 +171,10 @@ function preview_template(project_uid) {
         });
 }
 
-function save_snippet_category() {
-    var form_data = new FormData($('#snippet_form').get(0));
-
-    $.ajax('/create/snippet/type/', {
-            type: 'POST',
-            dataType: 'json',
-            data: form_data,
-            processData: false,
-            contentType: false,
-            success: function (data) {
-                if (data.status === 'success') {
-                    $('#new-type-holder').after(data.html);
-                    $('#cmd_modal').modal('hide');
-                } else {
-
-                    popup_message($('#cmd_form'), data.msg, data.status, 1000)
-                }
-
-            },
-            error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
-            }
-        }
-    )
-
-
-}
-
 function add_to_interface(display_type) {
 
     let json_text = $('#json').val();
-    //let display_type = $(this).attr('id');
+
     $.ajax('/add/recipe/fields/', {
         type: 'POST',
         dataType: 'json',
@@ -366,44 +272,6 @@ function json_preview(project_uid) {
         });
 }
 
-function create_snippet(elem) {
-    let type = elem.data('type');
-    let snippet_uid = elem.data('snippet_uid');
-    let snippet = $('#snippet').val();
-    let help_text = $('#help').val();
-
-    $.ajax('/create/snippet/', {
-
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'snippet': snippet,
-                'help_text': help_text,
-                'type_uid': type,
-                'snippet_uid': snippet_uid
-            },
-            success: function (data) {
-                if (data.status === 'success') {
-
-                    if (snippet_uid.length) {
-                        $('#item-' + snippet_uid).html(data.html);
-                    } else {
-                        $('.holder-' + type).after(data.html);
-                    }
-                    $('#cmd_modal').modal('hide');
-
-                } else {
-
-                    popup_message($('#snippet'), data.msg, data.status, 1000)
-                }
-
-            },
-            error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
-            }
-        }
-    )
-}
 
 function remove_trigger() {
     // Makes site messages dissapear.
@@ -580,10 +448,8 @@ $(document).ready(function () {
 
     $(this).on('click', '#json_preview', function () {
         event.preventDefault();
-        let project_uid = $(this).data('value');
+        let project_uid = $(this).closest("form").data('project');
         json_preview(project_uid);
-        $('.ui.dropdown').dropdown();
-        $('select').dropdown();
 
     });
 
@@ -634,12 +500,6 @@ $(document).ready(function () {
     $('#json_add_menu .item').popup({
         on: 'hover'
     });
-    $('.delete-snippet').popup({
-        on: 'hover',
-    });
-    $('.edit-snippet').popup({
-        on: 'hover',
-    });
 
     $('.listing').popup({
         on: 'hover',
@@ -670,16 +530,6 @@ $(document).ready(function () {
 
     });
 
-    $(this).on('click', '#save_snippet_type', function () {
-        save_snippet_category()
-
-    });
-
-    $(this).on('click', '#save_command', function () {
-        create_snippet($(this));
-
-    });
-
     $(this).on('click', '#template_preview', function () {
         event.preventDefault();
         //let uid = $(this).data('value');
@@ -688,17 +538,6 @@ $(document).ready(function () {
 
     });
 
-    $(this).on('click', '.add-snippet', function () {
-        snippet_form($(this), 0);
-    });
-
-    $(this).on('click', '.edit-snippet', function () {
-        snippet_form($(this), 0);
-    });
-
-    $(this).on('click', '.add-category', function () {
-        snippet_form($(this), 1);
-    });
 
     $(this).on('keyup', '#current_source', function (event) {
         // Submit when pressing enter

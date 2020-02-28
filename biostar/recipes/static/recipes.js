@@ -2,13 +2,40 @@
 Code that handles recipe interface goes here.
 */
 
-function prepare_codemirror(element, size) {
+function insert_run(element){
+
+    // Get the recipe uid from the parent form.
+    var form = element.closest("form");
+    var uid = form.data("value");
+
+    $.ajax("/run/interface/" + uid + "/",
+       {
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (data.status === 'success') {
+                    element.html(data.html);
+                    return
+                }
+                popup_message(form, data.msg, data.status, 2000)
+
+            },
+            error: function (xhr, status, text) {
+                error_message(form, xhr, status, text)
+            }
+        })
+
+
+
+}
+
+function prepare_codemirror(element, size, mode) {
 
     var area = CodeMirror.fromTextArea(
         element[0],
         {
             lineNumbers: true,
-            mode: 'shell',
+            mode: mode,
         }
     );
 
@@ -25,8 +52,8 @@ function prepare_codemirror(element, size) {
 
 $(document).ready(function () {
 
-    var script = prepare_codemirror($('#code textarea'), 700);
-    var interface = prepare_codemirror($('#interface textarea'), 700);
+    prepare_codemirror($('#code textarea'), 700, 'shell');
+    prepare_codemirror($('#interface textarea'), 700, 'engine');
 
     //script.refresh();
     //interface.refresh();
@@ -35,13 +62,16 @@ $(document).ready(function () {
     hash = window.location.hash || "#description" ;
 
     // Select collapsable elements
-    collapse = $(".collapse")
+    collapse = $(".collapse");
 
     // Hide all collapsable elements.
-    collapse.hide()
+    collapse.hide();
 
+    if (hash === '#run'){
+        insert_run($(hash));
+        }
     // Show only the selected tab.
-    $(hash).show()
+    $(hash).show();
 
     $(".clickable > .item").click(function (event) {
 
@@ -49,13 +79,19 @@ $(document).ready(function () {
         event.preventDefault();
 
         // The clicked element
-        var elem = $(this)
+        var elem = $(this);
 
         // Find the targeted element.
-        var target_id = '#' + elem.data('value')
+        var target_id = '#' + elem.data('value');
 
         // Find the current hash
         var current_id = window.location.hash;
+
+        // The target element will have ajax inject inside of it.
+        if (target_id === '#run'){
+            insert_run($(target_id));
+
+        }
 
         // The selected page is already active.
         if (target_id === current_id){
@@ -63,7 +99,7 @@ $(document).ready(function () {
         }
 
         // Move the target so it is first, thus always opens downwards.
-        $(target_id).parent().prepend($(target_id))
+        $(target_id).parent().prepend($(target_id));
 
         // Rewrite the window  with current id.
         window.location.hash = target_id;

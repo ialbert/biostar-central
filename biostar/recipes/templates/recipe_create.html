@@ -12,7 +12,7 @@
     <script src="{% static 'codemirror/mode/shell.js' %}"></script>
 
     {#  Javascript code that handles the recipe interfaces. #}
-    <script src="{% static 'recipe.js' %}"></script>
+    <script src="{% static 'recipes.js' %}{% randparam %}"></script>
 
 {% endblock %}
 
@@ -22,32 +22,61 @@
 
 {% block content %}
 
-    <form method="post" class="ui form edit-recipe" action="{{ action_url }}" enctype='multipart/form-data'>
+    <form method="post" class="ui form" action="{{ action_url }}" data-project="{{ project.uid }}" enctype='multipart/form-data'>
 
         {% csrf_token %}
 
         <div class="ui grid">
+
+            {# Side bar #}
             <div class="three wide column">
-                <div class="ui vertical text recipe menu">
-                    <a class="item" href="#edit">Recipe edit</a>
-                    <a class="item" href="#script">Recipe code</a>
-                    <a class="item" href="#interface">Recipe interface</a>
+                <div class="ui vertical text menu">
+                    <div class="clickable">
+                        <a class="item" href="#" data-value="description">Recipe edit</a>
+                        <a class="item" href="#" data-value="code">Recipe code</a>
+                        <a class="item" href="#" data-value="interface">Recipe interface</a>
+                    </div>
                     <div class="item">
                         <button class="ui blue button" type="submit">
                             <i class="save icon"></i>Save
                         </button>
                     </div>
+
                 </div>
             </div>
 
             <div class="thirteen wide column">
                 {% form_errors form %}
 
+                {#  Script #}
+                <div class="ui basic segment collapse" id="code">
+                    <div class="ui vertical segment">
+                        <div class="ui title header">Recipe Code</div>
+                    </div>
+                    <div class="field" id="template_field">
+                        <textarea class="code" rows="40" cols="55" name="template">{{ form.template.value }}</textarea>
+                    </div>
+                </div>
+
+                {#  Interface #}
+                <div class="ui basic segment collapse" id="interface">
+                    <div class="ui vertical segment">
+                        <span class="ui title header">Recipe Interface</span>
+                          <span class="options">
+                            {% interface_options %}
+                            <a href="#" id="json_preview"> <i class="eye icon"></i>Preview</a>
+                        </span>
+                    </div>
+                    <div class="field" id="json_field">
+                        <textarea class="code" rows="40" cols="55" name="json_text">{{ form.json_text.value }}</textarea>
+                    </div>
+                </div>
+
+
                 {# Edit recipe meta data. #}
-                <div class="ui vertical segment"><div class="ui title header">Edit Recipe</div></div>
-                <div class="ui basic segment" id="edit">
-                    {% csrf_token %}
-                    <div class=" fields ">
+                <div class="ui basic segment collapse" id="description">
+                 <div class="ui title header">Create Recipe</div>
+                    <div class="inline fields ">
                         <div class="inline field">
                             <span><b>Name</b> : </span>
                             {{ form.name }}
@@ -79,7 +108,7 @@
                             <div class="ui checkbox">
                                 {{ form.authorized }} <label>Authorized Recipe</label>
                             </div>
-                            <p class="muted">Check if this recipe is safe to run by trusted users.</p>
+                            <p class="muted"> This recipe is safe to run by trusted users.</p>
                         </div>
                     {% endif %}
 
@@ -87,30 +116,18 @@
                         {{ form.text }}
                         <div class="muted">A detailed explanation of what the recipe does (markdown OK).</div>
                     </div>
+
                 </div>
 
-                {#  Script #}
-                <div class="ui basic segment" id="script">
-                    <div class="ui vertical segment"><div class="ui title header">Recipe Script</div></div>
-                    <div class="field" id="template_field">
-                       <textarea class="code" rows="40" cols="55" name="template" id="template">{{ form.template.value }}</textarea>
-                    </div>
-                </div>
-
-                {#  Interface #}
-                <div class="ui basic segment" id="interface">
-                     <div class="ui vertical segment"><div class="ui title header">Recipe Interface</div></div>
-                    <div class="field" id="json_field">
-                        <textarea class="code" rows="40" cols="55" name="json_text" id="json">{{ form.json_text.value }}</textarea>
-                    </div>
-                </div>
+                {# Recipe run form #}
+                <div class="ui basic segment collapse" id="run"></div>
 
             </div>
 
-        </div>
+            <div class="ui tiny inputcolor modal" id="preview_modal">
+                <div id="preview_cont"></div>
+            </div>
 
-        <div class="ui tiny inputcolor modal" id="preview_modal">
-            <div id="preview_cont"></div>
         </div>
 
     </form>

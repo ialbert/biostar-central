@@ -1,69 +1,56 @@
-{% extends "base_content.html" %}
 {% load engine_tags %}
 
-{% block headtitle %}
-    {{ recipe.name }}
-{% endblock %}
-
-{% block title %}
-    Run {{ recipe.name }}
-{% endblock %}
-
-{% block content %}
-
-    <div class="recipe-form">
-        <div class="ui raised segment inputcolor">
-            <div class="ui center aligned header">
-                <div>
-                 <i class="settings icon"></i>Recipe:  <a href="{{ recipe.url }}">{{ recipe.name|truncatechars:100 }}</a>
-                </div>
+<div class="recipe-form">
+    <div class="ui raised segment inputcolor">
+        <div class="ui center aligned header">
+            <div>
+                <i class="settings icon"></i>Recipe: <a href="{{ recipe.url }}">{{ recipe.name|truncatechars:100 }}</a>
             </div>
-
-            <div class="ui vertical detail segment">
-                {% if recipe.runnable %}
-                    <div class="ui right ribbon green label" id="recipe-run" >
-                        <i class="check icon"></i>
-                        Authorized
-                    </div>
-                {% else %}
-                    <div class="ui right ribbon orange label" id="recipe-run">
-                        <i class="hand paper icon"></i>
-                        Pending authorization
-                    </div>
-                {% endif %}
-                <form method="POST" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' recipe.uid %}">
-
-                    <div class="ui form">
-
-                        {% csrf_token %}
-                        {{ form.media }}
-
-                        {% recipe_form form %}
-
-                        <div class="field">
-                            {% if is_runnable %}
-                                <button type="submit" class="ui green button">
-                                    <i class="check icon"></i>Run
-                                </button>
-                            {% else %}
-                                <button type="submit" class="ui disabled green button">
-                                    <i class="check icon"></i>Run
-                                </button>
-                            {% endif %}
-
-                            <a class="ui  button" href="{% url 'recipe_view' recipe.uid %}">
-                                <i class="redo icon"></i>Cancel
-                            </a>
-                        </div>
-
-                        <div class="field">
-                            {% security_label recipe %}
-                        </div>
-                    </div>
-                </form>
-            </div>
-
         </div>
-    </div>
 
-{% endblock %}
+        <div class="ui vertical detail segment">
+            {% if recipe.runnable %}
+                <div class="ui right ribbon green label" id="recipe-run"><i class="check icon"></i>
+                    Authorized
+                </div>
+            {% else %}
+                <div class="ui right ribbon orange label" id="recipe-run"><i class="hand paper icon"></i>
+                    Pending authorization
+                </div>
+            {% endif %}
+            <form method="POST" class="ui form" enctype="multipart/form-data"
+                  action="{% url 'recipe_run' recipe.uid %}">
+
+                <div class="ui form">
+
+                    {% csrf_token %}
+                    {{ form.media }}
+
+                    {% recipe_form form %}
+
+                    <div class="field">
+                        {% if is_runnable %}
+                            <button type="submit" class="ui green button">
+                                <i class="check icon"></i>Run
+                            </button>
+                        {% else %}
+                            <button type="submit" class="ui disabled green button">
+                                <i class="check icon"></i>Run
+                            </button>
+                        {% endif %}
+
+                        <a class="ui  button" href="{% url 'recipe_view' recipe.uid %}">
+                            <i class="redo icon"></i>Cancel
+                        </a>
+                    </div>
+
+                    <div class="field">
+                        {% security_label recipe %}
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+

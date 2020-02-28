@@ -142,7 +142,7 @@ class SiteNavigation(TestCase):
             reverse("recipe_delete", kwargs=self.analysis_params),
             reverse("job_delete", kwargs=self.job_params),
             reverse("data_delete", kwargs=self.data_params),
-            
+
 
 
             #data_upload, recipe_run job_rerun

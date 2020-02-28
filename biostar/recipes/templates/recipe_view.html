@@ -36,7 +36,8 @@
 
     {% endif %}
 
-    <form method="post" class="ui form" action="{{ action_url }}" enctype='multipart/form-data'>
+    <form method="post" class="ui form" action="{{ action_url }}" data-value="{{ recipe.uid }}" data-project="{{ recipe.project.uid }}"
+          enctype='multipart/form-data'>
 
         {% csrf_token %}
 
@@ -44,21 +45,25 @@
 
             {# Side bar #}
             <div class="three wide column">
-                <div class="ui vertical text menu clickable">
-                    <a class="item" href="#" data-value="description">Recipe description</a>
-                    <a class="item" href="#" data-value="edit">Recipe edit</a>
-                    <a class="item" href="#" data-value="code">Recipe code</a>
-                    <a class="item" href="#" data-value="interface">Recipe interface</a>
-                    <a class="item" href="{% url 'recipe_run' recipe.uid %}">Run recipe</a>
+                <div class="ui vertical text menu">
+                    <div class="clickable">
+                        <a class="item" href="#" data-value="description">Recipe description</a>
+                        <a class="item" href="#" data-value="edit">Recipe edit</a>
+                        <a class="item" href="#" data-value="code">Recipe code</a>
+                        <a class="item" href="#" data-value="interface">Recipe interface</a>
+                        <a class="item" href="#" data-value="run">Run recipe</a>
+                    </div>
                     <a class="item" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
                         Recipe results ({{ recipe.job_count }})
                     </a>
+
                     <a class="item" href="{% url 'recipe_download' recipe.uid %}">Download recipe</a>
                     <div class="item">
                         <button class="ui blue button" type="submit">
                             <i class="save icon"></i>Save
                         </button>
                     </div>
+
                 </div>
             </div>
 
@@ -92,8 +97,13 @@
                 {#  Interface #}
                 <div class="ui basic segment collapse" id="interface">
                     <div class="ui vertical segment">
-                        <div class="ui title header">Recipe Interface</div>
+                        <span class="ui title header">Recipe Interface</span>
+                        <span class="options">
+                            {% interface_options %}
+                            <a href="#" id="json_preview"> <i class="eye icon"></i>Preview</a>
+                        </span>
                     </div>
+
                     <div class="field" id="json_field">
                         <textarea class="code" rows="40" cols="55"
                                   name="json_text">{{ form.json_text.value }}</textarea>
@@ -103,7 +113,7 @@
 
                 {# Edit recipe meta data. #}
                 <div class="ui basic segment collapse" id="edit">
-                 <div class="ui title header">Edit Recipe</div>
+                    <div class="ui title header">Edit Recipe</div>
                     <div class="inline fields ">
                         <div class="inline field">
                             <span><b>Name</b> : </span>
@@ -147,7 +157,13 @@
 
                 </div>
 
+                {# Recipe run form #}
+                <div class="ui basic segment collapse" id="run"></div>
 
+            </div>
+
+            <div class="ui tiny inputcolor modal" id="preview_modal">
+                <div id="preview_cont"></div>
             </div>
 
         </div>

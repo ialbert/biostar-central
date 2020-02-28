@@ -13,6 +13,10 @@ body {
     margin-top: 0px;
 }
 
+#interface .options{
+    float: right;
+}
+
 .narrow {
     margin-left: 15%;
     margin-right: 15%;

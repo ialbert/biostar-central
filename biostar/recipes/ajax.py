@@ -6,6 +6,8 @@ from ratelimit.decorators import ratelimit
 
 from django.shortcuts import reverse
 from django.template import loader
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.template import Template, Context
 from django.http import JsonResponse
 from django.template import loader
@@ -101,6 +103,7 @@ def check_job(request, uid):
                         html=template, state=job.get_state_display(), is_running=job.is_running(),
                         stdout=stdout, stderr=stderr, job_color=auth.job_color(job),
                         state_changed=state_changed, img_tmpl=image_tmpl)
+
 
 def check_size(fobj, maxsize=0.3):
     # maxsize in megabytes!
@@ -202,7 +205,7 @@ def get_display_dict(display_type):
         return dict(label='Dropdown Field Label',
                     display=DROPDOWN,
                     help="Pick an option from a dropdown.",
-                    choices=[('1', 'Choices'), ('2', 'Choices 2')],
+                    choices=[('1', 'Choices 1'), ('2', 'Choices 2')],
                     value='1')
     if display == UPLOAD:
         return dict(label='Upload a file',
@@ -242,6 +245,26 @@ def add_to_interface(request):
     json_field = tmpl.render(context=context)
 
     return ajax_success(html=json_field, json_text=new_json, msg="Rendered json")
+
+
+@ajax_error_wrapper(method="GET", login_required=False)
+def run_interface(request, uid):
+    """
+    Render recipe run interface.
+    """
+    recipe = Analysis.objects.filter(uid=uid).first()
+    if not recipe:
+        return ajax_error(msg="Recipe does not exist.")
+
+    form = RecipeInterface(request=request, json_data=recipe.json_data,
+                           project=recipe.project, initial=dict(name=recipe.name))
+
+    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
+    context = dict(form=form, recipe=recipe, request=request, is_runnable=is_runnable)
+    run = render_to_string(request=request, template_name='recipe_run.html', context=context)
+    run = mark_safe(run)
+
+    return ajax_success(html=run, msg="Rendered interface")
 
 
 @ajax_error_wrapper(method="POST")
