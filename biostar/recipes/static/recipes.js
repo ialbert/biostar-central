@@ -23,38 +23,63 @@ function prepare_codemirror(element, size) {
     return area
 }
 
-// Submit edit request.
-function submit_form() {
+// Removes notifications
+function remove_notify() {
+    $('.notify').remove()
+}
+
+// Shows messages.
+function show_message(elem, mesg, status) {
+    remove_notify()
+    var node = $("<div class='notify'>{0}</div>".format(mesg));
+    node.addClass("ui {0} message".format(status));
+    elem.closest("form").addClass(status).prepend(node)
+}
 
 
+// Submits a form request.
+function submit_form(elem) {
+
+    // The form the button belongs to.
+    form = elem.closest("form");
+
+    fd = new FormData(form[0])
+
+    console.log(fd.get("name"))
+    console.log(fd.get("rank"))
+
+    // Get the data from the form.
     var data = {
-        'name': $('input[name=name]').val(),
-        'uid': $('input[name=uid]').val(),
-        'text': $('textarea[name=text]').val(),
-        'image': $('input[name=image]').val(),
-        'rank': $('input[name=rank]').val()
+        'name': form.find('input[name=name]').val() || '',
+        'uid': form.find('input[name=uid]').val() || '',
+        'text': form.find('textarea[name=text]').val() || '',
+        'image': form.find('input[name=image]').val() || '',
+        'rank': form.find('input[name=rank]').val() || '',
+        'json_text': form.find("textarea[name=json_text]").val() || '',
+        'template':  form.find("textarea[name=template]").val() || '',
+
+        // This variable is special and is used as submit id.
+        'id': form.find('input[name=id]').val()
     };
 
-
-    var url = '/recipe/edit/{0}/'.format(data.uid)
+    // Recipe id must be used here.
+    var url = '/recipe/edit/{0}/'.format(data.id)
 
     $.ajax(url, {
             type: 'POST',
             dataType: 'json',
+            //processData: false,
             data: data,
-            success: function (data) {
-                if (data.status === 'error') {
-                    //popup_message($('#template'), data.msg, data.status);
-                    alert(data.msg, data.status)
-                    
-
+            success: function (res) {
+                if (res.status === 'error') {
+                    show_message(elem, res.msg, res.status)
                 } else {
-                    $('#message').html("OK")
+                    show_message(elem, res.msg, "success")
                 }
-
             },
-            error: function (xhr, status, text) {
-
+            error: function (xhr, status, error) {
+                var text = "Ajax error: status={0} error={1}".format(status, error)
+                show_message(elem, text, "error")
             }
         }
     );
@@ -97,7 +122,7 @@ function toggle_panels(elem_id, quick) {
 $(document).ready(function () {
 
     var script = prepare_codemirror($('#code textarea'), 700);
-    var interface = prepare_codemirror($('#interface textarea'), 700);
+    var interface = prepare_codemirror($('#interface textarea'), 400);
 
     //script.refresh();
     //interface.refresh();
@@ -129,7 +154,7 @@ $(document).ready(function () {
     // Catch click on elements with submit types.
     $(":submit").click(function (event) {
         event.preventDefault();
-        submit_form()
+        submit_form($(this))
     });
 
 });

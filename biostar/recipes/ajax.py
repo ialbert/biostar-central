@@ -1,6 +1,7 @@
 from functools import wraps, partial
 import logging
 
+from django.contrib import messages
 import toml
 from ratelimit.decorators import ratelimit
 
@@ -65,41 +66,39 @@ class ajax_error_wrapper:
 
         return _ajax_view
 
+from .forms import RecipeForm
 
 @ajax_error_wrapper(method="POST", login_required=True)
-def ajax_edit(request, uid):
+def ajax_edit(request, id):
     """
-    Edit recipes.
+    Edit recipes. Uses recipe primary key as access!
     """
 
-    # The recipe that needs to be edited.
-    recipe = Analysis.objects.filter(uid=uid).first()
+    print ("Ajax edit debug")
 
-    url = reverse("recipe_view", kwargs=dict(uid=uid))
-    hash = '#info'
+    for key, value in request.POST.items():
+        print (key, "->",  value)
 
-    # The project that recipe belongs to.
-    project = recipe.project
+    print ("---")
+
+    # The user performing the request.
     user = request.user
 
-    if request.method == "POST":
-        # Form has been submitted
-        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
-                                project=project)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Edited Recipe")
-            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-        else:
-            print(form.errors)
-            messages.error(request, "Form data not valid")
+    # The recipe that needs to be edited.
+    recipe = Analysis.objects.filter(id=id).first()
 
+    # The project of for the recipe.
+    project = recipe.project
+
+    form = RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
+                            project=project)
+
+    if form.is_valid():
+        form.save()
+        return ajax_success(msg=f"Recipe saved.")
     else:
-        # This view supports only POST
-        messages.error(request, "This view supports POST requests only")
-
-    return redirect(url + hash)
-
+        message = str(form.errors)
+        return ajax_error(msg=message)
 
 
 def check_job(request, uid):

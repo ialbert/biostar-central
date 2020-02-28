@@ -97,24 +97,58 @@
 
             {#  Script #}
             <div class="ui basic segment collapse" id="code">
-                <div class="ui vertical segment">
-                    <div class="ui title header">Recipe Code</div>
-                </div>
-                <div class="field" id="template_field">
-                            <textarea class="code" rows="40" cols="55"
-                                      name="template">{{ form.template.value }}</textarea>
-                </div>
+                <form method="post" class="ui form" action="#" enctype='multipart/form-data'>
+
+                    <div class="ui vertical segment">
+                        <div class="ui title header">Recipe Code</div>
+                    </div>
+                    <div class="field" id="template_field">
+                    <textarea class="code" rows="40" cols="55"
+                              name="template">{{ form.template.value }}</textarea>
+                    </div>
+
+                    {# The recipe primary id #}
+                    <input type="hidden" name="id" value="{{ recipe.id }}">
+
+                    <div class="item">
+                        <button class="ui green button" type="submit">
+                            <i class="save icon"></i> Save Code
+                        </button>
+
+                        <a class="ui right floated gray button click" data-value="#info">
+                            <i class="arrow left icon"></i> Back
+                        </a>
+                    </div>
+                </form>
+
             </div>
 
             {#  Interface #}
             <div class="ui basic segment collapse" id="interface">
-                <div class="ui vertical segment">
-                    <div class="ui title header">Recipe Interface</div>
-                </div>
-                <div class="field" id="json_field">
+                <form method="post" class="ui form" action="#" enctype='multipart/form-data'>
+
+                    <div class="ui vertical segment">
+                        <div class="ui title header">Recipe Interface</div>
+                    </div>
+                    <div class="field" id="json_field">
                         <textarea class="code" rows="40" cols="55"
                                   name="json_text">{{ form.json_text.value }}</textarea>
-                </div>
+                    </div>
+
+                    {# The recipe primary id #}
+                    <input type="hidden" name="id" value="{{ recipe.id }}">
+
+                    <div class="item">
+                        <button class="ui green button" type="submit">
+                            <i class="save icon"></i> Save Interface
+                        </button>
+
+                        <a class="ui right floated gray button click" data-value="#info">
+                            <i class="arrow left icon"></i> Back
+                        </a>
+                    </div>
+
+                </form>
             </div>
 
             {# Edit recipe meta data. #}
@@ -124,8 +158,6 @@
 
                     <div class="ui title header">Edit Recipe</div>
 
-                    <span id="notify"></span>
-
                     <div class="two fields">
                         <div class="field">
                             <label>Name</label>
@@ -133,7 +165,7 @@
                             <div class="muted">Recipe display name</div>
                         </div>
                         <div class="field">
-                            <label>Uid</label>
+                            <label>Identifier</label>
                             {{ form.uid }}
                             <div class="muted">Unique identifier for the recipe.</div>
                         </div>
@@ -166,7 +198,8 @@
                         </div>
                     </div>
 
-                    <input type="hidden" name="uid" value="{{ recipe.uid }}">
+                    {# The recipe primary id #}
+                    <input type="hidden" name="id" value="{{ recipe.id }}">
 
                     <div class="item">
                         <button class="ui green button" type="submit">
