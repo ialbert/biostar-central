@@ -175,7 +175,7 @@ dump:
 	@cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
 	@ls -1 export/database/*.json
 
-uwsgi:
+uwsgi: init
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo UWSGI_INI=${UWSGI_INI}
 	uwsgi --ini ${UWSGI_INI}

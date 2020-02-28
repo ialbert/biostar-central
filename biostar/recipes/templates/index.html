@@ -6,6 +6,10 @@
     Bioinformatics Recipes
 {% endblock %}
 
+{% block head %}
+    <style>
+    </style>
+{% endblock %}
 
 {% block body %}
     <div class="ui center aligned basic vertical segment">
@@ -17,11 +21,14 @@
 
     {% show_messages messages %}
 
+    <a class="ui left ribbon projects label" href="{% url 'project_list' %}">
+        <i class="database icon"></i> All Projects
+    </a>
 
     <div class="ui large vertical segment">
 
         <div class="ui grid">
-            <div class="ten wide column">
+            <div class="ten wide column home">
                 <div class="ui relaxed divided list questions">
 
                     <div class="item padme">
@@ -30,6 +37,16 @@
                             A "bioinformatics recipe" is a collection of commands used to perform a
                             bioinformatics data analysis task. A recipe can be thought
                             of as a <em>bioinformatics workflow</em> or a <em>bioinformatics pipeline</em>.
+                        </div>
+                    </div>
+
+                    <div class="item padme">
+                        <div class="subheader">Where are the recipes?</div>
+                        <div class="description">
+                            <ul>
+                                <li>The <a href="{% url 'project_list' %}">
+                                    <i class="database icon"></i>All Projects</a> page lists each project with recipes</li>
+                            </ul>
                         </div>
                     </div>
 
@@ -52,23 +69,23 @@
                     <div class="item padme ">
                         <div class="subheader">Can I run recipes on my computer?</div>
                         <div class="description">
-                            Yes! All recipes can be run at the command line on your system. Newcomers to bioinformatics
+                            Yes! All recipes are also designed to run at the command line.
+                            <p>Newcomers to bioinformatics
                             might want to consult the <a href="https://www.biostarhandbook.com"><i
                         class="book icon"></i>Biostar
-                            Handbook</a> for more details.
+                                    Handbook</a> for more details.</p>
                         </div>
                     </div>
 
                     <div class="item padme ">
                         <div class="subheader">Where can I learn more of how the site works?</div>
                         <div class="description">
-                            We maintain the site documentation at <a href="https://bioinformatics-recipes.readthedocs.io/"><i
+                            We maintain the site documentation at <a
+                        href="https://bioinformatics-recipes.readthedocs.io/"><i
                         class="book icon"></i>Biostar
                             Recipes: Read The Docs</a>.
                         </div>
                     </div>
-
-
 
 
                 </div>

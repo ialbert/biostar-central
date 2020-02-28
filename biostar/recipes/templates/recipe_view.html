@@ -77,26 +77,26 @@
         <div class="thirteen wide column">
 
             {#  Description #}
-            <div class="ui basic segment collapse" id="info">
+            <div class="ui basic large segment collapse" id="info">
 
                 {#  Recipe info. #}
                 <div class="ui divided link items">
                     {% recipe_details recipe %}
                 </div>
 
-                <div class="ui vertical segment">
+                <div class="ui large vertical segment">
                     {{ recipe.html | safe }}
                 </div>
 
                 <div class="ui center aligned vertical segment">
-                    <a class="ui gray button click" href="#" data-value="#edit">
+                    <a class="ui gray small button click" href="#" data-value="#edit">
                         <i class="edit icon"></i> Edit description
                     </a>
                 </div>
             </div>
 
             {#  Script #}
-            <div class="ui basic segment collapse" id="code">
+            <div class="ui basic large segment collapse" id="code">
                 <form method="post" class="ui form" action="#">
 
                     <div class="ui vertical segment">
@@ -152,7 +152,7 @@
             </div>
 
             {# Edit recipe meta data. #}
-            <div class="ui basic segment collapse formstyle" id="edit">
+            <div class="ui basic large segment collapse formstyle" id="edit">
 
                 <form method="post" class="ui form" action="{% url "recipe_edit" uid=recipe.uid %}" enctype='multipart/form-data'>
 
