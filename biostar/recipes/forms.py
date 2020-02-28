@@ -340,8 +340,7 @@ class RecipeForm(forms.ModelForm):
     rank = forms.FloatField(required=False, initial=100)
     text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=False)
 
-    def __init__(self, user, creating=False, project=None, *args, **kwargs):
-        self.creating = creating
+    def __init__(self, user,  project=None, *args, **kwargs):
         self.user = user
         self.project = project
 
@@ -366,11 +365,6 @@ class RecipeForm(forms.ModelForm):
             initial['field'] = getattr(self.instance, field)
         return initial
 
-    def validate_readable(self):
-        is_readable = auth.is_readable(user=self.user, project=self.project)
-        if not is_readable:
-            raise forms.ValidationError('You need read access to the project create a recipe.')
-
     def validate_writable(self):
         # Check write access when editing
         is_writable = auth.writeable_recipe(user=self.user, source=self.instance, project=self.project)
@@ -383,15 +377,13 @@ class RecipeForm(forms.ModelForm):
         """
         cleaned_data = super(RecipeForm, self).clean()
 
+        # Anonymoys users cannot edit.
         if self.user.is_anonymous:
             raise forms.ValidationError('You need to be logged in.')
 
-        if self.creating:
-            # Check if recipe is readable to user
-            self.validate_readable()
-        else:
-            # Check to see if the
-            self.validate_writable()
+
+        # Check to see if the recipe is writable.
+        self.validate_writable()
 
         # Fill with default values.
         for field in self.Meta.fields:
@@ -407,7 +399,7 @@ class RecipeForm(forms.ModelForm):
         # User is not superuser.
         not_superuser = not self.user.is_superuser
 
-        # Recipe becomes un-authorized when the template or JSON are changed
+        # Recipe becomes un-authorized when the template or JSON are changed.
         if (json_changed or template_changed) and not_superuser:
             self.instance.security = Analysis.NOT_AUTHORIZED
             self.instance.save()
@@ -415,7 +407,6 @@ class RecipeForm(forms.ModelForm):
         return cleaned_data
 
     def clean_image(self):
-
         cleaned_data = super(RecipeForm, self).clean()
         image = cleaned_data.get('image')
         check_size(fobj=image)
@@ -437,9 +428,8 @@ class RecipeForm(forms.ModelForm):
         self.instance.lastedit_date = now()
         self.instance.lastedit_user = self.user
 
-        # Is this needed?
-        #image = self.cleaned_data['image']
-        #self.instance.image = image or self.instance.image
+        image = self.cleaned_data['image']
+        self.instance.image = image or self.instance.image
 
         return super().save(commit)
 

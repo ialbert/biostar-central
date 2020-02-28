@@ -64,7 +64,11 @@ urlpatterns = [
     path(r'recipe/view/<str:uid>/', views.recipe_view, name='recipe_view'),
     path(r'run/interface/<str:uid>/', ajax.run_interface, name='run_interface'),
     path(r'recipe/run/<str:uid>/', views.recipe_run, name='recipe_run'),
-    path(r'recipe/edit/<int:id>/', ajax.ajax_edit, name='recipe_edit'),
+
+    # Recipes edited in two ways.
+    path(r'recipe/edit/<str:uid>/', views.recipe_edit, name='recipe_edit'),
+
+    path(r'recipe/ajax/edit/<int:id>/', ajax.ajax_edit, name='recipe_ajax_edit'),
 
     path(r'recipe/paste/<str:uid>/', views.recipe_paste, name='recipe_paste'),
     path(r'recipe/delete/<str:uid>/', views.recipe_delete, name='recipe_delete'),

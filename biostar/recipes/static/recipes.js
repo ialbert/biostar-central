@@ -42,27 +42,17 @@ function submit_form(elem) {
     // The form the button belongs to.
     form = elem.closest("form");
 
-    fd = new FormData(form[0])
-
-    console.log(fd.get("name"))
-    console.log(fd.get("rank"))
 
     // Get the data from the form.
     var data = {
-        'name': form.find('input[name=name]').val() || '',
-        'uid': form.find('input[name=uid]').val() || '',
-        'text': form.find('textarea[name=text]').val() || '',
-        'image': form.find('input[name=image]').val() || '',
-        'rank': form.find('input[name=rank]').val() || '',
         'json_text': form.find("textarea[name=json_text]").val() || '',
         'template':  form.find("textarea[name=template]").val() || '',
-
         // This variable is special and is used as submit id.
         'id': form.find('input[name=id]').val()
     };
 
     // Recipe id must be used here.
-    var url = '/recipe/edit/{0}/'.format(data.id)
+    var url = '/recipe/ajax/edit/{0}/'.format(data.id)
 
     $.ajax(url, {
             type: 'POST',
@@ -151,7 +141,7 @@ $(document).ready(function () {
     });
 
     // Catch click on elements with submit types.
-    $(":submit").click(function (event) {
+    $(":submit.ajax").click(function (event) {
         event.preventDefault();
         submit_form($(this))
     });

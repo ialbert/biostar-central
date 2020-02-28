@@ -682,45 +682,64 @@ def job_rerun(request, uid):
     return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
 
 
+@write_access(type=Analysis)
+def recipe_edit(request, uid):
+
+    # The user making the request.
+    user = request.user
+
+    # The recipe that needs to be edited.
+    recipe = Analysis.objects.filter(uid=uid).first()
+
+    # Project the recipe is stored in.
+    project = recipe.project
+
+    if request.method == "POST":
+        # Form has been submitted
+        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
+                                project=project)
+        if form.is_valid():
+            messages.success(request, "Recipe saved")
+            form.save()
+        else:
+            messages.error(request, form.errors)
+
+    # Refetch object to get new uid.
+    recipe = Analysis.objects.get(id=recipe.id)
+
+    return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+
+
 @read_access(type=Analysis)
 def recipe_view(request, uid):
     """
     Edit meta-data associated with a recipe.
     """
 
+    # The user making the request.
+    user = request.user
+
     # The recipe that needs to be edited.
-    recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.filter(uid=uid).annotate(
+            job_count=Count("job", filter=Q(job__deleted=False))
+        ).first()
 
     # The project that recipe belongs to.
     project = recipe.project
-    user = request.user
-    if request.method == "POST":
-        # Form has been submitted
-        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
-                                project=project)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Edited Recipe")
-            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-        print(form.errors, "FOOOO")
-    else:
-        # Initial form loading via a GET request.
-        form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
-    initial = dict()
 
-    run_form = forms.RecipeInterface(request=request, analysis=recipe,
-                                     json_data=recipe.json_data, initial=initial)
+    # Initial form loading via a GET request.
+    form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
-    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
-
-    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job", filter=Q(job__deleted=False))).first()
-
-    context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,
-                   activate='Recipe View', run_form=run_form)
-
+    # Fills in project level counts (results, data and recipe counts).
     counts = get_counts(project)
+
+    # Generate the context.
+    context = dict(recipe=recipe, project=project, form=form,  activate='Recipe View')
+
+    # Update context with counts.
     context.update(counts)
+
     return render(request, 'recipe_view.html', context)
 
 

@@ -76,18 +76,15 @@ def ajax_edit(request, id):
     Edit recipes. Uses recipe primary key as access!
     """
 
-    print ("Ajax edit debug")
-
-    for key, value in request.POST.items():
-        print (key, "->",  value)
-
-    print ("---")
-
     # The user performing the request.
     user = request.user
 
     # The recipe that needs to be edited.
     recipe = Analysis.objects.filter(id=id).first()
+
+    if not auth.writeable_recipe(source=recipe, user=user):
+        message = str("Recipe is not writable by current user")
+        return ajax_error(msg=message)
 
     # The project of for the recipe.
     project = recipe.project

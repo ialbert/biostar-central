@@ -97,7 +97,7 @@
 
             {#  Script #}
             <div class="ui basic segment collapse" id="code">
-                <form method="post" class="ui form" action="#" enctype='multipart/form-data'>
+                <form method="post" class="ui form" action="#">
 
                     <div class="ui vertical segment">
                         <div class="ui title header">Recipe Code</div>
@@ -111,7 +111,7 @@
                     <input type="hidden" name="id" value="{{ recipe.id }}">
 
                     <div class="item">
-                        <button class="ui green button" type="submit">
+                        <button class="ui green button ajax" type="submit">
                             <i class="save icon"></i> Save Code
                         </button>
 
@@ -125,7 +125,7 @@
 
             {#  Interface #}
             <div class="ui basic segment collapse" id="interface">
-                <form method="post" class="ui form" action="#" enctype='multipart/form-data'>
+                <form method="post" class="ui form" action="#">
 
                     <div class="ui vertical segment">
                         <div class="ui title header">Recipe Interface</div>
@@ -139,7 +139,7 @@
                     <input type="hidden" name="id" value="{{ recipe.id }}">
 
                     <div class="item">
-                        <button class="ui green button" type="submit">
+                        <button class="ui green button ajax" type="submit">
                             <i class="save icon"></i> Save Interface
                         </button>
 
@@ -154,9 +154,13 @@
             {# Edit recipe meta data. #}
             <div class="ui basic segment collapse formstyle" id="edit">
 
-                <form method="post" class="ui form" action="#" enctype='multipart/form-data'>
+                <form method="post" class="ui form" action="{% url "recipe_edit" uid=recipe.uid %}" enctype='multipart/form-data'>
+
 
                     <div class="ui title header">Edit Recipe</div>
+
+                {%  csrf_token %}
+
 
                     <div class="two fields">
                         <div class="field">

@@ -5,7 +5,11 @@ This script should be called before other javascript.
 /*
 Makes string substitutions simpler:
 
-console.log("Hello, {0}!".format("World"))
+var text = "{0}, {1}! {0}!".format("Hello", "World")
+
+Prints:
+
+    Hello World! Hello!
 
  */
 String.prototype.format = String.prototype.f = function () {
