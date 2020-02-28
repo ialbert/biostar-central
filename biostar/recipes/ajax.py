@@ -1,6 +1,7 @@
 from functools import wraps, partial
 import logging
 
+from django.contrib import messages
 import toml
 from ratelimit.decorators import ratelimit
 
@@ -63,10 +64,43 @@ class ajax_error_wrapper:
                 return ajax_error(f'{self.method} method must be used.')
             if request.user.is_anonymous and self.login_required:
                 return ajax_error('You must be logged in.')
-
             return func(request, *args, **kwargs)
 
         return _ajax_view
+
+from .forms import RecipeForm
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_edit(request, id):
+    """
+    Edit recipes. Uses recipe primary key as access!
+    """
+
+    print ("Ajax edit debug")
+
+    for key, value in request.POST.items():
+        print (key, "->",  value)
+
+    print ("---")
+
+    # The user performing the request.
+    user = request.user
+
+    # The recipe that needs to be edited.
+    recipe = Analysis.objects.filter(id=id).first()
+
+    # The project of for the recipe.
+    project = recipe.project
+
+    form = RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
+                            project=project)
+
+    if form.is_valid():
+        form.save()
+        return ajax_success(msg=f"Recipe saved.")
+    else:
+        message = str(form.errors)
+        return ajax_error(msg=message)
 
 
 def check_job(request, uid):

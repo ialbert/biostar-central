@@ -5,8 +5,7 @@ Code that handles recipe interface goes here.
 function insert_run(element){
 
     // Get the recipe uid from the parent form.
-    var form = element.closest("form");
-    var uid = form.data("value");
+    var uid = element.data("value");
 
     $.ajax("/run/interface/" + uid + "/",
        {
@@ -14,7 +13,10 @@ function insert_run(element){
             dataType: 'json',
             success: function (data) {
                 if (data.status === 'success') {
-                    element.html(data.html);
+                    //element.html(data.html);
+                    //element.html("FII");
+                    //alert(element.html());
+                    toggle_panels("#run");
                     return
                 }
                 popup_message(form, data.msg, data.status, 2000)
@@ -46,7 +48,7 @@ $(document).ready(function () {
     // Show only the selected tab.
     $(hash).show();
 
-    $(".clickable > .item").click(function (event) {
+    $(".click").click(function (event) {
 
         // Don't trigger other behaviors.
         event.preventDefault();
@@ -55,7 +57,8 @@ $(document).ready(function () {
         var elem = $(this);
 
         // Find the targeted element.
-        var target_id = '#' + elem.data('value');
+        var target_id = elem.data('value');
+
 
         // Find the current hash
         var current_id = window.location.hash;
@@ -63,7 +66,6 @@ $(document).ready(function () {
         // The target element will have ajax inject inside of it.
         if (target_id === '#run'){
             insert_run($(target_id));
-
         }
 
         // The selected page is already active.

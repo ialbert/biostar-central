@@ -333,12 +333,12 @@ class RecipeForm(forms.ModelForm):
     Fields that are not submitted are set to existing values.
     """
     image = forms.ImageField(required=False)
-    uid = forms.CharField(max_length=32, validators=[validate_slug], required=True)
+    uid = forms.CharField(max_length=32, validators=[validate_slug], required=False)
     json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="", required=False)
-    template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# Code goes here", required=True)
-    name = forms.CharField(max_length=MAX_NAME_LEN, required=True)
-    rank = forms.FloatField(required=True, initial=100)
-    text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=True)
+    template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# code", required=False)
+    name = forms.CharField(max_length=MAX_NAME_LEN, required=False)
+    rank = forms.FloatField(required=False, initial=100)
+    text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=False)
 
     def __init__(self, user, creating=False, project=None, *args, **kwargs):
         self.creating = creating
@@ -364,11 +364,9 @@ class RecipeForm(forms.ModelForm):
         initial = super(RecipeForm, self).get_initial()
         for field in self.Meta.fields:
             initial['field'] = getattr(self.instance, field)
-
         return initial
 
     def validate_readable(self):
-
         is_readable = auth.is_readable(user=self.user, project=self.project)
         if not is_readable:
             raise forms.ValidationError('You need read access to the project create a recipe.')
@@ -395,9 +393,9 @@ class RecipeForm(forms.ModelForm):
             # Check to see if the
             self.validate_writable()
 
-        # Fill in not submitted fields.
+        # Fill with default values.
         for field in self.Meta.fields:
-            cleaned_data['field'] = getattr(self.instance, field)
+            cleaned_data[field] = cleaned_data.get(field) or getattr(self.instance, field)
 
         template = self.cleaned_data.get('template') or self.instance.template
         json_text = self.cleaned_data.get('json_text') or self.instance.json_text
@@ -406,10 +404,10 @@ class RecipeForm(forms.ModelForm):
         template_changed = (template != self.instance.template)
         json_changed = (json_text != self.instance.json_text)
 
+        # User is not superuser.
         not_superuser = not self.user.is_superuser
 
-        # Update the recipe security when template or JSON have been
-        # touched by non admin users.
+        # Recipe becomes un-authorized when the template or JSON are changed
         if (json_changed or template_changed) and not_superuser:
             self.instance.security = Analysis.NOT_AUTHORIZED
             self.instance.save()
@@ -417,10 +415,10 @@ class RecipeForm(forms.ModelForm):
         return cleaned_data
 
     def clean_image(self):
+
         cleaned_data = super(RecipeForm, self).clean()
         image = cleaned_data.get('image')
         check_size(fobj=image)
-
         return image
 
     def clean_json_text(self):
@@ -435,28 +433,13 @@ class RecipeForm(forms.ModelForm):
 
         return json_text
 
-    def clean_uid(self):
-        cleaned_data = super(RecipeForm, self).clean()
-        uid = cleaned_data.get('uid')
-
-        if self.creating:
-            # Check if uid already exists when creating a recipe.
-            recipe = Analysis.objects.filter(uid=uid).first()
-            if recipe:
-                raise forms.ValidationError("Recipe uid already exists.")
-        return uid
-
     def save(self, commit=True):
-        authorized = self.cleaned_data.get("authorized")
         self.instance.lastedit_date = now()
         self.instance.lastedit_user = self.user
-        Project.objects.filter(uid=self.instance.project.uid).update(lastedit_date=now(),
-                                                                     lastedit_user=self.user)
-        if self.user.is_superuser:
-            self.instance.security = Analysis.AUTHORIZED if authorized else Analysis.NOT_AUTHORIZED
 
-        image = self.cleaned_data['image']
-        self.instance.image = image or self.instance.image
+        # Is this needed?
+        #image = self.cleaned_data['image']
+        #self.instance.image = image or self.instance.image
 
         return super().save(commit)
 

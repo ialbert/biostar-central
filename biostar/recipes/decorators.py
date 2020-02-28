@@ -46,7 +46,7 @@ class read_access:
     Controls READ level access to urls.
     """
 
-    def __init__(self, type, allowed_cors=None, fallback_view="", login_required=False):
+    def __init__(self, type, allowed_cors=None, fallback_view="", login_required=False, json=False):
         self.type = type
         self.allowed_cors = allowed_cors
         self.login_required = login_required

@@ -702,12 +702,12 @@ def recipe_view(request, uid):
             form.save()
             messages.success(request, "Edited Recipe")
             return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
+        print(form.errors, "FOOOO")
     else:
         # Initial form loading via a GET request.
         form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
-    action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
-    initial = dict(name=f"Results for: {recipe.name}")
+    initial = dict()
 
     run_form = forms.RecipeInterface(request=request, analysis=recipe,
                                      json_data=recipe.json_data, initial=initial)
@@ -717,8 +717,7 @@ def recipe_view(request, uid):
     recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job", filter=Q(job__deleted=False))).first()
 
     context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,
-                   activate='Recipe View', run_form=run_form,
-                   action_url=action_url)
+                   activate='Recipe View', run_form=run_form)
 
     counts = get_counts(project)
     context.update(counts)
@@ -728,43 +727,11 @@ def recipe_view(request, uid):
 @read_access(type=Project)
 def recipe_create(request, uid):
     # Get the project
-
     project = Project.objects.filter(uid=uid).first()
-
-    # Prepare the form
-    name = "Recipe Name"
-    initial = dict(name=name, uid=f'recipe-{util.get_uuid(5)}')
-    form = forms.RecipeForm(user=request.user, initial=initial, project=project)
-
-    if request.method == "POST":
-
-        form = forms.RecipeForm(data=request.POST, creating=True, project=project, files=request.FILES,
-                                user=request.user)
-        if form.is_valid():
-
-            image = form.cleaned_data['image']
-            recipe_uid = form.cleaned_data['uid']
-            name = form.cleaned_data['name']
-            json_text = form.cleaned_data['json_text']
-            template = form.cleaned_data['template']
-            text = form.cleaned_data['text']
-            rank = form.cleaned_data['rank']
-            authorized = form.cleaned_data.get('authorized')
-            recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name, rank=rank,
-                                          json_text=json_text, template=template,
-                                          project=project, user=request.user, text=text)
-            if request.user.is_superuser:
-                recipe.security = Analysis.AUTHORIZED if authorized else Analysis.NOT_AUTHORIZED
-                recipe.save()
-
-            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-
-    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
-    context = dict(project=project, form=form, action_url=action_url,
-                   activate='Create Recipe', name=name)
-    counts = get_counts(project)
-    context.update(counts)
-    return render(request, 'recipe_create.html', context)
+    recipe = auth.create_analysis(project=project, name="My New Recipe",
+                                  template="echo 'Hello World!'")
+    url = reverse("recipe_view", kwargs=dict(uid=recipe.uid))
+    return redirect(url)
 
 
 @write_access(type=Job, fallback_view="job_view")

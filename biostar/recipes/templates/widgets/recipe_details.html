@@ -6,7 +6,7 @@
     <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
     <div class="content">
 
-        <a class="subheader" href="{% url 'recipe_edit' recipe.uid %}">
+        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
             {% if recipe.is_cloned %}
                 <i class="linkify icon"></i>
             {% else %}

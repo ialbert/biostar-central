@@ -265,7 +265,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None, label
     return project
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='', rank=100,
+def create_analysis(project, json_text='', template='# code', uid=None, user=None, summary='', rank=100,
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
                     root=None):
 
