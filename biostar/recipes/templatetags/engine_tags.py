@@ -337,6 +337,13 @@ def created_by(date, user=None, prefix="Updated"):
     """
     return dict(date=date, user=user, prefix=prefix)
 
+@register.inclusion_tag('widgets/recipe_clone_message.html')
+def recipe_clone_message(recipe):
+    """
+    Renders the recipe clone message.
+    """
+    return dict(recipe=recipe)
+
 
 @register.inclusion_tag('widgets/loading_img.html')
 def job_img(job):

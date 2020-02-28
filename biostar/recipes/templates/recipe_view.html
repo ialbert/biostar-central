@@ -23,19 +23,7 @@
 
 {% block content %}
 
-    {% if recipe.is_cloned %}
 
-        <div class="ui vertical segment">
-            <span class="muted">
-                <i class="linkify icon"></i>
-                This recipe is a clone.
-                It remains synchronized with the <a href="{{ recipe.root.url }}">parent recipe</a>
-                written by <a href="{{ recipe.root.owner.profile.get_absolute_url }}">
-                {{ recipe.root.owner.profile.name|truncatechars:30 }}</a>.
-            </span>
-        </div>
-
-    {% endif %}
 
 
     <div class="ui grid" data-project="{{ recipe.project.uid }}">
@@ -47,7 +35,6 @@
                 <a class="item click" href="#" data-value="#info">
                     <i class="info circle icon"></i> Recipe description
                 </a>
-
 
                 <a class="item click" href="#" data-value="#code">
                     <i class="code icon"></i> Recipe code
@@ -87,11 +74,21 @@
                     {{ recipe.html | safe }}
                 </div>
 
-                <div class="ui center aligned vertical segment">
-                    <a class="ui gray small button click" href="#" data-value="#edit">
-                        <i class="edit icon"></i> Edit description
-                    </a>
-                </div>
+                {% if recipe.is_cloned %}
+
+                    {% recipe_clone_message recipe %}
+
+                {% else %}
+
+                    <div class="ui center aligned basic segment">
+                        <a class="ui gray small button click" href="#" data-value="#edit">
+                            <i class="edit icon"></i> Edit description
+                        </a>
+                    </div>
+
+                {% endif %}
+
+
             </div>
 
             {#  Script #}
@@ -109,15 +106,23 @@
                     {# The recipe primary id #}
                     <input type="hidden" name="id" value="{{ recipe.id }}">
 
-                    <div class="item">
-                        <button class="ui green button ajax" type="submit">
-                            <i class="save icon"></i> Save Code
-                        </button>
+                    {% if recipe.is_cloned %}
 
-                        <a class="ui right floated gray button click" data-value="#info">
-                            <i class="arrow left icon"></i> Back
-                        </a>
-                    </div>
+                        {% recipe_clone_message recipe %}
+
+                    {% else %}
+
+                        <div class="item">
+                            <button class="ui green button ajax" type="submit">
+                                <i class="save icon"></i> Save Code
+                            </button>
+
+                            <a class="ui right floated gray button click" data-value="#info">
+                                <i class="arrow left icon"></i> Back
+                            </a>
+                        </div>
+                    {% endif %}
+
                 </form>
 
             </div>
@@ -138,15 +143,23 @@
                     {# The recipe primary id #}
                     <input type="hidden" name="id" value="{{ recipe.id }}">
 
-                    <div class="item">
-                        <button class="ui green button ajax" type="submit">
-                            <i class="save icon"></i> Save Interface
-                        </button>
+                    {% if recipe.is_cloned %}
 
-                        <a class="ui right floated gray button click" data-value="#info">
-                            <i class="arrow left icon"></i> Back
-                        </a>
-                    </div>
+                        {% recipe_clone_message recipe %}
+
+                    {% else %}
+
+                        <div class="item">
+                            <button class="ui green button ajax" type="submit">
+                                <i class="save icon"></i> Save Interface
+                            </button>
+
+                            <a class="ui right floated gray button click" data-value="#info">
+                                <i class="arrow left icon"></i> Back
+                            </a>
+                        </div>
+
+                    {% endif %}
 
                 </form>
             </div>
@@ -154,12 +167,13 @@
             {# Edit recipe meta data. #}
             <div class="ui basic large segment collapse formstyle" id="edit">
 
-                <form method="post" class="ui form" action="{% url "recipe_edit" uid=recipe.uid %}" enctype='multipart/form-data'>
+                <form method="post" class="ui form" action="{% url "recipe_edit" uid=recipe.uid %}"
+                      enctype='multipart/form-data'>
 
 
                     <div class="ui title header">Edit Recipe</div>
 
-                {%  csrf_token %}
+                    {% csrf_token %}
 
 
                     <div class="three fields">
@@ -174,14 +188,13 @@
                             <div class="muted">Unique identifier for the recipe.</div>
                         </div>
 
-                            <div class="field">
+                        <div class="field">
                             <label>Authorization</label>
-                                {{ form.security }}
+                            {{ form.security }}
                             <p class="muted"> Determines who can run a recipe.</p>
                         </div>
 
                     </div>
-
 
 
                     <div class="field">

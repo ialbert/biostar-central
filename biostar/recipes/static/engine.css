@@ -408,11 +408,15 @@ figure {
     background: #fff8db !important;
 }
 
-.CodeMirror.fadein_success{
+.CodeMirror.fadeout_error {
+    background-color: #fff6f6;
+}
+
+.CodeMirror.fadeout_success {
     background-color: #fcfff5;
 }
 
-.CodeMirror.fadeout {
+.CodeMirror.fadeout_final {
     background-color: white;
     -o-transition-duration: 0.8s;
     -moz-transition-duration: 0.8s;
@@ -456,15 +460,20 @@ figure {
 }
 
 .popover {
-    position: absolute;
+
     color: #3c763d;
     padding: 15px;
-/ / margin-top: 4 ex;
 
     border-radius: .28571429rem;
-    z-index: 100;
+
     opacity: 0.9;
     width: fit-content;
+
+    position: fixed; /* or absolute */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
 }
 
 
