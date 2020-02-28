@@ -230,7 +230,7 @@ function add_vars() {
 
 function json_preview(project_uid) {
     //let project_uid = $(this).data('value');
-    let recipe_json = $('#json').val();
+    let recipe_json = $('#interface textarea').val();
     $.ajax('/preview/json/',
         {
             type: 'POST',
@@ -247,7 +247,7 @@ function json_preview(project_uid) {
                     popup_message($("#json_field"), data.msg, data.status, 5000);
                     return
                 }
-                $('#preview_cont').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
+                $('#container').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
                     '                        <button type="submit" class="ui green disabled button">\n' +
                     '                            <i class="check icon"></i>Run\n' +
                     '                        </button>\n' +
@@ -257,10 +257,7 @@ function json_preview(project_uid) {
                     '                        </a>\n' +
                     '                    </div></form></div>'.format(data.html));
 
-                //$('#json_preview_cont').children('.ui.dropdown').css("color", 'red !important');
-                //$('#id_dropdown').dropdown({ showOnFocus:false });
-                //$('#id_dropdown').hide()
-                $('#preview_modal').modal({autofocus: false}).modal('show')
+                $('#preview').modal({autofocus: false}).modal('show')
 
                 //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
             },
@@ -446,9 +443,9 @@ $(document).ready(function () {
     //$('#code_add').dropdown();
 
 
-    $(this).on('click', '#json_preview', function () {
+    $(this).on('click', '#interface .preview', function () {
         event.preventDefault();
-        let project_uid = $(this).closest("form").data('project');
+        let project_uid = $(this).closest(".ui.grid").data('project');
         json_preview(project_uid);
 
     });

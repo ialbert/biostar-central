@@ -100,11 +100,11 @@ class RecipeViewTest(TestCase):
 
         data = {"name": "tested", "summary": "summary", "text": "text", "rank": 100,
                 "uid": "tested", 'json_text':'', 'template':'# Code here'}
-        url = reverse('recipe_edit', kwargs=dict(id=f"{self.recipe.id}"))
+        url = reverse('recipe_edit', kwargs=dict(uid=f"{self.recipe.uid}"))
 
         request = fake_request(url=url, data=data, user=self.owner)
 
-        response = views.recipe_view(request=request, uid=self.recipe.uid)
+        response = views.recipe_edit(request=request, uid=self.recipe.uid)
         self.process_response(response=response, data=data, save=True)
 
     def test_recipe_code_download(self):
