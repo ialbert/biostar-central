@@ -20,6 +20,7 @@ from biostar.accounts.models import User, Profile
 from . import models, auth, factory, util
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
+from pprint import pprint
 
 # Share the logger with models.
 logger = models.logger
@@ -347,14 +348,14 @@ class RecipeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Admins get an added field
-        if self.user.is_superuser:
-            authorized = self.instance.runnable()
-            self.fields['authorized'] = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'ui checkbox'}),
-                                                           initial=authorized, required=False)
-
+        if 1:
+            authorized = self.instance.security
+            choices = Analysis.SECURITY_STATES
+            self.fields['security'] = forms.IntegerField(widget=forms.Select(attrs={'class': 'ui dropdown'}, choices=choices),
+                                                           initial=authorized, required=False,)
     class Meta:
         model = Analysis
-        fields = ["name", "rank", "text", "uid", "json_text", "template"]
+        fields = ["name", "rank", "text", "uid", "json_text", "template", "security" ]
 
     def get_initial(self):
         """
@@ -381,28 +382,12 @@ class RecipeForm(forms.ModelForm):
         if self.user.is_anonymous:
             raise forms.ValidationError('You need to be logged in.')
 
-
         # Check to see if the recipe is writable.
         self.validate_writable()
 
         # Fill with default values.
         for field in self.Meta.fields:
             cleaned_data[field] = cleaned_data.get(field) or getattr(self.instance, field)
-
-        template = self.cleaned_data.get('template') or self.instance.template
-        json_text = self.cleaned_data.get('json_text') or self.instance.json_text
-
-        # Shortcuts to security conditions.
-        template_changed = (template != self.instance.template)
-        json_changed = (json_text != self.instance.json_text)
-
-        # User is not superuser.
-        not_superuser = not self.user.is_superuser
-
-        # Recipe becomes un-authorized when the template or JSON are changed.
-        if (json_changed or template_changed) and not_superuser:
-            self.instance.security = Analysis.NOT_AUTHORIZED
-            self.instance.save()
 
         return cleaned_data
 
@@ -423,6 +408,34 @@ class RecipeForm(forms.ModelForm):
             raise forms.ValidationError(f'Error with recipe interface:{exc}')
 
         return json_text
+
+    def clean_security(self):
+
+        cleaned_data = super(RecipeForm, self).clean()
+
+        # User is not superuser.
+        template = cleaned_data.get('template') or self.instance.template
+        json_text = cleaned_data.get('json_text') or self.instance.json_text
+
+        # Shortcuts to security conditions.
+        template_changed = (template != self.instance.template)
+        json_changed = (json_text != self.instance.json_text)
+
+        # User is not superuser.
+        superuser = self.user.is_superuser
+
+        # The current state of authorization
+        security = cleaned_data['security']
+
+        # Recipe becomes un-authorized when the template or JSON are changed.
+        if superuser:
+            security = security
+        elif (json_changed or template_changed):
+            security = Analysis.NOT_AUTHORIZED
+        else:
+            security = self.instance.security
+
+        return security
 
     def save(self, commit=True):
         self.instance.lastedit_date = now()

@@ -471,8 +471,8 @@ class Analysis(models.Model):
     AUTHORIZED, NOT_AUTHORIZED = 1, 2
 
     SECURITY_STATES = [
-        (AUTHORIZED, "Trusted users may run the recipe"),
-        (NOT_AUTHORIZED, "Only administrators may run the recipe")
+        (AUTHORIZED, "Trusted users"),
+        (NOT_AUTHORIZED, "Admin only")
     ]
 
     security = models.IntegerField(default=NOT_AUTHORIZED, choices=SECURITY_STATES)

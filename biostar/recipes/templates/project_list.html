@@ -14,6 +14,16 @@
         </div>
     </div>
 
+    <a class="ui left ribbon projects label" href="{% url 'project_list' %}">
+        <i class="database icon"></i> All Projects
+    </a>
+
+    {% if user.is_authenticated %}
+        <a class="ui right ribbon obj label" href="{% url 'project_create' %}">
+            <i class="plus icon"></i>New Project
+        </a>
+    {% endif %}
+
     {% show_messages messages %}
     <div class="ui top attached large tabular  menu">
 
@@ -35,18 +45,12 @@
             </a>
         {% endif %}
 
-        {% if user.is_authenticated %}
-            <div class="right menu">
-                <a class="ui {% activate 'recipe_create' active %}  active item" href="{% url 'project_create' %}">
-                    <i class="add circle icon"></i>New Project
-                </a>
-            </div>
-        {% endif %}
 
     </div>
     <div class="ui bottom attached large segment">
 
         <div class="ui vertical large segment">
+
             <div class="ui divided items">
                 {% for project in projects %}
                     <div class="item">
@@ -58,29 +62,25 @@
                             <a class="subheader" href="{% url 'recipe_listing' project.label %}">
                                 <i class="database icon"></i>{{ project.get_name }}
                             </a>
-                            {% if user.is_authenticated %}
-                                <div class="ui right ribbon label listing">
-                                    {% get_access_label project user %}
-                                </div>
-                            {% endif %}
+
                             <div class="meta">{{ project.summary|markdown|safe }}
                             </div>
                             <div class="extra">
 
-                                <span class ="ui label">{{ project.get_privacy_display }}</span>
+                                <span class="ui label">{{ project.get_privacy_display }}</span>
 
                                 <a
-                                        href="{% url 'data_listing' project.label %}">
+                                href="{% url 'data_listing' project.label %}">
                                     <i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
 
                                 <a
-                                        href="{% url 'recipe_listing' project.label %}">
+                                href="{% url 'recipe_listing' project.label %}">
                                     <i class="setting icon"></i>{{ project.recipes_count }}
                                     recipe{{ project.recipes_count|pluralize }}</a>&bull;
 
                                 <a
-                                        {% url 'job_listing' project.label %}
-                                        href="{% url 'job_listing' project.label %}">
+                                {% url 'job_listing' project.label %}
+                                href="{% url 'job_listing' project.label %}">
                                     <i class="bar chart icon"></i>{{ project.jobs_count }}
                                     result{{ project.jobs_count|pluralize }}</a>
 

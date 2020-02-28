@@ -162,7 +162,7 @@
                 {%  csrf_token %}
 
 
-                    <div class="two fields">
+                    <div class="three fields">
                         <div class="field">
                             <label>Name</label>
                             {{ form.name }}
@@ -173,15 +173,16 @@
                             {{ form.uid }}
                             <div class="muted">Unique identifier for the recipe.</div>
                         </div>
-                    </div>
-                    {% if request.user.is_superuser %}
-                        <div class="field">
-                            <div class="ui checkbox">
-                                {{ form.authorized }} <label>Authorized Recipe</label>
-                            </div>
-                            <p class="muted"> This recipe is safe to run by trusted users.</p>
+
+                            <div class="field">
+                            <label>Authorization</label>
+                                {{ form.security }}
+                            <p class="muted"> Determines who can run a recipe.</p>
                         </div>
-                    {% endif %}
+
+                    </div>
+
+
 
                     <div class="field">
                         {{ form.text }}
