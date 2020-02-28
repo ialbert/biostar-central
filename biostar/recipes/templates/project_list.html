@@ -1,6 +1,6 @@
 {% extends "base_content.html" %}
 {% load engine_tags %}
-
+{%  load static %}
 {% block headtitle %}
     Project List
 {% endblock %}
@@ -9,9 +9,17 @@
 {% block body %}
 
     <div class="ui center aligned basic vertical segment">
+    {%  if private %}
         <div class="ui large header">
-            <i class="{{ icon }} icon"></i> {{ title }}
+            <img class="ui avatar image" src="{% static "images/private-listing.png" %}"/> {{ title }}
         </div>
+    {%  else %}
+                <div class="ui large header">
+            <img class="ui avatar image" src="{% static "images/public-listing.png" %}"/> {{ title }}
+        </div>
+
+    {%  endif %}
+
     </div>
 
     <a class="ui left ribbon projects label" href="{% url 'project_list' %}">
