@@ -723,8 +723,15 @@ def get_part(request, name, id):
     # Fills in project level counts (results, data and recipe counts).
     counts = get_counts(recipe.project)
 
-    # Initial form loading via a GET request.
-    form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
+    if name == "run":
+        initial = dict(name=f"Results for: {recipe.name}")
+
+        form = forms.RecipeInterface(request=request, analysis=recipe,
+                                     json_data=recipe.json_data, initial=initial)
+    else:
+        # Initial form loading via a GET request.
+        form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
+
 
     remap = dict(
         info="parts/recipe_info.html",

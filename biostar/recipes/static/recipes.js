@@ -61,11 +61,11 @@ function submit_form(elem) {
                 } else {
                     if (window.location.hash === '#edit') {
                         toggle_panels('#info', 1);
-                        update_panels();
                     } else {
                         flash("fadeout_success")
                         popover_message(form, resp.msg, "success")
                     }
+                    update_panels();
                 }
             },
             error: function (xhr, status, error) {
