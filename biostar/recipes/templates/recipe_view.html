@@ -4,9 +4,10 @@
 
 {% block js %}
 
-    <link rel="stylesheet" href="{% static 'codemirror/codemirror.css' %}{% randparam %}">
+    <link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}{% randparam %}">
 
-    <script src="{% static 'codemirror/codemirror.js' %}"></script>
+    <script src="{% static 'codemirror/lib/codemirror.js' %}"></script>
+        <script src="{% static 'codemirror/addon/display/autorefresh.js' %}"></script>
     <script src="{% static 'codemirror/mode/simple.js' %}"></script>
     <script src="{% static 'codemirror/mode/engine.js' %}"></script>
     <script src="{% static 'codemirror/mode/shell.js' %}"></script>
@@ -23,7 +24,7 @@
 
 {% block content %}
 
-
+    <input type="hidden" id="recipe_id" value="{{ recipe.id }}">
 
     <div class="ui grid" data-project="{{ recipe.project.uid }}">
 
@@ -48,11 +49,11 @@
                     <i class="download icon"></i> Download recipe
                 </a>
 
-                <a class="item" href="{% url 'recipe_run' recipe.uid %}">
+                <a class="item click" href="#" data-value="#run">
                     <i class="setting icon"></i> Run recipe
                 </a>
 
-                <a class="item" href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                <a class="item click" href="#" data-value="#results">
                     <i class="settings icon"></i> Recipe results ({{ recipe.job_count }})
                 </a>
 
@@ -61,179 +62,42 @@
 
         <div class="thirteen wide column">
 
-            {#  Description #}
+            {# Info panel. Loads dynamically. #}
             <div class="ui basic large segment collapse" id="info">
-
-                {#  Recipe info. #}
-                <div class="ui divided link items">
-                    {% recipe_details recipe %}
-                </div>
-
-                <div class="ui large vertical segment">
-                    {{ recipe.html | safe }}
-                </div>
-
-                {% if recipe.is_cloned %}
-
-                    {% recipe_clone_message recipe %}
-
-                {% else %}
-
-                    <div class="ui center aligned basic segment">
-                        <a class="ui gray small button click" href="#" data-value="#edit">
-                            <i class="edit icon"></i> Edit description
-                        </a>
-                    </div>
-
-                {% endif %}
-
-
+               <div>Placeholder</div>
             </div>
 
-            {#  Script #}
+            {# Code panel. #}
             <div class="ui basic large segment collapse" id="code">
-                <form method="post" class="ui form" action="#">
-
-                    <div class="ui vertical segment">
-                        <div class="ui title header">Recipe Code</div>
-                    </div>
-                    <div class="field" id="template_field">
-                    <textarea class="code" rows="40" cols="55"
-                              name="template">{{ form.template.value }}</textarea>
-                    </div>
-
-                    {# The recipe primary id #}
-                    <input type="hidden" name="id" value="{{ recipe.id }}">
-
-                    {% if recipe.is_cloned %}
-
-                        {% recipe_clone_message recipe %}
-
-                    {% else %}
-
-                        <div class="item">
-                            <button class="ui green {{ btn_state }} button ajax" type="submit">
-                                <i class="save icon"></i> Save Code
-                            </button>
-
-                            <a class="ui right floated gray button click" data-value="#info">
-                                <i class="arrow left icon"></i> Back
-                            </a>
-                        </div>
-
-                    {% endif %}
-
-                </form>
-
+               {%  include "parts/recipe_code.html" %}
             </div>
 
-            {#  Interface #}
+            {# Interface panel. #}
             <div class="ui basic segment collapse" id="interface">
-                <form method="post" class="ui form" action="#">
-
-                    <div class="ui vertical segment">
-                        <span class="ui title header">Recipe Interface</span>
-                        <a href="#" class="ui small orange button preview"> <i class="eye icon"></i>Preview</a>
-                    </div>
-                    <div class="field" id="json_field">
-                        <textarea class="code" rows="40" cols="55"
-                                  name="json_text">{{ form.json_text.value }}</textarea>
-                    </div>
-
-                    {# The recipe primary id #}
-                    <input type="hidden" name="id" value="{{ recipe.id }}">
-
-                    {% if recipe.is_cloned %}
-
-                        {% recipe_clone_message recipe %}
-
-                    {% else %}
-
-                        <div class="item">
-                            <button class="ui green  {{ btn_state }} button ajax" type="submit">
-                                <i class="save icon"></i> Save Interface
-                            </button>
-
-                            <a class="ui right floated gray button click" data-value="#info">
-                                <i class="arrow left icon"></i> Back
-                            </a>
-                        </div>
-
-                    {% endif %}
-
-                </form>
+                {%  include "parts/recipe_interface.html" %}
             </div>
 
-            {# Edit recipe meta data. #}
+            {# Edit panel. #}
             <div class="ui basic large segment collapse formstyle" id="edit">
-
-                <form method="post" class="ui form" action="{% url "recipe_edit" uid=recipe.uid %}"
-                      enctype='multipart/form-data'>
-
-
-                    <div class="ui title header">Edit Recipe</div>
-
-                    {% csrf_token %}
-
-
-                    <div class="three fields">
-                        <div class="field">
-                            <label>Name</label>
-                            {{ form.name }}
-                            <div class="muted">Recipe display name</div>
-                        </div>
-                        <div class="field">
-                            <label>Identifier</label>
-                            {{ form.uid }}
-                            <div class="muted">Unique identifier for the recipe.</div>
-                        </div>
-
-                        <div class="field">
-                            <label>Authorization</label>
-                            {{ form.security }}
-                            <p class="muted"> Determines who can run a recipe.</p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="field">
-                        {{ form.text }}
-                        <div class="muted">A detailed explanation of what the recipe does (markdown OK).</div>
-                    </div>
-
-                    <div class="two fields">
-                        <div class="field">
-                            <span><b>Image</b> : </span>
-                            {{ form.image.errors }}
-                            {{ form.image }}
-                            <div class="muted">Optional image for the recipe ( 500px Maximum ).</div>
-                        </div>
-                        <div class="field">
-                            <span><b>Rank</b>: </span>
-                            {{ form.rank }}
-                            <div class="muted">Used to order recipes (optional).</div>
-                        </div>
-                    </div>
-
-                    {# The recipe primary id #}
-                    <input type="hidden" name="id" value="{{ recipe.id }}">
-
-                    <div class="item">
-                        <button class="ui green  {{ btn_state }} button" type="submit">
-                            <i class="save icon"></i> Save
-                        </button>
-
-                        <a class="ui right floated gray button click" data-value="#info">
-                            <i class="arrow left icon"></i> Back
-                        </a>
-                    </div>
-                </form>
+                {%  include "parts/recipe_edit.html" %}
             </div>
+
+            {# Run panel. #}
+            <div class="ui basic large segment collapse formstyle" id="run">
+                {%  include "parts/recipe_run.html" %}
+            </div>
+
+
+           {# Results panel. #}
+            <div class="ui basic large segment collapse" id="results">
+                {%  include "parts/recipe_results.html" %}
+            </div>
+
+
+            {# Preview anchor. #}
             <div class="ui tiny inputcolor modal" id="preview">
                 <div id="container"></div>
             </div>
-
 
         </div>
 

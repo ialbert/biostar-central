@@ -1,13 +1,16 @@
 /*
-Code that handles recipe interface goes here.
-Must call setup.js first load up functions used here.
+Code that handles recipe interface.
+
+Must call setup.js first initialize additional functionality used here.
+
 */
 
-function prepare_codemirror(element, size) {
+function init_codemirror(element, size) {
 
     var area = CodeMirror.fromTextArea(
         element[0],
         {
+            autoRefresh: true,
             lineNumbers: true,
             mode: 'shell',
         }
@@ -23,42 +26,9 @@ function prepare_codemirror(element, size) {
 }
 
 // Removes notifications
-function remove_notifications() {
+function remove_messages() {
     $('.notify').remove()
 }
-
-// Shows messages.
-function show_message(elem, mesg, status) {
-    var node = $("<div class='ui basic segment notify'>{0}</div>".format(mesg));
-    node.addClass("ui {0} message".format(status));
-    elem.closest("form").addClass(status).prepend(node)
-
-}
-
-function popup_message(elem, message, cls, timeout) {
-    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
-
-    elem = elem.find("textarea")
-    var text = $('<div class="popover"></div>');
-    var tag = $(text).insertBefore(elem)
-    tag.addClass(cls)
-    tag.text(message)
-    tag.delay(timeout).fadeOut(500, function () {
-      $(this).remove()
-    });
-}
-
-function flash(cls){
-    elem = $(".CodeMirror")
-    function explode(){
-        elem.removeClass(cls)
-        elem.addClass("fadeout_final")
-    }
-    setTimeout(explode, 1500);
-    elem.removeClass("fadeout_final")
-    elem.addClass(cls)
-}
-
 
 // Submits a form request.
 function submit_form(elem) {
@@ -66,41 +36,59 @@ function submit_form(elem) {
     // The form the button belongs to.
     form = elem.closest("form");
 
-    // Get the data from the form.
-    var data = {
-        'json_text': form.find("textarea[name=json_text]").val() || '',
-        'template': form.find("textarea[name=template]").val() || '',
-        // This variable is special and is used as submit id.
-        'id': form.find('input[name=id]').val()
-    };
+    // Get the recipe id.
+    var id = get_id()
+
+    // Bind the closest form data.
+    var data = new FormData(form.get(0));
 
     // Recipe id must be used here.
-    var url = '/recipe/ajax/edit/{0}/'.format(data.id)
+    var url = '/ajax/recipe/edit/{0}/'.format(id)
 
     // Remove any prior notification that may exist.
-    remove_notifications()
+    remove_messages()
 
     $.ajax(url, {
             type: 'POST',
             dataType: 'json',
-            //processData: false,
+            processData: false,
+            contentType: false,
             data: data,
-            success: function (res) {
-                if (res.status === 'error') {
-                    show_message(elem, res.msg, "error")
+            success: function (resp) {
+                if (resp.status === 'error') {
+                    show_message(elem, resp.msg, "error")
                     flash("fadeout_error")
                 } else {
-                    //show_message(elem, res.msg, "success")
-                    popup_message(form, res.msg, "success")
-                    flash("fadeout_success")
+                    if (window.location.hash === '#edit') {
+                        toggle_panels('#info', 1);
+                        update_panels();
+                    } else {
+                        flash("fadeout_success")
+                        popover_message(form, resp.msg, "success")
+                    }
                 }
             },
             error: function (xhr, status, error) {
-                var text = "Ajax error: status={0} error={1}".format(status, error)
+                var text = "Error: status={0} error={1}".format(status, error)
                 show_message(elem, text, "error")
             }
         }
     );
+}
+
+function flash(cls) {
+    elem = $(".CodeMirror")
+
+    function fadeout() {
+        elem.removeClass(cls)
+        elem.addClass("fadeout_final")
+    }
+
+    elem.removeClass("fadeout_final")
+    elem.addClass(cls)
+
+    setTimeout(fadeout, 1500);
+
 }
 
 // Toggles visible panels in recipe view.
@@ -135,25 +123,31 @@ function toggle_panels(elem_id, quick) {
     // Apply the active class to the selector.
     $(selector).addClass("active");
 
+
 }
 
-$(document).ready(function () {
+// Updates content in dynamic panels
+function update_panels() {
 
-    var script = prepare_codemirror($('#code textarea'), 700);
-    var interface = prepare_codemirror($('#interface textarea'), 400);
+    var panels = ['info', 'run', 'results' ];
+    var server = "/get/part/{0}/{1}/"
+    var id = get_id();
 
-    //script.refresh();
-    //interface.refresh();
+    function loader(name) {
+        var node = $('#{0}'.format(name));
+        var url = server.format(name, id);
+        node.load(url, function (response, status, xhr) {
 
-    // Select default open item.
-    var open_id = window.location.hash || "#info";
+        });
+    }
 
-    // Initial toggle has no animation.
-    toggle_panels(open_id, 1);
+    panels.forEach(loader);
+}
 
-    $(".click").click(function (event) {
+// Binds events dynamically.
+function bind_events() {
 
-        // Don't trigger other behaviors.
+    $(document).on("click", '.click', function (event) {
         event.preventDefault();
 
         // Find the targeted element is in the data-value of the clicked element.
@@ -164,15 +158,35 @@ $(document).ready(function () {
             return;
         }
 
-        // Toggle panels more slowly.
+        // Toggle panels slowly.
         toggle_panels(target_id, 0)
-
     });
 
-    // Catch click on elements with submit types.
+    // Forms with ajax submissions.
     $(":submit.ajax").click(function (event) {
         event.preventDefault();
         submit_form($(this))
     });
+
+}
+
+// The recipe id obtained from the page.
+function get_id() {
+    return $("#recipe_id")[0].value
+}
+
+$(document).ready(function () {
+
+    // Select default open item.
+    var open_id = window.location.hash || "#info";
+
+    // Initial toggle has no animation.
+    toggle_panels(open_id, 1);
+
+    // Update information in dynamic panels.
+    update_panels();
+
+    // Bind the events.
+    bind_events()
 
 });

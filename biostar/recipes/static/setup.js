@@ -1,5 +1,6 @@
 /*
 This script should be called before other javascript.
+Contains setup and utility functions.
  */
 
 /*
@@ -57,5 +58,25 @@ $.ajaxSetup({
         }
     }
 });
+
+
+function show_message(elem, text, status) {
+    var node = $("<div class='ui basic segment notify'>{0}</div>".format(text));
+    node.addClass("ui {0} message".format(status));
+    elem.closest("form").addClass(status).prepend(node)
+}
+
+function popover_message(elem, message, cls, timeout) {
+    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
+
+    elem = elem.find("textarea")
+    var text = $('<div class="popover"></div>');
+    var tag = $(text).insertBefore(elem)
+    tag.addClass(cls)
+    tag.text(message)
+    tag.delay(timeout).fadeOut(500, function () {
+        $(this).remove()
+    });
+}
 
 

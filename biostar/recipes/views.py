@@ -682,7 +682,6 @@ def job_rerun(request, uid):
 
 @write_access(type=Analysis)
 def recipe_edit(request, uid):
-
     # The user making the request.
     user = request.user
 
@@ -707,6 +706,41 @@ def recipe_edit(request, uid):
 
     return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
+def get_part(request, name, id):
+    """
+    Return a template by name and with uid rendering
+    """
+
+    user = request.user
+
+    # The recipe that needs to be edited.
+    recipe = Analysis.objects.filter(id=id).annotate(
+        job_count=Count("job", filter=Q(job__deleted=False))
+    ).first()
+
+    project = recipe.project
+
+    # Fills in project level counts (results, data and recipe counts).
+    counts = get_counts(recipe.project)
+
+    # Initial form loading via a GET request.
+    form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
+
+    remap = dict(
+        info="parts/recipe_info.html",
+        code="parts/recipe_code.html",
+        interface="parts/recipe_interface.html",
+        run="parts/recipe_run.html",
+        results="parts/recipe_results.html",
+    )
+    name = remap.get(name, "parts/placeholder.html")
+
+    context = dict(recipe=recipe, form=form)
+    context.update(counts)
+
+    html = render(request, name, context=context)
+    return html
+
 
 @read_access(type=Analysis)
 def recipe_view(request, uid):
@@ -719,8 +753,8 @@ def recipe_view(request, uid):
 
     # The recipe that needs to be edited.
     recipe = Analysis.objects.filter(uid=uid).annotate(
-            job_count=Count("job", filter=Q(job__deleted=False))
-        ).first()
+        job_count=Count("job", filter=Q(job__deleted=False))
+    ).first()
 
     # The project that recipe belongs to.
     project = recipe.project
