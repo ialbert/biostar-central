@@ -112,7 +112,7 @@
                     {% else %}
 
                         <div class="item">
-                            <button class="ui green button ajax" type="submit">
+                            <button class="ui green {{ btn_state }} button ajax" type="submit">
                                 <i class="save icon"></i> Save Code
                             </button>
 
@@ -120,6 +120,7 @@
                                 <i class="arrow left icon"></i> Back
                             </a>
                         </div>
+
                     {% endif %}
 
                 </form>
@@ -149,7 +150,7 @@
                     {% else %}
 
                         <div class="item">
-                            <button class="ui green button ajax" type="submit">
+                            <button class="ui green  {{ btn_state }} button ajax" type="submit">
                                 <i class="save icon"></i> Save Interface
                             </button>
 
@@ -219,7 +220,7 @@
                     <input type="hidden" name="id" value="{{ recipe.id }}">
 
                     <div class="item">
-                        <button class="ui green button" type="submit">
+                        <button class="ui green  {{ btn_state }} button" type="submit">
                             <i class="save icon"></i> Save
                         </button>
 

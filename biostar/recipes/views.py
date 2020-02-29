@@ -725,15 +725,17 @@ def recipe_view(request, uid):
     # The project that recipe belongs to.
     project = recipe.project
 
-
     # Initial form loading via a GET request.
     form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
     # Fills in project level counts (results, data and recipe counts).
     counts = get_counts(project)
 
+    # Disable buttons if project not writeable.
+    btn_state = '' if auth.is_writable(user=user, project=project) else 'disabled'
+
     # Generate the context.
-    context = dict(recipe=recipe, project=project, form=form,  activate='Recipe View')
+    context = dict(recipe=recipe, project=project, form=form, btn_state=btn_state, activate='Recipe View')
 
     # Update context with counts.
     context.update(counts)
