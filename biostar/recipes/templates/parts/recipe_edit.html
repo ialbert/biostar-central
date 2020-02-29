@@ -1,0 +1,57 @@
+{% load engine_tags %}
+
+<form method="post" class="ui form" action="{% url "recipe_edit" uid=recipe.uid %}"
+      enctype='multipart/form-data'>
+
+    <div class="ui title header">Edit Recipe</div>
+
+    <div class="three fields">
+        <div class="field">
+            <label>Name</label>
+            {{ form.name }}
+            <div class="muted">Recipe display name</div>
+        </div>
+        <div class="field">
+            <label>Identifier</label>
+            {{ form.uid }}
+            <div class="muted">Unique identifier for the recipe.</div>
+        </div>
+
+        <div class="field">
+            <label>Authorization</label>
+            {{ form.security }}
+            <p class="muted"> Determines who can run a recipe.</p>
+        </div>
+
+    </div>
+
+    <div class="field">
+        {{ form.text }}
+        <div class="muted">A detailed explanation of what the recipe does (markdown OK).</div>
+    </div>
+
+    <div class="two fields">
+        <div class="field">
+            <span><b>Image</b> : </span>
+            {{ form.image.errors }}
+            {{ form.image }}
+            <div class="muted">Optional image for the recipe ( 500px Maximum ).</div>
+        </div>
+        <div class="field">
+            <span><b>Rank</b>: </span>
+            {{ form.rank }}
+            <div class="muted">Used to order recipes (optional).</div>
+        </div>
+    </div>
+
+    <div class="item">
+        <button class="ui green  {{ btn_state }} button ajax" type="submit">
+            <i class="save icon"></i> Save
+        </button>
+
+        <a class="ui right floated gray button click" data-value="#info">
+            <i class="arrow left icon"></i> Back
+        </a>
+    </div>
+
+</form>

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}{% randparam %}">
 
     <script src="{% static 'codemirror/lib/codemirror.js' %}"></script>
-        <script src="{% static 'codemirror/addon/display/autorefresh.js' %}"></script>
+    <script src="{% static 'codemirror/addon/display/autorefresh.js' %}"></script>
     <script src="{% static 'codemirror/mode/simple.js' %}"></script>
     <script src="{% static 'codemirror/mode/engine.js' %}"></script>
     <script src="{% static 'codemirror/mode/shell.js' %}"></script>
@@ -30,16 +30,24 @@
 
         {# Side bar #}
         <div class="three wide column">
+
             <div class="ui vertical large text menu">
 
                 <a class="item click" href="#" data-value="#info">
                     <i class="info circle icon"></i> Recipe description
                 </a>
 
+                <a class="item click" href="#" data-value="#results">
+                    <i class="settings icon"></i> Recipe results ({{ recipe.job_count }})
+                </a>
+
+                <a class="item click" href="#" data-value="#run">
+                    <i class="setting icon"></i> Run recipe
+                </a>
+
                 <a class="item click" href="#" data-value="#code">
                     <i class="code icon"></i> Recipe code
                 </a>
-
 
                 <a class="item click" href="#" data-value="#interface">
                     <i class="tv icon"></i> Recipe interface
@@ -49,48 +57,41 @@
                     <i class="download icon"></i> Download recipe
                 </a>
 
-                <a class="item click" href="#" data-value="#run">
-                    <i class="setting icon"></i> Run recipe
-                </a>
-
-                <a class="item click" href="#" data-value="#results">
-                    <i class="settings icon"></i> Recipe results ({{ recipe.job_count }})
-                </a>
-
             </div>
+
         </div>
 
         <div class="thirteen wide column">
 
             {# Info panel. Loads dynamically. #}
             <div class="ui basic large segment collapse" id="info">
-               <div>Placeholder</div>
+                <div>Placeholder</div>
             </div>
 
             {# Code panel. #}
             <div class="ui basic large segment collapse" id="code">
-               {%  include "parts/recipe_code.html" %}
+                {% include "parts/recipe_code.html" %}
             </div>
 
             {# Interface panel. #}
             <div class="ui basic segment collapse" id="interface">
-                {%  include "parts/recipe_interface.html" %}
+                {% include "parts/recipe_interface.html" %}
             </div>
 
             {# Edit panel. #}
             <div class="ui basic large segment collapse formstyle" id="edit">
-                {%  include "parts/recipe_edit.html" %}
+                {% include "parts/recipe_edit.html" %}
             </div>
 
             {# Run panel. #}
             <div class="ui basic large segment collapse recipe-form" id="run">
-                {%  include "parts/recipe_run.html" %}
+                {% include "parts/recipe_run.html" %}
             </div>
 
 
-           {# Results panel. #}
+            {# Results panel. #}
             <div class="ui basic large segment collapse" id="results">
-                {%  include "parts/recipe_results.html" %}
+                {% include "parts/recipe_results.html" %}
             </div>
 
 

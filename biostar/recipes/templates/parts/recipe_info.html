@@ -1,0 +1,23 @@
+{% load engine_tags %}
+
+<div class="ui divided link items">
+    {% recipe_details recipe %}
+</div>
+
+<div class="ui large vertical segment">
+    {{ recipe.html | safe }}
+</div>
+
+{% if recipe.is_cloned %}
+
+    {% recipe_clone_message recipe %}
+
+{% else %}
+
+    <div class="ui center aligned basic segment">
+        <a class="ui gray small button click" href="#" data-value="#edit">
+            <i class="edit icon"></i> Edit description
+        </a>
+    </div>
+
+{% endif %}
