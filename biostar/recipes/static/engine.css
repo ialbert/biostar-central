@@ -1,3 +1,7 @@
+:root {
+    --run-bg-color: #fff8db;
+}
+
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
@@ -127,21 +131,12 @@ code {
     color: #6d0080;
 }
 
-
-#recipe-run {
-    margin-top: 0;
-    margin-left: 0;
-    margin-bottom: 15px;
-}
-
-.recipe-form > .segment {
+.ui.segment.run {
     width: 70%;
-    text-align: initial;
+    margin: auto;
+    background:var(--run-bg-color);
 }
 
-.recipe-form {
-    text-align: -webkit-center;
-}
 
 .completed {
     border-color: #21ba45 !important;
