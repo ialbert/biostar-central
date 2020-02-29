@@ -1,6 +1,7 @@
 import logging, functools
 
 logger = logging.getLogger('biostar')
+import threading
 
 try:
     # Loads up uwsgi
@@ -14,8 +15,9 @@ except Exception as exc:
         def outer(func):
             @functools.wraps(func)
             def inner(*args, **kwargs):
-                result = func(*args, **kwargs)
-                return result
+                # Run process in separate thread.
+                t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
+                t.start()
             inner.spool = inner
             return inner
         # Gains an attribute called spool that
