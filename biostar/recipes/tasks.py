@@ -78,10 +78,9 @@ def execute_job(job_id):
 
     management.call_command('job', id=job_id)
 
-
-# def execute(command, workdir="."):
-#     proc = subprocess.run(command, cwd=workdir, shell=True,
-#                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-#     stdout, stderr = force_text(proc.stdout), force_text(proc.stderr)
-#     return stdout, stderr
+#
+# @timer(2)
+# def foo(name, value):
+#    print (f"TIMER TEST {name}={value}")
+# foo.timer("bar", value=100)
 #
