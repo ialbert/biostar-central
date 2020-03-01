@@ -1,5 +1,5 @@
 import logging, functools
-
+from django.conf import settings
 logger = logging.getLogger('biostar')
 import threading
 
@@ -16,9 +16,10 @@ except Exception as exc:
             @functools.wraps(func)
             def inner(*args, **kwargs):
                 # Run process in separate thread.
-                logger.info(f"new thread for function f{func} {args} {kwargs}")
-                t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
-                t.start()
+                if settings.MULTI_THREAD:
+                    logger.info(f"new thread for function f{func} {args} {kwargs}")
+                    t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
+                    t.start()
             inner.spool = inner
             return inner
         # Gains an attribute called spool that runs the function in the background.
@@ -34,10 +35,11 @@ except Exception as exc:
                     ticker = threading.Event()
                     while not ticker.wait(secs):
                         func(*args, **kwargs)
-                # Run process in separate thread, once.
-                logger.info(f"new time thread for function f{func} {args} {kwargs}")
-                t = threading.Thread(target=loop, daemon=True)
-                t.start()
+                if settings.MULTI_THREAD:
+                    # Run process in separate thread, once.
+                    logger.info(f"new time thread for function f{func} {args} {kwargs}")
+                    t = threading.Thread(target=loop, daemon=True)
+                    t.start()
             inner.timer = inner
             return inner
         # Gains an attribute called timer that will run the function periodically.

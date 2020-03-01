@@ -318,7 +318,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
 
     # Build the context for the project.
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   active=active, recipe_filter=recipe_filter, write_access=write_access)
+                   active=active, recipe_filter=recipe_filter, write_access=write_access, rerun_btn=True)
 
     # Compute counts for the project.
     counts = get_counts(project)
@@ -706,6 +706,7 @@ def recipe_edit(request, uid):
 
     return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
 
+
 def get_part(request, name, id):
     """
     Return a template by name and with uid rendering
@@ -732,7 +733,6 @@ def get_part(request, name, id):
         # Initial form loading via a GET request.
         form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
-
     remap = dict(
         info="parts/recipe_info.html",
         code="parts/recipe_code.html",
@@ -740,9 +740,12 @@ def get_part(request, name, id):
         run="parts/recipe_run.html",
         results="parts/recipe_results.html",
     )
+
     name = remap.get(name, "parts/placeholder.html")
 
-    context = dict(recipe=recipe, form=form)
+    is_runnable = auth.authorize_run(user=user, recipe=recipe)
+    jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
+    context = dict(recipe=recipe, form=form, is_runnable=is_runnable, job_list=jobs, rerun_btn=False)
     context.update(counts)
 
     html = render(request, name, context=context)
@@ -775,8 +778,13 @@ def recipe_view(request, uid):
     # Disable buttons if project not writeable.
     btn_state = '' if auth.is_writable(user=user, project=project) else 'disabled'
 
+    jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
+    is_runnable = auth.authorize_run(user=user, recipe=recipe)
+
+
     # Generate the context.
-    context = dict(recipe=recipe, project=project, form=form, btn_state=btn_state, activate='Recipe View')
+    context = dict(recipe=recipe, job_list=jobs, project=project, form=form, btn_state=btn_state,
+                   is_runnable=is_runnable, activate='Recipe View', rerun_btn=False)
 
     # Update context with counts.
     context.update(counts)

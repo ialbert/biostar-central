@@ -11,21 +11,17 @@
 
         <div class="ui divided link items ">
 
-            <div class="item job-item-{{ job.uid }}">
+            <div class="item job" data-value="{{ job.uid }}">
 
                 {% job_img job %}
-                <div class="ui text container"
-                     style="margin-left: 0 !important;margin-right: 0 !important;max-width: 955px !important;">
+                <div class="ui text container">
                     <div class="content ">
-                        <a class="subheader" href="{% url 'job_view' job.uid %}">
+                        <a class="subheader link" href="{% url 'job_view' job.uid %}">
                             <i class="bar chart icon"></i>{{ job.get_name }}
                         </a>
-
                         <div class="meta">{{ job.analysis.summary|markdown|safe }}</div>
-
                         <div class="extra">
-                            <span class="job-container-{{ job.uid }}">{% job_minutes job view=True %}</span>
-                            &bull;
+                            <span class="state">{% job_minutes job view=True %}</span>&bull;
                             {% created_by date=job.lastedit_date user=job.lastedit_user %}
                         </div>
                     </div>
@@ -82,13 +78,13 @@
         {% directory_list job %}
     </div>
 
-    <div class="ui vertical segment">
+    <div class="ui vertical segment" id="stdout">
         <div id="log"></div>
         <div class="ui aligned header">Output Messages</div>
         <div>Messages printed to the standard output stream:</div>
-        <pre id="stdout">{{ stdout }}</pre>
+        <pre>{{ stdout }}</pre>
 
-        <div class="loader" data-uid="{{ job.uid }}">
+        <div class="loader">
             {% if job.is_running %}
                 <div class="ui log message">
                     <span class="ui active small inline loader"></span>

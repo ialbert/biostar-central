@@ -730,7 +730,13 @@ class Job(models.Model):
         return f"jobs/{self.uid}/" + path
 
     def url(self):
-        return reverse("job_view", kwargs=dict(uid=self.uid))
+        url = reverse("job_view", kwargs=dict(uid=self.uid))
+
+        # Anchor to the logs when the job is running
+        if self.is_running():
+            url = f"{url}#log/"
+
+        return url
 
     def get_project_dir(self):
         return self.project.get_project_dir()

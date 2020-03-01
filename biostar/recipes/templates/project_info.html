@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block ribbon %}
- {% if user.is_authenticated %}
+    {% if user.is_authenticated %}
         <a class="ui right ribbon obj label" href="{% url 'project_create' %}">
             <i class="plus icon"></i>New Project
         </a>
@@ -19,7 +19,7 @@
         <h3 class="ui header">Project Information</h3>
         {{ project.html|safe }}
         <div class="muted">
-            <span class ="ui label">{{ project.get_privacy_display }}</span>
+            <span class="ui label">{{ project.get_privacy_display }}</span>
             Project owned by <a href="{% url 'user_profile'  project.owner.profile.uid %}">
             {{ project.owner.profile.name }}
         </a>&bull;
@@ -41,10 +41,9 @@
 
         {% endif %}
 
-        <div class="ui  divider"></div>
 
         {% if write_access %}
-
+            <div class="ui  divider"></div>
             <div class="ui three small buttons">
 
                 <a class="ui  button" href="{% url 'project_edit' project.uid %}">
