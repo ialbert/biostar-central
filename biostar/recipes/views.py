@@ -358,18 +358,11 @@ def project_create(request):
     View used create an empty project belonging to request.user.
     Input is validated with a form and actual creation is routed through auth.create_project.
     """
-    initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = forms.ProjectForm(initial=initial, request=request, create=True)
-
-    if request.method == "POST":
-        # create new projects here ( just populates metadata ).
-        form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
-        if form.is_valid():
-            project = form.custom_save(owner=request.user)
-            return redirect(reverse("project_viewing", kwargs=dict(label=project.label)))
-
-    context = dict(form=form)
-    return render(request, "project_create.html", context=context)
+    user = request.user
+    project = auth.create_project(user=user)
+    project.save()
+    messages.success(request, "Create a new project.")
+    return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
 
 @read_access(type=Data, fallback_view="data_view", login_required=True)

@@ -203,18 +203,19 @@ def preview_json(request):
 
 def builder(display, **initial):
 
-    data = dict(label="Insert Field Label", display=display)
-    defaults = dict()
+    # Get the default label and the display type.
+    defaults = dict(label="Insert Field Label", display=display)
+
+    # Integer and float fields extra values.
     if display == INTEGER or display == FLOAT:
-        defaults = dict(range=[0, 100], value=0, help="Enter a number.")
+        defaults.update(dict(range=[0, 100], value=0, help="Enter a number."))
 
+    # Dropdown and radio get an extra filed as well.
     elif display == DROPDOWN or display == RADIO:
-        defaults = dict(choices=[("1", 'Option 1'), ("2", 'Option 2')],
+        defaults.update(choices=[("1", 'Option 1'), ("2", 'Option 2')],
                         value=2, help="Enter a number.")
-    data.update(defaults)
-    data.update(initial)
 
-    return data
+    return defaults
 
 
 def display_data(display_type):
@@ -226,6 +227,7 @@ def display_data(display_type):
                     type='DATA',
                     help='Pick data from this project to analyze.')
 
+    # Build the display
     integer = builder(display=INTEGER)
     floating = builder(display=FLOAT)
     dropdown = builder(display=DROPDOWN)
@@ -234,7 +236,8 @@ def display_data(display_type):
     checkbox = builder(display=CHECKBOX, **dict(value=True, help='Checkbox.'))
     textbox = builder(display=TEXTBOX, **dict(value='Example text', help='Enter text.'))
 
-    data_map = dict(integer=integer, textbox=textbox, float=floating, checkbox=checkbox,
+    data_map = dict(integer=integer, textbox=textbox,
+                    float=floating, checkbox=checkbox,
                     dropdown=dropdown, upload=upload, radio=radio)
 
     data = data_map.get(display_type, dict())

@@ -227,12 +227,13 @@ def get_project_list(user, include_public=True, include_deleted=False):
     else:
         query = Project.objects.filter(cond, deleted=False).distinct()
 
-    #query = query.prefetch_related('access_set', 'data_set', 'analysis_set', 'job_set').select_related('owner', 'owner__profile')
     return query
 
 
-def create_project(user, name, uid=None, summary='', text='', stream=None, label=None,
+def create_project(user, name="", uid=None, summary='', text='', stream=None, label=None,
                    privacy=Project.PRIVATE, update=False):
+
+    name = name or "My New Project"
     # Set or create the project uid.
     uid = uid or util.get_uuid(8)
 
