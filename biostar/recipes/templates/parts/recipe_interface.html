@@ -32,8 +32,64 @@
     {% endif %}
 
 </form>
+
+<div class="ui vertical segment">
+    <div class="ui header">Interface specification</div>
+    Interface element specification. Shows the code and the resulting interface element.
+    Double click on any box to add to your interface.
+</div>
+
+
+<div class="ui basic segment">
+
+
+    <form class="ui form">
+
+        <div class="ui two cards">
+
+            <div class="card">
+
+                <div class="content">
+                    <div class="header">
+                        Integer values
+                    </div>
+                </div>
+
+                <div class="extra content">
+                    <pre class="nopad">
+                        [size]
+                        label = "Window size"
+                        display = "INTEGER"
+                        value = 100
+                        range = [1, 100]
+                        help = "Selects the smoothing window.
+                    </pre>
+                </div>
+
+
+
+                <div class="extra content formstyle">
+
+
+
+                    <div class="field">
+                        <label>Window size</label>
+                        <input type="text" value="100">
+                        <div class="muted">Selects the smoothing window.</div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
 <script>
-$(document).ready(function () {
-    var interface = init_codemirror($('#interface_editor'), 400);
-});
+    $(document).ready(function () {
+        var interface = init_codemirror($('#interface_editor'), 400);
+    });
 </script>

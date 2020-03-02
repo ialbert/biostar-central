@@ -12,6 +12,10 @@ body {
 
 }
 
+pre.nopad {
+    white-space: pre-line!important;
+}
+
 .ui.basic.segment.collapse {
     padding-top: 1ex;
     margin-top: 0px;
