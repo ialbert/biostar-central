@@ -15,6 +15,9 @@ body {
 
 }
 
+.hidden {
+    display: none;
+}
 pre.toml_code {
     white-space: pre-line!important;
 }

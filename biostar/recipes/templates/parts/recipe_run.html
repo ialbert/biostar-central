@@ -28,6 +28,7 @@
                 {% recipe_form form %}
 
                 <div class="field">
+
                     {% if is_runnable %}
                         <button type="submit" class="ui green button">
                             <i class="check icon"></i>Run
@@ -43,11 +44,45 @@
                     </a>
                 </div>
 
-                <div class="field">
-                    {% security_label recipe %}
+            </div>
+        </div>
+
+        {% if not is_runnable %}
+            <div class="ui vertical segment">
+                <div class="toggle"><a href="#">Why can't I run this recipe? <i class="caret down icon"></i></a></div>
+                <div class="hidden">
+                    <div style="padding-top:1ex;">To run a recipe:</div>
+                    <div class="ui bulleted list">
+                        <div class="item">You must be logged in.</div>
+                        <div class="item">You must be a trusted user.</div>
+                        <div class="item">The recipe must be authorized</div>
+                    </div>
+                    <p>Read more on security features in the documentation.</p>
                 </div>
             </div>
+        {% endif %}
+
+        <div class="ui center aligned vertical segment">
+            <p> Download the recipe to your computer</p>
+            <p><a class="ui mini teal button" href="{% url 'recipe_download' recipe.uid %}">
+                <i class="download icon"></i> Download recipe </a>
+            </p>
         </div>
 
     </div>
 </form>
+
+<script>
+
+    $(document).ready(function () {
+
+        $(document).on("click", '.toggle', function (event) {
+            event.preventDefault();
+
+            $(this).next().toggle("slow", function () {
+                // Animation complete.
+            });
+        })
+    });
+
+</script>
