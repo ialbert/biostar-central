@@ -13,6 +13,7 @@ function init_codemirror(element, size) {
             autoRefresh: true,
             lineNumbers: true,
             mode: 'shell',
+            theme: 'idea',
         }
     );
 

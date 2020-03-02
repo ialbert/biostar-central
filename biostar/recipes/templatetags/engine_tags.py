@@ -200,13 +200,14 @@ def paste(context, project, current=","):
     return context
 
 
+from django.forms.widgets import CheckboxInput
 @register.filter
 def is_checkbox(field):
     "Check if current field is a checkbox"
 
     try:
-        if field.field.widget.input_type == "checkbox":
-            return True
+        state = isinstance(field.field.widget, CheckboxInput)
+        return state
     except Exception as exc:
         logger.error(exc)
 

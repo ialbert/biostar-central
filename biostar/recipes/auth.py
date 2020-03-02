@@ -554,11 +554,17 @@ def link_data(path, data):
 def is_readable(user, project):
     # Shareable projects can get to see the
 
+    if project.is_public:
+        return True
+
+    if user.is_anonymous:
+        return False
+
     query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
 
-    readable = Access.objects.filter(query, project=project, user=user)
+    access = Access.objects.filter(query, project=project, user=user)
 
-    return readable.exists()
+    return access.exists()
 
 
 def is_writable(user, project, owner=None):

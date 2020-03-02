@@ -1,52 +1,49 @@
 {% load engine_tags %}
 
 {% if has_items %}
-<div class="ui center aligned basic segment paste">
-    <div class="ui  compact large message">
 
-        <div class="ui relaxed divided paste list">
+    <div class="ui center aligned basic segment">
 
-            {% for item,values in clipboard %}
+        {% for item, values in clipboard %}
 
-                    <div class="item">
-                        <p class="copied-item">
-                            <a href="#" data-value="{{ item }}">
-                                Clipboard contains
-                                <b>{{ values.count }} </b> {{ values.label }}{{ values.count |pluralize }}.
-                            </a>
+            <div class="ui info message">
 
-                        <div class="ui mini paste buttons">
+                <b>{{ values.count }} </b> {{ values.label }}{{ values.count |pluralize }} on the clipboard.
 
-                            {% if values.to_clone %}
-                                <a class="ui green large button" href="{{ values.paste_url }}?board={{ item }}&target=clone">
-                                    <i class="clone outline icon"></i> Paste as Clone
-                                </a>
-                                <div class="or"></div>
-                            {% endif %}
 
-                            <a class="ui blue  large button" href="{{ values.paste_url }}?board={{ item }}">
-                                <i class="sticky note icon"></i> Paste as New
-                            </a>
-                            <div class="or"></div>
-                            <a class="ui large button" href="{% url 'clear_clipboard' project.uid %}?next={{ values.next_url }}&board={{ item }}">
-                                <i class="window close icon"></i> Cancel Paste
-                            </a>
-                        </div>
+                <div class="ui mini  buttons">
 
-                        </p>
-                        {% if values.to_clone %}
-                            <div class="muted">
-                                A cloned recipe remains synchronized with the original recipe.
-                            </div>
-                        {% endif %}
+                    {% if values.to_clone %}
+                        <a class="ui green button"
+                           href="{{ values.paste_url }}?board={{ item }}&target=clone">
+                            <i class="clone outline icon"></i> Paste as Clone
+                        </a>
+                        <div class="or"></div>
+                    {% endif %}
+
+                    <a class="ui blue  button" href="{{ values.paste_url }}?board={{ item }}">
+                        <i class="sticky note icon"></i> Paste as New
+                    </a>
+
+                    <div class="or"></div>
+
+                    <a class="ui  button"
+                       href="{% url 'clear_clipboard' project.uid %}?next={{ values.next_url }}&board={{ item }}">
+                        <i class="window close icon"></i> Cancel Paste
+                    </a>
+                </div>
+
+                {% if values.to_clone %}
+                    <div class="muted" style="margin-top: 1ex;">
+                        A cloned recipe remains synchronized with the original recipe.
                     </div>
+                {% endif %}
 
-            {% endfor %}
+            </div>
 
+        {% endfor %}
 
-        </div>
     </div>
 
-</div>
 {% endif %}
 

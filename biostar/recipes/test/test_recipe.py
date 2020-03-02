@@ -97,15 +97,17 @@ class RecipeViewTest(TestCase):
     @patch('biostar.recipes.models.Analysis.save', MagicMock(name="save"))
     def test_recipe_edit(self):
         "Test recipe edit with POST request"
+        from biostar.recipes import ajax
 
-        data = {"name": "tested", "summary": "summary", "text": "text", "rank": 100,
+        data = {"name": "tested", "text": "text", "rank": 100,
                 "uid": "tested", 'json_text':'', 'template':'# Code here'}
-        url = reverse('recipe_edit', kwargs=dict(uid=f"{self.recipe.uid}"))
+        url = reverse('ajax_recipe_edit', kwargs=dict(id=f"{self.recipe.id}"))
 
         request = fake_request(url=url, data=data, user=self.owner)
 
-        response = views.recipe_edit(request=request, uid=self.recipe.uid)
-        self.process_response(response=response, data=data, save=True)
+        response = ajax.ajax_edit(request=request, id=self.recipe.id)
+
+        #self.process_response(response=response, data=data, save=True)
 
     def test_recipe_code_download(self):
         "Test recipe code download "

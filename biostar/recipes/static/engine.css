@@ -1,10 +1,13 @@
 :root {
-    --run-bg-color: #fff8db;
+    --run-bg-color: #fdfbee;
+    --code-color: #333333;
 }
 
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
+    font-family: "proxima-nova", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important
+    text-rendering: optimizeLegibility;
 }
 
 .ui.tabular.colored.menu {
@@ -12,6 +15,9 @@ body {
 
 }
 
+.hidden {
+    display: none;
+}
 pre.toml_code {
     white-space: pre-line!important;
 }
@@ -51,9 +57,7 @@ pre.toml_code {
     font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
 }
 
-code {
-    font-size: .88em !important;
-}
+
 
 .ui.grid > [class*="four wide"].column.recipe-sidemenu {
     width: 21% !important;
@@ -410,7 +414,7 @@ figure {
 }
 
 .formstyle {
-    background: #fff8db !important;
+    background: var(--run-bg-color) !important;
 }
 
 .CodeMirror.fadeout_error {
@@ -572,12 +576,19 @@ a:hover {
     border-radius: 3px;
 }
 
+
+
 code {
-    color: #c7254e;;
-    background-color: #EEEEEE;
+    color: var(--code-color);
+    background-color: var(--run-bg-color);
     padding: 2px 5px 2px 5px;
     border-radius: 3px;
     line-height: 1.7;
+    font-size: .88em !important;
+}
+
+pre > code{
+    padding: 0;
 }
 
 #comment {
@@ -593,7 +604,9 @@ code {
 pre {
     overflow-x: auto;
     padding: 1em;
-    background-color: #EEEEEE;
+    background-color: var(--run-bg-color);
+    border-top: 1px solid #ECECEC;
+    border-bottom: 1px solid #ECECEC;
 }
 
 .smaller {
@@ -621,6 +634,19 @@ pre {
     margin-top: 0 !important;
 }
 
+blockquote {
+    margin: 1em 2em 1em 2em;
+    background-color: #f5f2f0;
+    border-left: 4px solid #AAAAAA;
+    border-right: 4px solid #AAAAAA;
+    color: inherit;
+    text-shadow: 0 1px white;
+    border-radius: 3px;
+    padding-top: 0.5ex;
+    padding-bottom: 0.5ex;
+    padding-left: 1em;
+    opacity: 0.95;
+}
 
 @media all and (max-width: 999px) {
 

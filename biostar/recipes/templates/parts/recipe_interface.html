@@ -32,8 +32,8 @@
 
 </form>
 
-<div class="ui vertical segment">
-    <div class="ui header">Interface specification</div>
+<div class="ui center aligned vertical segment">
+    <div class="ui center aligned basic segment header">Interface specification</div>
     Interface element specification. Shows the code and the resulting interface element.
 </div>
 
@@ -172,19 +172,18 @@
     $(document).ready(function () {
         var interface = init_codemirror($('#interface_editor'), 400);
 
-        url = "/ajax/field/render/"
+        url = "/ajax/field/render/";
 
         $(".card").each(function (index) {
 
-            var curr = $(this)
-            var toml = curr.find(".toml_code").text()
-            var field = curr.find(".toml_field")
+            var curr = $(this);
+            var toml = curr.find(".toml_code").text();
+            var field = curr.find(".toml_field");
 
             field.load(url, {toml: toml}, function (response, status, xhr) {
 
             });
         });
-
 
     });
 </script>

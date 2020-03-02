@@ -20,11 +20,8 @@
             {{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         </div>
         {% else %}
-        {#% if field|is_number %#}
-
-        {#% endif %#}
-        {{ field.label_tag|safe }}
-        {{ field }}
+            {{ field.label_tag|safe }}
+            {{ field }}
         {% endif %}
 
         <div class="muted">{{ field.help_text }}</div>
