@@ -1,90 +1,8 @@
-String.prototype.format = String.prototype.f = function () {
-    var s = this,
-        i = arguments.length;
-
-    while (i--) {
-        s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
-    }
-    return s;
-};
-
-// using jQuery
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-csrftoken = getCookie('csrftoken');
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-$.ajaxSetup({
-    crossDomain: false, // obviates need for sameOrigin test
-    beforeSend: function (xhr, settings) {
-        if (!csrfSafeMethod(settings.type)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-
-function popup_message(elem, msg, cls, timeout) {
-    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
-    var text = '<div></div>';
-    var tag = $(text).insertBefore(elem)
-    tag.addClass('popover ' + cls)
-    tag.text(msg)
-    tag.delay(timeout).fadeOut(500, function () {
-        $(this).remove()
-    });
-}
-
-// Triggered on network errors.
-function error_message(elem, xhr, status, text) {
-    popup_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
-}
+//function
 
 
-
-
-function check_job() {
-
-    // Look at each job with a 'check_back' tag
-    $('.check_back').each(function () {
-        // Get the uid and state
-        var job_uid = $(this).data('value');
-        var state = $(this).data('state');
-        var imag = $('#job-img[data-uid="' + job_uid + '"]');
-        // Bail out when a job uid is not provided.
-        if (job_uid === null || job_uid === undefined) {
-            return
-        }
-
-        // Ajax request checking state change and replace appropriate element.
-        $.ajax('/ajax/check/job/' + job_uid + '/', {
-            type: 'GET',
-            dataType: 'json',
-            data: {
-                'state': state,
-            },
-            ContentType: 'application/json',
-            success: function (data) {
-                // Only replace and activate effects when the state has actually changed.
-
-                if (data.state_changed) {
+function update_job(data){
+    if (data.state_changed) {
                     // TODO: Taking this type of styling out
                     $('.job-container-' + job_uid).html(data.html);
                     var job_item = $('.job-item-' + job_uid);
@@ -124,6 +42,72 @@ function check_job() {
                     window.location.replace(data.redir + "#flist");
                     window.location.reload()
                 }
+}
+
+function check_jobs() {
+
+    // Look at each job with a 'check_back' tag
+    $('.check_back').each(function () {
+
+        var job = $(this).closest('.job');
+        // Get the uid and state
+        var uid = job.data('value');
+
+        // Get the current job state.
+        var state = $(this).data("state");
+
+        // Get the element containing job image.
+        var imag = job.find('#img:first');
+
+        // Construct the url
+        var url = '/ajax/check/job/{0}/'.format(uid);
+
+        var link = job.find(".link");
+
+        var stdout = $('#stdout pre:first');
+
+        var loader = $('#stdout .loader');
+
+        var stderr = $('#stderr');
+
+        // Bail out when a job uid is not provided.
+        if (uid === null || uid === undefined) {
+            return
+        }
+
+        // Ajax request checking state change and replace appropriate element.
+        $.ajax(url, {
+            type: 'GET',
+            dataType: 'json',
+            data: {'state': state},
+            ContentType: 'application/json',
+            success: function (data) {
+                // Only replace and activate effects when the state has actually changed.
+                if (data.state_changed) {
+                    job.find('.state:first').html(data.html);
+                    job.transition('pulse');
+                    console.log(data.state_changed, state)
+
+                }
+                if (data.is_running) {
+                    //$("#log").html("");
+                    link.attr("href", '/job/view/{0}/#log'.format(uid));
+                    loader.html('<div id="log" class="ui log message"><span class="ui active small inline loader"></span><span>Running</span></div>');
+
+                } else {
+                    loader.html("");
+                    link.attr("href", '/job/view/{0}/'.format(uid))
+                }
+
+                imag.replaceWith(data.img_tmpl);
+                stdout.text(data.stdout);
+                stderr.text(data.stderr);
+
+                // Redirect to the filelist once the job is done.
+                if (data.redir && $("#view").length) {
+                   window.location.replace(data.redir + "#flist");
+                   window.location.reload()
+                }
 
             },
             error: function (xhr, status, text) {
@@ -151,16 +135,16 @@ function preview_template(project_uid) {
             success: function (data) {
 
                 if (data.status === 'success') {
-                    $('#preview_cont').html('<h4 class="ui center aligned header">\n' +
+                    $('#preview div').html('<h4 class="ui center aligned header">\n' +
                         '\n' +
                         '    <div class="muted">Press ESC to close window</div>\n' +
                         '</h4>\n' +
                         '\n' +
                         '<pre><code class=" language-bash line-numbers ">' + data.script + '</code></pre>\n');
-                    $('#preview_modal').modal('show');
+                    $('#preview').modal('show');
                     Prism.highlightAll();
                 } else {
-                    popup_message($("#template"), data.msg, data.status);
+                    popover_message($("#template"), data.msg, data.status);
                 }
 
             },
@@ -173,7 +157,7 @@ function preview_template(project_uid) {
 
 function add_to_interface(display_type) {
 
-    let json_text = $('#json').val();
+    let json_text = $('#interface_editor').val();
 
     $.ajax('/add/recipe/fields/', {
         type: 'POST',
@@ -185,11 +169,11 @@ function add_to_interface(display_type) {
 
         success: function (data) {
             if (data.status === 'success') {
-                $('#json').val(data.json_text);
+                $('#interface_editor').val(data.json_text);
                 $('#json_field').html(data.html);
             } else {
                 //($('#json_field'), xhr, status, text)
-                popup_message($('#json_field'), data.msg, data.status)
+                popover_message($('#json_field'), data.msg, data.status)
             }
 
             //$('#search-results').html(data);
@@ -244,10 +228,11 @@ function json_preview(project_uid) {
             success: function (data) {
 
                 if (data.status === 'error') {
-                    popup_message($("#json_field"), data.msg, data.status, 5000);
+                    //alert($("#json_field").html());
+                    popover_message($("#interface").closest('.grid'), data.msg, data.status, 5000);
                     return
                 }
-                $('#container').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
+                $('#preview div').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
                     '                        <button type="submit" class="ui green disabled button">\n' +
                     '                            <i class="check icon"></i>Run\n' +
                     '                        </button>\n' +
@@ -311,7 +296,7 @@ function copy_object(uid, project_uid, clipboard) {
                     });
                     return
                 }
-                popup_message(container, data.msg, data.status, 2000)
+                popover_message(container, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -336,9 +321,9 @@ function copy_file(path, rel_path) {
             success: function (data) {
                 if (data.status === 'success') {
 
-                    popup_message(elem, data.msg, data.status, 500);
+                    popover_message(elem, data.msg, data.status, 500);
                 }
-                popup_message(elem, data.msg, data.status, 2000)
+                popover_message(elem, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -349,36 +334,35 @@ function copy_file(path, rel_path) {
 }
 
 
-function toggle_delete(uid, type, count_elem) {
+function toggle_delete(elem, otype) {
 
 
-    // Get the job container
-    let container = $('.toggle-item-' + uid);
-    let counts = $('#' + count_elem);
+    var uid = elem.data("value");
 
-    $.ajax('/toggle/delete/', {
+    // Fetch the element to decrement/increment  once toggle is complete.
+    var count = $("#{0}_count".format(otype));
+
+    var url = '/toggle/delete/';
+
+    var data = { 'uid': uid,  'type': otype };
+
+    $.ajax(url, {
             type: 'POST',
             dataType: 'json',
-            data: {
-                'uid': uid,
-                'type': type
-            },
-
+            data: data,
             success: function (data) {
                 if (data.status === 'success') {
                     // Give message
-                    container.transition('zoom');
+                    elem.transition('zoom');
                     // Update counts on tabular menu
-                    counts.html(data.counts);
-                    //container.hide()
+                    count.html(data.counts);
                     return
                 }
-
-                popup_message(container.before(), data.msg, data.status, 2000)
+                popover_message(elem.before(), data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
-                error_message(container.before(), xhr, status, text)
+                error_message(elem.before(), xhr, status, text)
             }
         }
     )
@@ -412,7 +396,7 @@ function change_access(access, user_id, project_uid, elem) {
                     });
                     return
                 }
-                popup_message(container, data.msg, data.status, 2000)
+                popover_message(container, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -453,7 +437,7 @@ $(document).ready(function () {
     //remove_trigger();
 
     // Check and update 'Running' and 'Spooled' jobs every 5 seconds.
-    setInterval(check_job, 5000);
+    setInterval(check_jobs, 5000);
 
     $(".copy-data").click(function (event) {
 
@@ -467,7 +451,7 @@ $(document).ready(function () {
             ContentType: 'application/json',
             data: {data_uid: data_uid},
             success: function (data) {
-                popup_message($("#copy-message-" + data_uid), data.msg, data.status);
+                popover_message($("#copy-message-" + data_uid), data.msg, data.status);
             },
             error: function () {
             }
@@ -515,10 +499,6 @@ $(document).ready(function () {
         add_vars()
     });
 
-    $(this).on('click', '.cmd-value', function () {
-        event.preventDefault();
-        add_to_template($(this))
-    });
 
     $(this).on('click', '.add_to_interface', function () {
         event.preventDefault();
@@ -559,14 +539,16 @@ $(document).ready(function () {
         container.after(page)
     });
 
-    $(this).on('click', '.toggle_delete', function (event) {
-        //alert("foo");
+    $(this).on('click', '.job .delete', function (event) {
         event.preventDefault();
-        let uid = $(this).data("value");
-        let type = $(this).data("type");
-        let count_elem = $(this).data('count');
-        toggle_delete(uid, type, count_elem);
+        var elem = $(this).closest('.job');
+        toggle_delete(elem, 'job')
+    });
 
+    $(this).on('click', '.data .delete', function (event) {
+        event.preventDefault();
+        var elem = $(this).closest('.data');
+        toggle_delete(elem, 'data')
     });
 
     $(this).on('click', '#set_source', function () {

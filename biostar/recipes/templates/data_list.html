@@ -30,7 +30,7 @@
 
                 {% for data in data_list %}
 
-                    <div class="item job toggle-item-{{ data.uid }}" id="item-{{ data.uid }}">
+                    <div class="item data" data-value="{{ data.uid }}" >
                         <div class="content">
 
                             <a class="subheader" href="{% url 'data_view' data.uid %}">
@@ -49,17 +49,13 @@
                         </div>
                         {% if request.user.is_authenticated %}
 
-
-                            <div class="ui tiny buttons">
-                                <a class="ui right rerun floated button copy-object" data-value="{{ data.uid }}"
-                                   style="font-size: x-small;"
+                            <div class="ui mini buttons">
+                                <a class="ui right floated button copy-object" data-value="{{ data.uid }}"
                                    data-project="{{ data.project.uid }}" data-clipboard="{{ copied_data }}">
                                     <i class="copy icon"></i>Copy
                                 </a>
-                                <div class="or" style="font-size: x-small;"></div>
-
-                                <a class="ui right floated button rerun toggle_delete" data-value="{{ data.uid }}"
-                                   data-type="data" data-count='data_count' style="font-size: x-small;">
+                                <div class="or"></div>
+                                <a class="ui right floated button delete">
                                     <i class="trash icon"></i> <span class="fitme">Delete</span>
                                 </a>
 

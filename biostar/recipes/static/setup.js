@@ -80,3 +80,8 @@ function popover_message(elem, message, cls, timeout) {
 }
 
 
+// Triggered on network errors.
+function error_message(elem, xhr, status, text) {
+    popover_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
+}
+

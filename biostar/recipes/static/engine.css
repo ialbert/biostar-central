@@ -31,7 +31,7 @@ pre.toml_code {
     display: inline;
 }
 
-#job-img i {
+#img i {
     position: absolute;
     top: 0px;
     right: 22%;
@@ -39,11 +39,11 @@ pre.toml_code {
     opacity: .7;
 }
 
-#job-img i.success {
+#img i.success {
     color: green;
 }
 
-#job-img i.error {
+#img i.error {
     color: red;
 }
 
@@ -60,7 +60,7 @@ code {
 }
 
 
-#job-img.dimmer {
+#img.dimmer {
     display: block;
     position: relative;
     height: 0px;
@@ -73,11 +73,18 @@ code {
     margin-left: 0px
 }
 
-#job-img.running.dimmer > .mytiny.image {
+#img.running.dimmer > .mytiny.image {
     opacity: .5
 }
 
-#job-img.dimmer > .loader {
+.job .text.container{
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: fit-content !important;
+
+}
+
+#img.dimmer > .loader {
     top: 20px;
     width: 79px !important;
 }
@@ -274,10 +281,8 @@ code {
     background-color: #f2f2f2;
 }
 
-.rerun {
+.job .buttons, .data .buttons, .recipe .buttons{
     height: fit-content;
-    display: inline-flex !important;
-
 }
 
 
@@ -349,6 +354,7 @@ figure {
     width: 80px;
     height: 80px;
     font-size: .85714286rem;
+    max-width: none;
 }
 
 .count {
@@ -429,35 +435,11 @@ figure {
     font-weight: bold;
 }
 
-#cmd_form > .ui.form > .field > .CodeMirror {
-    height: 3em !important;
+
+
+#interface .dropdown{
+    float: right;
 }
-
-.add-cmd-with-type {
-    opacity: .6;
-}
-
-.cmd-value {
-    opacity: .6;
-}
-
-.edit-snippet {
-    opacity: .6;
-}
-
-.edit-snippet:hover {
-    opacity: 1;
-}
-
-
-.cmd-value:hover {
-    opacity: 1;
-}
-
-.add-cmd-with-type:hover {
-    opacity: 1;
-}
-
 .popover {
 
     color: #3c763d;
@@ -486,9 +468,6 @@ figure {
     padding-bottom: 25px !important;
 }
 
-.snippet.divider {
-    margin: 0 !important;
-}
 
 .popover.error {
     background-color: #f2dede;

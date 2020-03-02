@@ -69,7 +69,9 @@ class ajax_error_wrapper:
 
         return _ajax_view
 
+
 from .forms import RecipeForm
+
 
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_edit(request, id):
@@ -91,7 +93,7 @@ def ajax_edit(request, id):
     project = recipe.project
 
     form = RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
-                            project=project)
+                      project=project)
 
     if form.is_valid():
         form.save()
@@ -199,62 +201,55 @@ def preview_json(request):
     return ajax_success(msg="Recipe json", html=template)
 
 
-def get_display_dict(display_type):
-    mapping = dict(radio=RADIO, integer=INTEGER, textbox=TEXTBOX,
-                   float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN,
-                   upload=UPLOAD)
+def builder(display, **initial):
 
-    display = mapping.get(display_type)
+    data = dict(label="Insert Field Label", display=display)
+    defaults = dict()
+    if display == INTEGER or display == FLOAT:
+        defaults = dict(range=[0, 100], value=0, help="Enter a number.")
 
+    elif display == DROPDOWN or display == RADIO:
+        defaults = dict(choices=[("1", 'Option 1'), ("2", 'Option 2')],
+                        value=2, help="Enter a number.")
+    data.update(defaults)
+    data.update(initial)
+
+    return data
+
+
+def display_data(display_type):
+
+    # Special case where "display" key is not added
     if display_type == 'data':
         return dict(label='Data Field Label',
                     source='PROJECT',
                     type='DATA',
                     help='Pick data from this project to analyze.')
-    if display == RADIO:
-        return dict(label='Radio Field Label',
-                    display=RADIO, help='Choose an option.',
-                    choices=[("1", 'Option 1'), ("2", 'Option 2')], value=2)
-    if display == INTEGER:
-        return dict(label='Integer Field Label',
-                    display=INTEGER,
-                    help='Enter an integer between -100 and 100.',
-                    range=[0, 100], value=0)
-    if display == TEXTBOX:
-        return dict(label='Text box Field Label', display=TEXTBOX,
-                    help='Enter text.',
-                    value='text')
-    if display == FLOAT:
-        return dict(label='Float Field Label',
-                    help='Enter a float, decimal number, between 0 and 100.0.',
-                    display=FLOAT, range=[0, 100],
-                    value=0.5)
-    if display == CHECKBOX:
-        return dict(label='Checkbox Field Label',
-                    help="Check the box for 'yes'. ",
-                    display=CHECKBOX, value=True)
-    if display == DROPDOWN:
-        return dict(label='Dropdown Field Label',
-                    display=DROPDOWN,
-                    help="Pick an option from a dropdown.",
-                    choices=[('1', 'Choices 1'), ('2', 'Choices 2')],
-                    value='1')
-    if display == UPLOAD:
-        return dict(label='Upload a file',
-                    display=UPLOAD,
-                    help="Upload a file to analyze")
 
-    return dict()
+    integer = builder(display=INTEGER)
+    floating = builder(display=FLOAT)
+    dropdown = builder(display=DROPDOWN)
+    radio = builder(display=RADIO)
+    upload = builder(display=UPLOAD, **dict(help="Upload a file to analyze"))
+    checkbox = builder(display=CHECKBOX, **dict(value=True, help='Checkbox.'))
+    textbox = builder(display=TEXTBOX, **dict(value='Example text', help='Enter text.'))
+
+    data_map = dict(integer=integer, textbox=textbox, float=floating, checkbox=checkbox,
+                    dropdown=dropdown, upload=upload, radio=radio)
+
+    data = data_map.get(display_type, dict())
+
+    return data
 
 
 @ajax_error_wrapper(method="POST", login_required=False)
 def add_to_interface(request):
     # Returns a recipe interface field json
 
+    # Get the display type to add
     display_type = request.POST.get('display_types', '')
     json_text = request.POST.get('json_text', '')
-
-    display_dict = get_display_dict(display_type=display_type)
+    display_dict = display_data(display_type=display_type)
     try:
         json_data = toml.loads(json_text)
     except Exception as exc:
@@ -279,26 +274,6 @@ def add_to_interface(request):
     return ajax_success(html=json_field, json_text=new_json, msg="Rendered json")
 
 
-@ajax_error_wrapper(method="GET", login_required=False)
-def run_interface(request, uid):
-    """
-    Render recipe run interface.
-    """
-    recipe = Analysis.objects.filter(uid=uid).first()
-    if not recipe:
-        return ajax_error(msg="Recipe does not exist.")
-
-    form = RecipeInterface(request=request, json_data=recipe.json_data,
-                           project=recipe.project, initial=dict(name=recipe.name))
-
-    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
-    context = dict(form=form, recipe=recipe, request=request, is_runnable=is_runnable)
-    run = render_to_string(request=request, template_name='recipe_run.html', context=context)
-    run = mark_safe(run)
-
-    return ajax_success(html=run, msg="Rendered interface")
-
-
 @ajax_error_wrapper(method="POST")
 def file_copy(request):
     """
@@ -319,6 +294,7 @@ def toggle_delete(request):
     """
     Delete an object.
     """
+
     type_map = dict(job=Job, data=Data, recipe=Analysis)
     uid = request.POST.get('uid', "")
     obj_type = request.POST.get('type', '')
