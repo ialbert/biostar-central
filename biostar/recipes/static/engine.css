@@ -6,6 +6,8 @@
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
+    font-family: "proxima-nova", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important
+    text-rendering: optimizeLegibility;
 }
 
 .ui.tabular.colored.menu {
@@ -600,6 +602,8 @@ pre {
     overflow-x: auto;
     padding: 1em;
     background-color: var(--run-bg-color);
+    border-top: 1px solid #ECECEC;
+    border-bottom: 1px solid #ECECEC;
 }
 
 .smaller {
@@ -627,6 +631,19 @@ pre {
     margin-top: 0 !important;
 }
 
+blockquote {
+    margin: 1em 2em 1em 2em;
+    background-color: #f5f2f0;
+    border-left: 4px solid #AAAAAA;
+    border-right: 4px solid #AAAAAA;
+    color: inherit;
+    text-shadow: 0 1px white;
+    border-radius: 3px;
+    padding-top: 0.5ex;
+    padding-bottom: 0.5ex;
+    padding-left: 1em;
+    opacity: 0.95;
+}
 
 @media all and (max-width: 999px) {
 
