@@ -1,5 +1,6 @@
 :root {
     --run-bg-color: #fdfbee;
+    --code-color: #333333;
 }
 
 body {
@@ -51,9 +52,7 @@ pre.toml_code {
     font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
 }
 
-code {
-    font-size: .88em !important;
-}
+
 
 .ui.grid > [class*="four wide"].column.recipe-sidemenu {
     width: 21% !important;
@@ -572,12 +571,19 @@ a:hover {
     border-radius: 3px;
 }
 
+
+
 code {
-    color: #c7254e;;
-    background-color: #EEEEEE;
+    color: var(--code-color);
+    background-color: var(--run-bg-color);
     padding: 2px 5px 2px 5px;
     border-radius: 3px;
     line-height: 1.7;
+    font-size: .88em !important;
+}
+
+pre > code{
+    padding: 0;
 }
 
 #comment {
@@ -593,7 +599,7 @@ code {
 pre {
     overflow-x: auto;
     padding: 1em;
-    background-color: #EEEEEE;
+    background-color: var(--run-bg-color);
 }
 
 .smaller {
