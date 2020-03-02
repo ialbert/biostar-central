@@ -1,5 +1,5 @@
 :root {
-    --run-bg-color: #fff8db;
+    --run-bg-color: #fdfbee;
 }
 
 body {
@@ -410,7 +410,7 @@ figure {
 }
 
 .formstyle {
-    background: #fff8db !important;
+    background: var(--run-bg-color) !important;
 }
 
 .CodeMirror.fadeout_error {

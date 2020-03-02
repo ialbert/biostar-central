@@ -13,6 +13,7 @@ function init_codemirror(element, size) {
             autoRefresh: true,
             lineNumbers: true,
             mode: 'shell',
+            theme: 'idea',
         }
     );
 
@@ -167,7 +168,7 @@ function bind_events() {
         event.preventDefault();
         submit_form($(this))
     });
-    
+
 }
 
 // The recipe id obtained from the page.
