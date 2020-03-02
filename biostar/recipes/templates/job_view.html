@@ -34,7 +34,7 @@
     <div class="ui large vertical {% job_color job %} segment">
 
         <div class="ui six buttons">
-            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#code">
+            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#info">
                 <i class="setting icon"></i> <span class="fitme">Recipe</span>
             </a>
             <a class="ui button" href="{% url "job_rerun" job.uid %}">

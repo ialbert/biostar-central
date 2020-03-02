@@ -156,7 +156,7 @@ class SiteNavigation(TestCase):
             reverse('logout'),
             reverse('login'),
             reverse('recipe_create', kwargs=self.proj_params),
-            reverse('recipe_edit', kwargs=self.analysis_params),
+
         ]
 
         self.visit_urls(urls, [302, 200])

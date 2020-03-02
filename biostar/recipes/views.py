@@ -388,7 +388,7 @@ def recipe_copy(request, uid):
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
     board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.COPIED_RECIPES)
-    messages.success(request, f"Copied recipe, you currently have  {len(set(board_items))} copied.")
+
     return redirect(next_url)
 
 
@@ -638,8 +638,8 @@ def recipe_run(request, uid):
 
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
-
-            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
+            url = reverse("recipe_view", kwargs=dict(uid=recipe.uid)) + "#results"
+            return redirect(url)
     else:
         initial = dict(name=f"Results for: {recipe.name}")
         form = forms.RecipeInterface(request=request, analysis=recipe,
@@ -680,33 +680,6 @@ def job_rerun(request, uid):
     return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
 
 
-@write_access(type=Analysis)
-def recipe_edit(request, uid):
-    # The user making the request.
-    user = request.user
-
-    # The recipe that needs to be edited.
-    recipe = Analysis.objects.filter(uid=uid).first()
-
-    # Project the recipe is stored in.
-    project = recipe.project
-
-    if request.method == "POST":
-        # Form has been submitted
-        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
-                                project=project)
-        if form.is_valid():
-            messages.success(request, "Recipe saved")
-            form.save()
-        else:
-            messages.error(request, form.errors)
-
-    # Refetch object to get new uid.
-    recipe = Analysis.objects.get(id=recipe.id)
-
-    return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-
-
 def get_part(request, name, id):
     """
     Return a template by name and with uid rendering
@@ -720,6 +693,12 @@ def get_part(request, name, id):
     ).first()
 
     project = recipe.project
+
+    if not auth.is_readable(project=project, user=user):
+        message = str("Recipe is not writable by current user")
+        return HttpResponse(message)
+
+
 
     # Fills in project level counts (results, data and recipe counts).
     counts = get_counts(recipe.project)
@@ -742,8 +721,10 @@ def get_part(request, name, id):
     )
 
     name = remap.get(name, "parts/placeholder.html")
+
     # Check to see if this recipe is runnable by the user.
     is_runnable = auth.authorize_run(user=user, recipe=recipe)
+
     # Get the list of jobs required for recipe results
     jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
     context = dict(recipe=recipe, form=form, is_runnable=is_runnable, job_list=jobs, rerun_btn=False)

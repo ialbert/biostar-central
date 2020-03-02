@@ -72,9 +72,6 @@ urlpatterns = [
     # Renders an HTML form field base on the TOML input.
     path(r'ajax/field/render/', ajax.field_render, name='ajax_field_render'),
 
-    # Recipes edited in two ways.
-    path(r'recipe/edit/<str:uid>/', views.recipe_edit, name='recipe_edit'),
-
 
 
     path(r'recipe/paste/<str:uid>/', views.recipe_paste, name='recipe_paste'),
