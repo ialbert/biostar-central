@@ -20,6 +20,12 @@ logger.setLevel(logging.DEBUG)
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
+def finalize_job(data):
+    """
+    Performs various finalization processes on the data
+    """
+    for key, value in data.get("settings", {}):
+        pass
 
 def create_logs(job):
 
@@ -172,6 +178,9 @@ def run(job, options={}):
 
         # Raise an error if returncode is anything but 0.
         proc.check_returncode()
+
+        # Perform tasks at job finalizatoin
+        finalize_job(data=json_data)
 
         # If we made it this far the job has finished.
         logger.info(f"uid={job.uid}, name={job.name}")
