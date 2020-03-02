@@ -1,0 +1,17 @@
+{% load engine_tags %}
+
+{# Iterate over all form fields #}
+{% for field in form.visible_fields %}
+    {{ field.errors }}
+    <div class="field">
+        {% if field|is_checkbox %}
+            <div class="ui checkbox">
+                {{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            </div>
+        {% else %}
+            {{ field.label_tag }}
+            {{ field }}
+        {% endif %}
+        <div class="muted">{{ field.help_text }}</div>
+    </div>
+{% endfor %}
