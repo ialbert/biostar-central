@@ -18,6 +18,7 @@ from biostar.recipes.const import *
 from biostar.recipes.models import Job, Analysis, Data, Snippet, SnippetType, Project, MAX_TEXT_LEN, Access
 from biostar.recipes.forms import RecipeInterface
 from biostar.recipes import auth
+from django.shortcuts import render, redirect, reverse
 
 logger = logging.getLogger("engine")
 
@@ -435,3 +436,31 @@ def add_variables(request):
     template_field = tmpl.render(context=context)
 
     return ajax_success(msg="Added variables to template", html=template_field, code=new_template)
+
+
+def field_render(request):
+    """
+    Renders and returns an HTML field based on the incoming toml data.
+    """
+    from .forms import RecipeInterface
+    from django.http import HttpResponse
+    import toml
+
+    demo = """
+    [demo]
+    label = "Demo"
+    display = "INTEGER"
+    value = 10000000
+    """
+    text = request.POST.get("toml", demo)
+
+    try:
+        data = toml.loads(text)
+    except Exception as exc:
+        return HttpResponse(exc)
+
+    form = RecipeInterface(request, json_data=data)
+
+    context = dict(form=form)
+
+    return render(request, "parts/form_field_render.html", context=context)

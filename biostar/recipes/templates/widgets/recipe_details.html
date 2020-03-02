@@ -20,17 +20,15 @@
         </div>
 
         <div class="extra">
-            <i class="bar chart icon"></i>Runs:<a
+            <a
                 href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
 
-            {{ recipe.job_count }}
+            <i class="bar chart icon"></i> {{ recipe.job_count }}
             result{{ recipe.job_count|pluralize }}</a>
             &bull; {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
-            &bull;
-            {% if recipe.runnable %}
-                Authorized
-            {% else %}
-                Pending
+
+            {% if not recipe.runnable %}
+                &bull; needs authorization
             {% endif %}
 
         </div>

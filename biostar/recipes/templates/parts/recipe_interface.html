@@ -35,7 +35,6 @@
 <div class="ui vertical segment">
     <div class="ui header">Interface specification</div>
     Interface element specification. Shows the code and the resulting interface element.
-    Double click on any box to add to your interface.
 </div>
 
 
@@ -49,38 +48,120 @@
             <div class="card">
 
                 <div class="content">
-                    <div class="header">
-                        Integer values
-                    </div>
+                    <b>Integer values</b>
                 </div>
 
                 <div class="extra content">
-                    <pre class="nopad">
+                    <pre class="toml_code">
                         [size]
                         label = "Window size"
                         display = "INTEGER"
                         value = 100
                         range = [1, 100]
-                        help = "Selects the smoothing window.
+                        help = "Selects the smoothing window."
                     </pre>
                 </div>
 
-
-
                 <div class="extra content formstyle">
-
-
-
-                    <div class="field">
-                        <label>Window size</label>
-                        <input type="text" value="100">
-                        <div class="muted">Selects the smoothing window.</div>
-                    </div>
-
+                    <div class="toml_field"></div>
                 </div>
 
+            </div>
+
+            <div class="card">
+
+                <div class="content">
+                    <b>Float values</b>
+                </div>
+
+                <div class="extra content">
+                    <pre class="toml_code">
+                        [cutoff]
+                        label = "P_Value Cutoff"
+                        display = "FLOAT"
+                        value = 0.05
+                        range = [0, 1]
+                        help = "Selects the cutoff."
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
 
             </div>
+
+                      <div class="card">
+
+                <div class="content">
+                    <b>Text box</b>
+                </div>
+
+                <div class="extra content">
+                    <pre class="toml_code">
+                    [sra]
+                    label = "Run Number"
+                    display = "TEXTBOX"
+                    value = "SRR519926"
+                    regex = 'SRR\d+'
+                    help = "Please provide SRR Run number"
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
+            </div>
+
+            <div class="card">
+
+
+                <div class="content">
+                    <b>Dropdown menu</b>
+                </div>
+
+                <div class="content">
+
+
+                    <pre class="toml_code">
+                    [color]
+                    label = "Select color"
+                    display = "DROPDOWN"
+                    choices = [ ["R","Red"], ["B","Blue"] ]
+                    value = "R"
+                    help = "Select the color of your choice"
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="content">
+                    <b>Check box</b>
+                </div>
+
+                <div class="content">
+                    <pre class="toml_code">
+                    [validate]
+                    label = "Cross Validate"
+                    display = "CHECKBOX"
+                    value = true
+                    help = "Apply cross validation on the results."
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
+            </div>
+
 
         </div>
 
@@ -90,5 +171,20 @@
 <script>
     $(document).ready(function () {
         var interface = init_codemirror($('#interface_editor'), 400);
+
+        url = "/ajax/field/render/"
+
+        $(".card").each(function (index) {
+
+            var curr = $(this)
+            var toml = curr.find(".toml_code").text()
+            var field = curr.find(".toml_field")
+
+            field.load(url, {toml: toml}, function (response, status, xhr) {
+
+            });
+        });
+
+
     });
 </script>
