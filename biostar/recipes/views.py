@@ -742,8 +742,9 @@ def get_part(request, name, id):
     )
 
     name = remap.get(name, "parts/placeholder.html")
-
+    # Check to see if this recipe is runnable by the user.
     is_runnable = auth.authorize_run(user=user, recipe=recipe)
+    # Get the list of jobs required for recipe results
     jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
     context = dict(recipe=recipe, form=form, is_runnable=is_runnable, job_list=jobs, rerun_btn=False)
     context.update(counts)
@@ -778,9 +779,11 @@ def recipe_view(request, uid):
     # Disable buttons if project not writeable.
     btn_state = '' if auth.is_writable(user=user, project=project) else 'disabled'
 
+    # Get the list of jobs required to view recipe results
     jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
-    is_runnable = auth.authorize_run(user=user, recipe=recipe)
 
+    # Check to see if this recipe is runnable by the user.
+    is_runnable = auth.authorize_run(user=user, recipe=recipe)
 
     # Generate the context.
     context = dict(recipe=recipe, job_list=jobs, project=project, form=form, btn_state=btn_state,

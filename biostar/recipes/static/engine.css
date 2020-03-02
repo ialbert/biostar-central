@@ -281,15 +281,8 @@ code {
     background-color: #f2f2f2;
 }
 
-.rerun {
+.job .buttons, .data .buttons, .recipe .buttons{
     height: fit-content;
-    display: inline-flex !important;
-
-}
-
-.job .tiny.buttons > .button{
-    height: fit-content;
-    display: inline-flex;
 }
 
 
@@ -475,9 +468,6 @@ figure {
     padding-bottom: 25px !important;
 }
 
-.snippet.divider {
-    margin: 0 !important;
-}
 
 .popover.error {
     background-color: #f2dede;

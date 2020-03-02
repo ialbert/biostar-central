@@ -49,13 +49,13 @@
                         </div>
                         {% if request.user.is_authenticated %}
 
-                            <div class="ui tiny buttons">
-                                <a class="ui right rerun floated button copy-object" data-value="{{ data.uid }}"
+                            <div class="ui mini buttons">
+                                <a class="ui right floated button copy-object" data-value="{{ data.uid }}"
                                    data-project="{{ data.project.uid }}" data-clipboard="{{ copied_data }}">
                                     <i class="copy icon"></i>Copy
                                 </a>
                                 <div class="or"></div>
-                                <a class="ui right floated button rerun delete">
+                                <a class="ui right floated button delete">
                                     <i class="trash icon"></i> <span class="fitme">Delete</span>
                                 </a>
 

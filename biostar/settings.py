@@ -12,7 +12,7 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-# Run tasks in multi threaded mode when in development mode
+# Run tasks in multi threaded mode when UWSGI is not installed.
 MULTI_THREAD = True
 
 # Set the home page to the engine or forum

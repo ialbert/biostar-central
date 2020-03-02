@@ -11,7 +11,9 @@ INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ENGINE_APPS + ACCOUNT
 ROOT_URLCONF = 'biostar.test.test_urls'
 
 
+# Turn multi threading off during testing.
 MULTI_THREAD = False
+
 # reCaptcha left alone during testing
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''

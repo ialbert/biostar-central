@@ -2,7 +2,7 @@
 {% load engine_tags %}
 
 
-<div class="item">
+<div class="item recipe">
     <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
     <div class="content">
 
@@ -35,11 +35,11 @@
     </div>
     {% if user.is_authenticated %}
         <div class="ui mini buttons">
-            <a class="ui right button rerun" href="{% url 'recipe_copy' recipe.uid %}">
-                <i class="redo icon"></i>Copy
+            <a class="ui right button" href="{% url 'recipe_copy' recipe.uid %}">
+                <i class="copy icon"></i>Copy
             </a>
             <div class="or"></div>
-            <a class="ui right button rerun " href="{% url 'recipe_delete' recipe.uid %}">
+            <a class="ui right button " href="{% url 'recipe_delete' recipe.uid %}">
                 <i class="trash icon"></i> <span class="fitme">Delete</span>
             </a>
 

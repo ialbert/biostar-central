@@ -27,7 +27,7 @@
 
         {# Rerun and delete options for authenticated users #}
         {% if user.is_authenticated and rerun_btn %}
-            <div class="ui tiny buttons">
+            <div class="ui mini buttons">
 
                 <a class="ui right button" href="{% url "job_rerun" job.uid %}">
                     <i class="redo icon"></i>Rerun
@@ -46,7 +46,7 @@
 
 {% empty %}
     <div class="item">
-        <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet contain results.
+        <div class="ui warning message"><i class="ui info circle icon"></i>There are no results yet.
         </div>
     </div>
 {% endfor %}
