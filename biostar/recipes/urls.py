@@ -62,7 +62,6 @@ urlpatterns = [
     path(r'recipe/list/<str:uid>/', views.recipe_list, name='recipe_list'),
 
     path(r'recipe/view/<str:uid>/', views.recipe_view, name='recipe_view'),
-    path(r'run/interface/<str:uid>/', ajax.run_interface, name='run_interface'),
     path(r'recipe/run/<str:uid>/', views.recipe_run, name='recipe_run'),
 
     # Returns a rendered html fragment.

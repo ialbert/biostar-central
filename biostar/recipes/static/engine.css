@@ -438,35 +438,11 @@ figure {
     font-weight: bold;
 }
 
-#cmd_form > .ui.form > .field > .CodeMirror {
-    height: 3em !important;
+
+
+#interface .dropdown{
+    float: right;
 }
-
-.add-cmd-with-type {
-    opacity: .6;
-}
-
-.cmd-value {
-    opacity: .6;
-}
-
-.edit-snippet {
-    opacity: .6;
-}
-
-.edit-snippet:hover {
-    opacity: 1;
-}
-
-
-.cmd-value:hover {
-    opacity: 1;
-}
-
-.add-cmd-with-type:hover {
-    opacity: 1;
-}
-
 .popover {
 
     color: #3c763d;

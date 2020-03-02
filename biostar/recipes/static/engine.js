@@ -135,16 +135,16 @@ function preview_template(project_uid) {
             success: function (data) {
 
                 if (data.status === 'success') {
-                    $('#preview_cont').html('<h4 class="ui center aligned header">\n' +
+                    $('#preview div').html('<h4 class="ui center aligned header">\n' +
                         '\n' +
                         '    <div class="muted">Press ESC to close window</div>\n' +
                         '</h4>\n' +
                         '\n' +
                         '<pre><code class=" language-bash line-numbers ">' + data.script + '</code></pre>\n');
-                    $('#preview_modal').modal('show');
+                    $('#preview').modal('show');
                     Prism.highlightAll();
                 } else {
-                    popup_message($("#template"), data.msg, data.status);
+                    popover_message($("#template"), data.msg, data.status);
                 }
 
             },
@@ -157,7 +157,7 @@ function preview_template(project_uid) {
 
 function add_to_interface(display_type) {
 
-    let json_text = $('#json').val();
+    let json_text = $('#interface_editor').val();
 
     $.ajax('/add/recipe/fields/', {
         type: 'POST',
@@ -169,11 +169,11 @@ function add_to_interface(display_type) {
 
         success: function (data) {
             if (data.status === 'success') {
-                $('#json').val(data.json_text);
+                $('#interface_editor').val(data.json_text);
                 $('#json_field').html(data.html);
             } else {
                 //($('#json_field'), xhr, status, text)
-                popup_message($('#json_field'), data.msg, data.status)
+                popover_message($('#json_field'), data.msg, data.status)
             }
 
             //$('#search-results').html(data);
@@ -228,10 +228,11 @@ function json_preview(project_uid) {
             success: function (data) {
 
                 if (data.status === 'error') {
-                    popup_message($("#json_field"), data.msg, data.status, 5000);
+                    //alert($("#json_field").html());
+                    popover_message($("#interface").closest('.grid'), data.msg, data.status, 5000);
                     return
                 }
-                $('#container').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
+                $('#preview div').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
                     '                        <button type="submit" class="ui green disabled button">\n' +
                     '                            <i class="check icon"></i>Run\n' +
                     '                        </button>\n' +
@@ -295,7 +296,7 @@ function copy_object(uid, project_uid, clipboard) {
                     });
                     return
                 }
-                popup_message(container, data.msg, data.status, 2000)
+                popover_message(container, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -320,9 +321,9 @@ function copy_file(path, rel_path) {
             success: function (data) {
                 if (data.status === 'success') {
 
-                    popup_message(elem, data.msg, data.status, 500);
+                    popover_message(elem, data.msg, data.status, 500);
                 }
-                popup_message(elem, data.msg, data.status, 2000)
+                popover_message(elem, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -345,7 +346,7 @@ function toggle_delete(elem, otype) {
 
     var data = { 'uid': uid,  'type': otype };
 
-    $.ajax('/toggle/delete/', {
+    $.ajax(url, {
             type: 'POST',
             dataType: 'json',
             data: data,
@@ -357,7 +358,7 @@ function toggle_delete(elem, otype) {
                     count.html(data.counts);
                     return
                 }
-                popup_message(elem.before(), data.msg, data.status, 2000)
+                popover_message(elem.before(), data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -395,7 +396,7 @@ function change_access(access, user_id, project_uid, elem) {
                     });
                     return
                 }
-                popup_message(container, data.msg, data.status, 2000)
+                popover_message(container, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -450,7 +451,7 @@ $(document).ready(function () {
             ContentType: 'application/json',
             data: {data_uid: data_uid},
             success: function (data) {
-                popup_message($("#copy-message-" + data_uid), data.msg, data.status);
+                popover_message($("#copy-message-" + data_uid), data.msg, data.status);
             },
             error: function () {
             }
@@ -498,10 +499,6 @@ $(document).ready(function () {
         add_vars()
     });
 
-    $(this).on('click', '.cmd-value', function () {
-        event.preventDefault();
-        add_to_template($(this))
-    });
 
     $(this).on('click', '.add_to_interface', function () {
         event.preventDefault();
@@ -548,16 +545,10 @@ $(document).ready(function () {
         toggle_delete(elem, 'job')
     });
 
-    $(this).on('click', '.toggle_delete', function (event) {
-
-        //alert("foo");
+    $(this).on('click', '.data .delete', function (event) {
         event.preventDefault();
-        let uid = $(this).data("value");
-        let type = $(this).data("type");
-        let count_elem = $(this).data('count');
-
-        toggle_delete(uid, type, count_elem);
-
+        var elem = $(this).closest('.data');
+        toggle_delete(elem, 'data')
     });
 
     $(this).on('click', '#set_source', function () {
