@@ -199,7 +199,9 @@ def latest_recipes(request):
 
     """
 
-    recipes = []
+    # Select public recipes
+    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC).order_by("-id")[:50]
+    recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
     context = dict(recipes=recipes, active="foo")
 
