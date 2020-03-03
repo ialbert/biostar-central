@@ -13,10 +13,10 @@ KNOWN_TEXT_EXTENSIONS = (
 )
 
 ANIMAL_LIST = ('cat,cattle,dog,goat,pig,horse,pig,rabbit,'
-               'rat,sheep,duck,goose,pigeon,turkey,alpaca,bison,robin,ant,ape,aphid,fox,wolf,'
-               'crab,badger,eagle,bass,bat,whale,bear,beaver,bedbug,bee,bird,spider,'
+               'sheep,duck,goose,pigeon,turkey,alpaca,bison,robin,ant,ape,aphid,fox,wolf,'
+               'crab,badger,eagle,bass,bat,whale,bear,beaver,bee,bird,spider,'
                'bird,boa,boar,bug,camel,carp,cheetah,clam,cobra,cod,condor,coral,'
-               'cougar,cow,coyote,crab,crane,crow,cuckoo,deer,dingo,dog,dove,dragon,eel,'
+               'cougar,cow,coyote,crab,crane,crow,deer,dingo,dog,dove,dragon,eel,'
                'seal,elk,emu,falcon,finch,fish,fowl,fox,frog,bat,'
                'gecko,gerbil,panda,squid,gopher,shark,sloth,guppy,hawk,'
                'crab,heron,hyena,iguana,impala,mouse,koi,snail,leech,lemur,lion,'
@@ -26,8 +26,8 @@ ANIMAL_LIST = ('cat,cattle,dog,goat,pig,horse,pig,rabbit,'
 
 
 ITEM_LIST = ('bar,desk,gift,hero,life,app,bag,bus,cup,art,act,'
-             'wallet,triac,zoist,car,mat,carpet,tree,book,bottle,drink,phone,'
-             'lamp,remote,fork,plate,watch,scale,light,dark,case,jail,bag').split(",")
+             'wallet,car,mat,carpet,tree,book,bottle,drink,phone,'
+             'lamp,remote,fork,plate,watch,scale,light,dark,case,bag').split(",")
 
 
 # Stop words used in search

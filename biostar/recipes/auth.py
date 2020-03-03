@@ -437,9 +437,9 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     uid = uid or util.get_uuid(8)
 
     # Create the job instance.
-    job = Job(name=name, state=state, json_text=json_text,
-              security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
-              template=analysis.template, uid=uid)
+    job = Job.objects.create(name=name, state=state, json_text=json_text,
+                             security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
+                             template=analysis.template, uid=uid)
 
     # Fill the json data.
     json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
@@ -452,9 +452,7 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
 
     if save:
         job.save()
-
         # Update the projects lastedit user when a job is created
-        #job_count = project.job_set.filter(deleted=False).count()
         job_count = Job.objects.filter(deleted=False, project=project).count()
         Project.objects.filter(uid=project.uid).update(lastedit_user=owner,
                                                        lastedit_date=now(),

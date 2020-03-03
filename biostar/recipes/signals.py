@@ -5,7 +5,7 @@ import toml
 import hjson
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from biostar.recipes.models import Project, Access, Analysis, Job
+from biostar.recipes.models import Project, Access, Analysis, Job, Data
 from biostar.recipes import util, auth
 
 logger = logging.getLogger("engine")
@@ -71,7 +71,7 @@ def strip_json(json_text):
 @receiver(post_save, sender=Project)
 def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
-    # Give a more appropriate uid
+    # Generate friendly uid
     if created:
         instance.uid = auth.generate_uuid(suffix=instance.id)
         instance.label = instance.uid
@@ -86,7 +86,7 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
             image_stream = open(image, 'rb')
         except Exception as exc:
             logger.error(f'{exc}')
-            json_text = '{}'
+            json_text = ''
             template = "echo 'Hello World'"
             image_stream = None
 
@@ -101,6 +101,7 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 @receiver(post_save, sender=Analysis)
 def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
+    # Generate friendly uid
     if created:
         instance.uid = auth.generate_uuid(suffix=instance.id)
 
@@ -114,13 +115,15 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 @receiver(post_save, sender=Job)
 def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
 
+    # Generate friendly uid
     if created:
         instance.uid = auth.generate_uuid(suffix=instance.id)
+        #print("HERE", instance.uid)
 
 
-@receiver(post_save, sender=Job)
+@receiver(post_save, sender=Data)
 def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
 
+    # Generate friendly uid
     if created:
-
         instance.uid = auth.generate_uuid(suffix=instance.id)

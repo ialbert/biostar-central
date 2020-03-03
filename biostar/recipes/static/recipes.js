@@ -71,7 +71,7 @@ function update_preview(callback) {
                 return
             }
             $('#preview').html(preview_template(data.html));
-            callback()
+            //callback()
 
         }
 
