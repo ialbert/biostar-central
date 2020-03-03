@@ -172,46 +172,38 @@ def project_info(request, uid):
 
     return render(request, "project_info.html", context)
 
+def project_list_public(request):
+    return project_list(request, target='public')
 
 def project_list_private(request):
-    """Only list private projects belonging to a user."""
+    return project_list(request, target='private')
 
-    projects = auth.get_project_list(user=request.user, include_public=False)
+def project_list(request, target=None):
 
-    empty_msg = "No projects found."
-    if request.user.is_anonymous:
-        projects = []
-        empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
+    if target=='private':
+        active = "private"
+        projects = auth.get_project_list(user=request.user, include_public=False)
     else:
-        projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
+        projects = auth.get_project_list(user=request.user)
+        projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
+        active = "public"
 
-    context = dict(projects=projects, empty_msg=empty_msg, active="projects", icon='briefcase',
-                   title='Private Projects',
-                   private='active')
-
-    return render(request, "project_list.html", context)
-
-
-def project_list_public(request):
-    """Only list public projects."""
-
-    projects = auth.get_project_list(user=request.user)
-    # Exclude private projects
-    projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
 
-    context = dict(projects=projects, active="projects", icon='list', title='Public Projects',
-                   public='active', empty_msg="No projects found.")
+    context = dict(projects=projects, active=active)
 
-    return render(request, "project_list.html", context)
+    return render(request, "project_list.html", context=context)
 
+def latest_recipes(request):
+    """
 
-def project_list(request):
-    if request.user.is_authenticated:
-        # Return private projects when user is logged in.
-        return project_list_private(request)
-    else:
-        return project_list_public(request)
+    """
+
+    recipes = []
+
+    context = dict(recipes=recipes, active="foo")
+
+    return render(request, "latest_recipes.html", context=context)
 
 
 @read_access(type=Project)

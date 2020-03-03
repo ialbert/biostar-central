@@ -29,8 +29,12 @@ urlpatterns = [
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
     path(r'project/create/', views.project_create, name='project_create'),
-    path(r'project/list/', views.project_list, name='project_list'),
 
+    path(r'project/list/public/', views.project_list_public, name='project_list_public'),
+    path(r'project/list/private/', views.project_list_private, name='project_list_private'),
+
+    # This should not be needed/
+    path(r'project/list/', views.project_list_public, name='project_list'),
 
     path(r'project/view/<str:uid>/', views.project_info, name='project_view'),
 
@@ -38,9 +42,7 @@ urlpatterns = [
 
     path(r'project/edit/<str:uid>/', views.project_edit, name='project_edit'),
     path(r'project/info/<str:uid>/', views.project_info, name='project_info'),
-    path(r'project/list/private/', views.project_list_private, name='project_list_private'),
-    path(r'project/list/public/', views.project_list_public, name='project_list_public'),
-    path(r'project/list/', views.project_list, name='project_list'),
+
     path(r'project/delete/<str:uid>/', views.project_delete, name='project_delete'),
     re_path(r'project/share/(?P<token>[-\w]+)/', views.project_share, name='project_share'),
 
@@ -55,8 +57,11 @@ urlpatterns = [
     path(r'data/delete/<str:uid>/', views.data_delete, name='data_delete'),
 
     # Recipes
-    path(r'<str:label>/recipes/', views.recipe_listing, name='recipe_listing'),
+    path(r'project/<str:label>/recipes/', views.recipe_listing, name='recipe_listing'),
     path(r'recipe/list/<str:uid>/', views.recipe_list, name='recipe_list'),
+
+    path(r'latest/recipes/', views.latest_recipes, name='foo'),
+
 
     path(r'recipe/view/<str:uid>/', views.recipe_view, name='recipe_view'),
     path(r'recipe/run/<str:uid>/', views.recipe_run, name='recipe_run'),
