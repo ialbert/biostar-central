@@ -5,7 +5,7 @@ Must call setup.js first initialize additional functionality used here.
 
 */
 
-function init_codemirror(element, size) {
+function init_codemirror(element, size, callback) {
 
     var area = CodeMirror.fromTextArea(
         element[0],
@@ -14,6 +14,11 @@ function init_codemirror(element, size) {
             lineNumbers: true,
             mode: 'shell',
             theme: 'idea',
+            extraKeys: {
+                'Shift-Enter': (cm) => {
+                    callback()
+                },
+            }
         }
     );
 
@@ -29,6 +34,58 @@ function init_codemirror(element, size) {
 // Removes notifications
 function remove_messages() {
     $('.notify').remove()
+}
+
+
+function preview_template(fields) {
+
+    return '<div class="ui segment run"><form class="ui form">' + fields +
+        '<div class="field">\n' +
+        '                        <button type="submit" class="ui green disabled button">\n' +
+        '                            <i class="check icon"></i>Run\n' +
+        '                        </button>\n' +
+        '\n' +
+        '                        <a class="ui disabled button">\n' +
+        '                            <i class="redo icon"></i>Cancel\n' +
+        '                        </a>\n' +
+        '                    </div></form></div>'
+}
+
+
+function update_preview(callback) {
+
+    let recipe_json = $('#interface_editor').val();
+    let project = $('#interface').closest('.grid').data("project");
+    let url = '/preview/json/';
+
+    $.ajax(url, {
+        type: 'POST',
+        dataType: 'json',
+        data: {
+            'project_uid': project,
+            'json_text': recipe_json
+        },
+        success: function (data) {
+            if (data.status === 'error') {
+                popup_message($("#interface"), data.msg, data.status, 5000);
+                return
+            }
+            $('#preview').html(preview_template(data.html));
+            callback()
+
+        }
+
+    });
+
+
+}
+
+function preview_callback() {
+    function callback() {
+        popover_message($("#interface"), "Updated the interface preview", "success", 4000)
+    }
+
+    update_preview(callback);
 }
 
 // Submits a form request.
@@ -130,7 +187,7 @@ function toggle_panels(elem_id, quick) {
 // Updates content in dynamic panels
 function update_panels() {
 
-    var panels = ['info', 'run', 'results' ];
+    var panels = ['info', 'run', 'results'];
     var server = "/get/part/{0}/{1}/"
     var id = get_id();
 

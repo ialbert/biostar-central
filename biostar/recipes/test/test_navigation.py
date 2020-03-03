@@ -77,7 +77,7 @@ class SiteNavigation(TestCase):
             reverse("index"),
             reverse("project_list"),
             reverse('project_view', kwargs=self.proj_params),
-            reverse("recipe_run", kwargs=self.analysis_params),
+
         ]
 
         urls = [
@@ -95,18 +95,17 @@ class SiteNavigation(TestCase):
             reverse('project_view', kwargs=self.proj_params),
             reverse('project_users', kwargs=self.proj_params),
             reverse('project_info', kwargs=self.proj_params),
-            reverse('project_create'),
+
             reverse('project_edit', kwargs=self.proj_params),
             reverse('recipe_list', kwargs=self.proj_params),
             reverse('recipe_listing', kwargs=dict(label=self.project.label)),
             reverse('recipe_view', kwargs=self.analysis_params),
-            reverse('recipe_run', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
 
             reverse('job_list', kwargs=self.proj_params),
             reverse('job_listing', kwargs=dict(label=self.project.label)),
-            reverse('job_view', kwargs=self.job_params),
-            reverse('job_edit', kwargs=self.job_params),
+            #reverse('job_view', kwargs=self.job_params),
+            #reverse('job_edit', kwargs=self.job_params),
 
         ]
 
@@ -121,6 +120,7 @@ class SiteNavigation(TestCase):
 
         # Test cases to handle anonymous users .
         anon_urls = [
+
             reverse("job_delete", kwargs=self.job_params),
             reverse("project_delete", kwargs=self.proj_params),
             reverse("project_users", kwargs=self.proj_params),
@@ -142,9 +142,7 @@ class SiteNavigation(TestCase):
             reverse("recipe_delete", kwargs=self.analysis_params),
             reverse("job_delete", kwargs=self.job_params),
             reverse("data_delete", kwargs=self.data_params),
-
-
-
+            reverse("recipe_run", kwargs=self.analysis_params),
             #data_upload, recipe_run job_rerun
 
 
@@ -156,7 +154,8 @@ class SiteNavigation(TestCase):
             reverse('logout'),
             reverse('login'),
             reverse('recipe_create', kwargs=self.proj_params),
-
+            reverse('project_create'),
+            reverse("recipe_run", kwargs=self.analysis_params),
         ]
 
         self.visit_urls(urls, [302, 200])

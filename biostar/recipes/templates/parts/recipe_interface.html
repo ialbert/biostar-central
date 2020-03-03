@@ -4,7 +4,6 @@
 
     <div class="ui vertical segment">
         <span class="ui title header">Recipe Interface</span>
-        <a href="#" class="ui small orange button preview"> <i class="eye icon"></i>Preview</a>
     </div>
 
     <div class="field" id="json_field">
@@ -40,6 +39,8 @@
 
 <div class="ui basic segment">
 
+    {# The preview panel #}
+    <div class="ui basic segment" id="preview"></div>
 
     <form class="ui form">
 
@@ -161,13 +162,13 @@
                 </div>
 
             </div>
-        <div class="card">
+            <div class="card">
 
-            <div class="content">
-                <b>Upload Field</b>
-            </div>
+                <div class="content">
+                    <b>Upload Field</b>
+                </div>
 
-            <div class="content">
+                <div class="content">
 
                     <pre class="toml_code">
                     [file]
@@ -175,14 +176,15 @@
                     display = "UPLOAD"
                     help = "Upload a file to analyze"
                     </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
             </div>
 
-            <div class="extra content formstyle">
-                <div class="toml_field"></div>
-            </div>
-
-        </div>
-                        <div class="card">
+            <div class="card">
 
                 <div class="content">
                     <b>Pick Data</b>
@@ -203,8 +205,33 @@
 
             </div>
 
-        </div>
+            <div class="card">
 
+
+                <div class="content">
+                    <b>Radio Buttons</b>
+                </div>
+
+                <div class="content">
+
+
+                    <pre class="toml_code">
+                    [species]
+                    label = "Select species"
+                    display = "RADIO"
+                    choices = [ ["c","Cat"], ["d","Dog"] ]
+                    value = "c"
+                    help = "Select the species of your choice"
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
+            </div>
+
+        </div>
 
 
     </form>
@@ -212,10 +239,10 @@
 </div>
 <script>
     $(document).ready(function () {
-        $('.ui.dropdown').dropdown();
         var elem = $('#interface_editor');
-        var interface = init_codemirror(elem, 400);
+        var interface = init_codemirror(elem, 400, preview_callback);
         var project = elem.closest('.grid').data("project");
+        update_preview();
         url = "/ajax/field/render/";
 
         $(".card").each(function (index) {
@@ -223,18 +250,19 @@
             var curr = $(this);
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
-            field.load(url, {toml: toml, project:project}, function (response, status, xhr) {});
+            field.load(url, {toml: toml, project: project}, function (response, status, xhr) {
+            });
         });
 
-         $(this).on('click', '.card .content:not(.extra)', function () {
-             var curr = $(this).closest(".card");
-             var toml = curr.find(".toml_code").text();
-             var new_toml = elem.val() + '\n' + toml.replace(/  /g,'');
-             // Set new values
-             elem.val(new_toml);
-             interface.setValue(elem.val());
-             popup_message($(this), 'Inserted into interface.', "success")
-         })
-
+        $(this).on('click', '.card .content:not(.extra)', function () {
+            var curr = $(this).closest(".card");
+            var toml = curr.find(".toml_code").text();
+            var new_toml = elem.val() + '\n' + toml.replace(/  /g, '');
+            // Set new values
+            elem.val(new_toml);
+            interface.setValue(elem.val());
+            popup_message($(this), 'Inserted into interface.', "success");
+            update_preview();
+        });
     });
 </script>

@@ -3,6 +3,7 @@ import logging
 import uuid, copy
 import os
 import subprocess
+import random
 from mimetypes import guess_type
 
 import toml as hjson
@@ -16,10 +17,10 @@ from django.test import RequestFactory
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
-from . import models
-from . import util
-from .const import *
-from .models import Data, Analysis, Job, Project, Access
+from biostar.recipes import models
+from biostar.recipes import util
+from biostar.recipes.const import *
+from biostar.recipes.models import Data, Analysis, Job, Project, Access
 
 logger = logging.getLogger("engine")
 
@@ -30,6 +31,14 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
+
+
+def generate_uuid(suffix='10'):
+    animal = random.choice(ANIMAL_LIST)
+    item = random.choice(ITEM_LIST)
+    uid = f"{animal}-{item}-{suffix}"
+
+    return uid
 
 
 def join(*args):
@@ -291,7 +300,7 @@ def create_analysis(project, json_text='', template='# code', uid=None, user=Non
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, root=root)
 
-        analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
+        #analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
         analysis.save()
 
         # Update the projects lastedit user when a recipe is created

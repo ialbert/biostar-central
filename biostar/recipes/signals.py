@@ -5,7 +5,7 @@ import toml
 import hjson
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from biostar.recipes.models import Project, Access, Analysis
+from biostar.recipes.models import Project, Access, Analysis, Job
 from biostar.recipes import util, auth
 
 logger = logging.getLogger("engine")
@@ -70,6 +70,12 @@ def strip_json(json_text):
 
 @receiver(post_save, sender=Project)
 def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
+
+    # Give a more appropriate uid
+    if created:
+        instance.uid = auth.generate_uuid(suffix=instance.id)
+        instance.label = instance.uid
+
     # Ensure a project has at least one recipe on creation.
     if created and not instance.analysis_set.exists():
         # Add starter hello world recipe to project.
@@ -94,8 +100,27 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
 @receiver(post_save, sender=Analysis)
 def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
+
+    if created:
+        instance.uid = auth.generate_uuid(suffix=instance.id)
+
     # Strip json of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
     # Update information of all children belonging to this root.
     if instance.is_root:
         instance.update_children()
+
+
+@receiver(post_save, sender=Job)
+def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
+
+    if created:
+        instance.uid = auth.generate_uuid(suffix=instance.id)
+
+
+@receiver(post_save, sender=Job)
+def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
+
+    if created:
+
+        instance.uid = auth.generate_uuid(suffix=instance.id)

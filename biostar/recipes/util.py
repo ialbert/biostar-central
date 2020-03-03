@@ -7,6 +7,7 @@ import tarfile
 import uuid
 import bleach
 import shlex
+import random
 from itertools import islice
 from urllib.parse import quote
 from datetime import datetime
@@ -18,10 +19,6 @@ CHUNK = 1024 * 1024
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
-
-
-def generate_uuid():
-    return
 
 
 def join(*args):

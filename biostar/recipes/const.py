@@ -25,8 +25,9 @@ ANIMAL_LIST = ('cat,cattle,dog,goat,pig,horse,pig,rabbit,'
                'toad,mole,hare,dog,puppy,zebra,camel,goose,moose,tiger,hippo,monkey').split(",")
 
 
-ITEM_LIST = ('bar,desk,gift,hero,life,app,bag,bus,cup,art,act,',
-             'matt', 'triac','zoist','zokor')
+ITEM_LIST = ('bar,desk,gift,hero,life,app,bag,bus,cup,art,act,'
+             'wallet,triac,zoist,car,mat,carpet,tree,book,bottle,drink,phone,'
+             'lamp,remote,fork,plate,watch,scale,light,dark,case,jail,bag').split(",")
 
 
 # Stop words used in search

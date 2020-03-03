@@ -202,7 +202,7 @@ function json_preview(project_uid) {
                     popover_message($("#interface").closest('.grid'), data.msg, data.status, 5000);
                     return
                 }
-                $('#preview div').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
+                $('#preview').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
                     '                        <button type="submit" class="ui green disabled button">\n' +
                     '                            <i class="check icon"></i>Run\n' +
                     '                        </button>\n' +
@@ -211,8 +211,6 @@ function json_preview(project_uid) {
                     '                            <i class="redo icon"></i>Cancel\n' +
                     '                        </a>\n' +
                     '                    </div></form></div>');
-
-                $('#preview').modal({autofocus: false}).modal('show')
 
                 //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
             },
@@ -397,7 +395,7 @@ $(document).ready(function () {
     //$('#code_add').dropdown();
 
 
-    $(this).on('click', '#interface .preview', function () {
+    $(this).on('click', '#interface .preddview', function () {
         event.preventDefault();
         let project_uid = $(this).closest(".ui.grid").data('project');
         json_preview(project_uid);

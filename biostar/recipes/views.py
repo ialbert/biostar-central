@@ -49,7 +49,7 @@ def site_admin(request):
     Administrative view. Lists the admin project and job.
     '''
     jobs = Job.objects.order_by('-pk')[:200]
-    context = dict(jobs=jobs)
+    context = dict(jobs=jobs, active="admin")
 
     return render(request, 'admin_index.html', context=context)
 
@@ -959,6 +959,6 @@ def import_files(request, path=''):
     else:
         rel_path = os.path.relpath(current_path, settings.IMPORT_ROOT_DIR)
 
-    context = dict(rel_path=rel_path)
+    context = dict(rel_path=rel_path, active="import")
 
     return render(request, 'import_files.html', context=context)

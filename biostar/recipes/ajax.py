@@ -174,9 +174,7 @@ def preview_template(request):
 @ajax_error_wrapper(method="POST", login_required=False)
 def preview_json(request):
     # Get the recipe
-    recipe_name = request.POST.get('name')
     project_uid = request.POST.get('project_uid')
-
     json_text = request.POST.get('json_text', '')
 
     try:
@@ -190,7 +188,7 @@ def preview_json(request):
 
     # Render the recipe interface
     interface = RecipeInterface(request=request, json_data=json_data, project=project,
-                                initial=dict(name=recipe_name), add_captcha=False)
+                                add_captcha=False)
 
     tmpl = loader.get_template('widgets/recipe_form.html')
     context = dict(form=interface, focus=True)
