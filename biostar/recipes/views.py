@@ -200,10 +200,11 @@ def latest_recipes(request):
     """
 
     # Select public recipes
-    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC).order_by("-id")[:50]
+    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, root=None, deleted=False).order_by("-id")[:50]
+
     recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
-    context = dict(recipes=recipes, active="foo")
+    context = dict(recipes=recipes, active="latest_recipes")
 
     return render(request, "latest_recipes.html", context=context)
 
@@ -656,7 +657,8 @@ def job_rerun(request, uid):
     # Spool via UWSGI or run it synchronously.
     tasks.execute_job.spool(job_id=job.id)
 
-    return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
+    url = reverse('recipe_view', kwargs=dict(uid=job.analysis.uid)) + "#results"
+    return redirect(url)
 
 
 def get_part(request, name, id):

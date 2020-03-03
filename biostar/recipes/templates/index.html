@@ -2,6 +2,10 @@
 {% load engine_tags %}
 {% load static %}
 
+{% block headtitle %}
+    Bioinformatics Recipes
+{% endblock %}
+
 {% block title %}
     <i class="barcode icon"></i> Welcome to Bioinformatics Recipes
 {% endblock %}
@@ -41,8 +45,8 @@
                     <div class="subheader">Where can I learn more of how the site works?</div>
                     <div class="description">
                         Site documentation at <a
-                            href="https://bioinformatics-recipes.readthedocs.io/"><i
-                            class="book icon"></i>Biostar
+                    href="https://bioinformatics-recipes.readthedocs.io/"><i
+                    class="book icon"></i>Biostar
                         Recipes: Read The Docs</a>.
                     </div>
                 </div>
@@ -53,34 +57,13 @@
 
         <div class="six wide center column">
             <div class="ui basic segment">
-                <div class="ui header"> &nbsp;</div>
-                <div class="ui center aligned grid">
-                    <div class="ui row">
-
-                        <img class="ui mytiny rounded fancy image"
-                             src="{% static 'images/icons/13.jpg' %}">
-                        <img class="ui mytiny rounded fancy image"
-                             src="{% static 'images/icons/12.jpg' %}">
-                        <img class="ui mytiny rounded fancy image"
-                             src="{% static 'images/icons/15.png' %}">
-                        <br>
-                        <img class="ui mytiny rounded fancy image"
-                             src="{% static 'images/icons/10.jpg' %}">
-                        <img class="ui mytiny rounded fancy image"
-                             src="{% static 'images/icons/11.jpg' %}">
-                        <img class="ui mytiny rounded fancy image"
-                             src="{% static 'images/icons/5.jpg' %}">
-
-                        <br>
-                        <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/2.jpg' %}">
-                        <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/3.jpg' %}">
-                        <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/4.jpg' %}">
-
-                    </div>
-
-                </div>
+                <a href="{% url "latest_recipes" %}">
+                    <img class="ui rounded  image"
+                         src="{% static 'images/screenshot.jpg' %}">
+                </a>
             </div>
         </div>
+    </div>
 
     </div>
 

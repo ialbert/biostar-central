@@ -2,6 +2,10 @@
 {% load engine_tags %}
 {% load static %}
 
+{% block headtitle %}
+    Base listing
+{% endblock %}
+
 <div class="ui large header">
     {% block title %}
         Listing
@@ -16,7 +20,7 @@
             <i class="home icon"></i>Home
         </a>
 
-        <a class="ui   {% activate active "foo" %} item" href="{% url 'foo' %}">
+        <a class="ui   {% activate active "latest_recipes" %} item" href="{% url 'latest_recipes' %}">
             <i class=" list icon"></i>Latest Recipes
         </a>
 
