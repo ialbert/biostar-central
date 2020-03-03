@@ -6,7 +6,8 @@ Must call setup.js first initialize additional functionality used here.
 */
 
 function init_codemirror(element, size, callback) {
-
+    // Default callback function
+    callback = callback || function () {};
     var area = CodeMirror.fromTextArea(
         element[0],
         {
@@ -53,7 +54,8 @@ function preview_template(fields) {
 
 
 function update_preview(callback) {
-
+    // Empty function as a default
+    callback = callback || function () {};
     let recipe_json = $('#interface_editor').val();
     let project = $('#interface').closest('.grid').data("project");
     let url = '/preview/json/';
@@ -84,7 +86,6 @@ function preview_callback() {
     function callback() {
         popover_message($("#interface"), "Updated the interface preview", "success", 4000)
     }
-
     update_preview(callback);
 }
 
