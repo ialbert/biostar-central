@@ -2,8 +2,10 @@ import os
 
 __THIS = os.path.dirname(__file__)
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 KNOWN_TEXT_EXTENSIONS = (
     ".fasta", ".fq", ".fastq", ".sam", ".bed", ".gff", ".fa",
@@ -33,7 +35,6 @@ COPIED_RECIPES = "recipes"
 COPIED_FILES = "files"
 CLONED_RECIPES = "clone"
 
-
 CLIPBOARD_CONTENTS = [COPIED_DATA, COPIED_RESULTS, COPIED_RECIPES, COPIED_FILES,
                       CLONED_RECIPES]
 
@@ -54,24 +55,23 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 # Map a file extension to a biostar-engine datatype.
 EXT_TO_TYPE = dict(
 
-            fa = 'FASTA',
-            fasta = 'FASTA',
-            txt = 'TXT',
-            fq = 'FQ',
-            gtf = 'GTF',
-            gb = 'GB',
-            tsv = 'TSV',
-            csv = 'CSV',
-            rep = 'REP',
-            md = 'MD',
-            sam = 'SAM',
-            bed = 'BED',
-            gff = 'GFF',
-            r = 'R',
-            fastq = 'FASTQ'
+    fa='FASTA',
+    fasta='FASTA',
+    txt='TXT',
+    fq='FQ',
+    gtf='GTF',
+    gb='GB',
+    tsv='TSV',
+    csv='CSV',
+    rep='REP',
+    md='MD',
+    sam='SAM',
+    bed='BED',
+    gff='GFF',
+    r='R',
+    fastq='FASTQ'
 
-                )
-
+)
 
 RADIO = "RADIO"
 DROPDOWN = "DROPDOWN"

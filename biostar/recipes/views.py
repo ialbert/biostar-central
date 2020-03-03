@@ -49,7 +49,7 @@ def site_admin(request):
     Administrative view. Lists the admin project and job.
     '''
     jobs = Job.objects.order_by('-pk')[:200]
-    context = dict(jobs=jobs)
+    context = dict(jobs=jobs, active="admin")
 
     return render(request, 'admin_index.html', context=context)
 
@@ -352,18 +352,10 @@ def project_create(request):
     View used create an empty project belonging to request.user.
     Input is validated with a form and actual creation is routed through auth.create_project.
     """
-    initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = forms.ProjectForm(initial=initial, request=request, create=True)
-
-    if request.method == "POST":
-        # create new projects here ( just populates metadata ).
-        form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
-        if form.is_valid():
-            project = form.custom_save(owner=request.user)
-            return redirect(reverse("project_viewing", kwargs=dict(label=project.label)))
-
-    context = dict(form=form)
-    return render(request, "project_create.html", context=context)
+    user = request.user
+    project = auth.create_project(user=user)
+    messages.success(request, "Create a new project.")
+    return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
 
 @read_access(type=Data, fallback_view="data_view", login_required=True)
@@ -619,7 +611,6 @@ def recipe_run(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    project = recipe.project
 
     # Form submission.
     if request.method == "POST":
@@ -629,22 +620,16 @@ def recipe_run(request, uid):
         if form.is_valid():
             # Create the job from the recipe and incoming json data.
             job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data)
-
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
             url = reverse("recipe_view", kwargs=dict(uid=recipe.uid)) + "#results"
             return redirect(url)
-    else:
-        initial = dict(name=f"Results for: {recipe.name}")
-        form = forms.RecipeInterface(request=request, analysis=recipe,
-                                     json_data=recipe.json_data, initial=initial)
+        else:
+            messages.error(request, form.errors)
 
-    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
+    url = reverse("recipe_view", kwargs=dict(uid=recipe.uid)) + "#run"
 
-    context = dict(project=project, recipe=recipe, form=form, is_runnable=is_runnable, activate='Run Recipe')
-    context.update(get_counts(project))
-
-    return render(request, 'recipe_run.html', context)
+    return redirect(url)
 
 
 @read_access(type=Job)
@@ -690,10 +675,8 @@ def get_part(request, name, id):
     project = recipe.project
 
     if not auth.is_readable(project=project, user=user):
-        message = str("Recipe is not writable by current user")
+        message = str("Recipe is not readable by current user")
         return HttpResponse(message)
-
-
 
     # Fills in project level counts (results, data and recipe counts).
     counts = get_counts(recipe.project)
@@ -978,6 +961,6 @@ def import_files(request, path=''):
     else:
         rel_path = os.path.relpath(current_path, settings.IMPORT_ROOT_DIR)
 
-    context = dict(rel_path=rel_path)
+    context = dict(rel_path=rel_path, active="import")
 
     return render(request, 'import_files.html', context=context)

@@ -6,9 +6,6 @@
 
     <link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}{% randparam %}">
     <link rel="stylesheet" href="{% static 'codemirror/theme/idea.css' %}{% randparam %}">
-
-
-
     <script src="{% static 'codemirror/lib/codemirror.js' %}"></script>
     <script src="{% static 'codemirror/addon/display/autorefresh.js' %}"></script>
     <script src="{% static 'codemirror/mode/simple.js' %}"></script>
@@ -72,10 +69,12 @@
 
             {# Code panel. #}
             <div class="ui basic large segment collapse" id="code">
+                {% include "parts/recipe_code.html" %}
             </div>
 
             {# Interface panel. #}
             <div class="ui basic segment collapse" id="interface">
+                {% include "parts/recipe_interface.html" %}
             </div>
 
             {# Edit panel. #}
@@ -85,13 +84,13 @@
 
             {# Run panel. #}
             <div class="ui basic large segment collapse recipe-form" id="run">
-
+                {#% include "parts/recipe_run.html" %#}
             </div>
 
 
             {# Results panel. #}
             <div class="ui basic large segment collapse" id="results">
-                {% include "parts/recipe_results.html" %}
+                {#% include "parts/recipe_results.html" %#}
             </div>
 
 

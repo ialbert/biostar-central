@@ -67,8 +67,10 @@ function show_message(elem, text, status) {
 }
 
 function popover_message(elem, message, cls, timeout) {
-    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
 
+
+    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
+    // Only works over text area
     elem = elem.find("textarea")
     var text = $('<div class="popover"></div>');
     var tag = $(text).insertBefore(elem)
@@ -79,6 +81,17 @@ function popover_message(elem, message, cls, timeout) {
     });
 }
 
+
+function popup_message(elem, msg, cls, timeout) {
+    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
+    var text = '<div></div>'
+    var tag = $(text).insertBefore(elem)
+    tag.addClass('popover ' + cls)
+    tag.text(msg)
+    tag.delay(timeout).fadeOut(500, function () {
+        $(this).remove()
+    });
+}
 
 // Triggered on network errors.
 function error_message(elem, xhr, status, text) {

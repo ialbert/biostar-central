@@ -58,7 +58,6 @@ def char_field(data):
     initial = data.get("value", "")
     label = data.get("label", "")
     help_text = data.get("help", "")
-
     field = forms.CharField(initial=initial, label=label, help_text=help_text, max_length=32,
                             required=False)
 
@@ -121,7 +120,7 @@ def sql_field(obj, project=None):
     columns = obj.get("columns", '*')
 
     # Database to connect to, selects default database otherwise.
-    database_name = obj.get('database_name', '')
+    database_name = obj.get('database_name', 'database.db')
     return_value = obj.get('return_value', 'file')
 
     display_value = obj.get('display_value', 'name')

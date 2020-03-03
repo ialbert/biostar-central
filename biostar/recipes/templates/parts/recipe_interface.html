@@ -4,7 +4,6 @@
 
     <div class="ui vertical segment">
         <span class="ui title header">Recipe Interface</span>
-        <a href="#" class="ui small orange button preview"> <i class="eye icon"></i>Preview</a>
     </div>
 
     <div class="field" id="json_field">
@@ -33,8 +32,20 @@
 </form>
 
 <div class="ui center aligned vertical segment">
+    <div class="ui center aligned basic segment header">Interface Preview</div>
+    Interface preview shows the resulting view of the combined interface elements.
+</div>
+
+{# The preview panel #}
+<div class="ui basic segment" id="preview"></div>
+
+<div class="ui divider"></div>
+
+<div class="ui center aligned vertical segment">
     <div class="ui center aligned basic segment header">Interface specification</div>
     Interface element specification. Shows the code and the resulting interface element.
+
+    <div><b>Double click on an element to insert it into the interface.</b> </div>
 </div>
 
 
@@ -51,7 +62,7 @@
                     <b>Integer values</b>
                 </div>
 
-                <div class="extra content">
+                <div class="content">
                     <pre class="toml_code">
                         [size]
                         label = "Window size"
@@ -74,7 +85,7 @@
                     <b>Float values</b>
                 </div>
 
-                <div class="extra content">
+                <div class="content">
                     <pre class="toml_code">
                         [cutoff]
                         label = "P_Value Cutoff"
@@ -91,13 +102,13 @@
 
             </div>
 
-                      <div class="card">
+            <div class="card">
 
                 <div class="content">
                     <b>Text box</b>
                 </div>
 
-                <div class="extra content">
+                <div class="content">
                     <pre class="toml_code">
                     [sra]
                     label = "Run Number"
@@ -161,17 +172,85 @@
                 </div>
 
             </div>
+            <div class="card">
 
+                <div class="content">
+                    <b>Upload Field</b>
+                </div>
+
+                <div class="content">
+
+                    <pre class="toml_code">
+                    [file]
+                    label = "Upload a file "
+                    display = "UPLOAD"
+                    help = "Upload a file to analyze"
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="content">
+                    <b>Pick Data</b>
+                </div>
+
+                <div class="content">
+                    <pre class="toml_code">
+                        [data]
+                        label = "Pick data"
+                        source = "PROJECT"
+                        help = "Pick data from this project."
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="content">
+                    <b>Radio Buttons</b>
+                </div>
+
+                <div class="content">
+
+                    <pre class="toml_code">
+                    [species]
+                    label = "Select species"
+                    display = "RADIO"
+                    choices = [ ["c","Cat"], ["d","Dog"] ]
+                    value = "c"
+                    help = "Select the species of your choice"
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
+            </div>
 
         </div>
+
 
     </form>
 
 </div>
 <script>
     $(document).ready(function () {
-        var interface = init_codemirror($('#interface_editor'), 400);
-
+        var elem = $('#interface_editor');
+        var interface = init_codemirror(elem, 400, preview_callback);
+        var project = elem.closest('.grid').data("project");
+        update_preview();
         url = "/ajax/field/render/";
 
         $(".card").each(function (index) {
@@ -179,11 +258,19 @@
             var curr = $(this);
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
-
-            field.load(url, {toml: toml}, function (response, status, xhr) {
-
+            field.load(url, {toml: toml, project: project}, function (response, status, xhr) {
             });
         });
 
+        $(this).on('dblclick', '.card .content:not(.extra)', function () {
+            var curr = $(this).closest(".card");
+            var toml = curr.find(".toml_code").text();
+            var new_toml = elem.val() + '\n' + toml.replace(/  /g, '');
+            // Set new values
+            elem.val(new_toml);
+            interface.setValue(elem.val());
+            popup_message($(this), 'Inserted into interface.', "success");
+            update_preview();
+        });
     });
 </script>

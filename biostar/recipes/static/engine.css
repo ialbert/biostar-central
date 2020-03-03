@@ -6,7 +6,7 @@
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
-    font-family: "proxima-nova", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important
+    font-family: "proxima-nova", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     text-rendering: optimizeLegibility;
 }
 
@@ -440,6 +440,10 @@ figure {
 }
 
 
+.card .content:not(.extra):hover{
+    cursor: pointer;
+}
+
 
 #interface .dropdown{
     float: right;
@@ -477,6 +481,7 @@ figure {
     background-color: #f2dede;
     border-color: #ebccd1;
     color: #a94442;
+    width: 40%;
 }
 
 .popover.success {

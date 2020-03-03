@@ -145,24 +145,6 @@ class AjaxTest(TestCase):
 
         self.process_response(json_response)
 
-    def test_add_recipe_fields(self):
-        """
-        Test AJAX function used to add fields to the recipe JSON
-        """
-
-        display_types = ['radio', 'data', 'integer', 'textbox', 'float', 'checkbox',
-                         'dropdown']
-
-        json_text = ''
-        url = reverse('add_recipe_fields')
-
-        for dtype in display_types:
-            data = {'json_text': json_text, 'display_types': dtype}
-
-            request = fake_request(url=url, data=data, user=self.owner)
-            json_response = ajax.add_to_interface(request=request)
-            self.process_response(json_response)
-
     def process_response(self, response):
         "Check the response on POST request is redirected"
 
