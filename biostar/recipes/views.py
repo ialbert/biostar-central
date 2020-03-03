@@ -618,7 +618,6 @@ def recipe_run(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    project = recipe.project
 
     # Form submission.
     if request.method == "POST":
@@ -628,22 +627,16 @@ def recipe_run(request, uid):
         if form.is_valid():
             # Create the job from the recipe and incoming json data.
             job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data)
-
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
             url = reverse("recipe_view", kwargs=dict(uid=recipe.uid)) + "#results"
             return redirect(url)
-    else:
-        initial = dict(name=f"Results for: {recipe.name}")
-        form = forms.RecipeInterface(request=request, analysis=recipe,
-                                     json_data=recipe.json_data, initial=initial)
+        else:
+            messages.error(request, form.errors)
 
-    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
+    url = reverse("recipe_view", kwargs=dict(uid=recipe.uid)) + "#run"
 
-    context = dict(project=project, recipe=recipe, form=form, is_runnable=is_runnable, activate='Run Recipe')
-    context.update(get_counts(project))
-
-    return render(request, 'recipe_run.html', context)
+    return redirect(url)
 
 
 @read_access(type=Job)
@@ -688,10 +681,8 @@ def get_part(request, name, id):
     project = recipe.project
 
     if not auth.is_readable(project=project, user=user):
-        message = str("Recipe is not writable by current user")
+        message = str("Recipe is not readable by current user")
         return HttpResponse(message)
-
-
 
     # Fills in project level counts (results, data and recipe counts).
     counts = get_counts(recipe.project)

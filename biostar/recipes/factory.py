@@ -58,7 +58,6 @@ def char_field(data):
     initial = data.get("value", "")
     label = data.get("label", "")
     help_text = data.get("help", "")
-
     field = forms.CharField(initial=initial, label=label, help_text=help_text, max_length=32,
                             required=False)
 

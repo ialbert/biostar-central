@@ -6,7 +6,7 @@
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
-    font-family: "proxima-nova", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important
+    font-family: "proxima-nova", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     text-rendering: optimizeLegibility;
 }
 
@@ -438,8 +438,6 @@ figure {
 .ui.text.menu .active.item {
     font-weight: bold;
 }
-
-
 
 #interface .dropdown{
     float: right;

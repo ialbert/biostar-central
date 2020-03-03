@@ -20,6 +20,10 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
+def generate_uuid():
+    return
+
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 

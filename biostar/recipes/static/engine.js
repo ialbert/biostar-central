@@ -155,36 +155,6 @@ function preview_template(project_uid) {
         });
 }
 
-function add_to_interface(display_type) {
-
-    let json_text = $('#interface_editor').val();
-
-    $.ajax('/add/recipe/fields/', {
-        type: 'POST',
-        dataType: 'json',
-        data: {
-            'display_types': display_type,
-            'json_text': json_text,
-        },
-
-        success: function (data) {
-            if (data.status === 'success') {
-                $('#interface_editor').val(data.json_text);
-                $('#json_field').html(data.html);
-            } else {
-                //($('#json_field'), xhr, status, text)
-                popover_message($('#json_field'), data.msg, data.status)
-            }
-
-            //$('#search-results').html(data);
-        },
-        error: function (xhr, status, text) {
-            error_message($(this), xhr, status, text)
-        }
-    });
-
-
-}
 
 
 function add_vars() {
@@ -499,13 +469,6 @@ $(document).ready(function () {
         add_vars()
     });
 
-
-    $(this).on('click', '.add_to_interface', function () {
-        event.preventDefault();
-        let display_type = $(this).attr('id');
-        add_to_interface(display_type)
-
-    });
 
     $(this).on('click', '#template_preview', function () {
         event.preventDefault();

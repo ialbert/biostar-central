@@ -51,7 +51,7 @@
                     <b>Integer values</b>
                 </div>
 
-                <div class="extra content">
+                <div class="content">
                     <pre class="toml_code">
                         [size]
                         label = "Window size"
@@ -74,7 +74,7 @@
                     <b>Float values</b>
                 </div>
 
-                <div class="extra content">
+                <div class="content">
                     <pre class="toml_code">
                         [cutoff]
                         label = "P_Value Cutoff"
@@ -91,13 +91,13 @@
 
             </div>
 
-                      <div class="card">
+            <div class="card">
 
                 <div class="content">
                     <b>Text box</b>
                 </div>
 
-                <div class="extra content">
+                <div class="content">
                     <pre class="toml_code">
                     [sra]
                     label = "Run Number"
@@ -161,17 +161,61 @@
                 </div>
 
             </div>
+        <div class="card">
 
+            <div class="content">
+                <b>Upload Field</b>
+            </div>
+
+            <div class="content">
+
+                    <pre class="toml_code">
+                    [file]
+                    label = "Upload a file "
+                    display = "UPLOAD"
+                    help = "Upload a file to analyze"
+                    </pre>
+            </div>
+
+            <div class="extra content formstyle">
+                <div class="toml_field"></div>
+            </div>
 
         </div>
+                        <div class="card">
+
+                <div class="content">
+                    <b>Pick Data</b>
+                </div>
+
+                <div class="content">
+                    <pre class="toml_code">
+                    [data]
+                    label = "Pick data"
+                    source = "PROJECT"
+                    help = "Pick data from this project."
+                    </pre>
+                </div>
+
+                <div class="extra content formstyle">
+                    <div class="toml_field"></div>
+                </div>
+
+            </div>
+
+        </div>
+
+
 
     </form>
 
 </div>
 <script>
     $(document).ready(function () {
-        var interface = init_codemirror($('#interface_editor'), 400);
-
+        $('.ui.dropdown').dropdown();
+        var elem = $('#interface_editor');
+        var interface = init_codemirror(elem, 400);
+        var project = elem.closest('.grid').data("project");
         url = "/ajax/field/render/";
 
         $(".card").each(function (index) {
@@ -179,11 +223,18 @@
             var curr = $(this);
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
-
-            field.load(url, {toml: toml}, function (response, status, xhr) {
-
-            });
+            field.load(url, {toml: toml, project:project}, function (response, status, xhr) {});
         });
+
+         $(this).on('click', '.card .content:not(.extra)', function () {
+             var curr = $(this).closest(".card");
+             var toml = curr.find(".toml_code").text();
+             var new_toml = elem.val() + '\n' + toml.replace(/  /g,'');
+             // Set new values
+             elem.val(new_toml);
+             interface.setValue(elem.val());
+             popup_message($(this), 'Inserted into interface.', "success")
+         })
 
     });
 </script>

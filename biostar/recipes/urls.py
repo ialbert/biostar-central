@@ -17,9 +17,6 @@ urlpatterns = [
 
     # Ajax calls
     path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),
-    #path(r'inplace/recipe/form/<str:uid>/', ajax.ajax_inplace_form, name='ajax_inplace_form'),
-    path(r'add/recipe/fields/', ajax.add_to_interface, name="add_recipe_fields"),
-
 
     path(r'add/vars/', ajax.add_variables, name="add_vars"),
     path(r'preview/template/', ajax.preview_template, name="preview_template"),
@@ -71,7 +68,6 @@ urlpatterns = [
 
     # Renders an HTML form field base on the TOML input.
     path(r'ajax/field/render/', ajax.field_render, name='ajax_field_render'),
-
 
 
     path(r'recipe/paste/<str:uid>/', views.recipe_paste, name='recipe_paste'),

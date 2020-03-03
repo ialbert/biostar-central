@@ -2,13 +2,31 @@ import os
 
 __THIS = os.path.dirname(__file__)
 
+
 def join(*args):
     return os.path.abspath(os.path.join(*args))
+
 
 KNOWN_TEXT_EXTENSIONS = (
     ".fasta", ".fq", ".fastq", ".sam", ".bed", ".gff", ".fa",
     ".r", ".gtf", ".gb", ".tsv", ".csv", ".rep", ".sh", ".md", ".txt"
 )
+
+ANIMAL_LIST = ('cat,cattle,dog,goat,pig,horse,pig,rabbit,'
+               'rat,sheep,duck,goose,pigeon,turkey,alpaca,bison,robin,ant,ape,aphid,fox,wolf,'
+               'crab,badger,eagle,bass,bat,whale,bear,beaver,bedbug,bee,bird,spider,'
+               'bird,boa,boar,bug,camel,carp,cheetah,clam,cobra,cod,condor,coral,'
+               'cougar,cow,coyote,crab,crane,crow,cuckoo,deer,dingo,dog,dove,dragon,eel,'
+               'seal,elk,emu,falcon,finch,fish,fowl,fox,frog,bat,'
+               'gecko,gerbil,panda,squid,gopher,shark,sloth,guppy,hawk,'
+               'crab,heron,hyena,iguana,impala,mouse,koi,snail,leech,lemur,lion,'
+               'llama,locust,louse,lynx,macaw,marlin,mink,mole,mule,newt,quail,orca,'
+               'otter,owl,ox,pug,elk,owl,yak,fox,bat,hen,cat,rhino,duck,'
+               'toad,mole,hare,dog,puppy,zebra,camel,goose,moose,tiger,hippo,monkey').split(",")
+
+
+ITEM_LIST = ('bar,desk,gift,hero,life,app,bag,bus,cup,art,act,',
+             'matt', 'triac','zoist','zokor')
 
 
 # Stop words used in search
@@ -33,7 +51,6 @@ COPIED_RECIPES = "recipes"
 COPIED_FILES = "files"
 CLONED_RECIPES = "clone"
 
-
 CLIPBOARD_CONTENTS = [COPIED_DATA, COPIED_RESULTS, COPIED_RECIPES, COPIED_FILES,
                       CLONED_RECIPES]
 
@@ -54,24 +71,23 @@ MAX_LOG_LEN = 20 * MAX_TEXT_LEN
 # Map a file extension to a biostar-engine datatype.
 EXT_TO_TYPE = dict(
 
-            fa = 'FASTA',
-            fasta = 'FASTA',
-            txt = 'TXT',
-            fq = 'FQ',
-            gtf = 'GTF',
-            gb = 'GB',
-            tsv = 'TSV',
-            csv = 'CSV',
-            rep = 'REP',
-            md = 'MD',
-            sam = 'SAM',
-            bed = 'BED',
-            gff = 'GFF',
-            r = 'R',
-            fastq = 'FASTQ'
+    fa='FASTA',
+    fasta='FASTA',
+    txt='TXT',
+    fq='FQ',
+    gtf='GTF',
+    gb='GB',
+    tsv='TSV',
+    csv='CSV',
+    rep='REP',
+    md='MD',
+    sam='SAM',
+    bed='BED',
+    gff='GFF',
+    r='R',
+    fastq='FASTQ'
 
-                )
-
+)
 
 RADIO = "RADIO"
 DROPDOWN = "DROPDOWN"

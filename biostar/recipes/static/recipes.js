@@ -78,7 +78,7 @@ function submit_form(elem) {
 }
 
 function flash(cls) {
-    elem = $(".CodeMirror")
+    elem = $(".CodeMirror");
 
     function fadeout() {
         elem.removeClass(cls)

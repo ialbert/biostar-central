@@ -5,17 +5,14 @@ from django.contrib import messages
 import toml
 from ratelimit.decorators import ratelimit
 
-from django.shortcuts import reverse
-from django.template import loader
-from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
+from django.http import HttpResponse
 from django.template import Template, Context
 from django.http import JsonResponse
 from django.template import loader
 from django.conf import settings
 from biostar.accounts.models import User
 from biostar.recipes.const import *
-from biostar.recipes.models import Job, Analysis, Data, Snippet, SnippetType, Project, MAX_TEXT_LEN, Access
+from biostar.recipes.models import Job, Analysis, Data, Project, MAX_TEXT_LEN, Access
 from biostar.recipes.forms import RecipeInterface
 from biostar.recipes import auth
 from django.shortcuts import render, redirect, reverse
@@ -181,6 +178,7 @@ def preview_json(request):
     project_uid = request.POST.get('project_uid')
 
     json_text = request.POST.get('json_text', '')
+
     try:
         json_data = toml.loads(json_text)
     except Exception as exc:
@@ -199,82 +197,6 @@ def preview_json(request):
     template = tmpl.render(context=context)
 
     return ajax_success(msg="Recipe json", html=template)
-
-
-def builder(display, **initial):
-
-    # Get the default label and the display type.
-    defaults = dict(label="Insert Field Label", display=display)
-
-    # Integer and float fields extra values.
-    if display == INTEGER or display == FLOAT:
-        defaults.update(dict(range=[0, 100], value=0, help="Enter a number."))
-
-    # Dropdown and radio get an extra filed as well.
-    elif display == DROPDOWN or display == RADIO:
-        defaults.update(choices=[("1", 'Option 1'), ("2", 'Option 2')],
-                        value=2, help="Enter a number.")
-
-    return defaults
-
-
-def display_data(display_type):
-
-    # Special case where "display" key is not added
-    if display_type == 'data':
-        return dict(label='Data Field Label',
-                    source='PROJECT',
-                    type='DATA',
-                    help='Pick data from this project to analyze.')
-
-    # Build the display
-    integer = builder(display=INTEGER)
-    floating = builder(display=FLOAT)
-    dropdown = builder(display=DROPDOWN)
-    radio = builder(display=RADIO)
-    upload = builder(display=UPLOAD, **dict(help="Upload a file to analyze"))
-    checkbox = builder(display=CHECKBOX, **dict(value=True, help='Checkbox.'))
-    textbox = builder(display=TEXTBOX, **dict(value='Example text', help='Enter text.'))
-
-    data_map = dict(integer=integer, textbox=textbox,
-                    float=floating, checkbox=checkbox,
-                    dropdown=dropdown, upload=upload, radio=radio)
-
-    data = data_map.get(display_type, dict())
-
-    return data
-
-
-@ajax_error_wrapper(method="POST", login_required=False)
-def add_to_interface(request):
-    # Returns a recipe interface field json
-
-    # Get the display type to add
-    display_type = request.POST.get('display_types', '')
-    json_text = request.POST.get('json_text', '')
-    display_dict = display_data(display_type=display_type)
-    try:
-        json_data = toml.loads(json_text)
-    except Exception as exc:
-        return ajax_error(msg=f"{exc}")
-
-    prefix = "Parameter"
-    field_name = prefix
-    count = 0
-    # Check if the field name exists
-    while field_name in json_data:
-        field_name = prefix + f'{count}'
-        count += 1
-
-    new_field = {field_name: display_dict}
-    json_data.update(new_field)
-    new_json = toml.dumps(json_data)
-
-    tmpl = loader.get_template('widgets/json_field.html')
-    context = dict(json_text=new_json, focus=True)
-    json_field = tmpl.render(context=context)
-
-    return ajax_success(html=json_field, json_text=new_json, msg="Rendered json")
 
 
 @ajax_error_wrapper(method="POST")
@@ -421,9 +343,6 @@ def field_render(request):
     """
     Renders and returns an HTML field based on the incoming toml data.
     """
-    from .forms import RecipeInterface
-    from django.http import HttpResponse
-    import toml
 
     demo = """
     [demo]
@@ -433,13 +352,17 @@ def field_render(request):
     """
     text = request.POST.get("toml", demo)
 
+    # Get the project uid
+    pid = request.POST.get('project')
+    project = Project.objects.filter(uid=pid).first()
     try:
         data = toml.loads(text)
     except Exception as exc:
         return HttpResponse(exc)
 
-    form = RecipeInterface(request, json_data=data)
+    form = RecipeInterface(request, json_data=data, project=project)
 
     context = dict(form=form)
 
     return render(request, "parts/form_field_render.html", context=context)
+
