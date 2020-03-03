@@ -677,7 +677,8 @@ def job_rerun(request, uid):
     # Spool via UWSGI or run it synchronously.
     tasks.execute_job.spool(job_id=job.id)
 
-    return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
+    url = reverse('recipe_view', kwargs=dict(uid=job.analysis.uid)) + "#results"
+    return redirect(url)
 
 
 def get_part(request, name, id):
