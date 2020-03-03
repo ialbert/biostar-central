@@ -63,7 +63,7 @@ urlpatterns = [
     path(r'project/<str:label>/recipes/', views.recipe_listing, name='recipe_listing'),
     path(r'recipe/list/<str:uid>/', views.recipe_list, name='recipe_list'),
 
-    path(r'latest/recipes/', views.latest_recipes, name='foo'),
+    path(r'latest/recipes/', views.latest_recipes, name='latest_recipes'),
 
 
     path(r'recipe/view/<str:uid>/', views.recipe_view, name='recipe_view'),
