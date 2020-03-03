@@ -53,7 +53,7 @@ function preview_template(fields) {
 
 
 function update_preview(callback) {
-    // Empty function as a default
+    // Default callback function
     callback = callback || function () {};
     let recipe_json = $('#interface_editor').val();
     let project = $('#interface').closest('.grid').data("project");
