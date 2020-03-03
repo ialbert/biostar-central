@@ -33,10 +33,8 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
-def generate_uuid(suffix='10'):
-    animal = random.choice(ANIMAL_LIST)
-    item = random.choice(ITEM_LIST)
-    uid = f"{animal}-{item}-{suffix}"
+def generate_uuid(prefix, suffix):
+    uid = f"{prefix}-{suffix}"
 
     return uid
 
@@ -263,8 +261,8 @@ def create_project(user, name="", uid=None, summary='', text='', stream=None, la
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
         # Create a new project.
-        project = Project.objects.create(label=label,
-            name=name, uid=uid, text=text, owner=user, privacy=privacy)
+        project = Project.objects.create(label=label, name=name, uid=uid, text=text,
+                                         owner=user, privacy=privacy)
 
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
@@ -299,9 +297,6 @@ def create_analysis(project, json_text='', template='# code', uid=None, user=Non
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text, rank=rank,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, root=root)
-
-        #analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
-        analysis.save()
 
         # Update the projects lastedit user when a recipe is created
         Project.objects.filter(uid=analysis.project.uid).update(lastedit_user=user,
@@ -451,12 +446,9 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     job.name = name
 
     if save:
+        # Save the updated json_text and name.
         job.save()
         # Update the projects lastedit user when a job is created
-        job_count = Job.objects.filter(deleted=False, project=project).count()
-        Project.objects.filter(uid=project.uid).update(lastedit_user=owner,
-                                                       lastedit_date=now(),
-                                                       jobs_count=job_count)
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job

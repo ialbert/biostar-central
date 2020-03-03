@@ -354,7 +354,6 @@ def project_create(request):
     """
     user = request.user
     project = auth.create_project(user=user)
-    project.save()
     messages.success(request, "Create a new project.")
     return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
@@ -620,7 +619,7 @@ def recipe_run(request, uid):
         # The form validation will authorize the job.
         if form.is_valid():
             # Create the job from the recipe and incoming json data.
-            job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data, save=True)
+            job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data)
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
             url = reverse("recipe_view", kwargs=dict(uid=recipe.uid)) + "#results"
@@ -652,7 +651,7 @@ def job_rerun(request, uid):
         return redirect(redir)
 
     # Create a new job
-    job = auth.create_job(analysis=recipe, user=request.user, json_data=json_data, save=True)
+    job = auth.create_job(analysis=recipe, user=request.user, json_data=json_data)
 
     # Spool via UWSGI or run it synchronously.
     tasks.execute_job.spool(job_id=job.id)

@@ -120,7 +120,7 @@ def sql_field(obj, project=None):
     columns = obj.get("columns", '*')
 
     # Database to connect to, selects default database otherwise.
-    database_name = obj.get('database_name', '')
+    database_name = obj.get('database_name', 'database.db')
     return_value = obj.get('return_value', 'file')
 
     display_value = obj.get('display_value', 'name')
