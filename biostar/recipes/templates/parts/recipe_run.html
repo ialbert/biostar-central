@@ -49,13 +49,10 @@
 
         {% if not is_runnable %}
             <div class="ui vertical segment">
-                <div class="toggle"><a href="#">Why can't I run this recipe? <i class="caret down icon"></i></a></div>
-                <div class="hidden">
                     <div style="padding-top:1ex;">To run a recipe:</div>
                     <div class="ui bulleted list">
-                        <div class="item">You must be logged in.</div>
-                        <div class="item">You must be a trusted user.</div>
-                        <div class="item">The recipe must be authorized</div>
+                        <div class="item">You must be logged in and be a trusted user.</div>
+                        <div class="item">The recipe must be authorized by an admin.</div>
                     </div>
                     <p>Read more on security features in the documentation.</p>
                 </div>
@@ -76,13 +73,6 @@
 
     $(document).ready(function () {
 
-        $(document).on("click", '.toggle', function (event) {
-            event.preventDefault();
-
-            $(this).next().toggle("slow", function () {
-                // Animation complete.
-            });
-        })
     });
 
 </script>
