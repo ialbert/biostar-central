@@ -27,7 +27,7 @@ def search(request):
 
     model_map = {
                 #"job": Job.objects.filter(project__in=projects),
-                 "analysis": Analysis.objects.filter(project__in=projects, root=None),
+                 "analysis": Analysis.objects.filter(project__in=projects, root=None, deleted=False),
                 #"data": Data.objects.filter(project__in=projects),
                 #"project": projects
     }

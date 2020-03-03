@@ -18,26 +18,6 @@
 
 <div class="ui relaxed divided list">
 
-    {% for project in results.project %}
-        <div class="item">
-
-            <b>Project:</b> <a href="{{project.url}}">{{project.name |highlight:query |safe }}</a>
-            <div class="muted">
-                {{project.text|highlight:query }}
-            </div>
-        </div>
-    {% endfor %}
-
-    {% for data in results.data %}
-        <div class="item">
-            <b>Data:</b> <a href="{{data.url}}">{{data.name|highlight:query |safe}}</a>
-            <div class="muted">
-                {{data.text|highlight:query }}
-            </div>
-        </div>
-    {% endfor %}
-
-
     {% for recipe in results.analysis %}
         <div class="item">
             <img class="ui avatar image" src="{% img recipe %}">
@@ -48,14 +28,7 @@
         </div>
     {% endfor %}
 
-    {% for job in results.job %}
-        <div class="item">
-            <b>Job:</b> <a href="{{job.url}}">{{job.name|highlight:query |safe}}</a>
-            <div class="muted">
-                {{job.text|highlight:query }}
-            </div>
-        </div>
-    {% endfor %}
+
 
 </div>
 </div>
