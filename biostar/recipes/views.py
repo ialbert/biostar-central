@@ -354,7 +354,6 @@ def project_create(request):
     """
     user = request.user
     project = auth.create_project(user=user)
-    project.save()
     messages.success(request, "Create a new project.")
     return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 

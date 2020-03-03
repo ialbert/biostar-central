@@ -181,48 +181,6 @@ function add_vars() {
     )
 }
 
-
-function json_preview(project_uid) {
-    //let project_uid = $(this).data('value');
-    let recipe_json = $('#interface textarea').val();
-    $.ajax('/preview/json/',
-        {
-            type: 'POST',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'project_uid': project_uid,
-                'json_text': recipe_json
-            },
-
-            success: function (data) {
-
-                if (data.status === 'error') {
-                    //alert($("#json_field").html());
-                    popover_message($("#interface").closest('.grid'), data.msg, data.status, 5000);
-                    return
-                }
-                $('#preview').html('<div class="ui basic segment"><form class="ui inputcolor form">' + data.html + '<div class="field">\n' +
-                    '                        <button type="submit" class="ui green disabled button">\n' +
-                    '                            <i class="check icon"></i>Run\n' +
-                    '                        </button>\n' +
-                    '\n' +
-                    '                        <a class="ui disabled button">\n' +
-                    '                            <i class="redo icon"></i>Cancel\n' +
-                    '                        </a>\n' +
-                    '                    </div></form></div>');
-
-                //pop_over($("#copy-message-"+ data_uid), data.msg, data.status );
-            },
-
-            error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
-            }
-
-        });
-}
-
-
 function remove_trigger() {
     // Makes site messages dissapear.
     $('.remove').delay(2000).slideUp(800, function () {
@@ -393,14 +351,6 @@ $(document).ready(function () {
     //$('#json_add').dropdown();
 
     //$('#code_add').dropdown();
-
-
-    $(this).on('click', '#interface .preddview', function () {
-        event.preventDefault();
-        let project_uid = $(this).closest(".ui.grid").data('project');
-        json_preview(project_uid);
-
-    });
 
     //remove_trigger();
 

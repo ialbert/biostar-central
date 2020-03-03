@@ -439,6 +439,12 @@ figure {
     font-weight: bold;
 }
 
+
+.card .content:not(.extra):hover{
+    cursor: pointer;
+}
+
+
 #interface .dropdown{
     float: right;
 }
@@ -475,6 +481,7 @@ figure {
     background-color: #f2dede;
     border-color: #ebccd1;
     color: #a94442;
+    width: 40%;
 }
 
 .popover.success {

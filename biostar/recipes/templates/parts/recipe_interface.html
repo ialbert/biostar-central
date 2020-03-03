@@ -32,15 +32,25 @@
 </form>
 
 <div class="ui center aligned vertical segment">
+    <div class="ui center aligned basic segment header">Interface Preview</div>
+    Interface preview shows the resulting view of the combined interface elements.
+</div>
+
+{# The preview panel #}
+<div class="ui basic segment" id="preview"></div>
+
+<div class="ui divider"></div>
+
+<div class="ui center aligned vertical segment">
     <div class="ui center aligned basic segment header">Interface specification</div>
     Interface element specification. Shows the code and the resulting interface element.
+
+    <div><b>Double click on an element to insert it into the interface.</b> </div>
 </div>
 
 
 <div class="ui basic segment">
 
-    {# The preview panel #}
-    <div class="ui basic segment" id="preview"></div>
 
     <form class="ui form">
 
@@ -192,10 +202,10 @@
 
                 <div class="content">
                     <pre class="toml_code">
-                    [data]
-                    label = "Pick data"
-                    source = "PROJECT"
-                    help = "Pick data from this project."
+                        [data]
+                        label = "Pick data"
+                        source = "PROJECT"
+                        help = "Pick data from this project."
                     </pre>
                 </div>
 
@@ -207,13 +217,11 @@
 
             <div class="card">
 
-
                 <div class="content">
                     <b>Radio Buttons</b>
                 </div>
 
                 <div class="content">
-
 
                     <pre class="toml_code">
                     [species]
@@ -254,7 +262,7 @@
             });
         });
 
-        $(this).on('click', '.card .content:not(.extra)', function () {
+        $(this).on('dblclick', '.card .content:not(.extra)', function () {
             var curr = $(this).closest(".card");
             var toml = curr.find(".toml_code").text();
             var new_toml = elem.val() + '\n' + toml.replace(/  /g, '');

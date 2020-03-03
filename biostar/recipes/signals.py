@@ -5,7 +5,7 @@ import toml
 import hjson
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from biostar.recipes.models import Project, Access, Analysis, Job
+from biostar.recipes.models import Project, Access, Analysis, Job, Data
 from biostar.recipes import util, auth
 
 logger = logging.getLogger("engine")
@@ -71,13 +71,14 @@ def strip_json(json_text):
 @receiver(post_save, sender=Project)
 def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
-    # Give a more appropriate uid
-    if created:
-        instance.uid = auth.generate_uuid(suffix=instance.id)
-        instance.label = instance.uid
-
     # Ensure a project has at least one recipe on creation.
     if created and not instance.analysis_set.exists():
+        # Generate friendly uid
+        uid = auth.generate_uuid(prefix="project", suffix=instance.id)
+        instance.uid = uid
+        instance.label = uid
+        Project.objects.filter(id=instance.id).update(uid=instance.uid, label=instance.label)
+
         # Add starter hello world recipe to project.
         try:
             json_text = open(join(DATA_DIR, 'starter.hjson'), 'r').read()
@@ -86,7 +87,7 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
             image_stream = open(image, 'rb')
         except Exception as exc:
             logger.error(f'{exc}')
-            json_text = '{}'
+            json_text = ''
             template = "echo 'Hello World'"
             image_stream = None
 
@@ -100,9 +101,10 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
 @receiver(post_save, sender=Analysis)
 def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
-
+    # Generate friendly uid
     if created:
-        instance.uid = auth.generate_uuid(suffix=instance.id)
+        instance.uid = auth.generate_uuid(prefix="recipe", suffix=instance.id)
+        Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
 
     # Strip json of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
@@ -113,14 +115,21 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
 @receiver(post_save, sender=Job)
 def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
-
+    # Generate friendly uid
     if created:
-        instance.uid = auth.generate_uuid(suffix=instance.id)
+        instance.uid = auth.generate_uuid(prefix="job", suffix=instance.id)
+        Job.objects.filter(id=instance.id).update(uid=instance.uid)
+
+        # Update the count and last edit date when job is created
+        job_count = Job.objects.filter(deleted=False, project=instance.project).count()
+        Project.objects.filter(id=instance.project.id).update(lastedit_user=instance.owner,
+                                                              lastedit_date=util.now(),
+                                                              jobs_count=job_count)
 
 
-@receiver(post_save, sender=Job)
+@receiver(post_save, sender=Data)
 def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
-
+    # Generate friendly uid
     if created:
-
-        instance.uid = auth.generate_uuid(suffix=instance.id)
+        instance.uid = auth.generate_uuid(prefix="data", suffix=instance.id)
+        Data.objects.filter(id=instance.id).update(uid=instance.uid)

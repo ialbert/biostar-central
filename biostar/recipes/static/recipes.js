@@ -41,15 +41,14 @@ function remove_messages() {
 function preview_template(fields) {
 
     return '<div class="ui segment run"><form class="ui form">' + fields +
-        '<div class="field">\n' +
-        '                        <button type="submit" class="ui green disabled button">\n' +
-        '                            <i class="check icon"></i>Run\n' +
-        '                        </button>\n' +
-        '\n' +
-        '                        <a class="ui disabled button">\n' +
-        '                            <i class="redo icon"></i>Cancel\n' +
-        '                        </a>\n' +
-        '                    </div></form></div>'
+        '<div class="field">' +
+        '<button type="submit" class="ui green disabled button">' +
+        '    <i class="check icon"></i>Run' +
+        '</button>' +
+        '<a class="ui disabled button">' +
+        '    <i class="redo icon"></i>Cancel' +
+        '</a>' +
+        '</div></form></div>'
 }
 
 
@@ -74,12 +73,8 @@ function update_preview(callback) {
             }
             $('#preview').html(preview_template(data.html));
             callback()
-
         }
-
     });
-
-
 }
 
 function preview_callback() {
