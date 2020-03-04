@@ -1,7 +1,7 @@
 {% load engine_tags %}
 
 <form method="post" class="ui form" action="#">
-
+    {% csrf_token %}
     <div class="ui vertical segment">
         <span class="ui title header">Recipe Interface</span>
     </div>
@@ -248,8 +248,7 @@
 <script>
     $(document).ready(function () {
         var elem = $('#interface_editor');
-        var interface = init_codemirror(elem, 400, preview_callback);
-        update_preview();
+        var interface = init_codemirror(elem, 400);
         url = "/ajax/field/render/";
 
         $(".card").each(function (index) {
@@ -262,6 +261,7 @@
             });
         });
 
+        update_preview();
         $(this).on('dblclick', '.card .content:not(.extra)', function () {
             var curr = $(this).closest(".card");
             var toml = curr.find(".toml_code").text();
