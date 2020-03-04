@@ -103,8 +103,7 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
         # Set the project directory
         instance.dir = instance.dir or join(settings.MEDIA_ROOT, "projects", f"{instance.uid}")
 
-        if not os.path.isdir(instance.dir):
-            os.makedirs(instance.dir)
+        os.makedirs(instance.dir, exist_ok=True)
 
         Project.objects.filter(id=instance.id).update(uid=instance.uid, label=instance.label, dir=instance.dir)
         # Create a starter recipe if none exist

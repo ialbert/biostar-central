@@ -105,28 +105,6 @@ def gravatar(user, size=80):
     return gravatar_url
 
 
-def add(a, b, maxi=200):
-    """
-    Add two numbers and ensure their sum does not exceed a maximum
-    """
-    res = a + b
-    if res <= maxi:
-        return res
-    else:
-        return maxi
-
-
-def subtract(a, b, mini=0):
-    """
-    Subtract two numbers and ensure their sum does not exceed a minimum
-    """
-    res = a - b
-    if res > mini:
-        return res
-    else:
-        return mini
-
-
 def find_fragments(source, target, nfrags=3, offset=25):
 
     # Look for case insensitive matches of target in the source
@@ -134,15 +112,13 @@ def find_fragments(source, target, nfrags=3, offset=25):
     matches = islice(zip(count(1), matches), nfrags)
     fragments = []
 
-    # Collect match fragments
+    # Collect matches as fragments
     for idx, match in matches:
-        start = match.start(0)
-        end = match.end(0)
-        # Get text left and right of match
-        left = subtract(start, offset)
-        right = add(end, offset, maxi=len(source))
-
+        # Get left side, right side, and center text of match
+        left = match.start(0) - offset
+        right = match.end(0) + offset
         text = match.group()
+
         fragments.append((left,  right, text))
 
     return fragments
@@ -157,10 +133,13 @@ def highlight(source, target):
     # Character offset used to pad highlighted items
     offset = 25
 
+    # Applies the highlighter class to each fragment
+    def highlighter(parent, sub):
+        return parent.replace(sub, mark_safe(f"<div class='match'>{sub}</div>"))
+
+    # Gather the fragments.
     fragments = find_fragments(source=source, target=target, nfrags=nfrags, offset=offset)
 
-    # Applies the highlighter class to each fragment
-    highlighter = lambda string, mark: string.replace(mark, mark_safe(f"<div class='match'>{mark}</div>"))
     if fragments:
         result = [highlighter(source[start:end], txt) for start, end, txt in fragments]
         result = "...".join(result)
