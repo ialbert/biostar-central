@@ -5,29 +5,6 @@ from django.db import migrations, models
 from django.conf import settings
 
 
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-
-def init_dirs(apps, schema_editor):
-    """
-    Set the self.dir field.
-    """
-    Project = apps.get_model('recipes', 'Project')
-    Data = apps.get_model('recipes', 'Data')
-
-    projects = Project.objects.all()
-    for project in projects:
-        directory = join(settings.MEDIA_ROOT, "projects", f"{project.uid}")
-        Project.objects.filter(id=project.id).update(dir=directory)
-
-    data = Data.objects.all()
-    for single in data:
-        directory = join(single.project.dir, f"{single.uid}")
-        toc = join(settings.TOC_ROOT, f"toc-{single.uid}.txt")
-        Data.objects.filter(id=single.project.id).update(dir=directory, toc=toc)
-
-
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -55,5 +32,5 @@ class Migration(migrations.Migration):
             name='security',
             field=models.IntegerField(choices=[(1, 'Trusted users'), (2, 'Admin only')], default=2),
         ),
-        migrations.RunPython(init_dirs),
+
     ]
