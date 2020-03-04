@@ -12,6 +12,7 @@ from django.db.models import Q, Count
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
@@ -712,7 +713,7 @@ def get_part(request, name, id):
     html = render(request, name, context=context)
     return html
 
-
+@ensure_csrf_cookie
 @read_access(type=Analysis)
 def recipe_view(request, uid):
     """
