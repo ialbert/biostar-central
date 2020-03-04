@@ -119,11 +119,16 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
         instance.uid = auth.generate_uuid(prefix="recipe", suffix=instance.id)
         Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
 
+    Project.objects.filter(id=instance.project.id).update(lastedit_date=now,
+                                                           lastedit_user=self.lastedit_user)
     # Strip json text of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
     # Update information of all children belonging to this root.
     if instance.is_root:
         instance.update_children()
+
+    # Update the project count and last edit date when job is created
+    instance.project.set_counts()
 
 
 @receiver(post_save, sender=Job)
@@ -142,11 +147,8 @@ def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
         # Update the information in db.
         Job.objects.filter(id=instance.id).update(uid=instance.uid, path=instance.path)
 
-        # Update the project count and last edit date when job is created
-        job_count = Job.objects.filter(deleted=False, project=instance.project).count()
-        Project.objects.filter(id=instance.project.id).update(lastedit_user=instance.owner,
-                                                              lastedit_date=util.now(),
-                                                              jobs_count=job_count)
+    # Update the project count.
+    instance.project.set_counts()
 
 
 @receiver(post_save, sender=Data)
@@ -173,3 +175,6 @@ def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
 
         # Update the dir, toc, and uid.
         Data.objects.filter(id=instance.id).update(uid=instance.uid, dir=instance.dir, toc=instance.toc)
+
+    # Update the project count.
+    instance.project.set_counts()

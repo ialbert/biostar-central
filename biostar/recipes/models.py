@@ -552,8 +552,7 @@ class Analysis(models.Model):
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
-        Project.objects.filter(uid=self.project.uid).update(lastedit_date=now,
-                                                            lastedit_user=self.lastedit_user)
+
         self.project.set_counts(save=True)
         super(Analysis, self).save(*args, **kwargs)
 
@@ -773,13 +772,9 @@ class Job(models.Model):
         self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
-        # Keep the existing path if the uid changes.
-        #self.path = self.path or self.make_path()
 
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
-
-        self.project.set_counts(save=True)
 
         super(Job, self).save(*args, **kwargs)
 

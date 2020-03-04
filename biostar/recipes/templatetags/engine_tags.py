@@ -499,7 +499,7 @@ def file_listing(root, limit=None):
 def files_list(context, rel_path):
     # Limit to the first 100 files.
     root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))
-    paths = auth.listing(root=root)
+    paths = file_listing(root=root)
     user = context['request'].user
     return dict(paths=paths, user=user, root=root)
 
