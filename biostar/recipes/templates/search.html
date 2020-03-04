@@ -18,17 +18,15 @@
 
 <div class="ui relaxed divided list">
 
-    {% for recipe in results.analysis %}
+    {% for recipe in results %}
         <div class="item">
             <img class="ui avatar image" src="{% img recipe %}">
             <div class="content">
                  <div class="ui header"><a href="{{recipe.url}}">{{recipe.name|highlight:query |safe}}</a></div>
-                 <div class="description">{{recipe.summary|highlight:query|safe }}</div>
+                 <div class="description">{{recipe.text|highlight:query|safe }}</div>
             </div>
         </div>
     {% endfor %}
-
-
 
 </div>
 </div>

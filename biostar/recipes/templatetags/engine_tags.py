@@ -5,6 +5,7 @@ from textwrap import dedent
 import hashlib
 import urllib.parse
 import random
+from itertools import count, islice
 
 from datetime import timedelta, datetime
 from django.contrib import messages
@@ -104,17 +105,71 @@ def gravatar(user, size=80):
     return gravatar_url
 
 
+def add(a, b, maxi=200):
+    """
+    Add two numbers and ensure their sum does not exceed a maximum
+    """
+    res = a + b
+    if res <= maxi:
+        return res
+    else:
+        return maxi
+
+
+def subtract(a, b, mini=0):
+    """
+    Subtract two numbers and ensure their sum does not exceed a minimum
+    """
+    res = a - b
+    if res > mini:
+        return res
+    else:
+        return mini
+
+
+def find_fragments(source, target, nfrags=3, offset=25):
+
+    # Look for case insensitive matches of target in the source
+    matches = re.finditer(f"(?i){target}", source)
+    matches = islice(zip(count(1), matches), nfrags)
+    fragments = []
+
+    # Collect match fragments
+    for idx, match in matches:
+        start = match.start(0)
+        end = match.end(0)
+        # Get text left and right of match
+        left = subtract(start, offset)
+        right = add(end, offset, maxi=len(source))
+
+        text = match.group()
+        fragments.append((left,  right, text))
+
+    return fragments
+
+
 @register.filter
 def highlight(source, target):
-    # Look for case insensitive matches in the source
-    highlighting = re.search(f"(?i){target}", source)
 
-    target = highlighting.group() if highlighting else target
+    # Number of fragments to show
+    nfrags = 3
 
-    # Highlight the target
-    highlighted = mark_safe(f"<div class='match'>{target}</div>")
+    # Character offset used to pad highlighted items
+    offset = 25
 
-    return source.replace(target, highlighted)
+    fragments = find_fragments(source=source, target=target, nfrags=nfrags, offset=offset)
+
+    # Applies the highlighter class to each fragment
+    highlighter = lambda string, mark: string.replace(mark, mark_safe(f"<div class='match'>{mark}</div>"))
+    if fragments:
+        result = [highlighter(source[start:end], txt) for start, end, txt in fragments]
+        result = "...".join(result)
+    else:
+        result = source[:offset * 4]
+
+    result += "..." if len(source) > len(result) else ""
+
+    return result
 
 
 @register.simple_tag
@@ -478,7 +533,6 @@ def directory_list(context, obj):
 
     # Starting location.
     root = obj.get_data_dir()
-
     # The serve url depends on data type..
     serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
     copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"

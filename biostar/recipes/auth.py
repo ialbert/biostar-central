@@ -543,10 +543,8 @@ def create_path(fname, data):
 
 def link_data(path, data):
     dest = create_path(fname=path, data=data)
-
     if not os.path.exists(dest):
         os.symlink(path, dest)
-
     return dest
 
 
@@ -721,3 +719,24 @@ def create_data(project, user=None, stream=None, path='', name='',
     logger.info(f"Added data type={data.type} name={data.name} pk={data.pk}")
 
     return data
+
+
+def get_or_create(fname, project, user=None, uid=None, name="", text=""):
+    """
+    Get or create a data object associated with a file.
+    """
+
+    # Get the data if it exists.
+    data = Data.objects.filter(uid=uid).first()
+
+    if data:
+
+        data.name = name or data.name
+        data.text = text or data.text
+        # Link this file to data and call save.
+        link_data(path=fname, data=data)
+        data.make_toc()
+        data.save()
+    else:
+        data = create_data(project=project, path=fname, user=user, name=name, text=text)
+

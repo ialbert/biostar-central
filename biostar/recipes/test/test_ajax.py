@@ -136,8 +136,7 @@ class AjaxTest(TestCase):
         Test AJAX function used to preview recipe json
         """
 
-        data = {'name': self.recipe.name, 'project_uid':self.recipe.project.uid,
-                'json_text': self.recipe.json_text}
+        data = {'recipe':self.recipe.id, 'toml': "[foo]\nparam=2"}
 
         url = reverse('preview_json')
         request = fake_request(url=url, data=data, user=self.owner)

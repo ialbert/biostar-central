@@ -20,12 +20,26 @@ logger.setLevel(logging.DEBUG)
 
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
+
 def finalize_job(data):
     """
     Performs various finalization processes on the data
+    [settings.data]
+    file = "recipe.sh"
+    uid = "data-10"
+    name = "Updated new data"
+    text = "This is automatically updated by a recipe"
+
     """
+
+    # [settings.data]
+
     for key, value in data.get("settings", {}):
+
+        #if key ==
+        # Get or create the data
         pass
+
 
 def create_logs(job):
 

@@ -3,6 +3,7 @@ import logging
 
 import toml
 import hjson
+from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from biostar.recipes.models import Project, Access, Analysis, Job, Data
@@ -68,35 +69,47 @@ def strip_json(json_text):
     return new_json
 
 
+def initial_recipe(project):
+    # Add starter hello world recipe to project.
+    try:
+        json_text = open(join(DATA_DIR, 'starter.hjson'), 'r').read()
+        template = open(join(DATA_DIR, 'starter.sh'), 'r').read()
+        image = os.path.join(DATA_DIR, 'starter.png')
+        image_stream = open(image, 'rb')
+    except Exception as exc:
+        logger.error(f'{exc}')
+        json_text = ''
+        template = "echo 'Hello World'"
+        image_stream = None
+
+    name = 'First recipe'
+    text = "This recipe was created automatically."
+
+    # Create starter recipe.
+    recipe = auth.create_analysis(project=project, json_text=json_text, template=template,
+                                  name=name, text=text, stream=image_stream)
+    return recipe
+
+
 @receiver(post_save, sender=Project)
 def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
     # Ensure a project has at least one recipe on creation.
-    if created and not instance.analysis_set.exists():
+    if created:
         # Generate friendly uid
         uid = auth.generate_uuid(prefix="project", suffix=instance.id)
         instance.uid = uid
         instance.label = uid
-        Project.objects.filter(id=instance.id).update(uid=instance.uid, label=instance.label)
+        # Set the project directory
+        instance.dir = instance.dir or join(settings.MEDIA_ROOT, "projects", f"{instance.uid}")
 
-        # Add starter hello world recipe to project.
-        try:
-            json_text = open(join(DATA_DIR, 'starter.hjson'), 'r').read()
-            template = open(join(DATA_DIR, 'starter.sh'), 'r').read()
-            image = os.path.join(DATA_DIR, 'starter.png')
-            image_stream = open(image, 'rb')
-        except Exception as exc:
-            logger.error(f'{exc}')
-            json_text = ''
-            template = "echo 'Hello World'"
-            image_stream = None
+        if not os.path.isdir(instance.dir):
+            os.makedirs(instance.dir)
 
-        name = 'First recipe'
-        text = "This recipe was created automatically."
-
-        # Create starter recipe.
-        auth.create_analysis(project=instance, json_text=json_text, template=template,
-                             name=name, text=text, stream=image_stream)
+        Project.objects.filter(id=instance.id).update(uid=instance.uid, label=instance.label, dir=instance.dir)
+        # Create a starter recipe if none exist
+        if not instance.analysis_set.exists():
+            initial_recipe(project=instance)
 
 
 @receiver(post_save, sender=Analysis)
@@ -129,7 +142,25 @@ def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
 
 @receiver(post_save, sender=Data)
 def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
-    # Generate friendly uid
+
     if created:
+        # Generate friendly uid
         instance.uid = auth.generate_uuid(prefix="data", suffix=instance.id)
-        Data.objects.filter(id=instance.id).update(uid=instance.uid)
+
+        # Set the data directory with the recently created uid
+        instance.dir = join(instance.get_project_dir(), f"{instance.uid}")
+
+        # Set the toc file with the recently created uid
+        instance.toc = join(settings.TOC_ROOT, f"toc-{instance.uid}.txt")
+
+        # Build the data directory.
+        if not os.path.isdir(instance.dir):
+            os.makedirs(instance.dir)
+
+        # Set the table of contents for the data
+        if not os.path.isfile(instance.toc):
+            with open(instance.toc, 'wt') as fp:
+                pass
+
+        # Update the dir, toc, and uid.
+        Data.objects.filter(id=instance.id).update(uid=instance.uid, dir=instance.dir, toc=instance.toc)

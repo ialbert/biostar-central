@@ -174,17 +174,19 @@ def preview_template(request):
 @ajax_error_wrapper(method="POST", login_required=False)
 def preview_json(request):
     # Get the recipe
-    project_uid = request.POST.get('project_uid')
-    json_text = request.POST.get('json_text', '')
+    uid = request.POST.get('recipe')
+    text = request.POST.get('toml', '')
+    recipe = Analysis.objects.filter(id=uid).first()
+
+    if not recipe:
+        return ajax_error(msg=f"Project does not exist")
 
     try:
-        json_data = toml.loads(json_text)
+        json_data = toml.loads(text)
     except Exception as exc:
         return ajax_error(msg=f"{exc}")
 
-    project = Project.objects.filter(uid=project_uid).first()
-    if not project:
-        return ajax_error(msg=f"Project does not exist")
+    project = recipe.project
 
     # Render the recipe interface
     interface = RecipeInterface(request=request, json_data=json_data, project=project,
@@ -351,14 +353,14 @@ def field_render(request):
     text = request.POST.get("toml", demo)
 
     # Get the project uid
-    pid = request.POST.get('project')
-    project = Project.objects.filter(uid=pid).first()
+    uid = request.POST.get('recipe')
+    recipe = Analysis.objects.filter(id=uid).first()
     try:
         data = toml.loads(text)
     except Exception as exc:
         return HttpResponse(exc)
 
-    form = RecipeInterface(request, json_data=data, project=project)
+    form = RecipeInterface(request, json_data=data, analysis=recipe)
 
     context = dict(form=form)
 

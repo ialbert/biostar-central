@@ -108,13 +108,13 @@ def clear_clipboard(request, uid):
 
 def search_bar(request):
     results = search.search(request=request)
+
     # Indicate to users that minimum character needs to be met.
     query_lenth = len(request.GET.get("q", "").strip())
     min_length = query_lenth > settings.SEARCH_CHAR_MIN
 
     # Indicate to users that there are no results for search.
-    current_results = len([inner for outer in results.values() for inner in outer])
-    no_results = min_length and current_results == 0
+    no_results = min_length and len(results) == 0
 
     context = dict(results=results, query=request.GET.get("q", "").strip(),
                    min_length=min_length, no_results=no_results)

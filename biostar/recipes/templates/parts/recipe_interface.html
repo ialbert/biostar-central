@@ -141,7 +141,7 @@
                     display = "DROPDOWN"
                     choices = [ ["R","Red"], ["B","Blue"] ]
                     value = "R"
-                    help = "Select the color of your choice"
+                    help = "Select a color of your choice"
                     </pre>
                 </div>
 
@@ -202,10 +202,10 @@
 
                 <div class="content">
                     <pre class="toml_code">
-                        [data]
-                        label = "Pick data"
-                        source = "PROJECT"
-                        help = "Pick data from this project."
+                    [data]
+                    label = "Pick data"
+                    source = "PROJECT"
+                    help = "Pick data from this project."
                     </pre>
                 </div>
 
@@ -229,7 +229,7 @@
                     display = "RADIO"
                     choices = [ ["c","Cat"], ["d","Dog"] ]
                     value = "c"
-                    help = "Select the species of your choice"
+                    help = "Select the species."
                     </pre>
                 </div>
 
@@ -249,7 +249,6 @@
     $(document).ready(function () {
         var elem = $('#interface_editor');
         var interface = init_codemirror(elem, 400, preview_callback);
-        var project = elem.closest('.grid').data("project");
         update_preview();
         url = "/ajax/field/render/";
 
@@ -258,7 +257,8 @@
             var curr = $(this);
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
-            field.load(url, {toml: toml, project: project}, function (response, status, xhr) {
+            var id = get_id();
+            field.load(url, {toml: toml, recipe: id}, function (response, status, xhr) {
             });
         });
 

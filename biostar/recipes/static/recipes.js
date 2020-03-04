@@ -55,16 +55,18 @@ function preview_template(fields) {
 function update_preview(callback) {
     // Default callback function
     callback = callback || function () {};
-    let recipe_json = $('#interface_editor').val();
-    let project = $('#interface').closest('.grid').data("project");
+    let toml = $('#interface_editor').val();
+    // Get the recipe id.
+    var id = get_id();
+
     let url = '/preview/json/';
 
     $.ajax(url, {
         type: 'POST',
         dataType: 'json',
         data: {
-            'project_uid': project,
-            'json_text': recipe_json
+            'recipe': id,
+            'toml': toml
         },
         success: function (data) {
             if (data.status === 'error') {
