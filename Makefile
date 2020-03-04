@@ -24,6 +24,8 @@ COPY_DATABASE := recipes.db
 
 all: recipes serve
 
+every: recipes serve
+
 accounts:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
 	$(eval DJANGO_APP := biostar.accounts)
@@ -58,6 +60,7 @@ recipes:
 	$(eval SUPERVISOR_NAME := recipes)
 	$(eval ENGINE_DIR := /export/www/biostar-central)
 
+    # Set the settings variables.
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
