@@ -128,6 +128,7 @@ def find_fragments(source, target, nfrags=3, offset=25):
 
     return fragments
 
+
 @register.filter
 def highlight(source, target):
 
@@ -143,14 +144,12 @@ def highlight(source, target):
 
     # Gather the fragments.
     fragments = find_fragments(source=source, target=target, nfrags=nfrags, offset=offset)
-    print(fragments)
+
     if fragments:
         result = [highlighter(source[start:end], txt) for start, end, txt in fragments]
         result = "...".join(result)
-        print(result, "DOO")
     else:
         result = source[:offset * 4]
-
 
     result += "..." if len(source) > len(result) else ""
 

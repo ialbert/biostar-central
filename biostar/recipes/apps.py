@@ -8,10 +8,6 @@ from django.conf import settings
 from biostar.accounts.apps import init_app
 
 
-def join(*args):
-    return os.path.abspath(os.path.join(*args))
-
-
 class EngineConfig(AppConfig):
     name = 'biostar.recipes'
 
