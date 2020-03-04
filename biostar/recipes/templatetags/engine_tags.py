@@ -117,6 +117,11 @@ def find_fragments(source, target, nfrags=3, offset=25):
         # Get left side, right side, and center text of match
         left = match.start(0) - offset
         right = match.end(0) + offset
+
+        if left < len(source):
+            left = 0
+        if right > len(source):
+            right = len(source)
         text = match.group()
 
         fragments.append((left,  right, text))
@@ -128,7 +133,7 @@ def find_fragments(source, target, nfrags=3, offset=25):
 def highlight(source, target):
 
     # Number of fragments to show
-    nfrags = 3
+    nfrags = 2
 
     # Character offset used to pad highlighted items
     offset = 25

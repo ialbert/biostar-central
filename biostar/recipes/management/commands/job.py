@@ -25,7 +25,7 @@ def finalize_job(data):
     """
     Performs various finalization processes on the data
     [settings.data]
-    file = "recipe.sh"
+    file = "results"
     uid = "data-10"
     name = "Updated new data"
     text = "This is automatically updated by a recipe"
@@ -35,8 +35,6 @@ def finalize_job(data):
     # [settings.data]
 
     for key, value in data.get("settings", {}):
-
-        #if key ==
         # Get or create the data
         pass
 

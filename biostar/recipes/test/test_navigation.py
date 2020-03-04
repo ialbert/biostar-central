@@ -26,7 +26,7 @@ class SiteNavigation(TestCase):
         self.project = auth.create_project(user=self.owner, name="Test project",
                                            privacy=models.Project.PUBLIC, uid="tested")
         data = auth.create_data(project=self.project, path=__file__)
-        analysis = auth.create_analysis(project=self.project, json_text='{}', template="")
+        analysis = auth.create_analysis(project=self.project, json_text='', template="# Add code here.")
         self.job = auth.create_job(analysis=analysis)
 
         self.proj_params = dict(uid=self.project.uid)
