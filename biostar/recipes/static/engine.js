@@ -1,48 +1,3 @@
-//function
-
-
-function update_job(data){
-    if (data.state_changed) {
-                    // TODO: Taking this type of styling out
-                    $('.job-container-' + job_uid).html(data.html);
-                    var job_item = $('.job-item-' + job_uid);
-                    job_item.transition('pulse');
-
-                }
-                if (data.is_running) {
-                    $('.loader[data-uid="' + job_uid + '"]').html('<div class="ui log message">\n' +
-                        '                     <span class="ui active small inline loader"></span>\n' +
-                        '                     <span>Running</span>\n' +
-                        '</div>');
-                    $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid + '/#log')
-
-                } else {
-                    $('.loader[data-uid="' + job_uid + '"]').html("");
-                    $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid)
-                }
-
-
-                //alert(data.redir)
-                imag.replaceWith(data.img_tmpl);
-
-                if (data.stdout) {
-                    var stdout = $('#stdout');
-                    //alert($('#stdout').html());
-                    stdout.text(data.stdout);
-                    //alert(data.stdout);
-                    //alert(stdout.html())
-                }
-
-                if (data.stderr) {
-                    var stderr = $('#stderr');
-                    stderr.text(data.stderr);
-
-                }
-                if (data.redir && $("#view").length) {
-                    window.location.replace(data.redir + "#flist");
-                    window.location.reload()
-                }
-}
 
 function check_jobs() {
 
@@ -181,13 +136,6 @@ function add_vars() {
     )
 }
 
-function remove_trigger() {
-    // Makes site messages dissapear.
-    $('.remove').delay(2000).slideUp(800, function () {
-        $(this).remove();
-    });
-}
-
 
 function set_source_dir() {
     let current_source = $('#current_source');
@@ -199,34 +147,29 @@ function set_source_dir() {
 }
 
 
-function copy_object(uid, project_uid, clipboard) {
-    let container = $('#item-' + uid);
+function copy_object(uid, clipboard, container) {
 
     $.ajax('/copy/object/',
         {
             type: 'POST',
             dataType: 'json',
-            data: {
-                'project_uid': project_uid,
-                'uid': uid,
-                'clipboard': clipboard
-            },
+            data: {'uid': uid, 'clipboard': clipboard},
 
             success: function (data) {
                 if (data.status === 'success') {
                     // Get the item container
                     container.transition({
                         animation: 'pulse', onComplete: function () {
-                            container.addClass('copied')
+                            container.addClass('copied item')
                         }
                     });
                     return
                 }
-                popover_message(container, data.msg, data.status, 2000)
+                popup_message(container, data.msg, data.status, 4000)
 
             },
             error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
+                error_message(container, xhr, status, text)
             }
 
 
@@ -468,17 +411,35 @@ $(document).ready(function () {
 
     $('.checkbox').checkbox();
 
-    $(this).on('click', '.copy-object', function () {
-        let uid = $(this).data('value');
-        let project_uid = $(this).data('project');
-        let clipboard = $(this).data('clipboard');
-        copy_object(uid, project_uid, clipboard);
-
+    $(this).on('click', '.data .copy.button', function () {
+        let data = $(this).closest('.data');
+        let uid = data.data('value');
+        copy_object(uid, "data", data);
     });
+
+    $(this).on('click', '.job .copy.button', function () {
+        let job = $(this).closest('.job');
+        let uid = job.data('value');
+        copy_object(uid, "job", job);
+    });
+
+    $(document).on('click', '.recipe .copy.button', function () {
+        let recipe = $(this).closest('.recipe');
+        let uid = recipe.data("value");
+        copy_object(uid, "recipe", recipe);
+    });
+
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();
+
+    $(this).on('click', '.copy.ajax', function () {
+        let path = $(this).data('path');
+        let rel_path = $(this).data('rel');
+        //alert(rel_path);
+        copy_file(path, rel_path)
+    });
 
     $(this).on('click', '.copy_file', function () {
         let path = $(this).data('path');

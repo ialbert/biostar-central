@@ -156,8 +156,6 @@ class Project(models.Model):
         self.lastedit_user = self.lastedit_user or self.owner
         self.lastedit_date = self.lastedit_date or now
 
-        self.set_counts(save=False)
-
         super(Project, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -177,19 +175,16 @@ class Project(models.Model):
         "Match consistency of data dir calls"
         return self.get_project_dir()
 
-    def set_counts(self, save=False):
+    def set_counts(self, save=True):
         """
         Set the data, recipe, and job count for this project
         """
         data_count = self.data_set.filter(deleted=False).count()
-        recipes_count = self.analysis_set.filter(deleted=False).count()
+        recipes_count = self.analysis_set.filter(project=self, deleted=False).count()
         job_count = self.job_set.filter(deleted=False).count()
 
-        self.data_count = data_count
-        self.recipes_count = recipes_count
-        self.jobs_count = job_count
-        if save:
-            self.save()
+        Project.objects.filter(id=self.id).update(data_count=data_count, recipes_count=recipes_count,
+                                                  jobs_count=job_count)
 
     @property
     def is_public(self):

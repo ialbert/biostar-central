@@ -465,6 +465,7 @@ def file_listing(root, limit=None):
     try:
         # Walk the filesystem and collect all files.
         for fpath, fdirs, fnames in os.walk(root, followlinks=True):
+
             paths.extend([join(fpath, fname) for fname in fnames])
             count += 1
             if limit and count >= limit:
@@ -500,7 +501,7 @@ def file_listing(root, limit=None):
     return paths
 
 
-@register.inclusion_tag('widgets/files_list.html', takes_context=True)
+@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
 def files_list(context, rel_path):
     # Limit to the first 100 files.
     root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))

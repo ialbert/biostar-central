@@ -297,24 +297,25 @@ def copy_object(request):
     """
     Add object uid or file path to sessions clipboard.
     """
-
-    object_uid = request.POST.get('uid', '')
-    project_uid = request.POST.get('project_uid', '')
+    mapper = {"data": (Data, COPIED_DATA),  "job": (Job, COPIED_RESULTS), "recipe": (Analysis, COPIED_RECIPES)}
+    uid = request.POST.get('uid', '')
     clipboard = request.POST.get('clipboard')
 
-    project = Project.objects.filter(uid=project_uid).first()
-    if not project:
-        return ajax_error("Project does not exist.")
+    obj, board = mapper.get(clipboard, (None, None))
+    obj = obj.objects.filter(uid=uid).first() if obj else None
+    if not obj:
+        return ajax_error("Object does not exist.")
 
+    project = obj.project
     is_readable = auth.is_readable(user=request.user, project=project)
 
     if not is_readable:
         return ajax_error('You do not have access to copy this object.')
 
     # Return current clipboard contents
-    copied_uids = auth.copy_uid(request=request, uid=object_uid, board=clipboard)
+    copied = auth.copy_uid(request=request, uid=uid, board=board)
 
-    return ajax_success(f"Copied. Clipboard contains :{len(copied_uids)} objects.")
+    return ajax_success(f"Copied. Clipboard contains :{len(copied)} objects.")
 
 
 def add_variables(request):

@@ -460,13 +460,6 @@ def delete_object(obj, request):
     if access:
         obj.deleted = not obj.deleted
         obj.save()
-        data_count = Data.objects.filter(deleted=False, project=obj.project).count()
-        recipes_count = Analysis.objects.filter(deleted=False, project=obj.project).count()
-        job_count = Job.objects.filter(deleted=False, project=obj.project).count()
-
-        Project.objects.filter(uid=obj.project.uid).update(data_count=data_count,
-                                                           recipes_count=recipes_count,
-                                                           jobs_count=job_count)
 
     return obj.deleted
 

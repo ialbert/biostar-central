@@ -94,7 +94,6 @@ def initial_recipe(project):
 @receiver(post_save, sender=Project)
 def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
-    # Ensure a project has at least one recipe on creation.
     if created:
         # Generate friendly uid
         uid = auth.generate_uuid(prefix="project", suffix=instance.id)
@@ -103,8 +102,10 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
         # Set the project directory
         instance.dir = instance.dir or join(settings.MEDIA_ROOT, "projects", f"{instance.uid}")
 
+        # Create the job directory if it does not exist.
         os.makedirs(instance.dir, exist_ok=True)
 
+        # Update project fields.
         Project.objects.filter(id=instance.id).update(uid=instance.uid, label=instance.label, dir=instance.dir)
         # Create a starter recipe if none exist
         if not instance.analysis_set.exists():
@@ -119,10 +120,13 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
         instance.uid = auth.generate_uuid(prefix="recipe", suffix=instance.id)
         Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
 
-    Project.objects.filter(id=instance.project.id).update(lastedit_date=now,
-                                                           lastedit_user=self.lastedit_user)
+    # Update the last edit date and user of project
+    user = instance.lastedit_user
+    Project.objects.filter(id=instance.project.id).update(lastedit_date=util.now(), lastedit_user=user)
+
     # Strip json text of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
+
     # Update information of all children belonging to this root.
     if instance.is_root:
         instance.update_children()
@@ -133,6 +137,9 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
 @receiver(post_save, sender=Job)
 def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
+
+    # Update the project count.
+    instance.project.set_counts()
 
     if created:
         # Generate friendly uid
@@ -147,12 +154,15 @@ def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
         # Update the information in db.
         Job.objects.filter(id=instance.id).update(uid=instance.uid, path=instance.path)
 
-    # Update the project count.
-    instance.project.set_counts()
-
 
 @receiver(post_save, sender=Data)
 def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
+
+    # Update the projects last edit user when a data is uploaded
+    Project.objects.filter(id=instance.project.id).update(lastedit_user=instance.lastedit_user,
+                                                          lastedit_date=util.now())
+    # Update the project count.
+    instance.project.set_counts()
 
     if created:
         # Generate friendly uid
@@ -165,8 +175,7 @@ def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
         instance.toc = join(settings.TOC_ROOT, f"toc-{instance.uid}.txt")
 
         # Build the data directory.
-        if not os.path.isdir(instance.dir):
-            os.makedirs(instance.dir)
+        os.makedirs(instance.dir, exist_ok=True)
 
         # Set the table of contents for the data
         if not os.path.isfile(instance.toc):
@@ -176,5 +185,4 @@ def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
         # Update the dir, toc, and uid.
         Data.objects.filter(id=instance.id).update(uid=instance.uid, dir=instance.dir, toc=instance.toc)
 
-    # Update the project count.
-    instance.project.set_counts()
+

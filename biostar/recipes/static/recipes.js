@@ -8,12 +8,10 @@ Must call setup.js first initialize additional functionality used here.
 
 function preview_interface() {
 
-
     return {
         // Key press used to trigger preview update
         'Shift-Enter': (cm) => {
             update_preview();
-            // Callback used to preview the interface.
             popover_message($("#interface"), "Updated the interface preview", "success", 1000);
         }
     };
@@ -63,7 +61,6 @@ function preview_template(fields) {
 
 
 function update_preview() {
-    // Default callback function
     let toml = $('#interface_editor').val();
     // Get the recipe id.
     var id = get_id();
@@ -244,6 +241,6 @@ $(document).ready(function () {
     update_panels();
 
     // Bind the events.
-    bind_events()
+    bind_events();
 
 });
