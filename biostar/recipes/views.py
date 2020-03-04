@@ -127,7 +127,7 @@ def project_users(request, uid):
     """
     Manage project users page
     """
-    project = Project.objects.filter(label=uid).first()
+    project = Project.objects.filter(uid=uid).first()
     # Get users that already have access to project.
     have_access = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
 

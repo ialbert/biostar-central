@@ -28,11 +28,13 @@ def init_dirs(sender, **kwargs):
 
     projects = Project.objects.all()
     for project in projects:
-        directory = join(settings.MEDIA_ROOT, "projects", f"{project.uid}")
-        Project.objects.filter(id=project.id).update(dir=directory)
+        project.directory = join(settings.MEDIA_ROOT, "projects", f"{project.uid}")
+        project.save()
 
     data = Data.objects.all()
-    for single in data:
-        directory = join(single.project.dir, f"{single.uid}")
-        toc = join(settings.TOC_ROOT, f"toc-{single.uid}.txt")
-        Data.objects.filter(id=single.project.id).update(dir=directory, toc=toc)
+    for datum in data:
+        datum.directory = join(datum.project.dir, f"{datum.uid}")
+        datum.toc = join(settings.TOC_ROOT, f"toc-{datum.uid}.txt")
+        data.save()
+
+        #Data.objects.filter(id=datum.project.id).update(dir=directory, toc=toc)
