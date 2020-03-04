@@ -549,8 +549,6 @@ class Analysis(models.Model):
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
-        # Clean json text of the 'settings' key unless it has the 'run' field.
-
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
@@ -776,13 +774,11 @@ class Job(models.Model):
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
         # Keep the existing path if the uid changes.
-        self.path = self.path or self.make_path()
+        #self.path = self.path or self.make_path()
 
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
-        if not os.path.isdir(self.path):
-            os.makedirs(self.path)
         self.project.set_counts(save=True)
 
         super(Job, self).save(*args, **kwargs)

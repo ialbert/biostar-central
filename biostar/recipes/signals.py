@@ -113,12 +113,13 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
 @receiver(post_save, sender=Analysis)
 def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
-    # Generate friendly uid
+
     if created:
+        # Generate friendly uid
         instance.uid = auth.generate_uuid(prefix="recipe", suffix=instance.id)
         Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
 
-    # Strip json of 'settings' parameter
+    # Strip json text of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
     # Update information of all children belonging to this root.
     if instance.is_root:
@@ -127,12 +128,21 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
 @receiver(post_save, sender=Job)
 def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
-    # Generate friendly uid
-    if created:
-        instance.uid = auth.generate_uuid(prefix="job", suffix=instance.id)
-        Job.objects.filter(id=instance.id).update(uid=instance.uid)
 
-        # Update the count and last edit date when job is created
+    if created:
+        # Generate friendly uid
+        instance.uid = auth.generate_uuid(prefix="job", suffix=instance.id)
+
+        # Generate the path based on the
+        instance.path = join(settings.MEDIA_ROOT, "jobs", f"{instance.uid}")
+
+        # Create the job directory if it does not exist.
+        os.makedirs(instance.path, exist_ok=True)
+
+        # Update the information in db.
+        Job.objects.filter(id=instance.id).update(uid=instance.uid, path=instance.path)
+
+        # Update the project count and last edit date when job is created
         job_count = Job.objects.filter(deleted=False, project=instance.project).count()
         Project.objects.filter(id=instance.project.id).update(lastedit_user=instance.owner,
                                                               lastedit_date=util.now(),

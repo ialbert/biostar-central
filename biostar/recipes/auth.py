@@ -435,7 +435,7 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     job = Job.objects.create(name=name, state=state, json_text=json_text,
                              security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
                              template=analysis.template, uid=uid)
-
+    print(job.path, "GOOOOO")
     # Fill the json data.
     json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
 
@@ -728,9 +728,7 @@ def get_or_create(fname, project, user=None, uid=None, name="", text=""):
 
     # Get the data if it exists.
     data = Data.objects.filter(uid=uid).first()
-
     if data:
-
         data.name = name or data.name
         data.text = text or data.text
         # Link this file to data and call save.
@@ -740,3 +738,4 @@ def get_or_create(fname, project, user=None, uid=None, name="", text=""):
     else:
         data = create_data(project=project, path=fname, user=user, name=name, text=text)
 
+    return
