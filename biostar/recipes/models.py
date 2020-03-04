@@ -773,8 +773,6 @@ class Job(models.Model):
         self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
-        # Keep the existing path if the uid changes.
-        #self.path = self.path or self.make_path()
 
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now

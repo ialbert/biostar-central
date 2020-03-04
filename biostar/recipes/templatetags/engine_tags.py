@@ -117,18 +117,22 @@ def find_fragments(source, target, nfrags=3, offset=25):
         # Get left side, right side, and center text of match
         left = match.start(0) - offset
         right = match.end(0) + offset
+
+        if left < len(source):
+            left = 0
+        if right > len(source):
+            right = len(source)
         text = match.group()
 
         fragments.append((left,  right, text))
 
     return fragments
 
-
 @register.filter
 def highlight(source, target):
 
     # Number of fragments to show
-    nfrags = 3
+    nfrags = 2
 
     # Character offset used to pad highlighted items
     offset = 25
@@ -139,12 +143,14 @@ def highlight(source, target):
 
     # Gather the fragments.
     fragments = find_fragments(source=source, target=target, nfrags=nfrags, offset=offset)
-
+    print(fragments)
     if fragments:
         result = [highlighter(source[start:end], txt) for start, end, txt in fragments]
         result = "...".join(result)
+        print(result, "DOO")
     else:
         result = source[:offset * 4]
+
 
     result += "..." if len(source) > len(result) else ""
 
