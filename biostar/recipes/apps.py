@@ -11,8 +11,6 @@ from biostar.accounts.apps import init_app
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
-
-
 class EngineConfig(AppConfig):
     name = 'biostar.recipes'
 
@@ -28,13 +26,11 @@ def init_dirs(sender, **kwargs):
 
     projects = Project.objects.all()
     for project in projects:
-        project.directory = join(settings.MEDIA_ROOT, "projects", f"{project.uid}")
+        project.dir = join(settings.MEDIA_ROOT, "projects", f"{project.uid}")
         project.save()
 
     data = Data.objects.all()
     for datum in data:
-        datum.directory = join(datum.project.dir, f"{datum.uid}")
+        datum.dir = join(datum.project.dir, f"{datum.uid}")
         datum.toc = join(settings.TOC_ROOT, f"toc-{datum.uid}.txt")
         data.save()
-
-        #Data.objects.filter(id=datum.project.id).update(dir=directory, toc=toc)
