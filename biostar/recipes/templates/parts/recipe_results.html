@@ -15,7 +15,7 @@
 
             {# Display the job summary #}
                 <div class="ui text container">
-                        <div class="meta">{{ job.analysis.summary|markdown }}</div>
+                        <div class="meta">{{ job.analysis.summary|markdown|safe|truncatechars_html:150 }}</div>
                 </div>
             {# Show the job state and time elapsed  #}
             <div class="extra">
