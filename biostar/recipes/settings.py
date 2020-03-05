@@ -6,11 +6,10 @@ DEBUG = True
 
 # Private key used to validate external logins
 LOGIN_PRIVATE_KEY = SECRET_KEY
-
+print(MULTI_THREAD, os.getenv("MULTI_THREAD"), )
+#1/0
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
-
-#MENU_BAR = "widgets/menubar.html"
 
 SEARCH_CHAR_MIN = 2
 

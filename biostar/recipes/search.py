@@ -14,8 +14,11 @@ logger = logging.getLogger('engine')
 
 
 def search(request):
+    """
+    Searches recipes
+    """
 
-    results = dict(analysis=[], project=[], data=[], job=[])
+    results = []
 
     # Search each model type by title, text, owner email/name.
     search_fields = ['name', 'text', 'owner__email', 'owner__profile__name']
@@ -23,22 +26,14 @@ def search(request):
     # Get the objects the user can access
     projects = get_project_list(user=request.user)
 
-    model_map = {"job": Job.objects.filter(project__in=projects),
-                 "analysis": Analysis.objects.filter(project__in=projects),
-                 "data": Data.objects.filter(project__in=projects),
-                 "project": projects}
+    recipes = Analysis.objects.filter(project__in=projects, root=None, deleted=False)
+    # Load query from GET request.
+    search_form = SearchForm(queryset=recipes, search_fields=search_fields,
+                             data=request.GET or {})
 
-    # Create a search form for each model type.
-    for mtype in results:
-
-        queryset = model_map[mtype]
-        # Load query from GET request.
-        search_form = SearchForm(queryset=queryset, search_fields=search_fields,
-                                 data=request.GET or {})
-
-        # Add search results to dict
-        if search_form.is_valid():
-            results[mtype] = search_form.get_queryset()
+    # Add search results to dict
+    if search_form.is_valid():
+        results = search_form.get_queryset()
 
     return results
 

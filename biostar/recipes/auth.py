@@ -3,6 +3,7 @@ import logging
 import uuid, copy
 import os
 import subprocess
+import random
 from mimetypes import guess_type
 
 import toml as hjson
@@ -16,10 +17,10 @@ from django.test import RequestFactory
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
-from . import models
-from . import util
-from .const import *
-from .models import Data, Analysis, Job, Project, Access
+from biostar.recipes import models
+from biostar.recipes import util
+from biostar.recipes.const import *
+from biostar.recipes.models import Data, Analysis, Job, Project, Access
 
 logger = logging.getLogger("engine")
 
@@ -28,8 +29,17 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
               Job.RUNNING: "running", Job.COMPLETED: "completed"
               }
 
+# Image extension types.
+IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
+
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
+
+
+def generate_uuid(prefix, suffix):
+    uid = f"{prefix}-{suffix}"
+
+    return uid
 
 
 def join(*args):
@@ -227,12 +237,13 @@ def get_project_list(user, include_public=True, include_deleted=False):
     else:
         query = Project.objects.filter(cond, deleted=False).distinct()
 
-    #query = query.prefetch_related('access_set', 'data_set', 'analysis_set', 'job_set').select_related('owner', 'owner__profile')
     return query
 
 
-def create_project(user, name, uid=None, summary='', text='', stream=None, label=None,
+def create_project(user, name="", uid=None, summary='', text='', stream=None, label=None,
                    privacy=Project.PRIVATE, update=False):
+
+    name = name or "My New Project"
     # Set or create the project uid.
     uid = uid or util.get_uuid(8)
 
@@ -253,8 +264,8 @@ def create_project(user, name, uid=None, summary='', text='', stream=None, label
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
         # Create a new project.
-        project = Project.objects.create(label=label,
-            name=name, uid=uid, text=text, owner=user, privacy=privacy)
+        project = Project.objects.create(label=label, name=name, uid=uid, text=text,
+                                         owner=user, privacy=privacy)
 
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
@@ -265,7 +276,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None, label
     return project
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='', rank=100,
+def create_analysis(project, json_text='', template='# code', uid=None, user=None, summary='', rank=100,
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
                     root=None):
 
@@ -289,9 +300,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text, rank=rank,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, root=root)
-
-        analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
-        analysis.save()
 
         # Update the projects lastedit user when a recipe is created
         Project.objects.filter(uid=analysis.project.uid).update(lastedit_user=user,
@@ -427,10 +435,9 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     uid = uid or util.get_uuid(8)
 
     # Create the job instance.
-    job = Job(name=name, state=state, json_text=json_text,
-              security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
-              template=analysis.template, uid=uid)
-
+    job = Job.objects.create(name=name, state=state, json_text=json_text,
+                             security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
+                             template=analysis.template, uid=uid)
     # Fill the json data.
     json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
 
@@ -441,14 +448,9 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     job.name = name
 
     if save:
+        # Save the updated json_text and name.
         job.save()
-
         # Update the projects lastedit user when a job is created
-        #job_count = project.job_set.filter(deleted=False).count()
-        job_count = Job.objects.filter(deleted=False, project=project).count()
-        Project.objects.filter(uid=project.uid).update(lastedit_user=owner,
-                                                       lastedit_date=now(),
-                                                       jobs_count=job_count)
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
@@ -461,13 +463,6 @@ def delete_object(obj, request):
     if access:
         obj.deleted = not obj.deleted
         obj.save()
-        data_count = Data.objects.filter(deleted=False, project=obj.project).count()
-        recipes_count = Analysis.objects.filter(deleted=False, project=obj.project).count()
-        job_count = Job.objects.filter(deleted=False, project=obj.project).count()
-
-        Project.objects.filter(uid=obj.project.uid).update(data_count=data_count,
-                                                           recipes_count=recipes_count,
-                                                           jobs_count=job_count)
 
     return obj.deleted
 
@@ -476,18 +471,27 @@ def listing(root):
     paths = []
 
     try:
-        paths = os.listdir(root)
+        # Walk the filesystem and collect all files.
+        for fpath, fdirs, fnames in os.walk(root, followlinks=True):
+            paths.extend([join(fpath, fname) for fname in fnames])
 
+        # Add more metadata to each path.
         def transform(path):
-            path = os.path.join(root, path)
+            path = os.path.abspath(os.path.join(root, path))
             tstamp = os.stat(path).st_mtime
             size = os.stat(path).st_size
-            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
-            is_dir = os.path.isdir(path)
-            basename = os.path.basename(path)
-            return rel_path, tstamp, size, is_dir, basename
+            rel_path = os.path.relpath(path, root)
+            elems = os.path.split(rel_path)
+            dir_names = elems[:-1]
 
-        paths = map(transform, paths)
+            if dir_names[0] == '':
+                dir_names = []
+            last_name = elems[-1]
+            dir_name = os.path.dirname(path)
+            is_image = last_name.split(".")[-1] in IMAGE_EXT
+            return rel_path, dir_names, last_name, tstamp, size, is_image, dir_name
+
+        paths = list(map(transform, paths))
         # Sort files by timestamps
         paths = sorted(paths, key=lambda x: x[1], reverse=True)
 
@@ -495,6 +499,7 @@ def listing(root):
         logging.error(exc)
 
     return paths
+
 
 def job_color(job):
     try:
@@ -543,21 +548,25 @@ def create_path(fname, data):
 
 def link_data(path, data):
     dest = create_path(fname=path, data=data)
-
     if not os.path.exists(dest):
         os.symlink(path, dest)
-
     return dest
 
 
 def is_readable(user, project):
     # Shareable projects can get to see the
 
+    if project.is_public:
+        return True
+
+    if user.is_anonymous:
+        return False
+
     query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
 
-    readable = Access.objects.filter(query, project=project, user=user)
+    access = Access.objects.filter(query, project=project, user=user)
 
-    return readable.exists()
+    return access.exists()
 
 
 def is_writable(user, project, owner=None):
@@ -715,3 +724,23 @@ def create_data(project, user=None, stream=None, path='', name='',
     logger.info(f"Added data type={data.type} name={data.name} pk={data.pk}")
 
     return data
+
+
+def get_or_create(fname, project, user=None, uid=None, name="", text=""):
+    """
+    Get or create a data object associated with a file.
+    """
+
+    # Get the data if it exists.
+    data = Data.objects.filter(uid=uid).first()
+    if data:
+        data.name = name or data.name
+        data.text = text or data.text
+        # Link this file to data and call save.
+        link_data(path=fname, data=data)
+        data.make_toc()
+        data.save()
+    else:
+        data = create_data(project=project, path=fname, user=user, name=name, text=text)
+
+    return

@@ -15,46 +15,15 @@
 {% elif query %}
 
 <div class="ui green searchblock segment" >
-<div class="ui center aligned vertical segment">
-     <h3> <i class="search icon"></i>Search Results</h3>
-</div>
 
 <div class="ui relaxed divided list">
 
-    {% for project in results.project %}
+    {% for recipe in results %}
         <div class="item">
-
-            <b>Project:</b> <a href="{{project.url}}">{{project.name |highlight:query |safe }}</a>
-            <div class="muted">
-                {{project.text|highlight:query }}
-            </div>
-        </div>
-    {% endfor %}
-
-    {% for data in results.data %}
-        <div class="item">
-            <b>Data:</b> <a href="{{data.url}}">{{data.name|highlight:query |safe}}</a>
-            <div class="muted">
-                {{data.text|highlight:query }}
-            </div>
-        </div>
-    {% endfor %}
-
-
-    {% for recipe in results.analysis %}
-        <div class="item">
-            <b>Recipe:</b> <a href="{{recipe.url}}">{{recipe.name|highlight:query |safe}}</a>
-            <div class="muted">
-                {{recipe.text|highlight:query }}
-            </div>
-        </div>
-    {% endfor %}
-
-    {% for job in results.job %}
-        <div class="item">
-            <b>Job:</b> <a href="{{job.url}}">{{job.name|highlight:query |safe}}</a>
-            <div class="muted">
-                {{job.text|highlight:query }}
+            <img class="ui avatar image" src="{% img recipe %}">
+            <div class="content">
+                 <div class="ui header"><a href="{{recipe.url}}">{{recipe.name|highlight:query |safe}}</a></div>
+                 <div class="description">{{recipe.text|highlight:query|safe }}</div>
             </div>
         </div>
     {% endfor %}

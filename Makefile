@@ -58,6 +58,7 @@ recipes:
 	$(eval SUPERVISOR_NAME := recipes)
 	$(eval ENGINE_DIR := /export/www/biostar-central)
 
+    # Set the settings variables.
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
@@ -123,9 +124,12 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	#python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage html --skip-covered
+
+	#coverage run manage.py test --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
+	#coverage html --skip-covered
+	#fi
 
 test_all:
 	#python manage.py test --settings biostar.test.test_settings -v 2 --failfast
@@ -175,7 +179,7 @@ dump:
 	@cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
 	@ls -1 export/database/*.json
 
-uwsgi:
+uwsgi: init
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo UWSGI_INI=${UWSGI_INI}
 	uwsgi --ini ${UWSGI_INI}

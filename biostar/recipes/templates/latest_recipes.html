@@ -1,0 +1,19 @@
+{% extends "base_listing.html" %}
+{% load engine_tags %}
+{% load static %}
+
+{% block headtitle %}
+    Latest Recipes
+{% endblock %}
+
+{% block title %}
+    <i class="list icon"></i> Latest recipes
+{% endblock %}
+
+{% block content %}
+      <div class="ui divided link items">
+    {% for recipe in recipes %}
+        {% recipe_details recipe %}
+    {% endfor %}
+      </div>
+{% endblock %}

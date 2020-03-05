@@ -1,4 +1,4 @@
-{% extends "base_content.html" %}
+{% extends "base_listing.html" %}
 {% load engine_tags %}
 {% load static %}
 
@@ -6,108 +6,65 @@
     Bioinformatics Recipes
 {% endblock %}
 
+{% block title %}
+    <i class="barcode icon"></i> Welcome to Bioinformatics Recipes
+{% endblock %}
 
-{% block body %}
-    <div class="ui center aligned basic vertical segment">
-        <div class="ui large header">
-            <i class="barcode icon"></i> Welcome to Bioinformatics Recipes
-        </div>
+{% block content %}
 
-    </div>
+    <div class="ui grid">
+        <div class="ten wide column home">
+            <div class="ui relaxed divided list questions">
 
-    {% show_messages messages %}
-
-
-    <div class="ui large vertical segment">
-
-        <div class="ui grid">
-            <div class="ten wide column">
-                <div class="ui relaxed divided list questions">
-
-                    <div class="item padme">
-                        <div class="subheader">What is a recipe?</div>
-                        <div class="description">
-                            A "bioinformatics recipe" is a collection of commands used to perform a
-                            bioinformatics data analysis task. A recipe can be thought
-                            of as a <em>bioinformatics workflow</em> or a <em>bioinformatics pipeline</em>.
-                        </div>
-                    </div>
-
-                    <div class="item padme">
-                        <div class="subheader">What types recipes can I find here?</div>
-                        <div class="description">
-                            Most recipes demonstrate typical use cases for various bioinformatics tools.
-                            Many recipes have been developed to support bioinformatics education.
-                        </div>
-                    </div>
-
-                    <div class="item padme">
-                        <div class="subheader">How are recipes organized?</div>
-                        <div class="description">
-                            The website is project based. Each project is a collection of recipes
-                            and results. Use the search box on top to find what you are looking for.
-                        </div>
-                    </div>
-
-                    <div class="item padme ">
-                        <div class="subheader">Can I run recipes on my computer?</div>
-                        <div class="description">
-                            Yes! All recipes can be run at the command line on your system. Newcomers to bioinformatics
-                            might want to consult the <a href="https://www.biostarhandbook.com"><i
-                        class="book icon"></i>Biostar
-                            Handbook</a> for more details.
-                        </div>
-                    </div>
-
-                    <div class="item padme ">
-                        <div class="subheader">Where can I learn more of how the site works?</div>
-                        <div class="description">
-                            We maintain the site documentation at <a href="https://bioinformatics-recipes.readthedocs.io/"><i
-                        class="book icon"></i>Biostar
-                            Recipes: Read The Docs</a>.
-                        </div>
-                    </div>
-
-
-
-
-                </div>
-            </div>
-
-            <div class="six wide center column">
-                <div class="ui basic segment">
-                    <div class="ui header"> &nbsp;</div>
-                    <div class="ui center aligned grid">
-                        <div class="ui row">
-
-                            <img class="ui mytiny rounded fancy image"
-                                 src="{% static 'images/icons/13.jpg' %}">
-                            <img class="ui mytiny rounded fancy image"
-                                 src="{% static 'images/icons/12.jpg' %}">
-                            <img class="ui mytiny rounded fancy image"
-                                 src="{% static 'images/icons/15.png' %}">
-                            <br>
-                            <img class="ui mytiny rounded fancy image"
-                                 src="{% static 'images/icons/10.jpg' %}">
-                            <img class="ui mytiny rounded fancy image"
-                                 src="{% static 'images/icons/11.jpg' %}">
-                            <img class="ui mytiny rounded fancy image"
-                                 src="{% static 'images/icons/5.jpg' %}">
-
-                            <br>
-                            <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/2.jpg' %}">
-                            <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/3.jpg' %}">
-                            <img class="ui mytiny rounded fancy image" src="{% static 'images/icons/4.jpg' %}">
-
-                        </div>
-
+                <div class="item padme">
+                    <div class="subheader">What is a recipe?</div>
+                    <div class="description">
+                        A "bioinformatics recipe" is a collection of commands used to perform a
+                        bioinformatics data analysis task. A recipe can be thought
+                        of as a <em>bioinformatics workflow</em> or a <em>bioinformatics pipeline</em>.
                     </div>
                 </div>
-            </div>
 
+                <div class="item padme">
+                    <div class="subheader">What types of recipes can I find here?</div>
+                    <div class="description">
+                        Most recipes demonstrate typical use cases for various bioinformatics tools.
+                        Many recipes have been developed to support bioinformatics education.
+                    </div>
+                </div>
+
+                <div class="item padme ">
+                    <div class="subheader">Can I run recipes on my computer?</div>
+                    <div class="description">
+                        Yes! All recipes are designed to run both through this website and at the command line on
+                        your computer.
+                    </div>
+                </div>
+
+                <div class="item padme ">
+                    <div class="subheader">Where can I learn more of how the site works?</div>
+                    <div class="description">
+                        Site documentation at <a
+                    href="https://bioinformatics-recipes.readthedocs.io/"><i
+                    class="book icon"></i>Biostar
+                        Recipes: Read The Docs</a>.
+                    </div>
+                </div>
+
+
+            </div>
         </div>
 
+        <div class="six wide center column">
+            <div class="ui center aligned basic segment">
+                <a href="{% url "latest_recipes" %}">
+                    <img class="ui medium rounded  image"
+                         src="{% static 'images/screenshot.jpg' %}">
+                </a>
+            </div>
+        </div>
     </div>
 
+    </div>
 
 {% endblock %}

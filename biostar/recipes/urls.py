@@ -14,19 +14,14 @@ urlpatterns = [
     # Site
     path(r'site/admin/', views.site_admin, name='site_admin'),
     path(r'site/bin/', views.recycle_bin, name='recycle_bin'),
-    path(r'about/', views.about, name='about'),
 
     # Ajax calls
     path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),
-    #path(r'inplace/recipe/form/<str:uid>/', ajax.ajax_inplace_form, name='ajax_inplace_form'),
-    path(r'add/recipe/fields/', ajax.add_to_interface, name="add_recipe_fields"),
-    path(r'snippet/code/', ajax.snippet_code, name="snippet_code"),
+
     path(r'add/vars/', ajax.add_variables, name="add_vars"),
-    path(r'snippet/form/', ajax.snippet_form, name="snippet_form"),
-    path(r'create/snippet/', ajax.create_snippet, name="create_snippet"),
     path(r'preview/template/', ajax.preview_template, name="preview_template"),
     path(r'preview/json/', ajax.preview_json, name="preview_json"),
-    path(r'create/snippet/type/', ajax.create_snippet_type, name="create_snippet_type"),
+
     path(r'toggle/delete/', ajax.toggle_delete, name="toggle_delete"),
     path(r'copy/object/', ajax.copy_object, name="copy_object"),
     path(r'manage/access/', ajax.manage_access, name="manage_access"),
@@ -34,8 +29,12 @@ urlpatterns = [
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
     path(r'project/create/', views.project_create, name='project_create'),
-    path(r'project/list/', views.project_list, name='project_list'),
 
+    path(r'project/list/public/', views.project_list_public, name='project_list_public'),
+    path(r'project/list/private/', views.project_list_private, name='project_list_private'),
+
+    # This should not be needed/
+    path(r'project/list/', views.project_list_public, name='project_list'),
 
     path(r'project/view/<str:uid>/', views.project_info, name='project_view'),
 
@@ -43,9 +42,7 @@ urlpatterns = [
 
     path(r'project/edit/<str:uid>/', views.project_edit, name='project_edit'),
     path(r'project/info/<str:uid>/', views.project_info, name='project_info'),
-    path(r'project/list/private/', views.project_list_private, name='project_list_private'),
-    path(r'project/list/public/', views.project_list_public, name='project_list_public'),
-    path(r'project/list/', views.project_list, name='project_list'),
+
     path(r'project/delete/<str:uid>/', views.project_delete, name='project_delete'),
     re_path(r'project/share/(?P<token>[-\w]+)/', views.project_share, name='project_share'),
 
@@ -60,12 +57,23 @@ urlpatterns = [
     path(r'data/delete/<str:uid>/', views.data_delete, name='data_delete'),
 
     # Recipes
-    path(r'<str:label>/recipes/', views.recipe_listing, name='recipe_listing'),
+    path(r'project/<str:label>/recipes/', views.recipe_listing, name='recipe_listing'),
     path(r'recipe/list/<str:uid>/', views.recipe_list, name='recipe_list'),
+
+    path(r'latest/recipes/', views.latest_recipes, name='latest_recipes'),
+
 
     path(r'recipe/view/<str:uid>/', views.recipe_view, name='recipe_view'),
     path(r'recipe/run/<str:uid>/', views.recipe_run, name='recipe_run'),
-    path(r'recipe/edit/<str:uid>/', views.recipe_view, name='recipe_edit'),
+
+    # Returns a rendered html fragment.
+    path(r'get/part/<str:name>/<int:id>/', views.get_part, name='get_part'),
+
+    path(r'ajax/recipe/edit/<int:id>/', ajax.ajax_edit, name='ajax_recipe_edit'),
+
+    # Renders an HTML form field base on the TOML input.
+    path(r'ajax/field/render/', ajax.field_render, name='ajax_field_render'),
+
 
     path(r'recipe/paste/<str:uid>/', views.recipe_paste, name='recipe_paste'),
     path(r'recipe/delete/<str:uid>/', views.recipe_delete, name='recipe_delete'),
@@ -73,8 +81,7 @@ urlpatterns = [
     path(r'recipe/create/<str:uid>/', views.recipe_create, name='recipe_create'),
 
     # File listings
-    re_path(r'file/list/(?P<path>.+)$', views.import_files, name='file_list'),
-    path(r'root/list/', views.import_files, name='root_list'),
+    path(r'file/list/', views.import_files, name='root_list'),
     path(r'file/copy/', ajax.file_copy, name='file_copy'),
 
     # Actions

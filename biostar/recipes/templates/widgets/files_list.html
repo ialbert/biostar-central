@@ -2,24 +2,20 @@
 
 {% if paths %}
 
-
     <div class="ui relaxed divided large list">
-        {% for  rel_path, tstamp, size, is_dir, basename in paths %}
+        {% for  rel_path, dir_names, last_name, tstamp, size, is_image, dir_name in paths %}
 
-            <div class="file item" >
+            <div class="file item" data-value="{{ rel_path }}">
+
                 <span>
-                {% if is_dir %}
-                    <a href="{% url 'file_list' rel_path %}">{{ basename }}/</a>
-                {% else %}
-                    {{ basename }}
-                {% endif %}
+                    {% for dname in dir_names %}
+                        <span class="dirname"> {{ dname }} </span> /
+                    {% endfor %}
+                    {{ last_name }}
                 </span>
+
                 {% if user.is_authenticated %}
-
-                    <a data-path="{{ rel_path }}" data-rel="{{ rel_path }}" class="ui small right floated label copy_file"> LINK
-                        <span class="copy_msg" data-rel="{{ rel_path }}"></span>
-                    </a>
-
+                    <a class="ui small right floated label copy"> LINK</a>
                 {% endif %}
 
                 <span class="ui right floated small label">{{ size|filesizeformat }}</span>

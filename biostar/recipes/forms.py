@@ -20,6 +20,7 @@ from biostar.accounts.models import User, Profile
 from . import models, auth, factory, util
 from .const import *
 from .models import Project, Data, Analysis, Job, Access
+from pprint import pprint
 
 # Share the logger with models.
 logger = models.logger
@@ -187,7 +188,7 @@ class ProjectForm(forms.ModelForm):
         text = self.cleaned_data["text"]
         stream = self.cleaned_data["image"]
         label = self.cleaned_data['label']
-        print(label)
+        #print(label)
         project = auth.create_project(user=owner, label=label, name=name, text=text, stream=stream)
         project.save()
 
@@ -333,29 +334,28 @@ class RecipeForm(forms.ModelForm):
     Fields that are not submitted are set to existing values.
     """
     image = forms.ImageField(required=False)
-    uid = forms.CharField(max_length=32, validators=[validate_slug], required=True)
+    uid = forms.CharField(max_length=32, validators=[validate_slug], required=False)
     json_text = forms.CharField(max_length=MAX_TEXT_LEN, initial="", required=False)
-    template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# Code goes here", required=True)
-    name = forms.CharField(max_length=MAX_NAME_LEN, required=True)
-    rank = forms.FloatField(required=True, initial=100)
-    text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=True)
+    template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# code", required=False)
+    name = forms.CharField(max_length=MAX_NAME_LEN, required=False)
+    rank = forms.FloatField(required=False, initial=100)
+    text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=False)
 
-    def __init__(self, user, creating=False, project=None, *args, **kwargs):
-        self.creating = creating
+    def __init__(self, user,  project=None, *args, **kwargs):
         self.user = user
         self.project = project
 
         super().__init__(*args, **kwargs)
 
         # Admins get an added field
-        if self.user.is_superuser:
-            authorized = self.instance.runnable()
-            self.fields['authorized'] = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'ui checkbox'}),
-                                                           initial=authorized, required=False)
-
+        if 1:
+            authorized = self.instance.security
+            choices = Analysis.SECURITY_STATES
+            self.fields['security'] = forms.IntegerField(widget=forms.Select(attrs={'class': 'ui dropdown'}, choices=choices),
+                                                           initial=authorized, required=False,)
     class Meta:
         model = Analysis
-        fields = ["name", "rank", "text", "uid", "json_text", "template"]
+        fields = ["name", "rank", "text", "uid", "json_text", "template", "security" ]
 
     def get_initial(self):
         """
@@ -364,14 +364,7 @@ class RecipeForm(forms.ModelForm):
         initial = super(RecipeForm, self).get_initial()
         for field in self.Meta.fields:
             initial['field'] = getattr(self.instance, field)
-
         return initial
-
-    def validate_readable(self):
-
-        is_readable = auth.is_readable(user=self.user, project=self.project)
-        if not is_readable:
-            raise forms.ValidationError('You need read access to the project create a recipe.')
 
     def validate_writable(self):
         # Check write access when editing
@@ -385,34 +378,16 @@ class RecipeForm(forms.ModelForm):
         """
         cleaned_data = super(RecipeForm, self).clean()
 
+        # Anonymoys users cannot edit.
         if self.user.is_anonymous:
             raise forms.ValidationError('You need to be logged in.')
 
-        if self.creating:
-            # Check if recipe is readable to user
-            self.validate_readable()
-        else:
-            # Check to see if the
-            self.validate_writable()
+        # Check to see if the recipe is writable.
+        self.validate_writable()
 
-        # Fill in not submitted fields.
+        # Fill with default values.
         for field in self.Meta.fields:
-            cleaned_data['field'] = getattr(self.instance, field)
-
-        template = self.cleaned_data.get('template') or self.instance.template
-        json_text = self.cleaned_data.get('json_text') or self.instance.json_text
-
-        # Shortcuts to security conditions.
-        template_changed = (template != self.instance.template)
-        json_changed = (json_text != self.instance.json_text)
-
-        not_superuser = not self.user.is_superuser
-
-        # Update the recipe security when template or JSON have been
-        # touched by non admin users.
-        if (json_changed or template_changed) and not_superuser:
-            self.instance.security = Analysis.NOT_AUTHORIZED
-            self.instance.save()
+            cleaned_data[field] = cleaned_data.get(field) or getattr(self.instance, field)
 
         return cleaned_data
 
@@ -420,7 +395,6 @@ class RecipeForm(forms.ModelForm):
         cleaned_data = super(RecipeForm, self).clean()
         image = cleaned_data.get('image')
         check_size(fobj=image)
-
         return image
 
     def clean_json_text(self):
@@ -435,25 +409,37 @@ class RecipeForm(forms.ModelForm):
 
         return json_text
 
-    def clean_uid(self):
-        cleaned_data = super(RecipeForm, self).clean()
-        uid = cleaned_data.get('uid')
+    def clean_security(self):
 
-        if self.creating:
-            # Check if uid already exists when creating a recipe.
-            recipe = Analysis.objects.filter(uid=uid).first()
-            if recipe:
-                raise forms.ValidationError("Recipe uid already exists.")
-        return uid
+        cleaned_data = super(RecipeForm, self).clean()
+
+        # User is not superuser.
+        template = cleaned_data.get('template') or self.instance.template
+        json_text = cleaned_data.get('json_text') or self.instance.json_text
+
+        # Shortcuts to security conditions.
+        template_changed = (template != self.instance.template)
+        json_changed = (json_text != self.instance.json_text)
+
+        # User is not superuser.
+        superuser = self.user.is_superuser
+
+        # The current state of authorization
+        security = cleaned_data['security']
+
+        # Recipe becomes un-authorized when the template or JSON are changed.
+        if superuser:
+            security = security
+        elif (json_changed or template_changed):
+            security = Analysis.NOT_AUTHORIZED
+        else:
+            security = self.instance.security
+
+        return security
 
     def save(self, commit=True):
-        authorized = self.cleaned_data.get("authorized")
         self.instance.lastedit_date = now()
         self.instance.lastedit_user = self.user
-        Project.objects.filter(uid=self.instance.project.uid).update(lastedit_date=now(),
-                                                                     lastedit_user=self.user)
-        if self.user.is_superuser:
-            self.instance.security = Analysis.AUTHORIZED if authorized else Analysis.NOT_AUTHORIZED
 
         image = self.cleaned_data['image']
         self.instance.image = image or self.instance.image
@@ -487,7 +473,7 @@ class RecipeInterface(forms.Form):
     # The name of results when running the recipe.
     # name = forms.CharField(max_length=256, label="Name", help_text="This is how you can identify the run.")
 
-    def __init__(self, request, json_data, analysis=None, project=None, add_captcha=True, *args, **kwargs):
+    def __init__(self, request, json_data, analysis=None, project=None,add_captcha=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # The json data determines what fields does the form have.
@@ -508,9 +494,6 @@ class RecipeInterface(forms.Form):
             # Insert only valid fields.
             if field:
                 self.fields[name] = field
-
-        if 0:
-            add_captcha_field(request=request, fields=self.fields)
 
     def clean(self):
 

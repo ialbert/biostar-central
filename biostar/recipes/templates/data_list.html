@@ -6,8 +6,6 @@
 {% endblock %}
 
 
-
-
 {% block ribbon %}
 
     {% if user.is_authenticated %}
@@ -20,7 +18,7 @@
 
 {% block contain %}
 
-    <div class="ui bottom attached segment">
+    <div class="ui bottom attached segment" >
         {% paste project=project current=data_paste_targets %}
 
         {% show_messages messages %}
@@ -30,9 +28,9 @@
 
                 {% for data in data_list %}
 
-                    <div class="item job toggle-item-{{ data.uid }}" id="item-{{ data.uid }}">
-                        <div class="content">
+                    <div class="item data" data-value="{{ data.uid }}" >
 
+                        <div class="content">
                             <a class="subheader" href="{% url 'data_view' data.uid %}">
                                 {% if job.deleted %}Deleted: {% endif %}
                                 <i class="file icon"></i>{{ data.name }}
@@ -41,41 +39,35 @@
                                 <div class="ui small labels">
                                     {% size_label data %}
                                     {% type_label data %}
-                                    {% state_label data error_only=True %}
                                     {% created_by date=data.lastedit_date user=data.owner prefix='created' %}
                                 </div>
                             </div>
                             <div class="meta">{{ data.summary|safe }}</div>
 
                         </div>
+
                         {% if request.user.is_authenticated %}
 
-
-                            <div class="ui tiny buttons">
-                                <a class="ui right rerun floated button copy-object" data-value="{{ data.uid }}"
-                                   style="font-size: x-small;"
-                                   data-project="{{ data.project.uid }}" data-clipboard="{{ copied_data }}">
+                            <div class="ui mini buttons">
+                                <a class="ui right floated button copy">
                                     <i class="copy icon"></i>Copy
                                 </a>
-                                <div class="or" style="font-size: x-small;"></div>
-
-                                <a class="ui right floated button rerun toggle_delete" data-value="{{ data.uid }}"
-                                   data-type="data" data-count='data_count' style="font-size: x-small;">
+                                <div class="or"></div>
+                                <a class="ui right floated button delete">
                                     <i class="trash icon"></i> <span class="fitme">Delete</span>
                                 </a>
-
                             </div>
 
                         {% endif %}
 
                     </div>
+
                 {% empty %}
                     <div class="item ">
                         <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
                             contain data.
                         </div>
                     </div>
-
                 {% endfor %}
 
             </div>

@@ -12,6 +12,7 @@ from django.db.models import Q, Count
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
@@ -43,34 +44,15 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-
 @user_passes_test(lambda u: u.is_superuser)
 def site_admin(request):
     '''
     Administrative view. Lists the admin project and job.
     '''
     jobs = Job.objects.order_by('-pk')[:200]
-    context = dict(jobs=jobs)
+    context = dict(jobs=jobs, active="admin")
 
     return render(request, 'admin_index.html', context=context)
-
-
-def about(request):
-    """
-    Added an about page with the
-    """
-
-    # Get the docs
-    try:
-        recipe_docs = os.path.join(settings.DOCS_ROOT, 'recipes', 'recipes.md')
-        recipe_docs = open(recipe_docs, 'r').read()
-        html = mistune.markdown(recipe_docs, escape=False)
-    except Exception as exc:
-        logger.error(f'Error loading about page: {exc}')
-        html = "About page"
-    html = mark_safe(html)
-    context = dict(html=html)
-    return render(request, 'about.html', context=context)
 
 
 @login_required
@@ -127,13 +109,13 @@ def clear_clipboard(request, uid):
 
 def search_bar(request):
     results = search.search(request=request)
+
     # Indicate to users that minimum character needs to be met.
     query_lenth = len(request.GET.get("q", "").strip())
     min_length = query_lenth > settings.SEARCH_CHAR_MIN
 
     # Indicate to users that there are no results for search.
-    current_results = len([inner for outer in results.values() for inner in outer])
-    no_results = min_length and current_results == 0
+    no_results = min_length and len(results) == 0
 
     context = dict(results=results, query=request.GET.get("q", "").strip(),
                    min_length=min_length, no_results=no_results)
@@ -141,20 +123,12 @@ def search_bar(request):
     return render(request, "search.html", context)
 
 
-def data_download(request, uid):
-    """
-    Download data of given uid.
-    """
-
-    return
-
-
 @write_access(type=Project, fallback_view="data_list")
 def project_users(request, uid):
     """
     Manage project users page
     """
-    project = Project.objects.filter(label=uid).first()
+    project = Project.objects.filter(uid=uid).first()
     # Get users that already have access to project.
     have_access = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
 
@@ -199,46 +173,41 @@ def project_info(request, uid):
 
     return render(request, "project_info.html", context)
 
+def project_list_public(request):
+    return project_list(request, target='public')
 
 def project_list_private(request):
-    """Only list private projects belonging to a user."""
+    return project_list(request, target='private')
 
-    projects = auth.get_project_list(user=request.user, include_public=False)
+def project_list(request, target=None):
 
-    empty_msg = "No projects found."
-    if request.user.is_anonymous:
-        projects = []
-        empty_msg = mark_safe(f"You need to <a href={reverse('login')}> log in</a> to view your projects.")
+    if target=='private':
+        active = "private"
+        projects = auth.get_project_list(user=request.user, include_public=False)
     else:
-        projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
+        projects = auth.get_project_list(user=request.user)
+        projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
+        active = "public"
 
-    context = dict(projects=projects, empty_msg=empty_msg, active="projects", icon='briefcase',
-                   title='Private Projects',
-                   private='active')
-
-    return render(request, "project_list.html", context)
-
-
-def project_list_public(request):
-    """Only list public projects."""
-
-    projects = auth.get_project_list(user=request.user)
-    # Exclude private projects
-    projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
 
-    context = dict(projects=projects, active="projects", icon='list', title='Public Projects',
-                   public='active', empty_msg="No projects found.")
+    context = dict(projects=projects, active=active)
 
-    return render(request, "project_list.html", context)
+    return render(request, "project_list.html", context=context)
 
+def latest_recipes(request):
+    """
 
-def project_list(request):
-    if request.user.is_authenticated:
-        # Return private projects when user is logged in.
-        return project_list_private(request)
-    else:
-        return project_list_public(request)
+    """
+
+    # Select public recipes
+    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, root=None, deleted=False).order_by("-id")[:50]
+
+    recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
+
+    context = dict(recipes=recipes, active="latest_recipes")
+
+    return render(request, "latest_recipes.html", context=context)
 
 
 @read_access(type=Project)
@@ -345,7 +314,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
 
     # Build the context for the project.
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   active=active, recipe_filter=recipe_filter, write_access=write_access)
+                   active=active, recipe_filter=recipe_filter, write_access=write_access, rerun_btn=True)
 
     # Compute counts for the project.
     counts = get_counts(project)
@@ -385,23 +354,13 @@ def project_create(request):
     View used create an empty project belonging to request.user.
     Input is validated with a form and actual creation is routed through auth.create_project.
     """
-    initial = dict(name="Project Name", text="project description", summary="project summary")
-    form = forms.ProjectForm(initial=initial, request=request, create=True)
-
-    if request.method == "POST":
-        # create new projects here ( just populates metadata ).
-        form = forms.ProjectForm(request=request, data=request.POST, create=True, files=request.FILES)
-        if form.is_valid():
-            project = form.custom_save(owner=request.user)
-            print(project, "LOLOLLLL", project.label)
-
-            return redirect(reverse("project_viewing", kwargs=dict(label=project.label)))
-
-    context = dict(form=form)
-    return render(request, "project_create.html", context=context)
+    user = request.user
+    project = auth.create_project(user=user)
+    messages.success(request, "Create a new project.")
+    return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
 
-@read_access(type=Data)
+@read_access(type=Data, fallback_view="data_view", login_required=True)
 def data_copy(request, uid):
     data = Data.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
@@ -411,17 +370,17 @@ def data_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(type=Analysis)
+@read_access(type=Analysis, fallback_view="recipe_view", login_required=True)
 def recipe_copy(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
     board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.COPIED_RECIPES)
-    messages.success(request, f"Copied recipe, you currently have  {len(set(board_items))} copied.")
+
     return redirect(next_url)
 
 
-@read_access(type=Job)
+@read_access(type=Job, fallback_view="job_view", login_required=True)
 def job_copy(request, uid):
     job = Job.objects.filter(uid=uid).first()
     next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
@@ -431,7 +390,7 @@ def job_copy(request, uid):
     return redirect(next_url)
 
 
-@read_access(type=Data)
+@read_access(type=Data, fallback_view="data_view", login_required=True)
 def data_file_copy(request, uid, path):
     # Get the root data where the file exists
     data = Data.objects.filter(uid=uid).first()
@@ -442,7 +401,7 @@ def data_file_copy(request, uid, path):
     return redirect(reverse("data_view", kwargs=dict(uid=uid)))
 
 
-@read_access(type=Job)
+@read_access(type=Job, fallback_view="job_view", login_required=True)
 def job_file_copy(request, uid, path):
     # Get the root data where the file exists
     job = Job.objects.filter(uid=uid).first()
@@ -619,7 +578,6 @@ def data_upload(request, uid):
     return render(request, 'data_upload.html', context)
 
 
-
 @read_access(type=Analysis)
 def recipe_code_download(request, uid):
     """
@@ -655,7 +613,6 @@ def recipe_run(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    project = recipe.project
 
     # Form submission.
     if request.method == "POST":
@@ -665,22 +622,16 @@ def recipe_run(request, uid):
         if form.is_valid():
             # Create the job from the recipe and incoming json data.
             job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data)
-
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
+            url = reverse("recipe_view", kwargs=dict(uid=recipe.uid)) + "#results"
+            return redirect(url)
+        else:
+            messages.error(request, form.errors)
 
-            return redirect(reverse("job_view", kwargs=dict(uid=job.uid)))
-    else:
-        initial = dict(name=f"Results for: {recipe.name}")
-        form = forms.RecipeInterface(request=request, analysis=recipe,
-                                     json_data=recipe.json_data, initial=initial)
+    url = reverse("recipe_view", kwargs=dict(uid=recipe.uid)) + "#run"
 
-    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
-
-    context = dict(project=project, recipe=recipe, form=form, is_runnable=is_runnable, activate='Run Recipe')
-    context.update(get_counts(project))
-
-    return render(request, 'recipe_run.html', context)
+    return redirect(url)
 
 
 @read_access(type=Job)
@@ -707,92 +658,112 @@ def job_rerun(request, uid):
     # Spool via UWSGI or run it synchronously.
     tasks.execute_job.spool(job_id=job.id)
 
-    return redirect(reverse('job_list', kwargs=dict(uid=job.project.uid)))
+    url = reverse('recipe_view', kwargs=dict(uid=job.analysis.uid)) + "#results"
+    return redirect(url)
 
 
+def get_part(request, name, id):
+    """
+    Return a template by name and with uid rendering
+    """
+
+    user = request.user
+
+    # The recipe that needs to be edited.
+    recipe = Analysis.objects.filter(id=id).annotate(
+        job_count=Count("job", filter=Q(job__deleted=False))
+    ).first()
+
+    project = recipe.project
+
+    if not auth.is_readable(project=project, user=user):
+        message = str("Recipe is not readable by current user")
+        return HttpResponse(message)
+
+    # Fills in project level counts (results, data and recipe counts).
+    counts = get_counts(recipe.project)
+
+    if name == "run":
+        initial = dict(name=f"Results for: {recipe.name}")
+
+        form = forms.RecipeInterface(request=request, analysis=recipe,
+                                     json_data=recipe.json_data, initial=initial)
+    else:
+        # Initial form loading via a GET request.
+        form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
+
+    remap = dict(
+        info="parts/recipe_info.html",
+        code="parts/recipe_code.html",
+        interface="parts/recipe_interface.html",
+        run="parts/recipe_run.html",
+        results="parts/recipe_results.html",
+    )
+
+    name = remap.get(name, "parts/placeholder.html")
+
+    # Check to see if this recipe is runnable by the user.
+    is_runnable = auth.authorize_run(user=user, recipe=recipe)
+
+    # Get the list of jobs required for recipe results
+    jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
+    context = dict(recipe=recipe, form=form, is_runnable=is_runnable, job_list=jobs, rerun_btn=False)
+    context.update(counts)
+
+    html = render(request, name, context=context)
+    return html
+
+@ensure_csrf_cookie
 @read_access(type=Analysis)
 def recipe_view(request, uid):
     """
     Edit meta-data associated with a recipe.
     """
 
+    # The user making the request.
+    user = request.user
+
     # The recipe that needs to be edited.
-    recipe = Analysis.objects.filter(uid=uid).first()
+    recipe = Analysis.objects.filter(uid=uid).annotate(
+        job_count=Count("job", filter=Q(job__deleted=False))
+    ).first()
 
     # The project that recipe belongs to.
     project = recipe.project
-    user = request.user
-    if request.method == "POST":
-        # Form has been submitted
-        form = forms.RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
-                                project=project)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Editted Recipe")
-            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-    else:
-        # Initial form loading via a GET request.
-        form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
-    action_url = reverse('recipe_edit', kwargs=dict(uid=uid))
-    initial = dict(name=f"Results for: {recipe.name}")
+    # Initial form loading via a GET request.
+    form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
 
-    run_form = forms.RecipeInterface(request=request, analysis=recipe,
-                                     json_data=recipe.json_data, initial=initial)
-
-    is_runnable = auth.authorize_run(user=request.user, recipe=recipe)
-
-    recipe = Analysis.objects.filter(uid=uid).annotate(job_count=Count("job", filter=Q(job__deleted=False))).first()
-
-    context = dict(recipe=recipe, project=project, form=form, is_runnable=is_runnable, name=recipe.name,
-                   activate='Recipe View', run_form=run_form,
-                   action_url=action_url)
-
+    # Fills in project level counts (results, data and recipe counts).
     counts = get_counts(project)
+
+    # Disable buttons if project not writeable.
+    btn_state = '' if auth.is_writable(user=user, project=project) else 'disabled'
+
+    # Get the list of jobs required to view recipe results
+    jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
+
+    # Check to see if this recipe is runnable by the user.
+    is_runnable = auth.authorize_run(user=user, recipe=recipe)
+
+    # Generate the context.
+    context = dict(recipe=recipe, job_list=jobs, project=project, form=form, btn_state=btn_state,
+                   is_runnable=is_runnable, activate='Recipe View', rerun_btn=False)
+
+    # Update context with counts.
     context.update(counts)
+
     return render(request, 'recipe_view.html', context)
 
 
 @read_access(type=Project)
 def recipe_create(request, uid):
     # Get the project
-
     project = Project.objects.filter(uid=uid).first()
-
-    # Prepare the form
-    name = "Recipe Name"
-    initial = dict(name=name, uid=f'recipe-{util.get_uuid(5)}')
-    form = forms.RecipeForm(user=request.user, initial=initial, project=project)
-
-    if request.method == "POST":
-
-        form = forms.RecipeForm(data=request.POST, creating=True, project=project, files=request.FILES,
-                                user=request.user)
-        if form.is_valid():
-
-            image = form.cleaned_data['image']
-            recipe_uid = form.cleaned_data['uid']
-            name = form.cleaned_data['name']
-            json_text = form.cleaned_data['json_text']
-            template = form.cleaned_data['template']
-            text = form.cleaned_data['text']
-            rank = form.cleaned_data['rank']
-            authorized = form.cleaned_data.get('authorized')
-            recipe = auth.create_analysis(uid=recipe_uid, stream=image, name=name, rank=rank,
-                                          json_text=json_text, template=template,
-                                          project=project, user=request.user, text=text)
-            if request.user.is_superuser:
-                recipe.security = Analysis.AUTHORIZED if authorized else Analysis.NOT_AUTHORIZED
-                recipe.save()
-
-            return redirect(reverse("recipe_view", kwargs=dict(uid=recipe.uid)))
-
-    action_url = reverse('recipe_create', kwargs=dict(uid=project.uid))
-    context = dict(project=project, form=form, action_url=action_url,
-                   activate='Create Recipe', name=name)
-    counts = get_counts(project)
-    context.update(counts)
-    return render(request, 'recipe_create.html', context)
+    recipe = auth.create_analysis(project=project, name="My New Recipe",
+                                  template="echo 'Hello World!'")
+    url = reverse("recipe_view", kwargs=dict(uid=recipe.uid))
+    return redirect(url)
 
 
 @write_access(type=Job, fallback_view="job_view")
@@ -972,7 +943,7 @@ def project_share(request, token):
 
 
 @login_required
-def import_files(request, path=''):
+def import_files(request):
     """
     Import files mounted on IMPORT_ROOT_DIR in settings
     """
@@ -982,16 +953,7 @@ def import_files(request, path=''):
         messages.error(request, 'Only trusted users may views this page.')
         return redirect(reverse('project_list'))
 
-    current_path = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
-
-    if not current_path.startswith(settings.IMPORT_ROOT_DIR):
-        messages.error(request, 'Outside root directory')
-        rel_path = ''
-    elif current_path == settings.IMPORT_ROOT_DIR:
-        rel_path = ''
-    else:
-        rel_path = os.path.relpath(current_path, settings.IMPORT_ROOT_DIR)
-
-    context = dict(rel_path=rel_path)
+    paths = auth.listing(root=settings.IMPORT_ROOT_DIR)
+    context = dict(paths=paths, active="import")
 
     return render(request, 'import_files.html', context=context)

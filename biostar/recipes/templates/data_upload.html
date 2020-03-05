@@ -60,13 +60,11 @@
             <p class="muted">Name of the data.</p>
 
             <label>Input Text</label>
-
             <textarea rows="10" cols="55" name="{{ form.input_text.name }}" id="id_{{ form.input_text.name }}"
                       maxlength="{{ form.input_text.field.max_length }}">{% if form.input_text.value %}
                 {{ form.input_text.value }}{% endif %}</textarea>
             <p class="muted">Enter data as text instead of uploading a file ( {{ form.input_text.field.max_length }}
                 characters ).</p>
-
         </div>
 
         <button type="submit" class="ui submit green button">

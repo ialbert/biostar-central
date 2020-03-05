@@ -1,0 +1,78 @@
+{% load engine_tags %}
+
+<form method="POST" class="ui form" enctype="multipart/form-data" action="{% url 'recipe_run' recipe.uid %}">
+
+    <div class="ui segment run">
+        <div class="ui center aligned basic segment">
+            <span class="ui title header">Run: {{ recipe.name|truncatechars:100 }}</span>
+        </div>
+
+        <div class="ui vertical detail segment">
+            {% if recipe.runnable %}
+                <div class="ui right ribbon green label" id="recipe-run">
+                    <i class="check icon"></i>
+                    Authorized
+                </div>
+            {% else %}
+                <div class="ui right ribbon orange label" id="recipe-run">
+                    <i class="hand paper icon"></i>
+                    Pending authorization
+                </div>
+            {% endif %}
+
+            <div class="ui form">
+
+                {% csrf_token %}
+                {{ form.media }}
+
+                {% recipe_form form %}
+
+                <div class="field">
+
+                    {% if is_runnable %}
+                        <button type="submit" class="ui green button">
+                            <i class="check icon"></i>Run
+                        </button>
+                    {% else %}
+                        <button type="submit" class="ui disabled green button">
+                            <i class="check icon"></i>Run
+                        </button>
+                    {% endif %}
+
+                    <a class="ui  button" href="{% url 'recipe_view' recipe.uid %}">
+                        <i class="redo icon"></i>Cancel
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        {% if not is_runnable %}
+            <div class="ui vertical segment">
+                    <div style="padding-top:1ex;">To run a recipe:</div>
+                    <div class="ui bulleted list">
+                        <div class="item">You must be logged in and be a trusted user.</div>
+                        <div class="item">The recipe must be authorized by an admin.</div>
+                    </div>
+                    <p>Read more on security features in the documentation.</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="ui center aligned vertical segment">
+            <p> Download the recipe to your computer</p>
+            <p><a class="ui mini teal button" href="{% url 'recipe_download' recipe.uid %}">
+                <i class="download icon"></i> Download recipe </a>
+            </p>
+        </div>
+
+    </div>
+</form>
+
+<script>
+
+    $(document).ready(function () {
+
+    });
+
+</script>

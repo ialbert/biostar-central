@@ -131,7 +131,11 @@ class Project(models.Model):
     # Internal uid that is not editable.
     uid = models.CharField(max_length=32, unique=True)
     # Unique project label that is editable.
+    #TODO: being refactored out.
     label = models.CharField(max_length=32, unique=True, null=True)
+
+    # FilePathField points to an existing project directory.
+    dir = models.FilePathField(max_length=MAX_FIELD_LEN, default='')
 
     sharable_token = models.CharField(max_length=32, null=True, unique=True)
 
@@ -152,11 +156,6 @@ class Project(models.Model):
         self.lastedit_user = self.lastedit_user or self.owner
         self.lastedit_date = self.lastedit_date or now
 
-        self.set_counts(save=False)
-
-        if not os.path.isdir(self.get_project_dir()):
-            os.makedirs(self.get_project_dir())
-
         super(Project, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -170,26 +169,22 @@ class Project(models.Model):
         return reverse("project_view", kwargs=dict(uid=self.uid))
 
     def get_project_dir(self):
-        self.uid_is_set()
-        return join(settings.MEDIA_ROOT, "projects", f"{self.uid}")
+        return self.dir
 
     def get_data_dir(self):
         "Match consistency of data dir calls"
         return self.get_project_dir()
 
-    def set_counts(self, save=False):
+    def set_counts(self, save=True):
         """
         Set the data, recipe, and job count for this project
         """
         data_count = self.data_set.filter(deleted=False).count()
-        recipes_count = self.analysis_set.filter(deleted=False).count()
+        recipes_count = self.analysis_set.filter(project=self, deleted=False).count()
         job_count = self.job_set.filter(deleted=False).count()
 
-        self.data_count = data_count
-        self.recipes_count = recipes_count
-        self.jobs_count = job_count
-        if save:
-            self.save()
+        Project.objects.filter(id=self.id).update(data_count=data_count, recipes_count=recipes_count,
+                                                  jobs_count=job_count)
 
     @property
     def is_public(self):
@@ -318,8 +313,14 @@ class Data(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     size = models.BigIntegerField(default=0)
 
-    # FilePathField points to an existing file
+    # FilePathField points to an existing file path
     file = models.FilePathField(max_length=MAX_FIELD_LEN, path='')
+
+    # FilePathField points to the data directory
+    dir = models.FilePathField(max_length=MAX_FIELD_LEN, default='')
+
+    # FilePathField points to the toc file.
+    toc = models.FilePathField(max_length=MAX_FIELD_LEN, default='')
 
     # Get the file count from the toc file.
     file_count = models.IntegerField(default=0)
@@ -341,18 +342,6 @@ class Data(models.Model):
         self.type = self.type.replace(" ", '')
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
-        # Build the data directory.
-        data_dir = self.get_data_dir()
-        if not os.path.isdir(data_dir):
-            os.makedirs(data_dir)
-
-        # Set the table of contents for the file.
-        self.file = self.get_path()
-
-        # Make this file if it does not exist
-        if not os.path.isfile(self.file):
-            with open(self.file, 'wt') as fp:
-                pass
 
         super(Data, self).save(*args, **kwargs)
 
@@ -381,15 +370,13 @@ class Data(models.Model):
 
     def get_data_dir(self):
         "The data directory"
-        assert self.uid, "Sanity check. UID should always be set."
-        return join(self.get_project_dir(), f"{self.uid}")
+        return self.dir
 
     def get_project_dir(self):
         return self.project.get_project_dir()
 
     def get_path(self):
-        path = join(settings.TOC_ROOT, f"toc-{self.uid}.txt")
-        return path
+        return self.toc
 
     def make_toc(self):
 
@@ -412,6 +399,7 @@ class Data(models.Model):
         self.size = size
         self.file = tocname
         self.file_count = len(collect)
+        Data.objects.filter(id=self.id).update(size=self.size, file=self.file, file_count=self.file_count)
 
         return tocname
 
@@ -471,8 +459,8 @@ class Analysis(models.Model):
     AUTHORIZED, NOT_AUTHORIZED = 1, 2
 
     SECURITY_STATES = [
-        (AUTHORIZED, "Trusted users may run the recipe"),
-        (NOT_AUTHORIZED, "Only administrators may run the recipe")
+        (AUTHORIZED, "Trusted users"),
+        (NOT_AUTHORIZED, "Admin only")
     ]
 
     security = models.IntegerField(default=NOT_AUTHORIZED, choices=SECURITY_STATES)
@@ -495,16 +483,9 @@ class Analysis(models.Model):
     lastedit_user = models.ForeignKey(User, related_name='analysis_editor', null=True, on_delete=models.CASCADE)
     lastedit_date = models.DateTimeField(default=timezone.now)
 
-    #TODO: remove diff fields
-    #diff_author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="diff_author", null=True)
-    #diff_date = models.DateField(blank=True, auto_now_add=True)
-
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
     json_text = models.TextField(default="", max_length=MAX_TEXT_LEN)
-
-    # Use this just to trigger a data migration.
-    #phony_field = models.TextField(default="{}", max_length=MAX_TEXT_LEN)
 
     template = models.TextField(default="")
     last_valid = models.TextField(default='')
@@ -563,13 +544,10 @@ class Analysis(models.Model):
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
 
-        # Clean json text of the 'settings' key unless it has the 'run' field.
-
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
-        Project.objects.filter(uid=self.project.uid).update(lastedit_date=now,
-                                                            lastedit_user=self.lastedit_user)
+
         self.project.set_counts(save=True)
         super(Analysis, self).save(*args, **kwargs)
 
@@ -624,12 +602,7 @@ class Analysis(models.Model):
         #if self.is_cloned:
         #    return reverse('recipe_edit', kwargs=dict(uid=self.root.uid))
 
-        return reverse('recipe_edit', kwargs=dict(uid=self.uid))
-
-    @property
-    def running_css(self):
-        "css display for running and not running jobs"
-        return "runnable" if self.security == self.AUTHORIZED else "not_runnable"
+        return reverse('recipe_view', kwargs=dict(uid=self.uid))
 
     @property
     def summary(self):
@@ -639,7 +612,6 @@ class Analysis(models.Model):
         lines = self.text.splitlines() or ['']
         first = lines[0]
         return first
-
 
     def get_name(self):
         if self.deleted:
@@ -736,15 +708,19 @@ class Job(models.Model):
         return f"jobs/{self.uid}/" + path
 
     def url(self):
-        return reverse("job_view", kwargs=dict(uid=self.uid))
+        url = reverse("job_view", kwargs=dict(uid=self.uid))
+
+        # Anchor to the logs when the job is running
+        if self.is_running():
+            url = f"{url}#log/"
+
+        return url
 
     def get_project_dir(self):
         return self.project.get_project_dir()
 
     def get_data_dir(self):
-        # TODO: MIGRATION FIX - needs refactoring
-        path = join(settings.MEDIA_ROOT, "jobs", self.uid)
-        return path
+        return self.path
 
     @property
     def json_data(self):
@@ -791,14 +767,9 @@ class Job(models.Model):
         self.stderr_log = self.stderr_log[:MAX_LOG_LEN]
         self.stdout_log = self.stdout_log[:MAX_LOG_LEN]
         self.name = self.name or self.analysis.name
-        self.path = self.make_path()
 
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
         self.lastedit_date = self.lastedit_date or now
-
-        if not os.path.isdir(self.path):
-            os.makedirs(self.path)
-        self.project.set_counts(save=True)
 
         super(Job, self).save(*args, **kwargs)
 

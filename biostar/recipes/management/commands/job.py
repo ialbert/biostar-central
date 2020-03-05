@@ -21,6 +21,24 @@ logger.setLevel(logging.DEBUG)
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+def finalize_job(data):
+    """
+    Performs various finalization processes on the data
+    [settings.data]
+    file = "results"
+    uid = "data-10"
+    name = "Updated new data"
+    text = "This is automatically updated by a recipe"
+
+    """
+
+    # [settings.data]
+
+    for key, value in data.get("settings", {}):
+        # Get or create the data
+        pass
+
+
 def create_logs(job):
 
     work_dir = job.path
@@ -172,6 +190,9 @@ def run(job, options={}):
 
         # Raise an error if returncode is anything but 0.
         proc.check_returncode()
+
+        # Perform tasks at job finalizatoin
+        finalize_job(data=json_data)
 
         # If we made it this far the job has finished.
         logger.info(f"uid={job.uid}, name={job.name}")

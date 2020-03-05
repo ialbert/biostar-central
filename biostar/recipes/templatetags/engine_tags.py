@@ -5,6 +5,7 @@ from textwrap import dedent
 import hashlib
 import urllib.parse
 import random
+from itertools import count, islice
 
 from datetime import timedelta, datetime
 from django.contrib import messages
@@ -15,6 +16,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from django.template import defaultfilters
 from django.utils.safestring import mark_safe
+from django.utils.timezone import utc
 
 from biostar.recipes import auth, util, const
 from biostar.recipes.models import Job, make_html, Project, Data, Analysis, Access, SnippetType, Snippet
@@ -31,46 +33,6 @@ DATA_COLORS = {
 def randparam():
     "Append to URL to bypass server caching of CSS or JS files"
     return f"?randval={random.randint(1, 10000000)}" if settings.DEBUG else ""
-
-
-@register.filter
-def mask_path(val='', obj={}):
-    is_path = obj.get('display') == const.UPLOAD
-    if is_path:
-        return os.path.basename(str(val)) if val else ''
-
-    return val
-
-
-@register.inclusion_tag("banners/recipe_sidebanner.html", takes_context=True)
-def recipe_sidebar(context, recipe=None, project=None):
-    user = context['request'].user
-    project = recipe.project if recipe else project
-    return dict(recipe=recipe, project=project, user=user)
-
-
-@register.filter
-def time_ago(date):
-    pluralize = lambda value, word: f"{value} {word}s" if value > 1 else f'{value} {word}'
-    if not date:
-        return ''
-    delta = util.now() - date
-    if delta < timedelta(minutes=1):
-        return 'just now'
-    elif delta < timedelta(hours=1):
-        unit = pluralize(delta.seconds // 60, "minute")
-    elif delta < timedelta(days=1):
-        unit = pluralize(delta.seconds // 3600, "hour")
-    elif delta < timedelta(days=30):
-        unit = pluralize(delta.days, "day")
-    elif delta < timedelta(days=90):
-        unit = pluralize(int(delta.days / 7), "week")
-    elif delta < timedelta(days=730):
-        unit = pluralize(int(delta.days / 30), "month")
-    else:
-        diff = delta.days / 365.0
-        unit = '%0.1f years' % diff
-    return "%s ago" % unit
 
 
 def join(*args):
@@ -106,8 +68,9 @@ def user_icon(user):
 
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_projects(context, target):
+    """List projects belonging to a specific user
+    """
     user = context["request"].user
-    request = context["request"]
     projects = auth.get_project_list(user=target).filter(owner=target)
 
     # Don't show private projects non owners
@@ -142,17 +105,55 @@ def gravatar(user, size=80):
     return gravatar_url
 
 
+def find_fragments(source, target, nfrags=3, offset=25):
+
+    # Look for case insensitive matches of target in the source
+    matches = re.finditer(f"(?i){target}", source)
+    matches = islice(zip(count(1), matches), nfrags)
+    fragments = []
+
+    # Collect matches as fragments
+    for idx, match in matches:
+        # Get left side, right side, and center text of match
+        left = match.start(0) - offset
+        right = match.end(0) + offset
+        text = match.group()
+
+        if left < 0:
+            left = 0
+        if right > len(source):
+            right = len(source)
+
+        fragments.append((left,  right, text))
+
+    return fragments
+
+
 @register.filter
 def highlight(source, target):
-    # Look for case insensitive matches in the source
-    highlighting = re.search(f"(?i){target}", source)
 
-    target = highlighting.group() if highlighting else target
+    # Number of fragments to show
+    nfrags = 2
 
-    # Highlight the target
-    highlighted = mark_safe(f"<div class='match'>{target}</div>")
+    # Character offset used to pad highlighted items
+    offset = 30
 
-    return source.replace(target, highlighted)
+    # Applies the highlighter class to each fragment
+    def highlighter(parent, sub):
+        return parent.replace(sub, mark_safe(f"<div class='match'>{sub}</div>"))
+
+    # Gather the fragments.
+    fragments = find_fragments(source=source, target=target, nfrags=nfrags, offset=offset)
+
+    if fragments:
+        result = [highlighter(source[start:end], txt) for start, end, txt in fragments]
+        result = "...".join(result)
+    else:
+        result = source[:offset * 4]
+
+    result += "..." if len(source) > len(result) else ""
+
+    return result
 
 
 @register.simple_tag
@@ -193,28 +194,6 @@ def resolve_clipboard_urls(board, project_uid):
     return paste_url, next_url
 
 
-def annotate_values(board, vals):
-    obj_map = {const.COPIED_DATA: (Data, 'file icon'),
-               const.COPIED_RESULTS: (Job, 'chart bar icon'),
-               const.COPIED_RECIPES: (Analysis, 'setting icon')
-               }
-    named_vals = []
-    for val in vals:
-        obj_model, icon = obj_map.get(board, (None, ''))
-        if not obj_model:
-            name = os.path.basename(val)
-            url = ''
-            icon = 'folder icon'
-        else:
-            obj = obj_model.objects.filter(uid=val).first()
-            name = obj.name if obj else ""
-            url = obj.url() if obj else ""
-
-        named_vals.append((val, name, url, icon))
-
-    return named_vals
-
-
 def get_label(board):
     label_map = {const.COPIED_DATA: 'copied data',
                  const.COPIED_RECIPES: 'recipe',
@@ -242,32 +221,32 @@ def paste(context, project, current=","):
         # Get the paste and next url.
         paste_url, next_url = resolve_clipboard_urls(board=target, project_uid=project.uid)
         vals = items_in_board.get(target, [])
-        vals = annotate_values(board=target, vals=vals)
         label = get_label(board=target)
         count = len(vals)
         # Current target is going to be cloned.
         to_clone = target == const.COPIED_RECIPES
-        content = dict(vals=vals, paste_url=paste_url, next_url=next_url, label=label, count=count,
+        content = dict(paste_url=paste_url, next_url=next_url, label=label, count=count,
                        to_clone=to_clone)
         # Clean the clipboard of empty values
         if count:
             items_to_paste.setdefault(target, content)
 
-    empty_css = "empty-clipboard" if not items_to_paste else ""
+    has_items = True if items_to_paste else False
     extra_context = dict(project=project, current=','.join(current), board_count=len(items_to_paste),
-                         clipboard=items_to_paste.items(), context=context, empty_css=empty_css)
+                         clipboard=items_to_paste.items(), context=context, has_items=has_items)
 
     context.update(extra_context)
     return context
 
 
+from django.forms.widgets import CheckboxInput
 @register.filter
 def is_checkbox(field):
     "Check if current field is a checkbox"
 
     try:
-        if field.field.widget.input_type == "checkbox":
-            return True
+        state = isinstance(field.field.widget, CheckboxInput)
+        return state
     except Exception as exc:
         logger.error(exc)
 
@@ -279,12 +258,6 @@ def is_qiime_archive(file=None):
     filename = file if isinstance(file, str) else file.path
 
     return filename.endswith(".qza") or filename.endswith(".qzv")
-
-
-@register.simple_tag
-def privacy_label(project):
-    label = mark_safe(f'<span class ="ui label">{project.get_privacy_display()}</span>')
-    return label
 
 
 @register.inclusion_tag('widgets/authorization_required.html', takes_context=True)
@@ -326,30 +299,12 @@ def activate(value1, value2):
 
 
 @register.simple_tag
-def data_color(data):
-    "Return a color based on data status."
-
-    return DATA_COLORS.get(data.state, "")
-
-
-@register.simple_tag
 def type_label(data):
     if data.type:
         label = lambda x: f"<span class='ui label' > {x} </span>"
         types = [label(t) for t in data.type.split(',')]
         return mark_safe(''.join(types))
     return ""
-
-
-@register.simple_tag
-def state_label(data, error_only=False):
-    label = f'<span class="ui {DATA_COLORS.get(data.state, "")} label"> {data.get_state_display()} </span>'
-
-    # Error produce error only.
-    if error_only and data.state not in (Data.ERROR, Data.PENDING):
-        label = ""
-
-    return mark_safe(label)
 
 
 @register.simple_tag
@@ -369,14 +324,6 @@ def show_messages(messages):
     Renders the messages
     """
     return dict(messages=messages)
-
-
-@register.inclusion_tag('widgets/project_title.html', takes_context=True)
-def project_title(context, project):
-    """
-    Returns a label for project.
-    """
-    return dict(project=project)
 
 
 @register.inclusion_tag('widgets/recipe_form.html')
@@ -412,40 +359,6 @@ def image_field(default=''):
     return mark_safe(image_widget)
 
 
-@register.inclusion_tag('widgets/snippet_list.html')
-def snippet_list(user):
-
-    if user.is_anonymous:
-        command_types = SnippetType.objects.filter(default=True).order_by('-pk')
-    else:
-        command_types = SnippetType.objects.filter(Q(owner=user) | Q(default=True)).order_by('-pk')
-
-    context = dict(command_types=command_types, user=user)
-    return context
-
-
-@register.inclusion_tag('widgets/snippet.html')
-def snippet_item(user, snippet):
-    context = dict(snippet=snippet, user=user)
-    return context
-
-
-@register.inclusion_tag('widgets/snippet_type.html')
-def snippet_type(user, snip_type):
-
-    context = dict(type=snip_type, user=user)
-    return context
-
-
-@register.simple_tag
-def get_snippets(user, snip_type):
-    if user.is_authenticated:
-        snippets = snip_type.snippet_set.filter(Q(owner=user) | Q(default=True))
-    else:
-        snippets = snip_type.snippet_set.filter(default=True)
-    return snippets
-
-
 @register.inclusion_tag('widgets/json_field.html')
 def json_field(json_text):
     context = dict(json_text=json_text)
@@ -459,11 +372,18 @@ def template_field(tmpl):
 
 
 @register.inclusion_tag('widgets/created_by.html')
-def created_by(date, user=None, prefix="Updated"):
+def created_by(date, user=None, prefix="updated"):
     """
     Renders a created by link
     """
     return dict(date=date, user=user, prefix=prefix)
+
+@register.inclusion_tag('widgets/recipe_clone_message.html')
+def recipe_clone_message(recipe):
+    """
+    Renders the recipe clone message.
+    """
+    return dict(recipe=recipe)
 
 
 @register.inclusion_tag('widgets/loading_img.html')
@@ -538,56 +458,6 @@ def get_access_label(project, user):
     return access_str
 
 
-def file_listing(root, limit=None):
-    # This will collect the valid filepaths.
-    paths = []
-    count = 0
-    try:
-        # Walk the filesystem and collect all files.
-        for fpath, fdirs, fnames in os.walk(root, followlinks=True):
-            paths.extend([join(fpath, fname) for fname in fnames])
-            count += 1
-            if limit and count >= limit:
-                break
-
-        # Image extension types.
-        IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
-
-        # Add more metadata to each path.
-        def transform(path):
-            tstamp = os.stat(path).st_mtime
-            size = os.stat(path).st_size
-            rel_path = os.path.relpath(path, root)
-            elems = os.path.split(rel_path)
-            dir_names = elems[:-1]
-            if dir_names[0] == '':
-                dir_names = []
-            last_name = elems[-1]
-            dir_name = os.path.dirname(path)
-            is_image = last_name.split(".")[-1] in IMAGE_EXT
-            return rel_path, dir_names, last_name, tstamp, size, is_image, dir_name
-
-        # Transform the paths.
-        paths = map(transform, paths)
-
-        # Sort by the tuple fields..
-        paths = sorted(paths)
-
-    except Exception as exc:
-        logging.error(exc)
-        paths = []
-
-    return paths
-
-
-@register.inclusion_tag('widgets/files_list.html', takes_context=True)
-def files_list(context, rel_path):
-    # Limit to the first 100 files.
-    root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))
-    paths = auth.listing(root=root)
-    user = context['request'].user
-    return dict(paths=paths, user=user, root=root)
-
 
 @register.inclusion_tag('widgets/directory_list.html', takes_context=True)
 def directory_list(context, obj):
@@ -597,12 +467,11 @@ def directory_list(context, obj):
 
     # Starting location.
     root = obj.get_data_dir()
-
     # The serve url depends on data type..
     serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
     copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
 
-    paths = file_listing(root=root)
+    paths = auth.listing(root=root)
 
     return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url,
                 user=context["request"].user)
@@ -645,3 +514,36 @@ def menubar(context, request=None, with_search=True):
     context.update(dict(user=user, request=request, with_search=with_search))
 
     return context
+
+
+def now():
+    return datetime.utcnow().replace(tzinfo=utc)
+
+def pluralize(value, word):
+    if value > 1:
+        return "%d %ss" % (value, word)
+    else:
+        return "%d %s" % (value, word)
+
+@register.filter
+def time_ago(date):
+    # Rare bug. TODO: Need to investigate why this can happen.
+    if not date:
+        return ''
+    delta = now() - date
+    if delta < timedelta(minutes=1):
+        return 'just now'
+    elif delta < timedelta(hours=1):
+        unit = pluralize(delta.seconds // 60, "minute")
+    elif delta < timedelta(days=1):
+        unit = pluralize(delta.seconds // 3600, "hour")
+    elif delta < timedelta(days=30):
+        unit = pluralize(delta.days, "day")
+    elif delta < timedelta(days=90):
+        unit = pluralize(int(delta.days / 7), "week")
+    elif delta < timedelta(days=730):
+        unit = pluralize(int(delta.days / 30), "month")
+    else:
+        diff = delta.days / 365.0
+        unit = '%0.1f years' % diff
+    return "%s ago" % unit
