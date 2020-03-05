@@ -4,7 +4,10 @@ from django.core.servers import basehttp
 #
 # To see all log messages: export DJANGO_LOG_LEVEL=DEBUG
 #
-LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL') or 'INFO'
+LOG_LEVEL = os.getenv('ENGINE_LOG_LEVEL') or 'INFO'
+
+DJANGO_LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL') or 'WARNING'
+
 
 class RateLimitFilter(object):
     """
@@ -69,7 +72,7 @@ LOGGING = {
 
         'django': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': DJANGO_LOG_LEVEL,
 
         },
 
