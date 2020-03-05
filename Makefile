@@ -24,8 +24,6 @@ COPY_DATABASE := recipes.db
 
 all: recipes serve
 
-every: recipes serve
-
 accounts:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
 	$(eval DJANGO_APP := biostar.accounts)
@@ -126,9 +124,16 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	#python manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
+	$(eval MULTI_THREAD := False)
+	$(eval FOO := one)
+	@echo MULTI_THREAD=${MULTI_THREAD}
+	export FOO=one
 	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage html --skip-covered
+
+	#coverage run manage.py test --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
+	#coverage html --skip-covered
+	#fi
 
 test_all:
 	#python manage.py test --settings biostar.test.test_settings -v 2 --failfast

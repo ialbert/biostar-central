@@ -24,6 +24,8 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
+
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class SiteAdminTest(TestCase):
 
     def setUp(self):
@@ -52,7 +54,7 @@ class SiteAdminTest(TestCase):
         self.assertEqual(response.status_code, 200, "Can not load recyle bin")
 
 
-@override_settings(MEDIA_ROOT=TEST_ROOT)
+@override_settings(MEDIA_ROOT=TEST_ROOT , MULTI_THREAD=False)
 class FactoryTest(TestCase):
 
     def setUp(self):
@@ -127,6 +129,7 @@ class FactoryTest(TestCase):
         self.assertEqual(response.status_code, 200, f"Error with file listing in import tab.")
 
 
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class UtilTests(TestCase):
 
     def setUp(self):

@@ -2,7 +2,7 @@ import logging
 from unittest.mock import patch, MagicMock
 
 from django.conf import settings
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse
 
 #from biostar.accounts.models import Use
@@ -45,6 +45,7 @@ class RecipeRunTest(TestCase):
 
         self.assertFalse(auth.authorize_run(user2, recipe), "Unauthorized users can run recipes.")
         return
+
 
 
 class RecipeViewTest(TestCase):

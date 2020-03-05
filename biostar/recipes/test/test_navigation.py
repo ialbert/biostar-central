@@ -7,9 +7,11 @@ from django.conf import settings
 
 from biostar.utils.helpers import get_uuid
 from django.urls import reverse
+from django.test import override_settings
 
 
 logger = logging.getLogger('engine')
+
 
 
 class SiteNavigation(TestCase):
