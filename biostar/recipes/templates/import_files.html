@@ -23,17 +23,6 @@
     {% endif %}
     {% show_messages messages %}
 
-
-        <div class="ui basic segment">List of directories designated for import.</div>
-
-        <div class="ui left icon input" style="width: 80%">
-            <i class="folder open outline icon"></i>
-
-            <input type="text" placeholder="Enter source directory" value="{{ rel_path }}" id="current_source">
-        </div>
-
-        {% files_list rel_path=rel_path %}
-
-
+    {% include 'widgets/files_list.html' %}
 
 {% endblock %}

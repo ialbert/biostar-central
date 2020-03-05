@@ -204,6 +204,8 @@ def file_copy(request):
     """
     Add file into clipboard.
     """
+
+    # Relative path to root dir
     path = request.POST.get('path')
     fullpath = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
     if not os.path.exists(fullpath):

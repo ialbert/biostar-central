@@ -942,7 +942,7 @@ def project_share(request, token):
 
 
 @login_required
-def import_files(request, path=''):
+def import_files(request):
     """
     Import files mounted on IMPORT_ROOT_DIR in settings
     """
@@ -952,16 +952,7 @@ def import_files(request, path=''):
         messages.error(request, 'Only trusted users may views this page.')
         return redirect(reverse('project_list'))
 
-    current_path = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
-
-    if not current_path.startswith(settings.IMPORT_ROOT_DIR):
-        messages.error(request, 'Outside root directory')
-        rel_path = ''
-    elif current_path == settings.IMPORT_ROOT_DIR:
-        rel_path = ''
-    else:
-        rel_path = os.path.relpath(current_path, settings.IMPORT_ROOT_DIR)
-
-    context = dict(rel_path=rel_path, active="import")
+    paths = auth.listing(root=settings.IMPORT_ROOT_DIR)
+    context = dict(paths=paths, active="import")
 
     return render(request, 'import_files.html', context=context)

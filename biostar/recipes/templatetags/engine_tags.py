@@ -117,11 +117,6 @@ def find_fragments(source, target, nfrags=3, offset=25):
         # Get left side, right side, and center text of match
         left = match.start(0) - offset
         right = match.end(0) + offset
-
-        if left < len(source):
-            left = 0
-        if right > len(source):
-            right = len(source)
         text = match.group()
 
         fragments.append((left,  right, text))
@@ -133,7 +128,7 @@ def find_fragments(source, target, nfrags=3, offset=25):
 def highlight(source, target):
 
     # Number of fragments to show
-    nfrags = 2
+    nfrags = 3
 
     # Character offset used to pad highlighted items
     offset = 25
@@ -458,57 +453,6 @@ def get_access_label(project, user):
     return access_str
 
 
-def file_listing(root, limit=None):
-    # This will collect the valid filepaths.
-    paths = []
-    count = 0
-    try:
-        # Walk the filesystem and collect all files.
-        for fpath, fdirs, fnames in os.walk(root, followlinks=True):
-
-            paths.extend([join(fpath, fname) for fname in fnames])
-            count += 1
-            if limit and count >= limit:
-                break
-
-        # Image extension types.
-        IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
-
-        # Add more metadata to each path.
-        def transform(path):
-            tstamp = os.stat(path).st_mtime
-            size = os.stat(path).st_size
-            rel_path = os.path.relpath(path, root)
-            elems = os.path.split(rel_path)
-            dir_names = elems[:-1]
-            if dir_names[0] == '':
-                dir_names = []
-            last_name = elems[-1]
-            dir_name = os.path.dirname(path)
-            is_image = last_name.split(".")[-1] in IMAGE_EXT
-            return rel_path, dir_names, last_name, tstamp, size, is_image, dir_name
-
-        # Transform the paths.
-        paths = map(transform, paths)
-
-        # Sort by the tuple fields..
-        paths = sorted(paths)
-
-    except Exception as exc:
-        logging.error(exc)
-        paths = []
-
-    return paths
-
-
-@register.inclusion_tag('widgets/directory_list.html', takes_context=True)
-def files_list(context, rel_path):
-    # Limit to the first 100 files.
-    root = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, rel_path))
-    paths = file_listing(root=root)
-    user = context['request'].user
-    return dict(paths=paths, user=user, root=root)
-
 
 @register.inclusion_tag('widgets/directory_list.html', takes_context=True)
 def directory_list(context, obj):
@@ -522,7 +466,7 @@ def directory_list(context, obj):
     serve_url = "job_serve" if isinstance(obj, Job) else "data_serve"
     copy_url = "job_file_copy" if isinstance(obj, Job) else "data_file_copy"
 
-    paths = file_listing(root=root)
+    paths = auth.listing(root=root)
 
     return dict(paths=paths, obj=obj, serve_url=serve_url, copy_url=copy_url,
                 user=context["request"].user)

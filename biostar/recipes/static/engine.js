@@ -136,17 +136,6 @@ function add_vars() {
     )
 }
 
-
-function set_source_dir() {
-    let current_source = $('#current_source');
-    if (!current_source.val().length) {
-        window.location.href = '/root/list/';
-        return
-    }
-    window.location.href = '/file/list/' + current_source.val();
-}
-
-
 function copy_object(uid, clipboard, container) {
 
     $.ajax('/copy/object/',
@@ -177,26 +166,22 @@ function copy_object(uid, clipboard, container) {
     )
 }
 
-function copy_file(path, rel_path) {
-    let elem = $('.copy_msg[data-rel="' + rel_path + '"]');
-    //alert(elem.html());
+function copy_file(path, elem) {
+
     $.ajax('/file/copy/', {
             type: 'POST',
             dataType: 'json',
-            data: {
-                'path': path
-            },
+            data: {'path': path},
 
             success: function (data) {
                 if (data.status === 'success') {
-
-                    popover_message(elem, data.msg, data.status, 500);
+                    popup_message(elem, data.msg, data.status, 500);
                 }
-                popover_message(elem, data.msg, data.status, 2000)
+                popup_message(elem, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
+                error_message(elem, xhr, status, text)
             }
         }
     )
@@ -208,7 +193,7 @@ function toggle_delete(elem, otype) {
 
     var uid = elem.data("value");
 
-    // Fetch the element to decrement/increment  once toggle is complete.
+    // Fetch the element to decrement/increment once toggle is complete.
     var count = $("#{0}_count".format(otype));
 
     var url = '/toggle/delete/';
@@ -241,7 +226,7 @@ function toggle_delete(elem, otype) {
 
 function change_access(access, user_id, project_uid, elem) {
     let container = $('.container-' + user_id);
-    //alert(container.html());
+
     $.ajax('/manage/access/', {
             type: 'POST',
             dataType: 'json',
@@ -370,12 +355,6 @@ $(document).ready(function () {
     });
 
 
-    $(this).on('keyup', '#current_source', function (event) {
-        // Submit when pressing enter
-        if (event.keyCode === 13) {
-            set_source_dir()
-        }
-    });
 
     $(".moderate-user").click(function (event) {
         event.preventDefault();
@@ -405,9 +384,6 @@ $(document).ready(function () {
         toggle_delete(elem, 'data')
     });
 
-    $(this).on('click', '#set_source', function () {
-        set_source_dir()
-    });
 
     $('.checkbox').checkbox();
 
@@ -423,30 +399,23 @@ $(document).ready(function () {
         copy_object(uid, "job", job);
     });
 
-    $(document).on('click', '.recipe .copy.button', function () {
+    $(this).on('click', '.recipe .copy.button', function () {
         let recipe = $(this).closest('.recipe');
         let uid = recipe.data("value");
         copy_object(uid, "recipe", recipe);
     });
 
+    $(this).on('click', '.file .copy', function () {
+        let file = $(this).closest('.file');
+        let path = file.data("value");
+        copy_file(path, file);
+    });
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();
 
-    $(this).on('click', '.copy.ajax', function () {
-        let path = $(this).data('path');
-        let rel_path = $(this).data('rel');
-        //alert(rel_path);
-        copy_file(path, rel_path)
-    });
 
-    $(this).on('click', '.copy_file', function () {
-        let path = $(this).data('path');
-        let rel_path = $(this).data('rel');
-        //alert(rel_path);
-        copy_file(path, rel_path)
-    });
 
 
 });

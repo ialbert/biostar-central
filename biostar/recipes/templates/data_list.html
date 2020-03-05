@@ -6,8 +6,6 @@
 {% endblock %}
 
 
-
-
 {% block ribbon %}
 
     {% if user.is_authenticated %}
@@ -31,6 +29,7 @@
                 {% for data in data_list %}
 
                     <div class="item data" data-value="{{ data.uid }}" >
+
                         <div class="content">
                             <a class="subheader" href="{% url 'data_view' data.uid %}">
                                 {% if job.deleted %}Deleted: {% endif %}
@@ -46,6 +45,7 @@
                             <div class="meta">{{ data.summary|safe }}</div>
 
                         </div>
+
                         {% if request.user.is_authenticated %}
 
                             <div class="ui mini buttons">
@@ -56,19 +56,18 @@
                                 <a class="ui right floated button delete">
                                     <i class="trash icon"></i> <span class="fitme">Delete</span>
                                 </a>
-
                             </div>
 
                         {% endif %}
 
                     </div>
+
                 {% empty %}
                     <div class="item ">
                         <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
                             contain data.
                         </div>
                     </div>
-
                 {% endfor %}
 
             </div>
