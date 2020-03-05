@@ -119,6 +119,11 @@ def find_fragments(source, target, nfrags=3, offset=25):
         right = match.end(0) + offset
         text = match.group()
 
+        if left < 0:
+            left = 0
+        if right > len(source):
+            right = len(source)
+
         fragments.append((left,  right, text))
 
     return fragments
@@ -128,10 +133,10 @@ def find_fragments(source, target, nfrags=3, offset=25):
 def highlight(source, target):
 
     # Number of fragments to show
-    nfrags = 3
+    nfrags = 2
 
     # Character offset used to pad highlighted items
-    offset = 25
+    offset = 30
 
     # Applies the highlighter class to each fragment
     def highlighter(parent, sub):
