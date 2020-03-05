@@ -124,10 +124,6 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	$(eval MULTI_THREAD := False)
-	$(eval FOO := one)
-	@echo MULTI_THREAD=${MULTI_THREAD}
-	export FOO=one
 	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage html --skip-covered
 

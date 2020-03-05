@@ -134,7 +134,7 @@ class Project(models.Model):
     #TODO: being refactored out.
     label = models.CharField(max_length=32, unique=True, null=True)
 
-    # FilePathField points to an existing file
+    # FilePathField points to an existing project directory.
     dir = models.FilePathField(max_length=MAX_FIELD_LEN, default='')
 
     sharable_token = models.CharField(max_length=32, null=True, unique=True)
@@ -313,7 +313,7 @@ class Data(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     size = models.BigIntegerField(default=0)
 
-    # FilePathField points to an existing file
+    # FilePathField points to an existing file path
     file = models.FilePathField(max_length=MAX_FIELD_LEN, path='')
 
     # FilePathField points to the data directory
