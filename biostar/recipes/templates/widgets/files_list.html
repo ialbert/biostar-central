@@ -22,17 +22,18 @@
                                 <img class="ui small middle aligned image" src="{{ serve_url }}">{% endif %}
                             {{ rel_path }}
                         </a>
+
                     {% endif %}
 
                     {% if is_dir %}
                         <a href="{% url 'file_list' rel_path %}"> {{ dir_name }}/{{ last_name }}/</a>
-                    {% elif is_dir and not show_all %}
+                    {% elif not serve_view %}
                         {{ dir_name }}/{{ last_name }}
                     {% endif %}
 
                 </span>
                 {% if user.is_authenticated %}
-                    <a class="ui small right floated label copy"> LINK</a>
+                    <a class="ui small right floated label copy"> COPY</a>
                 {% endif %}
                 <span class="ui right floated small label">{{ size|filesizeformat }}</span>
 
