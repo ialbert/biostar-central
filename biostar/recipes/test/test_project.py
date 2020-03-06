@@ -9,9 +9,12 @@ from biostar.recipes import auth
 from biostar.recipes import models, views, forms, api
 from biostar.utils.helpers import fake_request, get_uuid
 
-__MODULE_DIR = os.path.dirname(auth.__file__)
-TEST_ROOT = os.path.join(__MODULE_DIR, 'test')
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
 
+__MODULE_DIR = os.path.dirname(auth.__file__)
+TEST_DIR = os.path.join(__MODULE_DIR, 'test')
+
+__CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 logger = logging.getLogger('engine')
 
 
@@ -35,7 +38,7 @@ class ProjectViewTest(TestCase):
     def test_create_view(self):
         "Test project create view with POST request"
 
-        path = os.path.join(TEST_ROOT, "data", "image.png")
+        path = os.path.join(TEST_DIR, "data", "image.png")
         image_stream = open(path, "rb")
 
         # Create fake request

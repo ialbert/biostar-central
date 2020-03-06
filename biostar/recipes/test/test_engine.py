@@ -24,6 +24,7 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class SiteAdminTest(TestCase):
 
     def setUp(self):
@@ -127,6 +128,7 @@ class FactoryTest(TestCase):
         self.assertEqual(response.status_code, 200, f"Error with file listing in import tab.")
 
 
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class UtilTests(TestCase):
 
     def setUp(self):

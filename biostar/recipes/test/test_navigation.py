@@ -1,5 +1,5 @@
 import logging, os
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test import Client
 from biostar.recipes import auth
 from biostar.recipes import models
@@ -10,8 +10,12 @@ from django.urls import reverse
 
 
 logger = logging.getLogger('engine')
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+
+__CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class SiteNavigation(TestCase):
 
     def setUp(self):

@@ -1,10 +1,11 @@
 import logging
+import os
 from unittest.mock import patch, MagicMock
 
 from django.conf import settings
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
-
+from django.test import TestCase, override_settings
 #from biostar.accounts.models import Use
 
 from biostar.recipes import auth, const
@@ -13,7 +14,12 @@ from biostar.utils.helpers import fake_request, get_uuid
 
 logger = logging.getLogger('engine')
 
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
 
+__CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
+
+
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class RecipeRunTest(TestCase):
 
     def setUp(self):
@@ -47,6 +53,7 @@ class RecipeRunTest(TestCase):
         return
 
 
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class RecipeViewTest(TestCase):
 
     def setUp(self):
