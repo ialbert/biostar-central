@@ -473,21 +473,26 @@ def delete_object(obj, request):
     return obj.deleted
 
 
-def listing(root):
+def listing(root, realpath=False):
     paths = []
 
     try:
+
         # Walk the filesystem and collect all files.
         for fpath, fdirs, fnames in os.walk(root, followlinks=True):
-            paths.extend([os.path.realpath(join(fpath, fname)) for fname in fnames])
+            paths.extend([join(fpath, fname) for fname in fnames])
 
         # Add more metadata to each path.
         def transform(path):
-
             # Image extension types.
             IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
+            if realpath:
+                # Get the real absolute path for linked files.
+                path = os.path.realpath(os.path.abspath(os.path.join(root, path)))
+            else:
+                # Get the absolute path for files.
+                path = os.path.abspath(os.path.join(root, path))
 
-            path = os.path.abspath(os.path.join(root, path))
             tstamp = os.stat(path).st_mtime
             size = os.stat(path).st_size
             rel_path = os.path.relpath(path, root)

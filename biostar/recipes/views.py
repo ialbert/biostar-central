@@ -901,7 +901,7 @@ def import_files(request):
         messages.error(request, 'Only trusted users may views this page.')
         return redirect(reverse('project_list'))
 
-    paths = auth.listing(root=settings.IMPORT_ROOT_DIR)
+    paths = auth.listing(root=settings.IMPORT_ROOT_DIR, realpath=True)
     context = dict(paths=paths, active="import")
 
     return render(request, 'import_files.html', context=context)
