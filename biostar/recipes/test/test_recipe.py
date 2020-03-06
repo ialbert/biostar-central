@@ -15,11 +15,13 @@ from biostar.utils.helpers import fake_request, get_uuid
 logger = logging.getLogger('engine')
 
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
-
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
 __CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
 
-@override_settings(MEDIA_ROOT=TEST_ROOT)
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class RecipeRunTest(TestCase):
 
     def setUp(self):

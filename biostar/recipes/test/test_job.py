@@ -12,9 +12,13 @@ from biostar.utils.helpers import fake_request, get_uuid
 logger = logging.getLogger('engine')
 
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
+
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
 
 
-@override_settings(MEDIA_ROOT=TEST_ROOT)
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class JobViewTest(TestCase):
 
     def setUp(self):

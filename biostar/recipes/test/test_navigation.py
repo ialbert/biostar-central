@@ -11,11 +11,14 @@ from django.urls import reverse
 
 logger = logging.getLogger('engine')
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
-
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
 __CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
-@override_settings(MEDIA_ROOT=TEST_ROOT)
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
+
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class SiteNavigation(TestCase):
 
     def setUp(self):

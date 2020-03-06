@@ -11,6 +11,10 @@ from biostar.recipes import models, auth, ajax
 from biostar.utils.helpers import fake_request, get_uuid
 
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
+
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
 
 __MODULE_DIR = os.path.dirname(auth.__file__)
 TEST_DIR = os.path.join(__MODULE_DIR, 'test')
@@ -19,7 +23,7 @@ IMPORT_ROOT_DIR = os.path.join(TEST_DIR, 'data')
 logger = logging.getLogger('engine')
 
 
-@override_settings(MEDIA_ROOT=TEST_ROOT, IMPORT_ROOT_DIR=IMPORT_ROOT_DIR)
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT, IMPORT_ROOT_DIR=IMPORT_ROOT_DIR)
 class AjaxTest(TestCase):
 
     def setUp(self):
