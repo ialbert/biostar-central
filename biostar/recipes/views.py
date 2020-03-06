@@ -128,7 +128,7 @@ def project_users(request, uid):
     """
     Manage project users page
     """
-    project = Project.objects.filter(label=uid).first()
+    project = Project.objects.filter(uid=uid).first()
     # Get users that already have access to project.
     have_access = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
 
@@ -466,7 +466,7 @@ def data_view(request, uid):
     paths = auth.listing(root=data.get_data_dir())
 
     context = dict(data=data, project=project, paths=paths, serve_view="data_serve",
-                   activate='Selected Data', uid=data.uid)
+                   activate='Selected Data', uid=data.uid, show_all=True)
     counts = get_counts(project)
     context.update(counts)
 
@@ -799,7 +799,7 @@ def job_view(request, uid):
         stderr = open(stderr_path, 'r').read()
 
     paths = auth.listing(root=job.get_data_dir())
-    context = dict(job=job, project=project, stderr=stderr, stdout=stdout,uid=job.uid,
+    context = dict(job=job, project=project, stderr=stderr, stdout=stdout,uid=job.uid, show_all=True,
                    activate='View Result', paths=paths, serve_view="job_serve")
 
     counts = get_counts(project)
@@ -876,7 +876,7 @@ def project_share(request, token):
         return redirect(reverse('project_list'))
 
     access = Access.objects.filter(user=user, project=project).first()
-    # Give user Share access.
+    # Give user Share access.xs
 
     # Create access
     if access is None:
@@ -891,7 +891,7 @@ def project_share(request, token):
 
 
 @login_required
-def import_files(request):
+def import_files(request, path=""):
     """
     Import files mounted on IMPORT_ROOT_DIR in settings
     """
@@ -901,7 +901,16 @@ def import_files(request):
         messages.error(request, 'Only trusted users may views this page.')
         return redirect(reverse('project_list'))
 
-    paths = auth.listing(root=settings.IMPORT_ROOT_DIR, realpath=True)
-    context = dict(paths=paths, active="import")
+    root = settings.IMPORT_ROOT_DIR
+    path = os.path.abspath(os.path.join(root, path))
+
+    if not path.startswith(root):
+        messages.error(request, 'Outside root directory')
+        path = ''
+
+    node = path if os.path.isdir(path) else None
+    paths = auth.listing(root=root, node=node, show_all=False)
+
+    context = dict(paths=paths, active="import", show_all=False)
 
     return render(request, 'import_files.html', context=context)

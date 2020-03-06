@@ -121,7 +121,7 @@ class FactoryTest(TestCase):
 
     def test_import_file(self):
         "Test import files tab view"
-        url = reverse('file_list')
+        url = reverse('root_list')
 
         request = fake_request(url=url, data={}, user=self.owner)
 

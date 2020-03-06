@@ -3,21 +3,34 @@
 {% if paths %}
 
     <div class="ui relaxed divided large list">
-        {% for  rel_path, dir_names, last_name, tstamp, size, is_image, dir_name in paths %}
+
+        {% if not show_all %}
+            <div class="ui compact basic segment">
+            <div class="ui small button" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</div>
+            </div>
+        {% endif %}
+
+        {% for  rel_path, dir_names, last_name, tstamp, size, is_image, dir_name, is_dir in paths %}
 
             <div class="file item" data-value="{{ dir_name }}/{{ last_name }}">
-                {% if serve_view %}
-                    {% url serve_view uid=uid path=rel_path as serve_url %}
+                <span>
 
-                    <a href="{{ serve_url }}">
-                        {% if is_image %}
-                        <img class="ui small middle aligned image" src="{{ serve_url }}">{% endif %}
-                        {{ rel_path }}
-                    </a>
-                {% else %}
-                    <span>{{ dir_name }}/{{ last_name }}</span>
-                {% endif %}
+                    {% if serve_view %}
+                        {% url serve_view uid=uid path=rel_path as serve_url %}
+                        <a href="{{ serve_url }}">
+                            {% if is_image %}
+                                <img class="ui small middle aligned image" src="{{ serve_url }}">{% endif %}
+                            {{ rel_path }}
+                        </a>
+                    {% endif %}
 
+                    {% if is_dir %}
+                        <a href="{% url 'file_list' rel_path %}"> {{ dir_name }}/{{ last_name }}/</a>
+                    {% elif is_dir and not show_all %}
+                        {{ dir_name }}/{{ last_name }}
+                    {% endif %}
+
+                </span>
                 {% if user.is_authenticated %}
                     <a class="ui small right floated label copy"> LINK</a>
                 {% endif %}

@@ -46,12 +46,17 @@ class SiteNavigation(TestCase):
         self.data_file_params = dict(uid=data.uid, path="foo.txt")
         self.job_file_params = dict(uid=self.job.uid, path="foo.txt")
 
-    def visit_urls(self, urls, codes, anon_urls=[]):
+    def visit_urls(self, urls, codes, change_label=True, anon_urls=[]):
         c = Client()
         # Used to test norname urls
         c.login(username=self.username, email='tested@tested.com', password='tested')
         # Used to test with anon users
         anon_c = Client()
+        old = self.project.label
+
+        if change_label:
+            self.project.label = f"new-label-{auth.get_uuid(2)}"
+            self.project.save()
 
         def visit(pages, client):
             for url in pages:
@@ -67,6 +72,9 @@ class SiteNavigation(TestCase):
 
         visit(pages=urls, client=c)
         visit(pages=anon_urls, client=anon_c)
+        self.project.label = old
+        self.project.save()
+
 
     def test_public_pages(self):
         "Checking public pages"
@@ -85,6 +93,12 @@ class SiteNavigation(TestCase):
 
         ]
 
+        same_label_urls =[
+            reverse('data_listing', kwargs=dict(label=self.project.label)),
+            reverse('recipe_listing', kwargs=dict(label=self.project.label)),
+            reverse('job_listing', kwargs=dict(label=self.project.label)),
+        ]
+
         urls = [
             reverse('index'),
             reverse('logout'),
@@ -93,7 +107,6 @@ class SiteNavigation(TestCase):
             reverse('project_list'),
             reverse('project_list_private'),
             reverse('data_list', kwargs=self.proj_params),
-            reverse('data_listing', kwargs=dict(label=self.project.label)),
             reverse('data_view', kwargs=self.data_params),
             reverse('data_upload', kwargs=self.proj_params),
             reverse('data_edit', kwargs=self.data_params),
@@ -104,12 +117,12 @@ class SiteNavigation(TestCase):
 
             reverse('project_edit', kwargs=self.proj_params),
             reverse('recipe_list', kwargs=self.proj_params),
-            reverse('recipe_listing', kwargs=dict(label=self.project.label)),
+
             reverse('recipe_view', kwargs=self.analysis_params),
             reverse('recipe_view', kwargs=self.analysis_params),
 
             reverse('job_list', kwargs=self.proj_params),
-            reverse('job_listing', kwargs=dict(label=self.project.label)),
+
             #reverse('job_view', kwargs=self.job_params),
             #reverse('job_edit', kwargs=self.job_params),
 
@@ -119,6 +132,8 @@ class SiteNavigation(TestCase):
         self.visit_urls(urls=api_urls, codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
+        self.visit_urls(urls=same_label_urls, change_label=False, codes=[200])
+
 
     def test_page_redirect(self):
         "Testing that a redirect occurs for some pages"

@@ -473,45 +473,47 @@ def delete_object(obj, request):
     return obj.deleted
 
 
-def listing(root, realpath=False):
+def listing(root, node=None, show_all=True):
     paths = []
+    node = node or root
 
     try:
-
-        # Walk the filesystem and collect all files.
-        for fpath, fdirs, fnames in os.walk(root, followlinks=True):
-            paths.extend([join(fpath, fname) for fname in fnames])
+        if show_all:
+            # Walk the filesystem and collect all files.
+            for fpath, fdirs, fnames in os.walk(root, followlinks=True):
+                paths.extend([join(fpath, fname) for fname in fnames])
+        else:
+            # Get the list of file in current directory node.
+            paths = os.listdir(node)
 
         # Add more metadata to each path.
         def transform(path):
             # Image extension types.
             IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
-            if realpath:
-                # Get the real absolute path for linked files.
-                path = os.path.realpath(os.path.abspath(os.path.join(root, path)))
-            else:
-                # Get the absolute path for files.
-                path = os.path.abspath(os.path.join(root, path))
-
+            path = os.path.abspath(os.path.join(node, path))
             tstamp = os.stat(path).st_mtime
             size = os.stat(path).st_size
+
+            # Find the relative path of the current node to the root.
             rel_path = os.path.relpath(path, root)
             elems = os.path.split(rel_path)
             dir_names = elems[:-1]
+            is_dir = os.path.isdir(path)
 
             if dir_names[0] == '':
                 dir_names = []
             last_name = elems[-1]
             dir_name = os.path.dirname(path)
+
             is_image = last_name.split(".")[-1] in IMAGE_EXT
-            return rel_path, dir_names, last_name, tstamp, size, is_image, dir_name
+            return rel_path, dir_names, last_name, tstamp, size, is_image, dir_name, is_dir
 
         paths = list(map(transform, paths))
         # Sort files by timestamps
-        paths = sorted(paths, key=lambda x: x[1], reverse=True)
+        paths = sorted(paths, key=lambda x: x[-1], reverse=True)
 
     except Exception as exc:
-        logging.error(exc)
+        logger.error(exc)
 
     return paths
 

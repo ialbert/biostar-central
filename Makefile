@@ -128,10 +128,7 @@ test:
 	# Remove files associated with tests
 	rm -rf export/tested
 
-test_all:
-	#python manage.py test --settings biostar.test.test_settings -v 2 --failfast
-	coverage run manage.py test --settings biostar.test.test_settings -v 2 --failfast
-	coverage html --skip-covered
+test_all:test
 
 test_pg:
 	#python manage.py test --settings biostar.test.pg_test_settings -v 2 --failfast

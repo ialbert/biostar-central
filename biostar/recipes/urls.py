@@ -69,8 +69,8 @@ urlpatterns = [
     path(r'recipe/create/<str:uid>/', views.recipe_create, name='recipe_create'),
 
     # File listings
-    path(r'file/list/', views.import_files, name='file_list'),
-
+    re_path(r'^file/list/(?P<path>.+)$', views.import_files, name='file_list'),
+    path(r'root/list/', views.import_files, name='root_list'),
     # Actions
     path(r'action/clear/<str:uid>/', views.clear_clipboard, name='clear_clipboard'),
     path(r"search/", views.search_bar, name='search'),
