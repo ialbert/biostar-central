@@ -6,12 +6,10 @@
 {% endblock %}
 
 {% block content %}
-
+<div class="job" data-value="{{ job.uid }}">
     <div class="ui large vertical segment" id="view">
-
         <div class="ui divided link items ">
-
-            <div class="item job" data-value="{{ job.uid }}">
+            <div class="item">
 
                 {% job_img job %}
                 <div class="ui text container">
@@ -46,7 +44,7 @@
             </a>
 
 
-            <a class="ui button" href="{% url "job_copy" job.uid %}?next={% url "job_view" job.uid %}">
+            <a class="ui copy button">
                 <i class="copy icon"></i>Copy
             </a>
 
@@ -59,12 +57,8 @@
             </a>
 
         </div>
-
-
-        <div id="copy-message-{{ job.uid }}"></div>
-
     </div>
-
+</div>
     <div class="ui vertical large segment">
         <div class="ui aligned header">Run Parameters</div>
         <div>Parameters used during the run:</div>
@@ -75,7 +69,7 @@
     <div class="ui vertical large segment" id="flist">
         <div class="ui aligned header">File List</div>
         <div>Files created by the recipe run:</div>
-        {% directory_list job %}
+        {% include 'widgets/files_list.html' %}
     </div>
 
     <div class="ui vertical segment" id="stdout">

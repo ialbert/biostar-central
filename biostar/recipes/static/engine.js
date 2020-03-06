@@ -1,47 +1,8 @@
 //function
 
+function project_id() {
+    return $("#project_id").val();
 
-function update_job(data){
-    if (data.state_changed) {
-                    // TODO: Taking this type of styling out
-                    $('.job-container-' + job_uid).html(data.html);
-                    var job_item = $('.job-item-' + job_uid);
-                    job_item.transition('pulse');
-
-                }
-                if (data.is_running) {
-                    $('.loader[data-uid="' + job_uid + '"]').html('<div class="ui log message">\n' +
-                        '                     <span class="ui active small inline loader"></span>\n' +
-                        '                     <span>Running</span>\n' +
-                        '</div>');
-                    $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid + '/#log')
-
-                } else {
-                    $('.loader[data-uid="' + job_uid + '"]').html("");
-                    $('#job-link[data-uid="' + job_uid + '"]').attr("href", '/job/view/' + job_uid)
-                }
-
-
-                //alert(data.redir)
-                imag.replaceWith(data.img_tmpl);
-
-                if (data.stdout) {
-                    var stdout = $('#stdout');
-                    //alert($('#stdout').html());
-                    stdout.text(data.stdout);
-                    //alert(data.stdout);
-                    //alert(stdout.html())
-                }
-
-                if (data.stderr) {
-                    var stderr = $('#stderr');
-                    stderr.text(data.stderr);
-
-                }
-                if (data.redir && $("#view").length) {
-                    window.location.replace(data.redir + "#flist");
-                    window.location.reload()
-                }
 }
 
 function check_jobs() {
@@ -105,8 +66,8 @@ function check_jobs() {
 
                 // Redirect to the filelist once the job is done.
                 if (data.redir && $("#view").length) {
-                   window.location.replace(data.redir + "#flist");
-                   window.location.reload()
+                    window.location.replace(data.redir + "#flist");
+                    window.location.reload()
                 }
 
             },
@@ -156,77 +117,29 @@ function preview_template(project_uid) {
 }
 
 
-
-function add_vars() {
-    let json_text = $('#json').val();
-    let template = $('#template').val();
-
-    $.ajax('/add/vars/', {
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                'json_text': json_text,
-                'template': template,
-            },
-
-            success: function (data) {
-
-                $('#template').val(data.code);
-                $('#template_field').html(data.html);
-
-            },
-            error: function () {
-            }
-        }
-    )
-}
-
-function remove_trigger() {
-    // Makes site messages dissapear.
-    $('.remove').delay(2000).slideUp(800, function () {
-        $(this).remove();
-    });
-}
-
-
-function set_source_dir() {
-    let current_source = $('#current_source');
-    if (!current_source.val().length) {
-        window.location.href = '/root/list/';
-        return
-    }
-    window.location.href = '/file/list/' + current_source.val();
-}
-
-
-function copy_object(uid, project_uid, clipboard) {
-    let container = $('#item-' + uid);
+function copy_object(uid, clipboard, container) {
 
     $.ajax('/copy/object/',
         {
             type: 'POST',
             dataType: 'json',
-            data: {
-                'project_uid': project_uid,
-                'uid': uid,
-                'clipboard': clipboard
-            },
+            data: {'uid': uid, 'clipboard': clipboard},
 
             success: function (data) {
                 if (data.status === 'success') {
                     // Get the item container
                     container.transition({
                         animation: 'pulse', onComplete: function () {
-                            container.addClass('copied')
+                            container.addClass('copied item')
                         }
                     });
                     return
                 }
-                popover_message(container, data.msg, data.status, 2000)
+                popup_message(container, data.msg, data.status, 4000)
 
             },
             error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
+                error_message(container, xhr, status, text)
             }
 
 
@@ -234,26 +147,22 @@ function copy_object(uid, project_uid, clipboard) {
     )
 }
 
-function copy_file(path, rel_path) {
-    let elem = $('.copy_msg[data-rel="' + rel_path + '"]');
-    //alert(elem.html());
+function copy_file(path, elem) {
+
     $.ajax('/file/copy/', {
             type: 'POST',
             dataType: 'json',
-            data: {
-                'path': path
-            },
+            data: {'path': path, 'uid': project_id()},
 
             success: function (data) {
                 if (data.status === 'success') {
-
-                    popover_message(elem, data.msg, data.status, 500);
+                    popup_message(elem, data.msg, data.status, 500);
                 }
-                popover_message(elem, data.msg, data.status, 2000)
+                popup_message(elem, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
+                error_message(elem, xhr, status, text)
             }
         }
     )
@@ -270,7 +179,7 @@ function toggle_delete(elem, otype) {
 
     var url = '/toggle/delete/';
 
-    var data = { 'uid': uid,  'type': otype };
+    var data = {'uid': uid, 'type': otype};
 
     $.ajax(url, {
             type: 'POST',
@@ -322,7 +231,7 @@ function change_access(access, user_id, project_uid, elem) {
                     });
                     return
                 }
-                popover_message(container, data.msg, data.status, 2000)
+                popup_message(container, data.msg, data.status, 2000)
 
             },
             error: function (xhr, status, text) {
@@ -348,33 +257,7 @@ $(document).ready(function () {
 
     $('select').dropdown();
 
-    //$('#json_add').dropdown();
-
-    //$('#code_add').dropdown();
-
-    //remove_trigger();
-
-    // Check and update 'Running' and 'Spooled' jobs every 5 seconds.
     setInterval(check_jobs, 5000);
-
-    $(".copy-data").click(function (event) {
-
-        var elem = $(this);
-        var data_uid = elem.attr('data-uid');
-        var copy_url = elem.attr('copy-url');
-
-        $.ajax(copy_url, {
-            type: 'GET',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {data_uid: data_uid},
-            success: function (data) {
-                popover_message($("#copy-message-" + data_uid), data.msg, data.status);
-            },
-            error: function () {
-            }
-        });
-    });
 
 
     $('#recipe-search').keyup(function () {
@@ -396,21 +279,9 @@ $(document).ready(function () {
 
     });
 
-    $('#json_add_menu .item').popup({
-        on: 'hover'
-    });
 
     $('.listing').popup({
         on: 'hover',
-    });
-
-
-    $('.cmd-value').popup({
-        on: 'hover'
-    });
-
-    $('#code_add_menu .item').popup({
-        on: 'hover'
     });
 
     $(this).on('click', '#add_vars', function () {
@@ -462,30 +333,36 @@ $(document).ready(function () {
         toggle_delete(elem, 'data')
     });
 
-    $(this).on('click', '#set_source', function () {
-        set_source_dir()
-    });
 
     $('.checkbox').checkbox();
 
-    $(this).on('click', '.copy-object', function () {
-        let uid = $(this).data('value');
-        let project_uid = $(this).data('project');
-        let clipboard = $(this).data('clipboard');
-        copy_object(uid, project_uid, clipboard);
+    $(this).on('click', '.data .copy.button', function () {
+        let data = $(this).closest('.data');
+        let uid = data.data('value');
+        copy_object(uid, "data", data);
+    });
 
+    $(this).on('click', '.job .copy.button', function () {
+        let job = $(this).closest('.job');
+        let uid = job.data('value');
+        copy_object(uid, "job", job);
+    });
+
+    $(this).on('click', '.recipe .copy.button', function () {
+        let recipe = $(this).closest('.recipe');
+        let uid = recipe.data("value");
+        copy_object(uid, "recipe", recipe);
+    });
+
+    $(this).on('click', '.file .copy', function () {
+        let file = $(this).closest('.file');
+        let path = file.data("value");
+        copy_file(path, file);
     });
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();
-
-    $(this).on('click', '.copy_file', function () {
-        let path = $(this).data('path');
-        let rel_path = $(this).data('rel');
-        //alert(rel_path);
-        copy_file(path, rel_path)
-    });
 
 
 });

@@ -13,7 +13,7 @@
     {% endif %}
 {% endblock %}
 {% block content %}
-
+<div class="data" data-value="{{ data.uid }}">
     <div class="ui large vertical segment">
 
         <div class="ui divided items">
@@ -47,7 +47,7 @@
                 <i class="edit icon"></i> <span class="tablet">Edit Data</span>
             </a>
 
-            <a class="ui button" href="{% url "data_copy" data.uid %}?next={% url "data_view" data.uid %}">
+            <a class="ui copy button">
                 <i class="copy icon"></i>Copy Data
             </a>
 
@@ -57,14 +57,12 @@
 
 
         </div>
-        <div id="copy-message-{{ data.uid }}"></div>
-
     </div>
-
+</div>
     <div class="ui vertical large segment">
         <div class="ui aligned header">Data List</div>
         <div>Files contained in the dataset</div>
-        {% directory_list data %}
+        {% include 'widgets/files_list.html' %}
     </div>
 
     {% if data.html %}

@@ -128,7 +128,7 @@ def project_users(request, uid):
     """
     Manage project users page
     """
-    project = Project.objects.filter(label=uid).first()
+    project = Project.objects.filter(uid=uid).first()
     # Get users that already have access to project.
     have_access = project.access_set.exclude(access=Access.NO_ACCESS).order_by('-date')
 
@@ -360,58 +360,6 @@ def project_create(request):
     return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
 
-@read_access(type=Data, fallback_view="data_view", login_required=True)
-def data_copy(request, uid):
-    data = Data.objects.filter(uid=uid).first()
-    next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
-
-    board_items = auth.copy_uid(request=request, uid=data.uid, board=const.COPIED_DATA)
-    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
-    return redirect(next_url)
-
-
-@read_access(type=Analysis, fallback_view="recipe_view", login_required=True)
-def recipe_copy(request, uid):
-    recipe = Analysis.objects.filter(uid=uid).first()
-    next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
-
-    board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.COPIED_RECIPES)
-
-    return redirect(next_url)
-
-
-@read_access(type=Job, fallback_view="job_view", login_required=True)
-def job_copy(request, uid):
-    job = Job.objects.filter(uid=uid).first()
-    next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
-
-    board_items = auth.copy_uid(request=request, uid=job.uid, board=const.COPIED_RESULTS)
-    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
-    return redirect(next_url)
-
-
-@read_access(type=Data, fallback_view="data_view", login_required=True)
-def data_file_copy(request, uid, path):
-    # Get the root data where the file exists
-    data = Data.objects.filter(uid=uid).first()
-    fullpath = os.path.join(data.get_data_dir(), path)
-    copied = auth.copy_file(request=request, fullpath=fullpath)
-    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
-
-    return redirect(reverse("data_view", kwargs=dict(uid=uid)))
-
-
-@read_access(type=Job, fallback_view="job_view", login_required=True)
-def job_file_copy(request, uid, path):
-    # Get the root data where the file exists
-    job = Job.objects.filter(uid=uid).first()
-    fullpath = os.path.join(job.get_data_dir(), path)
-
-    copied = auth.copy_file(request=request, fullpath=fullpath)
-    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
-    return redirect(reverse("job_view", kwargs=dict(uid=uid)))
-
-
 @write_access(type=Project, fallback_view="recipe_list")
 def recipe_paste(request, uid):
     """
@@ -515,8 +463,10 @@ def data_view(request, uid):
 
     data = Data.objects.filter(uid=uid).first()
     project = data.project
+    paths = auth.listing(root=data.get_data_dir())
 
-    context = dict(data=data, project=project, activate='Selected Data')
+    context = dict(data=data, project=project, paths=paths, serve_view="data_serve",
+                   activate='Selected Data', uid=data.uid, show_all=True)
     counts = get_counts(project)
     context.update(counts)
 
@@ -839,9 +789,6 @@ def job_view(request, uid):
     job = Job.objects.filter(uid=uid).first()
     project = job.project
 
-    # The path is a GET parameter
-    path = request.GET.get('path', "")
-
     stdout = job.stdout_log
     stderr = job.stderr_log
     if job.is_running():
@@ -851,8 +798,9 @@ def job_view(request, uid):
         stdout = open(stdout_path, 'r').read()
         stderr = open(stderr_path, 'r').read()
 
-    context = dict(job=job, project=project, stderr=stderr, stdout=stdout,
-                   activate='View Result', path=path)
+    paths = auth.listing(root=job.get_data_dir())
+    context = dict(job=job, project=project, stderr=stderr, stdout=stdout,uid=job.uid, show_all=True,
+                   activate='View Result', paths=paths, serve_view="job_serve")
 
     counts = get_counts(project)
     context.update(counts)
@@ -928,7 +876,7 @@ def project_share(request, token):
         return redirect(reverse('project_list'))
 
     access = Access.objects.filter(user=user, project=project).first()
-    # Give user Share access.
+    # Give user Share access.xs
 
     # Create access
     if access is None:
@@ -943,7 +891,7 @@ def project_share(request, token):
 
 
 @login_required
-def import_files(request, path=''):
+def import_files(request, path=""):
     """
     Import files mounted on IMPORT_ROOT_DIR in settings
     """
@@ -953,16 +901,16 @@ def import_files(request, path=''):
         messages.error(request, 'Only trusted users may views this page.')
         return redirect(reverse('project_list'))
 
-    current_path = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
+    root = settings.IMPORT_ROOT_DIR
+    path = os.path.abspath(os.path.join(root, path))
 
-    if not current_path.startswith(settings.IMPORT_ROOT_DIR):
+    if not path.startswith(root):
         messages.error(request, 'Outside root directory')
-        rel_path = ''
-    elif current_path == settings.IMPORT_ROOT_DIR:
-        rel_path = ''
-    else:
-        rel_path = os.path.relpath(current_path, settings.IMPORT_ROOT_DIR)
+        path = ''
 
-    context = dict(rel_path=rel_path, active="import")
+    node = path if os.path.isdir(path) else None
+    paths = auth.listing(root=root, node=node, show_all=False)
+
+    context = dict(paths=paths, active="import", show_all=False)
 
     return render(request, 'import_files.html', context=context)

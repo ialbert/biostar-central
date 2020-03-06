@@ -10,15 +10,20 @@ from django.urls import reverse
 from biostar.recipes import models, auth, ajax
 from biostar.utils.helpers import fake_request, get_uuid
 
-__MODULE_DIR = os.path.dirname(auth.__file__)
-TEST_ROOT = os.path.join(__MODULE_DIR, 'test')
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
 
-CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
-IMPORT_ROOT_DIR = os.path.join(TEST_ROOT, 'data')
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
+
+__MODULE_DIR = os.path.dirname(auth.__file__)
+TEST_DIR = os.path.join(__MODULE_DIR, 'test')
+
+IMPORT_ROOT_DIR = os.path.join(TEST_DIR, 'data')
 logger = logging.getLogger('engine')
 
 
-@override_settings(MEDIA_ROOT=TEST_ROOT, IMPORT_ROOT_DIR=IMPORT_ROOT_DIR)
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT, IMPORT_ROOT_DIR=IMPORT_ROOT_DIR)
 class AjaxTest(TestCase):
 
     def setUp(self):
@@ -28,6 +33,10 @@ class AjaxTest(TestCase):
         self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
         self.owner.set_password("tested")
 
+        # Set up generic owner
+        self.trusted_owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@2.com",
+                                                             is_superuser=True)
+        self.owner.set_password("tested")
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
@@ -61,11 +70,11 @@ class AjaxTest(TestCase):
         """
         Test AJAX function used to copy file
         """
-        data = {'path': "plain-text.txt"}
+        data = {'path': os.path.join(IMPORT_ROOT_DIR,"plain-text.txt")}
 
         url = reverse('file_copy')
 
-        request = fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.trusted_owner)
 
         json_response = ajax.file_copy(request=request)
 
