@@ -9,10 +9,10 @@ import biostar.accounts.urls as accounts_urls
 
 urlpatterns = [
 
-    url(r'^', include(forum_urls)),
+    url(r'^', include(engine_urls)),
 
     # Include messages urls
-    url(r'^recipes/', include(engine_urls)),
+    url(r'^forum/', include(forum_urls)),
 
     # Include the accounts urls
     # Already included with above urls.
