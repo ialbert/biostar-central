@@ -65,18 +65,6 @@ class JobViewTest(TestCase):
         management.call_command('job', id=self.job.id, verbosity=2)
         management.call_command('job', list=True)
 
-    def test_job_copy_and_paste(self):
-
-        url = reverse("job_copy", kwargs=dict(uid=self.job.uid))
-        request = fake_request(url=url, data={}, user=self.owner)
-        response = views.job_copy(request=request, uid=self.job.uid)
-        self.process_response(response, data={})
-
-        board = request.session.get(settings.CLIPBOARD_NAME, {}).get(const.COPIED_RESULTS, [])
-        success = len(board) == 1 and board[0] == self.job.uid
-        auth.generate_script(self.job)
-        self.assertTrue(success, "Job uid not copied to clipboard")
-        return
 
     def test_job_delete(self):
         "Test job delete"
@@ -98,19 +86,6 @@ class JobViewTest(TestCase):
         response = views.job_rerun(request=request, uid=self.job.uid)
         self.process_response(response=response, data={})
 
-    def test_job_file_copy(self):
-        "Test the job file copying interface"
-
-        data = {settings.CLIPBOARD_NAME: const.COPIED_FILES, 'path': self.job.get_data_dir()}
-        copy_url = reverse("job_file_copy", kwargs=dict(uid=self.job.uid, path=self.job.get_data_dir()))
-        copy_request = fake_request(url=copy_url, data=data, user=self.owner)
-        copy_response = views.job_file_copy(request=copy_request, uid=self.job.uid, path=self.job.get_data_dir())
-        self.process_response(copy_response, data={})
-
-        paste_url = reverse("file_paste", kwargs=dict(uid=self.project.uid))
-        paste_request = fake_request(url=paste_url, data=data, user=self.owner)
-        paste_response = views.file_paste(request=paste_request, uid=self.project.uid)
-        self.process_response(paste_response, data={})
 
     def test_job_serve(self):
         "Test file serve function."

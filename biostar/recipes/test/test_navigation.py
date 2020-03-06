@@ -18,6 +18,7 @@ __CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 # Ensure that the table of directory exists.
 os.makedirs(TOC_ROOT, exist_ok=True)
 
+
 @override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class SiteNavigation(TestCase):
 
@@ -70,9 +71,6 @@ class SiteNavigation(TestCase):
     def test_public_pages(self):
         "Checking public pages"
 
-        ajax_urls = [
-            reverse('add_vars'),
-        ]
 
         api_urls = [
 
@@ -102,6 +100,7 @@ class SiteNavigation(TestCase):
             reverse('project_view', kwargs=self.proj_params),
             reverse('project_users', kwargs=self.proj_params),
             reverse('project_info', kwargs=self.proj_params),
+            #reverse("file_copy", kwargs=self.analysis_params),
 
             reverse('project_edit', kwargs=self.proj_params),
             reverse('recipe_list', kwargs=self.proj_params),
@@ -118,7 +117,6 @@ class SiteNavigation(TestCase):
 
         self.visit_urls(urls=urls, codes=[200])
         self.visit_urls(urls=api_urls, codes=[200])
-        self.visit_urls(urls=ajax_urls, codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
 
@@ -132,12 +130,6 @@ class SiteNavigation(TestCase):
             reverse("project_delete", kwargs=self.proj_params),
             reverse("project_users", kwargs=self.proj_params),
             reverse("project_edit", kwargs=self.proj_params),
-            reverse("data_copy", kwargs=self.data_params),
-            reverse("recipe_copy", kwargs=self.analysis_params),
-            reverse("job_copy", kwargs=self.job_params),
-            reverse("job_copy", kwargs=self.job_params),
-            reverse("data_file_copy", kwargs=self.data_file_params),
-            reverse("job_file_copy", kwargs=self.job_file_params),
             reverse("recipe_paste", kwargs=self.proj_params),
             reverse("data_paste", kwargs=self.proj_params),
             reverse("file_paste", kwargs=self.proj_params),

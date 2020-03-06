@@ -121,11 +121,11 @@ class FactoryTest(TestCase):
 
     def test_import_file(self):
         "Test import files tab view"
-        url = reverse('file_list', kwargs=dict(path=' '))
+        url = reverse('file_list')
 
         request = fake_request(url=url, data={}, user=self.owner)
 
-        response = views.import_files(request, path=' ')
+        response = views.import_files(request)
 
         self.assertEqual(response.status_code, 200, f"Error with file listing in import tab.")
 

@@ -129,16 +129,6 @@ class RecipeViewTest(TestCase):
                         f"Error downloading code. Expected: {self.recipe.template} "
                         f"received: {response.content.decode()}")
 
-    def test_recipe_copy(self):
-        "Test recipe copy interface"
-
-        url = reverse('recipe_copy', kwargs=dict(uid=self.recipe.uid))
-
-        request = fake_request(url=url, data={}, user=self.owner)
-
-        response = views.recipe_copy(request=request, uid=self.recipe.uid)
-
-        self.process_response(response=response, data={})
 
     def test_recipe_paste(self):
         "Test recipe paste interface"

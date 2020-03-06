@@ -248,7 +248,7 @@
 <script>
     $(document).ready(function () {
         var elem = $('#interface_editor');
-        var interface = init_codemirror(elem, 400, preview_callback);
+        var interface = init_codemirror(elem, 400);
         var project = elem.closest('.grid').data("project");
         update_preview();
         url = "/ajax/field/render/";

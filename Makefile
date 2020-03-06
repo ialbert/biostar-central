@@ -5,10 +5,10 @@ DUMP_FILE=export/database/db.json
 BACKUP_DUMP_FILE=export/database/db.backup.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
-DJANGO_SETTINGS_MODULE := biostar.recipes.settings
+DJANGO_SETTINGS_MODULE := biostar.test.test_settings
 
 # Default app.
-DJANGO_APP := biostar.recipes
+DJANGO_APP :=
 
 # Database name
 DATABASE_NAME := database.db
@@ -23,10 +23,6 @@ INDEX_DIR := search
 COPY_DATABASE := recipes.db
 
 all: recipes serve
-
-every:
-	$(eval DJANGO_APP := )
-	$(eval DJANGO_SETTINGS_MODULE := biostar.test.test_settings )
 
 accounts:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)

@@ -2,7 +2,7 @@
 {% load engine_tags %}
 
 
-<div class="item recipe">
+<div class="item recipe" data-value="{{ recipe.uid }}" >
     <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
     <div class="content">
 
@@ -35,7 +35,7 @@
     </div>
     {% if user.is_authenticated %}
         <div class="ui mini buttons">
-            <a class="ui right button" href="{% url 'recipe_copy' recipe.uid %}">
+            <a class="ui right copy button">
                 <i class="copy icon"></i>Copy
             </a>
             <div class="or"></div>

@@ -29,6 +29,7 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
               Job.RUNNING: "running", Job.COMPLETED: "completed"
               }
 
+
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
@@ -476,18 +477,31 @@ def listing(root):
     paths = []
 
     try:
-        paths = os.listdir(root)
+        # Walk the filesystem and collect all files.
+        for fpath, fdirs, fnames in os.walk(root, followlinks=True):
+            paths.extend([os.path.realpath(join(fpath, fname)) for fname in fnames])
 
+        # Add more metadata to each path.
         def transform(path):
-            path = os.path.join(root, path)
+
+            # Image extension types.
+            IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
+
+            path = os.path.abspath(os.path.join(root, path))
             tstamp = os.stat(path).st_mtime
             size = os.stat(path).st_size
-            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
-            is_dir = os.path.isdir(path)
-            basename = os.path.basename(path)
-            return rel_path, tstamp, size, is_dir, basename
+            rel_path = os.path.relpath(path, root)
+            elems = os.path.split(rel_path)
+            dir_names = elems[:-1]
 
-        paths = map(transform, paths)
+            if dir_names[0] == '':
+                dir_names = []
+            last_name = elems[-1]
+            dir_name = os.path.dirname(path)
+            is_image = last_name.split(".")[-1] in IMAGE_EXT
+            return rel_path, dir_names, last_name, tstamp, size, is_image, dir_name
+
+        paths = list(map(transform, paths))
         # Sort files by timestamps
         paths = sorted(paths, key=lambda x: x[1], reverse=True)
 

@@ -17,6 +17,8 @@ from biostar.recipes.forms import RecipeInterface
 from biostar.recipes import auth
 from django.shortcuts import render, redirect, reverse
 
+from biostar.recipes.forms import RecipeForm
+
 logger = logging.getLogger("engine")
 
 JOB_COLORS = {Job.SPOOLED: "spooled",
@@ -65,9 +67,6 @@ class ajax_error_wrapper:
             return func(request, *args, **kwargs)
 
         return _ajax_view
-
-
-from .forms import RecipeForm
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -120,12 +119,13 @@ def check_job(request, uid):
     else:
         stdout = stderr = None
 
-    # Get an the loading image icon
+    # Render the updated image icon
     redir = job.url() if job.is_finished() else ""
     context = dict(job=job)
     tmpl = loader.get_template('widgets/loading_img.html')
     image_tmpl = tmpl.render(context=context)
 
+    # Render the updated elapsed runtime, status, etc..
     context = dict(job=job, check_back=check_back)
     tmpl = loader.get_template('widgets/job_elapsed.html')
     template = tmpl.render(context=context)
@@ -197,18 +197,32 @@ def preview_json(request):
     return ajax_success(msg="Recipe json", html=template)
 
 
-@ajax_error_wrapper(method="POST")
+@ajax_error_wrapper(method="POST", login_required=True)
 def file_copy(request):
     """
-    Add file into clipboard.
+    Add file from import root directory into clipboard.
     """
+    # Assumes incoming path is a full path
     path = request.POST.get('path')
-    fullpath = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
-    if not os.path.exists(fullpath):
+    user = request.user
+
+    # Project uid to check access
+    uid = request.POST.get('uid') or 0
+    project = Project.objects.filter(id=uid).first()
+
+    if uid and not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if project and not auth.is_readable(user=user, project=project):
+        return ajax_error(msg="You do not have access to copy this file")
+
+    if not os.path.exists(path):
         return ajax_error(msg="File path does not exist.")
 
-    copied = auth.copy_file(request=request, fullpath=fullpath)
+    if path.startswith(settings.IMPORT_ROOT_DIR) and not user.profile.trusted:
+        return ajax_error(msg="Only trusted users can copy from this directory.")
 
+    copied = auth.copy_file(request=request, fullpath=path)
     return ajax_success(msg=f"{len(copied)} files copied.")
 
 
@@ -295,46 +309,28 @@ def copy_object(request):
     """
     Add object uid or file path to sessions clipboard.
     """
+    mapper = {"data": (Data, COPIED_DATA),
+              "job": (Job, COPIED_RESULTS),
+              "recipe": (Analysis, COPIED_RECIPES)}
 
-    object_uid = request.POST.get('uid', '')
-    project_uid = request.POST.get('project_uid', '')
+    uid = request.POST.get('uid', '')
     clipboard = request.POST.get('clipboard')
 
-    project = Project.objects.filter(uid=project_uid).first()
-    if not project:
-        return ajax_error("Project does not exist.")
+    obj, board = mapper.get(clipboard, (None, None))
+    obj = obj.objects.filter(uid=uid).first() if obj else None
+    if not obj:
+        return ajax_error("Object does not exist.")
 
+    project = obj.project
     is_readable = auth.is_readable(user=request.user, project=project)
 
     if not is_readable:
         return ajax_error('You do not have access to copy this object.')
 
     # Return current clipboard contents
-    copied_uids = auth.copy_uid(request=request, uid=object_uid, board=clipboard)
+    copied = auth.copy_uid(request=request, uid=uid, board=board)
 
-    return ajax_success(f"Copied. Clipboard contains :{len(copied_uids)} objects.")
-
-
-def add_variables(request):
-    # Get the most recent template and json.
-    json_text = request.POST.get('json_text', '')
-    template = request.POST.get('template', '')
-
-    json_data = toml.loads(json_text)
-
-    # Create a set with all template variables
-    all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}
-
-    all_vars = '\n'.join(all_vars)
-
-    # Insert variables at the beginning of the template
-    new_template = template + '\n' + all_vars
-
-    tmpl = loader.get_template('widgets/template_field.html')
-    context = dict(template=new_template, scroll_to_bottom=False, focus=True)
-    template_field = tmpl.render(context=context)
-
-    return ajax_success(msg="Added variables to template", html=template_field, code=new_template)
+    return ajax_success(f"Copied. Clipboard contains :{len(copied)} objects.")
 
 
 def field_render(request):

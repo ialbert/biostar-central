@@ -33,6 +33,10 @@ class AjaxTest(TestCase):
         self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
         self.owner.set_password("tested")
 
+        # Set up generic owner
+        self.trusted_owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@2.com",
+                                                             is_superuser=True)
+        self.owner.set_password("tested")
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
@@ -66,11 +70,11 @@ class AjaxTest(TestCase):
         """
         Test AJAX function used to copy file
         """
-        data = {'path': "plain-text.txt"}
+        data = {'path': os.path.join(IMPORT_ROOT_DIR,"plain-text.txt")}
 
         url = reverse('file_copy')
 
-        request = fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.trusted_owner)
 
         json_response = ajax.file_copy(request=request)
 

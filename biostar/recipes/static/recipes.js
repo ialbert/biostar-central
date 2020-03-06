@@ -5,7 +5,18 @@ Must call setup.js first initialize additional functionality used here.
 
 */
 
-function init_codemirror(element, size, callback) {
+
+function codemirror_callbacks() {
+
+    return {
+        'Shift-Enter': (cm) => {
+            update_preview();
+            popup_message($("#interface"), "Updated the interface preview", "success", 4000)
+        }
+    }
+}
+
+function init_codemirror(element, size) {
 
     var area = CodeMirror.fromTextArea(
         element[0],
@@ -14,11 +25,8 @@ function init_codemirror(element, size, callback) {
             lineNumbers: true,
             mode: 'shell',
             theme: 'idea',
-            extraKeys: {
-                'Shift-Enter': (cm) => {
-                    callback()
-                },
-            }
+            extraKeys: codemirror_callbacks(),
+
         }
     );
 
@@ -51,7 +59,7 @@ function preview_template(fields) {
 }
 
 
-function update_preview(callback) {
+function update_preview() {
 
     let recipe_json = $('#interface_editor').val();
     let project = $('#interface').closest('.grid').data("project");
@@ -70,16 +78,9 @@ function update_preview(callback) {
                 return
             }
             $('#preview').html(preview_template(data.html));
-            callback()
+
         }
     });
-}
-
-function preview_callback() {
-    function callback() {
-        popover_message($("#interface"), "Updated the interface preview", "success", 4000)
-    }
-    update_preview(callback);
 }
 
 // Submits a form request.
