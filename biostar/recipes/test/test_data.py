@@ -93,28 +93,28 @@ class DataViewTest(TestCase):
         "Test data copy and paste interface"
 
         url = reverse('copy_object')
-        clear_url = reverse('clear_clipboard', kwargs=dict(uid=self.project.uid))
-        paste_url = reverse('data_paste', kwargs=dict(uid=self.project.uid))
-        data = {"clipboard":"data", "uid":self.data.uid}
+        clear_url = reverse('clear_clipboard')
+        paste_url = reverse('ajax_paste')
+        data = {"clipboard":"data", "uid": self.data.uid}
 
         request = fake_request(url=url, data=data, user=self.owner)
         response = ajax.copy_object(request=request)
 
         clear_request = fake_request(url=clear_url, data=data, user=self.owner)
-        clear_response = views.clear_clipboard(request=clear_request, uid=self.project.uid)
+        clear_response = ajax.ajax_clear_clipboard(request=clear_request)
 
         self.process_response(response=response, stat=200, data={})
-        self.process_response(response=clear_response, data={})
+        self.process_response(response=clear_response, stat=200, data={})
 
         # Copy again and paste this time
         request = fake_request(url=url, data=data, user=self.owner)
         response = ajax.copy_object(request=request)
 
         paste_request = fake_request(url=paste_url, data=data, user=self.owner)
-        paste_response = views.data_paste(request=paste_request, uid=self.project.uid)
+        paste_response = ajax.ajax_paste(request=paste_request)
 
         self.process_response(response=response,stat=200,  data={})
-        self.process_response(response=paste_response, data={})
+        self.process_response(response=paste_response, stat=200, data={})
 
 
     def test_data_delete(self):

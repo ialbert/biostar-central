@@ -5,71 +5,83 @@ function project_id() {
 
 }
 
+function change_state(job, data) {
+    // Get the current job image, stdout and stderr
+    var image = job.find('#img:first');
+    var stdout = $('#stdout pre:first');
+    var stderr = $('#stderr');
+
+    // Only replace state and activate effects when the state has actually changed.
+    if (data.state_changed) {
+        job.find('.state:first').html(data.html);
+        job.transition('pulse');
+
+    }
+    // Update the image, stdout, and stderr.
+    image.replaceWith(data.img_tmpl);
+    stdout.text(data.stdout);
+    stderr.text(data.stderr);
+
+}
+
+function trigger_running(job, data) {
+
+    var loader = $('#stdout .loader');
+    var uid = job.data('value');
+    var link = job.find(".link");
+
+    if (data.is_running) {
+        // Anchor link to the log when job is running
+        link.attr("href", '/job/view/{0}/#log'.format(uid));
+        // Add the "Running" loader under log
+        loader.html('<div id="log" class="ui log message">' +
+            '<span class="ui active small inline loader"></span>' +
+            '<span>Running</span>' +
+            '</div>');
+    } else {
+        loader.html("");
+        link.attr("href", '/job/view/{0}/'.format(uid))
+    }
+}
+
+
 function check_jobs() {
 
     // Look at each job with a 'check_back' tag
     $('.check_back').each(function () {
 
         var job = $(this).closest('.job');
+
         // Get the uid and state
         var uid = job.data('value');
 
         // Get the current job state.
         var state = $(this).data("state");
 
-        // Get the element containing job image.
-        var imag = job.find('#img:first');
-
-        // Construct the url
-        var url = '/ajax/check/job/{0}/'.format(uid);
-
-        var link = job.find(".link");
-
-        var stdout = $('#stdout pre:first');
-
-        var loader = $('#stdout .loader');
-
-        var stderr = $('#stderr');
-
         // Bail out when a job uid is not provided.
         if (uid === null || uid === undefined) {
             return
         }
 
-        // Ajax request checking state change and replace appropriate element.
-        $.ajax(url, {
+        $.ajax('/ajax/check/job/{0}/'.format(uid), {
             type: 'GET',
             dataType: 'json',
             data: {'state': state},
             ContentType: 'application/json',
             success: function (data) {
-                // Only replace and activate effects when the state has actually changed.
-                if (data.state_changed) {
-                    job.find('.state:first').html(data.html);
-                    job.transition('pulse');
-                    console.log(data.state_changed, state)
 
-                }
-                if (data.is_running) {
-                    //$("#log").html("");
-                    link.attr("href", '/job/view/{0}/#log'.format(uid));
-                    loader.html('<div id="log" class="ui log message"><span class="ui active small inline loader"></span><span>Running</span></div>');
+                // Change the job state
+                change_state(job, data);
 
-                } else {
-                    loader.html("");
-                    link.attr("href", '/job/view/{0}/'.format(uid))
-                }
+                // Trigger events when job is running
+                trigger_running(job, data);
 
-                imag.replaceWith(data.img_tmpl);
-                stdout.text(data.stdout);
-                stderr.text(data.stderr);
-
-                // Redirect to the filelist once the job is done.
+                // Redirect to the file list once the job is done
+                // and the current page is a job view.
                 if (data.redir && $("#view").length) {
                     window.location.replace(data.redir + "#flist");
                     window.location.reload()
                 }
-
             },
             error: function (xhr, status, text) {
                 error_message($(this), xhr, status, text)
@@ -77,43 +89,6 @@ function check_jobs() {
         })
     });
 
-}
-
-
-function preview_template(project_uid) {
-    let template = $('#template').val();
-    let json_text = $('#json').val();
-    $.ajax('/preview/template/',
-        {
-            type: 'POST',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'template': template,
-                'json_text': json_text,
-                'project_uid': project_uid
-            },
-            success: function (data) {
-
-                if (data.status === 'success') {
-                    $('#preview div').html('<h4 class="ui center aligned header">\n' +
-                        '\n' +
-                        '    <div class="muted">Press ESC to close window</div>\n' +
-                        '</h4>\n' +
-                        '\n' +
-                        '<pre><code class=" language-bash line-numbers ">' + data.script + '</code></pre>\n');
-                    $('#preview').modal('show');
-                    Prism.highlightAll();
-                } else {
-                    popover_message($("#template"), data.msg, data.status);
-                }
-
-            },
-            error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
-            }
-
-        });
 }
 
 
@@ -133,6 +108,7 @@ function copy_object(uid, clipboard, container) {
                             container.addClass('copied item')
                         }
                     });
+                    update_clipboard();
                     return
                 }
                 popup_message(container, data.msg, data.status, 4000)
@@ -153,10 +129,11 @@ function copy_file(path, elem) {
             type: 'POST',
             dataType: 'json',
             data: {'path': path, 'uid': project_id()},
-
             success: function (data) {
                 if (data.status === 'success') {
                     popup_message(elem, data.msg, data.status, 500);
+                    update_clipboard();
+                    return
                 }
                 popup_message(elem, data.msg, data.status, 2000)
 
@@ -169,16 +146,80 @@ function copy_file(path, elem) {
 }
 
 
+function paste(data){
+    // Paste a given item into the clipboard
+    var elem = $("#clipboard");
+    $.ajax('/paste/', {
+            type: 'POST',
+            dataType: 'json',
+            data:data,
+            success: function (data) {
+                if (data.status === "success") {
+
+                     window.location.href = data.redirect;
+                     popup_message(elem, data.msg, data.status, 500);
+                }
+                //popup_message(elem, data.msg, data.status, 2000)
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        }
+    )
+}
+
+function clear(){
+    var elem = $("#clipboard");
+    $.ajax('/clear/', {
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                if (data.status === "success") {
+                     popup_message(elem, data.msg, data.status, 500);
+                     elem.hide();
+                     elem.html(data.html);
+                     elem.fadeIn("slow", function () {});
+                     $('.copied.item').each(function () {
+                         $(this).removeClass(" copied")
+                     })
+                    return
+                }
+                popup_message(elem, data.msg, data.status, 4000)
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        }
+    )
+}
+
+function update_clipboard(){
+    var elem = $("#clipboard");
+    $.ajax('/clipboard/', {
+            type: 'POST',
+            dataType: 'json',
+            data:{"id": project_id()},
+            success: function (data) {
+                if (data.html) {
+                     elem.hide();
+                     elem.html(data.html);
+                     elem.fadeIn("slow", function () {});
+                }
+                //popup_message(elem, data.msg, data.status, 2000)
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        }
+    )
+}
+
 function toggle_delete(elem, otype) {
 
-
     var uid = elem.data("value");
-
     // Fetch the element to decrement/increment  once toggle is complete.
     var count = $("#{0}_count".format(otype));
-
     var url = '/toggle/delete/';
-
     var data = {'uid': uid, 'type': otype};
 
     $.ajax(url, {
@@ -194,7 +235,6 @@ function toggle_delete(elem, otype) {
                     return
                 }
                 popover_message(elem.before(), data.msg, data.status, 2000)
-
             },
             error: function (xhr, status, text) {
                 error_message(elem.before(), xhr, status, text)
@@ -207,7 +247,6 @@ function toggle_delete(elem, otype) {
 
 function change_access(access, user_id, project_uid, elem) {
     let container = $('.container-' + user_id);
-    //alert(container.html());
     $.ajax('/manage/access/', {
             type: 'POST',
             dataType: 'json',
@@ -219,7 +258,6 @@ function change_access(access, user_id, project_uid, elem) {
 
             success: function (data) {
                 if (data.status === 'success') {
-
                     container.transition('bounce').transition({
                         animation: 'pulse', onComplete: function () {
                             if (data.no_access) {
@@ -259,19 +297,14 @@ $(document).ready(function () {
 
     setInterval(check_jobs, 5000);
 
-
     $('#recipe-search').keyup(function () {
-
         var query = $(this).val();
-
         $.ajax("/search/", {
             type: 'GET',
             dataType: 'html',
-
             data: {'q': query},
-
             success: function (data) {
-                $('#search-results').html(data);
+                $('#search-results').html(data)
             },
             error: function () {
             }
@@ -282,27 +315,6 @@ $(document).ready(function () {
 
     $('.listing').popup({
         on: 'hover',
-    });
-
-    $(this).on('click', '#add_vars', function () {
-        add_vars()
-    });
-
-
-    $(this).on('click', '#template_preview', function () {
-        event.preventDefault();
-        //let uid = $(this).data('value');
-        let project_uid = $(this).data('value');
-        preview_template(project_uid)
-
-    });
-
-
-    $(this).on('keyup', '#current_source', function (event) {
-        // Submit when pressing enter
-        if (event.keyCode === 13) {
-            set_source_dir()
-        }
     });
 
     $(".moderate-user").click(function (event) {
@@ -360,9 +372,26 @@ $(document).ready(function () {
         copy_file(path, file);
     });
 
+    $('#clipboard').each(function () {
+        update_clipboard();
+    });
+
+    $(this).on('click', '#clipboard .paste', function () {
+        var data = {"id": project_id()};
+        paste(data);
+    });
+
+    $(this).on('click', '#clipboard .clone', function () {
+        var data = {"id": project_id(), "target":"clone"};
+        paste(data);
+    });
+
+    $(this).on('click', '#clipboard .clear', function () {
+        clear();
+    });
+
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();
-
 
 });

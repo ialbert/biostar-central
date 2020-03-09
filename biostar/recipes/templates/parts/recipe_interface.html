@@ -234,7 +234,7 @@
                 </div>
 
                 <div class="extra content formstyle">
-                    <div class="toml_field"></div>
+                    <div class="ui radio choice toml_field"></div>
                 </div>
 
             </div>
@@ -254,7 +254,6 @@
         url = "/ajax/field/render/";
 
         $(".card").each(function (index) {
-
             var curr = $(this);
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
@@ -265,12 +264,17 @@
         $(this).on('dblclick', '.card .content:not(.extra)', function () {
             var curr = $(this).closest(".card");
             var toml = curr.find(".toml_code").text();
+            var field = curr.find(".toml_field");
+            // Add this field to toml
             var new_toml = elem.val() + '\n' + toml.replace(/  /g, '');
-            // Set new values
+
+            // Set new values.
             elem.val(new_toml);
             interface.setValue(elem.val());
+            // Add this field html to the preview;
+            $("#preview form .preview").append(field.html());
+
             popup_message($(this), 'Inserted into interface.', "success");
-            update_preview();
         });
     });
 </script>

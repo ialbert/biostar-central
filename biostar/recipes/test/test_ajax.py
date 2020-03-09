@@ -40,6 +40,8 @@ class AjaxTest(TestCase):
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
+        self.project2 = auth.create_project(user=self.trusted_owner, name="tested", text="Text", summary="summary",
+                                            uid="tested")
 
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="",
                                            security=models.Analysis.AUTHORIZED)
@@ -66,17 +68,17 @@ class AjaxTest(TestCase):
         json_response = ajax.check_job(request=request, uid=self.job.uid)
         self.process_response(json_response)
 
-    def test_file_copy(self):
+    def test_copy_file(self):
         """
         Test AJAX function used to copy file
         """
-        data = {'path': os.path.join(IMPORT_ROOT_DIR,"plain-text.txt")}
+        data = {'path': os.path.join(IMPORT_ROOT_DIR,"plain-text.txt"), "uid": self.project2.id}
 
-        url = reverse('file_copy')
+        url = reverse('copy_file')
 
         request = fake_request(url=url, data=data, user=self.trusted_owner)
 
-        json_response = ajax.file_copy(request=request)
+        json_response = ajax.copy_file(request=request)
 
         self.process_response(json_response)
 
@@ -123,20 +125,6 @@ class AjaxTest(TestCase):
         request = fake_request(url=url, data=data, user=self.owner)
 
         json_response = ajax.manage_access(request)
-
-        self.process_response(json_response)
-
-    def test_preview_template(self):
-        """
-        Test AJAX function used to preview recipe scripts
-        """
-
-        data = {'template': '# recipe code', 'json_text': '', 'name': self.recipe.name,
-                'uid': self.recipe.uid, 'project_uid': self.recipe.project.uid}
-
-        url = reverse('preview_template')
-        request = fake_request(url=url, data=data, user=self.owner)
-        json_response = ajax.preview_template(request=request)
 
         self.process_response(json_response)
 

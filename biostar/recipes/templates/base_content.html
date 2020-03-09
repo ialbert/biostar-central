@@ -20,17 +20,17 @@
         <i class="database icon"></i> All Projects
     </a>
 
+    <span id="clipboard"></span>
+
     {% block ribbon %}
         {% if user.is_authenticated %}
-
             <a class="ui right ribbon obj label" href="{% url 'recipe_create' project.uid %}">
                 <i class="plus icon"></i>New Recipe
             </a>
         {% endif %}
-
     {% endblock %}
 
-    <div class="ui vertical segment" id="clipboard_anchor">
+    <div class="ui vertical segment" >
 
     <div class="ui top attached large tabular  menu">
 

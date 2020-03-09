@@ -13,18 +13,7 @@
 
 {% block content %}
 
-    <a class="ui left ribbon  label" href="{% url 'project_list_public' %}">
-        <i class="database icon"></i> All Projects
-    </a>
-
-    {% if user.is_authenticated %}
-        <a class="ui right ribbon obj label" href="{% url 'project_create' %}">
-            <i class="plus icon"></i>New Project
-        </a>
-    {% endif %}
-
     {% show_messages messages %}
-
 
     <div class="ui divided items">
         {% for project in projects %}

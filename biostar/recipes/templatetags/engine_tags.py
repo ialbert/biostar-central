@@ -8,6 +8,7 @@ import random
 
 from datetime import timedelta, datetime
 from django.contrib import messages
+from django.forms.widgets import CheckboxInput
 from django import template, forms
 from django.shortcuts import reverse
 from django.conf import settings
@@ -137,70 +138,6 @@ def list_view(context, projects=None, data_list=None, recipe_list=None, job_list
                 job_list=job_list, request=request)
 
 
-def resolve_clipboard_urls(board, project_uid):
-    view_map = {const.COPIED_DATA: ('data_paste', 'data_list'),
-                const.COPIED_RECIPES: ('recipe_paste', 'recipe_list'),
-                const.COPIED_FILES: ('file_paste', 'file_paste'),
-                const.COPIED_RESULTS: ('data_paste', 'data_list'),
-                }
-
-    paste_view, next_view = view_map.get(board, ('', ''))
-
-    if paste_view:
-        url_resolover = lambda v: reverse(v, kwargs=dict(uid=project_uid))
-        paste_url, next_url = url_resolover(paste_view), url_resolover(next_view)
-    else:
-        paste_url, next_url = '', ''
-
-    return paste_url, next_url
-
-
-def get_label(board):
-    label_map = {const.COPIED_DATA: 'copied data',
-                 const.COPIED_RECIPES: 'recipe',
-                 const.COPIED_FILES: 'copied file',
-                 const.COPIED_RESULTS: 'copied result',
-                 }
-
-    label = label_map.get(board, '')
-    return label
-
-
-@register.inclusion_tag('widgets/paste.html', takes_context=True)
-def paste(context, project, current=","):
-    request = context["request"]
-    items_in_board = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    items_to_paste = {}
-    # Get the content to paste from the clipboard.
-    paste_from = current.split(',')
-
-    # Paste from a white list of allowed clipboard contents.
-    paste_from = filter(lambda t: t in const.CLIPBOARD_CONTENTS, paste_from)
-
-    for target in paste_from:
-        # Get the paste and next url.
-        paste_url, next_url = resolve_clipboard_urls(board=target, project_uid=project.uid)
-        vals = items_in_board.get(target, [])
-        label = get_label(board=target)
-        count = len(vals)
-        # Current target is going to be cloned.
-        to_clone = target == const.COPIED_RECIPES
-        content = dict(paste_url=paste_url, next_url=next_url, label=label, count=count,
-                       to_clone=to_clone)
-        # Clean the clipboard of empty values
-        if count:
-            items_to_paste.setdefault(target, content)
-
-    has_items = True if items_to_paste else False
-    extra_context = dict(project=project, current=','.join(current), board_count=len(items_to_paste),
-                         clipboard=items_to_paste.items(), context=context, has_items=has_items)
-
-    context.update(extra_context)
-    return context
-
-
-from django.forms.widgets import CheckboxInput
 @register.filter
 def is_checkbox(field):
     "Check if current field is a checkbox"
@@ -398,27 +335,6 @@ def size_label(data):
     return mark_safe(f"<span class='ui mini label'>{size}</span>")
 
 
-@register.simple_tag
-def get_access_label(project, user):
-    if project.owner.id == user.id:
-        return 'Owner Access'
-
-    # Need to check  anonymous users before access
-    if user.is_anonymous:
-        return 'Public Access'
-
-    access = Access.objects.filter(user=user, project=project).first()
-
-    # If the access is not read, write, or share
-    # and the project is public, then it is seen as 'Readable'
-    if (not access or access.access == Access.NO_ACCESS) and project.is_public:
-        return 'Public Access'
-
-    access_str = access.get_access_display() if access else 'No Access'
-
-    return access_str
-
-
 @register.inclusion_tag('widgets/form_errors.html')
 def form_errors(form):
     """
@@ -437,6 +353,10 @@ def form_errors(form):
 
     return context
 
+@register.filter
+def serve_url(uid, path, view):
+
+    return reverse()
 
 @register.filter
 def markdown(text):

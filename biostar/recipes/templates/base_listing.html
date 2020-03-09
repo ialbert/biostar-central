@@ -24,7 +24,7 @@
             <i class=" list icon"></i>Latest Recipes
         </a>
 
-        <a class="ui {% activate active "public" %}  item" href="{% url 'project_list_public'%}">
+        <a class="ui {% activate active "public" %}  item" href="{% url 'project_list_public' %}">
             <i class=" list icon"></i>Public Projects
         </a>
 
@@ -49,6 +49,18 @@
     </div>
 
     <div class="ui bottom attached large segment">
+
+        {% if user.is_authenticated %}
+
+            <a class="ui left ribbon projects label" href="{% url 'project_list_public' %}">
+                <i class="database icon"></i> All Projects
+            </a>
+
+            <a class="ui right ribbon obj label" href="{% url 'project_create' %}">
+                <i class="plus icon"></i>New Project
+            </a>
+        {% endif %}
+
         {% block content %}
 
         {% endblock %}

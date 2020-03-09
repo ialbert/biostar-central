@@ -113,7 +113,6 @@ class SiteNavigation(TestCase):
             reverse('project_view', kwargs=self.proj_params),
             reverse('project_users', kwargs=self.proj_params),
             reverse('project_info', kwargs=self.proj_params),
-            #reverse("file_copy", kwargs=self.analysis_params),
 
             reverse('project_edit', kwargs=self.proj_params),
             reverse('recipe_list', kwargs=self.proj_params),
@@ -145,9 +144,6 @@ class SiteNavigation(TestCase):
             reverse("project_delete", kwargs=self.proj_params),
             reverse("project_users", kwargs=self.proj_params),
             reverse("project_edit", kwargs=self.proj_params),
-            reverse("recipe_paste", kwargs=self.proj_params),
-            reverse("data_paste", kwargs=self.proj_params),
-            reverse("file_paste", kwargs=self.proj_params),
             reverse("data_edit", kwargs=self.data_params),
             reverse("data_upload", kwargs=self.proj_params),
             reverse("job_rerun", kwargs=self.job_params),
@@ -157,7 +153,6 @@ class SiteNavigation(TestCase):
             reverse("job_delete", kwargs=self.job_params),
             reverse("data_delete", kwargs=self.data_params),
             reverse("recipe_run", kwargs=self.analysis_params),
-            #data_upload, recipe_run job_rerun
 
 
         ]

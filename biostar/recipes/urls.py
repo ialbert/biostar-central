@@ -17,12 +17,16 @@ urlpatterns = [
 
     # Ajax calls
     path(r'ajax/check/job/<str:uid>/', ajax.check_job, name='ajax_check_job'),
-    path(r'preview/template/', ajax.preview_template, name="preview_template"),
     path(r'preview/json/', ajax.preview_json, name="preview_json"),
     path(r'toggle/delete/', ajax.toggle_delete, name="toggle_delete"),
-    path(r'copy/object/', ajax.copy_object, name="copy_object"),
     path(r'manage/access/', ajax.manage_access, name="manage_access"),
-    path(r'file/copy/', ajax.file_copy, name='file_copy'),
+
+    # Ajax clipclboard actions.
+    path(r'clear/', ajax.ajax_clear_clipboard, name='clear_clipboard'),
+    path(r'file/copy/', ajax.copy_file, name='copy_file'),
+    path(r'copy/object/', ajax.copy_object, name="copy_object"),
+    path(r'clipboard/', ajax.ajax_clipboard, name="ajax_clipboard"),
+    path(r'paste/', ajax.ajax_paste, name='ajax_paste'),
 
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
@@ -46,9 +50,8 @@ urlpatterns = [
     path(r'data/view/<str:uid>/', views.data_view, name='data_view'),
     path(r'data/edit/<str:uid>/', views.data_edit, name='data_edit'),
     path(r'data/upload/<str:uid>/', views.data_upload, name='data_upload'),
-    re_path(r'^data/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_serve, name='data_serve'),
-    path(r'data/paste/<str:uid>/', views.data_paste, name='data_paste'),
     path(r'data/delete/<str:uid>/', views.data_delete, name='data_delete'),
+    re_path(r'^data/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_serve, name='data_serve'),
 
     # Recipes
     path(r'project/<str:label>/recipes/', views.recipe_listing, name='recipe_listing'),
@@ -63,7 +66,6 @@ urlpatterns = [
     # Renders an HTML form field base on the TOML input.
     path(r'ajax/field/render/', ajax.field_render, name='ajax_field_render'),
 
-    path(r'recipe/paste/<str:uid>/', views.recipe_paste, name='recipe_paste'),
     path(r'recipe/delete/<str:uid>/', views.recipe_delete, name='recipe_delete'),
     path(r'recipe/code/download/<str:uid>/', views.recipe_code_download, name='recipe_download'),
     path(r'recipe/create/<str:uid>/', views.recipe_create, name='recipe_create'),
@@ -71,8 +73,8 @@ urlpatterns = [
     # File listings
     re_path(r'^file/list/(?P<path>.+)$', views.import_files, name='file_list'),
     path(r'root/list/', views.import_files, name='root_list'),
+
     # Actions
-    path(r'action/clear/<str:uid>/', views.clear_clipboard, name='clear_clipboard'),
     path(r"search/", views.search_bar, name='search'),
 
     # Jobs
@@ -91,9 +93,6 @@ urlpatterns = [
     path(r'api/recipe/image/<str:uid>/', api.recipe_image, name='recipe_api_image'),
     path(r'api/project/<str:uid>/', api.project_info, name='project_api_info'),
     path(r'api/project/image/<str:uid>/', api.project_image, name='project_api_image'),
-
-    # Copy and paste actions
-    path(r'file/paste/<str:uid>/', views.file_paste, name='file_paste'),
 
     # Include the accounts urls
     path(r'accounts/', include(account_patterns)),
