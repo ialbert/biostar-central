@@ -80,7 +80,7 @@ class read_access:
             else:
                 target = request.GET.get("next") or "project_list"
 
-            # Allow read access for the allowed CORS website.
+            # Allow read access for allowed CORS websites.
             origin = auth.detect_cores(request)
             if self.allowed_cors and self.allowed_cors in origin:
                 return function(request, *args, **kwargs)

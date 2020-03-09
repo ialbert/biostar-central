@@ -93,20 +93,6 @@ def project_delete(request, uid):
     return redirect(reverse("project_list_private"))
 
 
-def clear_clipboard(request, uid):
-    "Clear copied objects held in clipboard."
-
-    next_url = request.GET.get("next", reverse("project_view", kwargs=dict(uid=uid)))
-    board = request.GET.get("board")
-    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    if clipboard.get(board):
-        clipboard[board] = []
-        request.session.update({settings.CLIPBOARD_NAME: clipboard})
-
-    return redirect(next_url)
-
-
 def search_bar(request):
     results = search.search(request=request)
 
@@ -173,15 +159,18 @@ def project_info(request, uid):
 
     return render(request, "project_info.html", context)
 
+
 def project_list_public(request):
     return project_list(request, target='public')
+
 
 def project_list_private(request):
     return project_list(request, target='private')
 
+
 def project_list(request, target=None):
 
-    if target=='private':
+    if target == 'private':
         active = "private"
         projects = auth.get_project_list(user=request.user, include_public=False)
     else:
@@ -190,10 +179,10 @@ def project_list(request, target=None):
         active = "public"
 
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
-
     context = dict(projects=projects, active=active)
 
     return render(request, "project_list.html", context=context)
+
 
 def latest_recipes(request):
     """
@@ -215,10 +204,8 @@ def data_list(request, uid):
     """
     Returns the list of data for a project uid.
     """
-    extra_context = dict(copied_data=const.COPIED_DATA,
-                         data_paste_targets=const.DATA_PASTE_TARGETS)
     return project_view(request=request, uid=uid, template_name="data_list.html",
-                        active='data', show_summary=True, extra_context=extra_context)
+                        active='data', show_summary=True)
 
 
 @read_access(type=Project)
@@ -226,10 +213,7 @@ def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
-    extra_context = dict(recipe_paste_targets=const.COPIED_RECIPES)
-
-    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
-                        extra_context=extra_context)
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
 
 
 def job_list(request, uid):
@@ -360,163 +344,16 @@ def project_create(request):
     return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
 
-@read_access(type=Data, fallback_view="data_view", login_required=True)
-def data_copy(request, uid):
-    data = Data.objects.filter(uid=uid).first()
-    next_url = request.GET.get("next", reverse("data_list", kwargs=dict(uid=data.project.uid)))
-
-    board_items = auth.copy_uid(request=request, uid=data.uid, board=const.COPIED_DATA)
-    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
-    return redirect(next_url)
-
-
-@read_access(type=Analysis, fallback_view="recipe_view", login_required=True)
-def recipe_copy(request, uid):
-    recipe = Analysis.objects.filter(uid=uid).first()
-    next_url = request.GET.get("next", reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
-
-    board_items = auth.copy_uid(request=request, uid=recipe.uid, board=const.COPIED_RECIPES)
-
-    return redirect(next_url)
-
-
-@read_access(type=Job, fallback_view="job_view", login_required=True)
-def job_copy(request, uid):
-    job = Job.objects.filter(uid=uid).first()
-    next_url = request.GET.get("next", reverse("job_list", kwargs=dict(uid=job.project.uid)))
-
-    board_items = auth.copy_uid(request=request, uid=job.uid, board=const.COPIED_RESULTS)
-    messages.success(request, f"Copied item(s), clipboard contains {len(set(board_items))}.")
-    return redirect(next_url)
-
-
-@read_access(type=Data, fallback_view="data_view", login_required=True)
-def data_file_copy(request, uid, path):
-    # Get the root data where the file exists
-    data = Data.objects.filter(uid=uid).first()
-    fullpath = os.path.join(data.get_data_dir(), path)
-    copied = auth.copy_file(request=request, fullpath=fullpath)
-    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
-
-    return redirect(reverse("data_view", kwargs=dict(uid=uid)))
-
-
-@read_access(type=Job, fallback_view="job_view", login_required=True)
-def job_file_copy(request, uid, path):
-    # Get the root data where the file exists
-    job = Job.objects.filter(uid=uid).first()
-    fullpath = os.path.join(job.get_data_dir(), path)
-
-    copied = auth.copy_file(request=request, fullpath=fullpath)
-    messages.success(request, f"Copied file(s). Clipboard contains {len(copied)} files.")
-    return redirect(reverse("job_view", kwargs=dict(uid=uid)))
-
-
-@write_access(type=Project, fallback_view="recipe_list")
-def recipe_paste(request, uid):
-    """
-    Pastes recipes from clipboard as a new recipes.
-    """
-
-    # The user performing the action.
-    user = request.user
-
-    # The project the paste will use.
-    project = Project.objects.filter(uid=uid).first()
-
-    # Contains the uids for the recipes that are to be copied.
-    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    paste_target = request.GET.get('target', const.COPIED_RECIPES)
-
-    # Recipes in the clipboard are to be cloned
-    paste_as_clone = paste_target == const.CLONED_RECIPES
-
-    recipe_uids = clipboard.get(const.COPIED_RECIPES, [])
-
-    # Select valid recipe uids.
-    recipes = [Analysis.objects.filter(uid=uid).first() for uid in recipe_uids]
-
-    # Keep existing recipes.
-    recipes = filter(None, recipes)
-
-    # The copy function for each recipe.
-    def copy(instance):
-        # Cascade the root if the recipe is being cloned
-        if paste_as_clone:
-            root = instance.root if instance.is_cloned else instance
-        else:
-            root = None
-        recipe = auth.create_analysis(project=project, user=user, root=root,
-                                      json_text=instance.json_text, security=instance.security,
-                                      template=instance.template,
-                                      name=instance.name, text=instance.text, stream=instance.image)
-        return recipe
-
-    # The list of new object created by the copy.
-    new_recipes = list(map(copy, recipes))
-
-    # Reset the session.
-    clipboard[const.COPIED_RECIPES] = []
-    request.session.update({settings.CLIPBOARD_NAME: clipboard})
-
-    # Notification after paste.
-    messages.success(request, mark_safe(f"Pasted <b>{len(new_recipes)} recipes</b>  in clipboard"))
-
-    return redirect(reverse("recipe_list", kwargs=dict(uid=project.uid)))
-
-
-@write_access(type=Project, fallback_view="data_list")
-def data_paste(request, uid):
-    """Used to paste objects in results and data clipboards as a Data object."""
-    project = Project.objects.filter(uid=uid).first()
-    owner = request.user
-    board = request.GET.get("board")
-    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    data_clipboard = clipboard.get(board, [])
-
-    for datauid in data_clipboard:
-
-        if board == const.COPIED_DATA:
-            obj = Data.objects.filter(uid=datauid).first()
-            dtype = obj.type
-        else:
-            obj = Job.objects.filter(uid=datauid).first()
-            dtype = "DATA"
-
-        if obj:
-            auth.create_data(project=project, path=obj.get_data_dir(), user=owner, name=obj.name,
-                             type=dtype, text=obj.text)
-
-    clipboard[board] = []
-    request.session.update({settings.CLIPBOARD_NAME: clipboard})
-
-    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
-
-
-@write_access(type=Project, fallback_view="data_list")
-def file_paste(request, uid):
-    project = Project.objects.filter(uid=uid).first()
-    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    file_clipboard = clipboard.get(const.COPIED_FILES, [])
-
-    for single_file in file_clipboard:
-        if os.path.exists(single_file):
-            auth.create_data(project=project, path=single_file, user=request.user)
-
-    clipboard[const.COPIED_FILES] = []
-    request.session.update({settings.CLIPBOARD_NAME: clipboard})
-    return redirect(reverse("data_list", kwargs=dict(uid=project.uid)))
-
-
 @read_access(type=Data)
 def data_view(request, uid):
     "Show information specific to each data."
 
     data = Data.objects.filter(uid=uid).first()
     project = data.project
+    paths = auth.listing(root=data.get_data_dir())
 
-    context = dict(data=data, project=project, activate='Selected Data')
+    context = dict(data=data, project=project, paths=paths, serve_view="data_serve",
+                   activate='Selected Data', uid=data.uid, show_all=True)
     counts = get_counts(project)
     context.update(counts)
 
@@ -552,23 +389,20 @@ def data_upload(request, uid):
     form = forms.DataUploadForm(user=owner, project=project)
 
     if request.method == "POST":
-
         form = forms.DataUploadForm(data=request.POST, files=request.FILES, user=owner, project=project)
-
         if form.is_valid():
             data = form.save()
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
 
     uploaded_files = Data.objects.filter(owner=owner, method=Data.UPLOAD)
-
     # The current size of the existing data
     current_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
-
     # Maximum data that may be uploaded.
     maximum_size = owner.profile.max_upload_size * 1024 * 1024
 
-    context = dict(project=project, form=form, activate="Add Data", maximum_size=maximum_size,
+    context = dict(project=project, form=form, activate="Add Data",
+                   maximum_size=maximum_size,
                    current_size=current_size)
 
     counts = get_counts(project)
@@ -839,9 +673,6 @@ def job_view(request, uid):
     job = Job.objects.filter(uid=uid).first()
     project = job.project
 
-    # The path is a GET parameter
-    path = request.GET.get('path', "")
-
     stdout = job.stdout_log
     stderr = job.stderr_log
     if job.is_running():
@@ -851,8 +682,9 @@ def job_view(request, uid):
         stdout = open(stdout_path, 'r').read()
         stderr = open(stderr_path, 'r').read()
 
-    context = dict(job=job, project=project, stderr=stderr, stdout=stdout,
-                   activate='View Result', path=path)
+    paths = auth.listing(root=job.get_data_dir())
+    context = dict(job=job, project=project, stderr=stderr, stdout=stdout,uid=job.uid, show_all=True,
+                   activate='View Result', paths=paths, serve_view="job_serve")
 
     counts = get_counts(project)
     context.update(counts)
@@ -928,7 +760,7 @@ def project_share(request, token):
         return redirect(reverse('project_list'))
 
     access = Access.objects.filter(user=user, project=project).first()
-    # Give user Share access.
+    # Give user Share access.xs
 
     # Create access
     if access is None:
@@ -943,17 +775,32 @@ def project_share(request, token):
 
 
 @login_required
-def import_files(request):
+def import_files(request, path=""):
     """
     Import files mounted on IMPORT_ROOT_DIR in settings
     """
     user = request.user
-
     if not user.profile.trusted:
         messages.error(request, 'Only trusted users may views this page.')
         return redirect(reverse('project_list'))
 
-    paths = auth.listing(root=settings.IMPORT_ROOT_DIR)
-    context = dict(paths=paths, active="import")
+    root = settings.IMPORT_ROOT_DIR
+    path = os.path.abspath(os.path.join(root, path))
+    if not path.startswith(root):
+        messages.error(request, 'Outside root directory')
+        path = ''
+
+    if not os.path.exists(path):
+        messages.error(request, 'File path does not exist')
+        path = ''
+
+    # Set the current node we are traversing.
+    node = path if os.path.isdir(path) else None
+
+    # Walk through the /root/node/ and collect paths.
+    # Directories are not walked through because show_all=False.
+    paths = auth.listing(root=root, node=node, show_all=False)
+
+    context = dict(paths=paths, active="import", show_all=False)
 
     return render(request, 'import_files.html', context=context)

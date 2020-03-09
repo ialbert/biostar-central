@@ -17,6 +17,8 @@ from biostar.recipes.forms import RecipeInterface
 from biostar.recipes import auth
 from django.shortcuts import render, redirect, reverse
 
+from biostar.recipes.forms import RecipeForm
+
 logger = logging.getLogger("engine")
 
 JOB_COLORS = {Job.SPOOLED: "spooled",
@@ -65,9 +67,6 @@ class ajax_error_wrapper:
             return func(request, *args, **kwargs)
 
         return _ajax_view
-
-
-from .forms import RecipeForm
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -120,12 +119,13 @@ def check_job(request, uid):
     else:
         stdout = stderr = None
 
-    # Get an the loading image icon
+    # Render the updated image icon
     redir = job.url() if job.is_finished() else ""
     context = dict(job=job)
     tmpl = loader.get_template('widgets/loading_img.html')
     image_tmpl = tmpl.render(context=context)
 
+    # Render the updated elapsed runtime, status, etc..
     context = dict(job=job, check_back=check_back)
     tmpl = loader.get_template('widgets/job_elapsed.html')
     template = tmpl.render(context=context)
@@ -148,27 +148,6 @@ def check_size(fobj, maxsize=0.3):
         return f"File size validation error: {exc}", False
 
     return "Valid", True
-
-
-@ajax_error_wrapper(method="POST", login_required=False)
-def preview_template(request):
-    source_template = request.POST.get('template', '# Code goes here')
-    source_json = request.POST.get('json_text', '{}')
-    project_uid = request.POST.get('project_uid')
-    project = Project.objects.filter(uid=project_uid).first()
-    try:
-        source_json = toml.loads(source_json)
-        # Fill json information by name for the preview.
-        source_json = auth.fill_data_by_name(project=project, json_data=source_json)
-        # Fill in the script with json data.
-        context = Context(source_json)
-        script_template = Template(source_template)
-        script = script_template.render(context)
-    except Exception as exc:
-        return ajax_error(f"Error rendering code: {exc}")
-
-    # Load the html containing the script
-    return ajax_success(script=script, msg="Rendered script")
 
 
 @ajax_error_wrapper(method="POST", login_required=False)
@@ -197,23 +176,6 @@ def preview_json(request):
     template = tmpl.render(context=context)
 
     return ajax_success(msg="Recipe json", html=template)
-
-
-@ajax_error_wrapper(method="POST")
-def file_copy(request):
-    """
-    Add file into clipboard.
-    """
-
-    # Relative path to root dir
-    path = request.POST.get('path')
-    fullpath = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
-    if not os.path.exists(fullpath):
-        return ajax_error(msg="File path does not exist.")
-
-    copied = auth.copy_file(request=request, fullpath=fullpath)
-
-    return ajax_success(msg=f"{len(copied)} files copied.")
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -295,6 +257,35 @@ def manage_access(request):
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
+def copy_file(request):
+    """
+    Add file from import root directory into clipboard.
+    """
+    # Assumes incoming path is a full path
+    path = request.POST.get('path')
+    user = request.user
+
+    # Project uid to check access
+    uid = request.POST.get('uid') or 0
+    project = Project.objects.filter(id=uid).first()
+
+    if uid and not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if project and not auth.is_readable(user=user, project=project):
+        return ajax_error(msg="You do not have access to copy this file")
+
+    if not os.path.exists(path):
+        return ajax_error(msg="File path does not exist.")
+
+    if path.startswith(settings.IMPORT_ROOT_DIR) and not user.profile.trusted:
+        return ajax_error(msg="Only trusted users can copy from this directory.")
+
+    copied = auth.copy_file(request=request, fullpath=path)
+    return ajax_success(msg=f"{len(copied)} files copied.")
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
 def copy_object(request):
     """
     Add object uid or file path to sessions clipboard.
@@ -319,27 +310,95 @@ def copy_object(request):
 
     return ajax_success(f"Copied. Clipboard contains :{len(copied)} objects.")
 
+def load_clipboard(board):
+    key, vals = board
+    count = len(vals)
 
-def add_variables(request):
-    # Get the most recent template and json.
-    json_text = request.POST.get('json_text', '')
-    template = request.POST.get('template', '')
+    if count:
+        tmpl = loader.get_template('widgets/clipboard.html')
+        context = dict(count=count, board=key, is_recipe=key == COPIED_RECIPES)
+        template = tmpl.render(context=context)
+    else:
+        template = ""
 
-    json_data = toml.loads(json_text)
+    return template
 
-    # Create a set with all template variables
-    all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}
 
-    all_vars = '\n'.join(all_vars)
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_clear_clipboard(request):
 
-    # Insert variables at the beginning of the template
-    new_template = template + '\n' + all_vars
+    # Clear the clipboard
+    auth.clear(request=request)
 
-    tmpl = loader.get_template('widgets/template_field.html')
-    context = dict(template=new_template, scroll_to_bottom=False, focus=True)
-    template_field = tmpl.render(context=context)
+    # Fetch the most recent clipboard if it exists.
+    board = auth.most_recent(request=request)
 
-    return ajax_success(msg="Added variables to template", html=template_field, code=new_template)
+    # Load remaining uncleared items in clipboard
+    template = load_clipboard(board=board)
+
+    return ajax_success(msg="Cleared clipboard. ", html=template)
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_paste(request):
+    """
+    Paste the momst recent
+    """
+    pid = request.POST.get("id", 0)
+    user = request.user
+    project = Project.objects.filter(id=pid).first()
+    board = auth.most_recent(request=request)
+    key, vals = board
+    count = len(vals)
+
+    if not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if not auth.is_writable(user=user, project=project):
+        return ajax_error(msg="You do not have access to paste here.")
+
+    if not count:
+        return ajax_error(msg="Clipboard is empty")
+
+    # The target of this action is to clone.
+    clone = request.POST.get('target')
+
+    # Paste the clipboard item into the project
+    new = auth.paste(board=board, user=user, project=project, clone=clone)
+
+    # Clear the clipboard of this item after pasting
+    auth.clear(request=request, key=key)
+
+    # Resolve the url to redirect to.
+
+    data_redir = reverse("data_list", kwargs=dict(uid=project.uid))
+    recipes_redir = reverse("recipe_list", kwargs=dict(uid=project.uid))
+    redir = recipes_redir if key == COPIED_RECIPES else data_redir
+
+    count = len(new)
+    return ajax_success(msg=f"Pasted {count } items into project.", redirect=redir)
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_clipboard(request):
+    """
+    Displays the most recent object in clipboard.
+    """
+
+    # Get the most current item in the clipboard.
+    pid = request.POST.get("id", 0)
+    user = request.user
+
+    project = Project.objects.filter(id=pid).first()
+    board = auth.most_recent(request=request)
+
+    if project and auth.is_readable(user=user, project=project):
+        # Load items into clipboard
+        template = load_clipboard(board=board)
+    else:
+        template = ''
+
+    return ajax_success(html=template, msg="Refreshed clipboard")
 
 
 def field_render(request):

@@ -5,10 +5,10 @@ DUMP_FILE=export/database/db.json
 BACKUP_DUMP_FILE=export/database/db.backup.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
-DJANGO_SETTINGS_MODULE := biostar.recipes.settings
+DJANGO_SETTINGS_MODULE := biostar.test.test_settings
 
 # Default app.
-DJANGO_APP := biostar.recipes
+DJANGO_APP :=
 
 # Database name
 DATABASE_NAME := database.db
@@ -124,17 +124,13 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	coverage run manage.py test ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
+	coverage run manage.py test ${DJANGO_APP} --settings biostar.test.test_settings -v 2 --failfast
 	coverage html --skip-covered
+	# Remove files associated with tests
+	rm -rf export/tested
 
-	#coverage run manage.py test --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
-	#coverage html --skip-covered
-	#fi
 
-test_all:
-	#python manage.py test --settings biostar.test.test_settings -v 2 --failfast
-	coverage run manage.py test --settings biostar.test.test_settings -v 2 --failfast
-	coverage html --skip-covered
+test_all:test
 
 test_pg:
 	#python manage.py test --settings biostar.test.pg_test_settings -v 2 --failfast

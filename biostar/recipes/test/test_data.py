@@ -6,17 +6,19 @@ from django.conf import settings
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from biostar.recipes import models, views, auth, const
+from biostar.recipes import models, views, auth, const, ajax
 from biostar.utils.helpers import fake_request, get_uuid
 
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
-
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
 __CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
 logger = logging.getLogger('engine')
 
 
-@override_settings(MEDIA_ROOT=TEST_ROOT)
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class DataViewTest(TestCase):
 
     def setUp(self):
@@ -90,27 +92,30 @@ class DataViewTest(TestCase):
     def test_data_copy_paste(self):
         "Test data copy and paste interface"
 
-        url = reverse('data_copy', kwargs=dict(uid=self.data.uid))
-        clear_url = reverse('clear_clipboard', kwargs=dict(uid=self.project.uid))
-        paste_url = reverse('data_paste', kwargs=dict(uid=self.project.uid))
-        data = {settings.CLIPBOARD_NAME: const.COPIED_DATA}
+        url = reverse('copy_object')
+        clear_url = reverse('clear_clipboard')
+        paste_url = reverse('ajax_paste')
+        data = {"clipboard":"data", "uid": self.data.uid}
 
-        request = fake_request(url=url, data={}, user=self.owner)
-        response = views.data_copy(request=request, uid=self.data.uid)
+        request = fake_request(url=url, data=data, user=self.owner)
+        response = ajax.copy_object(request=request)
+
         clear_request = fake_request(url=clear_url, data=data, user=self.owner)
-        clear_response = views.clear_clipboard(request=clear_request, uid=self.project.uid)
+        clear_response = ajax.ajax_clear_clipboard(request=clear_request)
 
-        self.process_response(response=response, data={})
-        self.process_response(response=clear_response, data={})
+        self.process_response(response=response, stat=200, data={})
+        self.process_response(response=clear_response, stat=200, data={})
 
         # Copy again and paste this time
-        copy_request = fake_request(url=url, data={}, user=self.owner)
-        copy_response = views.data_copy(request=copy_request, uid=self.data.uid)
-        paste_request = fake_request(url=paste_url, data={}, user=self.owner)
-        paste_response = views.data_paste(request=paste_request, uid=self.project.uid)
+        request = fake_request(url=url, data=data, user=self.owner)
+        response = ajax.copy_object(request=request)
 
-        self.process_response(response=copy_response, data={})
-        self.process_response(response=paste_response, data={})
+        paste_request = fake_request(url=paste_url, data=data, user=self.owner)
+        paste_response = ajax.ajax_paste(request=paste_request)
+
+        self.process_response(response=response,stat=200,  data={})
+        self.process_response(response=paste_response, stat=200, data={})
+
 
     def test_data_delete(self):
         "Test the data delete"
@@ -123,15 +128,6 @@ class DataViewTest(TestCase):
 
         self.process_response(response=response, data={})
 
-    def test_data_file_copy_paste(self):
-        "Test the data file copying interface"
-        url = reverse("data_file_copy", kwargs=dict(uid=self.data.uid, path=self.data.get_data_dir()))
-        data = {settings.CLIPBOARD_NAME: const.COPIED_FILES, 'path':self.data.get_data_dir()}
-        request = fake_request(url=url, data=data, user=self.owner)
-
-        response = views.data_file_copy(request=request, uid=self.data.uid, path=self.data.get_data_dir())
-
-        self.process_response(response, data={})
 
     def test_data_serve(self):
         "Test data file serving"
@@ -147,8 +143,8 @@ class DataViewTest(TestCase):
 
         self.assertTrue(isinstance(response, FileResponse), "Response is not a FileResponse type.")
 
-    def process_response(self, response, data, save=False):
+    def process_response(self, response, data, stat=302, save=False):
         "Check the response on POST request is redirected"
 
-        self.assertEqual(response.status_code, 302,
+        self.assertEqual(response.status_code, stat,
                          f"Could not redirect to project view after tested :\nresponse:{response}")

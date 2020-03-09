@@ -8,8 +8,7 @@
 {% block content %}
 <div class="job" data-value="{{ job.uid }}">
 
-    <div class="ui large vertical  segment" id="view">
-
+    <div class="ui large vertical segment" id="view">
         <div class="ui divided link items ">
 
             <div class="item">
@@ -74,7 +73,7 @@
     <div class="ui vertical large segment" id="flist">
         <div class="ui aligned header">File List</div>
         <div>Files created by the recipe run:</div>
-        {% directory_list job %}
+        {% include 'widgets/files_list.html' %}
     </div>
 
     <div class="ui vertical segment" id="stdout">

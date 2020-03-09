@@ -2,7 +2,8 @@
 {% load engine_tags %}
 
 
-<div class="item recipe" data-value="{{ recipe.uid }}">
+<div class="item recipe" data-value="{{ recipe.uid }}" >
+
     <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
     <div class="content">
         <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">

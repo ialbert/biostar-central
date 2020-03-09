@@ -10,16 +10,20 @@ from django.urls import reverse
 from biostar.recipes import models, auth, ajax
 from biostar.utils.helpers import fake_request, get_uuid
 
-__MODULE_DIR = os.path.dirname(auth.__file__)
-TEST_ROOT = os.path.join(__MODULE_DIR, 'test')
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
 
-CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
-IMPORT_ROOT_DIR = os.path.join(TEST_ROOT, 'data')
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
+
+__MODULE_DIR = os.path.dirname(auth.__file__)
+TEST_DIR = os.path.join(__MODULE_DIR, 'test')
+
+IMPORT_ROOT_DIR = os.path.join(TEST_DIR, 'data')
 logger = logging.getLogger('engine')
 
 
-
-@override_settings(MEDIA_ROOT=TEST_ROOT, IMPORT_ROOT_DIR=IMPORT_ROOT_DIR)
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT, IMPORT_ROOT_DIR=IMPORT_ROOT_DIR)
 class AjaxTest(TestCase):
 
     def setUp(self):
@@ -29,9 +33,15 @@ class AjaxTest(TestCase):
         self.owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@l.com")
         self.owner.set_password("tested")
 
+        # Set up generic owner
+        self.trusted_owner = models.User.objects.create_user(username=f"tested{get_uuid(10)}", email="tested@2.com",
+                                                             is_superuser=True)
+        self.owner.set_password("tested")
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
+        self.project2 = auth.create_project(user=self.trusted_owner, name="tested", text="Text", summary="summary",
+                                            uid="tested")
 
         self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="",
                                            security=models.Analysis.AUTHORIZED)
@@ -58,17 +68,17 @@ class AjaxTest(TestCase):
         json_response = ajax.check_job(request=request, uid=self.job.uid)
         self.process_response(json_response)
 
-    def test_file_copy(self):
+    def test_copy_file(self):
         """
         Test AJAX function used to copy file
         """
-        data = {'path': "plain-text.txt"}
+        data = {'path': os.path.join(IMPORT_ROOT_DIR,"plain-text.txt"), "uid": self.project2.id}
 
-        url = reverse('file_copy')
+        url = reverse('copy_file')
 
-        request = fake_request(url=url, data=data, user=self.owner)
+        request = fake_request(url=url, data=data, user=self.trusted_owner)
 
-        json_response = ajax.file_copy(request=request)
+        json_response = ajax.copy_file(request=request)
 
         self.process_response(json_response)
 
@@ -115,20 +125,6 @@ class AjaxTest(TestCase):
         request = fake_request(url=url, data=data, user=self.owner)
 
         json_response = ajax.manage_access(request)
-
-        self.process_response(json_response)
-
-    def test_preview_template(self):
-        """
-        Test AJAX function used to preview recipe scripts
-        """
-
-        data = {'template': '# recipe code', 'json_text': '', 'name': self.recipe.name,
-                'uid': self.recipe.uid, 'project_uid': self.recipe.project.uid}
-
-        url = reverse('preview_template')
-        request = fake_request(url=url, data=data, user=self.owner)
-        json_response = ajax.preview_template(request=request)
 
         self.process_response(json_response)
 
