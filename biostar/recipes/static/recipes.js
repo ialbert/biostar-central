@@ -65,6 +65,7 @@ function update_preview() {
     let recipe_json = $('#interface_editor').val();
     let project = $('#interface').closest('.grid').data("project");
     let url = '/preview/json/';
+    var id = get_id();
 
     $.ajax(url, {
         type: 'POST',
