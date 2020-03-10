@@ -35,7 +35,7 @@ class Command(BaseCommand):
         parser.add_argument('--pid',  required=False, help="Project id")
 
         parser.add_argument('--name', help="Project name")
-        parser.add_argument('--demo', action="store_true", default=False, help="Project name")
+        parser.add_argument('--demo', action="store_true", default=False, help="Load demo data")
 
         parser.add_argument('--info', default='', help="File path or text of the project info")
 
@@ -53,8 +53,11 @@ class Command(BaseCommand):
         info = options["info"]
         demo = options['demo']
 
+        # Set variables needed to execute demo
         if demo:
-            ''
+            update = False
+            pid = ''
+            privacy = Project.PUBLIC
 
         # Find project at uid.
         project = Project.objects.filter(uid=pid).first()

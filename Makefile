@@ -13,10 +13,13 @@ DJANGO_APP :=
 # Database name
 DATABASE_NAME := database.db
 
-# Use postgres database when testing
-USE_POSTGRES := 0
+# Use postgres database
+USE_POSTGRES := 1
 
-# Command used to load inital data
+# Set the minimum amount of objects to create for demos.
+DEMO_MIN := 15
+
+# Command used to load initial data
 LOAD_COMMAND := project
 
 # Search index name

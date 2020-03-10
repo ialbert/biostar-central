@@ -251,6 +251,7 @@
         var interface = init_codemirror(elem, 400);
         var project = elem.closest('.grid').data("project");
         update_preview();
+
         url = "/ajax/field/render/";
 
         $(".card").each(function (index) {
@@ -265,13 +266,25 @@
             var curr = $(this).closest(".card");
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
-            // Add this field to toml
-            var new_toml = elem.val() + '\n' + toml.replace(/  /g, '');
 
-            // Set new values.
+            // Format clicked area value so it inserts correctly.
+            var sep = '\n\n';
+            if (elem.val().endsWith('\n')) {
+                sep = '\n'
+            }
+            // Remove beginning space from clicked card.
+            toml = toml.replace(/^\s+/g, '');
+            // Replace all new line followed by spaces by just a newline.
+            toml = toml.replace(/\n[\s]+/g, '\n');
+
+            // Add clicked field to textarea.
+            var new_toml = elem.val() + sep + toml;
+
+            // Set new textarea values.
             elem.val(new_toml);
             interface.setValue(elem.val());
-            // Add this field html to the preview;
+
+            // Add clicked field html to preview;
             $("#preview form .preview").append(field.html());
 
             popup_message($(this), 'Inserted into interface.', "success");

@@ -136,7 +136,8 @@ DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
 try:
     USE_POSTGRES = bool(os.getenv('USE_POSTGRES', False))
 except Exception as exc:
-    USE_POSTGRES = False
+    USE_POSTGRES = True
+    1/0
 
 
 if USE_POSTGRES:
@@ -191,7 +192,7 @@ STATIC_ROOT = join(BASE_DIR, 'export', 'static')
 
 # Global directories for static files.
 STATICFILES_DIRS = [
-    join(BASE_DIR, "biostar", "static"),
+    #join(BASE_DIR, "biostar", "static"),
 ]
 
 

@@ -38,14 +38,14 @@ account_patterns = [
     # External url login
     path(r'external/', views.external_login, name="external"),
 
+    # Used for 3rd party logins.
+    path("social/", include('allauth.urls')),
+
 ]
 
 
 urlpatterns = [
 
     path("", include(account_patterns)),
-
-    # Used for 3rd party logins.
-    path("social/", include('allauth.urls')),
 
 ]

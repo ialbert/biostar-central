@@ -10,7 +10,7 @@ from biostar.planet.urls import planet_patterns
 
 urlpatterns = [
 
-    # Mount recipes url as root.
+    # Mount recipes urls on root.
     path(r'', include(recipes_patterns)),
 
     # Include forum urls
