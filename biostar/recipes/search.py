@@ -39,7 +39,6 @@ def search(request):
 
 
 class SearchForm(forms.Form):
-    #TODO: will be moved to engine.forms
 
     def __init__(self, queryset=None, search_fields=None, *args, **kwargs):
         self.queryset = queryset
@@ -77,8 +76,7 @@ def search_filter(search_fields, query_string):
 
     for bit in split_text_query(query_string):
 
-        queries = [Q(**{search_param(field_name, first): bit})
-                   for field_name in search_fields]
+        queries = [Q(**{search_param(field_name, first): bit}) for field_name in search_fields]
         filters.append(reduce(Q.__or__, queries))
         first = False
 

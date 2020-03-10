@@ -21,22 +21,55 @@ logger.setLevel(logging.DEBUG)
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def finalize_job(data):
+def file_insert(job, data):
+    """
+    Insert file from data dict into database.
+
+    [settings]
+
+    [[settings.insert]]
+    file = foo
+
+    [[settings.insert]]
+    file = bar
+
+     # List of files
+    {'settings': {'insert': [ {'file':'foo'}, {'file':'bar'} ]  }
+
+    """
+    fname = data.get("file", '')
+    root = job.path
+    project = job.project
+    fullpath = os.path.abspath(os.path.join(root, fname))
+    uid = data.get("uid")
+    name = data.get("name")
+    text = data.get("text")
+
+    if not fname:
+        logger.error(f"File key is required:{data}")
+        return
+
+    if not os.path.exists(fullpath):
+        logger.error(f"File does not exist. File{fullpath}")
+        return
+
+    data = auth.get_or_create(fname=fullpath, uid=uid, name=name, project=project, text=text)
+    logger.info("Inserted file into the database")
+    return data
+
+
+def finalize_job(job, data):
     """
     Performs various finalization processes on the data
-    [settings.data]
-    file = "results"
-    uid = "data-10"
-    name = "Updated new data"
-    text = "This is automatically updated by a recipe"
-
     """
 
-    # [settings.data]
+    value = data.get("settings", {}).get("insert", [])
+    insert = lambda file: file_insert(data=file, job=job)
 
-    for key, value in data.get("settings", {}):
-        # Get or create the data
-        pass
+    # Insert a list of files as data
+    if isinstance(value, list):
+        new = list(map(insert, value))
+        return new
 
 
 def create_logs(job):
@@ -191,8 +224,8 @@ def run(job, options={}):
         # Raise an error if returncode is anything but 0.
         proc.check_returncode()
 
-        # Perform tasks at job finalizatoin
-        finalize_job(data=json_data)
+        # Perform tasks at job finalization
+        finalize_job(data=json_data, job=job)
 
         # If we made it this far the job has finished.
         logger.info(f"uid={job.uid}, name={job.name}")

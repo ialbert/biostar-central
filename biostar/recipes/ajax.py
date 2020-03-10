@@ -342,7 +342,7 @@ def ajax_clear_clipboard(request):
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_paste(request):
     """
-    Paste the momst recent
+    Paste the most recent
     """
     pid = request.POST.get("id", 0)
     user = request.user

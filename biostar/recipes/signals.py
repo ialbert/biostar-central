@@ -55,11 +55,12 @@ def strip_json(json_text):
 
     # Fetch the execute options
     execute_options = local_dict.get('settings', {}).get('execute', {})
+    data_options = local_dict.get('settings', {}).get('insert', {})
 
     # Check to see if it is present
-    if execute_options:
+    if execute_options or data_options:
         # Strip run settings of every thing but execute options
-        local_dict['settings'] = dict(execute=execute_options)
+        local_dict['settings'] = dict(execute=execute_options, data=data_options)
     else:
         # NOTE: Delete 'settings' from json text
         local_dict['settings'] = ''
@@ -122,10 +123,12 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
     # Update the last edit date and user of project
     user = instance.lastedit_user
-    Project.objects.filter(id=instance.project.id).update(lastedit_date=util.now(), lastedit_user=user)
 
     # Strip json text of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
+
+    Project.objects.filter(id=instance.project.id).update(lastedit_date=instance.lastedit_date,
+                                                          lastedit_user=user)
 
     # Update information of all children belonging to this root.
     if instance.is_root:
@@ -160,7 +163,7 @@ def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
 
     # Update the projects last edit user when a data is uploaded
     Project.objects.filter(id=instance.project.id).update(lastedit_user=instance.lastedit_user,
-                                                          lastedit_date=util.now())
+                                                          lastedit_date=instance.lastedit_date)
     # Update the project count.
     instance.project.set_counts()
 
@@ -185,4 +188,4 @@ def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
         # Update the dir, toc, and uid.
         Data.objects.filter(id=instance.id).update(uid=instance.uid, dir=instance.dir, toc=instance.toc)
 
-
+    instance.make_toc()

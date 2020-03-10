@@ -154,7 +154,7 @@ class Project(models.Model):
         self.uid = self.uid or util.get_uuid(8)
         self.label = self.label or self.uid or util.get_uuid(8)
         self.lastedit_user = self.lastedit_user or self.owner
-        self.lastedit_date = self.lastedit_date or now
+        self.lastedit_date = now
 
         super(Project, self).save(*args, **kwargs)
 
@@ -341,7 +341,7 @@ class Data(models.Model):
         self.owner = self.owner or self.project.owner
         self.type = self.type.replace(" ", '')
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
-        self.lastedit_date = self.lastedit_date or now
+        self.lastedit_date = now
 
         super(Data, self).save(*args, **kwargs)
 
@@ -542,7 +542,7 @@ class Analysis(models.Model):
         self.name = self.name[:MAX_NAME_LEN] or "New Recipe"
         self.html = make_html(self.text, user=self.lastedit_user)
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
-        self.lastedit_date = self.lastedit_date or now
+        self.lastedit_date = now
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
@@ -769,7 +769,7 @@ class Job(models.Model):
         self.name = self.name or self.analysis.name
 
         self.lastedit_user = self.lastedit_user or self.owner or self.project.owner
-        self.lastedit_date = self.lastedit_date or now
+        self.lastedit_date = now
 
         super(Job, self).save(*args, **kwargs)
 

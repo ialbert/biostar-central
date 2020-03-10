@@ -55,7 +55,6 @@ class RecipeRunTest(TestCase):
         return
 
 
-
 @override_settings(MEDIA_ROOT=TEST_ROOT)
 class RecipeViewTest(TestCase):
 

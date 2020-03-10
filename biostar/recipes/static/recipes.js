@@ -62,7 +62,7 @@ function preview_template(fields) {
 
 function update_preview() {
 
-    let recipe_json = $('#interface_editor').val();
+    let toml = $('#interface_editor').val();
     let project = $('#interface').closest('.grid').data("project");
     let url = '/preview/json/';
     var id = get_id();
@@ -71,8 +71,8 @@ function update_preview() {
         type: 'POST',
         dataType: 'json',
         data: {
-            'project_uid': project,
-            'json_text': recipe_json
+            'recipe': id,
+            'toml': toml
         },
         success: function (data) {
             if (data.status === 'error') {
