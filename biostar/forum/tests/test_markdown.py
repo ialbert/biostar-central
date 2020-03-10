@@ -45,16 +45,13 @@ TEST_CASES = [
     ("```1 > 0    1 < 2    foo & bar```", "<p><code>1 &gt; 0    1 &lt; 2    foo &amp; bar</code></p>"),
 
     # Mentioned user
-    ("@test", '<p><a href="/forum/accounts/profile/5/">tested2</a></p>'),
+    ("@test", '<p><a href="/accounts/profile/5/">tested2</a></p>'),
 
     # Url auto-link tests
     ("http://www.psu.edu", '<p><a href="http://www.psu.edu">http://www.psu.edu</a></p>'),
 
     # Auto-link enclosed by parenthesis
     ("(http://www.psu.edu)", '<p>(<a href="http://www.psu.edu">http://www.psu.edu</a>)</p>'),
-
-    # Character rendering test.
-    ("@test", '<p><a href="/forum/accounts/profile/5/">tested2</a></p>'),
 
     # Test unclosed tags
     ("<b> foo", '<p><b> foo</b></p>'),

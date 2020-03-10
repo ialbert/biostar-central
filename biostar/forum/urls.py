@@ -5,10 +5,11 @@ from django.urls import include, path  # For django versions from 2.0 and up
 import debug_toolbar
 from biostar.forum import views
 from biostar.forum import ajax
-import biostar.accounts.urls as account_patterns
-import biostar.planet.urls as planet_patterns
+from biostar.accounts.urls import account_patterns
+from biostar.planet.urls import planet_patterns
 
-urlpatterns = [
+
+forum_patterns = [
 
     # Main entry. Post listing.
     path('', views.latest, name='post_list'),
@@ -50,6 +51,14 @@ urlpatterns = [
 
     # Community urls
     path('community/', views.community_list, name='community_list'),
+
+]
+
+
+urlpatterns = [
+
+    # Main entry. Post listing.
+    path('', include(forum_patterns)),
 
     # Include the accounts urls
     path('accounts/', include(account_patterns)),

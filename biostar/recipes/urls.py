@@ -3,11 +3,11 @@ from django.urls import path, include, re_path
 import debug_toolbar
 from django.conf import settings
 from django.conf.urls.static import static
-import biostar.accounts.urls as account_patterns
+from biostar.accounts.urls import account_patterns
 from biostar.recipes import views, api, ajax
 
-urlpatterns = [
-    # The django generated admin site.
+
+recipes_patterns = [
 
     path('', views.index, name="index"),
 
@@ -93,6 +93,13 @@ urlpatterns = [
     path(r'api/recipe/image/<str:uid>/', api.recipe_image, name='recipe_api_image'),
     path(r'api/project/<str:uid>/', api.project_info, name='project_api_info'),
     path(r'api/project/image/<str:uid>/', api.project_image, name='project_api_image'),
+
+]
+
+
+urlpatterns = [
+
+    path(r'', include(recipes_patterns)),
 
     # Include the accounts urls
     path(r'accounts/', include(account_patterns)),

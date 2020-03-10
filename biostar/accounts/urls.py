@@ -3,8 +3,8 @@ from django.urls import include, path, re_path
 from django.conf import settings
 from biostar.accounts import views
 
-urlpatterns = [
 
+account_patterns = [
     # Get the reset/ urls
     path('', views.listing, name="accounts_index"),
     path('admin/', admin.site.urls, name='django_admin'),
@@ -37,6 +37,13 @@ urlpatterns = [
 
     # External url login
     path(r'external/', views.external_login, name="external"),
+
+]
+
+
+urlpatterns = [
+
+    path("", include(account_patterns)),
 
     # Used for 3rd party logins.
     path("social/", include('allauth.urls')),

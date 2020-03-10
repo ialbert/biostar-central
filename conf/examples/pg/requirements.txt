@@ -1,2 +1,0 @@
-# Postgres database driver
-pscyopg2

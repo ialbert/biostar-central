@@ -5,13 +5,19 @@ DUMP_FILE=export/database/db.json
 BACKUP_DUMP_FILE=export/database/db.backup.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
-DJANGO_SETTINGS_MODULE := biostar.test.test_settings
+DJANGO_SETTINGS_MODULE := biostar.server.settings
 
 # Default app.
 DJANGO_APP :=
 
 # Database name
 DATABASE_NAME := database.db
+
+# Use postgres database when testing
+USE_POSTGRES := 0
+
+# Command used to load inital data
+LOAD_COMMAND := project
 
 # Search index name
 INDEX_NAME := index
@@ -31,7 +37,6 @@ accounts:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
-
 emailer:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
 	$(eval DJANGO_APP := biostar.emailer)
@@ -39,20 +44,16 @@ emailer:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
-recipes_pg:
-	$(eval DJANGO_SETTINGS_MODULE := conf.examples.pg.recipes_pg_settings)
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
 
 pg:
-	$(eval DJANGO_SETTINGS_MODULE := conf.examples.pg.pg_settings)
+	$(eval USE_POSTGRES := 1 )
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	$(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
 
 recipes:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
 	$(eval DJANGO_APP := biostar.recipes)
-	$(eval UWSGI_INI := conf/uwsgi/engine_uwsgi.ini)
+	$(eval LOAD_COMMAND := project)
+	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
 	$(eval ANSIBLE_HOST := hosts/www.bioinformatics.recipes)
 	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := recipes)
@@ -66,6 +67,7 @@ recipes:
 bioconductor:
 	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
 	$(eval DJANGO_APP := biostar.forum)
+	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
 	$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
 	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
@@ -80,7 +82,8 @@ bioconductor:
 forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
-	$(eval UWSGI_INI := conf/uwsgi/forum_uwsgi.ini)
+	$(eval LOAD_COMMAND := populate)
+	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
 	$(eval ANSIBLE_HOST := hosts/test.biostars.org)
 	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := engine)
@@ -123,17 +126,14 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	coverage run manage.py test ${DJANGO_APP} --settings biostar.test.test_settings -v 2 --failfast
+
+	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.test_settings -v 2 --failfast
 	coverage html --skip-covered
+
 	# Remove files associated with tests
 	rm -rf export/tested
 
 test_all:test
-
-test_pg:
-	#python manage.py test --settings biostar.test.pg_test_settings -v 2 --failfast
-	coverage run manage.py test --settings biostar.test.pg_test_settings -v 2 --failfast
-	coverage html --skip-covered
 
 index:
 	@echo INDEX_NAME=${INDEX_NAME}
@@ -145,21 +145,10 @@ reindex:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py index --remove --reset --index 3700000 --settings ${DJANGO_SETTINGS_MODULE}
 
+demo: startup serve
 
-stress_test:
-	jmeter -n -t biostar/test/biostars.jmx -l result.jtl
-
-
-recipes_demo: recipes reset init load_recipes serve
-
-forum_demo: forum reset init load_forum serve
-
-load_recipes:
-	python manage.py project --pid test --name "Test Project" --public
-	python manage.py recipe --pid test --rid hello --json biostar/recipes/recipes/hello-world.hjson
-
-load_forum:
-	python manage.py populate --n_users 10 --n_posts 10 --settings ${DJANGO_SETTINGS_MODULE}
+startup:init
+	python manage.py ${LOAD_COMMAND} --demo
 
 hard_reset: delete
 	# Delete media and spooler.
@@ -178,12 +167,8 @@ uwsgi: init
 	@echo UWSGI_INI=${UWSGI_INI}
 	uwsgi --ini ${UWSGI_INI}
 
-pg_drop: pg
-	dropdb --if-exists ${DATABASE_NAME}
-	createdb ${DATABASE_NAME}
-
-transfer:
-	python manage.py migrate --settings conf.examples.pg.pg_settings
+transfer: pg
+	python manage.py migrate --settings biostar.forum.settings
 	python manage.py transfer -n 300 --settings biostar.transfer.settings
 
 next:
