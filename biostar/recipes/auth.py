@@ -704,6 +704,16 @@ def create_path(fname, data):
     return path
 
 
+def new_uid(obj, objtype, default=None):
+    """
+    Ensure an objects uid is unique.
+    """
+    uid = default or obj.uid
+    while objtype.objects.filter(uid=uid).exclude(uid=obj.uid).exists():
+        uid = generate_uuid(prefix="data", suffix=f"{get_uuid(3)}")
+    return uid
+
+
 def data_link(path, data):
 
     dest = create_path(fname=path, data=data)
@@ -846,9 +856,7 @@ def create_data(project, user=None, stream=None, path='', name='', text='', type
                                project=project, type=dtype, text=text, uid=uid)
 
     # Set the uid.
-    uid = uid or data.uid
-    while Data.objects.filter(uid=uid).exclude(uid=data.uid).exists():
-        uid = generate_uuid(prefix="data", suffix=f"{get_uuid(3)}")
+    uid = new_uid(obj=data, objtype=Data, default=uid)
     data.uid = uid
 
     # Write this stream into a path then link that into the data.

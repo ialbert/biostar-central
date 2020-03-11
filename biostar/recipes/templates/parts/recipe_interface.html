@@ -256,6 +256,7 @@
             var curr = $(this);
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
+            var id = get_id();
 
             field.load( "/ajax/field/render/", {toml: toml, recipe: id},
                 function (response, status, xhr) {

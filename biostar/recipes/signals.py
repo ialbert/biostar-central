@@ -98,6 +98,7 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
     if created:
         # Generate friendly uid
         uid = auth.generate_uuid(prefix="project", suffix=instance.id)
+        uid = auth.new_uid(obj=instance, objtype=Project, default=uid)
         instance.uid = uid
         instance.label = uid
         # Set the project directory
@@ -118,7 +119,10 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
     if created:
         # Generate friendly uid
-        instance.uid = auth.generate_uuid(prefix="recipe", suffix=instance.id)
+        uid = auth.generate_uuid(prefix="recipe", suffix=instance.id)
+        uid = auth.new_uid(obj=instance, objtype=Analysis, default=uid)
+        instance.uid = uid
+
         Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
 
     # Update the last edit date and user of project
@@ -146,8 +150,9 @@ def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
 
     if created:
         # Generate friendly uid
-        instance.uid = auth.generate_uuid(prefix="job", suffix=instance.id)
-
+        uid = auth.generate_uuid(prefix="job", suffix=instance.id)
+        uid = auth.new_uid(obj=instance, objtype=Job, default=uid)
+        instance.uid = uid
         # Generate the path based on the
         instance.path = join(settings.MEDIA_ROOT, "jobs", f"{instance.uid}")
 
@@ -169,8 +174,10 @@ def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
 
     if created:
         # Generate friendly uid
-        instance.uid = auth.generate_uuid(prefix="data", suffix=instance.id)
-
+        uid = auth.generate_uuid(prefix="data", suffix=instance.id)
+        uid = auth.new_uid(obj=instance, objtype=Data, default=uid)
+        instance.uid = uid
+        
         # Set the data directory with the recently created uid
         instance.dir = join(instance.get_project_dir(), f"{instance.uid}")
 
