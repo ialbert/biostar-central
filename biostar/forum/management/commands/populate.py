@@ -1,6 +1,6 @@
 import logging
 import random
-
+import os
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -47,6 +47,7 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
         post = Post.objects.create(title=title, author=author, content=content, type=ptype)
         posts.append(post)
 
+
     # Drop one post from targets.
     targets = posts[1:]
 
@@ -61,7 +62,7 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
     for count in range(nposts):
         author = random.choice(users)
         # Exclude the first generated post.
-        parents= list(Post.objects.order_by("-id").exclude(pk=posts[0].pk))
+        parents = list(Post.objects.order_by("-id").exclude(pk=posts[0].pk))
         parent = random.choice(parents)
         content = f"Comment number {count}"
         comment = Post.objects.create(type=Post.COMMENT, parent=parent, content=content, author=author)
@@ -71,12 +72,12 @@ def init_messages(nmsgs):
     # Fetch target user to receive messages
     target = User.objects.filter(email=settings.ADMIN_EMAIL).first()
     # Any staff user is used as a source to send messages
-    source = User.objects.exclude(pk=target.pk).filter(is_staff=True).first()
-
-    for m in range(nmsgs):
-        body = html = f"This is a test message {m}"
-        body = MessageBody.objects.create(body=body, html=html)
-        Message.objects.create(sender=source, recipient=target, body=body)
+    source = User.objects.filter(is_staff=True).first()
+    if source and target:
+        for m in range(nmsgs):
+            body = html = f"This is a test message {m}"
+            body = MessageBody.objects.create(body=body, html=html)
+            Message.objects.create(sender=source, recipient=target, body=body)
 
     logger.info(f"Finished initializing messages {nmsgs} messages from:{source} to:{target}")
     return
@@ -106,6 +107,7 @@ class Command(BaseCommand):
         parser.add_argument('--n_users', type=int, default=NUSERS, help="Number of random users to initialize.")
         parser.add_argument('--n_messages', type=int, default=NUSERS, help="Number of messages to initialize.")
         parser.add_argument('--n_votes', type=int, default=NUSERS, help="Number of votes to initialize.")
+        parser.add_argument('--demo', action="store_true", default=False, help="Load demo data")
         parser.add_argument('--n_posts', type=int, default=NPOSTS,
                             help="Number of random answers/comments to initialize.")
 
@@ -115,6 +117,12 @@ class Command(BaseCommand):
         nposts = options['n_posts']
         nmsgs = options['n_messages']
         nvotes = options['n_votes']
+        demo = options['demo']
+
+        # Set fields needed for quick demo
+        if demo:
+            default = os.getenv("DEMO_MIN") or 10
+            nusers = nposts = default
 
         # Only initialize when debugging
         if not settings.DEBUG:
@@ -122,7 +130,6 @@ class Command(BaseCommand):
             return
 
         logger.info("Populating")
-
         if nusers or nposts:
             init_post(nposts=nposts, nusers=nusers)
         if nmsgs:

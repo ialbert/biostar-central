@@ -124,3 +124,16 @@ try:
     print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
     print(f"Secrets module not imported: {exc}")
+
+
+# Enable debug toolbar specific functions
+if DEBUG_TOOLBAR:
+    INSTALLED_APPS.extend([
+        'debug_toolbar',
+    ])
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
+# Add static serving capability
+if DEBUG is False:
+    print("Whitenoise static serve enabled (pip install whitenoise)")
+    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')

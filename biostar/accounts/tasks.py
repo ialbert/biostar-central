@@ -78,7 +78,6 @@ def create_messages(template, rec_list, sender=None, extra_context={}):
     # Get the sender
     name, email = settings.ADMINS[0]
     sender = sender or User.objects.filter(email=email).first() or User.objects.filter(is_superuser=True).first()
-
     # Load the template and context
     tmpl = loader.get_template(template_name=template)
     context = dict(sender=sender)

@@ -247,18 +247,19 @@
 </div>
 <script>
     $(document).ready(function () {
-        var elem = $('#interface_editor');
-        var interface = init_codemirror(elem, 400);
-        var project = elem.closest('.grid').data("project");
-        url = "/ajax/field/render/";
+        var textarea = $('#interface_editor');
+        var editor = init_codemirror(textarea, 400);
+
+        update_preview();
 
         $(".card").each(function (index) {
             var curr = $(this);
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
-            var id = get_id();
-            field.load(url, {toml: toml, recipe: id}, function (response, status, xhr) {
-            });
+
+            field.load( "/ajax/field/render/", {toml: toml, recipe: id},
+                function (response, status, xhr) {
+                });
         });
 
         update_preview();
@@ -266,13 +267,16 @@
             var curr = $(this).closest(".card");
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
-            // Add this field to toml
-            var new_toml = elem.val() + '\n' + toml.replace(/  /g, '');
 
-            // Set new values.
-            elem.val(new_toml);
-            interface.setValue(elem.val());
-            // Add this field html to the preview;
+            // Remove beginning space in first line, replace newline + spaces with newline.
+            toml = toml.replace(/^\s+/g, '\n');
+            toml = toml.replace(/\n[\s]+/g, '\n');
+
+            // Add clicked field to textarea and set values.
+            var new_toml = textarea.val() + toml;
+            editor.setValue(new_toml);
+
+            // Add clicked field html to preview;
             $("#preview form .preview").append(field.html());
 
             popup_message($(this), 'Inserted into interface.', "success");
