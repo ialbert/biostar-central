@@ -64,7 +64,6 @@ def get_users_str():
     return users_str
 
 
-
 def gravatar(user, size=80):
     if not user or user.is_anonymous:
         email = 'anon@biostars.org'.encode('utf8')

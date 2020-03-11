@@ -120,6 +120,9 @@ def finalize_post(sender, instance, created, **kwargs):
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)
 
+    # Put post on quarantine
+
+
     # Exclude current authors from receiving messages from themselves
     subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))
     extra_context = dict(post=instance)

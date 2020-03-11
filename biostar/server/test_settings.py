@@ -7,5 +7,5 @@ MULTI_THREAD = False
 RECAPTCHA_PUBLIC_KEY = ''
 RECAPTCHA_PRIVATE_KEY = ''
 
-# Don't hammer away at the rss feeds while testing.
+# Don't hammer away at the rss knfeeds while testing.
 INIT_PLANET = False

@@ -321,7 +321,7 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     return results
 
 
-def whoosh_more_like_this(uid):
+def whoosh_more_like_this(uid, top=settings.SIMILAR_FEED_COUNT):
     """
     Return posts similar to the uid given.
     """
@@ -331,7 +331,7 @@ def whoosh_more_like_this(uid):
     if isinstance(results, list) or not len(results):
         return SearchResult()
 
-    results = results[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
+    results = results[0].more_like_this("content", top=top)
     # Filter results for toplevel posts.
     results = filter(lambda p: p['is_toplevel'] is True, results)
 

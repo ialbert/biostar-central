@@ -67,8 +67,9 @@ class Post(models.Model):
     "Represents a post in a forum"
 
     # Post statuses.
-    PENDING, OPEN, OFFTOPIC, DELETED = range(4)
-    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (DELETED, "Deleted")]
+    PENDING, OPEN, OFFTOPIC, CLOSED, DELETED = range(5)
+    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (CLOSED, "Closed"),
+                      (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
@@ -83,8 +84,8 @@ class Post(models.Model):
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
     # Possile spam states.
-    SPAM, NOT_SPAM, DEFAULT = range(3)
-    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (DEFAULT, "Default")]
+    SPAM, NOT_SPAM, MAYBE, DEFAULT = range(4)
+    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (MAYBE, "Quarantined"), (DEFAULT, "Default")]
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
