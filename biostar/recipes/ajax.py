@@ -370,14 +370,13 @@ def ajax_paste(request):
     # Clear the clipboard of this item after pasting
     auth.clear(request=request, key=key)
 
-    # Resolve the url to redirect to.
-
     data_redir = reverse("data_list", kwargs=dict(uid=project.uid))
     recipes_redir = reverse("recipe_list", kwargs=dict(uid=project.uid))
+    # Resolve the url to redirect to.
     redir = recipes_redir if key == COPIED_RECIPES else data_redir
 
     count = len(new)
-    return ajax_success(msg=f"Pasted {count } items into project.", redirect=redir)
+    return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
 
 
 @ajax_error_wrapper(method="POST", login_required=True)

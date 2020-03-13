@@ -428,19 +428,6 @@ def data_paste(user, project, instance=None, path=""):
         return create_data(project=project, path=path, user=user)
 
 
-def files_paste(board, project, user):
-    """
-    Apply data_paste over the files found in the clip board.
-    """
-
-    key, vals = board
-    # Special case when pasting files.
-    if key == COPIED_FILES:
-        # Add each path in clipboard as a data object.
-        data = [data_paste(project=project, user=user, path=p) for p in vals]
-        return data
-
-
 def clear(request, key=""):
     if not key:
         # Fetches the most recent clipboard and clears it.
@@ -462,16 +449,19 @@ def paste(project, user, board, clone=False):
     obj_map = {COPIED_RESULTS: Job, COPIED_DATA: Data, COPIED_RECIPES: Analysis}
     key, vals = board
 
-    # Special case function used to paste files.
-    files_paste(project=project, user=user, board=board)
-
-    def copy(instance):
+    def copier(instance):
         if key == COPIED_RECIPES:
             # Paste objects in clipboard as recipes
             return recipe_paste(user=user, project=project, clone=clone, instance=instance)
         else:
             # Paste objects in clipboard as data
             return data_paste(user=user, project=project, instance=instance)
+
+    # Special case function used to paste files.
+    if key == COPIED_FILES:
+        # Add each path in clipboard as a data object.
+        new = [data_paste(project=project, user=user, path=p) for p in vals]
+        return new
 
     # Map the objects in the clipboard to a database class.
     klass = obj_map.get(key)
@@ -484,7 +474,7 @@ def paste(project, user, board, clone=False):
     objs = filter(None, objs)
 
     # Copy the objects into a list of new objects
-    new = list(map(copy, objs))
+    new = list(map(copier, objs))
 
     return new
 

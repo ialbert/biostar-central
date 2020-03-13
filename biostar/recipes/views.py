@@ -165,7 +165,8 @@ def project_list_public(request):
 
 
 def project_list_private(request):
-    return project_list(request, target='private')
+    target = "private" if request.user.is_authenticated else 'public'
+    return project_list(request, target=target)
 
 
 def project_list(request, target=None):
