@@ -1,0 +1,94 @@
+{% load forum_tags %}
+{% load static %}
+
+{% if user.profile.require_recaptcha %}
+
+    <script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
+    {#  Include the recaptacha key #}
+    <input id="recaptcha_key" type="hidden" value="{{ captcha_key }}">
+
+{% endif %}
+
+<div class="ui basic segment fit" id="inplace">
+
+    <form class="ui compact form">
+        {# Create a new comment #}
+        {% if new %}
+
+            <div class="field">
+                <div id="wmd-button-bar"></div>
+                <textarea id="wmd-input" class="wmd-input autocomplete" rows="17"></textarea>
+            </div>
+
+        {# Edit an exisiting post #}
+        {% else %}
+
+            {# Edit the title #}
+            {% if post.is_toplevel %}
+                <div class="fields">
+                    <div class="field">{% inplace_type_field post=post %} </div>
+                    <div class="field"><textarea id="title" rows="1">{{ post.title }}</textarea></div>
+                </div>
+            {% endif %}
+
+            {# Edit the content #}
+            <div class="field">
+                {% if post.is_toplevel %}{% include 'widgets/post_message.html' %}{% endif %}
+                <div id="wmd-button-bar"></div>
+                <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="8">{{ post.content }}</textarea>
+            </div>
+
+            {# Edit the tags #}
+            {% if post.is_toplevel %}
+                <div class="field">
+                    {% tags_field form_field=form.tag_val initial=post.tag_val %}
+                </div>
+            {% endif %}
+
+        {% endif %}
+
+        {# Include recaptcha fields #}
+        {% if user.profile.require_recaptcha %}
+            <div class="required field">
+                <div id="captcha"></div>
+            </div>
+        {% endif %}
+
+        <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Double-click to edit post. Markdown accepted.</p>
+
+        {# Preview segment #}
+        <div class="ui preview segment">{{ html }}</div>
+
+        {# Submit and cancel buttons #}
+        <div class="field">
+
+            <a class="ui green button {% if new %}create{% else %}save{% endif %}">
+                <i class="check icon"></i>Save
+            </a>
+            <a class="ui button cancel">
+                <i class="undo icon"></i>Cancel
+            </a>
+        </div>
+
+    </form>
+
+    <div class="ui mini basic modal">
+        <div class="ui icon header">
+            <i class="save outline icon"></i>
+            <div> You are about to exit a form and will lose all of your progress.</div>
+            Do you want to exit without saving?
+        </div>
+        <div class="actions">
+            <div class="ui red cancel exit inverted button">
+                <i class="remove icon"></i>
+                Exit
+            </div>
+            <div class="ui green green ok stay inverted button">
+                <i class=" checkmark icon"></i>
+                Stay
+            </div>
+        </div>
+    </div>
+
+</div>
+
