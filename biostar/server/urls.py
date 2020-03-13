@@ -22,5 +22,4 @@ urlpatterns = [
     # Include the accounts urls
     path(r'accounts/', include(accounts_urls)),
 
-
 ]

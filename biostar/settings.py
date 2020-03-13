@@ -132,35 +132,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
-
-try:
-    USE_POSTGRES = bool(os.getenv('USE_POSTGRES', False))
-except Exception as exc:
-    USE_POSTGRES = True
-
-# Set the database to use postgres
-if USE_POSTGRES:
-
-    DATABASES = {
-
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': DATABASE_NAME,
-            'USER': '',
-            'PASSWORD': '',
-            'HOST': '',
-            'PORT': '',
-        },
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': DATABASE_NAME,
     }
-
-else:
-    DATABASE_NAME = join(BASE_DIR, 'export', 'db', DATABASE_NAME)
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': DATABASE_NAME,
-        }
-    }
+}
 
 ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
 

@@ -121,8 +121,7 @@ class Command(BaseCommand):
 
         # Set fields needed for quick demo
         if demo:
-            default = os.getenv("DEMO_MIN") or 10
-            nusers = nposts = default
+            nusers = nposts = 10
 
         # Only initialize when debugging
         if not settings.DEBUG:
