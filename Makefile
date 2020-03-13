@@ -151,7 +151,7 @@ reindex:
 demo: startup serve
 
 startup:init
-	python manage.py ${LOAD_COMMAND} --demo
+	python manage.py ${LOAD_COMMAND} --demo --settings ${DJANGO_SETTINGS_MODULE}
 
 hard_reset: delete
 	# Delete media and spooler.
