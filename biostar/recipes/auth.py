@@ -57,7 +57,24 @@ def access_denied_message(user, needed_access):
     return tmpl.render(context=context)
 
 
+def recent_clipboard(request):
+    """
+    Return most recent item copied in the clipboard.
+    """
+
+    board = request.session.get(settings.CLIPBOARD_NAME, {})
+
+    # Get the first item in the clipboard
+    if len(board):
+        board = list(board.items())[0]
+        key, vals = board
+        return key, vals
+
+    return "", []
+
+
 def copy_file(request, fullpath):
+
     if not os.path.exists(fullpath):
         messages.error(request, "Path does not exist.")
         return []
@@ -67,15 +84,17 @@ def copy_file(request, fullpath):
         return []
 
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    board_items = clipboard.get(COPIED_FILES, [])
+    board_items = clipboard.get(COPIED_FILES) or []
     board_items.append(fullpath)
-    # No duplicates in clipboard
-    items = list(set(board_items))
-    clipboard[COPIED_FILES] = items
+
+    # Set new values in clipboard.
+    clipboard = {COPIED_FILES: list(set(board_items))}
+
+    # Clear the clipboard before copying files.
+    clear(request=request)
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-    return items
+    return board_items
 
 
 def copy_uid(request, uid, board):
@@ -86,12 +105,16 @@ def copy_uid(request, uid, board):
         messages.error(request, "You need to be logged in.")
         return []
 
+    # Get the clipboard item
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    board_items = clipboard.get(board, [])
+    board_items = clipboard.get(board) or []
     board_items.append(uid)
+
     # No duplicates in clipboard
-    clipboard[board] = list(set(board_items))
+    clipboard = {board: list(set(board_items))}
+
+    # Clear the clipboard before copying items.
+    clear(request=request)
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
@@ -365,6 +388,80 @@ def validate_recipe_run(user, recipe):
     return True, ""
 
 
+def recipe_paste(instance, user, project, clone=False):
+
+    # Cascade the root if the recipe is being cloned
+    if clone:
+        root = instance.root if instance.is_cloned else instance
+    else:
+        root = None
+
+    recipe = create_analysis(project=project, user=user, root=root,
+                             json_text=instance.json_text, security=instance.security,
+                             template=instance.template,
+                             name=instance.name, text=instance.text, stream=instance.image)
+    return recipe
+
+
+def data_paste(user, project, instance=None, path=""):
+    dtype = instance.type if isinstance(instance, Data) else None
+
+    # Copy an existing instance
+    if instance:
+        return create_data(project=project, path=instance.get_data_dir(),
+                           user=user, name=instance.name,
+                           type=dtype, text=instance.text)
+    # Link an existing file.
+    elif path and os.path.exists(path):
+        return create_data(project=project, path=path, user=user)
+
+
+def clear(request):
+    request.session.update({settings.CLIPBOARD_NAME: {}})
+    return
+
+
+def paste(request, project, user, board, clone=False):
+    """
+    Paste items into project from clipboard.
+    """
+
+    obj_map = {COPIED_RESULTS: Job, COPIED_DATA: Data, COPIED_RECIPES: Analysis}
+    key, vals = board
+
+    def copier(instance):
+        if key == COPIED_RECIPES:
+            # Paste objects in clipboard as recipes
+            return recipe_paste(user=user, project=project, clone=clone, instance=instance)
+        else:
+            # Paste objects in clipboard as data
+            return data_paste(user=user, project=project, instance=instance)
+
+    # Special case function used to paste files.
+    if key == COPIED_FILES:
+        # Add each path in clipboard as a data object.
+        new = [data_paste(project=project, user=user, path=p) for p in vals]
+        return new
+
+    # Map the objects in the clipboard to a database class.
+    klass = obj_map.get(key)
+    if not klass:
+        return []
+
+    # Select valid object uids.
+    objs = [klass.objects.filter(uid=uid).first() for uid in vals]
+    # Only keep existing objects.
+    objs = filter(None, objs)
+
+    # Copy the objects into a list of new objects
+    new = list(map(copier, objs))
+
+    # Clear the clipboard
+    clear(request=request)
+
+    return new
+
+
 def fill_json_data(project, job=None, source_data={}, fill_with={}):
     """
     Produces a filled in JSON data based on user input.
@@ -473,6 +570,44 @@ def delete_object(obj, request):
     return obj.deleted
 
 
+def transform(root, node, path):
+
+    # Image extension types.
+    IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
+
+    # Get the absolute path /root/node/path.
+    path = os.path.abspath(os.path.join(node, path))
+
+    # Find the relative path of the current node/path to the root.
+    relative = os.path.relpath(path, root)
+
+    # Follow symlinks and get the real path.
+    real = os.path.realpath(path)
+
+    # Get the parent directory
+    parent = os.path.dirname(path)
+    
+    tstamp, size = 0, 0
+    if os.path.exists(path):
+        # Time stamp and size info.
+        tstamp = os.stat(path).st_mtime
+        size = os.stat(path).st_size
+
+    # Get the elements. i.e. foo/bar.txt -> ['foo', 'bar.txt']
+    elems = os.path.split(relative)
+    is_dir = os.path.isdir(path)
+
+    # Get all directories.
+    dirs = elems[:-1]
+    dirs = [] if dirs[0] == '' else dirs
+
+    # Get the last node.
+    last = elems[-1]
+    is_image = last.split(".")[-1] in IMAGE_EXT
+
+    return real, relative, dirs, last, tstamp, size, is_image, parent, is_dir
+
+
 def listing(root, node=None, show_all=True):
     paths = []
     node = node or root
@@ -483,39 +618,22 @@ def listing(root, node=None, show_all=True):
             for fpath, fdirs, fnames in os.walk(root, followlinks=True):
                 paths.extend([join(fpath, fname) for fname in fnames])
         else:
-            # Get the list of file in current directory node.
+            # Get the list of file in current directory node being traversed.
             paths = os.listdir(node)
 
-        # Add more metadata to each path.
-        def transform(path):
-            # Image extension types.
-            IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
-            path = os.path.abspath(os.path.join(node, path))
-            tstamp = os.stat(path).st_mtime
-            size = os.stat(path).st_size
+        # Add metadata to each path.
+        transformer = lambda path: transform(root=root, node=node, path=path)
 
-            # Find the relative path of the current node to the root.
-            rel_path = os.path.relpath(path, root)
-            elems = os.path.split(rel_path)
-            dir_names = elems[:-1]
-            is_dir = os.path.isdir(path)
+        paths = list(map(transformer, paths))
 
-            if dir_names[0] == '':
-                dir_names = []
-            last_name = elems[-1]
-            dir_name = os.path.dirname(path)
-
-            is_image = last_name.split(".")[-1] in IMAGE_EXT
-            return rel_path, dir_names, last_name, tstamp, size, is_image, dir_name, is_dir
-
-        paths = list(map(transform, paths))
-        # Sort files by timestamps
+        # Sort files by directory
         paths = sorted(paths, key=lambda x: x[-1], reverse=True)
 
     except Exception as exc:
         logger.error(exc)
 
     return paths
+
 
 def job_color(job):
     try:
@@ -526,6 +644,7 @@ def job_color(job):
         return ''
 
     return
+
 
 def guess_mimetype(fname):
     "Return mimetype for a known text filename"

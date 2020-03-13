@@ -129,20 +129,6 @@ class RecipeViewTest(TestCase):
                         f"Error downloading code. Expected: {self.recipe.template} "
                         f"received: {response.content.decode()}")
 
-
-    def test_recipe_paste(self):
-        "Test recipe paste interface"
-
-        url = reverse('recipe_paste', kwargs=dict(uid=self.recipe.project.uid))
-
-        request = fake_request(url=url, data={}, user=self.owner)
-
-        request.session[settings.CLIPBOARD_NAME] = {const.COPIED_RECIPES: self.recipe.uid}
-
-        response = views.recipe_paste(request=request, uid=self.recipe.project.uid)
-
-        self.process_response(response=response, data={})
-
     def test_recipe_delete(self):
         "Test reset delete"
 

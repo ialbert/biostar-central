@@ -8,13 +8,4 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-ROOT_URLCONF = 'biostar.test.test_urls'
-
-
-# Turn multi threading off during testing.
-MULTI_THREAD = False
-
-# reCaptcha left alone during testing
-RECAPTCHA_PUBLIC_KEY = ''
-RECAPTCHA_PRIVATE_KEY = ''
-INIT_PLANET = False
+ROOT_URLCONF = 'biostar.server.urls'

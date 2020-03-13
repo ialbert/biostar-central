@@ -234,7 +234,7 @@
                 </div>
 
                 <div class="extra content formstyle">
-                    <div class="toml_field"></div>
+                    <div class="ui radio choice toml_field"></div>
                 </div>
 
             </div>
@@ -247,30 +247,38 @@
 </div>
 <script>
     $(document).ready(function () {
-        var elem = $('#interface_editor');
-        var interface = init_codemirror(elem, 400);
-        var project = elem.closest('.grid').data("project");
+        var textarea = $('#interface_editor');
+        var editor = init_codemirror(textarea, 400);
+        var project = textarea.closest('.grid').data("project");
+
         update_preview();
-        url = "/ajax/field/render/";
 
         $(".card").each(function (index) {
-
             var curr = $(this);
             var toml = curr.find(".toml_code").text();
             var field = curr.find(".toml_field");
-            field.load(url, {toml: toml, project: project}, function (response, status, xhr) {
-            });
+            field.load( "/ajax/field/render/", {toml: toml, project: project},
+                function (response, status, xhr) {
+                });
         });
 
         $(this).on('dblclick', '.card .content:not(.extra)', function () {
             var curr = $(this).closest(".card");
             var toml = curr.find(".toml_code").text();
-            var new_toml = elem.val() + '\n' + toml.replace(/  /g, '');
-            // Set new values
-            elem.val(new_toml);
-            interface.setValue(elem.val());
+            var field = curr.find(".toml_field");
+
+            // Remove beginning space in first line, replace newline + spaces with newline.
+            toml = toml.replace(/^\s+/g, '\n');
+            toml = toml.replace(/\n[\s]+/g, '\n');
+
+            // Add clicked field to textarea and set values.
+            var new_toml = textarea.val() + toml;
+            editor.setValue(new_toml);
+
+            // Add clicked field html to preview;
+            $("#preview form .preview").append(field.html());
+
             popup_message($(this), 'Inserted into interface.', "success");
-            update_preview();
         });
     });
 </script>

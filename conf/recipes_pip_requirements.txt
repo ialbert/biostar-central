@@ -1,5 +1,0 @@
-csvkit
-pandas
-numpy
-biom-format
-h5py

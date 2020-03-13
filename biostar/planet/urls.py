@@ -1,10 +1,14 @@
 
-from django.urls import path
+from django.urls import path, include
 from biostar.planet import views
 
+
+planet_patterns = [
+    path('', views.blog_list, name="blog_list"),
+]
 urlpatterns = [
 
     # Get the reset/ urls
-    path('', views.blog_list, name="blog_list"),
+    path(r'', include(planet_patterns)),
 
 ]

@@ -36,6 +36,9 @@ ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 # The default sender name on emails.
 DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
 
+# Show debug toolbar
+DEBUG_TOOLBAR = False
+
 # The current directory path.
 __CURR_DIR = os.path.dirname(join(__file__))
 
@@ -105,12 +108,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'biostar.context.main',
             ],
-            # 'loaders': [
-            #     ('django.template.loaders.cached.Loader',
-            #         'django.template.loaders.filesystem.Loader',
-            #         'django.template.loaders.app_directories.Loader',
-            #     )
-            # ]
         },
     },
 ]
@@ -134,10 +131,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
-DATABASE_NAME = join(BASE_DIR, 'export', 'db', DATABASE_NAME)
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -146,6 +140,10 @@ DATABASES = {
 }
 
 ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
+
+
+# The URL configuration.
+ROOT_URLCONF = 'biostar.urls'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -170,8 +168,9 @@ STATIC_ROOT = join(BASE_DIR, 'export', 'static')
 
 # Global directories for static files.
 STATICFILES_DIRS = [
-    join(BASE_DIR, "biostar", "static"),
+    #join(BASE_DIR, "biostar", "static"),
 ]
+
 
 # The media URL start.
 MEDIA_URL = '/media/'

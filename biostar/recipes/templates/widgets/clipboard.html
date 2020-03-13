@@ -1,0 +1,28 @@
+
+<span class="ui blue message">
+
+<b>{{ count }} </b>{{ board }} on the clipboard.
+
+<span class="ui mini buttons">
+    {% if is_recipe %}
+        <a class="ui green clone button"><i class="clone outline icon"></i>Clone</a>
+        <div class="or"></div>
+    {% endif %}
+
+    <a class="ui blue paste button"><i class="sticky note icon"></i>Paste</a>
+
+    <div class="or"></div>
+
+    <a class="ui clear button">
+        <i class="window close icon"></i> Clear
+    </a>
+
+</span>
+{% if is_recipe %}
+     <span class="muted">Cloned recipes remain synced with the original.</span>
+{% endif %}
+
+</span>
+
+
+

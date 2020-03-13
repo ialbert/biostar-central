@@ -12,15 +12,6 @@
 
 {% block content %}
 
-    <a class="ui left ribbon projects label" href="{% url 'project_list_public'%}">
-        <i class="database icon"></i> All Projects
-    </a>
-
-    {% if user.is_authenticated %}
-        <a class="ui right ribbon obj label" href="{% url 'project_create' %}">
-            <i class="plus icon"></i>New Project
-        </a>
-    {% endif %}
     {% show_messages messages %}
 
     {% include 'widgets/files_list.html' %}

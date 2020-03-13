@@ -151,27 +151,6 @@ def check_size(fobj, maxsize=0.3):
 
 
 @ajax_error_wrapper(method="POST", login_required=False)
-def preview_template(request):
-    source_template = request.POST.get('template', '# Code goes here')
-    source_json = request.POST.get('json_text', '{}')
-    project_uid = request.POST.get('project_uid')
-    project = Project.objects.filter(uid=project_uid).first()
-    try:
-        source_json = toml.loads(source_json)
-        # Fill json information by name for the preview.
-        source_json = auth.fill_data_by_name(project=project, json_data=source_json)
-        # Fill in the script with json data.
-        context = Context(source_json)
-        script_template = Template(source_template)
-        script = script_template.render(context)
-    except Exception as exc:
-        return ajax_error(f"Error rendering code: {exc}")
-
-    # Load the html containing the script
-    return ajax_success(script=script, msg="Rendered script")
-
-
-@ajax_error_wrapper(method="POST", login_required=False)
 def preview_json(request):
     # Get the recipe
     project_uid = request.POST.get('project_uid')
@@ -195,35 +174,6 @@ def preview_json(request):
     template = tmpl.render(context=context)
 
     return ajax_success(msg="Recipe json", html=template)
-
-
-@ajax_error_wrapper(method="POST", login_required=True)
-def file_copy(request):
-    """
-    Add file from import root directory into clipboard.
-    """
-    # Assumes incoming path is a full path
-    path = request.POST.get('path')
-    user = request.user
-
-    # Project uid to check access
-    uid = request.POST.get('uid') or 0
-    project = Project.objects.filter(id=uid).first()
-
-    if uid and not project:
-        return ajax_error(msg="Project does not exist.")
-
-    if project and not auth.is_readable(user=user, project=project):
-        return ajax_error(msg="You do not have access to copy this file")
-
-    if not os.path.exists(path):
-        return ajax_error(msg="File path does not exist.")
-
-    if path.startswith(settings.IMPORT_ROOT_DIR) and not user.profile.trusted:
-        return ajax_error(msg="Only trusted users can copy from this directory.")
-
-    copied = auth.copy_file(request=request, fullpath=path)
-    return ajax_success(msg=f"{len(copied)} files copied.")
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -305,6 +255,35 @@ def manage_access(request):
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
+def copy_file(request):
+    """
+    Add file from import root directory into clipboard.
+    """
+    # Assumes incoming path is a full path
+    path = request.POST.get('path')
+    user = request.user
+
+    # Project uid to check access
+    uid = request.POST.get('uid') or 0
+    project = Project.objects.filter(id=uid).first()
+
+    if uid and not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if project and not auth.is_readable(user=user, project=project):
+        return ajax_error(msg="You do not have access to copy this file")
+
+    if not os.path.exists(path):
+        return ajax_error(msg="File path does not exist.")
+
+    if path.startswith(settings.IMPORT_ROOT_DIR) and not user.profile.trusted:
+        return ajax_error(msg="Only trusted users can copy from this directory.")
+
+    copied = auth.copy_file(request=request, fullpath=path)
+    return ajax_success(msg=f"{len(copied)} files copied.")
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
 def copy_object(request):
     """
     Add object uid or file path to sessions clipboard.
@@ -329,8 +308,80 @@ def copy_object(request):
 
     # Return current clipboard contents
     copied = auth.copy_uid(request=request, uid=uid, board=board)
-
     return ajax_success(f"Copied. Clipboard contains :{len(copied)} objects.")
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_clear_clipboard(request):
+
+    # Clear the clipboard
+    auth.clear(request=request)
+
+    return ajax_success(msg="Cleared clipboard. ", html="")
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_paste(request):
+    """
+    Paste the momst recent
+    """
+    pid = request.POST.get("id", 0)
+    user = request.user
+    project = Project.objects.filter(id=pid).first()
+
+    # Get the board.
+    board = auth.recent_clipboard(request=request)
+    key, vals = board
+    count = len(vals)
+
+    if not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if not auth.is_writable(user=user, project=project):
+        return ajax_error(msg="You do not have access to paste here.")
+
+    if not count:
+        return ajax_error(msg="Clipboard is empty")
+
+    # The target of this action is to clone.
+    clone = request.POST.get('target')
+
+    # Paste the clipboard item into the project
+    new = auth.paste(request=request, board=board, user=user, project=project, clone=clone)
+
+    data_redir = reverse("data_list", kwargs=dict(uid=project.uid))
+    recipes_redir = reverse("recipe_list", kwargs=dict(uid=project.uid))
+    # Resolve the url to redirect to.
+    redir = recipes_redir if key == COPIED_RECIPES else data_redir
+
+    count = len(new)
+    return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_clipboard(request):
+    """
+    Displays the most recent object in clipboard.
+    """
+
+    # Get the most current item in the clipboard.
+    pid = request.POST.get("id", 0)
+    user = request.user
+
+    project = Project.objects.filter(id=pid).first()
+    board = auth.recent_clipboard(request=request)
+    key, vals = board
+    count = len(vals)
+
+    if project and auth.is_readable(user=user, project=project) and count:
+        # Load items into clipboard
+        tmpl = loader.get_template('widgets/clipboard.html')
+        context = dict(count=count, board=key, is_recipe=key==COPIED_RECIPES)
+        template = tmpl.render(context=context)
+    else:
+        template = ''
+
+    return ajax_success(html=template, msg="Refreshed clipboard")
 
 
 def field_render(request):

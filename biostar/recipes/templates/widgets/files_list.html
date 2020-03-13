@@ -6,32 +6,34 @@
 
         {% if not show_all %}
             <div class="ui compact basic segment">
-            <div class="ui small button" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</div>
+                <div class="ui small button" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</div>
             </div>
         {% endif %}
 
-        {% for  rel_path, dir_names, last_name, tstamp, size, is_image, dir_name, is_dir in paths %}
+        {% for  real_path, rel_path, dir_names, last_name, tstamp, size, is_image, dir_name, is_dir in paths %}
 
             <div class="file item" data-value="{{ dir_name }}/{{ last_name }}">
                 <span>
+                    {% if uid %}
 
-                    {% if serve_view %}
-                        {% url serve_view uid=uid path=rel_path as serve_url %}
-                        <a href="{{ serve_url }}">
+                        <a href="{% url serve_view uid=uid path=rel_path %}">
                             {% if is_image %}
-                                <img class="ui small middle aligned image" src="{{ serve_url }}">{% endif %}
+                                <img class="ui small middle aligned image" src="{% url serve_view uid=uid path=rel_path %}">
+                            {% endif %}
                             {{ rel_path }}
                         </a>
+                    {% else %}
+
+                        {% if is_dir %}
+                            <a href="{% url 'file_list' rel_path %}"> {{ real_path }}/</a>
+                        {% else%}
+                            {{ real_path }}
+                        {% endif %}
+
 
                     {% endif %}
-
-                    {% if is_dir %}
-                        <a href="{% url 'file_list' rel_path %}"> {{ dir_name }}/{{ last_name }}/</a>
-                    {% elif not serve_view %}
-                        {{ dir_name }}/{{ last_name }}
-                    {% endif %}
-
                 </span>
+
                 {% if user.is_authenticated %}
                     <a class="ui small right floated label copy"> COPY</a>
                 {% endif %}

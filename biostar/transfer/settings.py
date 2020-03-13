@@ -1,4 +1,4 @@
-from conf.examples.pg.pg_settings import *
+from biostar.forum.settings import *
 
 import os
 TRANSFER_APP = ['biostar.transfer']
@@ -9,7 +9,7 @@ DEBUG = True
 
 INIT_PLANET = False
 
-WSGI_APPLICATION = 'conf.examples.postgres.postgres_wsgi.application'
+WSGI_APPLICATION = 'conf.site.site_wsgi'
 
 # The source database containing data from the old version of Biostar.
 OLD_DATABASE = os.environ.setdefault("OLD_DATABASE", "old_biostar_db")

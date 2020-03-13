@@ -47,7 +47,8 @@ function remove_messages() {
 
 function preview_template(fields) {
 
-    return '<div class="ui segment run"><form class="ui form">' + fields +
+    return '<div class="ui segment run"><form class="ui form">'+
+        '<span class="preview">' + fields+ '</span>'+
         '<div class="field">' +
         '<button type="submit" class="ui green disabled button">' +
         '    <i class="check icon"></i>Run' +
@@ -64,6 +65,7 @@ function update_preview() {
     let recipe_json = $('#interface_editor').val();
     let project = $('#interface').closest('.grid').data("project");
     let url = '/preview/json/';
+    var id = get_id();
 
     $.ajax(url, {
         type: 'POST',
@@ -148,13 +150,13 @@ function flash(cls) {
 function toggle_panels(elem_id, quick) {
 
     // Identify the element
-    var elem = $(elem_id)
+    var elem = $(elem_id);
 
     // Move the element so it is first, thus always opens downwards.
-    $(elem).parent().prepend(elem)
+    $(elem).parent().prepend(elem);
 
     //Hide all collapsible elements.
-    $(".collapse").hide()
+    $(".collapse").hide();
 
     // Open selected element.
     if (quick) {
@@ -171,7 +173,7 @@ function toggle_panels(elem_id, quick) {
     $(".click").removeClass("active");
 
     // Formulate the selector.
-    var selector = "[data-value='{0}']".format(elem_id)
+    var selector = "[data-value='{0}']".format(elem_id);
 
     // Apply the active class to the selector.
     $(selector).addClass("active");
