@@ -13,15 +13,13 @@
 {% endif %}
 
 <span class="phone">{{ results.total|intcomma }}
-    result{{ results.total|pluralize }}
-    &bull;
+    result{{ results.total|pluralize }}&bull;
     Page </span> {{ results.pagenum }} of {{ results.pagecount }}
 
 {% if not results.is_last_page %}
 
     <a class="ui small basic button no-shadow"
        href="{% url 'post_search' %}?query={{ query }}&page={{ next_page }}">
-
         <i class="ui angle  double right icon"></i>
     </a>
     {% else %}

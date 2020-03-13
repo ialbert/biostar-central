@@ -14,7 +14,7 @@ DJANGO_APP :=
 DATABASE_NAME := database.db
 
 # Use postgres database
-USE_POSTGRES := 1
+USE_POSTGRES := 0
 
 # Set the minimum amount of objects to create for demos.
 DEMO_MIN := 15

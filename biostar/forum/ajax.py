@@ -450,9 +450,7 @@ def inplace_form(request):
     # Load the content and form template
     template = "forms/inplace_form.html"
     tmpl = loader.get_template(template_name=template)
-    users_str = auth.get_users_str()
-    context = dict(user=user, post=post, rows=25, add_comment=add_comment, users_str=users_str,
-                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
+    context = dict(user=user, post=post, rows=25, add_comment=add_comment,captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)
@@ -484,3 +482,8 @@ def similar_posts(request, uid):
     results_html = tmpl.render(context)
 
     return ajax_success(html=results_html, msg="success")
+
+
+def ajax_moderate(request):
+    return
+

@@ -11,7 +11,7 @@
 
     {% block search %}
 
-        {% search_bar %}
+    {% search_bar %}
 
     {% endblock %}
     <div class="ui horizontal basic top-menu segments">
@@ -27,12 +27,20 @@
 
     {% if tag %}
         <div class="ui blue filter message">
-            Showing : <code>{{ tag }}</code> &bull; <a href="{% url 'post_list' %}">reset <i
-                class="undo small icon"></i></a>
+            Showing : <code>{{ tag }}</code> &bull; <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
         </div>
     {% endif %}
 
-    {% listing posts=posts %}
+
+        <div class="ui divided items">
+            {% for post in posts %}
+                {% post_details post=post %}
+            {% empty %}
+                <div class="ui warn message">
+                    No posts found.
+                </div>
+            {% endfor %}
+        </div>
 
     {% if enable_pages %}
         <div class="ui page-bar segment">

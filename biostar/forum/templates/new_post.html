@@ -8,11 +8,6 @@
 
 
 {% block container %}
-    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
-
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
 
     <div class="ui bottom attached create-post segment">
         {% show_messages messages %}
@@ -59,7 +54,7 @@
 
                     <div class="ui form-wrap segment">
                         <div class="required input field">
-                            {% include 'widgets/posting_msg.html' %}
+                            {% include 'widgets/post_message.html' %}
 
                             <div id="wmd-button-bar"></div>
                             <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete"
@@ -100,10 +95,8 @@
     </div>
 
     <script>
-
         var users = "{{ users_str }}".split(',');
         autocomplete_users(users);
-
     </script>
 
 {% endblock %}

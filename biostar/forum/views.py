@@ -91,7 +91,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
-    query = Post.objects.valid_posts(user=user).filter(is_toplevel=True)
+    query = Post.objects.valid_posts(u=user, is_toplevel=True)
 
     # Determines how to start the preform_search.
     if post_type:
@@ -471,9 +471,8 @@ def post_moderate(request, uid):
             dupe = form.cleaned_data.get('dupe', '').split("\n")
             dupe_comment = form.cleaned_data.get('comment')
             mod_uid = form.cleaned_data.get('pid')
-            offtopic = form.cleaned_data.get('offtopic')
             redir = auth.moderate_post(post=post, request=request, action=action, comment=dupe_comment,
-                                       dupes=dupe, pid=mod_uid, offtopic=offtopic)
+                                       dupes=dupe, pid=mod_uid)
             return redirect(redir)
         else:
             errors = ','.join([err for err in form.non_field_errors()])
@@ -483,5 +482,5 @@ def post_moderate(request, uid):
         form = forms.PostModForm(post=post, user=user, request=request)
 
     context = dict(form=form, post=post)
-    return render(request, "post_moderate.html", context)
+    return render(request, "widgets/post_moderate.html", context)
 

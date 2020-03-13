@@ -259,11 +259,6 @@ i.icon {
     overflow: auto;
 }
 
-
-.extra {
-/ / display: none;
-}
-
 .answer-form {
     display: none;
 }
@@ -359,6 +354,28 @@ i.icon {
     padding-right: 5px;
 }
 
+
+.post .stats{
+    white-space: nowrap;
+    width: fit-content;
+    padding-right: 5px;
+}
+
+
+.post .stats .label div{
+    text-align: center;
+    font-weight: 900;
+}
+
+.post .stats .label div:first-child{
+    font-size: 2.0em;
+    padding-bottom: .2em;
+}
+
+.post .stats .label div:nth-child(2) {
+    font-size: 1.15em;
+    font-weight: 500;
+}
 
 .content.column {
     width: 100% !important;
@@ -902,8 +919,7 @@ pre {
         display: none !important;
     }
 
-    .statbox {
-
+    .post .stats{
         padding-bottom: 8px;
     }
 
@@ -912,7 +928,7 @@ pre {
     }
 
     .ui.grid > [class*="four wide"].sidefeed {
-        width: 100% !important;
+        //width: 100% !important;
     }
 
 
@@ -922,14 +938,6 @@ pre {
 
     .phone {
         display: none !important;
-    }
-
-}
-
-@media all and (max-width: 750px) {
-
-    .indent {
-        margin-left: 1em;
     }
 
 }

@@ -168,7 +168,16 @@
         </div>
         <div class="ui bottom attached profile segment">
             {% if active == 'posts' %}
-                {% list_posts target=target %}
+
+                <div class="ui divided items">
+                    {% for post in target|post_list %}
+                        {% post_details post=post %}
+                    {% empty %}
+                        <div class="ui warn message">
+                            No posts found.
+                        </div>
+                    {% endfor %}
+                </div>
             {% else %}
                 {% list_awards target=target %}
             {% endif %}

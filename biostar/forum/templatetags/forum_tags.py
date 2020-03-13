@@ -94,12 +94,7 @@ def counts(context):
     return dict(votes=votes, messages=messages)
 
 
-@register.inclusion_tag('widgets/post_user_line_search.html')
-def post_search_line(result, avatar=True):
-    return dict(post=result, avatar=avatar)
-
-
-@register.inclusion_tag('widgets/pages_search.html', takes_context=True)
+@register.inclusion_tag('widgets/search_pages.html', takes_context=True)
 def pages_search(context, results):
 
     previous_page = results.pagenum - 1
@@ -110,6 +105,11 @@ def pages_search(context, results):
                    next_page=next_page)
 
     return context
+
+
+@register.inclusion_tag('widgets/post_details.html')
+def post_details(post):
+    return dict(post=post)
 
 
 @register.simple_tag
@@ -135,12 +135,6 @@ def gravatar(user=None, user_uid=None, size=80):
 def filter_dropdown(context):
 
     return context
-
-@register.inclusion_tag('widgets/user_filter_dropdown.html', takes_context=True)
-def user_filter_dropdown(context):
-
-    return context
-
 
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
 def user_icon(context, user=None, is_moderator=False, is_spammer=False, score=0):
@@ -342,7 +336,7 @@ def get_dropdown_options(selected_list):
     return tags_opts
 
 
-@register.inclusion_tag('forms/tags_field.html', takes_context=True)
+@register.inclusion_tag('forms/field_tags.html', takes_context=True)
 def tags_field(context, form_field, initial=''):
     """Render multiple select dropdown options for tags. """
 
@@ -355,7 +349,7 @@ def tags_field(context, form_field, initial=''):
     return context
 
 
-@register.inclusion_tag('widgets/form_errors.html')
+@register.inclusion_tag('forms/form_errors.html')
 def form_errors(form, wmd_prefix='', override_content=False):
     """
     Turns form errors into a data structure
@@ -432,30 +426,16 @@ def search_bar(context, tags=False, users=False):
     return context
 
 
-@register.inclusion_tag('widgets/listing.html', takes_context=True)
-def list_posts(context, target):
+@register.filter(takes_context=True)
+def post_list(context, target):
     request = context["request"]
     user = request.user
-
-    posts = Post.objects.filter(author=target)
-
-    page = request.GET.get('page', 1)
+    posts = Post.objects.valid_posts(u=user, author=target)
     posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
-
-    # Filter deleted items or spam items for anonymous and non-moderators.
-    if user.is_anonymous or (user.is_authenticated and not user.profile.is_moderator):
-        posts = posts.exclude(status=Post.DELETED)
-        posts = posts.exclude(spam=Post.SPAM)
-
     posts = posts.order_by("-rank")
-    posts = posts.exclude(Q(root=None) | Q(parent=None))
-    # Create the paginator and apply post paging
-    paginator = Paginator(posts, settings.POSTS_PER_PAGE)
-    posts = paginator.get_page(page)
+    posts = posts[:100]
 
-    request = context["request"]
-    context = dict(posts=posts, request=request, include_pages_bar=True)
-    return context
+    return posts
 
 
 @register.inclusion_tag('widgets/feed_default.html')
@@ -491,6 +471,7 @@ def planet_gravatar(planet_author):
     email = f"{email}@planet.org"
     email = email.encode('utf-8')
     return auth.gravatar_url(email=email, style='retro')
+
 
 @register.simple_tag
 def get_icon(string, default=""):
@@ -593,12 +574,6 @@ def get_thread_users(users, post, limit=2):
     return displayed_users
 
 
-@register.inclusion_tag('widgets/listing.html', takes_context=True)
-def listing(context, posts=None, show_subs=True):
-    request = context["request"]
-    return dict(posts=posts, request=request, show_subs=show_subs)
-
-
 @register.filter
 def show_nonzero(value):
     "The purpose of this is to return value or empty"
@@ -669,6 +644,7 @@ def bignum(number):
         pass
     return str(number)
 
+
 def post_boxclass(root_type, answer_count, root_has_accepted):
 
     # Create the css class for each row
@@ -698,14 +674,17 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
 
 @register.simple_tag
 def search_boxclass(root_type, answer_count, root_has_accepted):
-    return post_boxclass(root_type=root_type, answer_count=answer_count, root_has_accepted=root_has_accepted)
+    return post_boxclass(root_type=root_type,
+                         answer_count=answer_count,
+                         root_has_accepted=root_has_accepted)
 
 
 @register.simple_tag
 def boxclass(post=None, uid=None):
 
     return post_boxclass(root_type=post.root.type,
-                              answer_count=post.root.answer_count, root_has_accepted=post.root.has_accepted)
+                         answer_count=post.root.answer_count,
+                         root_has_accepted=post.root.has_accepted)
 
 
 @register.simple_tag(takes_context=True)
@@ -713,7 +692,6 @@ def render_comments(context, tree, post, template_name='widgets/comment_body.htm
     request = context["request"]
     if post.id in tree:
         text = traverse_comments(request=request, post=post, tree=tree, template_name=template_name)
-
     else:
         text = ''
 
@@ -750,6 +728,7 @@ def traverse_comments(request, post, tree, template_name):
     html = '\n'.join(collect)
 
     return html
+
 
 def top_level_only(attrs, new=False):
     '''
@@ -788,14 +767,15 @@ def markdown_file(pattern):
 
 
 class MarkDownNode(template.Node):
-    CALLBACKS = [ top_level_only ]
+    #CALLBACKS = [top_level_only]
+
     def __init__(self, nodelist):
         self.nodelist = nodelist
 
     def render(self, context):
         text = self.nodelist.render(context)
         text = markdown.parse(text, clean=False, escape=False, allow_rewrite=True)
-        text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
+        #text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
         return text
 
 
@@ -812,6 +792,7 @@ def markdown_tag(parser, token):
             {% endmarkdown %}
     """
     nodelist = parser.parse(('endmarkdown',))
+
     # need to do this otherwise we get big fail
     parser.delete_first_token()
     return MarkDownNode(nodelist)

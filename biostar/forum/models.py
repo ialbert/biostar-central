@@ -25,27 +25,23 @@ logger = logging.getLogger("engine")
 
 class PostManager(models.Manager):
 
-    def valid_posts(self, user=None):
+    def valid_posts(self, u=None, **kwargs):
         """
         Returns posts that are not closed or marked as spam.
         """
-        query = super().get_queryset()
+        query = super().get_queryset().filter(**kwargs)
+        query = query.exclude(Q(root=None) | Q(parent=None))
 
         # Moderators get to see all posts by default.
-        if user and user.is_authenticated and user.profile.is_moderator:
+        if u and u.is_authenticated and u.profile.is_moderator:
             return query
 
         # Filter for open posts that are not spam.
-        query = query.filter(
-
-            models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT),
-            models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT),
-
-            status=Post.OPEN,
-            root__status=Post.OPEN)
+        query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
+        query = query.exclude(models.Q(spam=Post.SPAM) |
+                              models.Q(root__spam=Post.SPAM))
 
         return query
-
 
 class AwardManager(models.Manager):
 
@@ -197,6 +193,18 @@ class Post(models.Model):
         if self.is_toplevel:
             return self.thread_votecount
         return self.vote_count
+
+    def title_prefix(self):
+
+        prefix = ""
+        if not self.is_open:
+            prefix = f"{self.get_status_display()}:"
+        elif self.is_spam:
+            prefix = "Spam:"
+        elif not self.is_question:
+            prefix = f"{self.get_type_display()}:"
+
+        return prefix
 
     @property
     def is_open(self):
