@@ -15,7 +15,9 @@ logger = logging.getLogger('engine')
 
 def search(request):
 
-    results = dict(analysis=[], project=[], data=[], job=[])
+    #results = dict(analysis=[], project=[], data=[], job=[])
+
+    results = dict(analysis=[])
 
     # Search each model type by title, text, owner email/name.
     search_fields = ['name', 'text', 'owner__email', 'owner__profile__name']
@@ -23,10 +25,12 @@ def search(request):
     # Get the objects the user can access
     projects = get_project_list(user=request.user)
 
-    model_map = {"job": Job.objects.filter(project__in=projects),
-                 "analysis": Analysis.objects.filter(project__in=projects),
-                 "data": Data.objects.filter(project__in=projects),
-                 "project": projects}
+    model_map = {
+                #"job": Job.objects.filter(project__in=projects),
+                 "analysis": Analysis.objects.filter(project__in=projects, root=None, deleted=False),
+                #"data": Data.objects.filter(project__in=projects),
+                #"project": projects
+    }
 
     # Create a search form for each model type.
     for mtype in results:

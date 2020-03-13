@@ -6,28 +6,24 @@
 {% endblock %}
 
 {% block content %}
-
+<div class="job" data-value="{{ job.uid }}">
     <div class="ui large vertical segment" id="view">
-
         <div class="ui divided link items ">
-
-            <div class="item job-item-{{ job.uid }}">
+            <div class="item">
 
                 {% job_img job %}
-<div class="ui text container" style="margin-left: 0 !important;margin-right: 0 !important;max-width: 955px !important;">
-                <div class="content imgpad">
-                    <a class="subheader"  href="{% url 'job_view' job.uid %}">
-                        <i class="bar chart icon"></i>{{ job.get_name }}
-                    </a>
-
-                    <div class="description">{{ job.analysis.summary|markdown|safe }}</div>
-
-                    <div class="extra"><span class="job-container-{{ job.uid }}">{% job_minutes job view=True %}</span>
-                        &bull;
-                        {% created_by date=job.lastedit_date user=job.lastedit_user %}
+                <div class="ui text container">
+                    <div class="content ">
+                        <a class="subheader link" href="{% url 'job_view' job.uid %}">
+                            <i class="bar chart icon"></i>{{ job.get_name }}
+                        </a>
+                        <div class="meta">{{ job.analysis.summary|markdown|safe }}</div>
+                        <div class="extra">
+                            <span class="state">{% job_minutes job view=True %}</span>&bull;
+                            {% created_by date=job.lastedit_date user=job.lastedit_user %}
+                        </div>
                     </div>
                 </div>
-</div>
             </div>
 
         </div>
@@ -36,7 +32,7 @@
     <div class="ui large vertical {% job_color job %} segment">
 
         <div class="ui six buttons">
-            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#code">
+            <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#info">
                 <i class="setting icon"></i> <span class="fitme">Recipe</span>
             </a>
             <a class="ui button" href="{% url "job_rerun" job.uid %}">
@@ -48,7 +44,7 @@
             </a>
 
 
-            <a class="ui button" href="{% url "job_copy" job.uid %}?next={% url "job_view" job.uid %}">
+            <a class="ui copy button">
                 <i class="copy icon"></i>Copy
             </a>
 
@@ -61,12 +57,8 @@
             </a>
 
         </div>
-
-
-        <div id="copy-message-{{ job.uid }}"></div>
-
     </div>
-
+</div>
     <div class="ui vertical large segment">
         <div class="ui aligned header">Run Parameters</div>
         <div>Parameters used during the run:</div>
@@ -77,20 +69,20 @@
     <div class="ui vertical large segment" id="flist">
         <div class="ui aligned header">File List</div>
         <div>Files created by the recipe run:</div>
-        {% directory_list job %}
+        {% include 'widgets/files_list.html' %}
     </div>
 
-    <div class="ui vertical segment">
-    <div id="log"></div>
+    <div class="ui vertical segment" id="stdout">
+        <div id="log"></div>
         <div class="ui aligned header">Output Messages</div>
         <div>Messages printed to the standard output stream:</div>
-        <pre id="stdout">{{ stdout }}</pre>
+        <pre>{{ stdout }}</pre>
 
-        <div class="loader" data-uid="{{ job.uid }}">
+        <div class="loader">
             {% if job.is_running %}
-                 <div class="ui log message">
-                     <span class="ui active small inline loader"></span>
-                     <span>Running</span>
+                <div class="ui log message">
+                    <span class="ui active small inline loader"></span>
+                    <span>Running</span>
                 </div>
             {% endif %}
         </div>

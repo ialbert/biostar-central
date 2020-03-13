@@ -1,0 +1,69 @@
+{% extends "base_template.html" %}
+{% load engine_tags %}
+{% load static %}
+
+{% block headtitle %}
+    Base listing
+{% endblock %}
+
+<div class="ui large header">
+    {% block title %}
+        Listing
+    {% endblock %}
+</div>
+
+{% block body %}
+
+    <div class="ui top attached large tabular  menu">
+
+        <a class="ui {% activate active "home" %} item" href="{% url 'index' %}">
+            <i class="home icon"></i>Home
+        </a>
+
+        <a class="ui   {% activate active "latest_recipes" %} item" href="{% url 'latest_recipes' %}">
+            <i class=" list icon"></i>Latest Recipes
+        </a>
+
+        <a class="ui {% activate active "public" %}  item" href="{% url 'project_list_public' %}">
+            <i class=" list icon"></i>Public Projects
+        </a>
+
+        {% if user.is_authenticated %}
+            <a class="ui {% activate active "private" %}  item" href="{% url 'project_list_private' %}">
+                <i class=" briefcase icon"></i>Private Projects
+            </a>
+        {% endif %}
+
+        {% if user.is_superuser %}
+
+            <a class="ui {% activate active "import" %}  item" href="{% url 'root_list' %}">
+                <i class="download  icon"></i>Import
+            </a>
+
+            <a class="ui {% activate active "admin" %} item" href="{% url 'site_admin' %}">
+                <i class="dashboard icon"></i>Admin
+            </a>
+
+        {% endif %}
+
+    </div>
+
+    <div class="ui bottom attached large segment">
+
+        {% if user.is_authenticated %}
+
+            <a class="ui left ribbon projects label" href="{% url 'project_list_public' %}">
+                <i class="database icon"></i> All Projects
+            </a>
+
+            <a class="ui right ribbon obj label" href="{% url 'project_create' %}">
+                <i class="plus icon"></i>New Project
+            </a>
+        {% endif %}
+
+        {% block content %}
+
+        {% endblock %}
+    </div>
+
+{% endblock %}

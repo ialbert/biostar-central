@@ -2,11 +2,11 @@
 {% load engine_tags %}
 
 
-<div class="item">
+<div class="item recipe" data-value="{{ recipe.uid }}" >
     <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
     <div class="content">
 
-        <a class="subheader" href="{% url 'recipe_edit' recipe.uid %}">
+        <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
             {% if recipe.is_cloned %}
                 <i class="linkify icon"></i>
             {% else %}
@@ -20,29 +20,26 @@
         </div>
 
         <div class="extra">
-            <i class="bar chart icon"></i>Runs:<a
+            <a
                 href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
 
-            {{ recipe.job_count }}
+            <i class="bar chart icon"></i> {{ recipe.job_count }}
             result{{ recipe.job_count|pluralize }}</a>
-            &bull;
-            {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
-            &bull;
-            {% if recipe.runnable %}
-                Authorized
-            {% else %}
-                Pending Authorization
+            &bull; {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
+
+            {% if not recipe.runnable %}
+                &bull; needs authorization
             {% endif %}
 
         </div>
     </div>
     {% if user.is_authenticated %}
-        <div class="ui small buttons">
-            <a class="ui right button small-font rerun" href="{% url 'recipe_copy' recipe.uid %}">
-                <i class="redo icon"></i>Copy
+        <div class="ui mini buttons">
+            <a class="ui right copy button">
+                <i class="copy icon"></i>Copy
             </a>
-            <div class="or small-font"></div>
-            <a class="ui right button rerun small-font" href="{% url 'recipe_delete' recipe.uid %}">
+            <div class="or"></div>
+            <a class="ui right button " href="{% url 'recipe_delete' recipe.uid %}">
                 <i class="trash icon"></i> <span class="fitme">Delete</span>
             </a>
 

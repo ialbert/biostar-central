@@ -471,8 +471,8 @@ class Analysis(models.Model):
     AUTHORIZED, NOT_AUTHORIZED = 1, 2
 
     SECURITY_STATES = [
-        (AUTHORIZED, "Trusted users may run the recipe"),
-        (NOT_AUTHORIZED, "Only administrators may run the recipe")
+        (AUTHORIZED, "Trusted users"),
+        (NOT_AUTHORIZED, "Admin only")
     ]
 
     security = models.IntegerField(default=NOT_AUTHORIZED, choices=SECURITY_STATES)
@@ -627,11 +627,6 @@ class Analysis(models.Model):
         return reverse('recipe_edit', kwargs=dict(uid=self.uid))
 
     @property
-    def running_css(self):
-        "css display for running and not running jobs"
-        return "runnable" if self.security == self.AUTHORIZED else "not_runnable"
-
-    @property
     def summary(self):
         """
         Returns first line of text
@@ -639,7 +634,6 @@ class Analysis(models.Model):
         lines = self.text.splitlines() or ['']
         first = lines[0]
         return first
-
 
     def get_name(self):
         if self.deleted:
@@ -736,7 +730,13 @@ class Job(models.Model):
         return f"jobs/{self.uid}/" + path
 
     def url(self):
-        return reverse("job_view", kwargs=dict(uid=self.uid))
+        url = reverse("job_view", kwargs=dict(uid=self.uid))
+
+        # Anchor to the logs when the job is running
+        if self.is_running():
+            url = f"{url}#log/"
+
+        return url
 
     def get_project_dir(self):
         return self.project.get_project_dir()

@@ -88,6 +88,8 @@ class Post(models.Model):
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
+    VISIBILITY_CHOICES = []
+
     # Post status: open, closed, deleted.
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN, db_index=True)
 

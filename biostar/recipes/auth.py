@@ -3,6 +3,7 @@ import logging
 import uuid, copy
 import os
 import subprocess
+import random
 from mimetypes import guess_type
 
 import toml as hjson
@@ -16,10 +17,10 @@ from django.test import RequestFactory
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
-from . import models
-from . import util
-from .const import *
-from .models import Data, Analysis, Job, Project, Access
+from biostar.recipes import models
+from biostar.recipes import util
+from biostar.recipes.const import *
+from biostar.recipes.models import Data, Analysis, Job, Project, Access
 
 logger = logging.getLogger("engine")
 
@@ -28,8 +29,15 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
               Job.RUNNING: "running", Job.COMPLETED: "completed"
               }
 
+
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
+
+
+def generate_uuid(prefix, suffix):
+    uid = f"{prefix}-{suffix}"
+
+    return uid
 
 
 def join(*args):
@@ -49,6 +57,39 @@ def access_denied_message(user, needed_access):
     return tmpl.render(context=context)
 
 
+def clipboard_timestamp(item):
+    """
+    Parse the timestamp out of a clipboard item
+
+   clipboard item is structured as such: ( 'key', [[value-1 ...] , <time stamp>] )
+    """
+    # item = ('key',[ ['value-1' ...], time stamp ]) -- >
+    # --> vals = ['value-1' ...], time_stamp
+    vals = item[-1] if len(item[-1]) else []
+    # vals = ['value-1' ...], time_stamp --> timestamp = time_stamp
+    timestamp = vals[-1] if vals else 0
+
+    return timestamp
+
+
+def most_recent(request):
+    """
+    Return most recent item copied in the clipboard.
+    """
+
+    board = request.session.get(settings.CLIPBOARD_NAME, {})
+    # Sort board by the most recent time stamp
+    board = sorted(board.items(), key=clipboard_timestamp, reverse=True)
+
+    if len(board):
+        # Drop the time stamp in returned values.
+        key, vals = board[0]
+        vals = vals[0] if len(vals) == 2 else vals
+        return key, vals
+
+    return "", []
+
+
 def copy_file(request, fullpath):
     if not os.path.exists(fullpath):
         messages.error(request, "Path does not exist.")
@@ -60,14 +101,15 @@ def copy_file(request, fullpath):
 
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
-    board_items = clipboard.get(COPIED_FILES, [])
+    board_items, timestamp = clipboard.get(COPIED_FILES) or [[], 0]
     board_items.append(fullpath)
+    board_items = list(set(board_items))
     # No duplicates in clipboard
-    items = list(set(board_items))
+    items = (board_items, util.now().timestamp())
     clipboard[COPIED_FILES] = items
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
-    return items
+    return board_items
 
 
 def copy_uid(request, uid, board):
@@ -80,10 +122,11 @@ def copy_uid(request, uid, board):
 
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
 
-    board_items = clipboard.get(board, [])
+    board_items, timestamp = clipboard.get(board) or [[], 0]
     board_items.append(uid)
+    board_items = list(set(board_items))
     # No duplicates in clipboard
-    clipboard[board] = list(set(board_items))
+    clipboard[board] = (board_items, util.now().timestamp())
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
@@ -227,12 +270,13 @@ def get_project_list(user, include_public=True, include_deleted=False):
     else:
         query = Project.objects.filter(cond, deleted=False).distinct()
 
-    #query = query.prefetch_related('access_set', 'data_set', 'analysis_set', 'job_set').select_related('owner', 'owner__profile')
     return query
 
 
-def create_project(user, name, uid=None, summary='', text='', stream=None, label=None,
+def create_project(user, name="", uid=None, summary='', text='', stream=None, label=None,
                    privacy=Project.PRIVATE, update=False):
+
+    name = name or "My New Project"
     # Set or create the project uid.
     uid = uid or util.get_uuid(8)
 
@@ -253,8 +297,8 @@ def create_project(user, name, uid=None, summary='', text='', stream=None, label
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
     else:
         # Create a new project.
-        project = Project.objects.create(label=label,
-            name=name, uid=uid, text=text, owner=user, privacy=privacy)
+        project = Project.objects.create(label=label, name=name, uid=uid, text=text,
+                                         owner=user, privacy=privacy)
 
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
@@ -265,7 +309,7 @@ def create_project(user, name, uid=None, summary='', text='', stream=None, label
     return project
 
 
-def create_analysis(project, json_text, template, uid=None, user=None, summary='', rank=100,
+def create_analysis(project, json_text='', template='# code', uid=None, user=None, summary='', rank=100,
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
                     root=None):
 
@@ -289,9 +333,6 @@ def create_analysis(project, json_text, template, uid=None, user=None, summary='
         analysis = Analysis.objects.create(project=project, uid=uid, json_text=json_text, rank=rank,
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, root=root)
-
-        analysis.uid = f"recipe-{analysis.id}-{util.get_uuid(3)}" if not uid else uid
-        analysis.save()
 
         # Update the projects lastedit user when a recipe is created
         Project.objects.filter(uid=analysis.project.uid).update(lastedit_user=user,
@@ -357,6 +398,85 @@ def validate_recipe_run(user, recipe):
         return False, msg
 
     return True, ""
+
+
+def recipe_paste(instance, user, project, clone=False):
+
+    # Cascade the root if the recipe is being cloned
+    if clone:
+        root = instance.root if instance.is_cloned else instance
+    else:
+        root = None
+
+    recipe = create_analysis(project=project, user=user, root=root,
+                             json_text=instance.json_text, security=instance.security,
+                             template=instance.template,
+                             name=instance.name, text=instance.text, stream=instance.image)
+    return recipe
+
+
+def data_paste(user, project, instance=None, path=""):
+    dtype = instance.type if isinstance(instance, Data) else None
+
+    # Copy an existing instance
+    if instance:
+        return create_data(project=project, path=instance.get_data_dir(),
+                           user=user, name=instance.name,
+                           type=dtype, text=instance.text)
+    # Link an existing file.
+    elif path and os.path.exists(path):
+        return create_data(project=project, path=path, user=user)
+
+
+def clear(request, key=""):
+    if not key:
+        # Fetches the most recent clipboard and clears it.
+        board = most_recent(request=request)
+        key, vals = board
+
+    # Reset the session clipboard
+    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
+    clipboard[key] = []
+    request.session.update({settings.CLIPBOARD_NAME: clipboard})
+    return
+
+
+def paste(project, user, board, clone=False):
+    """
+    Paste items into project from clipboard.
+    """
+
+    obj_map = {COPIED_RESULTS: Job, COPIED_DATA: Data, COPIED_RECIPES: Analysis}
+    key, vals = board
+
+    def copier(instance):
+        if key == COPIED_RECIPES:
+            # Paste objects in clipboard as recipes
+            return recipe_paste(user=user, project=project, clone=clone, instance=instance)
+        else:
+            # Paste objects in clipboard as data
+            return data_paste(user=user, project=project, instance=instance)
+
+    # Special case function used to paste files.
+    if key == COPIED_FILES:
+        # Add each path in clipboard as a data object.
+        new = [data_paste(project=project, user=user, path=p) for p in vals]
+        return new
+
+    # Map the objects in the clipboard to a database class.
+    klass = obj_map.get(key)
+    if not klass:
+        return []
+
+    # Select valid object uids.
+    objs = [klass.objects.filter(uid=uid).first() for uid in vals]
+    # Only keep existing objects.
+    objs = filter(None, objs)
+
+    # Copy the objects into a list of new objects
+    new = list(map(copier, objs))
+
+    return new
 
 
 def fill_json_data(project, job=None, source_data={}, fill_with={}):
@@ -427,9 +547,9 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     uid = uid or util.get_uuid(8)
 
     # Create the job instance.
-    job = Job(name=name, state=state, json_text=json_text,
-              security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
-              template=analysis.template, uid=uid)
+    job = Job.objects.create(name=name, state=state, json_text=json_text,
+                             security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
+                             template=analysis.template, uid=uid)
 
     # Fill the json data.
     json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
@@ -441,14 +561,9 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     job.name = name
 
     if save:
+        # Save the updated json_text and name.
         job.save()
-
         # Update the projects lastedit user when a job is created
-        #job_count = project.job_set.filter(deleted=False).count()
-        job_count = Job.objects.filter(deleted=False, project=project).count()
-        Project.objects.filter(uid=project.uid).update(lastedit_user=owner,
-                                                       lastedit_date=now(),
-                                                       jobs_count=job_count)
         logger.info(f"Created job id={job.id} name={job.name}")
 
     return job
@@ -472,29 +587,70 @@ def delete_object(obj, request):
     return obj.deleted
 
 
-def listing(root):
+def transform(root, node, path):
+
+    # Image extension types.
+    IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
+
+    # Get the absolute path /root/node/path.
+    path = os.path.abspath(os.path.join(node, path))
+
+    # Find the relative path of the current node/path to the root.
+    relative = os.path.relpath(path, root)
+
+    # Follow symlinks and get the real path.
+    real = os.path.realpath(path)
+
+    # Get the parent directory
+    parent = os.path.dirname(path)
+    
+    tstamp, size = 0, 0
+    if os.path.exists(path):
+        # Time stamp and size info.
+        tstamp = os.stat(path).st_mtime
+        size = os.stat(path).st_size
+
+    # Get the elements. i.e. foo/bar.txt -> ['foo', 'bar.txt']
+    elems = os.path.split(relative)
+    is_dir = os.path.isdir(path)
+
+    # Get all directories.
+    dirs = elems[:-1]
+    dirs = [] if dirs[0] == '' else dirs
+
+    # Get the last node.
+    last = elems[-1]
+    is_image = last.split(".")[-1] in IMAGE_EXT
+
+    return real, relative, dirs, last, tstamp, size, is_image, parent, is_dir
+
+
+def listing(root, node=None, show_all=True):
     paths = []
+    node = node or root
 
     try:
-        paths = os.listdir(root)
+        if show_all:
+            # Walk the filesystem and collect all files.
+            for fpath, fdirs, fnames in os.walk(root, followlinks=True):
+                paths.extend([join(fpath, fname) for fname in fnames])
+        else:
+            # Get the list of file in current directory node being traversed.
+            paths = os.listdir(node)
 
-        def transform(path):
-            path = os.path.join(root, path)
-            tstamp = os.stat(path).st_mtime
-            size = os.stat(path).st_size
-            rel_path = os.path.relpath(path, settings.IMPORT_ROOT_DIR)
-            is_dir = os.path.isdir(path)
-            basename = os.path.basename(path)
-            return rel_path, tstamp, size, is_dir, basename
+        # Add metadata to each path.
+        transformer = lambda path: transform(root=root, node=node, path=path)
 
-        paths = map(transform, paths)
-        # Sort files by timestamps
-        paths = sorted(paths, key=lambda x: x[1], reverse=True)
+        paths = list(map(transformer, paths))
+
+        # Sort files by directory
+        paths = sorted(paths, key=lambda x: x[-1], reverse=True)
 
     except Exception as exc:
-        logging.error(exc)
+        logger.error(exc)
 
     return paths
+
 
 def job_color(job):
     try:
@@ -505,6 +661,7 @@ def job_color(job):
         return ''
 
     return
+
 
 def guess_mimetype(fname):
     "Return mimetype for a known text filename"
@@ -553,11 +710,17 @@ def link_data(path, data):
 def is_readable(user, project):
     # Shareable projects can get to see the
 
+    if project.is_public:
+        return True
+
+    if user.is_anonymous:
+        return False
+
     query = Q(access=Access.READ_ACCESS) | Q(access=Access.WRITE_ACCESS) | Q(access=Access.SHARE_ACCESS)
 
-    readable = Access.objects.filter(query, project=project, user=user)
+    access = Access.objects.filter(query, project=project, user=user)
 
-    return readable.exists()
+    return access.exists()
 
 
 def is_writable(user, project, owner=None):

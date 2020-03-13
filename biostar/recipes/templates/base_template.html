@@ -1,0 +1,89 @@
+{% load static %}
+{% load compress %}
+{% load engine_tags %}
+{% load recaptcha2 %}
+
+<html>
+<head>
+
+    <title>
+        {# Page Title #}
+        {% block headtitle %}Title{% endblock %}
+    </title>
+
+    {# Extra header content #}
+    {% block head %}
+
+    {% endblock %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{% static 'recipes_favicon.ico' %}" type="image/x-icon"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    {% recaptcha_init %}
+
+    {% compress css %}
+
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+        <link href="{% static 'engine.css' %}{% randparam %}" rel="stylesheet">
+        <link href="{% static 'prism.css' %}" rel="stylesheet">
+
+    {% endcompress %}
+
+    {% compress js %}
+        <script src="{% static 'semantic.min.js' %}">
+        </script>
+        <script src="{% static 'setup.js' %}{% randparam %}"></script>
+        <script src="{% static 'engine.js' %}{% randparam %}"></script>
+        <script src="{% static 'prism.js' %}{% randparam %}"></script>
+
+    {% endcompress %}
+
+    {% block js %}
+    {% endblock %}
+
+</head>
+<body>
+
+
+<div class="ui container" id="top">
+
+    {% include 'site_header.html' %}
+
+    {% block menu %}
+        {% menubar request=request %}
+    {% endblock %}
+
+    <div class="ui bottom attached segment">
+
+        <div class="ui center aligned header">
+            {% block title %}
+                Title.
+            {% endblock %}
+        </div>
+
+        <div id="search-results"></div>
+
+        {% block body %}
+            Body
+        {% endblock %}
+
+    </div>
+
+    <div class="ui basic center aligned segment">
+        {% block footer %}
+            <p class="muted smaller">
+                Powered by the <a href="https://github.com/ialbert/biostar-central" class="ui image">
+                <img src="{% static 'images/badge-recipe.svg' %}"> </a> release {{ VERSION }}
+            </p>
+        {% endblock %}
+    </div>
+
+</div>
+
+
+</body>
+
+{% block script %}
+{% endblock %}
+
+</html>

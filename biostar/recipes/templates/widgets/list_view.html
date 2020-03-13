@@ -16,16 +16,12 @@
                         <a class="subheader" href="{% url 'recipe_listing' project.label %}">
                             <i class="database icon"></i>{{ project.get_name }}
                         </a>
-                        {% if user.is_authenticated %}
-                            <div class="ui right ribbon label listing" >
-                                {% get_access_label project user %}
-                            </div>
-                        {% endif %}
+
                         <div class="meta">{{ project.summary|markdown|safe }}
                         </div>
                         <div class="extra">
 
-                            {% privacy_label project %}
+                            <span class ="ui label">{{ project.get_privacy_display }}</span>
 
                             <a
                                     href="{% url 'data_listing' project.label %}">
@@ -78,7 +74,6 @@
                         <div class="ui small labels">
                             {% size_label data %}
                             {% type_label data %}
-                            {% state_label data error_only=True %}
                         </div>
                     </div>
                     <div class="meta">{{ data.summary|safe }}</div>

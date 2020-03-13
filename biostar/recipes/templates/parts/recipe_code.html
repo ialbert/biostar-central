@@ -1,0 +1,35 @@
+{% load engine_tags %}
+
+<form method="post" class="ui form" action="#">
+
+    <div class="ui vertical segment">
+        <div class="ui title header">Recipe Code</div>
+    </div>
+
+    <div class="field" id="template_field">
+        <textarea class="code" rows="40" cols="55" name="template" id="code_editor">{{ form.template.value }}</textarea>
+    </div>
+
+    {% if recipe.is_cloned %}
+        {% recipe_clone_message recipe %}
+    {% else %}
+
+        <div class="item">
+            <button class="ui green {{ btn_state }} button ajax" type="submit">
+                <i class="save icon"></i> Save Code
+            </button>
+
+            <a class="ui right floated gray button click" data-value="#info">
+                <i class="arrow left icon"></i> Back
+            </a>
+        </div>
+
+    {% endif %}
+
+</form>
+
+<script>
+$(document).ready(function () {
+    var code = init_codemirror($('#code_editor'), 400);
+});
+</script>

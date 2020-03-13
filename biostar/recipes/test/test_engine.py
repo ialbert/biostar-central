@@ -13,9 +13,11 @@ from django.conf import settings
 from biostar.utils.helpers import fake_request, get_uuid
 
 TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'test'))
-
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
 logger = logging.getLogger('engine')
 
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
 
 class Bunch(object):
     last_valid = template = ''
@@ -24,6 +26,7 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class SiteAdminTest(TestCase):
 
     def setUp(self):
@@ -118,15 +121,16 @@ class FactoryTest(TestCase):
 
     def test_import_file(self):
         "Test import files tab view"
-        url = reverse('file_list', kwargs=dict(path=' '))
+        url = reverse('root_list')
 
         request = fake_request(url=url, data={}, user=self.owner)
 
-        response = views.import_files(request, path=' ')
+        response = views.import_files(request)
 
         self.assertEqual(response.status_code, 200, f"Error with file listing in import tab.")
 
 
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class UtilTests(TestCase):
 
     def setUp(self):

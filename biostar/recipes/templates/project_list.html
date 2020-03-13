@@ -1,57 +1,61 @@
-{% extends "base_content.html" %}
+{% extends "base_listing.html" %}
 {% load engine_tags %}
+{% load static %}
 
 {% block headtitle %}
     Project List
 {% endblock %}
 
+{% block title %}
+    <i class="file icon"></i> Project list
+{% endblock %}
 
-{% block body %}
 
-    <div class="ui center aligned basic vertical segment">
-        <div class="ui large header">
-            <i class="{{ icon }} icon"></i> {{ title }}
-        </div>
-    </div>
+{% block content %}
 
     {% show_messages messages %}
-    <div class="ui top attached large tabular  menu">
 
-        <a class="ui {{ public }} item" href="{% url 'project_list_public' %}">
-            <i class=" list icon"></i><span class="tablet">Public Projects</span>
-        </a>
-        <a class="ui {{ private }} item" href="{% url 'project_list_private' %}">
-            <i class=" briefcase icon"></i><span class="tablet">Private Projects</span>
-        </a>
-        {% if user.is_authenticated  and user.profile.trusted %}
-            <a class="ui blue item" href="{% url 'root_list' %}">
-                <i class="download  icon"></i><span class="tablet">Data Import</span>
-            </a>
-        {% endif %}
+    <div class="ui divided items">
+        {% for project in projects %}
+            <div class="item">
 
-        {% if user.is_superuser %}
-                <a class="ui blue item"  href="{% url 'site_admin' %}">
-                    <i class="dashboard icon"></i> Site Admin
-                </a>
-        {% endif %}
+                <img class="ui mytiny circular fancy image" src="{% img project %}"/>
 
-        {% if user.is_authenticated %}
-            <div class="right menu">
-                <a class="ui {% activate 'recipe_create' active %}  active item" href="{% url 'project_create' %}">
-                    <i class="add circle icon"></i>New Project
-                </a>
+                <div class="content">
+
+                    <a class="subheader" href="{% url 'recipe_listing' project.label %}">
+                        <i class="database icon"></i>{{ project.get_name }}
+                    </a>
+
+                    <div class="meta">{{ project.summary|markdown|safe }} </div>
+
+                    <div class="extra">
+
+                        <span class="ui label">{{ project.get_privacy_display }}</span>
+
+                        <a href="{% url 'data_listing' project.label %}">
+                            <i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
+
+                        <a href="{% url 'recipe_listing' project.label %}">
+                            <i class="setting icon"></i>{{ project.recipes_count }}
+                            recipe{{ project.recipes_count|pluralize }}</a>&bull;
+
+                        <a href="{% url 'job_listing' project.label %}">
+                            <i class="bar chart icon"></i>{{ project.jobs_count }}
+                            result{{ project.jobs_count|pluralize }}</a>
+
+                        {% created_by date=project.lastedit_date user=project.lastedit_user %}
+
+                    </div>
+                </div>
             </div>
-        {% endif %}
-
+        {% endfor %}
     </div>
-    <div class="ui bottom attached large segment">
-        {% list_view projects=projects %}
 
-        {% if not projects %}
-            <div class="item ">
-                <div class="ui warning message"><i class="ui warning circle icon"></i>{{ empty_msg }}</div>
-            </div>
-        {% endif %}
-    </div>
+    {% if not projects %}
+        <div class="item ">
+            <div class="ui warning message"><i class="ui warning circle icon"></i>No projects at this time.</div>
+        </div>
+    {% endif %}
 
 {% endblock %}

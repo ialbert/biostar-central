@@ -1,20 +1,23 @@
 from functools import wraps, partial
 import logging
 
+from django.contrib import messages
 import toml
 from ratelimit.decorators import ratelimit
 
-from django.shortcuts import reverse
-from django.template import loader
+from django.http import HttpResponse
 from django.template import Template, Context
 from django.http import JsonResponse
 from django.template import loader
 from django.conf import settings
 from biostar.accounts.models import User
 from biostar.recipes.const import *
-from biostar.recipes.models import Job, Analysis, Data, Snippet, SnippetType, Project, MAX_TEXT_LEN, Access
+from biostar.recipes.models import Job, Analysis, Data, Project, MAX_TEXT_LEN, Access
 from biostar.recipes.forms import RecipeInterface
 from biostar.recipes import auth
+from django.shortcuts import render, redirect, reverse
+
+from biostar.recipes.forms import RecipeForm
 
 logger = logging.getLogger("engine")
 
@@ -61,39 +64,39 @@ class ajax_error_wrapper:
                 return ajax_error(f'{self.method} method must be used.')
             if request.user.is_anonymous and self.login_required:
                 return ajax_error('You must be logged in.')
-
             return func(request, *args, **kwargs)
 
         return _ajax_view
 
 
-# @ratelimit(key='ip', rate='50/h')
-# @ratelimit(key='ip', rate='10/m')
-# @ajax_error_wrapper(method="POST", login_required=True)
-# def ajax_inplace_form(request, uid):
-#
-#     recipe = Analysis.objects.filter(uid=uid).first()
-#
-#     if not recipe:
-#         return ajax_error(msg="Recipe does not exist.")
-#
-#     is_writable = auth.writeable_recipe(user=request.user, source=recipe, project=recipe.project)
-#
-#     if not is_writable:
-#         return ajax_error(msg="You need write access to the original recipe to edit.")
-#
-#     rows = len(recipe.template.split("\n"))
-#     rows = rows if rows and rows < 200 else 180
-#
-#     # Load the content and form template
-#     template = 'widgets/inplace_template_field.html'
-#     tmpl = loader.get_template(template_name=template)
-#
-#     #users_str = auth.get_users_str()
-#     context = dict(script=recipe.template, project=recipe.project, recipe=recipe, request=request, rows=rows)
-#     template = tmpl.render(context)
-#     #print(template, "FOOOO")
-#     return ajax_success(template=template, msg="success")
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_edit(request, id):
+    """
+    Edit recipes. Uses recipe primary key as access!
+    """
+
+    # The user performing the request.
+    user = request.user
+
+    # The recipe that needs to be edited.
+    recipe = Analysis.objects.filter(id=id).first()
+
+    if not auth.writeable_recipe(source=recipe, user=user):
+        message = str("Recipe is not writable by current user")
+        return ajax_error(msg=message)
+
+    # The project of for the recipe.
+    project = recipe.project
+
+    form = RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
+                      project=project)
+
+    if form.is_valid():
+        form.save()
+        return ajax_success(msg=f"Recipe saved.")
+    else:
+        message = str(form.errors)
+        return ajax_error(msg=message)
 
 
 def check_job(request, uid):
@@ -116,12 +119,13 @@ def check_job(request, uid):
     else:
         stdout = stderr = None
 
-    # Get an the loading image icon
+    # Render the updated image icon
     redir = job.url() if job.is_finished() else ""
     context = dict(job=job)
     tmpl = loader.get_template('widgets/loading_img.html')
     image_tmpl = tmpl.render(context=context)
 
+    # Render the updated elapsed runtime, status, etc..
     context = dict(job=job, check_back=check_back)
     tmpl = loader.get_template('widgets/job_elapsed.html')
     template = tmpl.render(context=context)
@@ -130,49 +134,6 @@ def check_job(request, uid):
                         html=template, state=job.get_state_display(), is_running=job.is_running(),
                         stdout=stdout, stderr=stderr, job_color=auth.job_color(job),
                         state_changed=state_changed, img_tmpl=image_tmpl)
-
-
-@ajax_error_wrapper(method="POST", login_required=False)
-def snippet_code(request):
-    command_uid = request.POST.get('command', '')
-    current_code = request.POST.get('template', '')
-
-    cmd = Snippet.objects.filter(uid=command_uid).first()
-
-    if not cmd:
-        return ajax_error(msg='Command not found.')
-
-    command = cmd.command
-    comment = f'# { cmd.help_text }' if cmd.help_text else ' '
-    code = current_code + '\n' + comment + '\n' + command
-
-    tmpl = loader.get_template('widgets/template_field.html')
-    context = dict(template=code, scroll_to_bottom=True)
-    template_field = tmpl.render(context=context)
-
-    return ajax_success(code=code, msg="Rendered the template", html=template_field)
-
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST", login_required=False)
-def snippet_form(request):
-    is_category = request.POST.get("is_category", 0)
-    is_category = bool(int(is_category))
-
-    type_name = request.POST.get('type_name')
-    type_uid = request.POST.get('type_uid')
-    snippet_uid = request.POST.get('snippet_uid', '')
-    snippet = request.POST.get('snippet', '')
-    help_text = request.POST.get('help_text', '')
-
-    tmpl = loader.get_template('widgets/snippet_form.html')
-
-    context = dict(is_category=is_category, type_name=type_name, snippet=snippet, help_text=help_text,
-                   type_uid=type_uid, snippet_uid=snippet_uid)
-    cmd_form = tmpl.render(context=context)
-
-    return ajax_success(html=cmd_form, msg="Rendered form")
 
 
 def check_size(fobj, maxsize=0.3):
@@ -189,127 +150,12 @@ def check_size(fobj, maxsize=0.3):
     return "Valid", True
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
-def create_snippet_type(request):
-    name = request.POST.get('name', '')
-    image = request.FILES.get('image', '')
-
-    if not name:
-        return ajax_error(msg="Name is required.")
-
-    user_types = SnippetType.objects.filter(owner=request.user)
-
-    if user_types.count() >= MAX_SNIPPETS_CATEGORIES and not request.user.is_superuser:
-        return ajax_error(msg="Maximum amount of snippets reached.")
-
-    # Get the type of code this is: Bash, r, Matlab, etc...
-    cmd_type = SnippetType.objects.create(name=name, owner=request.user)
-
-    if image:
-        msg, valid = check_size(fobj=image)
-        if not valid:
-            return ajax_error(msg=msg)
-        cmd_type.image = image
-        cmd_type.save()
-
-    tmpl = loader.get_template('widgets/snippet_type.html')
-    context = dict(type=cmd_type, request=request, user=request.user)
-    new_type = tmpl.render(context=context)
-
-    return ajax_success(msg="Created snippet", html=new_type)
-
-
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
-@ajax_error_wrapper(method="POST")
-def create_snippet(request):
-    snippet = request.POST.get('snippet', '')
-    help_text = request.POST.get('help_text', '')
-    type_uid = request.POST.get('type_uid')
-    snippet_uid = request.POST.get('snippet_uid', '')
-
-    if not (help_text and snippet):
-        return ajax_error(msg="Snippet and help text are required.")
-
-    # Get the type of code this this: Bash, r, Matlab, etc...
-    cmd_type = SnippetType.objects.filter(uid=type_uid).first()
-    if not cmd_type:
-        return ajax_error(msg=f"Snippet does not have a valid type:{cmd_type}")
-
-    snippets = Snippet.objects.filter(type__owner=request.user, type=cmd_type)
-
-    if snippets.count() >= MAX_SNIPPETS_PER_CATEGORY:
-        return ajax_error(msg="Maximum number of snippets reached.")
-
-    if len(snippet) >= MAX_SNIPPET or len(help_text) >= MAX_HELP:
-        msg = "Snippet" if len(snippet) >= MAX_TEXT_LEN else "Help Text"
-        return ajax_error(msg=msg + " input is too long.")
-
-    # Get existing snippet for edit
-    if snippet_uid:
-        snippet_obj = Snippet.objects.filter(uid=snippet_uid).first()
-        if not snippet:
-            return ajax_error(msg=f"Editing error: snippet id does not exist {snippet_uid}.")
-        # Update the snippet and help_text
-        Snippet.objects.filter(uid=snippet_obj.uid).update(help_text=help_text, command=snippet)
-        # Re-fetch the snippet after the edit.
-        snippet = Snippet.objects.filter(uid=snippet_obj.uid).first()
-    else:
-        snippet = Snippet.objects.create(command=snippet, type=cmd_type, help_text=help_text, owner=request.user)
-
-    # Load snippet into template
-    tmpl = loader.get_template('widgets/snippet.html')
-    context = dict(snippet=snippet)
-    created_form = tmpl.render(context=context)
-
-    return ajax_success(msg="Created snippet", html=created_form)
-
-
-# @ratelimit(key='ip', rate='50/h')
-# @ratelimit(key='ip', rate='10/m')
-# @ajax_error_wrapper(method="POST")
-# def delete_snippet(request):
-#
-#     snippet_uid = request.POST.get('snippet_uid', '')
-#     # Get the snippet
-#     snippet = Snippet.objects.filter(uid=snippet_uid).first()
-#
-#     if request.user != snippet.owner:
-#         return ajax_error(msg="Only owners or superusers can delete their code snippets.")
-#
-#     return
-
-
-@ajax_error_wrapper(method="POST", login_required=False)
-def preview_template(request):
-    source_template = request.POST.get('template', '# Code goes here')
-    source_json = request.POST.get('json_text', '{}')
-    project_uid = request.POST.get('project_uid')
-    project = Project.objects.filter(uid=project_uid).first()
-    try:
-        source_json = toml.loads(source_json)
-        # Fill json information by name for the preview.
-        source_json = auth.fill_data_by_name(project=project, json_data=source_json)
-        # Fill in the script with json data.
-        context = Context(source_json)
-        script_template = Template(source_template)
-        script = script_template.render(context)
-    except Exception as exc:
-        return ajax_error(f"Error rendering code: {exc}")
-
-    # Load the html containing the script
-    return ajax_success(script=script, msg="Rendered script")
-
-
 @ajax_error_wrapper(method="POST", login_required=False)
 def preview_json(request):
     # Get the recipe
-    recipe_name = request.POST.get('name')
     project_uid = request.POST.get('project_uid')
-
     json_text = request.POST.get('json_text', '')
+
     try:
         json_data = toml.loads(json_text)
     except Exception as exc:
@@ -321,7 +167,7 @@ def preview_json(request):
 
     # Render the recipe interface
     interface = RecipeInterface(request=request, json_data=json_data, project=project,
-                                initial=dict(name=recipe_name), add_captcha=False)
+                                add_captcha=False)
 
     tmpl = loader.get_template('widgets/recipe_form.html')
     context = dict(form=interface, focus=True)
@@ -330,106 +176,12 @@ def preview_json(request):
     return ajax_success(msg="Recipe json", html=template)
 
 
-def get_display_dict(display_type):
-    mapping = dict(radio=RADIO, integer=INTEGER, textbox=TEXTBOX,
-                   float=FLOAT, checkbox=CHECKBOX, dropdown=DROPDOWN,
-                   upload=UPLOAD)
-
-    display = mapping.get(display_type)
-
-    if display_type == 'data':
-        return dict(label='Data Field Label',
-                    source='PROJECT',
-                    type='DATA',
-                    help='Pick data from this project to analyze.')
-    if display == RADIO:
-        return dict(label='Radio Field Label',
-                    display=RADIO, help='Choose an option.',
-                    choices=[("1", 'Option 1'), ("2", 'Option 2')], value=2)
-    if display == INTEGER:
-        return dict(label='Integer Field Label',
-                    display=INTEGER,
-                    help='Enter an integer between -100 and 100.',
-                    range=[0, 100], value=0)
-    if display == TEXTBOX:
-        return dict(label='Text box Field Label', display=TEXTBOX,
-                    help='Enter text.',
-                    value='text')
-    if display == FLOAT:
-        return dict(label='Float Field Label',
-                    help='Enter a float, decimal number, between 0 and 100.0.',
-                    display=FLOAT, range=[0, 100],
-                    value=0.5)
-    if display == CHECKBOX:
-        return dict(label='Checkbox Field Label',
-                    help="Check the box for 'yes'. ",
-                    display=CHECKBOX, value=True)
-    if display == DROPDOWN:
-        return dict(label='Dropdown Field Label',
-                    display=DROPDOWN,
-                    help="Pick an option from a dropdown.",
-                    choices=[('1', 'Choices'), ('2', 'Choices 2')],
-                    value='1')
-    if display == UPLOAD:
-        return dict(label='Upload a file',
-                    display=UPLOAD,
-                    help="Upload a file to analyze")
-
-    return dict()
-
-
-@ajax_error_wrapper(method="POST", login_required=False)
-def add_to_interface(request):
-    # Returns a recipe interface field json
-
-    display_type = request.POST.get('display_types', '')
-    json_text = request.POST.get('json_text', '')
-
-    display_dict = get_display_dict(display_type=display_type)
-    try:
-        json_data = toml.loads(json_text)
-    except Exception as exc:
-        return ajax_error(msg=f"{exc}")
-
-    prefix = "Parameter"
-    field_name = prefix
-    count = 0
-    # Check if the field name exists
-    while field_name in json_data:
-        field_name = prefix + f'{count}'
-        count += 1
-
-    new_field = {field_name: display_dict}
-    json_data.update(new_field)
-    new_json = toml.dumps(json_data)
-
-    tmpl = loader.get_template('widgets/json_field.html')
-    context = dict(json_text=new_json, focus=True)
-    json_field = tmpl.render(context=context)
-
-    return ajax_success(html=json_field, json_text=new_json, msg="Rendered json")
-
-
-@ajax_error_wrapper(method="POST")
-def file_copy(request):
-    """
-    Add file into clipboard.
-    """
-    path = request.POST.get('path')
-    fullpath = os.path.abspath(os.path.join(settings.IMPORT_ROOT_DIR, path))
-    if not os.path.exists(fullpath):
-        return ajax_error(msg="File path does not exist.")
-
-    copied = auth.copy_file(request=request, fullpath=fullpath)
-
-    return ajax_success(msg=f"{len(copied)} files copied.")
-
-
 @ajax_error_wrapper(method="POST", login_required=True)
 def toggle_delete(request):
     """
     Delete an object.
     """
+
     type_map = dict(job=Job, data=Data, recipe=Analysis)
     uid = request.POST.get('uid', "")
     obj_type = request.POST.get('type', '')
@@ -503,47 +255,176 @@ def manage_access(request):
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
+def copy_file(request):
+    """
+    Add file from import root directory into clipboard.
+    """
+    # Assumes incoming path is a full path
+    path = request.POST.get('path')
+    user = request.user
+
+    # Project uid to check access
+    uid = request.POST.get('uid') or 0
+    project = Project.objects.filter(id=uid).first()
+
+    if uid and not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if project and not auth.is_readable(user=user, project=project):
+        return ajax_error(msg="You do not have access to copy this file")
+
+    if not os.path.exists(path):
+        return ajax_error(msg="File path does not exist.")
+
+    if path.startswith(settings.IMPORT_ROOT_DIR) and not user.profile.trusted:
+        return ajax_error(msg="Only trusted users can copy from this directory.")
+
+    copied = auth.copy_file(request=request, fullpath=path)
+    return ajax_success(msg=f"{len(copied)} files copied.")
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
 def copy_object(request):
     """
     Add object uid or file path to sessions clipboard.
     """
+    mapper = {"data": (Data, COPIED_DATA),
+              "job": (Job, COPIED_RESULTS),
+              "recipe": (Analysis, COPIED_RECIPES)}
 
-    object_uid = request.POST.get('uid', '')
-    project_uid = request.POST.get('project_uid', '')
+    uid = request.POST.get('uid', '')
     clipboard = request.POST.get('clipboard')
 
-    project = Project.objects.filter(uid=project_uid).first()
-    if not project:
-        return ajax_error("Project does not exist.")
+    obj, board = mapper.get(clipboard, (None, None))
+    obj = obj.objects.filter(uid=uid).first() if obj else None
+    if not obj:
+        return ajax_error("Object does not exist.")
 
+    project = obj.project
     is_readable = auth.is_readable(user=request.user, project=project)
 
     if not is_readable:
         return ajax_error('You do not have access to copy this object.')
 
     # Return current clipboard contents
-    copied_uids = auth.copy_uid(request=request, uid=object_uid, board=clipboard)
+    copied = auth.copy_uid(request=request, uid=uid, board=board)
+    return ajax_success(f"Copied. Clipboard contains :{len(copied)} objects.")
 
-    return ajax_success(f"Copied. Clipboard contains :{len(copied_uids)} objects.")
+
+def load_clipboard(board):
+    key, vals = board
+    count = len(vals)
+
+    if count:
+        tmpl = loader.get_template('widgets/clipboard.html')
+        context = dict(count=count, board=key, is_recipe=key == COPIED_RECIPES)
+        template = tmpl.render(context=context)
+    else:
+        template = ""
+
+    return template
 
 
-def add_variables(request):
-    # Get the most recent template and json.
-    json_text = request.POST.get('json_text', '')
-    template = request.POST.get('template', '')
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_clear_clipboard(request):
 
-    json_data = toml.loads(json_text)
+    # Clear the clipboard
+    auth.clear(request=request)
 
-    # Create a set with all template variables
-    all_vars = {"{{ " + f"{v}.value" + "}}" for v in json_data.keys()}
+    # Fetch the most recent clipboard if it exists.
+    board = auth.most_recent(request=request)
 
-    all_vars = '\n'.join(all_vars)
+    # Load remaining uncleared items in clipboard
+    template = load_clipboard(board=board)
 
-    # Insert variables at the beginning of the template
-    new_template = template + '\n' + all_vars
+    return ajax_success(msg="Cleared clipboard. ", html=template)
 
-    tmpl = loader.get_template('widgets/template_field.html')
-    context = dict(template=new_template, scroll_to_bottom=False, focus=True)
-    template_field = tmpl.render(context=context)
 
-    return ajax_success(msg="Added variables to template", html=template_field, code=new_template)
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_paste(request):
+    """
+    Paste the momst recent
+    """
+    pid = request.POST.get("id", 0)
+    user = request.user
+    project = Project.objects.filter(id=pid).first()
+    board = auth.most_recent(request=request)
+    key, vals = board
+    count = len(vals)
+
+    if not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if not auth.is_writable(user=user, project=project):
+        return ajax_error(msg="You do not have access to paste here.")
+
+    if not count:
+        return ajax_error(msg="Clipboard is empty")
+
+    # The target of this action is to clone.
+    clone = request.POST.get('target')
+
+    # Paste the clipboard item into the project
+    new = auth.paste(board=board, user=user, project=project, clone=clone)
+
+    # Clear the clipboard of this item after pasting
+    auth.clear(request=request, key=key)
+
+    data_redir = reverse("data_list", kwargs=dict(uid=project.uid))
+    recipes_redir = reverse("recipe_list", kwargs=dict(uid=project.uid))
+    # Resolve the url to redirect to.
+    redir = recipes_redir if key == COPIED_RECIPES else data_redir
+
+    count = len(new)
+    return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_clipboard(request):
+    """
+    Displays the most recent object in clipboard.
+    """
+
+    # Get the most current item in the clipboard.
+    pid = request.POST.get("id", 0)
+    user = request.user
+
+    project = Project.objects.filter(id=pid).first()
+    board = auth.most_recent(request=request)
+
+    if project and auth.is_readable(user=user, project=project):
+        # Load items into clipboard
+        template = load_clipboard(board=board)
+    else:
+        template = ''
+
+    return ajax_success(html=template, msg="Refreshed clipboard")
+
+
+def field_render(request):
+    """
+    Renders and returns an HTML field based on the incoming toml data.
+    """
+
+    demo = """
+    [demo]
+    label = "Demo"
+    display = "INTEGER"
+    value = 10000000
+    """
+    text = request.POST.get("toml", demo)
+
+    # Get the project uid
+    pid = request.POST.get('project')
+    project = Project.objects.filter(uid=pid).first()
+    try:
+        data = toml.loads(text)
+    except Exception as exc:
+        return HttpResponse(exc)
+
+    form = RecipeInterface(request, json_data=data, project=project)
+
+    context = dict(form=form)
+
+    return render(request, "parts/form_field_render.html", context=context)
+

@@ -12,6 +12,9 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+# Run tasks in multi threaded mode when UWSGI is not installed.
+MULTI_THREAD = True
+
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -32,6 +35,9 @@ ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 
 # The default sender name on emails.
 DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
+
+# Show debug toolbar
+DEBUG_TOOLBAR = False
 
 # The current directory path.
 __CURR_DIR = os.path.dirname(join(__file__))
@@ -102,12 +108,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'biostar.context.main',
             ],
-            # 'loaders': [
-            #     ('django.template.loaders.cached.Loader',
-            #         'django.template.loaders.filesystem.Loader',
-            #         'django.template.loaders.app_directories.Loader',
-            #     )
-            # ]
         },
     },
 ]
@@ -131,18 +131,43 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
-DATABASE_NAME = join(BASE_DIR, 'export', 'db', DATABASE_NAME)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_NAME,
+try:
+    USE_POSTGRES = bool(os.getenv('USE_POSTGRES', False))
+except Exception as exc:
+    USE_POSTGRES = True
+    1/0
+
+
+if USE_POSTGRES:
+
+    DATABASES = {
+
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': DATABASE_NAME,
+            'USER': '',
+            'PASSWORD': '',
+            'HOST': '',
+            'PORT': '',
+        },
     }
-}
+
+else:
+    DATABASE_NAME = join(BASE_DIR, 'export', 'db', DATABASE_NAME)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': DATABASE_NAME,
+        }
+    }
 
 ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
+
+
+# The URL configuration.
+ROOT_URLCONF = 'biostar.urls'
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -167,8 +192,9 @@ STATIC_ROOT = join(BASE_DIR, 'export', 'static')
 
 # Global directories for static files.
 STATICFILES_DIRS = [
-    join(BASE_DIR, "biostar", "static"),
+    #join(BASE_DIR, "biostar", "static"),
 ]
+
 
 # The media URL start.
 MEDIA_URL = '/media/'

@@ -8,14 +8,12 @@
 {% block contain %}
 
     <div class="ui bottom attached segment">
-        {% paste project=project current=recipe_paste_targets %}
 
         {% show_messages messages %}
 
         {% block content %}
 
             <div class="ui large vertical segment">
-
                 <div class="ui divided link items">
                     {% for recipe in recipe_list %}
                         {% recipe_details recipe %}

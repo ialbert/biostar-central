@@ -14,7 +14,8 @@
     </div>
 
     <div class="ui small horizontal divider header">
-        <i class="database icon"></i>Deleted Projects</div>
+        <i class="database icon"></i>Deleted Projects
+    </div>
 
     {% list_view projects=projects %}
 
@@ -26,7 +27,8 @@
 
 
     <div class="ui small horizontal divider header">
-        <i class="file icon"></i>Deleted Data</div>
+        <i class="file icon"></i>Deleted Data
+    </div>
 
     {% list_view data_list=data %}
 
@@ -36,26 +38,33 @@
 
     {% endif %}
 
+
+    <div class="ui large vertical segment">
+    <i class="setting icon"></i>Deleted Recipes
+        <div class="ui divided link items">
+            {% for recipe in recipe_list %}
+                {% recipe_details recipe %}
+            {% empty %}
+                <div class="item">
+                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
+                        contain
+                        recipes.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+
     <div class="ui small horizontal divider header">
-        <i class="setting icon"></i>Deleted Recipes</div>
-
-    {% list_view recipe_list=recipes %}
-
-    {% if not recipes %}
-
-        <div class="ui warning message"><i class="ui warning circle icon"></i> No recipes found.</div>
-
-    {% endif %}
-
-
-    <div class="ui small horizontal divider header">
-        <i class="bar chart icon"></i>Deleted Jobs</div>
+        <i class="bar chart icon"></i>Deleted Jobs
+    </div>
 
     {% list_view job_list=jobs %}
 
     {% if not jobs %}
 
-       <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
+        <div class="ui warning message"><i class="ui warning circle icon"></i> No results found.</div>
 
     {% endif %}
 

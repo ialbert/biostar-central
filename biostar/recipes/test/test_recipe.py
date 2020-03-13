@@ -1,10 +1,11 @@
 import logging
+import os
 from unittest.mock import patch, MagicMock
 
 from django.conf import settings
 from django.test import TestCase, RequestFactory
 from django.urls import reverse
-
+from django.test import TestCase, override_settings
 #from biostar.accounts.models import Use
 
 from biostar.recipes import auth, const
@@ -13,7 +14,14 @@ from biostar.utils.helpers import fake_request, get_uuid
 
 logger = logging.getLogger('engine')
 
+TEST_ROOT = os.path.abspath(os.path.join(settings.BASE_DIR, 'export', 'tested'))
+TOC_ROOT = os.path.join(TEST_ROOT, 'toc')
+__CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
+# Ensure that the table of directory exists.
+os.makedirs(TOC_ROOT, exist_ok=True)
+
+@override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class RecipeRunTest(TestCase):
 
     def setUp(self):
@@ -47,6 +55,7 @@ class RecipeRunTest(TestCase):
         return
 
 
+@override_settings(MEDIA_ROOT=TEST_ROOT)
 class RecipeViewTest(TestCase):
 
     def setUp(self):
@@ -86,7 +95,7 @@ class RecipeViewTest(TestCase):
         "Test recipe create with POST request"
         data = {"name": "tested", "summary": "summary", "text": "text", "rank": 100,
                 "uid": "tested", 'json_text':'', 'template':'# Code here'}
-        url = reverse('recipe_edit', kwargs=dict(uid=self.project.uid))
+        url = reverse('recipe_create', kwargs=dict(uid=self.project.uid))
 
         request = fake_request(url=url, data=data, user=self.owner)
 
@@ -95,17 +104,19 @@ class RecipeViewTest(TestCase):
         self.process_response(response=response, data=data, save=True)
 
     @patch('biostar.recipes.models.Analysis.save', MagicMock(name="save"))
-    def Xtest_recipe_edit(self):
+    def test_recipe_edit(self):
         "Test recipe edit with POST request"
+        from biostar.recipes import ajax
 
-        data = {"name": "tested", "summary": "summary", "text": "text", "rank": 100,
-                "uid": "tested", 'json_text':'{}', 'template':'# Code here'}
-        url = reverse('recipe_edit', kwargs=dict(uid=self.recipe.uid))
+        data = {"name": "tested", "text": "text", "rank": 100,
+                "uid": "tested", 'json_text':'', 'template':'# Code here'}
+        url = reverse('ajax_recipe_edit', kwargs=dict(id=f"{self.recipe.id}"))
 
         request = fake_request(url=url, data=data, user=self.owner)
 
-        response = views.recipe_edit(request=request, uid=self.recipe.uid)
-        self.process_response(response=response, data=data, save=True)
+        response = ajax.ajax_edit(request=request, id=self.recipe.id)
+
+        #self.process_response(response=response, data=data, save=True)
 
     def test_recipe_code_download(self):
         "Test recipe code download "
@@ -117,30 +128,6 @@ class RecipeViewTest(TestCase):
         self.assertTrue(response.content.decode() == self.recipe.template,
                         f"Error downloading code. Expected: {self.recipe.template} "
                         f"received: {response.content.decode()}")
-
-    def test_recipe_copy(self):
-        "Test recipe copy interface"
-
-        url = reverse('recipe_copy', kwargs=dict(uid=self.recipe.uid))
-
-        request = fake_request(url=url, data={}, user=self.owner)
-
-        response = views.recipe_copy(request=request, uid=self.recipe.uid)
-
-        self.process_response(response=response, data={})
-
-    def test_recipe_paste(self):
-        "Test recipe paste interface"
-
-        url = reverse('recipe_paste', kwargs=dict(uid=self.recipe.project.uid))
-
-        request = fake_request(url=url, data={}, user=self.owner)
-
-        request.session[settings.CLIPBOARD_NAME] = {const.COPIED_RECIPES: self.recipe.uid}
-
-        response = views.recipe_paste(request=request, uid=self.recipe.project.uid)
-
-        self.process_response(response=response, data={})
 
     def test_recipe_delete(self):
         "Test reset delete"
