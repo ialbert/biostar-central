@@ -733,7 +733,6 @@ def create_data_link(path, data):
 
     # The path is a file.
     if os.path.isfile(path):
-
         data_link(path=path, data=data)
         logger.info(f"Linked file: {path}")
 
@@ -843,7 +842,7 @@ def fill_data_by_name(project, json_data):
 def create_data(project, user=None, stream=None, path='', name='', text='', type='', uid=None):
 
     # We need absolute paths with no trailing slashes.
-    path = os.path.abspath(path).rstrip("/")
+    path = os.path.abspath(path).rstrip("/") if path else ""
 
     # Create the data.
     dtype = type or "DATA"
