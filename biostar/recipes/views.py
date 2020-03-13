@@ -351,7 +351,6 @@ def data_view(request, uid):
     data = Data.objects.filter(uid=uid).first()
     project = data.project
     paths = auth.listing(root=data.get_data_dir())
-
     context = dict(data=data, project=project, paths=paths, serve_view="data_serve",
                    activate='Selected Data', uid=data.uid, show_all=True)
     counts = get_counts(project)

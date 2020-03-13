@@ -612,9 +612,12 @@ def transform(root, node, path):
     # Get the parent directory
     parent = os.path.dirname(path)
 
-    # Time stamp and size info.
-    tstamp = os.stat(path).st_mtime
-    size = os.stat(path).st_size
+    tstamp, size = 0, 0
+
+    if os.path.exists(path):
+        # Time stamp and size info.
+        tstamp = os.stat(path).st_mtime
+        size = os.stat(path).st_size
 
     # Get the elements. i.e. foo/bar.txt -> ['foo', 'bar.txt']
     elems = os.path.split(relative)
@@ -653,6 +656,7 @@ def listing(root, node=None, show_all=True):
         paths = sorted(paths, key=lambda x: x[-1], reverse=True)
 
     except Exception as exc:
+        paths = []
         logger.error(exc)
 
     return paths
