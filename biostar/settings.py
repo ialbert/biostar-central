@@ -137,9 +137,8 @@ try:
     USE_POSTGRES = bool(os.getenv('USE_POSTGRES', False))
 except Exception as exc:
     USE_POSTGRES = True
-    1/0
 
-
+# Set the database to use postgres
 if USE_POSTGRES:
 
     DATABASES = {

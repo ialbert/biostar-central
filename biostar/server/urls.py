@@ -17,7 +17,7 @@ urlpatterns = [
     path(r'forum/', include(forum_patterns)),
 
     # Include planets urls
-    path(r'planets/', include(planet_patterns)),
+    path(r'planet/', include(planet_patterns)),
 
     # Include the accounts urls
     path(r'accounts/', include(accounts_urls)),
