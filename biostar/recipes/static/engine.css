@@ -460,6 +460,10 @@ figure {
 }
 
 
+#clipboard .message{
+    display: contents
+}
+
 .popover.error {
     background-color: #f2dede;
     color: #a94442;

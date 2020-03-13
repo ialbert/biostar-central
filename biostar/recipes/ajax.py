@@ -310,33 +310,13 @@ def copy_object(request):
 
     return ajax_success(f"Copied. Clipboard contains :{len(copied)} objects.")
 
-def load_clipboard(board):
-    key, vals = board
-    count = len(vals)
-
-    if count:
-        tmpl = loader.get_template('widgets/clipboard.html')
-        context = dict(count=count, board=key, is_recipe=key == COPIED_RECIPES)
-        template = tmpl.render(context=context)
-    else:
-        template = ""
-
-    return template
-
-
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_clear_clipboard(request):
 
     # Clear the clipboard
     auth.clear(request=request)
 
-    # Fetch the most recent clipboard if it exists.
-    board = auth.most_recent(request=request)
-
-    # Load remaining uncleared items in clipboard
-    template = load_clipboard(board=board)
-
-    return ajax_success(msg="Cleared clipboard. ", html=template)
+    return ajax_success(msg="Cleared clipboard. ", html="")
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -347,7 +327,9 @@ def ajax_paste(request):
     pid = request.POST.get("id", 0)
     user = request.user
     project = Project.objects.filter(id=pid).first()
-    board = auth.most_recent(request=request)
+
+    # Get the board.
+    board = auth.recent_clipboard(request=request)
     key, vals = board
     count = len(vals)
 
@@ -364,19 +346,15 @@ def ajax_paste(request):
     clone = request.POST.get('target')
 
     # Paste the clipboard item into the project
-    new = auth.paste(board=board, user=user, project=project, clone=clone)
-
-    # Clear the clipboard of this item after pasting
-    auth.clear(request=request, key=key)
-
-    # Resolve the url to redirect to.
+    new = auth.paste(request=request, board=board, user=user, project=project, clone=clone)
 
     data_redir = reverse("data_list", kwargs=dict(uid=project.uid))
     recipes_redir = reverse("recipe_list", kwargs=dict(uid=project.uid))
+    # Resolve the url to redirect to.
     redir = recipes_redir if key == COPIED_RECIPES else data_redir
 
     count = len(new)
-    return ajax_success(msg=f"Pasted {count } items into project.", redirect=redir)
+    return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -390,11 +368,15 @@ def ajax_clipboard(request):
     user = request.user
 
     project = Project.objects.filter(id=pid).first()
-    board = auth.most_recent(request=request)
+    board = auth.recent_clipboard(request=request)
+    key, vals = board
+    count = len(vals)
 
-    if project and auth.is_readable(user=user, project=project):
+    if project and auth.is_readable(user=user, project=project) and count:
         # Load items into clipboard
-        template = load_clipboard(board=board)
+        tmpl = loader.get_template('widgets/clipboard.html')
+        context = dict(count=count, board=key, is_recipe=key==COPIED_RECIPES)
+        template = tmpl.render(context=context)
     else:
         template = ''
 

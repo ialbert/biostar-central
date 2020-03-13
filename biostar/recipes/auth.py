@@ -56,40 +56,24 @@ def access_denied_message(user, needed_access):
     return tmpl.render(context=context)
 
 
-def clipboard_timestamp(item):
-    """
-    Parse the timestamp out of a clipboard item
-
-   clipboard item is structured as such: ( 'key', [[value-1 ...] , <time stamp>] )
-    """
-    # item = ('key',[ ['value-1' ...], time stamp ]) -- >
-    # --> vals = ['value-1' ...], time_stamp
-    vals = item[-1] if len(item[-1]) else []
-    # vals = ['value-1' ...], time_stamp --> timestamp = time_stamp
-    timestamp = vals[-1] if vals else 0
-
-    return timestamp
-
-
-def most_recent(request):
+def recent_clipboard(request):
     """
     Return most recent item copied in the clipboard.
     """
 
     board = request.session.get(settings.CLIPBOARD_NAME, {})
-    # Sort board by the most recent time stamp
-    board = sorted(board.items(), key=clipboard_timestamp, reverse=True)
 
+    # Get the first item in the clipboard
     if len(board):
-        # Drop the time stamp in returned values.
-        key, vals = board[0]
-        vals = vals[0] if len(vals) == 2 else vals
+        board = list(board.items())[0]
+        key, vals = board
         return key, vals
 
     return "", []
 
 
 def copy_file(request, fullpath):
+
     if not os.path.exists(fullpath):
         messages.error(request, "Path does not exist.")
         return []
@@ -99,13 +83,14 @@ def copy_file(request, fullpath):
         return []
 
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    board_items, timestamp = clipboard.get(COPIED_FILES) or [[], 0]
+    board_items = clipboard.get(COPIED_FILES) or []
     board_items.append(fullpath)
-    board_items = list(set(board_items))
-    # No duplicates in clipboard
-    items = (board_items, util.now().timestamp())
-    clipboard[COPIED_FILES] = items
+
+    # Set new values in clipboard.
+    clipboard = {COPIED_FILES: list(set(board_items))}
+
+    # Clear the clipboard before copying files.
+    clear(request=request)
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
     return board_items
@@ -119,13 +104,16 @@ def copy_uid(request, uid, board):
         messages.error(request, "You need to be logged in.")
         return []
 
+    # Get the clipboard item
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    board_items, timestamp = clipboard.get(board) or [[], 0]
+    board_items = clipboard.get(board) or []
     board_items.append(uid)
-    board_items = list(set(board_items))
+
     # No duplicates in clipboard
-    clipboard[board] = (board_items, util.now().timestamp())
+    clipboard = {board: list(set(board_items))}
+
+    # Clear the clipboard before copying items.
+    clear(request=request)
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
@@ -434,33 +422,12 @@ def data_paste(user, project, instance=None, path=""):
         return create_data(project=project, path=path, user=user)
 
 
-def files_paste(board, project, user):
-    """
-    Apply data_paste over the files found in the clip board.
-    """
-
-    key, vals = board
-    # Special case when pasting files.
-    if key == COPIED_FILES:
-        # Add each path in clipboard as a data object.
-        data = [data_paste(project=project, user=user, path=p) for p in vals]
-        return data
-
-
-def clear(request, key=""):
-    if not key:
-        # Fetches the most recent clipboard and clears it.
-        board = most_recent(request=request)
-        key, vals = board
-
-    # Reset the session clipboard
-    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    clipboard[key] = []
-    request.session.update({settings.CLIPBOARD_NAME: clipboard})
+def clear(request):
+    request.session.update({settings.CLIPBOARD_NAME: {}})
     return
 
 
-def paste(project, user, board, clone=False):
+def paste(request, project, user, board, clone=False):
     """
     Paste items into project from clipboard.
     """
@@ -468,16 +435,19 @@ def paste(project, user, board, clone=False):
     obj_map = {COPIED_RESULTS: Job, COPIED_DATA: Data, COPIED_RECIPES: Analysis}
     key, vals = board
 
-    # Special case function used to paste files.
-    files_paste(project=project, user=user, board=board)
-
-    def copy(instance):
+    def copier(instance):
         if key == COPIED_RECIPES:
             # Paste objects in clipboard as recipes
             return recipe_paste(user=user, project=project, clone=clone, instance=instance)
         else:
             # Paste objects in clipboard as data
             return data_paste(user=user, project=project, instance=instance)
+
+    # Special case function used to paste files.
+    if key == COPIED_FILES:
+        # Add each path in clipboard as a data object.
+        new = [data_paste(project=project, user=user, path=p) for p in vals]
+        return new
 
     # Map the objects in the clipboard to a database class.
     klass = obj_map.get(key)
@@ -490,7 +460,10 @@ def paste(project, user, board, clone=False):
     objs = filter(None, objs)
 
     # Copy the objects into a list of new objects
-    new = list(map(copy, objs))
+    new = list(map(copier, objs))
+
+    # Clear the clipboard
+    clear(request=request)
 
     return new
 
