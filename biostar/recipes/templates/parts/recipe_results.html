@@ -26,7 +26,7 @@
         </div>
 
         {# Rerun and delete options for authenticated users #}
-        {% if user.is_authenticated and rerun_btn %}
+        {% if user.is_authenticated %}
             <div class="ui mini buttons">
 
                 <a class="ui right button" href="{% url "job_rerun" job.uid %}">

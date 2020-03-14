@@ -55,7 +55,7 @@ def strip_json(json_text):
 
     # Fetch the execute options
     execute_options = local_dict.get('settings', {}).get('execute', {})
-    data_options = local_dict.get('settings', {}).get('insert', {})
+    data_options = local_dict.get('settings', {}).get('files', {})
 
     # Check to see if it is present
     if execute_options or data_options:

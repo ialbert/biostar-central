@@ -509,7 +509,7 @@ def get_part(request, name, id):
 
     project = recipe.project
 
-    if not auth.is_readable(project=project, user=user):
+    if not auth.is_readable(obj=project, user=user):
         message = str("Recipe is not readable by current user")
         return HttpResponse(message)
 

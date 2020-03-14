@@ -272,7 +272,7 @@ def copy_file(request):
     if uid and not project:
         return ajax_error(msg="Project does not exist.")
 
-    if project and not auth.is_readable(user=user, project=project):
+    if project and not auth.is_readable(user=user, obj=project):
         return ajax_error(msg="You do not have access to copy this file")
 
     if not os.path.exists(path):
@@ -290,17 +290,19 @@ def copy_object(request):
     """
     Add object uid or file path to sessions clipboard.
     """
+    # Map the query parameter to a clipboard and database model.
     mapper = {"data": (Data, COPIED_DATA),  "job": (Job, COPIED_RESULTS), "recipe": (Analysis, COPIED_RECIPES)}
     uid = request.POST.get('uid', '')
-    clipboard = request.POST.get('clipboard')
 
-    obj, board = mapper.get(clipboard, (None, None))
-    obj = obj.objects.filter(uid=uid).first() if obj else None
-    if not obj:
-        return ajax_error("Object does not exist.")
+    # Get the clipboard to copy to
+    clipboard = request.POST.get(settings.CLIPBOARD_NAME)
+    klass, board = mapper.get(clipboard, (None, None))
 
-    project = obj.project
-    is_readable = auth.is_readable(user=request.user, project=project)
+    if not (klass and board):
+        return ajax_error("Object or board does not exist.")
+
+    obj = klass.objects.filter(uid=uid).first()
+    is_readable = auth.is_readable(user=request.user, obj=obj)
 
     if not is_readable:
         return ajax_error('You do not have access to copy this object.')
@@ -309,6 +311,7 @@ def copy_object(request):
     copied = auth.copy_uid(request=request, uid=uid, board=board)
 
     return ajax_success(f"Copied. Clipboard contains :{len(copied)} objects.")
+
 
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_clear_clipboard(request):
@@ -346,14 +349,17 @@ def ajax_paste(request):
     clone = request.POST.get('target')
 
     # Paste the clipboard item into the project
-    new = auth.paste(request=request, board=board, user=user, project=project, clone=clone)
+    auth.paste(board=board, user=user, project=project, clone=clone)
 
-    data_redir = reverse("data_list", kwargs=dict(uid=project.uid))
-    recipes_redir = reverse("recipe_list", kwargs=dict(uid=project.uid))
-    # Resolve the url to redirect to.
-    redir = recipes_redir if key == COPIED_RECIPES else data_redir
+    data_url = reverse("data_list", kwargs=dict(uid=project.uid))
+    recipes_url = reverse("recipe_list", kwargs=dict(uid=project.uid))
 
-    count = len(new)
+    # Resolve the redirect url.
+    redir = recipes_url if key == COPIED_RECIPES else data_url
+
+    # Clear the clipboard after pasting.
+    auth.clear(request=request)
+
     return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
 
 
@@ -372,7 +378,7 @@ def ajax_clipboard(request):
     key, vals = board
     count = len(vals)
 
-    if project and auth.is_readable(user=user, project=project) and count:
+    if project and auth.is_readable(user=user, obj=project) and count:
         # Load items into clipboard
         tmpl = loader.get_template('widgets/clipboard.html')
         context = dict(count=count, board=key, is_recipe=key==COPIED_RECIPES)

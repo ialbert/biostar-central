@@ -6,8 +6,7 @@ DEBUG = True
 
 # Private key used to validate external logins
 LOGIN_PRIVATE_KEY = SECRET_KEY
-print(MULTI_THREAD, os.getenv("MULTI_THREAD"), )
-#1/0
+
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""
 
@@ -127,7 +126,7 @@ except Exception as exc:
 
 
 # Enable debug toolbar specific functions
-if DEBUG_TOOLBAR:
+if DEBUG_TOOLBAR and 'debug_toolbar' not in INSTALLED_APPS:
     INSTALLED_APPS.extend([
         'debug_toolbar',
     ])

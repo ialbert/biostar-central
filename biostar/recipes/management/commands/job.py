@@ -25,12 +25,10 @@ def file_insert(job, data):
     """
     Insert file from data dict into database.
 
-    [settings]
-
-    [[settings.insert]]
+    [[settings.files]]
     file = foo
 
-    [[settings.insert]]
+    [[settings.files]]
     file = bar
 
      # List of files
@@ -46,7 +44,10 @@ def file_insert(job, data):
     name = data.get("name")
     text = data.get("text")
 
-    if len(fname) and os.path.exists(fullpath) and fullpath.startswith(root):
+    # Ensure the file path is valid.
+    valid = len(fname) and os.path.exists(fullpath) and fullpath.startswith(root)
+
+    if valid:
         data = auth.get_or_create(fname=fullpath, uid=uid, name=name, project=project, text=text)
         return data
 
@@ -59,12 +60,13 @@ def finalize_job(job, data):
     Performs various finalization processes on the data
     """
 
-    value = data.get("settings", {}).get("insert", [])
+    # Get the
+    files = data.get("settings", {}).get("files", [])
     insert = lambda file: file_insert(data=file, job=job)
 
     # Insert a list of files as data
-    if isinstance(value, list):
-        new = list(map(insert, value))
+    if isinstance(files, list):
+        new = list(map(insert, files))
         return new
 
 
@@ -102,137 +104,137 @@ def run(job, options={}):
     # Create log directories and files
     stdout_fname, stderr_fname = create_logs(job)
 
-    #try:
-    # Find the json and the template.
-    json_data = hjson.loads(job.json_text)
-    template = job.template
+    try:
+        # Find the json and the template.
+        json_data = hjson.loads(job.json_text)
+        template = job.template
 
-    # This is the work directory.
-    work_dir = job.path
+        # This is the work directory.
+        work_dir = job.path
 
-    # The bade URL of the site.
-    url_base = f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}'
+        # The bade URL of the site.
+        url_base = f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{settings.HTTP_PORT}'
 
-    # Populate extra context
-    def extra_context(job):
-        extras = dict(
-            media_root=settings.MEDIA_ROOT,
-            media_url=settings.MEDIA_URL,
-            work_dir=work_dir, local_root=settings.LOCAL_ROOT,
-            user_id=job.owner.id, user_email=job.owner.email,
-            job_id=job.id, job_name=job.name,
-            job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}'.rstrip("/"),
-            project_id=job.project.id, project_name=job.project.name,
-            analyis_name=job.analysis.name,
-            analysis_id=job.analysis.id,
-            domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
-        )
-        return extras
+        # Populate extra context
+        def extra_context(job):
+            extras = dict(
+                media_root=settings.MEDIA_ROOT,
+                media_url=settings.MEDIA_URL,
+                work_dir=work_dir, local_root=settings.LOCAL_ROOT,
+                user_id=job.owner.id, user_email=job.owner.email,
+                job_id=job.id, job_name=job.name,
+                job_url=f'{url_base}{settings.MEDIA_URL}{job.get_url()}'.rstrip("/"),
+                project_id=job.project.id, project_name=job.project.name,
+                analyis_name=job.analysis.name,
+                analysis_id=job.analysis.id,
+                domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
+            )
+            return extras
 
-    # Add the runtime context.
-    json_data['runtime'] = extra_context(job)
+        # Add the runtime context.
+        json_data['runtime'] = extra_context(job)
 
-    # Override template.
-    if use_template:
-        template = open(use_template).read()
+        # Override template.
+        if use_template:
+            template = open(use_template).read()
 
-    # Override json.
-    if use_json:
-        json_data = hjson.loads(open(use_json).read())
+        # Override json.
+        if use_json:
+            json_data = hjson.loads(open(use_json).read())
 
-    # Print the json.
-    if show_json:
-        print(hjson.dumps(json_data))
-        return
+        # Print the json.
+        if show_json:
+            print(hjson.dumps(json_data))
+            return
 
-    # Print the template.
-    if show_template:
-        print(template)
-        return
+        # Print the template.
+        if show_template:
+            print(template)
+            return
 
-    # Extract the execute commands from the spec.
-    settings_dict = json_data.get("settings", {})
+        # Extract the execute commands from the spec.
+        settings_dict = json_data.get("settings", {})
 
-    # Specifies the command that gets executed.
-    execute = settings_dict.get('execute', {})
+        # Specifies the command that gets executed.
+        execute = settings_dict.get('execute', {})
 
-    # The name of the file that contain the commands.
-    script_name = execute.get("script_name", "recipe.sh")
+        # The name of the file that contain the commands.
+        script_name = execute.get("script_name", "recipe.sh")
 
-    # Runtime information will be saved in the log files.
-    json_fname = os.path.join(job.path, f"{settings.JOB_LOGDIR}", "input.json")
+        # Runtime information will be saved in the log files.
+        json_fname = os.path.join(job.path, f"{settings.JOB_LOGDIR}", "input.json")
 
-    # Build the command line
-    command = execute.get("command", f"bash {script_name}")
+        # Build the command line
+        command = execute.get("command", f"bash {script_name}")
 
-    # The commands can be substituted as well.
-    context = Context(json_data)
-    command_template = Template(command)
-    command = command_template.render(context)
+        # The commands can be substituted as well.
+        context = Context(json_data)
+        command_template = Template(command)
+        command = command_template.render(context)
 
-    # This is the full command that will be executed.
-    full_command = f'(cd {work_dir} && {command})'
-    if show_command:
-        print(full_command)
-        return
+        # This is the full command that will be executed.
+        full_command = f'(cd {work_dir} && {command})'
+        if show_command:
+            print(full_command)
+            return
 
-    # Script template.
-    context = Context(json_data)
-    script_template = Template(template)
-    script = script_template.render(context)
+        # Script template.
+        context = Context(json_data)
+        script_template = Template(template)
+        script = script_template.render(context)
 
-    # Show the script.
-    if show_script:
-        print(f'{script}')
-        return
+        # Show the script.
+        if show_script:
+            print(f'{script}')
+            return
 
-    # Logging should start after the early returns.
-    logger.info(f'Job id={job.id} name={job.name}')
+        # Logging should start after the early returns.
+        logger.info(f'Job id={job.id} name={job.name}')
 
-    # Make the output directory
-    logger.info(f'Job id={job.id} work_dir: {work_dir}')
-    os.makedirs(work_dir, exist_ok=True)
+        # Make the output directory
+        logger.info(f'Job id={job.id} work_dir: {work_dir}')
+        os.makedirs(work_dir, exist_ok=True)
 
-    # Create the script in the output directory.
-    with open(os.path.join(work_dir, script_name), 'wt') as fp:
-        fp.write(script)
+        # Create the script in the output directory.
+        with open(os.path.join(work_dir, script_name), 'wt') as fp:
+            fp.write(script)
 
-    # Create a file that stores the json data for reference.
-    with open(json_fname, 'wt') as fp:
-        fp.write(hjson.dumps(json_data))
+        # Create a file that stores the json data for reference.
+        with open(json_fname, 'wt') as fp:
+            fp.write(hjson.dumps(json_data))
 
-    # Show the command that is executed.
-    logger.info(f'Job id={job.id} executing: {full_command}')
+        # Show the command that is executed.
+        logger.info(f'Job id={job.id} executing: {full_command}')
 
-    # Job must be authorized to run.
-    if job.security != Job.AUTHORIZED:
-        raise Exception(f"Job security error: {job.get_security_display()}. Recipe security : {job.analysis.get_security_display()}")
+        # Job must be authorized to run.
+        if job.security != Job.AUTHORIZED:
+            raise Exception(f"Job security error: {job.get_security_display()}. Recipe security : {job.analysis.get_security_display()}")
 
-    # Switch the job state to RUNNING and save the script field.
-    Job.objects.filter(pk=job.pk).update(state=Job.RUNNING,
-                                         start_date=timezone.now(),
-                                         script=script)
-    # Run the command.
-    proc = subprocess.run(command, cwd=work_dir, shell=True,
-                          stdout=open(stdout_fname, "w"),
-                          stderr=open(stderr_fname, "w"))
+        # Switch the job state to RUNNING and save the script field.
+        Job.objects.filter(pk=job.pk).update(state=Job.RUNNING,
+                                             start_date=timezone.now(),
+                                             script=script)
+        # Run the command.
+        proc = subprocess.run(command, cwd=work_dir, shell=True,
+                              stdout=open(stdout_fname, "w"),
+                              stderr=open(stderr_fname, "w"))
 
-    # Raise an error if returncode is anything but 0.
-    proc.check_returncode()
+        # Raise an error if returncode is anything but 0.
+        proc.check_returncode()
 
-    # Perform tasks at job finalization
-    finalize_job(data=json_data, job=job)
+        # Perform tasks at job finalization
+        finalize_job(data=json_data, job=job)
 
-    # If we made it this far the job has finished.
-    logger.info(f"uid={job.uid}, name={job.name}")
-    Job.objects.filter(pk=job.pk).update(state=Job.COMPLETED)
+        # If we made it this far the job has finished.
+        logger.info(f"uid={job.uid}, name={job.name}")
+        Job.objects.filter(pk=job.pk).update(state=Job.COMPLETED)
 
-    # except Exception as exc:
-    #     # Write error to log file
-    #     open(stderr_fname, "a").write(f"\n{exc}")
-    #     # Handle all errors here.
-    #     Job.objects.filter(pk=job.pk).update(state=Job.ERROR)
-    #     logger.error(f'job id={job.pk} error {exc}')
+    except Exception as exc:
+        # Write error to log file
+        open(stderr_fname, "a").write(f"\n{exc}")
+        # Handle all errors here.
+        Job.objects.filter(pk=job.pk).update(state=Job.ERROR)
+        logger.error(f'job id={job.pk} error {exc}')
 
     stdout_log = open(stdout_fname, "r").read()
     stderr_log = open(stderr_fname, "r").read()

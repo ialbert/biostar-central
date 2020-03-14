@@ -129,7 +129,7 @@ def authorize_run(user, recipe):
         return False
 
     # Only users with access can run recipes
-    readable = is_readable(user=user, project=recipe.project)
+    readable = is_readable(user=user, obj=recipe.project)
 
     if not readable:
         return False
@@ -389,18 +389,16 @@ def validate_recipe_run(user, recipe):
 
 def recipe_paste(instance, user, project, clone=False):
 
-    stream = None
     root = None
-
     # Cascade the root if the recipe is being cloned
     if clone:
         root = instance.root if instance.is_cloned else instance
 
     try:
-        if os.path.exists(instance.image.path):
-            stream = instance.image
+        stream = instance.image
     except Exception as exc:
         logger.error(exc)
+        stream = None
 
     recipe = create_analysis(project=project, user=user, root=root,
                              json_text=instance.json_text, security=instance.security,
@@ -417,6 +415,7 @@ def data_paste(user, project, instance=None, path=""):
         return create_data(project=project, path=instance.get_data_dir(),
                            user=user, name=instance.name,
                            type=dtype, text=instance.text)
+
     # Link an existing file.
     elif path and os.path.exists(path):
         return create_data(project=project, path=path, user=user)
@@ -427,7 +426,7 @@ def clear(request):
     return
 
 
-def paste(request, project, user, board, clone=False):
+def paste(project, user, board, clone=False):
     """
     Paste items into project from clipboard.
     """
@@ -443,7 +442,7 @@ def paste(request, project, user, board, clone=False):
             # Paste objects in clipboard as data
             return data_paste(user=user, project=project, instance=instance)
 
-    # Special case function used to paste files.
+    # Special case to paste files.
     if key == COPIED_FILES:
         # Add each path in clipboard as a data object.
         new = [data_paste(project=project, user=user, path=p) for p in vals]
@@ -454,16 +453,12 @@ def paste(request, project, user, board, clone=False):
     if not klass:
         return []
 
-    # Select valid object uids.
+    # Select existing object by uid.
     objs = [klass.objects.filter(uid=uid).first() for uid in vals]
-    # Only keep existing objects.
     objs = filter(None, objs)
 
-    # Copy the objects into a list of new objects
+    # Apply copier to each object.
     new = list(map(copier, objs))
-
-    # Clear the clipboard
-    clear(request=request)
 
     return new
 
@@ -612,12 +607,12 @@ def listing(root, node=None, show_all=True):
     node = node or root
 
     try:
+        # Walk the root filesystem and collect all files.
         if show_all:
-            # Walk the filesystem and collect all files.
             for fpath, fdirs, fnames in os.walk(root, followlinks=True):
                 paths.extend([join(fpath, fname) for fname in fnames])
+        # Get the list of file in current directory node being traversed.
         else:
-            # Get the list of file in current directory node being traversed.
             paths = os.listdir(node)
 
         # Add metadata to each path.
@@ -625,7 +620,6 @@ def listing(root, node=None, show_all=True):
 
         paths = list(map(transformer, paths))
 
-        # Sort files by directory
         paths = sorted(paths, key=lambda x: x[-1], reverse=True)
 
     except Exception as exc:
@@ -720,9 +714,9 @@ def create_data_link(path, data):
         logger.info(f"Linked dir: {path}")
 
 
-def is_readable(user, project):
-    # Shareable projects can get to see the
+def is_readable(user, obj):
 
+    project = obj.project
     if project.is_public:
         return True
 
@@ -883,11 +877,7 @@ def get_or_create(fname, project, user=None, uid=None, name="", text="", dtype="
     # Get the data if it exists.
     data = Data.objects.filter(uid=uid).first()
 
-    if data and data.deleted:
-        logger.warning("Can not update deleted data.")
-        return data
-
-    if data:
+    if data and not data.deleted:
         create_data_link(path=fname, data=data)
         logger.info("Updated data file, name, and text.")
     else:

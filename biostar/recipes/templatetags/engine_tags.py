@@ -204,7 +204,7 @@ def security_label(context, analysis):
     if user.is_anonymous:
         is_readable = False
     else:
-        is_readable = auth.is_readable(user=user, project=analysis.project)
+        is_readable = auth.is_readable(user=user, obj=analysis.project)
 
     context.update(dict(recipe=analysis, is_readable=is_readable))
 
