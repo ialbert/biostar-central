@@ -110,11 +110,6 @@ pre.toml_code {
 }
 
 
-#clipboard_anchor {
-    border-bottom: none;
-}
-
-
 .ui.ribbon.label.projects {
     right: 10.1em;
 }
@@ -433,7 +428,7 @@ figure {
 #clipboard{
 
     position: absolute; /* or absolute */
-    top: 80px;
+    top: 87px;
     text-align: center;
     z-index: 100;
     width: 80%;
@@ -459,6 +454,10 @@ figure {
 
 }
 
+
+#clipboard .message{
+    display: contents
+}
 
 .popover.error {
     background-color: #f2dede;

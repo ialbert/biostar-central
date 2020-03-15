@@ -13,12 +13,6 @@ DJANGO_APP :=
 # Database name
 DATABASE_NAME := database.db
 
-# Use postgres database
-USE_POSTGRES := 0
-
-# Set the minimum amount of objects to create for demos.
-DEMO_MIN := 15
-
 # Command used to load initial data
 LOAD_COMMAND := project
 
@@ -49,7 +43,6 @@ emailer:
 
 
 pg:
-	$(eval USE_POSTGRES := 1 )
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 
 recipes:
@@ -151,7 +144,7 @@ reindex:
 demo: startup serve
 
 startup:init
-	python manage.py ${LOAD_COMMAND} --demo
+	python manage.py ${LOAD_COMMAND} --demo --settings ${DJANGO_SETTINGS_MODULE}
 
 hard_reset: delete
 	# Delete media and spooler.

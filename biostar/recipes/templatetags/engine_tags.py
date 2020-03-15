@@ -353,10 +353,6 @@ def form_errors(form):
 
     return context
 
-@register.filter
-def serve_url(uid, path, view):
-
-    return reverse()
 
 @register.filter
 def markdown(text):

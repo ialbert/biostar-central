@@ -170,7 +170,7 @@ def project_list_private(request):
 
 def project_list(request, target=None):
 
-    if target == 'private':
+    if target == 'private' and request.user.is_authenticated:
         active = "private"
         projects = auth.get_project_list(user=request.user, include_public=False)
     else:
