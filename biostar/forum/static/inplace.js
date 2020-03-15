@@ -1,15 +1,16 @@
 
-function create_comment(parent) {
+function create_comment() {
 
-    var create_url = '/ajax/comment/create/';
     // Get the fields to submit
-    var form_elem = $('#post-form');
-    var content = $('#wmd-input');
+    var elem = $("#new-content");
+    var parent = elem.closest('.post');
+    var uid = parent.data("value");
 
+    var content = $('#wmd-input');
     var cap_response = captcha();
 
 
-    $.ajax(create_url,
+    $.ajax('/ajax/comment/create/',
         {
             type: 'POST',
             dataType: 'json',
@@ -17,13 +18,13 @@ function create_comment(parent) {
             traditional: true,
             data: {
                 'content': content.val(),
-                'parent': '{{ post.uid }}',
+                'parent': uid,
                 'recaptcha_response': cap_response,
             },
             success: function (data) {
                 if (data.status === 'error') {
-                    popup_message($('.error-msg'), data.msg, data.status, 3000);
-                    popup_message(form_elem, data.msg, data.status, 3000);
+                    popup_message(parent, data.msg, data.status, 3000);
+                    popup_message(elem, data.msg, data.status, 3000);
                 } else {
                     // Redirect user to the new post view.
                     window.location = data.redirect;
@@ -31,29 +32,28 @@ function create_comment(parent) {
                 }
             },
             error: function (xhr, status, text) {
-                error_message(form_elem, xhr, status, text)
+                error_message(elem, xhr, status, text)
             }
         })
 }
 
-function cancel_inplace() {
+function cancel_inplace(post) {
 
-    var inplace_content = $('#new-edit');
+    var inplace = $('#new-content');
     //var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
-    $('.editing-drag-off').attr('draggable', true);
     //var title = $('.editable-title[data-value="'+ uid +'"]');
-    var content = $('.editable');
+    //var content = $('.editable');
     //var content = $('#wmd-input-' + uid);
-    var hidden = $('.hide-on-edit');
-    $('.hide-on-comment').show();
+    var hidden = post.find('.editable, .title, .voting, .actions, .content div ');
+    //$('.hide-on-comment').show();
 
-    $('#new-comment').remove();
+    //$('#new-comment').remove();
     //Delete the form
-    inplace_content.remove();
+    inplace.remove();
     //inplace_title.html("");
     // Hide the container
     // Show original content
-    content.show();
+    //content.show();
     //Show any blocked element
     hidden.show();
 
@@ -72,7 +72,7 @@ function inplace_form(elem, add) {
     var current = $('<div id="new-content"></div>');
 
      // Any inplace forms already open get closed.
-    cancel_inplace();
+    cancel_inplace(post);
     container.dimmer('show');
     container.after(current);
 
@@ -113,29 +113,43 @@ function inplace_form(elem, add) {
         })
 }
 
-function edit_post(post, uid, elem) {
 
-    var edit_url = '/ajax/edit/' + uid + '/';
-
-    // Get form element
-    var form_elem = elem.closest('form');
-
-    // Inplace form container
-    var form_container = $('#new-edit');
-    // Hidden elements
-    var hidden = $('.hide-on-edit');
-
-    // Post title inside of the form
-    var title = $('#title');
-    var content = $('#wmd-input');
-    var post_type = $('#type').dropdown('get value');
-    var tag_val = $('#tag-menu').dropdown('get value');
+function update_post(post, data){
 
     // Current post content and title to replace
     // with returned values.
-    var post_content = $('.editable[data-value="' + uid + '"]');
-    var post_title = $('.post-title[data-value="' + uid + '"]');
-    var post_tags = $('.post-tags[data-value="' + uid + '"]');
+    var post_content = post.find('.editable');
+    var post_title = post.find('.title');
+    var post_tags = post.find('.tags');
+
+    // Replace current post info with edited data
+    post_content.html(data.html).show().focus();
+    post_title.html(data.title).show();
+    post_tags.html(data.tag_html).show();
+
+    cancel_inplace(post);
+}
+
+
+
+function edit_post(post) {
+
+    var uid = post.data('value');
+
+    var edit_url = '/ajax/edit/{0}/'.format(uid);
+
+    // Get the element being
+    var form = $('#new-edit');
+
+    // Post title inside of the form
+    var title = form.find('#title');
+    var content = form.find('#wmd-input');
+    var post_type = form.find('#type').dropdown('get value');
+    var tag_val = form.find('#tag-menu').dropdown('get value');
+
+    // Current post content and title to replace
+    // with returned values.
+    var post_content = post.find('.editable');
 
     title = title.val() || '';
     if (!($.isNumeric(post_type))) {
@@ -161,20 +175,10 @@ function edit_post(post, uid, elem) {
                 if (data.status === 'error') {
                     popup_message($('.error-msg'), data.msg, data.status, 3000);
                 } else {
-                    // Clear and hide inplace form
-                    form_elem.html('');
-                    form_container.hide();
+                    // Update post with lateets
+                    update_post(post, data);
 
-                    // Show hidden items
-                    hidden.show();
-
-                    // Replace current post info with edited data
-                    post_content.html(data.html).show().focus();
-                    post_title.html(data.title).show();
-                    post_tags.html(data.tag_html).show();
-
-                    // Highlight the markdown in content
-                    //highlight()
+                    // Highlight text in content
                     activate_prism(post_content);
                 }
             },
@@ -184,65 +188,13 @@ function edit_post(post, uid, elem) {
         })
 }
 
-function add_comment(parent, elem) {
-
-
-    var create_url = '/inplace/form/';
-    var parent_uid = elem.data('value');
-
-    var container = $('.comment-insert[data-post="' + parent_uid + '"]');
-    var post_actions = $('.hide-on-comment[data-value="' + parent_uid + '"]');
-
-    cancel_inplace();
-
-    // Check for existing comment.
-    var comment = $("#new-comment");
-
-    if (comment.length) {
-        // Remove comment if exists.
-        comment.remove();
-    } else {
-        // Create a new comment.
-        comment = $('<div id="new-comment"></div>')
-    }
-    container.after(comment);
-    comment.html('');
-    //alert(container.length);
-
-    $.ajax(create_url,
-        {
-            type: 'GET',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'uid': parent_uid,
-                'add_comment': 1,
-            },
-            success: function (data) {
-                if (data.status === 'error') {
-
-                    popup_message(container, data.msg, data.status);
-
-                } else {
-                    post_actions.hide();
-                    comment.css({'padding-top': '5px', 'padding-bottom': '5px'});
-                    comment.html(data.inplace_form);
-                    //container.transition('slide down', 250);
-                    comment.find('#wmd-input').focus();
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message($(this), xhr, status, text)
-            }
-        })
-
-}
-
 
 $(document).on(function () {
 
     // Initialize pagedown
     init_pagedown();
+    tags_dropdown();
+    activate_prism();
 
     $('.ui.dropdown').dropdown();
 
@@ -259,19 +211,21 @@ $(document).on(function () {
         inplace_form($(this));
     });
 
-    $(this).on('click', '#inplace .modal .exit.button', function () {
+    $(this).on('click', '.modal .exit.button', function () {
         var modal = $(this).closest('.modal');
+        var post = $(this).closest('.post');
         modal.modal('hide');
-        cancel_inplace();
+        cancel_inplace(post);
     });
 
-    $(this).on('click', '#inplace .modal .stay.button', function () {
+    $(this).on('click', '.modal .stay.button', function () {
         var modal = $(this).closest('.modal');
         modal.modal('hide');
     });
 
     $(this).on('click', '#inplace .cancel', function () {
-        cancel_inplace();
+        var post = $(this).closest('.post');
+        cancel_inplace(post);
     });
 
     $(this).on('click', '#inplace .save', function () {
@@ -291,10 +245,10 @@ $(document).on(function () {
 
     $(this).keyup(function (event) {
         if (event.keyCode === 27) {
-            $('.inplace').each(function () {
+            $('#inplace').each(function () {
                 event.preventDefault();
-                var uid = $(this).data("value");
-                cancel_inplace(uid);
+                var post = $(this).closest('.post');
+                cancel_inplace(post);
             });
         }
     });
@@ -307,6 +261,5 @@ $(document).on(function () {
             save.click();
         }
     });
-
 
 });

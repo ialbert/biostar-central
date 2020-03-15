@@ -9,9 +9,11 @@
 
 {% endif %}
 
+{# Include the inplace form fields. #}
 <div class="ui basic segment fit" id="inplace">
 
     <form class="ui compact form">
+
         {# Create a new comment #}
         {% if new %}
 
@@ -54,14 +56,14 @@
             </div>
         {% endif %}
 
-        <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Double-click to edit post. Markdown accepted.</p>
+        <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Double-click to edit post. Markdown
+            accepted.</p>
 
         {# Preview segment #}
         <div class="ui preview segment">{{ html }}</div>
 
         {# Submit and cancel buttons #}
         <div class="field">
-
             <a class="ui green button {% if new %}create{% else %}save{% endif %}">
                 <i class="check icon"></i>Save
             </a>
@@ -71,24 +73,6 @@
         </div>
 
     </form>
-
-    <div class="ui mini basic modal">
-        <div class="ui icon header">
-            <i class="save outline icon"></i>
-            <div> You are about to exit a form and will lose all of your progress.</div>
-            Do you want to exit without saving?
-        </div>
-        <div class="actions">
-            <div class="ui red cancel exit inverted button">
-                <i class="remove icon"></i>
-                Exit
-            </div>
-            <div class="ui green green ok stay inverted button">
-                <i class=" checkmark icon"></i>
-                Stay
-            </div>
-        </div>
-    </div>
 
 </div>
 
