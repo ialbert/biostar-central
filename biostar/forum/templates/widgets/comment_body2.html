@@ -1,0 +1,64 @@
+{% load forum_tags %}
+
+<a name="{{ post.uid }}"></a>
+
+<div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
+     ondragover="drag_over(event, $(this))"
+     ondragleave="drag_leave(event, $(this))">
+
+    <div class="ui inverted dimmer">
+        <div class="ui text loader">
+            <div class="muted">Entering edit mode</div>
+        </div>
+    </div>
+
+    <div class="post comment editing-drag-off {{ post.css }} " id="{{ post.uid }}"
+         draggable="true"
+         ondragstart="drag(event, '{{ post.uid }}');">
+
+        <div class="body">
+            {#  Comment anchor. #}
+
+            <div class="votebox">
+
+                <button class="ui icon mini button vote" data-value="{{ post.uid }}" data-type="upvote"
+                        data-position="right center" data-state="{{ post.has_upvote }}" data-content="Upvote">
+                    <i class="thumbs up icon "></i>
+                </button>
+
+                <div class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</div>
+
+                <button class="ui icon mini button vote bookmark" data-value="{{ post.uid }}" data-type="bookmark"
+                        data-position="right center" data-state="{{ post.has_bookmark }}" data-content="Bookmark">
+                    <i class="bookmark icon "></i>
+                </button>
+            </div>
+
+            <div class="content">
+
+<span class="magnify">
+                {% if post.is_editable %}
+
+                    <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
+                    <inplace data-value="{{ post.uid }}"></inplace>
+
+                {% else %}
+                    {{ post.html|safe }}
+                {% endif %}
+</span>
+
+                <div class="hide-on-edit hide-on-comment" data-value="{{ post.uid }}">
+                    {% post_actions post=post label="ADD REPLY" avatar=True %}
+                </div>
+
+            </div>
+
+        </div>
+
+        {# Insertion targets #}
+        <div class="moderate-insert" data-value="{{ post.uid }}"></div>
+        <div class="comment-insert" data-post="{{ post.uid }}"></div>
+
+    </div>
+
+</div>

@@ -4,6 +4,7 @@
 {% if user.profile.require_recaptcha %}
 
     <script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
+
     {#  Include the recaptacha key #}
     <input id="recaptcha_key" type="hidden" value="{{ captcha_key }}">
 
@@ -35,6 +36,7 @@
 
             {# Edit the content #}
             <div class="field">
+             {% include 'widgets/posting_msg.html' %}
                 {% if post.is_toplevel %}{% include 'widgets/post_message.html' %}{% endif %}
                 <div id="wmd-button-bar"></div>
                 <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="8">{{ post.content }}</textarea>

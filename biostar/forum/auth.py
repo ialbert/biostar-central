@@ -326,16 +326,6 @@ def handle_spam_post(post, user):
 
 
 
-def mod_factory():
-    return
-
-
-def moderate(user, post, **kwargs):
-
-    pass
-
-
-
 def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pid=None):
     root = post.root
     user = request.user

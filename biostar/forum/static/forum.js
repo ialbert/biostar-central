@@ -17,41 +17,42 @@ function init_pagedown(){
     return editor
 }
 
-function apply_vote(elem, post_uid, vote_type) {
+function apply_vote(vote_elem) {
+
+    var post = vote_elem.closest('.post');
+    var uid = post.data("value");
+    var type = vote_elem.data("type");
 
     // Toggle the button to provide feedback
-    elem.toggleClass("on");
+    vote_elem.toggleClass("on");
 
-    // The vote handler.
-    vote_url = "/ajax/vote/";
-
-    $.ajax(vote_url, {
+    $.ajax("/ajax/vote/", {
         type: 'POST',
         dataType: 'json',
         ContentType: 'application/json',
         data: {
-            'post_uid': post_uid,
-            'vote_type': vote_type,
+            'post_uid': uid,
+            'vote_type': type,
         },
 
         success: function (data) {
             if (data.status === 'error') {
                 // Untoggle the button if there was an error
-                elem.toggleClass("on")
-                popup_message(elem, data.msg, data.status);
+                vote_elem.toggleClass("on");
+                popup_message(vote_elem, data.msg, data.status);
             } else {
                 // Success
                 //popup_message(elem, data.msg, data.status);
                 // Increment the post score counter
-                var score = $("#score-" + post_uid)
+                var score = vote_elem.find(".score");
                 var value = (parseInt(score.text()) || 0) + parseInt(data.change) || 0;
                 score.text(value)
             }
 
         },
         error: function (xhr, status, text) {
-            elem.toggleClass("on")
-            error_message(elem, xhr, status, text)
+            vote_elem.toggleClass("on");
+            error_message(vote_elem, xhr, status, text)
         }
     });
 }
@@ -322,21 +323,23 @@ $(document).ready(function () {
 
     });
 
-    $('.vote .upvote.button').popup({
+    $("[data-value='upvote']").popup({
             on: 'hover',
             content:'Upvote'
     });
-    $('.vote .bookmark.button').popup({
+    $("[data-value='bookmark']").popup({
             on: 'hover',
             content:'Bookmark '
     });
-   $('.vote .accept.button').popup({
+
+   $("[data-value='accept']").popup({
             on: 'hover',
             content:'Accept answer '
     });
     $('.voting .button').each(function (event) {
+
         var elem = $(this);
-        var data_state = elem.attr('data-state');
+        var data_state = elem.data('state');
 
         // Set the on class if the vote is selected.
         if (data_state === "1") {
@@ -345,10 +348,7 @@ $(document).ready(function () {
 
         // Actions taken on vote click.
         $(this).click(function () {
-            var elem = $(this);
-            var post_uid = elem.attr('data-value');
-            var data_type = elem.attr('data-type');
-            apply_vote(elem, post_uid, data_type);
+            apply_vote($(this));
         });
     });
 

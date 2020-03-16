@@ -5,6 +5,9 @@
 
 <div class="post view {{ post.css }}" data-value="{{ post.uid }}">
 
+    {# Draggable element #}
+    <div class="ui label draggable" draggable="true">FOOOO</div>
+
     {#  Post title. #}
     {% if post.is_toplevel %}
         <div class="title">{{ post.title_prefix }}{{ post.title }}</div>
@@ -15,17 +18,17 @@
 
         {#  Voting regions #}
         <div class="voting">
-            <button class="upvote ui icon button"
+            <button class="ui icon button" data-value="upvote"
                     data-state="{{ post.has_upvote }}"><i class="thumbs up icon"></i>
             </button>
 
             <div class="score">{{ post.vote_count }}</div>
-            <button class="bookmark ui icon button"
+            <button class="ui icon button" data-value="bookmark"
                     data-state="{{ post.has_bookmark }}"><i class="bookmark icon"></i>
             </button>
 
             {% if post.can_accept %}
-                <button class="accept ui icon button"
+                <button class="ui icon button" data-value="accept"
                         data-state="{{ post.accept_count }}"><i class="check circle icon"></i>
                 </button>
             {% endif %}
@@ -40,7 +43,7 @@
                     </div>
                 </div>
 
-                <div class="wrap magnify draggable" draggable="true">
+                <div class="wrap magnify">
 
                     {# Display post author. #}
                     {% post_user_box target_user=post.author %}
@@ -63,26 +66,28 @@
                     {% post_actions post=post %}
                 </div>
             </div>
-
+        </div>
             {# Render all comments #}
             {% render_comments tree=tree post=post %}
-        </div>
+
     </div>
 
     <div class="ui mini basic modal">
-        <div class="ui icon header">
-            <i class="save outline icon"></i>
+
+        <div class="ui icon header"><i class="save outline icon"></i>
             <div> You are about to exit a form and will lose all of your progress.</div>
             Do you want to exit without saving?
         </div>
+
         <div class="actions">
-            <div class="ui red cancel exit inverted button">
-                <i class="remove icon"></i>Exit
+            <div class="ui red cancel exit inverted button"><i class="remove icon"></i>
+                Exit
             </div>
-            <div class="ui green green ok stay inverted button">
-                <i class="checkmark icon"></i>Stay
+            <div class="ui green green ok stay inverted button"><i class="checkmark icon"></i>
+                Stay
             </div>
         </div>
+
     </div>
 </div>
 

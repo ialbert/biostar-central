@@ -1,68 +1,56 @@
 
 function allowDrop(ev) {
     ev.preventDefault();
-    //alert(ev);
 }
 
-var children = '';
 var dragged_over = '';
 
-function drag(ev, elem_id) {
-    //ev.preventDefault();
-    ev.dataTransfer.setData("text", elem_id);
-    //let elem = $('.droptarget[data-value="' + elem_id + '"]');
 
-    //children = '{0}'.format(elem.data('thread'));
-
-    ev.dataTransfer.setData("text", elem_id);
-    ev.target.style.opacity = "0.4";
-
-    //alert(elem_id);
+function drag(ev, elem) {
+    var post = elem.closest('.post');
+    var uid = post.data('value');
+    ev.dataTransfer.setData("text", uid);
+    post.css('opacity', "0.4");
 
 }
 
-function drag_leave(ev, elem) {
-
-    //let elem = $('.droptarget[data-value="' + pid + '"]');
-    elem.css('border', 'none');
-
-    //elem.css('padding', '0');
-    elem.css('opacity', '1');
-    //elem.css('backgroundColor', 'none');
+function drag_leave(elem) {
+    var post = elem.closest('.post');
+    post.css('border', 'none');
+    post.css('opacity', '1');
     dragged_over = '';
-    //console.log(elem.data('value'), dragged_over);
 
 }
 
 
 function reset_drag(source, target) {
     console.log(target, source);
-    source.css('opacity', '1');
-    source.css('border', 'none');
-    target.css('opacity', '1');
-    target.css('border', 'none');
+    source.closest('.post').css('opacity', '1');
+    source.closest('.post').css('border', 'none');
+    target.closest('.post').css('opacity', '1');
+    target.closest('.post').css('border', 'none');
 
 }
 
-function drag_over(ev, elem) {
+function drag_over(elem) {
     dragged_over = '';
+    var post = elem.closest('.post');
     //console.log(elem.attr('class'), elem.data('value'));
-    dragged_over = elem.data('value');
-    elem.css('border', '#c2ffc2 dashed 5px');
+    dragged_over = post.data('value');
+    post.css('border', '#c2ffc2 dashed 5px');
 
 }
 
 
-function drop(ev, elem_id) {
+function drop(ev, elem) {
 
     ev.preventDefault();
 
     var source = ev.dataTransfer.getData("text");
     let source_elem = $('#' + source);
     source_elem.css('opacity', '1');
-    let elem = $('.droptarget[data-value="' + dragged_over + '"]');
+    //let elem = $('.droptarget[data-value="' + dragged_over + '"]');
 
-    //alert(dragged_over);
     $.ajax('/drag/and/drop/',
         {
             type: 'POST',
@@ -80,7 +68,6 @@ function drop(ev, elem_id) {
                 } else {
                     source_elem.transition('zoom');
                     window.location.reload();
-                    //window.location.href = data.redir;
                     popup_message(source_elem, "Moving Post", 'success', 1000);
                 }
             },
@@ -134,8 +121,25 @@ function autocomplete_users(users_list) {
 
 $(document).ready(function () {
 
-    $(this).on('ondragstart', '.draggable', function () {
+    $('.draggable').each(function () {
+       $(this).closest('.post').attr('draggable', true);
+    });
+    $(this).on('ondragover', '.droppable', function (event) {
+        allowDrop(event)
+    });
+    $(this).on('ondrop', '.droppable', function (event) {
+        drop(event, $(this));
+    });
+    $(this).on('ondragstart', '.draggable', function (event) {
+        drag(event, $(this))
+    });
 
+    $(this).on('ondragover', '.draggable', function (event) {
+        drag_over($(this))
+    });
+
+    $(this).on('ondragleave', '.draggable', function (event) {
+        drag_leave($(this))
     });
 
 });

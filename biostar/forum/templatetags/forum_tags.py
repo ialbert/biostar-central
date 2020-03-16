@@ -426,10 +426,10 @@ def search_bar(context, tags=False, users=False):
     return context
 
 
-@register.filter(takes_context=True)
-def post_list(context, target):
-    request = context["request"]
+@register.filter
+def post_list(target, request):
     user = request.user
+
     posts = Post.objects.valid_posts(u=user, author=target)
     posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
     posts = posts.order_by("-rank")
@@ -710,7 +710,7 @@ def traverse_comments(request, post, tree, template_name):
         html = body.render(cont)
         source = f"indent-{node.uid}"
         target = f"'{node.uid}'"
-        collect.append(f'<div class="indent " ondragover="allowDrop(event);" ondrop="drop(event, {target}) id="{source}" ><div class="comment">{html}</div>')
+        collect.append(f'<div class="indent droppable" ondragover="allowDrop(event);" ondrop="drop(event, {target}) id="{source}" ><div class="comment">{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:

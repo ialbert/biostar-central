@@ -170,7 +170,7 @@
             {% if active == 'posts' %}
 
                 <div class="ui divided items">
-                    {% for post in target|post_list %}
+                    {% for post in target|post_list:request %}
                         {% post_details post=post %}
                     {% empty %}
                         <div class="ui warn message">

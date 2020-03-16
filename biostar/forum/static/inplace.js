@@ -26,7 +26,7 @@ function create_comment() {
                     popup_message(parent, data.msg, data.status, 3000);
                     popup_message(elem, data.msg, data.status, 3000);
                 } else {
-                    // Redirect user to the new post view.
+                    // Redirect to the new post view.
                     window.location = data.redirect;
                     window.location.reload();
                 }
@@ -39,22 +39,16 @@ function create_comment() {
 
 function cancel_inplace(post) {
 
+    // Find the inplace element
     var inplace = $('#new-content');
-    //var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
-    //var title = $('.editable-title[data-value="'+ uid +'"]');
-    //var content = $('.editable');
-    //var content = $('#wmd-input-' + uid);
-    var hidden = post.find('.editable, .title, .voting, .actions, .content div ');
-    //$('.hide-on-comment').show();
 
-    //$('#new-comment').remove();
-    //Delete the form
+    // Find the hidden items
+    var hidden = post.find('.editable, .title, .voting, .actions, .content div ');
+
+    // Remove inplace item
     inplace.remove();
-    //inplace_title.html("");
-    // Hide the container
-    // Show original content
-    //content.show();
-    //Show any blocked element
+
+    // Show hidden items.
     hidden.show();
 
 }
@@ -122,8 +116,12 @@ function update_post(post, data){
     var post_title = post.find('.title');
     var post_tags = post.find('.tags');
 
+
     // Replace current post info with edited data
     post_content.html(data.html).show().focus();
+    // Highlight text in content
+    activate_prism(post_content);
+
     post_title.html(data.title).show();
     post_tags.html(data.tag_html).show();
 
@@ -141,19 +139,15 @@ function edit_post(post) {
     // Get the element being
     var form = $('#new-edit');
 
-    // Post title inside of the form
+    // Form elements to submit.
     var title = form.find('#title');
     var content = form.find('#wmd-input');
-    var post_type = form.find('#type').dropdown('get value');
-    var tag_val = form.find('#tag-menu').dropdown('get value');
-
-    // Current post content and title to replace
-    // with returned values.
-    var post_content = post.find('.editable');
+    var type = form.find('#type').dropdown('get value');
+    var tags = form.find('#tag-menu').dropdown('get value');
 
     title = title.val() || '';
-    if (!($.isNumeric(post_type))) {
-        post_type = -1
+    if (!($.isNumeric(type))) {
+        type = -1
     }
 
     var cap_response = captcha();
@@ -167,23 +161,20 @@ function edit_post(post) {
             data: {
                 'content': content.val(),
                 'title': title,
-                'type': post_type,
-                'tag_val': tag_val,
+                'type': type,
+                'tag_val': tags,
                 'recaptcha_response': cap_response
             },
             success: function (data) {
                 if (data.status === 'error') {
-                    popup_message($('.error-msg'), data.msg, data.status, 3000);
+                    popup_message(form, data.msg, data.status, 3000);
                 } else {
-                    // Update post with lateets
+                    // Update post with latest
                     update_post(post, data);
-
-                    // Highlight text in content
-                    activate_prism(post_content);
                 }
             },
             error: function (xhr, status, text) {
-                error_message(form_elem, xhr, status, text)
+                error_message(form, xhr, status, text)
             }
         })
 }
@@ -211,14 +202,14 @@ $(document).on(function () {
         inplace_form($(this));
     });
 
-    $(this).on('click', '.modal .exit.button', function () {
+    $(this).on('click', '.post .modal .exit.button', function () {
         var modal = $(this).closest('.modal');
         var post = $(this).closest('.post');
         modal.modal('hide');
         cancel_inplace(post);
     });
 
-    $(this).on('click', '.modal .stay.button', function () {
+    $(this).on('click', '.post .modal .stay.button', function () {
         var modal = $(this).closest('.modal');
         modal.modal('hide');
     });
@@ -257,7 +248,7 @@ $(document).on(function () {
 
         // Submit form with CTRL-ENTER
         if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            var save = $('#inplace').find('.save,.create');
+            var save = $('#inplace').find('.save, .create');
             save.click();
         }
     });
