@@ -499,6 +499,7 @@ class RecipeInterface(forms.Form):
 
         # Validate default fields.
         super(RecipeInterface, self).clean()
+
         valid, msg = auth.validate_recipe_run(user=self.user, recipe=self.analysis)
         if not valid:
             raise forms.ValidationError(msg)

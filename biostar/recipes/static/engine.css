@@ -115,7 +115,7 @@ pre.toml_code {
 
 
 .ui.ribbon.label.projects {
-    right: 10.1em;
+    left: calc(-1rem - 1.4em);
 }
 
 .ui.ribbon.label.obj {
