@@ -44,6 +44,10 @@ pre.toml_code {
     display: inline;
 }
 
+.data .content, .job .content, .recipe.content{
+    width: auto;
+}
+
 #img i {
     position: absolute;
     top: 0px;
