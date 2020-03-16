@@ -454,6 +454,7 @@ def recipe_run(request, uid):
         # The form validation will authorize the job.
         if form.is_valid():
             # Create the job from the recipe and incoming json data.
+            #print(form.cleaned_data)
             job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data)
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)

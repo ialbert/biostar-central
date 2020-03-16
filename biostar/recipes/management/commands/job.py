@@ -48,7 +48,8 @@ def file_insert(job, data):
     valid = len(fname) and os.path.exists(fullpath) and fullpath.startswith(root)
 
     if valid:
-        data = auth.get_or_create(fname=fullpath, uid=uid, name=name, project=project, text=text)
+        data = auth.get_or_create(fname=fullpath, uid=uid, name=name,
+                                  project=project, text=text)
         return data
 
     logger.error(f"File does not exist inside of root. file={fullpath}; root={root}")
@@ -68,7 +69,6 @@ def finalize_job(job, data):
     if isinstance(files, list):
         new = list(map(insert, files))
         return new
-
 
 def create_logs(job):
 

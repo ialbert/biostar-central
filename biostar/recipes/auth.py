@@ -463,6 +463,22 @@ def paste(project, user, board, clone=False):
     return new
 
 
+def fill_in(item, value):
+
+    value = str(value)
+    item['files'] = []
+    item['toc'] = value
+    item['file_list'] = value
+    item['id'] = 0
+    item['name'] = os.path.basename(value)
+    item['uid'] = None
+    item['data_dir'] = value
+    item['project_dir'] = value
+    item['data_url'] = "/"
+
+    return item
+
+
 def fill_json_data(project, job=None, source_data={}, fill_with={}):
     """
     Produces a filled in JSON data based on user input.
@@ -483,10 +499,17 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
 
         # If the field is a data field then fill in more information.
         if item.get("source") == "PROJECT" and fill_with.get(field, '').isalnum():
-            data_id = int(fill_with.get(field))
-            data = store.get(data_id)
-            # This mutates the `item` dictionary!
-            data.fill_dict(item)
+            try:
+                data_id = int(fill_with.get(field))
+                data = store.get(data_id)
+                # This mutates the `item` dictionary!
+                data.fill_dict(item)
+            except Exception as exc:
+                logger.error(exc)
+                # This mutates the `item` dictionary!
+                value = fill_with.get(field, "MISSING")
+                fill_in(item=item, value=value)
+
             continue
 
         # The JSON value will be overwritten with the selected field value.

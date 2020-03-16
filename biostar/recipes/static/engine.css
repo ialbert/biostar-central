@@ -51,6 +51,10 @@ pre.toml_code {
     display: inline;
 }
 
+.data .content, .job .content, .recipe.content{
+    width: auto;
+}
+
 #img i {
     position: absolute;
     top: 0px;
@@ -117,13 +121,8 @@ pre.toml_code {
 }
 
 
-#clipboard_anchor {
-    border-bottom: none;
-}
-
-
 .ui.ribbon.label.projects {
-    right: 10.1em;
+    left: calc(-1rem - 1.4em);
 }
 
 .ui.ribbon.label.obj {
@@ -440,7 +439,7 @@ figure {
 #clipboard{
 
     position: absolute; /* or absolute */
-    top: 80px;
+    top: 87px;
     text-align: center;
     z-index: 100;
     width: 80%;
