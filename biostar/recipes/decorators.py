@@ -100,7 +100,7 @@ class read_access:
                 return redirect("project_list")
 
             # Check the presence of READ or WRITE access
-            readable = auth.is_readable(user=user, project=project)
+            readable = auth.is_readable(user=user, obj=project)
 
             # Project owners may read their project.
             if readable or project.owner == user:

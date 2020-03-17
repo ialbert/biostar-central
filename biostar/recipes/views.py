@@ -95,13 +95,13 @@ def project_delete(request, uid):
 
 def search_bar(request):
     results = search.search(request=request)
+
     # Indicate to users that minimum character needs to be met.
     query_lenth = len(request.GET.get("q", "").strip())
     min_length = query_lenth > settings.SEARCH_CHAR_MIN
 
     # Indicate to users that there are no results for search.
-    current_results = len([inner for outer in results.values() for inner in outer])
-    no_results = min_length and current_results == 0
+    no_results = min_length and len(results) == 0
 
     context = dict(results=results, query=request.GET.get("q", "").strip(),
                    min_length=min_length, no_results=no_results)
@@ -351,7 +351,6 @@ def data_view(request, uid):
     data = Data.objects.filter(uid=uid).first()
     project = data.project
     paths = auth.listing(root=data.get_data_dir())
-
     context = dict(data=data, project=project, paths=paths, serve_view="data_serve",
                    activate='Selected Data', uid=data.uid, show_all=True)
     counts = get_counts(project)
@@ -511,7 +510,7 @@ def get_part(request, name, id):
 
     project = recipe.project
 
-    if not auth.is_readable(project=project, user=user):
+    if not auth.is_readable(obj=project, user=user):
         message = str("Recipe is not readable by current user")
         return HttpResponse(message)
 

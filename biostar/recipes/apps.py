@@ -15,4 +15,3 @@ class EngineConfig(AppConfig):
         from . import signals
         # Triggered upon app initialization.
         post_migrate.connect(init_app, sender=self)
-
