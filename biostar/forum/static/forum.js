@@ -21,10 +21,8 @@ function apply_vote(vote_elem) {
 
     var post = vote_elem.closest('.post');
     var uid = post.data("value");
-    var type = vote_elem.data("type");
-
-    // Toggle the button to provide feedback
-    vote_elem.toggleClass("on");
+    var type = vote_elem.data("value");
+    var icon = vote_elem.find(".icon");
 
     $.ajax("/ajax/vote/", {
         type: 'POST',
@@ -38,20 +36,19 @@ function apply_vote(vote_elem) {
         success: function (data) {
             if (data.status === 'error') {
                 // Untoggle the button if there was an error
-                vote_elem.toggleClass("on");
+                icon.removeClass("on");
                 popup_message(vote_elem, data.msg, data.status);
-            } else {
-                // Success
-                //popup_message(elem, data.msg, data.status);
-                // Increment the post score counter
-                var score = vote_elem.find(".score");
-                var value = (parseInt(score.text()) || 0) + parseInt(data.change) || 0;
-                score.text(value)
+                return
             }
+            // Success
+            var score = vote_elem.closest('.voting').find(".score");
+            var value = (parseInt(score.text()) || 0) + parseInt(data.change) || 0;
+            score.text(value);
+            icon.toggleClass("on");
 
         },
         error: function (xhr, status, text) {
-            vote_elem.toggleClass("on");
+            icon.toggleClass("on");
             error_message(vote_elem, xhr, status, text)
         }
     });
@@ -106,10 +103,10 @@ function highlight(text) {
     });
 
     var res = con.render(text);
-
+    return res
     //preview.html(res);
-    res.find('pre').addClass('language-bash');
-    res.find('code').addClass('language-bash');
+    //res.find('pre').addClass('language-bash');
+    //res.find('code').addClass('language-bash');
 
     //Prism.highlightAll()
 }
@@ -124,7 +121,7 @@ function mark_spam(post_id, elem) {
             ContentType: 'application/json',
             data: {},
             success: function (data) {
-                //alert(elem.html());
+
                 if (data.status === 'error') {
                     popup_message(elem.parent().parent(), data.msg, data.status);
 
@@ -155,10 +152,10 @@ function moderate(elem, url) {
 
     var container = $('.moderate-insert[data-value="' + data_uid + '"]');
     var mod_url = url + data_uid + '/';
-    //alert("FOOO");
+
     var page = $('<div id="modpanel"></div>').load(mod_url);
     container.after(page);
-    //alert(container.html());
+
 }
 
 function similar_posts(elem) {
@@ -257,7 +254,7 @@ function tags_dropdown(){
         // Set value with SPACE bar
         if (event.keyCode === 32) {
             event.preventDefault();
-            //alert(alert( $(this).parent('.tag-field').children('select').attr('class')));
+
             $(this).closest('select').dropdown('set selected', $(this).val().trim());
             $(this).val('');
         }
@@ -269,7 +266,7 @@ $(document).ready(function () {
 
     $('.mark-spam.item').click(function (event) {
         var post_id = $(this).closest('.post').attr('id');
-        //alert($(this).closest('.post').attr('id'));
+
         mark_spam(post_id, $(this));
     });
 
@@ -336,20 +333,21 @@ $(document).ready(function () {
             on: 'hover',
             content:'Accept answer '
     });
-    $('.voting .button').each(function (event) {
+    $('.voting button').each(function (event) {
 
         var elem = $(this);
         var data_state = elem.data('state');
-
+        data_state = '{0}'.format(data_state);
         // Set the on class if the vote is selected.
         if (data_state === "1") {
-            elem.addClass("on")
+            elem.find('.icon').addClass("on")
         }
-
         // Actions taken on vote click.
-        $(this).click(function () {
-            apply_vote($(this));
-        });
+
+    });
+   $('.voting .button').click(function () {
+
+        apply_vote($(this));
     });
 
     $("#form-errors .error").each(function () {
@@ -392,7 +390,7 @@ $(document).ready(function () {
     });
 
     tags_dropdown();
-    activate_prism();
+    //activate_prism($(this));
     init_pagedown();
     remove_trigger();
 })

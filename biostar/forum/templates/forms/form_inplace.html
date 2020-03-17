@@ -20,10 +20,10 @@
 
             <div class="field">
                 <div id="wmd-button-bar"></div>
-                <textarea id="wmd-input" class="wmd-input autocomplete" rows="17"></textarea>
+                <textarea id="wmd-input" rows="8" class="wmd-input autocomplete" rows="17"></textarea>
             </div>
 
-        {# Edit an exisiting post #}
+            {# Edit an exisiting post #}
         {% else %}
 
             {# Edit the title #}
@@ -36,7 +36,6 @@
 
             {# Edit the content #}
             <div class="field">
-             {% include 'widgets/posting_msg.html' %}
                 {% if post.is_toplevel %}{% include 'widgets/post_message.html' %}{% endif %}
                 <div id="wmd-button-bar"></div>
                 <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="8">{{ post.content }}</textarea>
@@ -77,4 +76,11 @@
     </form>
 
 </div>
+
+<script>
+    init_pagedown();
+    var users = "{{ users_str }}".split(',');
+    autocomplete_users(users);
+
+</script>
 

@@ -42,7 +42,7 @@ body > .widen.container {
 
 }
 
-.ui.button.vote {
+.voting .ui.button {
     background: none;
     padding: 5px;
     opacity: .6;
@@ -322,14 +322,14 @@ i.icon {
     display: inline;
 }
 
-.votebox {
-    padding: 0em 0.5em 0em 0.5em;
+.voting {
+    //padding: 0em 0.5em 0em 0.5em;
     text-align: center;
     flex-direction: column;
     overflow: hidden;
 }
 
-.votebox > .value {
+.voting > .value {
     padding-bottom: 1rem;
 }
 
@@ -343,7 +343,7 @@ i.icon {
     background-color: yellow;
 }
 
-.votebox > .value .icon {
+.voting > .value .icon {
     color: #2F5B14;
     margin: 0;
 }
@@ -406,7 +406,7 @@ i.icon {
     font-size: 108%;
 }
 
-.votebox > .score {
+.voting > .score {
     font-size: 240%;
     padding-bottom: 0.0rem;
     font-weight: bold;
@@ -843,12 +843,11 @@ pre {
 }
 
 
-.small-stats {
+.secondary {
     display: none !important;
     width: fit-content;
 
 }
-
 
 .phone-menus {
     display: none;
@@ -879,7 +878,7 @@ pre {
         display: inline;
     }
 
-    .small-stats {
+    .secondary {
         display: block !important;
         width: fit-content;
 

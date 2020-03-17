@@ -42,14 +42,23 @@ function cancel_inplace(post) {
     // Find the inplace element
     var inplace = $('#new-content');
 
-    // Find the hidden items
-    var hidden = post.find('.editable, .title, .voting, .actions, .content div ');
-
+    //if (inplace.length){}
     // Remove inplace item
     inplace.remove();
 
+    // Find the hidden items
+    var hidden = $('.post .content.editable');
+
     // Show hidden items.
-    hidden.show();
+    hidden.each(function () {
+       var is_hidden = $(this).is(':hidden');
+       if (is_hidden){
+           alert($(this).attr('class'));
+           hidden.show();
+       }
+
+    });
+
 
 }
 
@@ -61,19 +70,22 @@ function inplace_form(elem, add) {
     var url = '/inplace/form/';
     var uid = post.data('value');
 
-    var container = post.find(".content div ");
+    var container = post.find(".content div:first ");
     var hide = post.find(".title, .voting, .actions, .content div ");
-    var current = $('<div id="new-content"></div>');
+    var current = $("#new-content");
 
      // Any inplace forms already open get closed.
     cancel_inplace(post);
-    container.dimmer('show');
+    // Create a new comment.
+    current = $('<div id="new-content"></div>');
     container.after(current);
 
     var input = {'uid': uid};
 
     if (add) {
-        input.push({'add_comment': 1});
+        input['add_comment'] = 1 ;
+    }else{
+        container.dimmer('show');
     }
 
     $.ajax(url,
@@ -89,10 +101,11 @@ function inplace_form(elem, add) {
                     return
                 }
                 if (!add){
-                    hide.hide();
+                    hide.toggle();
                 }
+                current.hide();
                 current.html(data.inplace_form);
-                current.show().find('textarea').focus();
+                current.show(300).find('textarea').focus();
 
                 var preview = $('#preview');
                 preview.find('pre').addClass('language-python');
@@ -183,9 +196,6 @@ function edit_post(post) {
 $(document).on(function () {
 
     // Initialize pagedown
-    init_pagedown();
-    tags_dropdown();
-    activate_prism();
 
     $('.ui.dropdown').dropdown();
 
@@ -229,9 +239,10 @@ $(document).on(function () {
         create_comment();
     });
 
-    $(this).on('click', ".add-comment", function (event) {
+    $(".add-comment").click(function (event) {
         event.preventDefault();
-        inplace_form($(this), true)
+        inplace_form($(this), true);
+
     });
 
     $(this).keyup(function (event) {

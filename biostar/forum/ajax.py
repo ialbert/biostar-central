@@ -94,7 +94,9 @@ def ajax_vote(request):
     type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
     vote_type = request.POST.get('vote_type')
+
     vote_type = type_map.get(vote_type)
+
     post_uid = request.POST.get('post_uid')
 
     # Check the post that is voted on.
@@ -447,10 +449,15 @@ def inplace_form(request):
 
     add_comment = request.GET.get('add_comment', False)
 
+    html = "" if add_comment else post.html
+
     # Load the content and form template
-    template = "forms/inplace_form.html"
+    template = "forms/form_inplace.html"
     tmpl = loader.get_template(template_name=template)
-    context = dict(user=user, post=post, rows=25, add_comment=add_comment,captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
+    users_str = auth.get_users_str()
+
+    context = dict(user=user, post=post, new=add_comment,  html=html, users_str=users_str,
+                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)

@@ -34,7 +34,7 @@
             {% endif %}
         </div>
 
-        {# Html content, user box, tags, etc #}
+        {# Render the content#}
         <div class="droppable content">
             <div>
                 <div class="ui inverted dimmer">
@@ -66,29 +66,12 @@
                     {% post_actions post=post %}
                 </div>
             </div>
-        </div>
-            {# Render all comments #}
+                    {# Render all comments #}
             {% render_comments tree=tree post=post %}
-
-    </div>
-
-    <div class="ui mini basic modal">
-
-        <div class="ui icon header"><i class="save outline icon"></i>
-            <div> You are about to exit a form and will lose all of your progress.</div>
-            Do you want to exit without saving?
-        </div>
-
-        <div class="actions">
-            <div class="ui red cancel exit inverted button"><i class="remove icon"></i>
-                Exit
-            </div>
-            <div class="ui green green ok stay inverted button"><i class="checkmark icon"></i>
-                Stay
-            </div>
         </div>
 
     </div>
+
 </div>
 
 
