@@ -21,7 +21,7 @@ logger.setLevel(logging.DEBUG)
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def file_insert(job, data):
+def create_data(job, data):
     """
     Insert file from data dict into database.
 
@@ -32,7 +32,7 @@ def file_insert(job, data):
     file = bar
 
      # List of files
-    {'settings': {'insert': [ {'file':'foo'}, {'file':'bar'} ]  }
+    {'settings': {'files': [ {'file':'foo'}, {'file':'bar'} ]  }
 
     """
     fname = data.get("file", '')
@@ -61,14 +61,18 @@ def finalize_job(job, data):
     Performs various finalization processes on the data
     """
 
-    # Get the
+    # Get files intended for insertion.
     files = data.get("settings", {}).get("files", [])
-    insert = lambda file: file_insert(data=file, job=job)
+    if not files:
+        return
+
+    insert = lambda file: create_data(data=file, job=job)
 
     # Insert a list of files as data
     if isinstance(files, list):
         new = list(map(insert, files))
         return new
+
 
 def create_logs(job):
 
@@ -223,7 +227,7 @@ def run(job, options={}):
         proc.check_returncode()
 
         # Perform tasks at job finalization
-        finalize_job(data=json_data, job=job)
+        #finalize_job(data=json_data, job=job)
 
         # If we made it this far the job has finished.
         logger.info(f"uid={job.uid}, name={job.name}")
