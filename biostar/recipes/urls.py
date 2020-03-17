@@ -71,9 +71,9 @@ recipes_patterns = [
     path(r'recipe/create/<str:uid>/', views.recipe_create, name='recipe_create'),
 
     # File listings
+
     re_path(r'^file/list/(?P<path>.+)$', views.import_files, name='file_list'),
     path(r'root/list/', views.import_files, name='root_list'),
-
     # Actions
     path(r"search/", views.search_bar, name='search'),
 

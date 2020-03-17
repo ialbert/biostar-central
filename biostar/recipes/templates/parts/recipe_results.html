@@ -15,7 +15,7 @@
 
             {# Display the job summary #}
                 <div class="ui text container">
-                        <div class="meta">{{ job.analysis.summary|markdown }}</div>
+                        <div class="meta">{{ job.analysis.summary|markdown|safe|truncatechars_html:150 }}</div>
                 </div>
             {# Show the job state and time elapsed  #}
             <div class="extra">
@@ -26,7 +26,7 @@
         </div>
 
         {# Rerun and delete options for authenticated users #}
-        {% if user.is_authenticated and rerun_btn %}
+        {% if user.is_authenticated %}
             <div class="ui mini buttons">
 
                 <a class="ui right button" href="{% url "job_rerun" job.uid %}">

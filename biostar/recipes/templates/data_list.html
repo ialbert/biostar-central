@@ -6,8 +6,6 @@
 {% endblock %}
 
 
-
-
 {% block ribbon %}
 
     {% if user.is_authenticated %}
@@ -20,6 +18,7 @@
 
 {% block contain %}
 
+
     <div class="ui bottom attached segment">
 
         {% show_messages messages %}
@@ -30,8 +29,8 @@
                 {% for data in data_list %}
 
                     <div class="item data" data-value="{{ data.uid }}" >
-                        <div class="content">
 
+                        <div class="content">
                             <a class="subheader" href="{% url 'data_view' data.uid %}">
                                 {% if job.deleted %}Deleted: {% endif %}
                                 <i class="file icon"></i>{{ data.name }}
@@ -40,12 +39,13 @@
                                 <div class="ui small labels">
                                     {% size_label data %}
                                     {% type_label data %}
-                                    {% created_by date=data.lastedit_date user=data.owner prefix='created' %}
+                                    {% created_by date=data.lastedit_date user=data.owner %}
                                 </div>
                             </div>
                             <div class="meta">{{ data.summary|safe }}</div>
 
                         </div>
+
                         {% if request.user.is_authenticated %}
 
                             <div class="ui mini buttons">
@@ -56,19 +56,18 @@
                                 <a class="ui right floated button delete">
                                     <i class="trash icon"></i> <span class="fitme">Delete</span>
                                 </a>
-
                             </div>
 
                         {% endif %}
 
                     </div>
+
                 {% empty %}
                     <div class="item ">
                         <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
                             contain data.
                         </div>
                     </div>
-
                 {% endfor %}
 
             </div>

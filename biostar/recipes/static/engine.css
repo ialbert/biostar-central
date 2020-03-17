@@ -21,6 +21,9 @@ body {
 
 }
 
+.ui.ribbon.projects.label {
+    left: calc(-1rem - 1.4em);
+}
 .hidden {
     display: none;
     color: #fefefe;
@@ -35,6 +38,10 @@ pre.toml_code {
     border-radius: .28571429rem;
 }
 
+
+.data .content, .job .content, .recipe.content{
+        width: 0;
+}
 .narrow {
     margin-left: 15%;
     margin-right: 15%;
@@ -42,6 +49,10 @@ pre.toml_code {
 
 .show.item.visible.transition {
     display: inline;
+}
+
+.data .content, .job .content, .recipe.content{
+    width: auto;
 }
 
 #img i {
@@ -110,13 +121,8 @@ pre.toml_code {
 }
 
 
-#clipboard_anchor {
-    border-bottom: none;
-}
-
-
 .ui.ribbon.label.projects {
-    right: 10.1em;
+    left: calc(-1rem - 1.4em);
 }
 
 .ui.ribbon.label.obj {
@@ -433,7 +439,7 @@ figure {
 #clipboard{
 
     position: absolute; /* or absolute */
-    top: 80px;
+    top: 87px;
     text-align: center;
     z-index: 100;
     width: 80%;

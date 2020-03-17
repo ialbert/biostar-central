@@ -55,6 +55,7 @@ recipes:
 	$(eval SUPERVISOR_NAME := recipes)
 	$(eval ENGINE_DIR := /export/www/biostar-central)
 
+    # Set the settings variables.
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
@@ -128,6 +129,7 @@ test:
 
 	# Remove files associated with tests
 	rm -rf export/tested
+
 
 test_all:test
 

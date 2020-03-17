@@ -473,7 +473,7 @@ class RecipeInterface(forms.Form):
     # The name of results when running the recipe.
     # name = forms.CharField(max_length=256, label="Name", help_text="This is how you can identify the run.")
 
-    def __init__(self, request, json_data, analysis=None, project=None, add_captcha=True, *args, **kwargs):
+    def __init__(self, request, json_data, analysis=None, project=None,add_captcha=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         # The json data determines what fields does the form have.
@@ -499,6 +499,7 @@ class RecipeInterface(forms.Form):
 
         # Validate default fields.
         super(RecipeInterface, self).clean()
+
         valid, msg = auth.validate_recipe_run(user=self.user, recipe=self.analysis)
         if not valid:
             raise forms.ValidationError(msg)
