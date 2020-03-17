@@ -31,7 +31,7 @@ class JobViewTest(TestCase):
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
 
-        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="",
+        self.recipe = auth.create_analysis(project=self.project, json_text="", template="",
                                            security=models.Analysis.AUTHORIZED)
 
         self.job = auth.create_job(analysis=self.recipe, user=self.owner)

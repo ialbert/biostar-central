@@ -156,7 +156,7 @@ hard_reset: delete
 dump:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	python manage.py dumpdata --settings ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(DUMP_FILE)
+	python manage.py dumpdata ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(DUMP_FILE)
 	@cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
 	@ls -1 export/database/*.json
 

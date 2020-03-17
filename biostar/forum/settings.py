@@ -130,8 +130,3 @@ if DEBUG_TOOLBAR and 'debug_toolbar' not in INSTALLED_APPS:
         'debug_toolbar',
     ])
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
-
-# Add static serving capability
-if DEBUG is False:
-    print("Whitenoise static serve enabled (pip install whitenoise)")
-    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')
