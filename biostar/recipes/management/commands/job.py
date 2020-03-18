@@ -25,14 +25,19 @@ def create_data(job, data):
     """
     Insert file from data dict into database.
 
-    [[settings.files]]
-    file = foo
+    [[settings.create]]
+    # Only source is required.
+    source = runlog
+    uid =
+    name
+    text =
+    type =
 
     [[settings.files]]
     file = bar
 
      # List of files
-    {'settings': {'files': [ {'file':'foo'}, {'file':'bar'} ]  }
+    {'settings': {'create': [ {'source':'foo', }, {'file':'bar'} ]  }
 
     """
     fname = data.get("file", '')
@@ -51,7 +56,7 @@ def create_data(job, data):
         data = auth.get_or_create(fname=fullpath, uid=uid, name=name,
                                   project=project, text=text)
         return data
-
+    #raise FileNotFoundError("File")
     logger.error(f"File does not exist inside of root. file={fullpath}; root={root}")
     return data
 
