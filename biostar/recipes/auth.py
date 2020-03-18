@@ -892,7 +892,7 @@ def create_data(project, user=None, stream=None, path='', name='', text='', type
     return data
 
 
-def get_or_create(fname, project, user=None, uid=None, name="", text="", dtype=""):
+def get_or_create(fname, project, user=None, uid=None, name="", text="", type=""):
     """
     Get or create a data object associated with a file.
     """
@@ -910,7 +910,7 @@ def get_or_create(fname, project, user=None, uid=None, name="", text="", dtype="
     # Update the name, text, and type.
     data.name = name or data.name
     data.text = text or data.text
-    data.type = dtype.upper() or data.type or "DATA"
+    data.type = type.upper() or data.type or "DATA"
 
     # Trigger save to update the toc file, last edit date, etc.
     data.save()
