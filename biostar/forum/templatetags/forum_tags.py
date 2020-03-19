@@ -94,7 +94,7 @@ def counts(context):
     return dict(votes=votes, messages=messages)
 
 
-@register.inclusion_tag('widgets/search_pages.html', takes_context=True)
+@register.inclusion_tag('search/search_pages.html', takes_context=True)
 def pages_search(context, results):
 
     previous_page = results.pagenum - 1
@@ -316,20 +316,36 @@ def read_tags(filepath, exclude=[], limit=500):
     tags_opts = set()
     for idx, line in stream:
         line = line.strip()
-        if line not in exclude or line != '\n':
-            tags_opts.add((line, False) )
+        if line in exclude:
+            continue
+        tags_opts.add((line, False))
+
     return tags_opts
 
 
-def get_dropdown_options(selected_list):
+def get_tags_file():
+    """
+    Get a list of files to render from a file
+    """
+    # Get the tags op
     tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
+
+    return tags_file
+
+
+def get_dropdown_options(selected_list):
+
+    tags_file = get_tags_file()
+
     # Read tags file from a file if it is set
     selected_tags = {(val, True) for val in selected_list}
+
     if tags_file:
         tags_opts = read_tags(filepath=tags_file, exclude=selected_list)
     else:
         tags_query = Tag.objects.exclude(name__in=selected_list)[:50].values_list("name", flat=True)
         tags_opts = {(name.strip(), False) for name in tags_query}
+
     # Chain the selected and rest of the options
     tags_opts = itertools.chain(selected_tags, tags_opts)
 
@@ -416,7 +432,7 @@ def custom_feed(objs, feed_type='', title=''):
     return context
 
 
-@register.inclusion_tag(takes_context=True, filename='widgets/search_bar.html')
+@register.inclusion_tag(takes_context=True, filename='search/search_bar.html')
 def search_bar(context, tags=False, users=False):
     search_url = reverse('tags_list') if tags else reverse('community_list') if users else reverse('post_search')
     request = context['request']
@@ -708,9 +724,7 @@ def traverse_comments(request, post, tree, template_name):
 
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
-        source = f"indent-{node.uid}"
-        target = f"'{node.uid}'"
-        collect.append(f'<div class="indent droppable" ondragover="allowDrop(event);" ondrop="drop(event, {target}) id="{source}" ><div class="comment">{html}</div>')
+        collect.append(f'<div class="indent droppable" ><div class="comment">{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:

@@ -631,17 +631,24 @@ img {
     background: #f9f6f4 !important;
 }
 
-.type-field {
+#inplace {
+    padding: 0;
+}
+
+#inplace textarea{
+    height: auto;
+}
+#inplace .type.field {
     width: 20%;
     padding-right: 2px;
 }
 
 
-.title-field textarea {
+#inplace .title.field textarea {
     padding: .65em !important;
 }
 
-.title-field {
+#inplace .title.field {
     width: 80%;
 }
 

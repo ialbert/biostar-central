@@ -437,6 +437,7 @@ def inplace_form(request):
     """
     Used to render inplace forms for editing posts.
     """
+    MIN_LINES = 10
     user = request.user
     if user.is_anonymous:
         return ajax_error(msg="You need to be logged in to edit or create posts.")
@@ -455,9 +456,11 @@ def inplace_form(request):
     template = "forms/form_inplace.html"
     tmpl = loader.get_template(template_name=template)
     users_str = auth.get_users_str()
+    nlines = post.num_lines(offset=3)
+    rows = nlines if nlines >= MIN_LINES else MIN_LINES
 
     context = dict(user=user, post=post, new=add_comment,  html=html, users_str=users_str,
-                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
+                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY, rows=rows)
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)

@@ -1,3 +1,19 @@
+function hidden_selector(elem) {
+
+    // Hide or show the title, voting buttons, and content
+    // when working with inplace forms.
+
+    var title = ".post >  .title";
+    var voting = ".post > .body > .voting";
+    var content = ".post > .body > .content > .inplace";
+
+    // Concatenate the final selector
+    var selector = "{0},{1},{2}".format(title, voting, content);
+    if (elem) {
+        return elem.closest(selector)
+    } else return $(selector)
+
+}
 
 function create_comment() {
 
@@ -47,15 +63,16 @@ function cancel_inplace(post) {
     inplace.remove();
 
     // Find the hidden items
-    var hidden = $('.post .content.editable');
+    var hidden = hidden_selector();
 
     // Show hidden items.
     hidden.each(function () {
-       var is_hidden = $(this).is(':hidden');
-       if (is_hidden){
-           alert($(this).attr('class'));
-           hidden.show();
-       }
+        var is_hidden = $(this).is(':hidden');
+        //
+        if (is_hidden) {
+            //alert($(this).attr('class'));
+            hidden.show();
+        }
 
     });
 
@@ -63,28 +80,59 @@ function cancel_inplace(post) {
 }
 
 
-function inplace_form(elem, add) {
+function prepare_inplace(content) {
 
-    add = add || false;
-    var post = elem.closest(".post");
-    var url = '/inplace/form/';
-    var uid = post.data('value');
+    var post = content.closest(".post");
 
-    var container = post.find(".content div:first ");
-    var hide = post.find(".title, .voting, .actions, .content div ");
-    var current = $("#new-content");
+    // Get the current inplace items set to be replaced.
+    var container = content.closest(".post > .body > .content > .inplace");
 
-     // Any inplace forms already open get closed.
+    // Any previously open inplace form gets closed.
     cancel_inplace(post);
-    // Create a new comment.
-    current = $('<div id="new-content"></div>');
+
+    return container
+
+}
+
+function activate_inplace(current, form, hide, elem) {
+
+    current.hide();
+    current.html(form);
+    current.show(300).find('textarea').focus();
+
+    //var preview = $('#preview');
+    current.find('pre').addClass('language-python');
+    current.find('code').addClass('language-bash');
+
+    if (hide) {
+        //alert(hide);
+        var to_hide = hidden_selector(elem);
+        to_hide.hide();
+    }
+
+
+}
+
+
+function inplace_form(elem, add_comment) {
+
+    add_comment = add_comment || false;
+    // Hiding the parent comment is dependent on whether a comment is being added
+    var hide_containter = !add_comment;
+    var post = elem.closest(".post");
+    var uid = post.data("value");
+    var url = '/inplace/form/';
+
+    // Prepare the container
+    var container = prepare_inplace(elem);
+    var current = $('<div id="new-content"></div>');
     container.after(current);
 
+    // Prepare the request data
     var input = {'uid': uid};
-
-    if (add) {
-        input['add_comment'] = 1 ;
-    }else{
+    if (add_comment) {
+        input['add_comment'] = 1;
+    } else {
         container.dimmer('show');
     }
 
@@ -93,24 +141,14 @@ function inplace_form(elem, add) {
             type: 'GET',
             dataType: 'json',
             ContentType: 'application/json',
-            data:input,
+            data: input,
             success: function (data) {
 
                 if (data.status === 'error') {
-                    popup_message(elem, data.msg, data.status, 3000);
+                    popup_message(post, data.msg, data.status, 3000);
                     return
                 }
-                if (!add){
-                    hide.toggle();
-                }
-                current.hide();
-                current.html(data.inplace_form);
-                current.show(300).find('textarea').focus();
-
-                var preview = $('#preview');
-                preview.find('pre').addClass('language-python');
-                preview.find('code').addClass('language-bash');
-
+                activate_inplace(current, data.inplace_form, hide_containter, elem);
                 container.dimmer('hide');
 
             },
@@ -121,7 +159,7 @@ function inplace_form(elem, add) {
 }
 
 
-function update_post(post, data){
+function update_post(post, data) {
 
     // Current post content and title to replace
     // with returned values.
@@ -140,7 +178,6 @@ function update_post(post, data){
 
     cancel_inplace(post);
 }
-
 
 
 function edit_post(post) {

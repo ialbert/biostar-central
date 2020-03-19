@@ -10,27 +10,25 @@
 
 {% endif %}
 
-{# Include the inplace form fields. #}
 <div class="ui basic segment fit" id="inplace">
-
     <form class="ui compact form">
-
         {# Create a new comment #}
         {% if new %}
-
             <div class="field">
                 <div id="wmd-button-bar"></div>
-                <textarea id="wmd-input" rows="8" class="wmd-input autocomplete" rows="17"></textarea>
+                <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="9"></textarea>
             </div>
 
-            {# Edit an exisiting post #}
         {% else %}
 
-            {# Edit the title #}
             {% if post.is_toplevel %}
                 <div class="fields">
-                    <div class="field">{% inplace_type_field post=post %} </div>
-                    <div class="field"><textarea id="title" rows="1">{{ post.title }}</textarea></div>
+                    {# Edit the type #}
+                    <div class="type field">
+                        {% inplace_type_field post=post %}
+                    </div>
+                    {# Edit the title #}
+                    <div class="title field"><textarea id="title" rows="1" cols="8">{{ post.title }}</textarea></div>
                 </div>
             {% endif %}
 
@@ -38,7 +36,7 @@
             <div class="field">
                 {% if post.is_toplevel %}{% include 'widgets/post_message.html' %}{% endif %}
                 <div id="wmd-button-bar"></div>
-                <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="8">{{ post.content }}</textarea>
+                <textarea id="wmd-input" class="wmd-input autocomplete" rows="{{ rows }}">{{ post.content }}</textarea>
             </div>
 
             {# Edit the tags #}
@@ -61,7 +59,7 @@
             accepted.</p>
 
         {# Preview segment #}
-        <div class="ui preview segment">{{ html }}</div>
+        <div class="ui preview segment">{{ html |safe}}</div>
 
         {# Submit and cancel buttons #}
         <div class="field">
@@ -77,10 +75,14 @@
 
 </div>
 
+
 <script>
+    // initialize pagedown
     init_pagedown();
+    // initialize autocomplete
     var users = "{{ users_str }}".split(',');
     autocomplete_users(users);
-
+    // initialize tags dropdown.
+    tags_dropdown();
 </script>
 

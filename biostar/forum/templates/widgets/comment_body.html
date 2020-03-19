@@ -8,36 +8,35 @@
     {# Draggable element #}
     <div class="ui label draggable">FOOOO</div>
 
-    <div class="ui inverted dimmer">
-        <div class="ui text loader">
-            <div class="muted">Entering edit mode</div>
+    <div class="body">
+        <div class="voting">
+            <button class="ui icon mini button" data-value="upvote" data-state="{{ post.has_upvote }}">
+                <i class="thumbs up icon "></i>
+            </button>
+
+            <div class="score">{{ post.vote_count }}</div>
+
+            <button class="ui icon mini button bookmark" data-value="bookmark" data-state="{{ post.has_bookmark }}">
+                <i class="bookmark icon "></i>
+            </button>
+        </div>
+
+        <div class="content">
+            <div class="inplace">
+                <div class="ui inverted dimmer">
+                    <div class="ui text loader">
+                        <div class="muted">Entering edit mode</div>
+                    </div>
+                </div>
+                <div class="magnify">
+                    {% if post.is_editable %}
+                        <div class="editable">{{ post.html|safe }}</div>
+                    {% else %}
+                        {{ post.html|safe }}
+                    {% endif %}
+                </div>
+                {% post_actions post=post label="ADD REPLY" avatar=True %}
+            </div>
         </div>
     </div>
-
-        <div class="body">
-            <div class="voting">
-                <button class="ui icon mini button" data-value="upvote" data-state="{{ post.has_upvote }}">
-                    <i class="thumbs up icon "></i>
-                </button>
-
-                <div class="score">{{ post.vote_count }}</div>
-
-                <button class="ui icon mini button bookmark"  data-value="bookmark" data-state="{{ post.has_bookmark }}">
-                    <i class="bookmark icon "></i>
-                </button>
-            </div>
-
-            <div class="content">
-                <div>
-                    <div class="magnify">
-                        {% if post.is_editable %}
-                            <div class="editable">{{ post.html|safe }}</div>
-                        {% else %}
-                            {{ post.html|safe }}
-                        {% endif %}
-                    </div>
-                    {% post_actions post=post label="ADD REPLY" avatar=True %}
-                </div>
-            </div>
-        </div>
 </div>

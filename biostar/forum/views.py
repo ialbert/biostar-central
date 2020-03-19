@@ -147,7 +147,7 @@ def post_search(request):
         results = search.SearchResult()
 
     total = results.total
-    template_name = "widgets/search_results.html"
+    template_name = "search/search_results.html"
 
     question_flag = Post.QUESTION
     context = dict(results=results, query=query, total=total, template_name=template_name,

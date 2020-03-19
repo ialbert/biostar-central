@@ -222,6 +222,12 @@ class Post(models.Model):
     def has_accepted(self):
         return bool(self.accept_count)
 
+    def num_lines(self, offset=0):
+        """
+        Return number of lines in post content
+        """
+        return len(self.content.split("\n")) + offset
+
     @property
     def is_spam(self):
         return self.spam == self.SPAM

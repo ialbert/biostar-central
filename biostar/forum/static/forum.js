@@ -388,6 +388,9 @@ $(document).ready(function () {
         }
 
     });
+    $('pre').addClass('language-bash');
+    $('code').addClass('language-bash');
+    Prism.highlightAll();
 
     tags_dropdown();
     //activate_prism($(this));
