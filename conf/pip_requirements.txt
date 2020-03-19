@@ -18,3 +18,4 @@ mistune
 Pillow
 requests
 feedparser
+whitenoise

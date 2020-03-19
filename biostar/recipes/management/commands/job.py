@@ -21,6 +21,50 @@ logger.setLevel(logging.DEBUG)
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
+def finalize_job(job, data):
+    """
+    Insert file from data dict into database.
+
+    [[settings.create]]
+    # Only source is required.
+    source = runlog
+    uid =
+    name
+    text =
+    type =
+
+    [[settings.files]]
+    file = bar
+
+     # List of files
+    {'settings': {'create': [ {'source':'foo', }, {'source':'bar'} ]  }
+
+    """
+
+    # Get files intended for insertion.
+    create = data.get("settings", {}).get("create", [])
+    root = job.path
+    project = job.project
+
+    for create_using in create:
+
+        # Create full path using the file.
+        fname = create_using.get("file", '')
+        fname = fname.strip()
+        fullpath = os.path.abspath(os.path.join(root, fname))
+
+        # Ensure the file path is valid.
+        valid = len(fname) and os.path.exists(fullpath) and fullpath.startswith(root)
+
+        if not valid:
+            raise FileNotFoundError(f"File: {fname} does not exist.")
+
+        # Add the filename and project to
+        create_using.update({"fname": fullpath, "project": project})
+
+        auth.get_or_create(**create_using)
+
+
 def create_logs(job):
 
     work_dir = job.path
@@ -172,6 +216,9 @@ def run(job, options={}):
 
         # Raise an error if returncode is anything but 0.
         proc.check_returncode()
+
+        # Perform tasks at job finalization
+        finalize_job(data=json_data, job=job)
 
         # If we made it this far the job has finished.
         logger.info(f"uid={job.uid}, name={job.name}")

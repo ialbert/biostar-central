@@ -125,13 +125,8 @@ except Exception as exc:
 
 
 # Enable debug toolbar specific functions
-if DEBUG_TOOLBAR:
+if DEBUG_TOOLBAR and 'debug_toolbar' not in INSTALLED_APPS:
     INSTALLED_APPS.extend([
         'debug_toolbar',
     ])
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
-
-# Add static serving capability
-if DEBUG is False:
-    print("Whitenoise static serve enabled (pip install whitenoise)")
-    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')

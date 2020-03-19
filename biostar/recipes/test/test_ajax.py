@@ -43,7 +43,7 @@ class AjaxTest(TestCase):
         self.project2 = auth.create_project(user=self.trusted_owner, name="tested", text="Text", summary="summary",
                                             uid="tested")
 
-        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="",
+        self.recipe = auth.create_analysis(project=self.project, json_text="", template="",
                                            security=models.Analysis.AUTHORIZED)
 
         self.snippet_type = models.SnippetType.objects.create(name='Snippet type', owner=self.owner)
@@ -133,8 +133,7 @@ class AjaxTest(TestCase):
         Test AJAX function used to preview recipe json
         """
 
-        data = {'name': self.recipe.name, 'project_uid':self.recipe.project.uid,
-                'json_text': self.recipe.json_text}
+        data = {'recipe':self.recipe.id, 'toml': "[foo]\nparam=2"}
 
         url = reverse('preview_json')
         request = fake_request(url=url, data=data, user=self.owner)
