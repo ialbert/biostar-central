@@ -53,7 +53,7 @@ function create_comment() {
         })
 }
 
-function cancel_inplace(post) {
+function cancel_inplace() {
 
     // Find the inplace element
     var inplace = $('#new-content');
@@ -95,7 +95,7 @@ function prepare_inplace(content) {
 }
 
 function activate_inplace(current, form, hide, elem) {
-
+    // TODO: need to rename variables, hard to understand.
     current.hide();
     current.html(form);
     current.show(300).find('textarea').focus();

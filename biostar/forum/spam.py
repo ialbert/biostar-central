@@ -5,14 +5,24 @@ from biostar.forum.markdown import LINK_PATTERNS
 
 ACTIVITY_THRESHOLD = 2
 
-
-def has_hyperlink(text):
-
-
-    return ""
+SIMILAR_THRESHOLD = 2
 
 
-def passes_test(user, post):
+def build_spam_index():
+
+    spam = Post.objects.filter(spam=Post.SPAM, indexed=False)
+
+    return
+
+
+def similar_spam(post):
+
+
+
+    return
+
+
+def quarantine(user, post):
     """
     User + post pass a series of tests and rules to determine
     if they might be spam or not
@@ -20,35 +30,36 @@ def passes_test(user, post):
 
     # User's with high enough score automatically given green light.
     if not user.profile.low_rep:
-        return True
+        return
 
     # Use has more than the required number of posts.
     post_count = Post.objects.filter(author=user).count()
     vote_count = Vote.objects.filter(author=user).count()
     if (post_count + vote_count) >= ACTIVITY_THRESHOLD:
-        return True
+        return
 
-    # User has visited any other page at all.
-    
     # Answer and comments get a green light for now.
     if post.is_answer or post.is_comment:
-        return True
+        return
 
-    if has_hyperlink(post.title):
-        return False
+    # Check the spam index for similar posts.
 
-    if has_hyperlink(post.content):
-        return False
+    # If post exceeds threshold, then make the
+    similar = similar_spam(post=post)
 
-    return False
+    if len(similar) < 5:
+        return
+
+    # Mark this post as "maybe" being spam
+    Post.objects.filter(id=post.id).update(spam=Post.MAYBE_SPAM)
 
 
-def is_safe(user, post, request):
 
-    # Test to see if this post is not spam.
-    safe = passes_test(user=user, post=post)
 
-    return safe
+
+
+
+
 
 
 

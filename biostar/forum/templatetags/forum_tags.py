@@ -108,8 +108,8 @@ def pages_search(context, results):
 
 
 @register.inclusion_tag('widgets/post_details.html')
-def post_details(post):
-    return dict(post=post)
+def post_details(post, user):
+    return dict(post=post, user=user)
 
 
 @register.simple_tag
@@ -724,7 +724,7 @@ def traverse_comments(request, post, tree, template_name):
 
         cont = {"post": node, 'user': request.user, 'request': request}
         html = body.render(cont)
-        collect.append(f'<div class="indent droppable" ><div class="comment">{html}</div>')
+        collect.append(f'<div class="indent" ><div>{html}</div>')
 
         for child in tree.get(node.id, []):
             if child in seen:

@@ -4,8 +4,8 @@ from django.dispatch import receiver
 from taggit.models import Tag
 from django.db.models import F, Q
 from biostar.accounts.models import Profile, Message, User
-from .models import Post, Award, Subscription
-from . import tasks, auth, util
+from biostar.forum.models import Post, Award, Subscription
+from biostar.forum import tasks, auth, util, spam
 
 
 logger = logging.getLogger("biostar")
@@ -117,11 +117,10 @@ def finalize_post(sender, instance, created, **kwargs):
         # Notify users who are watching tags in this post
         #tasks.notify_watched_tags(post=instance)
 
+        #spam.quarantine(user=instance.lastedit_user, post=instance)
+
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)
-
-    # Put post on quarantine
-
 
     # Exclude current authors from receiving messages from themselves
     subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))

@@ -5,7 +5,7 @@
 {% block headtitle %}
     {{ post.title }}
 {% endblock %}
-
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 {% block css %}
     <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
@@ -59,8 +59,7 @@
     <script>
 
         $(document).ready(function () {
-
-
+            bind_drag_and_drop();
             var users = "{{ users_str }}".split(',');
             autocomplete_users(users);
 

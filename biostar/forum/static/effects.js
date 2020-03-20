@@ -1,55 +1,5 @@
 
-function allowDrop(ev) {
-    ev.preventDefault();
-}
-
-var dragged_over = '';
-
-
-function drag(ev, elem) {
-    var post = elem.closest('.post');
-    var uid = post.data('value');
-    ev.dataTransfer.setData("text", uid);
-    post.css('opacity', "0.4");
-
-}
-
-function drag_leave(elem) {
-    var post = elem.closest('.post');
-    post.css('border', 'none');
-    post.css('opacity', '1');
-    dragged_over = '';
-
-}
-
-
-function reset_drag(source, target) {
-    console.log(target, source);
-    source.closest('.post').css('opacity', '1');
-    source.closest('.post').css('border', 'none');
-    target.closest('.post').css('opacity', '1');
-    target.closest('.post').css('border', 'none');
-
-}
-
-function drag_over(elem) {
-    dragged_over = '';
-    var post = elem.closest('.post');
-    //console.log(elem.attr('class'), elem.data('value'));
-    dragged_over = post.data('value');
-    post.css('border', '#c2ffc2 dashed 5px');
-
-}
-
-
 function drop(ev, elem) {
-
-    ev.preventDefault();
-
-    var source = ev.dataTransfer.getData("text");
-    let source_elem = $('#' + source);
-    source_elem.css('opacity', '1');
-    //let elem = $('.droptarget[data-value="' + dragged_over + '"]');
 
     $.ajax('/drag/and/drop/',
         {
@@ -59,7 +9,6 @@ function drop(ev, elem) {
             data: {
                 'uid': source,
                 'parent': dragged_over,
-
             },
             success: function (data) {
                 if (data.status === 'error') {
@@ -84,7 +33,6 @@ function drop(ev, elem) {
 
 
 }
-
 
 
 function autocomplete_users(users_list) {
@@ -119,28 +67,38 @@ function autocomplete_users(users_list) {
 
 }
 
-$(document).ready(function () {
+function bind_drag_and_drop() {
+    //var dragging = '';
+    $(".post > .body > .content > .droppable").droppable(
+        {
+            accept: ".post",
+            drop: function (event, ui) {
+                //alert($(this).closest(".post").data("value"));
+                //alert(ui.draggable.data("value"));
+                //drop(event, $(this));
+            },
 
-    $('.draggable').each(function () {
-       $(this).closest('.post').attr('draggable', true);
-    });
-    $(this).on('ondragover', '.droppable', function (event) {
-        allowDrop(event)
-    });
-    $(this).on('ondrop', '.droppable', function (event) {
-        drop(event, $(this));
-    });
-    $(this).on('ondragstart', '.draggable', function (event) {
-        drag(event, $(this))
+        });
+
+    $('.draggable').mousedown(function () {
+        $(this).css('cursor', 'grabbing');
+        var post = $(this).closest('.post');
+        post.draggable(
+        {
+            addClasses: false,
+            scroll: false,
+            helper: 'clone',
+            iframeFix: true,
+            opacity: .7,
+            containment: $('body'),
+            revert:true,
+            zIndex: 100,
+            cursor:'grabbing'
+
+        });
+        //post.draggable( "disable" );
     });
 
-    $(this).on('ondragover', '.draggable', function (event) {
-        drag_over($(this))
-    });
 
-    $(this).on('ondragleave', '.draggable', function (event) {
-        drag_leave($(this))
-    });
 
-});
-
+}

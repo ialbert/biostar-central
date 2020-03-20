@@ -46,8 +46,7 @@
                     {% post_tags post spaced=False %}
                 {% endif %}
             </div>
-
-            {% if post.author.profile.low_rep and request.user.profile.is_moderator %}
+            {% if post.author.profile.low_rep and user.profile.is_moderator %}
                 <div class="ui dropdown">
                     <i class="bug orange icon"></i>
                     <div class="menu">

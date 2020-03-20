@@ -10,7 +10,7 @@
 
 {% endif %}
 
-<div class="ui basic segment fit" id="inplace">
+<div class="ui basic form-wrap segment fit" id="inplace">
     <form class="ui compact form">
         {# Create a new comment #}
         {% if new %}
@@ -77,6 +77,8 @@
 
 
 <script>
+    $('.ui.dropdown').dropdown();
+    bind_drag_and_drop();
     // initialize pagedown
     init_pagedown();
     // initialize autocomplete

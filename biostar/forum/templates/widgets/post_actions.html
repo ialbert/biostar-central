@@ -14,7 +14,12 @@
     {% endif %}
 
     {% if post.can_moderate %}
-        &bull; <a class="moderate-post" href="#">moderate</a>
+        &bull; <a class="moderate" href="#">moderate</a>
+    {% endif %}
+    {% if not post.is_toplevel %}
+        &bull;
+        {# Draggable element #}
+        <a class="draggable"><i class="hand lizard outline icon"></i></a>
     {% endif %}
 
     {#  Show title on top level posts #}

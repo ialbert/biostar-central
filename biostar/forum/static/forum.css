@@ -323,7 +323,7 @@ i.icon {
 }
 
 .voting {
-    //padding: 0em 0.5em 0em 0.5em;
+/ / padding: 0 em 0.5 em 0 em 0.5 em;
     text-align: center;
     flex-direction: column;
     overflow: hidden;
@@ -331,6 +331,22 @@ i.icon {
 
 .voting > .value {
     padding-bottom: 1rem;
+}
+
+.ui-droppable-hover{
+    border: #10ee0a dotted 4px;
+}
+
+.post #modpanel {
+    width: 60%;
+    margin-left: 20%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.draggable {
+    cursor: pointer;
+    font-size: 85%;
 }
 
 .voteicon {
@@ -355,19 +371,19 @@ i.icon {
 }
 
 
-.post .stats{
+.post .stats {
     white-space: nowrap;
     width: fit-content;
     padding-right: 5px;
 }
 
 
-.post .stats .label div{
+.post .stats .label div {
     text-align: center;
     font-weight: 900;
 }
 
-.post .stats .label div:first-child{
+.post .stats .label div:first-child {
     font-size: 2.0em;
     padding-bottom: .2em;
 }
@@ -631,13 +647,14 @@ img {
     background: #f9f6f4 !important;
 }
 
-#inplace {
+#inplace form {
     padding: 0;
 }
 
-#inplace textarea{
+#inplace textarea {
     height: auto;
 }
+
 #inplace .type.field {
     width: 20%;
     padding-right: 2px;
@@ -925,7 +942,7 @@ pre {
         display: none !important;
     }
 
-    .post .stats{
+    .post .stats {
         padding-bottom: 8px;
     }
 
@@ -934,7 +951,7 @@ pre {
     }
 
     .ui.grid > [class*="four wide"].sidefeed {
-        //width: 100% !important;
+    / / width: 100 % !important;
     }
 
 

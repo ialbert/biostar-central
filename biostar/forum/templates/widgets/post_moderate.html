@@ -21,7 +21,7 @@
             Submit
         </button>
 
-        <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+        <a class="ui orange button" onclick="javascript:obj=$('#modpanel').remove();">
             <i class="cancel icon"></i>
             Cancel
         </a>
@@ -40,32 +40,12 @@
                 Submit
             </button>
 
-            <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+            <a class="ui orange button" onclick="javascript:obj=$('#modpanel').remove();">
                 <i class="cancel icon"></i>
                 Cancel
             </a>
         {% endif %}
 
-        {% if form.pid %}
-            <div class="ui segment">
-                <div class="field">
-                    <label>Move this post.</label>
-                    {{ form.pid }}
-                    <div class="ui muted">
-                        Parent id to move post under.
-                    </div>
-                </div>
-            </div>
-            <button type="submit" class="ui green enter button">
-                <i class="check icon"></i>
-                Submit
-            </button>
-
-            <a class="ui orange right floated button" onclick="javascript:obj=$('#modpanel').remove();">
-                <i class="cancel icon"></i>
-                Cancel
-            </a>
-        {% endif %}
 
 
     </form>

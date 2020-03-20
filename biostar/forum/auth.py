@@ -325,6 +325,24 @@ def handle_spam_post(post, user):
     return url
 
 
+def bump():
+
+    return
+
+
+
+def moderate(user, post, action):
+
+    url = post.get_absolute_url()
+
+    if action == BUMP_POST:
+        Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp())
+        #messages.success(request, "Post bumped")
+        log_action(user=user, log_text=f"Bumped post={post.uid}")
+        return url
+
+    return
+
 
 def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pid=None):
     root = post.root

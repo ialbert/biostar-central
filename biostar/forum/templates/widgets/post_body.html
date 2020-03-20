@@ -5,9 +5,6 @@
 
 <div class="post view {{ post.css }}" data-value="{{ post.uid }}">
 
-    {# Draggable element #}
-    <div class="ui label draggable" draggable="true">FOOOO</div>
-
     {#  Post title. #}
     {% if post.is_toplevel %}
         <div class="title">{{ post.title_prefix }}{{ post.title }}</div>
@@ -38,7 +35,7 @@
 
         {# Render the content#}
         <div class="droppable content">
-            <div class="inplace">
+            <div class="droppable inplace">
                 <div class="ui inverted dimmer">
                     <div class="ui text loader">
                         <div class="muted">Entering edit mode</div>
@@ -57,7 +54,6 @@
                         {{ post.html|safe }}
                     {% endif %}
                 </div>
-
 
                 {# Show tags #}
                 {% if post.is_toplevel %}

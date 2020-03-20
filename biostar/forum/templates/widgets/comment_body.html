@@ -3,10 +3,7 @@
 {# Comment anchor #}
 <a name="{{ post.uid }}"></a>
 
-<div class="post comment {{ post.css }} " data-value="{{ post.uid }}">
-
-    {# Draggable element #}
-    <div class="ui label draggable">FOOOO</div>
+<div class="post comment {{ post.css }}" data-value="{{ post.uid }}">
 
     <div class="body">
         <div class="voting">
@@ -22,7 +19,7 @@
         </div>
 
         <div class="content">
-            <div class="inplace">
+            <div class="droppable inplace">
                 <div class="ui inverted dimmer">
                     <div class="ui text loader">
                         <div class="muted">Entering edit mode</div>

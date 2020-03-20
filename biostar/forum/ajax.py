@@ -456,6 +456,7 @@ def inplace_form(request):
     template = "forms/form_inplace.html"
     tmpl = loader.get_template(template_name=template)
     users_str = auth.get_users_str()
+
     nlines = post.num_lines(offset=3)
     rows = nlines if nlines >= MIN_LINES else MIN_LINES
 

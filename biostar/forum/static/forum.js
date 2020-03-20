@@ -10,7 +10,7 @@ function captcha() {
 }
 
 
-function init_pagedown(){
+function init_pagedown() {
     var converter = new Markdown.getSanitizingConverter();
     var editor = new Markdown.Editor(converter);
     editor.run();
@@ -134,27 +134,26 @@ function mark_spam(post_id, elem) {
             error: function (xhr, status, text) {
                 error_message($('#' + post_id), xhr, status, text)
             }
-
         });
-
-
 }
 
 
-function moderate(elem, url) {
+function moderate(uid, container, url) {
 
-    event.preventDefault();
+    //event.preventDefault();
     //var elem = $(this);
     $('#modpanel').remove();
 
     // Could be a user or post uid
-    var data_uid = elem.attr('data-value');
-
-    var container = $('.moderate-insert[data-value="' + data_uid + '"]');
-    var mod_url = url + data_uid + '/';
-
-    var page = $('<div id="modpanel"></div>').load(mod_url);
+    var page = $('<div id="modpanel"></div>');
     container.after(page);
+    page.hide();
+    page.load(url, function (response, status, xhr) {
+        page.show(300);
+    });
+    //page.show(1000)
+    //alert("GGG")
+
 
 }
 
@@ -222,7 +221,7 @@ function change_subs(elem, value, $item) {
 }
 
 
-function activate_prism(elem){
+function activate_prism(elem) {
 
     elem = elem || $(document);
     //if (!elem){
@@ -231,7 +230,7 @@ function activate_prism(elem){
     Prism.highlightAll();
 }
 
-function tags_dropdown(){
+function tags_dropdown() {
 
     $('.tag-field').dropdown({
         allowAdditions: true,
@@ -290,8 +289,8 @@ $(document).ready(function () {
             var form = $(this).closest('form');
             var text = form.find('.textarea').val();
             var highlighted = highlight(text);
-             //var form = $(this).closest('form');
-             form.find('.preview').html(highlighted);
+            //var form = $(this).closest('form');
+            form.find('.preview').html(highlighted);
         }, 10);
 
     });
@@ -306,32 +305,44 @@ $(document).ready(function () {
         });
 
 
-
-    $(".moderate-post").click(function (event) {
+    $(".profile .moderate").click(function (event) {
         event.preventDefault();
-        var elem = $(this);
-        moderate(elem, '/moderate/');
+        var profile = $(this).closest('.profile');
+        var uid = profile.data("value");
+        var container = profile.find("#mod");
+        var url = '/accounts/moderate/{0}/'.format(uid);
+        moderate(uid, container,url)
+
     });
-
-    $(".moderate-user").click(function (event) {
+    $(".post .moderate").click(function (event) {
         event.preventDefault();
-        var elem = $(this);
-        moderate(elem, '/accounts/moderate/');
+        var post = $(this).closest('.post');
+        var uid = post.data("value");
+        var container = $(this).closest('.post > .body > .content >.inplace');
+        var url = '/moderate/{0}/'.format(uid);
+
+        moderate(uid, container, url)
+
 
     });
 
     $("[data-value='upvote']").popup({
-            on: 'hover',
-            content:'Upvote'
+        on: 'hover',
+        content: 'Upvote'
     });
-    $("[data-value='bookmark']").popup({
-            on: 'hover',
-            content:'Bookmark '
+    $(".draggable").popup({
+        on: 'hover',
+        content: 'Drag and Drop'
     });
 
-   $("[data-value='accept']").popup({
-            on: 'hover',
-            content:'Accept answer '
+    $("[data-value='bookmark']").popup({
+        on: 'hover',
+        content: 'Bookmark '
+    });
+
+    $("[data-value='accept']").popup({
+        on: 'hover',
+        content: 'Accept answer '
     });
     $('.voting button').each(function (event) {
 
@@ -345,7 +356,7 @@ $(document).ready(function () {
         // Actions taken on vote click.
 
     });
-   $('.voting .button').click(function () {
+    $('.voting .button').click(function () {
 
         apply_vote($(this));
     });
@@ -368,8 +379,6 @@ $(document).ready(function () {
 
 
     $('.ui.sticky').sticky();
-
-
 
     $('#show-answer').click(function () {
         $('.hidden-answer').toggle()
