@@ -41,12 +41,12 @@ def strip_json(json_text):
 
     # Fetch the execute options
     execute_options = local_dict.get('settings', {}).get('execute', {})
-    data_options = local_dict.get('settings', {}).get('files', {})
+    data_options = local_dict.get('settings', {}).get('create', {})
 
     # Check to see if it is present
     if execute_options or data_options:
         # Strip run settings of every thing but execute options
-        local_dict['settings'] = dict(execute=execute_options, data=data_options)
+        local_dict['settings'] = dict(execute=execute_options, create=data_options)
     else:
         # NOTE: Delete 'settings' from json text
         local_dict['settings'] = ''
