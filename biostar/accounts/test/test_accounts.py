@@ -14,6 +14,7 @@ from biostar.utils.helpers import fake_request, get_uuid
 logger = logging.getLogger('engine')
 
 
+@override_settings(RECAPTCHA_PRIVATE_KEY="", RECAPTCHA_PUBLIC_KEY="")
 class UserAccountTests(TestCase):
 
     def setUp(self):
@@ -74,6 +75,7 @@ class UserAccountTests(TestCase):
         self.visit_urls(urls, 302)
 
 
+@override_settings(RECAPTCHA_PRIVATE_KEY="", RECAPTCHA_PUBLIC_KEY="")
 class LoginTest(TestCase):
 
 
@@ -129,6 +131,7 @@ class LoginTest(TestCase):
         return
 
 
+@override_settings(RECAPTCHA_PRIVATE_KEY="", RECAPTCHA_PUBLIC_KEY="")
 class SignUpTest(TestCase):
 
 
@@ -161,6 +164,7 @@ class SignUpTest(TestCase):
         #views.user_login()
 
 
+@override_settings(RECAPTCHA_PRIVATE_KEY="", RECAPTCHA_PUBLIC_KEY="")
 class ProfileTest(TestCase):
 
 

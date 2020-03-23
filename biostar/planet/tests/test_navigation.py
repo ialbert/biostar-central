@@ -1,5 +1,5 @@
 import logging, os
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test import Client
 from django.core import management
 from biostar.forum import auth, models
@@ -14,9 +14,15 @@ def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
 
-logger = logging.getLogger('engine')
+__MODULE_DIR = os.path.dirname(auth.__file__)
+TEST_ROOT = os.path.join(__MODULE_DIR, 'tests')
+
+logger = logging.getLogger('biostar')
+
+PLANET_DIR = os.path.abspath(os.path.join(TEST_ROOT, "feeds"))
 
 
+@override_settings(PLANET_DIR=PLANET_DIR, INIT_PLANET = False)
 class PlanetNavigation(TestCase):
 
     def setUp(self):
@@ -24,12 +30,6 @@ class PlanetNavigation(TestCase):
 
         self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com")
         self.owner.set_password("tested")
-        self.badge = Badge.objects.first()
-        # Create a tested post
-        self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test",
-                                     type=models.Post.QUESTION)
-        management.call_command('populate')
-
         self.owner.save()
 
     def visit_urls(self, urls, codes):

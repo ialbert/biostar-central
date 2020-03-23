@@ -85,7 +85,8 @@ class Post(models.Model):
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
-    VISIBILITY_CHOICES = []
+    # Spam score stores relative likely hood this post is spam.
+    spam_score = models.FloatField(default=0)
 
     # Post status: open, closed, deleted.
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN, db_index=True)
@@ -209,6 +210,10 @@ class Post(models.Model):
     @property
     def is_open(self):
         return self.status == Post.OPEN and not self.is_spam
+
+    @property
+    def calc_score(self):
+        return
 
     @property
     def is_question(self):

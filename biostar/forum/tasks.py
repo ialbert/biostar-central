@@ -16,7 +16,7 @@ def message(msg, level=0):
 @spool(pass_arguments=True)
 def created_post(pid):
     message(f"Created post={pid}")
-
+    pass
 
 
 #

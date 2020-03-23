@@ -1,12 +1,12 @@
 import logging
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.shortcuts import reverse
 from biostar.accounts.models import User
 from biostar.utils.helpers import fake_request
 from biostar.accounts import views, forms
 
-
+@override_settings(RECAPTCHA_PRIVATE_KEY="", RECAPTCHA_PUBLIC_KEY="")
 class ModerateUser(TestCase):
     def setUp(self):
 

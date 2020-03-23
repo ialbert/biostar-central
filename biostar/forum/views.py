@@ -136,15 +136,17 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 def post_search(request):
 
     query = request.GET.get('query', '')
+    length = len(query.replace(" ", ""))
     page = int(request.GET.get('page', 1))
 
-    if not query:
+    if length < settings.SEARCH_CHAR_MIN:
+        messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+    results = search.preform_whoosh_search(query=query, page=page)
 
-    if isinstance(results, list) or not len(results):
-        results = search.SearchResult()
+    #if not len(results):
+    #    results = search.SearchResult()
 
     total = results.total
     template_name = "search/search_results.html"

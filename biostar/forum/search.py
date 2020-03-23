@@ -84,10 +84,6 @@ class SearchResult(object):
         return self.total
 
 
-def close(r):
-    # Ensure the searcher object gets closed.
-    r.searcher.close() if isinstance(r, Results) else None
-    return
 
 
 def normalize_result(result):
@@ -275,15 +271,13 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
+def preform_whoosh_search(query, fields=None, page=None, per_page=None, **kwargs):
     """
         Query the indexed, looking for a match in the specified fields.
         Results a tuple of results and an open searcher object.
         """
-    # Do not preform search if the index does not exist.
-    if len(query) < settings.SEARCH_CHAR_MIN:
-        return []
 
+    per_page = per_page or settings.SEARCH_RESULTS_PER_PAGE
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
     ix = init_index()
     searcher = ix.searcher()
@@ -295,7 +289,6 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
     if page:
         # Return a pagenated version of the results.
-
         results = searcher.search_page(parser,
                                        pagenum=page, pagelen=per_page, sortedby=["lastedit_date"],
                                        reverse=True,
@@ -315,39 +308,30 @@ def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
     return results
 
 
-def whoosh_more_like_this(uid, top=settings.SIMILAR_FEED_COUNT):
-    """
-    Return posts similar to the uid given.
-    """
+def preform_search(query, fields=None, top=0, more_like_this=False):
 
-    results = preform_whoosh_search(query=uid, fields=['uid'])
+    top = top or settings.SIMILAR_FEED_COUNT
+    length = len(query.replace(" ", ""))
 
-    if isinstance(results, list) or not len(results):
-        return SearchResult()
+    if length < settings.SEARCH_CHAR_MIN:
+        return []
 
-    results = results[0].more_like_this("content", top=top)
-    # Filter results for toplevel posts.
-    results = filter(lambda p: p['is_toplevel'] is True, results)
-
-    final_results = list(map(normalize_result, results))
-    if isinstance(results, Results):
-        # Ensure searcher object gets closed.
-        close(results)
-
-    return final_results
-
-
-def preform_search(query, fields=None, db_search=False):
-    fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
-
-    results = preform_whoosh_search(query=query, fields=fields)
-    if isinstance(results, list) or not len(results):
-        return SearchResult()
+    if more_like_this:
+        fields = ['uid']
+        results = preform_whoosh_search(query=query, fields=fields)
+        results = results[0].more_like_this("content", top=top)
+        # Filter results for toplevel posts.
+        results = list(filter(lambda p: p['is_toplevel'] is True, results))
+    else:
+        fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
+        results = preform_whoosh_search(query=query, fields=fields)
 
     # Ensure returned results types stay consistent.
     final_results = list(map(normalize_result, results))
-    if isinstance(results, Results):
-        # Ensure searcher object gets closed.
-        close(results)
+    if not len(final_results):
+        return []
+
+    # Ensure searcher object gets closed.
+    results.searcher.close()
 
     return final_results

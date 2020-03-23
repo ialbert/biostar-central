@@ -1,5 +1,5 @@
 
-function drop(ev, elem) {
+function move_post(parent, target) {
 
     $.ajax('/drag/and/drop/',
         {
@@ -8,29 +8,21 @@ function drop(ev, elem) {
             ContentType: 'application/json',
             data: {
                 'uid': source,
-                'parent': dragged_over,
+                'parent': '',
             },
             success: function (data) {
                 if (data.status === 'error') {
-                    popup_message(elem, data.msg, data.status, 2000);
-                    reset_drag(elem, source)
+                    popup_message(parent, data.msg, data.status, 2000);
                 } else {
-                    source_elem.transition('zoom');
+                    target.transition('zoom');
                     window.location.reload();
-                    popup_message(source_elem, "Moving Post", 'success', 1000);
+                    popup_message(parent, "Moved Post", 'success', 2000);
                 }
             },
             error: function (xhr, status, text) {
-                error_message(elem, xhr, status, text);
-                reset_drag(elem, source)
+                error_message(parent, xhr, status, text);
             }
         });
-
-    ev.dataTransfer.clearData();
-    dragged_over = '';
-
-    reset_drag(elem, source)
-
 
 }
 
@@ -67,7 +59,7 @@ function autocomplete_users(users_list) {
 
 }
 
-function bind_drag_and_drop() {
+function drag_and_drop() {
     //var dragging = '';
     $(".post > .body > .content > .droppable").droppable(
         {
@@ -76,6 +68,7 @@ function bind_drag_and_drop() {
                 //alert($(this).closest(".post").data("value"));
                 //alert(ui.draggable.data("value"));
                 //drop(event, $(this));
+                move_post();
             },
 
         });
@@ -96,7 +89,6 @@ function bind_drag_and_drop() {
             cursor:'grabbing'
 
         });
-        //post.draggable( "disable" );
     });
 
 

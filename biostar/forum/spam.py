@@ -15,9 +15,7 @@ def build_spam_index():
     return
 
 
-def similar_spam(post):
-
-
+def calc_score(post):
 
     return
 
@@ -29,26 +27,6 @@ def quarantine(user, post):
     """
 
     # User's with high enough score automatically given green light.
-    if not user.profile.low_rep:
-        return
-
-    # Use has more than the required number of posts.
-    post_count = Post.objects.filter(author=user).count()
-    vote_count = Vote.objects.filter(author=user).count()
-    if (post_count + vote_count) >= ACTIVITY_THRESHOLD:
-        return
-
-    # Answer and comments get a green light for now.
-    if post.is_answer or post.is_comment:
-        return
-
-    # Check the spam index for similar posts.
-
-    # If post exceeds threshold, then make the
-    similar = similar_spam(post=post)
-
-    if len(similar) < 5:
-        return
 
     # Mark this post as "maybe" being spam
     Post.objects.filter(id=post.id).update(spam=Post.MAYBE_SPAM)
