@@ -59,8 +59,8 @@ def finalize_job(job, data):
         if not valid:
             raise FileNotFoundError(f"File: {fname} does not exist.")
 
-        # Add the filename and project to
-        create_using.update({"fname": fullpath, "project": project})
+        # Add the full path and project to data dict.
+        create_using.update({"file": fullpath, "project": project})
 
         auth.get_or_create(**create_using)
 
