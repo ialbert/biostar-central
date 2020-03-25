@@ -1,7 +1,6 @@
 
 from biostar.forum.models import Post, Vote
 from biostar.forum import search
-from biostar.forum.markdown import LINK_PATTERNS
 
 ACTIVITY_THRESHOLD = 2
 

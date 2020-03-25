@@ -74,7 +74,7 @@
                             {% post_tags tags_str=result.tags spaced=False %}
                         </div>
                         <div class="right floated muted">
-                                {% if result.author_uid != result.lastedit_user_id %}
+{% comment %}                                {% if result.author_uid != result.lastedit_user_id %}
                                     <span class="menu-tablet_small">
                                         {{ post.creation_date|time_ago }}
                                             <a href="{% url "user_profile"  post.author_uid %}">
@@ -98,7 +98,7 @@
                                         </a>
                                         {% user_icon user='' is_moderator=post.lastedit_user_is_moderator score=post.lastedit_user_score %}
                                     </span>
-                                {% endif %}
+                                {% endif %}{% endcomment %}
                         </div>
                     </div>
 
