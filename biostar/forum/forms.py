@@ -167,11 +167,12 @@ def mod_choices(post):
         (MOVE_ANSWER, "Move comment to answer."),
         (OPEN_POST, "Open post"),
         (DELETE, "Delete post."),
-        (REPORT_SPAM, "Mark as spam.")
+        (REPORT_SPAM, "Mark as spam."),
+        (CLOSE, "Close post")
     ]
 
     # Moderation options for common to all posts
-    allowed = [REPORT_SPAM]
+    allowed = [REPORT_SPAM, CLOSE]
 
     # Options for top level posts.
     if post.is_toplevel:

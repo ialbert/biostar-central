@@ -98,9 +98,6 @@ GIST_HTML = '<script src="https://gist.github.com/%s.js"></script>'
 TWITTER_PATTERN = rec(r"http(s)?://(www)?.?twitter.com/\w+/status(es)?/(?P<uid>([\d]+))")
 
 
-LINK_PATTERNS = [TWITTER_PATTERN, YOUTUBE_PATTERN1, YOUTUBE_PATTERN2, YOUTUBE_PATTERN3, GIST_PATTERN,
-            FTP_PATTERN, POST_TOPLEVEL, POST_ANCHOR, USER_PATTERN]
-
 def get_tweet(tweet_id):
     """
     Get the HTML code with the embedded tweet.
