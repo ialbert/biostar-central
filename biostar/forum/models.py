@@ -198,13 +198,10 @@ class Post(models.Model):
     def title_prefix(self):
 
         prefix = ""
-        if not self.is_open:
-            prefix = f"{self.get_status_display()}:"
-        elif self.is_spam:
+        if self.is_spam:
             prefix = "Spam:"
-        elif not self.is_question:
-            prefix = f"{self.get_type_display()}:"
-
+        elif not (self.is_open or self.is_question):
+            prefix = f"{self.get_status_display()}:"
         return prefix
 
     @property

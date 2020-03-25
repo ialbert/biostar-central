@@ -1,5 +1,8 @@
 
-function move_post(parent, target) {
+function move_post(parent_elem, source_elem) {
+
+    var parent = parent_elem.data("value");
+    var source = source_elem.data("value");
 
     $.ajax('/drag/and/drop/',
         {
@@ -8,19 +11,21 @@ function move_post(parent, target) {
             ContentType: 'application/json',
             data: {
                 'uid': source,
-                'parent': '',
+                'parent': parent,
             },
             success: function (data) {
+
                 if (data.status === 'error') {
-                    popup_message(parent, data.msg, data.status, 2000);
+                    popup_message(parent_elem, data.msg, data.status, 2000);
                 } else {
-                    target.transition('zoom');
+                    //alert(data.status);
+                    source_elem.transition('zoom');
                     window.location.reload();
-                    popup_message(parent, "Moved Post", 'success', 2000);
+                    popup_message(parent_elem, "Moved Post", 'success', 2000);
                 }
             },
             error: function (xhr, status, text) {
-                error_message(parent, xhr, status, text);
+                error_message(parent_elem, xhr, status, text);
             }
         });
 
@@ -60,15 +65,23 @@ function autocomplete_users(users_list) {
 }
 
 function drag_and_drop() {
-    //var dragging = '';
-    $(".post > .body > .content > .droppable").droppable(
+
+    $(".droppable").droppable(
         {
             accept: ".post",
             drop: function (event, ui) {
-                //alert($(this).closest(".post").data("value"));
-                //alert(ui.draggable.data("value"));
-                //drop(event, $(this));
-                move_post();
+
+                // Source post being dragged.
+                var source = ui.draggable;
+
+                // Parent post to drop into.
+                var parent = $(this).closest(".post");
+                if (!parent.length){
+                    parent = $(this)
+                }
+
+                // Move target post to parent.
+                move_post(parent, source);
             },
 
         });
@@ -76,6 +89,7 @@ function drag_and_drop() {
     $('.draggable').mousedown(function () {
         $(this).css('cursor', 'grabbing');
         var post = $(this).closest('.post');
+
         post.draggable(
         {
             addClasses: false,

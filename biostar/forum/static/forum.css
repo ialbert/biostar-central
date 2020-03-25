@@ -322,11 +322,27 @@ i.icon {
     display: inline;
 }
 
+
+.answer{
+    padding-top: 10px;
+
+}
+
+.answer .guide{
+    padding: 5px;
+    font-size: small
+}
+
+.answer .captcha,button {
+    padding-top: 5px;
+}
+
 .voting {
-/ / padding: 0 em 0.5 em 0 em 0.5 em;
+    padding-right: 0.5em;
     text-align: center;
     flex-direction: column;
     overflow: hidden;
+    width: min-content;
 }
 
 .voting > .value {

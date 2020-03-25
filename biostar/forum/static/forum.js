@@ -1,12 +1,15 @@
 function captcha() {
 
-    var key = $("#recaptcha_key").val() || '';
-    var captchaWidgetId = grecaptcha.render('captcha', {
-        'sitekey': key,
-        'theme': 'light'
-    });
+    var key = $("#recaptcha_key").val();
 
-    return grecaptcha.getResponse(captchaWidgetId);
+    if (key) {
+        var captchaWidgetId = grecaptcha.render('captcha', {
+            'sitekey': key,
+            'theme': 'light'
+        });
+        return grecaptcha.getResponse(captchaWidgetId);
+
+    }
 }
 
 
@@ -102,13 +105,8 @@ function highlight(text) {
         }
     });
 
-    var res = con.render(text);
-    return res
+    return con.render(text);
     //preview.html(res);
-    //res.find('pre').addClass('language-bash');
-    //res.find('code').addClass('language-bash');
-
-    //Prism.highlightAll()
 }
 
 
@@ -232,29 +230,33 @@ function activate_prism(elem) {
 
 function tags_dropdown() {
 
-    $('.tag-field').dropdown({
+    $('.tags').dropdown({
         allowAdditions: true,
         // Get form field to add to
         onChange: function (value, text, $selectedItem) {
             // Get form field to add to
-            var tagid = $(this).children('select').attr('field_id');
+            var tagid = $(this).attr('field_id');
+
             var tag_field = $('#{0}'.f(tagid));
             // Add selected tag to field
             tag_field.val(value);
-
         }
     });
 
-    $('.tag-field > input.search').keydown(function (event) {
+    $('.tags > input.search').keyup(function (event) {
         // Prevent submitting form when adding tag by pressing ENTER.
+
         if (event.keyCode === 13) {
             event.preventDefault();
         }
+
         // Set value with SPACE bar
         if (event.keyCode === 32) {
             event.preventDefault();
-
-            $(this).closest('select').dropdown('set selected', $(this).val().trim());
+            //alert( $(this).val().trim());
+            var value = $(this).val().trim();
+            //alert($(this).closest('.tags').html());
+            $(this).closest('.tags').dropdown('set selected', value);
             $(this).val('');
         }
 
@@ -281,16 +283,23 @@ $(document).ready(function () {
         var highlighted = highlight(text);
         var form = $(this).closest('form');
         form.find('.preview').html(highlighted);
+        form.find('pre').addClass('language-bash');
+        form.find('code').addClass('language-bash');
+        Prism.highlightAll()
     });
 
 
     $(this).on('click', '#wmd-button-bar', function (event) {
+
         setTimeout(function () {
             var form = $(this).closest('form');
             var text = form.find('.textarea').val();
             var highlighted = highlight(text);
             //var form = $(this).closest('form');
             form.find('.preview').html(highlighted);
+            form.find('pre').addClass('language-bash');
+            form.find('code').addClass('language-bash');
+            Prism.highlightAll()
         }, 10);
 
     });
@@ -311,7 +320,7 @@ $(document).ready(function () {
         var uid = profile.data("value");
         var container = profile.find("#mod");
         var url = '/accounts/moderate/{0}/'.format(uid);
-        moderate(uid, container,url)
+        moderate(uid, container, url)
 
     });
     $(".post .moderate").click(function (event) {

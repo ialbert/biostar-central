@@ -6,17 +6,13 @@
 
 {% endif %}
 
-<select multiple="multiple" field_id="{{ form_field.id_for_label }}" class="ui search selection dropdown tag-field" id="tag-menu">
+<select multiple="multiple" field_id="{{ form_field.id_for_label }}" class="ui search selection dropdown tags">
 
     <option value="">Search tags</option>
 
     {% for value, is_selected in dropdown_options %}
 
-        <option value="{{ value }}"
-            {% if is_selected %}
-                   selected="selected"
-            {% endif %}>
-
+        <option value="{{ value }}" {% if is_selected %}selected="selected"{% endif %}>
             {{ value }}
         </option>
 

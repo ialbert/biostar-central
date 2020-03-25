@@ -319,9 +319,11 @@ def preform_search(query, fields=None, top=0, more_like_this=False):
     if more_like_this:
         fields = ['uid']
         results = preform_whoosh_search(query=query, fields=fields)
-        results = results[0].more_like_this("content", top=top)
-        # Filter results for toplevel posts.
-        results = list(filter(lambda p: p['is_toplevel'] is True, results))
+
+        if len(results):
+            results = results[0].more_like_this("content", top=top)
+            # Filter results for toplevel posts.
+            results = list(filter(lambda p: p['is_toplevel'] is True, results))
     else:
         fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
         results = preform_whoosh_search(query=query, fields=fields)

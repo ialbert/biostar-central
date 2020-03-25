@@ -59,28 +59,43 @@
     <script>
 
         $(document).ready(function () {
-            bind_drag_and_drop();
+            drag_and_drop();
+            $('.ui.dropdown').dropdown();
             var users = "{{ users_str }}".split(',');
             autocomplete_users(users);
 
-            $(this).on('click', ".add-comment", function () {
-                //event.preventDefault();
-                inplace_form($(this), true);
+            $(this).on('click', '#inplace .save', function () {
+                event.preventDefault();
+                var post = $(this).closest('.post');
+                edit_post(post);
             });
-            $('.ui.dropdown').dropdown();
 
-            $(this).on('click', '.editable', function (event) {
-                if (event.metaKey || event.ctrlKey) {
-                    inplace_form($(this))
-                }
-            }).dblclick(function (event) {
-                inplace_form($(this))
+            $(this).on('click', '#inplace .create', function () {
+                event.preventDefault();
+                create_comment();
             });
 
             $(this).on('click', '.edit-button', function (event) {
                 event.preventDefault();
                 inplace_form($(this));
             });
+
+            $(this).on('click', ".add-comment", function () {
+                inplace_form($(this), true);
+            });
+
+            $(this).on('click', '.editable', function (event) {
+                // Insert inplace form with CMD + click
+                if (event.metaKey || event.ctrlKey) {
+                    inplace_form($(this))
+                }
+            });
+
+            $(this).on('dblclick', '.editable', function (event) {
+                // Insert inplace form with double click.
+                inplace_form($(this))
+            });
+
 
         })
 

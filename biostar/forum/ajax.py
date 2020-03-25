@@ -117,6 +117,45 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
+def validate_drop(request):
+    """
+    Vaildates drag and drop and makes
+    """
+    parent_uid = request.POST.get("parent", '')
+    uid = request.POST.get("uid", '')
+    user = request.user
+    parent = Post.objects.filter(uid=parent_uid).first()
+    post = Post.objects.filter(uid=uid).first()
+
+    if not post:
+        msg = "Post does not exist."
+        return False, msg
+
+    if parent_uid == "NEW":
+        return True, "Valid drop."
+
+    if not parent:
+        msg = "Parent needs to be provided."
+        return False, msg
+
+    if not (user.profile.is_moderator or post.author == user):
+        msg = "Only moderators or the author can move posts."
+        return False, msg
+
+    children = set()
+    auth.walk_down_thread(parent=post, collect=children)
+
+    if parent == post or (parent in children) or parent.root != post.root:
+        msg = "Can not move post here."
+        return False, msg
+
+    if post.is_toplevel:
+        msg = "Top level posts can not be moved."
+        return False, msg
+
+    return True, "Valid drop"
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -128,32 +167,19 @@ def drag_and_drop(request):
 
     parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
-    user = request.user
+
     parent = Post.objects.filter(uid=parent_uid).first()
     post = Post.objects.filter(uid=uid).first()
     post_type = Post.COMMENT
 
-    if not post:
-        return ajax_error(msg="Post does not exist.")
+    valid, msg = validate_drop(request)
+    if not valid:
+        return ajax_error(msg=msg)
 
+    # Dropping comment as a new answer
     if parent_uid == "NEW":
         parent = post.root
         post_type = Post.ANSWER
-
-    if not uid or not parent:
-        return ajax_error(msg="Parent and Uid need to be provided. ")
-
-    if not (user.profile.is_moderator or post.author == user):
-        return ajax_error(msg="Only moderators or the author can move posts.")
-
-    collect = set()
-    auth.walk_down_thread(parent=post, collect=collect)
-
-    if parent == post or (parent in collect) or parent.root != post.root:
-        return ajax_error(msg="Can not move post here.")
-
-    if post.is_toplevel:
-        return ajax_error(msg="Top level posts can not be moved.")
 
     Post.objects.filter(uid=post.uid).update(type=post_type, parent=parent)
 
@@ -394,10 +420,15 @@ def ajax_edit(request, uid):
     tmpl = loader.get_template('widgets/post_tags.html')
     tag_html = tmpl.render(context)
 
+    # Get the newly updated user line
+    context = dict(post=post, avatar=post.is_comment)
+    tmpl = loader.get_template('widgets/post_user_line.html')
+    user_line = tmpl.render(context)
+
     # Prepare the new title to render
     new_title = f'{post.get_type_display()}: {post.title}'
 
-    return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
+    return ajax_success(msg='success', html=post.html, title=new_title, user_line=user_line, tag_html=tag_html)
 
 
 @ratelimit(key='ip', rate='50/h')
@@ -493,8 +524,4 @@ def similar_posts(request, uid):
     results_html = tmpl.render(context)
 
     return ajax_success(html=results_html, msg="success")
-
-
-def ajax_moderate(request):
-    return
 

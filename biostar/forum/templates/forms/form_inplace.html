@@ -77,8 +77,10 @@
 
 
 <script>
+$(document).ready(function () {
+
     $('.ui.dropdown').dropdown();
-    bind_drag_and_drop();
+    drag_and_drop();
     // initialize pagedown
     init_pagedown();
     // initialize autocomplete
@@ -86,5 +88,16 @@
     autocomplete_users(users);
     // initialize tags dropdown.
     tags_dropdown();
+
+    $(this).on('click', '#inplace .cancel', function () {
+        cancel_inplace()
+    });
+     $(this).on('keyup', 'body', function (event) {
+         if(event.keyCode === 27) {
+             cancel_inplace()
+         }
+     });
+
+})
 </script>
 

@@ -166,15 +166,15 @@ function update_post(post, data) {
     var post_content = post.find('.editable');
     var post_title = post.find('.title');
     var post_tags = post.find('.tags');
-
+    var post_users = post.find('.user-info');
 
     // Replace current post info with edited data
     post_content.html(data.html).show().focus();
     // Highlight text in content
-    activate_prism(post_content);
 
     post_title.html(data.title).show();
     post_tags.html(data.tag_html).show();
+    post_users.html(data.user_line).show();
 
     cancel_inplace(post);
 }
@@ -187,18 +187,19 @@ function edit_post(post) {
     var edit_url = '/ajax/edit/{0}/'.format(uid);
 
     // Get the element being
-    var form = $('#new-edit');
+    var form = $('#new-content');
 
     // Form elements to submit.
     var title = form.find('#title');
     var content = form.find('#wmd-input');
-    var type = form.find('#type').dropdown('get value');
-    var tags = form.find('#tag-menu').dropdown('get value');
+    var type = form.find('#type').dropdown('get value');//.val();
+    var tags = form.find('.tags').dropdown('get value');//.val();
 
     title = title.val() || '';
     if (!($.isNumeric(type))) {
         type = -1
     }
+    content = content.val();
 
     var cap_response = captcha();
 
@@ -209,7 +210,7 @@ function edit_post(post) {
             ContentType: 'application/json',
             traditional: true,
             data: {
-                'content': content.val(),
+                'content': content,
                 'title': title,
                 'type': type,
                 'tag_val': tags,
@@ -217,7 +218,8 @@ function edit_post(post) {
             },
             success: function (data) {
                 if (data.status === 'error') {
-                    popup_message(form, data.msg, data.status, 3000);
+
+                    popup_message(post, data.msg, data.status, 3000);
                 } else {
                     // Update post with latest
                     update_post(post, data);
@@ -236,63 +238,12 @@ $(document).on(function () {
 
     $('.ui.dropdown').dropdown();
 
-    $(this).on('click', '.editable', function (event) {
-        if (event.metaKey || event.ctrlKey) {
-            inplace_form($(this))
-        }
-    }).dblclick(function (event) {
-        inplace_form($(this))
-    });
-
-    $(this).on('click', '.edit-button', function (event) {
-        event.preventDefault();
-        inplace_form($(this));
-    });
-
-    $(this).on('click', '.post .modal .exit.button', function () {
-        var modal = $(this).closest('.modal');
-        var post = $(this).closest('.post');
-        modal.modal('hide');
-        cancel_inplace(post);
-    });
-
-    $(this).on('click', '.post .modal .stay.button', function () {
-        var modal = $(this).closest('.modal');
-        modal.modal('hide');
-    });
-
     $(this).on('click', '#inplace .cancel', function () {
         var post = $(this).closest('.post');
         cancel_inplace(post);
     });
 
-    $(this).on('click', '#inplace .save', function () {
-        event.preventDefault();
-        var post = $(this).closest('.post');
-        edit_post(post);
-    });
-    $(this).on('click', '#inplace .create', function () {
-        event.preventDefault();
-        create_comment();
-    });
-
-    $(".add-comment").click(function (event) {
-        event.preventDefault();
-        inplace_form($(this), true);
-
-    });
-
-    $(this).keyup(function (event) {
-        if (event.keyCode === 27) {
-            $('#inplace').each(function () {
-                event.preventDefault();
-                var post = $(this).closest('.post');
-                cancel_inplace(post);
-            });
-        }
-    });
-
-    $('#wmd-input').keyup(function (event) {
+    $('#inplace #wmd-input').keyup(function (event) {
 
         // Submit form with CTRL-ENTER
         if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
