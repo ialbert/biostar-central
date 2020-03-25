@@ -52,7 +52,7 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
-    choices = [opt for opt in Post.TOP_LEVEL]
+    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
 
     # mapper = {
     #           Post.QUESTION: "Ask a question", Post.TUTORIAL: "Share a Tutorial",
@@ -60,7 +60,7 @@ class PostLongForm(forms.Form):
     #           Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
     #           }
     if settings.ALLOWED_POST_TYPES:
-        choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES), choices)
+        choices = [opt for opt in choices if opt[1] in settings.ALLOWED_POST_TYPES]
 
     # if settings.REMAP_TYPE_DISPLAY:
     #     type_choices = []
