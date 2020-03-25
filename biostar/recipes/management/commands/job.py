@@ -21,57 +21,48 @@ logger.setLevel(logging.DEBUG)
 CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def create_data(job, data):
+def finalize_job(job, data):
     """
     Insert file from data dict into database.
 
-    [[settings.files]]
-    file = foo
+    [[settings.create]]
+    # Only source is required.
+    source = runlog
+    uid =
+    name
+    text =
+    type =
 
     [[settings.files]]
     file = bar
 
      # List of files
-    {'settings': {'files': [ {'file':'foo'}, {'file':'bar'} ]  }
+    {'settings': {'create': [ {'source':'foo', }, {'source':'bar'} ]  }
 
-    """
-    fname = data.get("file", '')
-    fname = fname.strip()
-    root = job.path
-    project = job.project
-    fullpath = os.path.abspath(os.path.join(root, fname))
-    uid = data.get("uid")
-    name = data.get("name")
-    text = data.get("text")
-
-    # Ensure the file path is valid.
-    valid = len(fname) and os.path.exists(fullpath) and fullpath.startswith(root)
-
-    if valid:
-        data = auth.get_or_create(fname=fullpath, uid=uid, name=name,
-                                  project=project, text=text)
-        return data
-
-    logger.error(f"File does not exist inside of root. file={fullpath}; root={root}")
-    return data
-
-
-def finalize_job(job, data):
-    """
-    Performs various finalization processes on the data
     """
 
     # Get files intended for insertion.
-    files = data.get("settings", {}).get("files", [])
-    if not files:
-        return
+    create = data.get("settings", {}).get("create", [])
+    root = job.path
+    project = job.project
 
-    insert = lambda file: create_data(data=file, job=job)
+    for create_using in create:
 
-    # Insert a list of files as data
-    if isinstance(files, list):
-        new = list(map(insert, files))
-        return new
+        # Create full path using the file.
+        fname = create_using.get("file", '')
+        fname = fname.strip()
+        fullpath = os.path.abspath(os.path.join(root, fname))
+
+        # Ensure the file path is valid.
+        valid = len(fname) and os.path.exists(fullpath) and fullpath.startswith(root)
+
+        if not valid:
+            raise FileNotFoundError(f"File: {fname} does not exist.")
+
+        # Add the full path and project to data dict.
+        create_using.update({"file": fullpath, "project": project})
+
+        auth.get_or_create(**create_using)
 
 
 def create_logs(job):
@@ -227,7 +218,7 @@ def run(job, options={}):
         proc.check_returncode()
 
         # Perform tasks at job finalization
-        #finalize_job(data=json_data, job=job)
+        finalize_job(data=json_data, job=job)
 
         # If we made it this far the job has finished.
         logger.info(f"uid={job.uid}, name={job.name}")

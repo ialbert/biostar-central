@@ -25,27 +25,23 @@ logger = logging.getLogger("engine")
 
 class PostManager(models.Manager):
 
-    def valid_posts(self, user=None):
+    def valid_posts(self, u=None, **kwargs):
         """
         Returns posts that are not closed or marked as spam.
         """
-        query = super().get_queryset()
+        query = super().get_queryset().filter(**kwargs)
+        query = query.exclude(Q(root=None) | Q(parent=None))
 
         # Moderators get to see all posts by default.
-        if user and user.is_authenticated and user.profile.is_moderator:
+        if u and u.is_authenticated and u.profile.is_moderator:
             return query
 
         # Filter for open posts that are not spam.
-        query = query.filter(
-
-            models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT),
-            models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT),
-
-            status=Post.OPEN,
-            root__status=Post.OPEN)
+        query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
+        query = query.exclude(models.Q(spam=Post.SPAM) | models.Q(root=None) |
+                              models.Q(root__spam=Post.SPAM))
 
         return query
-
 
 class AwardManager(models.Manager):
 
@@ -67,8 +63,9 @@ class Post(models.Model):
     "Represents a post in a forum"
 
     # Post statuses.
-    PENDING, OPEN, OFFTOPIC, DELETED = range(4)
-    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (DELETED, "Deleted")]
+    PENDING, OPEN, OFFTOPIC, CLOSED, DELETED = range(5)
+    STATUS_CHOICES = [(PENDING, "Pending"), (OPEN, "Open"), (OFFTOPIC, "Off topic"), (CLOSED, "Closed"),
+                      (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
     QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
@@ -83,12 +80,13 @@ class Post(models.Model):
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
     # Possile spam states.
-    SPAM, NOT_SPAM, DEFAULT = range(3)
-    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (DEFAULT, "Default")]
+    SPAM, NOT_SPAM, MAYBE_SPAM, DEFAULT = range(4)
+    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (MAYBE_SPAM, "Quarantined"), (DEFAULT, "Default")]
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
-    VISIBILITY_CHOICES = []
+    # Spam score stores relative likely hood this post is spam.
+    spam_score = models.FloatField(default=0)
 
     # Post status: open, closed, deleted.
     status = models.IntegerField(choices=STATUS_CHOICES, default=OPEN, db_index=True)
@@ -197,9 +195,22 @@ class Post(models.Model):
             return self.thread_votecount
         return self.vote_count
 
+    def title_prefix(self):
+
+        prefix = ""
+        if self.is_spam:
+            prefix = "Spam:"
+        elif not (self.is_open or self.is_question):
+            prefix = f"{self.get_status_display()}:"
+        return prefix
+
     @property
     def is_open(self):
         return self.status == Post.OPEN and not self.is_spam
+
+    @property
+    def calc_score(self):
+        return
 
     @property
     def is_question(self):
@@ -212,6 +223,12 @@ class Post(models.Model):
     @property
     def has_accepted(self):
         return bool(self.accept_count)
+
+    def num_lines(self, offset=0):
+        """
+        Return number of lines in post content
+        """
+        return len(self.content.split("\n")) + offset
 
     @property
     def is_spam(self):

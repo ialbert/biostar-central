@@ -43,7 +43,7 @@ class AjaxTest(TestCase):
         self.project2 = auth.create_project(user=self.trusted_owner, name="tested", text="Text", summary="summary",
                                             uid="tested")
 
-        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="",
+        self.recipe = auth.create_analysis(project=self.project, json_text="", template="",
                                            security=models.Analysis.AUTHORIZED)
 
         self.snippet_type = models.SnippetType.objects.create(name='Snippet type', owner=self.owner)

@@ -10,6 +10,10 @@ DJANGO_SETTINGS_MODULE := biostar.server.settings
 # Default app.
 DJANGO_APP :=
 
+
+# Run tasks using multiple threads. true/false
+MULTI_THREAD := true
+
 # Database name
 DATABASE_NAME := database.db
 
@@ -101,6 +105,7 @@ init:
 
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	$(eval MULTI_THREAD := false)
 	python manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(DUMP_FILE)
 
 delete:
@@ -123,8 +128,8 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-
-	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.test_settings -v 2 --failfast
+	$(eval MULTI_THREAD := false)
+	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.settings -v 2 --failfast
 	coverage html --skip-covered
 
 	# Remove files associated with tests
@@ -156,7 +161,7 @@ hard_reset: delete
 dump:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	python manage.py dumpdata --settings ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(DUMP_FILE)
+	python manage.py dumpdata ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(DUMP_FILE)
 	@cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
 	@ls -1 export/database/*.json
 
