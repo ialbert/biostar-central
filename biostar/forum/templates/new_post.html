@@ -6,14 +6,24 @@
     New Post
 {% endblock %}
 
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+{% block css %}
+    <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+    <script src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+    <script src="{% static 'markdown-it.js' %}"></script>
+    <script src="{% static 'autocomplete/at.who.js' %}"></script>
+    <script src="{% static 'autocomplete/caret.js' %}"></script>
+    <script src="{% static 'effects.js' %}{% randparam %}"></script>
+    <script src="{% static 'inplace.js' %}{% randparam %}"></script>
+{% endblock %}
 
 {% block container %}
-    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
-
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
-
     <div class="ui bottom attached create-post segment">
         {% show_messages messages %}
         {% block content %}
@@ -59,7 +69,7 @@
 
                     <div class="ui form-wrap segment">
                         <div class="required input field">
-                            {% include 'widgets/posting_msg.html' %}
+                            {% include 'widgets/post_message.html' %}
 
                             <div id="wmd-button-bar"></div>
                             <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete"
@@ -68,12 +78,7 @@
                         </div>
                     </div>
 
-                    <div class="ui preview segment">
-                        <div class="field">
-                            <label>Preview</label>
-                            <div id="preview" class="wmd-preview"></div>
-                        </div>
-                    </div>
+                    <div class="ui preview segment"></div>
 
                     {% if form.captcha %}
                         <div class="top-padding">
@@ -100,10 +105,7 @@
     </div>
 
     <script>
-
         var users = "{{ users_str }}".split(',');
         autocomplete_users(users);
-
     </script>
-
 {% endblock %}

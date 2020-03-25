@@ -91,7 +91,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
-    query = Post.objects.valid_posts(user=user).filter(is_toplevel=True)
+    query = Post.objects.valid_posts(u=user, is_toplevel=True)
 
     # Determines how to start the preform_search.
     if post_type:
@@ -136,18 +136,20 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 def post_search(request):
 
     query = request.GET.get('query', '')
+    length = len(query.replace(" ", ""))
     page = int(request.GET.get('page', 1))
 
-    if not query:
+    if length < settings.SEARCH_CHAR_MIN:
+        messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+    results = search.preform_whoosh_search(query=query, page=page)
 
-    if isinstance(results, list) or not len(results):
-        results = search.SearchResult()
+    #if not len(results):
+    #    results = search.SearchResult()
 
     total = results.total
-    template_name = "widgets/search_results.html"
+    template_name = "search/search_results.html"
 
     question_flag = Post.QUESTION
     context = dict(results=results, query=query, total=total, template_name=template_name,
@@ -471,9 +473,8 @@ def post_moderate(request, uid):
             dupe = form.cleaned_data.get('dupe', '').split("\n")
             dupe_comment = form.cleaned_data.get('comment')
             mod_uid = form.cleaned_data.get('pid')
-            offtopic = form.cleaned_data.get('offtopic')
             redir = auth.moderate_post(post=post, request=request, action=action, comment=dupe_comment,
-                                       dupes=dupe, pid=mod_uid, offtopic=offtopic)
+                                       dupes=dupe, pid=mod_uid)
             return redirect(redir)
         else:
             errors = ','.join([err for err in form.non_field_errors()])
@@ -483,5 +484,5 @@ def post_moderate(request, uid):
         form = forms.PostModForm(post=post, user=user, request=request)
 
     context = dict(form=form, post=post)
-    return render(request, "post_moderate.html", context)
+    return render(request, "forms/form_moderate.html", context)
 

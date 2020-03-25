@@ -11,7 +11,7 @@
 
     {% block search %}
 
-        {% search_bar %}
+    {% search_bar %}
 
     {% endblock %}
     <div class="ui horizontal basic top-menu segments">
@@ -21,18 +21,32 @@
     {% if not enable_pages %}
         <div class="ui blue filter message">
             Showing top <b>100</b> posts ordered by <code>{{ order }}</code> and limited to <code>{{ limit }}</code>
-            &bull; <a class="ui blue label" href="{% url 'post_list' %}">Show All <i class="undo small icon"></i></a>
+            &bull;
+            <a class="ui blue label" href="{% url 'post_list' %}">
+                Show All <i class="undo small icon"></i>
+            </a>
         </div>
     {% endif %}
 
     {% if tag %}
         <div class="ui blue filter message">
-            Showing : <code>{{ tag }}</code> &bull; <a href="{% url 'post_list' %}">reset <i
-                class="undo small icon"></i></a>
+            Showing : <code>{{ tag }}</code> &bull;
+            <a href="{% url 'post_list' %}">
+                reset <i class="undo small icon"></i>
+            </a>
         </div>
     {% endif %}
 
-    {% listing posts=posts %}
+
+        <div class="ui divided items">
+            {% for post in posts %}
+                {% post_details post=post user=request.user %}
+            {% empty %}
+                <div class="ui warn message">
+                    No posts found.
+                </div>
+            {% endfor %}
+        </div>
 
     {% if enable_pages %}
         <div class="ui page-bar segment">

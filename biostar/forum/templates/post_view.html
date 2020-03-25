@@ -5,13 +5,25 @@
 {% block headtitle %}
     {{ post.title }}
 {% endblock %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+{% block css %}
+    <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+    <script src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+    <script src="{% static 'markdown-it.js' %}"></script>
+    <script src="{% static 'autocomplete/at.who.js' %}"></script>
+    <script src="{% static 'autocomplete/caret.js' %}"></script>
+    <script src="{% static 'effects.js' %}{% randparam %}"></script>
+    <script src="{% static 'inplace.js' %}{% randparam %}"></script>
+{% endblock %}
 
 
 {% block body %}
-    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
 
     {# The toplevel post #}
     <div class="ui vertical segment">
@@ -25,14 +37,17 @@
         </div>
     {% endfor %}
 
+    {# Display the newanswer form #}
     {% if request.user.is_authenticated and post.is_open %}
         {# Render form used to submit answers  #}
-        {% include 'forms/answers_form.html' with form=form post=post %}
+        {% include 'forms/form_answers.html' %}
 
+        {# Answers not displayed for non open posts  #}
     {% elif not post.is_open %}
         <div class="ui warning message">
             This thread is not open. No new answers may be added
         </div>
+
     {% else %}
         <div class="ui info message">
             <p><a class="ui small label" href="{% url 'login' %}">
@@ -40,6 +55,51 @@
         </div>
 
     {% endif %}
+
+    <script>
+
+        $(document).ready(function () {
+            drag_and_drop();
+            $('.ui.dropdown').dropdown();
+            var users = "{{ users_str }}".split(',');
+            autocomplete_users(users);
+
+            $(this).on('click', '#inplace .save', function () {
+                event.preventDefault();
+                var post = $(this).closest('.post');
+                edit_post(post);
+            });
+
+            $(this).on('click', '#inplace .create', function () {
+                event.preventDefault();
+                create_comment();
+            });
+
+            $(this).on('click', '.edit-button', function (event) {
+                event.preventDefault();
+                inplace_form($(this));
+            });
+
+            $(this).on('click', ".add-comment", function () {
+                inplace_form($(this), true);
+            });
+
+            $(this).on('click', '.editable', function (event) {
+                // Insert inplace form with CMD + click
+                if (event.metaKey || event.ctrlKey) {
+                    inplace_form($(this))
+                }
+            });
+
+            $(this).on('dblclick', '.editable', function (event) {
+                // Insert inplace form with double click.
+                inplace_form($(this))
+            });
+
+
+        })
+
+    </script>
 
 {% endblock %}
 

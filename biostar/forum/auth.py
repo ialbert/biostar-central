@@ -64,7 +64,6 @@ def get_users_str():
     return users_str
 
 
-
 def gravatar(user, size=80):
     if not user or user.is_anonymous:
         email = 'anon@biostars.org'.encode('utf8')
@@ -326,7 +325,7 @@ def handle_spam_post(post, user):
     return url
 
 
-def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pid=None):
+def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     root = post.root
     user = request.user
     now = datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -348,6 +347,11 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         return delete_post(post=post, request=request)
 
     if action == MOVE_ANSWER:
+        Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
+        log_action(user=user, log_text=f"Moved post={post.uid} to answer. ")
+        return url
+
+    if action == CLOSE:
         Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
         log_action(user=user, log_text=f"Moved post={post.uid} to answer. ")
         return url

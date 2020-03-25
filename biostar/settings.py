@@ -13,8 +13,7 @@ def join(*args):
 
 
 # Run tasks in multi threaded mode when UWSGI is not installed.
-MULTI_THREAD = True
-
+MULTI_THREAD = os.getenv("MULTI_THREAD") == "true" or False
 
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
@@ -169,7 +168,7 @@ STATIC_ROOT = join(BASE_DIR, 'export', 'static')
 
 # Global directories for static files.
 STATICFILES_DIRS = [
-    #join(BASE_DIR, "biostar", "static"),
+    join(BASE_DIR, "biostar", "static"),
 ]
 
 

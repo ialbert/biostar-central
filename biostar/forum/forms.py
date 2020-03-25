@@ -52,27 +52,25 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
-    choices = [opt for opt in Post.TYPE_CHOICES]
+    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
 
-    mapper = {
-              Post.QUESTION: "Ask a question", Post.TUTORIAL:"Share a Tutorial",
-              Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
-              Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
-              }
+    # mapper = {
+    #           Post.QUESTION: "Ask a question", Post.TUTORIAL: "Share a Tutorial",
+    #           Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
+    #           Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
+    #           }
+    if settings.ALLOWED_POST_TYPES:
+        choices = [opt for opt in choices if opt[1] in settings.ALLOWED_POST_TYPES]
 
-    choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
-                                 (opt[0] in Post.TOP_LEVEL), choices)
-
-    # Get his
-    if settings.REMAP_TYPE_DISPLAY:
-        type_choices = []
-        for c in choices:
-            type_choices.append((c[0], mapper.get(c[0], c[1])))
-    else:
-        type_choices = choices
+    # if settings.REMAP_TYPE_DISPLAY:
+    #     type_choices = []
+    #     for c in choices:
+    #         type_choices.append((c[0], mapper.get(c[0], c[1])))
+    # else:
+    #     type_choices = choices
 
     post_type = forms.IntegerField(label="Post Type",
-                                   widget=forms.Select(choices=type_choices, attrs={'class': "ui dropdown"}),
+                                   widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type.")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
                             validators=[valid_title, english_only],
@@ -159,11 +157,6 @@ class PostShortForm(forms.Form):
             raise forms.ValidationError("You need to be logged in.")
         return cleaned_data
 
-class CommentForm(forms.Form):
-
-    post_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
-    content = forms.CharField( widget=forms.Textarea,min_length=2, max_length=5000)
-
 
 def mod_choices(post):
     """
@@ -177,19 +170,20 @@ def mod_choices(post):
         (REPORT_SPAM, "Mark as spam.")
     ]
 
-    # Moderation options for top level posts
-    allowed = [BUMP_POST, REPORT_SPAM] if post.is_toplevel else [REPORT_SPAM]
+    # Moderation options for common to all posts
+    allowed = [REPORT_SPAM]
+
+    # Options for top level posts.
+    if post.is_toplevel:
+        allowed += [BUMP_POST]
 
     # Option to open deleted posts
-    if post.status in [Post.DELETED, Post.OFFTOPIC] or post.is_spam:
+    if not post.is_open:
         allowed += [OPEN_POST]
 
-    # Option to deleted open posts
+    # Option to deleted posts
     if post.status != Post.DELETED:
         allowed += [DELETE]
-
-    if post.is_comment:
-        allowed += [MOVE_ANSWER]
 
     # Filter the appropriate choices
     choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
@@ -210,7 +204,6 @@ class PostModForm(forms.Form):
 
         if self.post.is_toplevel:
             self.fields['dupe'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea)
-            #self.fields['comment'] = forms.CharField(required=False, max_length=200, widget=forms.Textarea)
         else:
             self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
 
@@ -226,12 +219,11 @@ class PostModForm(forms.Form):
         action = self.cleaned_data.get("action")
         dupes = self.cleaned_data.get("dupe")
         pid = self.cleaned_data.get("pid")
-        offtopic = self.cleaned_data.get("comment")
 
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
-        if (action is None) and not (dupes or pid or offtopic):
+        if (action is None) and not (dupes or pid):
             raise forms.ValidationError("Select an action.")
 
         parent = Post.objects.filter(uid=pid).first()
