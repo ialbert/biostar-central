@@ -89,6 +89,7 @@ function highlight_search(target, content_elem, stop_list) {
 }
 
 function highlight(text) {
+
     var con = markdownit({
         // ESCAPES when html=true
         html: false,
@@ -282,6 +283,7 @@ $(document).ready(function () {
         var text = $(this).val();
         var highlighted = highlight(text);
         var form = $(this).closest('form');
+
         form.find('.preview').html(highlighted);
         form.find('pre').addClass('language-bash');
         form.find('code').addClass('language-bash');
@@ -292,27 +294,13 @@ $(document).ready(function () {
     $(this).on('click', '#wmd-button-bar', function (event) {
 
         var form = $(this).closest('form');
-        var text = form.find('.textarea').val();
+        var text = form.find('textarea').val();
         var highlighted = highlight(text);
-        alert(highlighted);
-        //var form = $(this).closest('form');
+
         form.find('.preview').html(highlighted);
         form.find('pre').addClass('language-bash');
         form.find('code').addClass('language-bash');
         Prism.highlightAll();
-
-/*        setTimeout(function () {
-            var form = $(this).closest('form');
-            var text = form.find('.textarea').val();
-            var highlighted = highlight(text);
-
-            //var form = $(this).closest('form');
-            form.find('.preview').html(highlighted);
-            form.find('pre').addClass('language-bash');
-            form.find('code').addClass('language-bash');
-            Prism.highlightAll()
-
-        }, 10);*/
 
     });
 
