@@ -291,16 +291,28 @@ $(document).ready(function () {
 
     $(this).on('click', '#wmd-button-bar', function (event) {
 
-        setTimeout(function () {
+        var form = $(this).closest('form');
+        var text = form.find('.textarea').val();
+        var highlighted = highlight(text);
+        alert(highlighted);
+        //var form = $(this).closest('form');
+        form.find('.preview').html(highlighted);
+        form.find('pre').addClass('language-bash');
+        form.find('code').addClass('language-bash');
+        Prism.highlightAll();
+
+/*        setTimeout(function () {
             var form = $(this).closest('form');
             var text = form.find('.textarea').val();
             var highlighted = highlight(text);
+
             //var form = $(this).closest('form');
             form.find('.preview').html(highlighted);
             form.find('pre').addClass('language-bash');
             form.find('code').addClass('language-bash');
             Prism.highlightAll()
-        }, 10);
+
+        }, 10);*/
 
     });
 
