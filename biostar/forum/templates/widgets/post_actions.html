@@ -16,7 +16,7 @@
     {% if post.can_moderate %}
         &bull; <a class="moderate" href="#">moderate</a>
     {% endif %}
-    {% if not post.is_toplevel %}
+    {% if not post.is_toplevel  and post.is_editable %}
         &bull;
         {# Draggable element #}
         <a class="draggable"><i class="hand lizard outline icon"></i></a>

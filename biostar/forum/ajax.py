@@ -513,7 +513,7 @@ def similar_posts(request, uid):
     if results is None:
         logger.info("Setting similar posts cache.")
 
-        results = search.preform_search(query=post.uid, more_like_this=True)
+        results = search.preform_search(query=post.uid, fields=['uid'], more_like_this=True)
         # Set the results cache for 1 hour
         cache.set(cache_key, results, 3600)
 

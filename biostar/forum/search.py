@@ -315,18 +315,15 @@ def preform_search(query, fields=None, top=0, more_like_this=False):
 
     if length < settings.SEARCH_CHAR_MIN:
         return []
+    fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
+    whoosh_results = preform_whoosh_search(query=query, fields=fields)
 
-    if more_like_this:
-        fields = ['uid']
-        results = preform_whoosh_search(query=query, fields=fields)
-
-        if len(results):
-            results = results[0].more_like_this("content", top=top)
+    if more_like_this and len(whoosh_results):
+            results = whoosh_results[0].more_like_this("content", top=top)
             # Filter results for toplevel posts.
             results = list(filter(lambda p: p['is_toplevel'] is True, results))
     else:
-        fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
-        results = preform_whoosh_search(query=query, fields=fields)
+        results = whoosh_results
 
     # Ensure returned results types stay consistent.
     final_results = list(map(normalize_result, results))
@@ -334,6 +331,6 @@ def preform_search(query, fields=None, top=0, more_like_this=False):
         return []
 
     # Ensure searcher object gets closed.
-    results.searcher.close()
+    whoosh_results.searcher.close()
 
     return final_results

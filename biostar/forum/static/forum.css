@@ -474,8 +474,8 @@ figure {
     box-shadow: rgba(0, 0, 0, .2) 2px 3px 3px;
 }
 
-.ui.divided.items > .post.item.deleted, .post.item.spam {
-    background-color: #ffd2cf;
+.post.deleted, .post.spam, .post.closed {
+    background-color: #ffd2cf !important;
     opacity: .6;
 }
 

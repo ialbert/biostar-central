@@ -413,7 +413,7 @@ def post_view(request, uid):
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
-
+    # user string
     users_str = auth.get_users_str()
 
     context = dict(post=root, tree=comment_tree, form=form, answers=answers, users_str=users_str)
