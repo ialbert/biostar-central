@@ -119,7 +119,12 @@ def create_subscription(post, user, sub_type=None, update=False):
 
     default = Subscription.TYPE_MAP.get(user.profile.message_prefs,
                                         Subscription.LOCAL_MESSAGE)
-    sub_type = sub_type or (sub.type if sub else None) or default
+
+    empty = sub_type is None
+    # Get the current sub type from what's given or the existing sub
+    sub_type = None if empty else sub_type #or (sub.type if sub else None)
+    # No type has been given so default
+    sub_type = sub_type or default
 
     # Ensure the sub type is not set to something wrote
     if sub and update:

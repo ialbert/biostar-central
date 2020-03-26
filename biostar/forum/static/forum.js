@@ -188,10 +188,10 @@ function similar_posts(elem) {
         })
 }
 
-function change_subs(elem, value, $item) {
+function change_subs(elem, value) {
     var post_id = elem.closest('.post').data("value");
     // Currently selected item
-    var active = $('#sub-active');
+    // var active = $('#sub-active');
     // Subscription url
     var subs_url = '/ajax/subscribe/';
 
@@ -209,7 +209,7 @@ function change_subs(elem, value, $item) {
                     popup_message(elem, data.msg, data.status);
                 } else {
                     // Replace current item with the select one.
-                    active.text($item.text());
+                    // active.text($item.text());
                 }
 
             },
@@ -303,15 +303,15 @@ $(document).ready(function () {
         Prism.highlightAll();
 
     });
+     $('#subscribe').dropdown();
+     $(this).on('click', '#subscribe .item', function (event) {
+         var elem = $(this).closest('#subscribe');
+         var value = $(this).data('value');
 
-    $('#subscribe')
-        .dropdown({
-            action: 'hide',
-            onChange: function (value, text, $item) {
-                var elem = $(this);
-                change_subs(elem, value, $item);
-            }
-        });
+         change_subs(elem, value);
+
+     });
+
 
 
     $(".profile .moderate").click(function (event) {
