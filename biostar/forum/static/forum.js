@@ -236,9 +236,8 @@ function tags_dropdown() {
         // Get form field to add to
         onChange: function (value, text, $selectedItem) {
             // Get form field to add to
-            var tagid = $(this).attr('field_id');
-
-            var tag_field = $('#{0}'.f(tagid));
+            var field = $(this).find("select").data("value");
+            var tag_field = $('#{0}'.f(field));
             // Add selected tag to field
             tag_field.val(value);
         }

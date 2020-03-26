@@ -19,6 +19,7 @@ class Command(BaseCommand):
         parser.add_argument('--remove', action='store_true', default=False, help="Removes the existing index.")
         parser.add_argument('--report', action='store_true', default=False, help="Reports on the content of the index.")
         parser.add_argument('--index', type=int, default=0, help="How many posts to index")
+        parser.add_argument('--build_spam_index', action='store_true', default=False, help="Build a seperate index just for spam.")
 
     def handle(self, *args, **options):
 

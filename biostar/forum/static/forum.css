@@ -776,7 +776,7 @@ img {
 .ui.stat.label {
     width: 48px;
     margin: -1.5px;
-    border-radius: 0;
+    border-radius: 5px;
 }
 
 .number-stat {

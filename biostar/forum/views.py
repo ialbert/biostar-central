@@ -143,7 +143,7 @@ def post_search(request):
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    results = search.preform_whoosh_search(query=query, page=page)
+    results = search.preform_whoosh_search(query=query, page=page, sortedby=["lastedit_date"])
 
     #if not len(results):
     #    results = search.SearchResult()
