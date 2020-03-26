@@ -42,6 +42,7 @@
             {# Edit the tags #}
             {% if post.is_toplevel %}
                 <div class="field">
+                {{ form.tag_val }}
                     {% tags_field form_field=form.tag_val initial=post.tag_val %}
                 </div>
             {% endif %}
