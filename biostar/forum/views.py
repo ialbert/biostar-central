@@ -143,7 +143,7 @@ def post_search(request):
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    results = search.preform_whoosh_search(query=query, page=page)
+    results = search.preform_whoosh_search(query=query, page=page, sortedby=["lastedit_date"])
 
     #if not len(results):
     #    results = search.SearchResult()
@@ -413,7 +413,7 @@ def post_view(request, uid):
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
-
+    # user string
     users_str = auth.get_users_str()
 
     context = dict(post=root, tree=comment_tree, form=form, answers=answers, users_str=users_str)

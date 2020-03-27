@@ -16,7 +16,7 @@
     {% if post.can_moderate %}
         &bull; <a class="moderate" href="#">moderate</a>
     {% endif %}
-    {% if not post.is_toplevel %}
+    {% if not post.is_toplevel  and post.is_editable %}
         &bull;
         {# Draggable element #}
         <a class="draggable"><i class="hand lizard outline icon"></i></a>
@@ -26,7 +26,7 @@
     {% if post.is_toplevel and user.is_authenticated %}
         &bull;
         <div class="ui bottom pointing dropdown" id="subscribe">
-            <div class="text" id="sub-active">{% follow_label post=post %}</div>
+            <div class="text">{% follow_label post=post %}</div>
             <i class="caret up icon"></i>
             <div class="menu">
                 <a class="item" data-value="messages"><i class="envelope icon"></i>follow via messages</a>

@@ -220,6 +220,7 @@ function edit_post(post) {
                 if (data.status === 'error') {
 
                     popup_message(post, data.msg, data.status, 3000);
+                    popup_message(form.find(".save,.create"), data.msg, data.status, 3000);
                 } else {
                     // Update post with latest
                     update_post(post, data);

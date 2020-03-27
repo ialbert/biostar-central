@@ -59,6 +59,7 @@
     <script>
 
         $(document).ready(function () {
+            $('#subscribe').dropdown();
             drag_and_drop();
             $('.ui.dropdown').dropdown();
             var users = "{{ users_str }}".split(',');

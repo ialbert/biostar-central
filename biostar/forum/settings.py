@@ -20,6 +20,12 @@ GRAVATAR_ICON = ''
 
 SPAM_THRESHOLD = 0.5
 
+# Spam index used to classify new posts as spam or ham.
+SPAM_INDEX_NAME = "spam"
+SPAM_INDEX_DIR = 'spammers'
+# Absolute path to spam index directory in export/
+SPAM_INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', SPAM_INDEX_DIR))
+
 ENABLE_DIGESTS = False
 
 # Log the time for each request
@@ -123,7 +129,7 @@ try:
     from conf.run.secrets import *
     #print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
-    #print(f"Secrets module not imported: {exc}")
+    print(f"Secrets module not imported: {exc}")
     pass
 
 # Enable debug toolbar specific functions

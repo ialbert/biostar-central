@@ -118,8 +118,7 @@ def finalize_post(sender, instance, created, **kwargs):
         #tasks.notify_watched_tags(post=instance)
 
         # Give it a spam score.
-
-        #spam.quarantine(user=instance.lastedit_user, post=instance)
+        #spam.quarantine(post=instance)
 
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)

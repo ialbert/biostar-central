@@ -89,6 +89,7 @@ function highlight_search(target, content_elem, stop_list) {
 }
 
 function highlight(text) {
+
     var con = markdownit({
         // ESCAPES when html=true
         html: false,
@@ -187,10 +188,10 @@ function similar_posts(elem) {
         })
 }
 
-function change_subs(elem, value, $item) {
+function change_subs(elem, value) {
     var post_id = elem.closest('.post').data("value");
     // Currently selected item
-    var active = $('#sub-active');
+    // var active = $('#sub-active');
     // Subscription url
     var subs_url = '/ajax/subscribe/';
 
@@ -208,7 +209,7 @@ function change_subs(elem, value, $item) {
                     popup_message(elem, data.msg, data.status);
                 } else {
                     // Replace current item with the select one.
-                    active.text($item.text());
+                    // active.text($item.text());
                 }
 
             },
@@ -235,9 +236,8 @@ function tags_dropdown() {
         // Get form field to add to
         onChange: function (value, text, $selectedItem) {
             // Get form field to add to
-            var tagid = $(this).attr('field_id');
-
-            var tag_field = $('#{0}'.f(tagid));
+            var field = $(this).find("select").data("value");
+            var tag_field = $('#{0}'.f(field));
             // Add selected tag to field
             tag_field.val(value);
         }
@@ -282,6 +282,7 @@ $(document).ready(function () {
         var text = $(this).val();
         var highlighted = highlight(text);
         var form = $(this).closest('form');
+
         form.find('.preview').html(highlighted);
         form.find('pre').addClass('language-bash');
         form.find('code').addClass('language-bash');
@@ -291,27 +292,25 @@ $(document).ready(function () {
 
     $(this).on('click', '#wmd-button-bar', function (event) {
 
-        setTimeout(function () {
-            var form = $(this).closest('form');
-            var text = form.find('.textarea').val();
-            var highlighted = highlight(text);
-            //var form = $(this).closest('form');
-            form.find('.preview').html(highlighted);
-            form.find('pre').addClass('language-bash');
-            form.find('code').addClass('language-bash');
-            Prism.highlightAll()
-        }, 10);
+        var form = $(this).closest('form');
+        var text = form.find('textarea').val();
+        var highlighted = highlight(text);
+
+        form.find('.preview').html(highlighted);
+        form.find('pre').addClass('language-bash');
+        form.find('code').addClass('language-bash');
+        Prism.highlightAll();
 
     });
+     $('#subscribe').dropdown();
+     $(this).on('click', '#subscribe .item', function (event) {
+         var elem = $(this).closest('#subscribe');
+         var value = $(this).data('value');
 
-    $('#subscribe')
-        .dropdown({
-            action: 'hide',
-            onChange: function (value, text, $item) {
-                var elem = $(this);
-                change_subs(elem, value, $item);
-            }
-        });
+         change_subs(elem, value);
+
+     });
+
 
 
     $(".profile .moderate").click(function (event) {

@@ -178,12 +178,11 @@ def mod_choices(post):
     if post.is_toplevel:
         allowed += [BUMP_POST]
 
-    # Option to open deleted posts
+    # Open deletes/closed posts.
     if not post.is_open:
         allowed += [OPEN_POST]
-
-    # Option to deleted posts
-    if post.status != Post.DELETED:
+    # Delete/close open posts
+    else:
         allowed += [DELETE]
 
     # Filter the appropriate choices

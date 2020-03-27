@@ -88,7 +88,7 @@ class Command(BaseCommand):
                 return
 
             logger.info(f"Searching for similar posts: {post.title}")
-            finish, results = time_func(preform_search, kwargs=dict(query=uid, more_like_this=True))
+            finish, results = time_func(preform_search, kwargs=dict(query=uid, fields=['uid'], more_like_this=True))
             logger.info(f"Post uid: {uid}.")
             print_results(results=results, limit=limit, verbosity=verbosity, query=uid, finish_time=finish)
 
