@@ -64,7 +64,6 @@ def get_users_str():
     return users_str
 
 
-
 def gravatar(user, size=80):
     if not user or user.is_anonymous:
         email = 'anon@biostars.org'.encode('utf8')
@@ -120,7 +119,12 @@ def create_subscription(post, user, sub_type=None, update=False):
 
     default = Subscription.TYPE_MAP.get(user.profile.message_prefs,
                                         Subscription.LOCAL_MESSAGE)
-    sub_type = sub_type or (sub.type if sub else None) or default
+
+    empty = sub_type is None
+    # Get the current sub type from what's given or the existing sub
+    sub_type = None if empty else sub_type
+    # No type has been given so default
+    sub_type = sub_type or default
 
     # Ensure the sub type is not set to something wrote
     if sub and update:
@@ -154,15 +158,15 @@ def post_tree(user, root):
     """
 
     # Get all posts that belong to post root.
-    query = Post.objects.filter(root=root).exclude(pk=root.id)
+    query = Post.objects.valid_posts(u=user, root=root).exclude(pk=root.id)
 
     query = query.select_related("lastedit_user__profile", "author__profile", "root__author__profile")
 
-    is_moderator = user.is_authenticated and user.profile.is_moderator
+    #is_moderator = user.is_authenticated and user.profile.is_moderator
 
     # Only moderators
-    if not is_moderator:
-        query = query.exclude(status=Post.DELETED)
+    #if not is_moderator:
+    #    query = query.filter(status=Post.OPEN)
         # query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
@@ -183,9 +187,16 @@ def post_tree(user, root):
             comment_tree.setdefault(post.parent_id, []).append(post)
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
-        post.can_accept = not post.is_toplevel and (user == post.root.author or (user.is_authenticated and user.profile.is_moderator))
-        post.can_moderate = user.is_authenticated and user.profile.is_moderator
-        post.is_editable = user.is_authenticated and (user == post.author or (user.is_authenticated and user.profile.is_moderator))
+
+        if user.is_authenticated:
+            post.can_accept = not post.is_toplevel and (user == post.root.author or user.profile.is_moderator)
+            post.can_moderate = user.profile.is_moderator
+            post.is_editable = (user == post.author or user.profile.is_moderator)
+        else:
+            post.can_accept = False
+            post.is_editable = False
+            post.can_moderate = False
+
         return post
 
     # Decorate the objects for easier access
@@ -326,7 +337,7 @@ def handle_spam_post(post, user):
     return url
 
 
-def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pid=None):
+def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
     root = post.root
     user = request.user
     now = datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -352,16 +363,13 @@ def moderate_post(request, action, post, offtopic='', comment=None, dupes=[], pi
         log_action(user=user, log_text=f"Moved post={post.uid} to answer. ")
         return url
 
+    if action == CLOSE:
+        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
+        log_action(user=user, log_text=f"Closed post={post.uid}. ")
+        return url
+
     if action == REPORT_SPAM:
         return handle_spam_post(post=post, user=user)
-
-    if pid:
-        parent = Post.objects.filter(uid=pid).first() or post.root
-        Post.objects.filter(uid=post.uid).update(type=Post.COMMENT, parent=parent)
-        Post.objects.filter(uid=root.uid).update(reply_count=F("answer_count") - 1)
-        messages.success(request, "Moved answer to comment")
-        log_action(user=user, log_text=f"Moved post={post.uid} to comment.")
-        return url
 
     if dupes and len(''.join(dupes)):
         # Load comment explaining post off topic label.

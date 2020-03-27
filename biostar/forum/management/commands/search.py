@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 
 from biostar.forum.models import Post
-from biostar.forum.search import preform_search, whoosh_more_like_this
+from biostar.forum.search import preform_search
 
 logger = logging.getLogger('engine')
 
@@ -88,8 +88,7 @@ class Command(BaseCommand):
                 return
 
             logger.info(f"Searching for similar posts: {post.title}")
-            print(uid)
-            finish, results = time_func(whoosh_more_like_this, kwargs=dict(uid=uid))
+            finish, results = time_func(preform_search, kwargs=dict(query=uid, fields=['uid'], more_like_this=True))
             logger.info(f"Post uid: {uid}.")
             print_results(results=results, limit=limit, verbosity=verbosity, query=uid, finish_time=finish)
 

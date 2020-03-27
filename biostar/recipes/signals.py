@@ -28,39 +28,25 @@ def update_access(sender, instance, created, raw, update_fields, **kwargs):
         entry = Access.objects.create(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
 
 
-def load_text(text):
-    """
-    Load text into a data dict.
-    """
-    try:
-        # Try and load text as toml
-        data = toml.loads(text)
-    except Exception:
-        # Try to load text as json
-        data = hjson.loads(text)
-
-    return data
-
-
 def strip_json(json_text):
     """
     Strip settings parameter in json_text to only contain execute options
     Deletes the 'settings' parameter if there are no execute options.
     """
     try:
-        local_dict = load_text(json_text)
+        local_dict = toml.loads(json_text)
     except Exception as exep:
-        logger.error(f'Error loading json text: {exep}')
-        return ""
+        logger.error(f'Error loading json text: {exep}, {json_text}')
+        return json_text
 
     # Fetch the execute options
     execute_options = local_dict.get('settings', {}).get('execute', {})
-    data_options = local_dict.get('settings', {}).get('files', {})
+    data_options = local_dict.get('settings', {}).get('create', {})
 
     # Check to see if it is present
     if execute_options or data_options:
         # Strip run settings of every thing but execute options
-        local_dict['settings'] = dict(execute=execute_options, data=data_options)
+        local_dict['settings'] = dict(execute=execute_options, create=data_options)
     else:
         # NOTE: Delete 'settings' from json text
         local_dict['settings'] = ''

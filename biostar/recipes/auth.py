@@ -712,11 +712,6 @@ def data_link(path, data):
 
     dest = create_path(fname=path, data=data)
 
-    if os.path.islink(dest):
-        # Update the link to this file
-        os.unlink(dest)
-        os.symlink(path, dest)
-
     if not os.path.exists(dest):
         os.symlink(path, dest)
 
@@ -892,10 +887,13 @@ def create_data(project, user=None, stream=None, path='', name='', text='', type
     return data
 
 
-def get_or_create(fname, project, user=None, uid=None, name="", text="", dtype=""):
+def get_or_create(**kwargs):
     """
     Get or create a data object associated with a file.
     """
+    fname = kwargs["file"]
+    project = kwargs['project']
+    uid = kwargs.get('uid')
 
     # Get the data if it exists.
     data = Data.objects.filter(uid=uid).first()
@@ -905,12 +903,12 @@ def get_or_create(fname, project, user=None, uid=None, name="", text="", dtype="
         logger.info("Updated data file, name, and text.")
     else:
         # Create new data.
-        data = create_data(project=project, path=fname, user=user, uid=uid)
+        data = create_data(project=project, path=fname, uid=uid, user=kwargs.get('user'))
 
     # Update the name, text, and type.
-    data.name = name or data.name
-    data.text = text or data.text
-    data.type = dtype.upper() or data.type or "DATA"
+    data.name = kwargs.get('name') or data.name
+    data.text = kwargs.get("text") or data.text
+    data.type = kwargs.get("type", '').upper() or data.type or "DATA"
 
     # Trigger save to update the toc file, last edit date, etc.
     data.save()

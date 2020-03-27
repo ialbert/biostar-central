@@ -17,7 +17,7 @@ REMAP_TYPE_DISPLAY = True
 ALLOWED_POST_TYPES = ["Question", "Job", "Tutorial", "News"]
 
 
-STATICFILES_DIRS = [os.path.join(CUSTOM_THEME, 'static')]
+STATICFILES_DIRS += [os.path.join(CUSTOM_THEME, 'static')]
 
 if DEBUG:
     TEMPLATE_LOADERS = (
