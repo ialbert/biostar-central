@@ -60,7 +60,6 @@ Finally, students can readily copy the recipe over to their projects, make chang
 
 When compared to Galaxy, the Recipes framework presents several fundamental differences in its operating principles:
 
-1. The framework was designed to capture entire data analysis pipelines. The Galaxy framework was designed to represent individual software tools.
 1. The code downloaded from the site can be run on any other computer (that has the software installed) and will produce the same output as seen via the web interface.
 1. A Galaxy analysis only runs inside the Galaxy software. Recipes are designed to be shared and expanded upon by various users.
 1. Users may create different interfaces for recipes copied from someone else. The end-user cannot change interfaces in Galaxy.
