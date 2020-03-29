@@ -1,10 +1,13 @@
+import logging
 from django.conf import settings
 from django.db.models import Q
 from whoosh.writing import AsyncWriter
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, NUMERIC
 from biostar.forum.models import Post
-from biostar.forum import search
+from biostar.forum import search, auth
+
+logger = logging.getLogger("engine")
 
 
 def add_to_spam(post, writer):
@@ -25,29 +28,30 @@ def spam_schema():
     return schema
 
 
+def report():
+    return
+
+
+def test():
+    return
+
+
 def build_spam_index(overwrite=False):
 
     # Get all un-indexed spam posts.
     spam = Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED), indexed=False)
-    schema = spam_schema()
 
     # Initialize the spam index
-    ix = search.init_index(dirname=settings.SPAM_INDEX_DIR, indexname=settings.SPAM_INDEX_NAME, schema=schema)
+    ix = search.init_index(dirname=settings.SPAM_INDEX_DIR,
+                           indexname=settings.SPAM_INDEX_NAME,
+                           schema=spam_schema())
 
     # Index spam posts.
     search.index_posts(posts=spam, ix=ix, overwrite=overwrite, add_func=add_to_spam)
 
+    spam.update(indexed=True)
+    logger.info("Built spam index.")
     return ix
-
-
-def spam_score(post):
-    """
-    Calculate the spam score for a post.
-    """
-
-    # Get the average score for all spam hits found for this post.
-
-    return
 
 
 def search_spam(post):
@@ -56,8 +60,10 @@ def search_spam(post):
     Returns
     """
 
-    # Build spam index or return already existing spam index.
-    ix = build_spam_index()
+    # Initialize the spam index
+    ix = search.init_index(dirname=settings.SPAM_INDEX_DIR,
+                           indexname=settings.SPAM_INDEX_NAME,
+                           schema=spam_schema())
 
     # Remove post from index once spam score is calculated.
     writer = AsyncWriter(ix)
@@ -86,17 +92,30 @@ def search_spam(post):
 
 def quarantine(post):
     """
-    User + post pass a series of tests and rules to determine
-    if they might be spam or not
     """
 
     # User's with high enough score automatically given green light.
+    #if not post.author.profile.low_rep:
+    #    return
 
-    print(search_spam(post=post))
+    # Search for spam similar to this post.
+    similar = search_spam(post=post)
 
-    # Mark this post as "maybe" being spam
-    #Post.objects.filter(id=post.id).update(spam=Post.MAYBE_SPAM)
+    # Gather the score and calculate the mean.
+    scores = [s.score for s in similar]
 
+    if scores:
+        mean = sum(scores) / len(scores)
+    else:
+        mean = 0
+
+    # Update the spam score.
+    Post.objects.filter(id=post.id).update(spam_score=mean)
+
+    # If the score exceeds threshold it gets quarantined.
+    if mean >= settings.SPAM_THRESHOLD:
+        Post.objects.filter(id=post.id).update(spam=Post.SUSPECT)
+        auth.log_action(log_text=f"Quarantined post={post.uid}; spam score={mean}")
 
 
 

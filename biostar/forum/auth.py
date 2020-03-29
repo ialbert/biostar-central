@@ -283,6 +283,7 @@ def apply_vote(post, user, vote_type):
 def log_action(user=None, action=Logger.MODERATING, log_text=''):
     # Create a logger object
     Logger.objects.create(user=user, action=action, log_text=log_text)
+    logger.info(log_text)
     return
 
 
@@ -332,7 +333,7 @@ def handle_spam_post(post, user):
     post.author.profile.save()
 
     # Label all posts by this users as spam.
-    Post.objects.filter(author=post.author).update(spam=Post.SPAM, status=Post.OFFTOPIC)
+    Post.objects.filter(author=post.author).update(spam=Post.SPAM, status=Post.CLOSED)
     log_action(user=user, log_text=f"Reported post={post.uid} as spam.")
     return url
 

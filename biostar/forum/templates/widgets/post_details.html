@@ -46,11 +46,17 @@
                     {% post_tags post spaced=False %}
                 {% endif %}
             </div>
+
             {% if post.author.profile.low_rep and user.profile.is_moderator %}
-                <div class="ui dropdown">
+                <div class="ui dropdown spam">
                     <i class="bug orange icon"></i>
                     <div class="menu">
-                        <div class="mark-spam item">Mark as Spam</div>
+                        <div class="mark item">Mark as Spam</div>
+
+                        {% if post.maybe_spam %}
+                            <div class="release item">Release from Quarantine</div>
+                        {% endif %}
+
                     </div>
                 </div>
             {% endif %}

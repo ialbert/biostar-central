@@ -111,9 +111,9 @@ function highlight(text) {
 }
 
 
-function mark_spam(post_id, elem) {
-
-    $.ajax('/ajax/report/spam/' + post_id + "/",
+function mark_spam(post) {
+    var uid = post.data("value");
+    $.ajax('/ajax/report/spam/' + uid + "/",
         {
             type: 'GET',
             dataType: 'json',
@@ -122,16 +122,42 @@ function mark_spam(post_id, elem) {
             success: function (data) {
 
                 if (data.status === 'error') {
-                    popup_message(elem.parent().parent(), data.msg, data.status);
+                    popup_message(post, data.msg, data.status);
 
                 } else {
-                    popup_message(elem.parent().parent(), data.msg, data.status);
-                    $('#' + post_id).removeClass('open').addClass('spam');
+                    popup_message(post, data.msg, data.status);
+                    post.removeClass('open').removeClass('quarantine').addClass('spam');
                 }
 
             },
             error: function (xhr, status, text) {
-                error_message($('#' + post_id), xhr, status, text)
+                error_message(post, xhr, status, text)
+            }
+        });
+}
+
+
+function release_from_quarantine(post){
+
+    var uid = post.data("value");
+    $.ajax('/release/quarantine/' + uid + "/",
+        {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {},
+            success: function (data) {
+
+                if (data.status === 'error') {
+                    popup_message(post, data.msg, data.status);
+                } else {
+                    popup_message(post, data.msg, data.status);
+                    post.removeClass('quarantine').addClass('open');
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message(post, xhr, status, text)
             }
         });
 }
@@ -265,10 +291,16 @@ function tags_dropdown() {
 
 $(document).ready(function () {
 
-    $('.mark-spam.item').click(function (event) {
-        var post_id = $(this).closest('.post').attr('id');
 
-        mark_spam(post_id, $(this));
+    $('.spam .mark.item').click(function (event) {
+        var post = $(this).closest('.post');
+        mark_spam(post);
+    });
+
+    $('.spam .release.item').click(function (event) {
+        var post = $(this).closest('.post');
+        release_from_quarantine(post);
+
     });
 
     $('#similar-feed').each(function () {

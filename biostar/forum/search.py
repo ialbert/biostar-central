@@ -84,20 +84,18 @@ class SearchResult(object):
         return self.total
 
 
-
-
 def normalize_result(result):
     "Return a bunch object for result."
 
     # Result is a database object.
-    bunched = SearchResult(title=result['title'], content=result['content'], url=result['url'],
-                           type_display=result['type_display'], content_length=result['content_length'],
-                           type=result['type'], lastedit_date=result['lastedit_date'],
-                           is_toplevel=result['is_toplevel'], rank=result['rank'], uid=result['uid'],
-                           author_handle=result['author_handle'], author=result['author'],
-                           author_score=result['author_score'],
-                           thread_votecount=result['thread_votecount'], vote_count=result['vote_count'],
-                           author_uid=result['author_uid'], author_url=result['author_url'])
+    bunched = SearchResult(title=result.get('title'), content=result.get('content'), url=result.get('url'),
+                           type_display=result.get('type_display'), content_length=result.get('content_length'),
+                           type=result.get('type'), lastedit_date=result.get('lastedit_date'),
+                           is_toplevel=result.get('is_toplevel'), rank=result.get('rank'), uid=result.get('uid'),
+                           author_handle=result.get('author_handle'), author=result.get('author'),
+                           author_score=result.get('author_score'), score=result.score,
+                           thread_votecount=result.get('thread_votecount'), vote_count=result.get('vote_count'),
+                           author_uid=result.get('author_uid'), author_url=result.get('author_url'))
 
     return bunched
 

@@ -192,7 +192,11 @@ def pages(request, fname):
         messages.error(request, "File does not exist.")
         return redirect("post_list")
 
-    context = dict(file_path=doc, tab=fname)
+    admins = User.objects.filter(is_superuser=True)
+    mods = User.objects.filter(profile__role=Profile.MODERATOR).exclude(id__in=admins)
+    admins = admins.prefetch_related("profile").order_by("-profile__score")
+    mods = mods.prefetch_related("profile").order_by("-profile__score")
+    context = dict(file_path=doc, tab=fname, admins=admins, mods=mods)
 
     return render(request, 'pages.html', context=context)
 

@@ -479,6 +479,10 @@ figure {
     opacity: .6;
 }
 
+.post.quarantine{
+    background-color: #f6f8ce !important;
+}
+
 #dim-similar {
     height: 90px;
     padding: 0;
