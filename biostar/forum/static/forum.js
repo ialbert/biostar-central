@@ -186,7 +186,7 @@ function similar_posts(elem) {
     var uid = elem.attr('post_uid');
     // Construct the similar posts link.
     var feed_url = '/similar/posts/' + uid + '/';
-    var dimm_elem = $('#dim-similar');
+    var dimm_elem = $('#similar');
     dimm_elem.dimmer('show');
 
     $.ajax(feed_url,

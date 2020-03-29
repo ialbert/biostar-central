@@ -298,6 +298,7 @@ i.icon {
 
 .post .actions {
     padding: .5rem 0em 0.5rem 0em;
+    display: flow-root;
 }
 
 .post .actions.top-level {
@@ -594,6 +595,9 @@ img {
     float: right;
 }
 
+#similar{
+    height: 100%;
+}
 
 .accepted.label {
     color: #E1E818 !important;
