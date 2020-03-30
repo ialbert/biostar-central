@@ -133,7 +133,7 @@ except Exception as exc:
     pass
 
 # Enable debug toolbar specific functions
-if DEBUG_TOOLBAR and 'debug_toolbar' not in INSTALLED_APPS:
+if DEBUG_TOOLBAR:
     INSTALLED_APPS.extend([
         'debug_toolbar',
     ])

@@ -38,10 +38,12 @@ class PostManager(models.Manager):
 
         # Filter for open posts that are not spam.
         query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
+
         query = query.exclude(models.Q(spam=Post.SPAM) | models.Q(root=None) |
                               models.Q(root__spam=Post.SPAM))
 
         return query
+
 
 class AwardManager(models.Manager):
 
@@ -80,8 +82,8 @@ class Post(models.Model):
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
     # Possile spam states.
-    SPAM, NOT_SPAM, MAYBE_SPAM, DEFAULT = range(4)
-    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (MAYBE_SPAM, "Quarantined"), (DEFAULT, "Default")]
+    SPAM, NOT_SPAM, DEFAULT, SUSPECT = range(4)
+    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (SUSPECT, "Quarantined"), (DEFAULT, "Default")]
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
@@ -200,13 +202,19 @@ class Post(models.Model):
         prefix = ""
         if self.is_spam:
             prefix = "Spam:"
+        elif self.maybe_spam:
+            prefix = "Quarantined: "
         elif not (self.is_open or self.is_question):
             prefix = f"{self.get_status_display()}:"
         return prefix
 
     @property
+    def maybe_spam(self):
+        return self.spam == self.SUSPECT
+
+    @property
     def is_open(self):
-        return self.status == Post.OPEN and not self.is_spam
+        return self.status == Post.OPEN and not self.is_spam and not self.maybe_spam
 
     @property
     def calc_score(self):
@@ -296,7 +304,12 @@ class Post(models.Model):
     def css(self):
         # Used to simplify CSS rendering.
         status = self.get_status_display()
-        return 'spam' if self.is_spam else f"{status}".lower()
+        if self.is_spam:
+            return "spam"
+        if self.maybe_spam:
+            return "quarantine"
+
+        return f"{status}".lower()
 
     @property
     def accepted_class(self):

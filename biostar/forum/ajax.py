@@ -255,19 +255,24 @@ def validate_recaptcha(token):
     return False, "Invalid reCAPTCHA. Please try again."
 
 
-@ajax_error_wrapper(method="GET", login_required=True)
-def most_recent_users(request):
+def release_from_quarantine(request, uid):
+    """
+    Mark post as not spam and release from quarantine.
+    """
+    post = Post.objects.filter(uid=uid).first()
 
-    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED])).prefetch_related("user")
-    recent_locations = recent_locations.order_by('last_login')
-    recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
+    if not post:
+        return ajax_error(msg='Post does not exist.')
 
-    users = [dict(username=u.user.username, email=u.user.email, uid=u.uid, name=u.name,
-                  url=u.get_absolute_url(), score=u.score,
-                  gravatar=auth.gravatar(user=u.user, size=30))
-             for u in recent_locations]
+    if not request.user.profile.is_moderator:
+        return ajax_error(msg="You need to be a moderator to preform that action.")
 
-    return ajax_success(msg="recent users", users=users)
+    if request.user == post.author or post.author.profile.is_moderator:
+        return ajax_error(msg='Invalid action.')
+
+    Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
+
+    return ajax_success(msg="Released from the quarantine.")
 
 
 @ajax_error_wrapper(method="GET", login_required=True)
@@ -284,6 +289,7 @@ def report_spam(request, post_uid):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="You need to be a moderator to preform that action.")
 
+    # Can not report your self or a moderator as spam.
     if request.user == post.author or post.author.profile.is_moderator:
         return ajax_error(msg='Invalid action.')
 
@@ -491,7 +497,7 @@ def inplace_form(request):
     nlines = post.num_lines(offset=3)
     rows = nlines if nlines >= MIN_LINES else MIN_LINES
     form = forms.PostLongForm(user=request.user)
-    
+
     context = dict(user=user, post=post, new=add_comment,  html=html, users_str=users_str,
                    captcha_key=settings.RECAPTCHA_PUBLIC_KEY, rows=rows, form=form)
     form = tmpl.render(context)

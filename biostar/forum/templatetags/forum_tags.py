@@ -136,6 +136,7 @@ def filter_dropdown(context):
 
     return context
 
+
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
 def user_icon(context, user=None, is_moderator=False, is_spammer=False, score=0):
 
