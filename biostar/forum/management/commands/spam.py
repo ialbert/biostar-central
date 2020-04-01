@@ -39,4 +39,3 @@ class Command(BaseCommand):
         # Report the contents of the index
         #if report:
         #    spam.report()
-

@@ -65,10 +65,8 @@ def search_spam(post):
                            indexname=settings.SPAM_INDEX_NAME,
                            schema=spam_schema())
 
-    # Remove post from index once spam score is calculated.
-    writer = AsyncWriter(ix)
-
     # Write this post to the index to perform most_like_this()
+    writer = AsyncWriter(ix)
     add_to_spam(post=post, writer=writer)
     writer.commit()
 
@@ -79,20 +77,24 @@ def search_spam(post):
     # Preform more_like_this on this posts content
     similar = results[0].more_like_this('content', top=500)
 
-    # Remove this post from the spam index.
+    # Remove this post from the spam index after results are collected.
     writer = AsyncWriter(ix)
     writer.delete_by_term('uid', text=post.uid)
     writer.commit()
 
-    # Get the results into a list
+    # Get the results into a list and close the searcher object.
     similar = list(map(search.normalize_result, similar))
     results.searcher.close()
+
     return similar
 
 
-def quarantine(post):
+def score(post, threshold=None):
     """
     """
+
+    if threshold is None:
+        threshold = settings.SPAM_THRESHOLD
 
     # User's with high enough score automatically given green light.
     #if not post.author.profile.low_rep:
@@ -113,12 +115,9 @@ def quarantine(post):
     Post.objects.filter(id=post.id).update(spam_score=mean)
 
     # If the score exceeds threshold it gets quarantined.
-    if mean >= settings.SPAM_THRESHOLD:
+    if mean >= threshold:
         Post.objects.filter(id=post.id).update(spam=Post.SUSPECT)
         auth.log_action(log_text=f"Quarantined post={post.uid}; spam score={mean}")
-
-
-
 
 
 

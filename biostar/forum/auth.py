@@ -110,6 +110,19 @@ def walk_down_thread(parent, collect=set()):
     return collect
 
 
+def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
+
+    # Check if a post with this content already exists.
+    post = Post.objects.filter(content=content).first()
+    if post:
+        logger.info("Post with this content already exists.")
+        return post
+
+    post = Post.objects.create(title=title, content=content, root=root, parent=parent,
+                               type=ptype, tag_val=tag_val, author=author)
+    return post
+
+
 def create_subscription(post, user, sub_type=None, update=False):
     """
     Creates subscription to a post. Returns a list of subscriptions.
@@ -162,12 +175,12 @@ def post_tree(user, root):
 
     query = query.select_related("lastedit_user__profile", "author__profile", "root__author__profile")
 
-    #is_moderator = user.is_authenticated and user.profile.is_moderator
+    # is_moderator = user.is_authenticated and user.profile.is_moderator
 
     # Only moderators
-    #if not is_moderator:
+    # if not is_moderator:
     #    query = query.filter(status=Post.OPEN)
-        # query = query.exclude(spam=Post.SPAM)
+    # query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
@@ -281,120 +294,134 @@ def apply_vote(post, user, vote_type):
 
 
 def log_action(user=None, action=Logger.MODERATING, log_text=''):
-    # Create a logger object
+    # Create a logger object in database.
     Logger.objects.create(user=user, action=action, log_text=log_text)
     logger.info(log_text)
     return
 
 
-def delete_post(post, request):
-    # Delete marks a post deleted but does not remove it.
+def mod_rationale(post, user, template, ptype=Post.COMMENT, extra_context=dict()):
+    tmpl = loader.get_template(template)
+    context = dict(user=post.author)
+    context.update(extra_context)
+    content = tmpl.render(context)
 
-    # Posts with children or older than some value can only be deleted not removed
-    # The children of a post.
-    children = Post.objects.filter(parent_id=post.id).exclude(pk=post.id)
+    # Load answer explaining post being off topic.
+    post = Post.objects.create(content=content, type=ptype, parent=post, root=post.root, author=user)
 
-    # The condition where post can only be deleted.
-    delete_only = children or post.age_in_days > 7 or post.vote_count > 1 or (post.author != request.user)
-
-    if delete_only:
-        # Deleted posts can be undeleted by re-opening them.
-        Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
-        url = post.root.get_absolute_url()
-        messages.success(request, "Deleted post: %s" % post.title)
-    # Remove post from the database with no trace.
-    else:
-        # This will remove the post. Redirect depends on the level of the post.
-        url = "/" if post.is_toplevel else post.root.get_absolute_url()
-        post.delete()
-        messages.success(request, "Removed post: %s" % post.title)
-
-    # Recompute answers count
-    if post.type == Post.ANSWER:
-        answer_count = Post.objects.filter(root=post.root, type=Post.ANSWER).count()
-        Post.objects.filter(pk=post.parent_id).update(answer_count=answer_count)
-
-    reply_count = Post.objects.filter(root=post.root).count()
-
-    Post.objects.filter(pk=post.root.id).update(reply_count=reply_count)
-    log_action(user=request.user, log_text=f"Deleted post={post.uid}")
-
-    return url
+    return post
 
 
-def handle_spam_post(post, user):
-    url = post.get_absolute_url()
+class Moderate(object):
 
-    # # Ban new users that post spam.
-    # if post.author.profile.low_rep:
-    #     post.author.profile.state = Profile.BANNED
+    def __init__(self, user, post, action, comment="", links=[]):
+        self.user = user
+        self.post = post
+        self.now = datetime.datetime.utcnow().replace(tzinfo=utc)
+        self.url = post.get_absolute_url()
+        self.comment = comment
+        self.links = links
+        self.msg = f"Preformed moderation action:{action}"
 
-    post.author.profile.state = Profile.SPAMMER
-    post.author.profile.save()
+        # Bind an action to a function.
+        action_map = {REPORT_SPAM: self.spam,
+                      MOVE_ANSWER: self.move,
+                      BUMP_POST: self.bump,
+                      OPEN_POST: self.open,
+                      DELETE: self.delete}
 
-    # Label all posts by this users as spam.
-    Post.objects.filter(author=post.author).update(spam=Post.SPAM, status=Post.CLOSED)
-    log_action(user=user, log_text=f"Reported post={post.uid} as spam.")
-    return url
+        # Handle duplicate links if provided.
+        if links:
+            self.duplicated()
+        # Handle closing a provided a closing comment.
+        elif self.comment:
+            self.close()
+        # Handle remaining moderation actions.
+        elif action in action_map:
+            mod_func = action_map[action]
+            mod_func()
+        else:
+            logger.error("Unknown moderation action given.")
 
+    def move(self):
+        Post.objects.filter(uid=self.post.uid).update(type=Post.ANSWER)
+        self.msg = f"Moved post={self.post.uid} to answer. "
 
-def moderate_post(request, action, post, comment=None, dupes=[], pid=None):
-    root = post.root
-    user = request.user
-    now = datetime.datetime.utcnow().replace(tzinfo=utc)
-    url = post.get_absolute_url()
+    def open(self):
+        Post.objects.filter(uid=self.post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
+        self.msg = f"Opened post: {self.post.title}"
 
-    if action == BUMP_POST:
-        Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp())
-        messages.success(request, "Post bumped")
-        log_action(user=user, log_text=f"Bumped post={post.uid}")
-        return url
+    def bump(self):
+        self.msg = "Post bumped"
+        Post.objects.filter(uid=self.post.uid).update(lastedit_date=self.now, rank=self.now.timestamp())
 
-    if action == OPEN_POST:
-        Post.objects.filter(uid=post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
-        messages.success(request, f"Opened post: {post.title}")
-        log_action(user=user, log_text=f"Opened post={post.uid}")
-        return url
+    def spam(self):
+        """
+        Report self.post as spam and the author as a spammer.
+        """
+        self.post.author.profile.state = Profile.SPAMMER
+        self.post.author.profile.save()
+        # Label all posts by this users as spam.
+        Post.objects.filter(author=self.post.author).update(spam=Post.SPAM, status=Post.CLOSED)
 
-    if action == DELETE:
-        return delete_post(post=post, request=request)
+    def close(self):
+        """
+        Close this post and provide a rationale for closing as well.
+        """
 
-    if action == MOVE_ANSWER:
-        Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
-        log_action(user=user, log_text=f"Moved post={post.uid} to answer. ")
-        return url
+        Post.objects.filter(uid=self.post.uid).update(status=Post.CLOSED)
+        # Generate a rationale post on why this post is closed.
+        context = dict(comment=self.comment)
+        rationale = mod_rationale(post=self.post, user=self.user,
+                                  template="messages/closed.md",
+                                  extra_context=context)
+        self.msg = f"Closed {self.post.title}. "
+        self.url = rationale.get_absolute_url()
 
-    if action == CLOSE:
-        Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-        log_action(user=user, log_text=f"Closed post={post.uid}. ")
-        return url
+    def duplicated(self):
 
-    if action == REPORT_SPAM:
-        return handle_spam_post(post=post, user=user)
+        # Generate a rationale post on why this post is a duplicate.
+        Post.objects.filter(uid=self.post.uid).update(status=Post.CLOSED)
+        context = dict(dupes=self.links, comment=self.comment)
+        rationale = mod_rationale(post=self.post, user=self.user,
+                                  ptype=Post.ANSWER,
+                                  template="messages/duplicate_posts.md",
+                                  extra_context=context)
+        self.url = rationale.get_absolute_url()
+        self.msg = "Marked duplicated post as off topic."
 
-    if dupes and len(''.join(dupes)):
-        # Load comment explaining post off topic label.
-        tmpl = loader.get_template("messages/duplicate_posts.md")
-        context = dict(user=post.author, dupes=dupes, comment=comment)
-        content = tmpl.render(context)
+    def delete(self):
+        """
+        Delete this post or complete remove it from the database.
+        """
+        if self.__delete_only:
+            # Deleted posts can be un=deleted by re-opening them.
+            Post.objects.filter(uid=self.post.uid).update(status=Post.DELETED)
+            self.url = self.post.root.get_absolute_url()
+            self.msg = f"Deleted post: {self.post.title}"
+            self.post.recompute_scores()
+            return
 
-        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, root=post.root, author=user)
-        url = post.get_absolute_url()
-        messages.success(request, "Marked duplicated post as off topic.")
-        log_action(user=user, log_text=f"Marked post={post.uid} as duplicate.")
-        return url
+        # Redirect depends on the level of the post.
+        if self.post.is_toplevel:
+            self.url = "/"
+        else:
+            self.url = self.post.root.get_absolute_url()
+            self.post.root.recompute_scores()
 
-    if comment:
-        # Load comment explaining post closure.
-        tmpl = loader.get_template("messages/off_topic.md")
-        context = dict(user=post.author, comment=comment)
-        content = tmpl.render(context)
+        # Remove post from the database with no trace.
+        self.msg = f"Removed post: {self.post.title}"
+        self.post.delete()
 
-        # Load answer explaining post being off topic.
-        post = Post.objects.create(content=content, type=Post.ANSWER, parent=post, root=post.root, author=user)
-        url = post.get_absolute_url()
-        messages.success(request, "Marked the post as off topic.")
-        log_action(user=user, log_text=f"Marked post={post.uid} as off topic.")
-        return url
+    @property
+    def __delete_only(self):
+        # Posts with children or older than some value can only be deleted not removed
+        # The children of a post.
+        children = Post.objects.filter(parent_id=self.post.id).exclude(pk=self.post.id)
+        # The conditions where post can only be deleted.
+        cond1 = children or self.post.age_in_days > 7
+        cond2 = self.post.vote_count > 1 or (self.post.author != self.user)
 
-    return url
+        delete_only = cond1 or cond2
+
+        return delete_only
