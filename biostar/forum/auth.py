@@ -110,6 +110,19 @@ def walk_down_thread(parent, collect=set()):
     return collect
 
 
+def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
+
+    # Check if a post with this content already exists.
+    post = Post.objects.filter(content=content).first()
+    if post:
+        logger.info("Post with this content already exists.")
+        return post
+
+    post = Post.objects.create(title=title, content=content, root=root, parent=parent,
+                               type=ptype, tag_val=tag_val, author=author)
+    return post
+
+
 def create_subscription(post, user, sub_type=None, update=False):
     """
     Creates subscription to a post. Returns a list of subscriptions.
@@ -162,12 +175,12 @@ def post_tree(user, root):
 
     query = query.select_related("lastedit_user__profile", "author__profile", "root__author__profile")
 
-    #is_moderator = user.is_authenticated and user.profile.is_moderator
+    # is_moderator = user.is_authenticated and user.profile.is_moderator
 
     # Only moderators
-    #if not is_moderator:
+    # if not is_moderator:
     #    query = query.filter(status=Post.OPEN)
-        # query = query.exclude(spam=Post.SPAM)
+    # query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")

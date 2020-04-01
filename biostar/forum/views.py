@@ -409,9 +409,8 @@ def post_view(request, uid):
         if form.is_valid():
             author = request.user
             content = form.cleaned_data.get("content")
-            # Create answer to root
-            answer = Post.objects.create(title=post.title, parent=post, author=author,
-                                         content=content, type=Post.ANSWER, root=post.root)
+            answer = auth.create_post(title=post.title, parent=post, author=author,
+                                      content=content, ptype=Post.ANSWER, root=post.root)
             return redirect(answer.get_absolute_url())
         messages.error(request, form.errors)
 
@@ -443,10 +442,9 @@ def new_post(request):
             # Create a new post by user
             title = form.cleaned_data.get('title')
             content = form.cleaned_data.get("content")
-            post_type = form.cleaned_data.get('post_type')
+            ptype = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
-            post = Post.objects.create(title=title, content=content, type=post_type,
-                                       tag_val=tag_val, author=author)
+            post = auth.create_post(title=title, content=content, ptype=ptype, tag_val=tag_val, author=author)
 
             tasks.created_post.spool(pid=post.id)
 

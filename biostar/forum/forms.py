@@ -129,7 +129,6 @@ class PostLongForm(forms.Form):
         return content
 
 
-
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32)
