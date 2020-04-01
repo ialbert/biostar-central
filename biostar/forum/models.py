@@ -83,7 +83,7 @@ class Post(models.Model):
 
     # Possile spam states.
     SPAM, NOT_SPAM, DEFAULT, SUSPECT = range(4)
-    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (SUSPECT, "Quarantined"), (DEFAULT, "Default")]
+    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (SUSPECT, "Suspect"), (DEFAULT, "Default")]
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
@@ -202,23 +202,28 @@ class Post(models.Model):
         prefix = ""
         if self.is_spam:
             prefix = "Spam:"
-        elif self.maybe_spam:
+        elif self.suspect_spam:
             prefix = "Quarantined: "
         elif not (self.is_open or self.is_question):
             prefix = f"{self.get_status_display()}:"
         return prefix
 
     @property
-    def maybe_spam(self):
+    def suspect_spam(self):
         return self.spam == self.SUSPECT
 
     @property
     def is_open(self):
-        return self.status == Post.OPEN and not self.is_spam and not self.maybe_spam
+        return self.status == Post.OPEN and not self.is_spam and not self.suspect_spam
 
-    @property
-    def calc_score(self):
-        return
+    def recompute_scores(self):
+        # Recompute answers count
+        if self.type == Post.ANSWER:
+            answer_count = Post.objects.filter(root=self.root, type=Post.ANSWER).count()
+            Post.objects.filter(pk=self.parent_id).update(answer_count=answer_count)
+
+        reply_count = Post.objects.filter(root=self.root).count()
+        Post.objects.filter(pk=self.root.id).update(reply_count=reply_count)
 
     @property
     def is_question(self):
@@ -306,8 +311,8 @@ class Post(models.Model):
         status = self.get_status_display()
         if self.is_spam:
             return "spam"
-        if self.maybe_spam:
-            return "quarantine"
+        if self.suspect_spam:
+            return "score"
 
         return f"{status}".lower()
 

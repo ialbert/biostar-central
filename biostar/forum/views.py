@@ -474,12 +474,12 @@ def post_moderate(request, uid):
 
         if form.is_valid():
             action = form.cleaned_data.get('action')
-            dupe = form.cleaned_data.get('dupe', '').split("\n")
-            dupe_comment = form.cleaned_data.get('comment')
-            mod_uid = form.cleaned_data.get('pid')
-            redir = auth.moderate_post(post=post, request=request, action=action, comment=dupe_comment,
-                                       dupes=dupe, pid=mod_uid)
-            return redirect(redir)
+            dupe = form.cleaned_data.get('dupe', [])
+            comment = form.cleaned_data.get('comment')
+            mod = auth.Moderate(user=user, post=post, action=action, comment=comment, links=dupe)
+            messages.success(request=request, message=mod.msg)
+            auth.log_action(user=user, log_text=f"{mod.msg} ; post.uid={post.uid}.")
+            return redirect(mod.url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])
             messages.error(request, errors)

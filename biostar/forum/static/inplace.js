@@ -89,6 +89,7 @@ function prepare_inplace(content) {
 
     // Any previously open inplace form gets closed.
     cancel_inplace(post);
+    $('#modpanel').remove();
 
     return container
 

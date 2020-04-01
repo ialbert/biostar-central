@@ -257,7 +257,7 @@ def validate_recaptcha(token):
 
 def release_from_quarantine(request, uid):
     """
-    Mark post as not spam and release from quarantine.
+    Mark post as not spam and release from score.
     """
     post = Post.objects.filter(uid=uid).first()
 
@@ -272,7 +272,7 @@ def release_from_quarantine(request, uid):
 
     Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
 
-    return ajax_success(msg="Released from the quarantine.")
+    return ajax_success(msg="Released from the score.")
 
 
 @ajax_error_wrapper(method="GET", login_required=True)

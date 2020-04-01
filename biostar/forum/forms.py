@@ -129,6 +129,7 @@ class PostLongForm(forms.Form):
         return content
 
 
+
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
     parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32)
@@ -163,30 +164,15 @@ def mod_choices(post):
     Return available moderation options for a post.
     """
     choices = [
-        (BUMP_POST, "Bump post."),
-        (MOVE_ANSWER, "Move comment to answer."),
         (OPEN_POST, "Open post"),
         (DELETE, "Delete post."),
         (REPORT_SPAM, "Mark as spam."),
-        (CLOSE, "Close post")
     ]
-
-    # Moderation options for common to all posts
-    allowed = [REPORT_SPAM, CLOSE]
 
     # Options for top level posts.
     if post.is_toplevel:
-        allowed += [BUMP_POST]
-
-    # Open deletes/closed posts.
-    if not post.is_open:
-        allowed += [OPEN_POST]
-    # Delete/close open posts
-    else:
-        allowed += [DELETE]
-
-    # Filter the appropriate choices
-    choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
+        toplevel = [(BUMP_POST, "Bump post.")]
+        choices = toplevel + choices
 
     return choices
 
@@ -203,35 +189,32 @@ class PostModForm(forms.Form):
         choices = mod_choices(post=self.post)
 
         if self.post.is_toplevel:
-            self.fields['dupe'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea)
+            self.fields['dupe'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea,
+                                                  strip=True)
         else:
             self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
 
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=False)
 
+        self.fields['comment'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea,
+                                                 strip=True)
+
     def clean_dupe(self):
         dupe = self.cleaned_data.get("dupe")
-        dupes = dupe.split(",")[:5]
-        dupes = ','.join(dupes)
+        dupes = dupe.split("\n")[:5]
+        dupes = list(filter(lambda d: len(d.replace(" ", '')), dupes))
         return dupes
 
     def clean(self):
         action = self.cleaned_data.get("action")
         dupes = self.cleaned_data.get("dupe")
-        pid = self.cleaned_data.get("pid")
+        comment = self.cleaned_data.get("comment")
 
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
-        if (action is None) and not (dupes or pid):
+        if (action is None) and not (dupes or comment):
             raise forms.ValidationError("Select an action.")
-
-        parent = Post.objects.filter(uid=pid).first()
-        if not parent and pid:
-            raise forms.ValidationError(f"Parent id: {pid} does not exist.")
-
-        if parent and parent.root != self.post.root:
-            raise forms.ValidationError(f"Parent does not share the same root.")
 
         return self.cleaned_data
 

@@ -126,7 +126,7 @@ function mark_spam(post) {
 
                 } else {
                     popup_message(post, data.msg, data.status);
-                    post.removeClass('open').removeClass('quarantine').addClass('spam');
+                    post.removeClass('open').removeClass('score').addClass('spam');
                 }
 
             },
@@ -140,7 +140,7 @@ function mark_spam(post) {
 function release_from_quarantine(post){
 
     var uid = post.data("value");
-    $.ajax('/release/quarantine/' + uid + "/",
+    $.ajax('/release/score/' + uid + "/",
         {
             type: 'GET',
             dataType: 'json',
@@ -152,7 +152,7 @@ function release_from_quarantine(post){
                     popup_message(post, data.msg, data.status);
                 } else {
                     popup_message(post, data.msg, data.status);
-                    post.removeClass('quarantine').addClass('open');
+                    post.removeClass('score').addClass('open');
                 }
 
             },
@@ -361,7 +361,8 @@ $(document).ready(function () {
         var container = $(this).closest('.post > .body > .content >.inplace');
         var url = '/moderate/{0}/'.format(uid);
 
-        moderate(uid, container, url)
+        moderate(uid, container, url);
+        cancel_inplace();
 
 
     });
