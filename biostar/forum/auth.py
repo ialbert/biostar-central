@@ -324,8 +324,11 @@ class Moderate(object):
         self.msg = f"Preformed moderation action:{action}"
 
         # Bind an action to a function.
-        action_map = {REPORT_SPAM: self.spam, MOVE_ANSWER: self.move, BUMP_POST: self.bump,
-                      OPEN_POST: self.open, DELETE: self.delete}
+        action_map = {REPORT_SPAM: self.spam,
+                      MOVE_ANSWER: self.move,
+                      BUMP_POST: self.bump,
+                      OPEN_POST: self.open,
+                      DELETE: self.delete}
 
         # Handle duplicate links if provided.
         if links:
