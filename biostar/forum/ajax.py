@@ -255,7 +255,7 @@ def validate_recaptcha(token):
     return False, "Invalid reCAPTCHA. Please try again."
 
 
-def release_from_quarantine(request, uid):
+def release_suspect(request, uid):
     """
     Mark post as not spam and release from score.
     """

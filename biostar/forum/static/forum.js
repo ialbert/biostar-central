@@ -137,10 +137,10 @@ function mark_spam(post) {
 }
 
 
-function release_from_quarantine(post){
+function release_suspect(post){
 
     var uid = post.data("value");
-    $.ajax('/release/score/' + uid + "/",
+    $.ajax('/release/' + uid + "/",
         {
             type: 'GET',
             dataType: 'json',
@@ -299,7 +299,7 @@ $(document).ready(function () {
 
     $('.spam .release.item').click(function (event) {
         var post = $(this).closest('.post');
-        release_from_quarantine(post);
+        release_suspect(post);
 
     });
 
