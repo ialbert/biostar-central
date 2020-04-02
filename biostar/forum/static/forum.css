@@ -314,10 +314,6 @@ i.icon {
     opacity: .75;
 }
 
-.post.Deleted, .post.spam {
-    background-color: #f7e4de;
-    opacity: 0.6;
-}
 
 .inline {
     display: inline;

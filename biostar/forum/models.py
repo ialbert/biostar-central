@@ -38,9 +38,10 @@ class PostManager(models.Manager):
 
         # Filter for open posts that are not spam.
         query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
+        query = query.filter(models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT) |
+                             models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT))
 
-        query = query.exclude(models.Q(spam=Post.SPAM) | models.Q(root=None) |
-                              models.Q(root__spam=Post.SPAM))
+        query = query.exclude(root=None)
 
         return query
 
@@ -258,6 +259,10 @@ class Post(models.Model):
     def get_absolute_url(self):
         url = reverse("post_view", kwargs=dict(uid=self.root.uid))
         return url if self.is_toplevel else "%s#%s" % (url, self.uid)
+
+    def high_spam_score(self, threshold=None):
+        threshold = threshold or settings.SPAM_THRESHOLD
+        return (self.spam_score > threshold) or self.is_spam or self.author.profile.low_rep
 
     def save(self, *args, **kwargs):
 

@@ -300,7 +300,7 @@ def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None,
         results.fragmenter.maxchars = 100
         results.fragmenter.surround = 100
 
-    logger.info("Preformed index search")
+    #logger.info("Preformed index search")
 
     return results
 
