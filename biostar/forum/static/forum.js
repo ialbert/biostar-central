@@ -126,7 +126,7 @@ function mark_spam(post) {
 
                 } else {
                     popup_message(post, data.msg, data.status);
-                    post.removeClass('open').removeClass('score').addClass('spam');
+                    post.removeClass('open').removeClass('quarantine').addClass('spam');
                 }
 
             },
@@ -291,7 +291,7 @@ function tags_dropdown() {
 
 $(document).ready(function () {
 
-
+    $('.spam').dropdown({on: 'hover' });
     $('.spam .mark.item').click(function (event) {
         var post = $(this).closest('.post');
         mark_spam(post);
@@ -443,8 +443,6 @@ $(document).ready(function () {
     Prism.highlightAll();
 
     tags_dropdown();
-    //activate_prism($(this));
-    init_pagedown();
-    remove_trigger();
+    //remove_trigger();
 })
 ;

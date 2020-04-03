@@ -180,6 +180,7 @@ class UserModerate(forms.Form):
         self.source = source
         self.target = target
         self.request = request
+
         super(UserModerate, self).__init__(*args, **kwargs)
 
     def clean(self):

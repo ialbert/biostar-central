@@ -472,9 +472,8 @@ def post_moderate(request, uid):
 
         if form.is_valid():
             action = form.cleaned_data.get('action')
-            dupe = form.cleaned_data.get('dupe', [])
             comment = form.cleaned_data.get('comment')
-            mod = auth.Moderate(user=user, post=post, action=action, comment=comment, links=dupe)
+            mod = auth.Moderate(user=user, post=post, action=action, comment=comment)
             messages.success(request=request, message=mod.msg)
             auth.log_action(user=user, log_text=f"{mod.msg} ; post.uid={post.uid}.")
             return redirect(mod.url)

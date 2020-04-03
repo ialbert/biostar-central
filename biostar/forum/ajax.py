@@ -293,7 +293,7 @@ def report_spam(request, post_uid):
     if request.user == post.author or post.author.profile.is_moderator:
         return ajax_error(msg='Invalid action.')
 
-    auth.handle_spam_post(post=post, user=request.user)
+    auth.Moderate(post=post, action=const.REPORT_SPAM, user=request.user)
 
     return ajax_success(msg="Reported user as a spammer.")
 
