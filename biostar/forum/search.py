@@ -7,7 +7,7 @@ from collections import defaultdict
 # Postgres specific queries should go into separate module.
 from django.conf import settings
 from django.db.models import Q
-from whoosh import writing
+from whoosh import writing, classify
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.writing import AsyncWriter
 from whoosh.searching import Results
@@ -91,7 +91,8 @@ def normalize_result(result):
     bunched = SearchResult(title=result.get('title'), content=result.get('content'), url=result.get('url'),
                            type_display=result.get('type_display'), content_length=result.get('content_length'),
                            type=result.get('type'), lastedit_date=result.get('lastedit_date'),
-                           is_toplevel=result.get('is_toplevel'), rank=result.get('rank'), uid=result.get('uid'),
+                           is_spam=result.get("is_spam", False), is_toplevel=result.get('is_toplevel'),
+                           rank=result.get('rank'), uid=result.get('uid'),
                            author_handle=result.get('author_handle'), author=result.get('author'),
                            author_score=result.get('author_score'), score=result.score,
                            thread_votecount=result.get('thread_votecount'), vote_count=result.get('vote_count'),
