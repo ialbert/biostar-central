@@ -272,7 +272,7 @@ def release_suspect(request, uid):
 
     Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
 
-    return ajax_success(msg="Released from the score.")
+    return ajax_success(msg="Released from the quarantine.")
 
 
 @ajax_error_wrapper(method="GET", login_required=True)

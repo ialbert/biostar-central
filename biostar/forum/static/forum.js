@@ -152,7 +152,7 @@ function release_suspect(post){
                     popup_message(post, data.msg, data.status);
                 } else {
                     popup_message(post, data.msg, data.status);
-                    post.removeClass('score').addClass('open');
+                    post.removeClass('quarantine').addClass('open');
                 }
 
             },
