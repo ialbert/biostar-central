@@ -48,4 +48,12 @@ class Command(BaseCommand):
 
         # Run specificity and sensitivity tests on posts.
         if test:
-            spam.test()
+
+            # Get the spam and ham posts.
+
+            spam.test_classify()
+
+
+
+            test = spam.add_file_to_index(fname=fname, delim=delim)
+            spam.test_classify(test)
