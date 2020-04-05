@@ -20,7 +20,6 @@ class Command(BaseCommand):
                             help="Run specificity/sensitivity test against content in database.")
         parser.add_argument('--index', action='store_true', default=False, help="How many posts to index")
         parser.add_argument('--fname', type=str, default='', help="File with spam to index. Separated by --delim.")
-        parser.add_argument('--delim', type=str, default='-DELIMITER-', help="Delemiter used to separate file.")
 
     def handle(self, *args, **options):
 
@@ -31,7 +30,6 @@ class Command(BaseCommand):
         index = options['index']
         fname = options['fname']
         test = options['test']
-        delim = options['delim']
 
         # Sets the un-indexed flags to false on all posts.
         if reset:
@@ -39,7 +37,7 @@ class Command(BaseCommand):
             Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED)).update(indexed=False)
 
         if fname:
-            spam.add_file_to_index(fname=fname, delim=delim)
+            #spam.add_file_to_index(fname=fname, delim=delim)
             logger.info(f"Added {fname} to spam index.")
 
         # Index a limited number yet unindexed posts
@@ -48,9 +46,7 @@ class Command(BaseCommand):
 
         # Run specificity and sensitivity tests on posts.
         if test:
-            #
-            #TODO ELASTICSEARCH_INDEX_NAMES CHANGE
-            # Get the spam and ham posts.
-            indexname = "test"
-            spam2.test(indexname=indexname)
+            #indexname = "test"
+            spam.test_classify()
+            #spam2.test(indexname=indexname)
             #spam.test_classify()

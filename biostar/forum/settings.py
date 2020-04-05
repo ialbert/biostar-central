@@ -78,36 +78,9 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
-    # REST framework
-    'rest_framework',
-
-    # Django Elasticsearch integration
-    'django_elasticsearch_dsl',
-
-    # Django REST framework Elasticsearch integration (this package)
-
     'biostar.forum.apps.ForumConfig',
     'pagedown',
-
 ]
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ),
-    'DEFAULT_PAGINATION_CLASS':
-        'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 100,
-    'ORDERING_PARAM': 'ordering',
-}
-
-# Elasticsearch configuration
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'localhost:9200'
-    },
-}
 
 # Additional middleware.
 MIDDLEWARE += [
