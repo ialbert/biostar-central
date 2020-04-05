@@ -129,11 +129,11 @@ def compute_score(post, ix=None):
 
     # Add weight depending on number of post author has already made.
     # And the user score.
-    authored = post.author.post_set.count()
+    #authored = post.author.post_set.count()
     # Scales the values.
 
     # Get the weighted mean of a users activity score.
-    weighting_factor = (1 / (authored + post.author.profile.score))
+    weighting_factor = (1 / (post.author.profile.score + 1))
     # print("--")
     # print(weighting_factor, (authored + post.author.profile.score), weighting_factor)
     # print("--")

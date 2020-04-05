@@ -267,9 +267,6 @@ def release_suspect(request, uid):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="You need to be a moderator to preform that action.")
 
-    if request.user == post.author or post.author.profile.is_moderator:
-        return ajax_error(msg='Invalid action.')
-
     Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
 
     return ajax_success(msg="Released from the quarantine.")
