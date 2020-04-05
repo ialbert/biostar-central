@@ -48,5 +48,5 @@ class Command(BaseCommand):
         if test:
             #indexname = "test"
             spam.test_classify()
-            #spam2.test(indexname=indexname)
+            spam2.test(indexname=indexname)
             #spam.test_classify()
