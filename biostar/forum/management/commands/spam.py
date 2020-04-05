@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
         # Run specificity and sensitivity tests on posts.
         if test:
-            #indexname = "test"
-            spam.test_classify()
-            spam2.test(indexname=indexname)
+            indexname = "test"
+            #spam.test_classify()
+            spam2.test(indexname=indexname, limit=100)
             #spam.test_classify()

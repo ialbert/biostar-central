@@ -34,10 +34,10 @@
             </a>
         </div>
 
-        <div class="secondary muted">
+{% comment %}        <div class="secondary muted">
             {{ post.get_votecount|bignum }} Vote{{ post.get_votecount|pluralize }} | {{ post.reply_count }}
             Repl{{ post.reply_count|pluralize:"y,ies" }}
-        </div>
+        </div>{% endcomment %}
 
         <div class="extra right floated">
 
