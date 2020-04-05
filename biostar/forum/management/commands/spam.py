@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
 from django.conf import settings
-from biostar.forum import search, spam
+from biostar.forum import search, spam, spam2
 
 logger = logging.getLogger('engine')
 
@@ -48,12 +48,9 @@ class Command(BaseCommand):
 
         # Run specificity and sensitivity tests on posts.
         if test:
-
+            #
+            #TODO ELASTICSEARCH_INDEX_NAMES CHANGE
             # Get the spam and ham posts.
-
-            spam.test_classify()
-
-
-
-            test = spam.add_file_to_index(fname=fname, delim=delim)
-            spam.test_classify(test)
+            indexname = "test"
+            spam2.test(indexname=indexname)
+            #spam.test_classify()

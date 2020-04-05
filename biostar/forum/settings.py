@@ -21,7 +21,7 @@ GRAVATAR_ICON = ''
 SPAM_THRESHOLD = 0.5
 
 # Spam index used to classify new posts as spam or ham.
-SPAM_INDEX_NAME = "spam"
+SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
 SPAM_INDEX_DIR = 'spammers'
 # Absolute path to spam index directory in export/
 SPAM_INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', SPAM_INDEX_DIR))
@@ -78,10 +78,36 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
+    # REST framework
+    'rest_framework',
+
+    # Django Elasticsearch integration
+    'django_elasticsearch_dsl',
+
+    # Django REST framework Elasticsearch integration (this package)
+
     'biostar.forum.apps.ForumConfig',
     'pagedown',
 
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+    'ORDERING_PARAM': 'ordering',
+}
+
+# Elasticsearch configuration
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'localhost:9200'
+    },
+}
 
 # Additional middleware.
 MIDDLEWARE += [
