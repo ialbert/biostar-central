@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
 from django.conf import settings
-from biostar.forum import search, spam, spam2
+from biostar.forum import search, spam
 
 logger = logging.getLogger('engine')
 
