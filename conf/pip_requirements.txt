@@ -10,6 +10,9 @@ django-recaptcha2
 django-mailer>=2
 elasticsearch-dsl
 django-elasticsearch-dsl
+djangorestframework
+markdown
+django-filter  # Filtering support
 whoosh
 hjson
 toml
