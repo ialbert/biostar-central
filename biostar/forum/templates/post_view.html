@@ -64,6 +64,7 @@
             $('.ui.dropdown').dropdown();
             var users = "{{ users_str }}".split(',');
             autocomplete_users(users);
+            init_pagedown();
 
             $(this).on('click', '#inplace .save', function () {
                 event.preventDefault();

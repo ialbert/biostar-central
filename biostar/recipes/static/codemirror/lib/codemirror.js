@@ -590,7 +590,7 @@ function markedSpansAfter(old, endCh, isInsert) {
   return nw
 }
 
-// Given a change object, compute the new set of marker spans that
+// Given a change object, compute_score the new set of marker spans that
 // cover the line in which the change took place. Removes spans
 // entirely within the change, reconnects spans belonging to the
 // same marker that appear on both sides of the change, and cuts off
@@ -2937,7 +2937,7 @@ function textHeight(display) {
   if (display.cachedTextHeight != null) { return display.cachedTextHeight }
   if (measureText == null) {
     measureText = elt("pre")
-    // Measure a bunch of lines, for browsers that compute
+    // Measure a bunch of lines, for browsers that compute_score
     // fractional heights.
     for (var i = 0; i < 49; ++i) {
       measureText.appendChild(document.createTextNode("x"))

@@ -314,10 +314,6 @@ i.icon {
     opacity: .75;
 }
 
-.post.Deleted, .post.spam {
-    background-color: #f7e4de;
-    opacity: 0.6;
-}
 
 .inline {
     display: inline;
@@ -750,7 +746,7 @@ img {
 }
 
 .ui.divided.items > .post.item {
-    padding: 6px 4px 10px 4px;
+    padding: 6px 4px 10px 4px !important;
 }
 
 .ui.divided.items > .item {

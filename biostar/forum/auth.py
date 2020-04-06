@@ -300,7 +300,7 @@ def log_action(user=None, action=Logger.MODERATING, log_text=''):
     return
 
 
-def mod_rationale(post, user, template, ptype=Post.COMMENT, extra_context=dict()):
+def mod_rationale(post, user, template, ptype=Post.ANSWER, extra_context=dict()):
     tmpl = loader.get_template(template)
     context = dict(user=post.author)
     context.update(extra_context)
@@ -314,30 +314,25 @@ def mod_rationale(post, user, template, ptype=Post.COMMENT, extra_context=dict()
 
 class Moderate(object):
 
-    def __init__(self, user, post, action, comment="", links=[]):
+    def __init__(self, user, post, action, comment=""):
         self.user = user
         self.post = post
         self.now = datetime.datetime.utcnow().replace(tzinfo=utc)
         self.url = post.get_absolute_url()
         self.comment = comment
-        self.links = links
         self.msg = f"Preformed moderation action:{action}"
 
         # Bind an action to a function.
         action_map = {REPORT_SPAM: self.spam,
+                      DUPLICATE: self.duplicated,
                       MOVE_ANSWER: self.move,
                       BUMP_POST: self.bump,
                       OPEN_POST: self.open,
-                      DELETE: self.delete}
+                      DELETE: self.delete,
+                      CLOSE: self.close}
 
-        # Handle duplicate links if provided.
-        if links:
-            self.duplicated()
-        # Handle closing a provided a closing comment.
-        elif self.comment:
-            self.close()
         # Handle remaining moderation actions.
-        elif action in action_map:
+        if action in action_map:
             mod_func = action_map[action]
             mod_func()
         else:
@@ -357,12 +352,12 @@ class Moderate(object):
 
     def spam(self):
         """
-        Report self.post as spam and the author as a spammer.
+        Suspend the user.
         """
-        self.post.author.profile.state = Profile.SPAMMER
+        self.post.author.profile.state = Profile.SUSPENDED
         self.post.author.profile.save()
-        # Label all posts by this users as spam.
-        Post.objects.filter(author=self.post.author).update(spam=Post.SPAM, status=Post.CLOSED)
+        self.post.spam = Post.SPAM
+        self.post.save()
 
     def close(self):
         """
@@ -381,10 +376,11 @@ class Moderate(object):
     def duplicated(self):
 
         # Generate a rationale post on why this post is a duplicate.
-        Post.objects.filter(uid=self.post.uid).update(status=Post.CLOSED)
-        context = dict(dupes=self.links, comment=self.comment)
+
+        dupes = self.comment.split("\n")[:5]
+        dupes = list(filter(lambda d: len(d), dupes))
+        context = dict(dupes=dupes, comment=self.comment)
         rationale = mod_rationale(post=self.post, user=self.user,
-                                  ptype=Post.ANSWER,
                                   template="messages/duplicate_posts.md",
                                   extra_context=context)
         self.url = rationale.get_absolute_url()

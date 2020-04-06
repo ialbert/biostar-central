@@ -33,11 +33,13 @@
                 {{ post.title|truncatechars:150 }}
             </a>
         </div>
+{% comment %}
 
         <div class="secondary muted">
             {{ post.get_votecount|bignum }} Vote{{ post.get_votecount|pluralize }} | {{ post.reply_count }}
             Repl{{ post.reply_count|pluralize:"y,ies" }}
         </div>
+{% endcomment %}
 
         <div class="extra right floated">
 
@@ -47,14 +49,14 @@
                 {% endif %}
             </div>
 
-            {% if post.author.profile.low_rep and user.profile.is_moderator %}
-                <div class="ui dropdown spam">
+            {% if post.high_spam_score and user.profile.is_moderator %}
+                <div class="ui simple dropdown spam">
                     <i class="bug orange icon"></i>
                     <div class="menu">
                         <div class="mark item">Mark as Spam</div>
 
-                        {% if post.maybe_spam %}
-                            <div class="release item">Release from Quarantine</div>
+                        {% if post.suspect_spam %}
+                            <div class="release item">Release</div>
                         {% endif %}
 
                     </div>

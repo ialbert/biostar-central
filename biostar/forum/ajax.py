@@ -267,12 +267,9 @@ def release_suspect(request, uid):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="You need to be a moderator to preform that action.")
 
-    if request.user == post.author or post.author.profile.is_moderator:
-        return ajax_error(msg='Invalid action.')
-
     Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
 
-    return ajax_success(msg="Released from the score.")
+    return ajax_success(msg="Released from the quarantine.")
 
 
 @ajax_error_wrapper(method="GET", login_required=True)
@@ -293,7 +290,7 @@ def report_spam(request, post_uid):
     if request.user == post.author or post.author.profile.is_moderator:
         return ajax_error(msg='Invalid action.')
 
-    auth.handle_spam_post(post=post, user=request.user)
+    auth.Moderate(post=post, action=const.REPORT_SPAM, user=request.user)
 
     return ajax_success(msg="Reported user as a spammer.")
 

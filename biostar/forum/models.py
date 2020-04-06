@@ -8,7 +8,7 @@ from django.db import models
 from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
-
+from biostar.forum.documents import SpamDocument
 from biostar.accounts.models import Profile
 from . import util
 
@@ -38,9 +38,10 @@ class PostManager(models.Manager):
 
         # Filter for open posts that are not spam.
         query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
+        query = query.filter(models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT) |
+                             models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT))
 
-        query = query.exclude(models.Q(spam=Post.SPAM) | models.Q(root=None) |
-                              models.Q(root__spam=Post.SPAM))
+        query = query.exclude(root=None)
 
         return query
 
@@ -83,7 +84,7 @@ class Post(models.Model):
 
     # Possile spam states.
     SPAM, NOT_SPAM, DEFAULT, SUSPECT = range(4)
-    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (SUSPECT, "Suspect"), (DEFAULT, "Default")]
+    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (SUSPECT, "Quarantine"), (DEFAULT, "Default")]
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
@@ -259,6 +260,10 @@ class Post(models.Model):
         url = reverse("post_view", kwargs=dict(uid=self.root.uid))
         return url if self.is_toplevel else "%s#%s" % (url, self.uid)
 
+    def high_spam_score(self, threshold=None):
+        threshold = threshold or settings.SPAM_THRESHOLD
+        return (self.spam_score > threshold) or self.is_spam or self.author.profile.low_rep
+
     def save(self, *args, **kwargs):
 
         # Needs to be imported here to avoid circular imports.
@@ -312,7 +317,7 @@ class Post(models.Model):
         if self.is_spam:
             return "spam"
         if self.suspect_spam:
-            return "score"
+            return "quarantine"
 
         return f"{status}".lower()
 
@@ -323,6 +328,15 @@ class Post(models.Model):
         if self.has_accepted and not self.is_toplevel:
             return "accepted"
         return ""
+
+    def spam_indexing(self):
+        obj = SpamDocument(
+            meta={'id': self.id},
+            title=self.title,
+            content=self.content,
+            is_spam=self.is_spam or self.is_deleted
+        )
+        return obj.to_dict(include_meta=True)
 
     @property
     def age_in_days(self):
