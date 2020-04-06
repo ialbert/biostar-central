@@ -3,13 +3,16 @@ import random
 from itertools import chain
 from django.conf import settings
 from django.db.models import Q
-from elasticsearch_dsl import Search
+from elasticsearch_dsl import Search, Index
 from elasticsearch_dsl import Q as elastic_Q
+from elasticsearch_dsl.query import MoreLikeThis, Query
+from elasticsearch_dsl.connections import connections
+from elasticsearch_dsl import FacetedSearch, TermsFacet, DateHistogramFacet
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from biostar.forum.models import Post
-from biostar.forum import util
-from biostar.forum.documents import SpamDocument
+from biostar.forum import util, search
+from biostar.forum.documents import SpamDocument, TrainSpam
 
 SPAM_LIMIT = 2500
 HAM_LIMIT = 10000
@@ -37,6 +40,20 @@ def false_discovery_rate(fp, tp):
     return fp / (fp + tp)
 
 
+def to_dict(posts):
+
+    data = ({
+        "_index": "train_spam",
+        "_id": p.id,
+        "_title": p.title,
+        "_content": p.content,
+        "_is_spam": p.is_spam or p.is_deleted
+    }
+    for p in posts.iterator()
+    )
+    return data
+
+
 def report(nham, nspam, tn, tp, fn, fp):
     percent = lambda x: f"{x * 100:0.3f} %"
 
@@ -60,49 +77,63 @@ def report(nham, nspam, tn, tp, fn, fp):
     return
 
 
-def search(post, more_like_this=True):
+def search_spam(post, indexname=None, client=None):
 
-    #client = Elasticsearch()
-    client = Elasticsearch()
+    s = Search(using=client, index=indexname, doc_type=TrainSpam)
 
-    s = Search(using=client)
+    text = [post.content.replace(f" {stop} ", "") for stop in search.STOP]
 
-    s = Search(using=client, index="bank").query(q)[0:20]
+    res = s.suggest("suggest_1", text=text, phrase=dict(field='content',
+                                                        size=1,
+                                                        confidence=0,
+                                                        real_word_error_likelihood=1))
+    res = res.execute()
 
-    response = s.execute()
-    #spam = doc()
+    res8 = [x.text for x in res.suggest.suggest_1]
+    #s.query()
 
-    return
+    print(len(res8), type(res.suggest), res.hits, post.content, post.is_spam, res.to_dict())
+    1/0
+    return s
 
 
-def score(post):
+def score(post, indexname=None, client=None):
 
-    #if indexname is None:
+    client = client or Elasticsearch()
 
-    similar = search(post=post, more_like_this=True)
+    similar = search_spam(client=client, post=post, indexname=indexname)
+
+    print([x for x in similar], post.is_spam)
+    #similar = search(post=post, more_like_this=True)
     1/0
 
     return 0
 
 
-def bulk_index(qs):
+def bulk_index(qs, doc=None):
 
-    es = Elasticsearch()
+    doc = doc or SpamDocument
+    client = Elasticsearch()
 
-    status = bulk(client=es, actions=(obj.spam_indexing() for obj in qs.iterator()))
+    if client.indices.exists(index=doc.Index.name):
+        client.indices.delete(index=doc.Index.name, ignore=[400, 404])
+        logger.info("Created indexed.")
+        doc.init()
+
+    print(len([d for d in to_dict(qs)]))
+
+    status = bulk(client=client, actions=to_dict(qs))
 
     success, fail = 1, 0
-
+    client.indices.refresh(doc.Index.name)
+    #print(client.indices.refresh(doc.Index.name))
+    print(client.cat.count(doc.Index.name, params={"format": "json"}))
     if status == fail:
         logger.error(f"Error building index.")
 
 
-def train(indexname, spamids, hamids, limit=500):
-
-    es = Elasticsearch()
-    if es.indices.exists(index=indexname):
-        es.indices.delete(index=indexname, ignore=[400, 404])
-        logger.info("Removed indexed.")
+def train(spamids, hamids, limit=None):
+    limit = limit or 500
 
     random.shuffle(spamids)
     random.shuffle(hamids)
@@ -115,15 +146,16 @@ def train(indexname, spamids, hamids, limit=500):
     qs = Post.objects.filter(id__in=chain(hamids, spamids))
     one_out = Post.objects.filter(id=one_out).first()
 
-    bulk_index(qs=qs)
+    bulk_index(qs=qs, doc=TrainSpam)
 
     return one_out
 
 
-def test(indexname, threshold=None, niter=100, limit=500):
+def test(threshold=None, niter=100, limit=None):
 
     threshold = threshold or settings.SPAM_THRESHOLD
-    SpamDocument(indexname=indexname).init()
+
+    indexname = settings.TRAIN_SPAM_INDEX
 
     spam = Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
     ham = Post.objects.valid_posts()
@@ -140,9 +172,9 @@ def test(indexname, threshold=None, niter=100, limit=500):
     tp, tn, fn, fp = 0, 0, 0, 0
 
     for n in range(niter):
-        one_out = train(indexname=indexname, spamids=spamids, hamids=hamids, limit=limit)
+        one_out = train(spamids=spamids, hamids=hamids, limit=limit)
         is_spam = one_out.is_spam or one_out.is_deleted
-        spam_score = score(post=one_out)
+        spam_score = score(post=one_out, indexname=indexname)
 
         if spam_score >= threshold:
             tp += 1 if is_spam else 0

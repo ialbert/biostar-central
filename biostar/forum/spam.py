@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import random
 from math import log
 from itertools import groupby, islice, count, chain
@@ -17,6 +18,9 @@ logger = logging.getLogger("engine")
 
 HAM_LIMIT = 5000
 
+dirname = os.path.dirname(settings.SPAM_INDEX_DIR)
+basename = f"train_{os.path.basename(settings.SPAM_INDEX_DIR)}"
+TRAIN_DIR = os.path.join(dirname, basename)
 
 STARTER_UID = 'placeholder'
 
@@ -32,7 +36,6 @@ def spam_schema():
 
 
 def init_spam_index():
-
     return search.init_index(dirname=settings.SPAM_INDEX_DIR,
                              indexname=settings.SPAM_INDEX_NAME,
                              schema=spam_schema())
@@ -73,7 +76,7 @@ def add_post_to_index(post, writer, is_spam=False):
     index_writer(writer=writer, title=post.title,
                  content_length=len(post.content),
                  content=post.content, is_spam=is_spam,
-                 uid=post.uid)
+                 uid=f"{post.uid}")
 
 
 def build_spam_index(overwrite=False):
@@ -91,7 +94,7 @@ def build_spam_index(overwrite=False):
     return ix
 
 
-def search_spam(post, ix):
+def search_spam(post, ix, include_title=False):
     """
     Search spam index for posts similar to this one.
     Returns
@@ -102,11 +105,14 @@ def search_spam(post, ix):
 
     # Search for this post in the spam index
     fields = ['uid']
-    writer.searcher()
+
     results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
+    if include_title:
+        similar_title = results[0].more_like_this('title', text=post.title, top=5000)
 
     # Preform more_like_this on this posts content
-    similar = results[0].more_like_this('content', top=500)
+    similar_content = results[0].more_like_this('content', top=500)
+    similar_title = []
 
     # Remove this post from the spam index after results are collected.
     writer = AsyncWriter(ix)
@@ -114,10 +120,11 @@ def search_spam(post, ix):
     writer.commit()
 
     # Get the results into a list and close the searcher object.
-    similar = list(map(search.normalize_result, similar))
-    results.searcher.close()
+    similar_content = list(map(search.normalize_result, similar_content))
 
-    return similar
+    #results.searcher.close()
+
+    return similar_content, similar_title
 
 
 def compute_score(post, ix=None):
@@ -125,7 +132,7 @@ def compute_score(post, ix=None):
     ix = ix or init_spam_index()
 
     # Search for spam similar to this post.
-    similar = search_spam(post=post, ix=ix)
+    similar_content, similar_title = search_spam(post=post, ix=ix, include_title=True)
 
     # Add weight depending on number of post author has already made.
     # And the user score.
@@ -133,25 +140,32 @@ def compute_score(post, ix=None):
     # Scales the values.
 
     # Get the weighted mean of a users activity score.
-    weighting_factor = (1 / (post.author.profile.score + 1))
-    # print("--")
-    # print(weighting_factor, (authored + post.author.profile.score), weighting_factor)
-    # print("--")
 
-    scores = [s.score for s in similar if s.is_spam]
+    weighting_factor = 0.6
+
+    authored = post.author.post_set.exclude(id=post.id).count() * 5
+
+    boost = (1 - weighting_factor) + 2 if (post.is_comment or post.is_job) else 0
+
+    weighting_factor += boost
+
+    weight = (1 / ((post.author.profile.score * 10 + authored) + weighting_factor))
+
+    scores = [s.score for s in similar_content if s.is_spam]
+    #title_scores = [h.score for h in similar_title if h.get("is_spam")]
 
     # Take two local maximums and compute the n between them
-
+    N = 1
     scores = sorted(scores, reverse=True)
-
-    scores = [s * weighting_factor for s in scores]
+    scores = [s * weight for s in scores][:N]
 
     # Return the mean of the scores.
     if scores:
         mean = sum(scores) / len(scores)
     else:
-        mean = 0
+        mean = weight - log(2) ** 3
 
+    print(scores, mean, post.title, weight, post.author.profile.score)
     return mean
 
 
@@ -161,7 +175,6 @@ def accuracy(tp, tn, fp, fn):
 
 
 def specificity(tn, fp):
-
     return tn / (tn + fp)
 
 
@@ -170,59 +183,79 @@ def sensitivity(tp, fn):
     return tp / (tp + fn)
 
 
-def miss_rate(fn, tp):
+def sizer(lst, size):
+    return size if size <= len(lst) else len(lst)
 
-    return fn / (fn + tp)
 
-
-def false_discovery_rate(fp, tp):
-
-    return fp / (fp + tp)
+def false_positive_rate(fp, tn):
+    return fp / (fp + tn)
 
 
 def one_out_train(spam, ham, writer, size=100):
 
-    # Build separate index then clean the index
+    ham = random.sample(ham, k=sizer(ham, size=size))
+    spam = random.sample(spam, k=sizer(spam, size=size))
 
-    spam = spam[:size].values_list("id", flat=True)
-    ham = ham[:size].values_list("id", flat=True)
-    out_spam = random.choice(spam)
-    out_ham = random.choice(ham)
+    # Remove one random item from the list
+    one_out = random.choice([ham[0], spam[0]])
+    ham, spam = ham[1:], spam[1:]
 
-    one_out = random.choice([out_ham, out_spam])
+    # Get final queryset and only required fields
     posts = Post.objects.filter(id__in=chain(spam, ham)).exclude(id=one_out)
     posts = posts.only("content", "uid", "spam", "status", "title")
 
-    # Write spam and hap posts to train index
+    # Write spam and ham posts to train index
     for post in posts:
         add_post_to_index(post=post, writer=writer, is_spam=post.is_spam)
 
+    # Return the test post excluded from training.
     one_out = Post.objects.filter(id=one_out).first()
-    # Return the test set excluded from training.
     return one_out
 
 
-def report(tested_ham, tested_spam, tn, tp, fn, fp):
-    acc = accuracy(tp=tp, tn=tn, fp=fp, fn=fn)
-    specif = specificity(tn=tn, fp=fp)
-    sens = sensitivity(tp=tp, fn=fn)
-    missed = miss_rate(fn=fn, tp=tp)
-    false_discovery = false_discovery_rate(fp=fp, tp=tp)
+def report(nham, nspam, tn, tp, fn, fp):
+    percent = lambda x: f"{x * 100:0.3f} %"
+    acc = percent(accuracy(tp=tp, tn=tn, fp=fp, fn=fn))
+    specif = percent(specificity(tn=tn, fp=fp))
+    sens = percent(sensitivity(tp=tp, fn=fn))
+    fps = percent(false_positive_rate(fp=fp, tn=tn))
 
-    print(f"Number of ham: {tested_ham}")
-    print(f"Predicted ham: {tn}")
-    print(f"Number of spam: {tested_spam}")
-    print(f"Predicted spam: {tp}")
-
-    print(f"Accuracy: {acc}")
-    print(f"Specificity : {specif}")
-    print(f"Sensitivity : {sens}")
-    print(f"Missed rate: {missed}")
-    print(f"False discovery rate:{false_discovery}")
+    print(f"... \t{nspam}\tSPAM actual")
+    print(f"... \t{tp}\tSPAM predicted\n\t\t---")
+    print(f"... \t{nham}\tHAM actual")
+    print(f"... \t{tn}\tHAM predicted")
+    print("-"*10)
+    print(f"... {acc}\tAccuracy\ttp + tn / (tp + tn + fp + fn) ")
+    print(f"... {specif}\tSpecificity\ttn / (tn + fp)")
+    print(f"... {sens}\tSensitivity\ttp / (tp + fn)")
+    print(f"... {fps}\tFalse positive rate\tfp / (fp + tn)")
     return
 
 
-def test_classify(threshold=None, niter=100):
+def detail(post, post_score, is_spam=True, predict=True, verb=1):
+
+    fp = not is_spam and predict
+    fn = is_spam and not predict
+
+    if verb and not (fn or fp):
+        return
+
+    if fn:
+        print(f"-----\tFALSE NEGATIVE ( missed spam )\tuid={post.uid} score={post_score}. deleted={post.is_deleted}")
+
+    elif fp:
+        print(f"++++++\tFALSE POSITIVE ( missed ham )\tuid={post.uid} score={post_score}. ")
+
+    if verb > 1 and (fp or fn):
+        print(post.content)
+        print(">"*5)
+        print(post.author)
+
+    print("-" * 5)
+    return
+
+
+def test_classify(threshold=None, niter=100, size=100, verbosity=0):
 
     if threshold is None:
         threshold = settings.SPAM_THRESHOLD
@@ -233,24 +266,25 @@ def test_classify(threshold=None, niter=100):
     # Get the valid posts and shuffle.
     ham = Post.objects.valid_posts()
 
+    # Get list of id's for both
+    spam = list(spam.values_list("id", flat=True))
+    ham = list(ham.values_list("id", flat=True))
+
     # tp = Identify spam correctly.
     # tn = Identify valid post correctly.
     # fn = Missed to identify a spam.
     # fp = Mis-identified valid post as spam.
     tp, tn, fn, fp = 0, 0, 0, 0
-    size = 90
+    seen_ham, seen_spam = 0, 0
     elapsed, progress = util.timer_func()
-    tested_ham, tested_spam = 0, 0
-    dirname = os.path.dirname(settings.SPAM_INDEX_DIR)
-    basename = f"train_{os.path.basename(settings.SPAM_INDEX_DIR)}"
-    train_dir = os.path.join(dirname, basename)
-    import shutil
 
     for i in range(niter):
-        shutil.rmtree(train_dir)
-        ix = search.init_index(dirname=train_dir, indexname=f"train_{util.get_uuid(8)}_{settings.SPAM_INDEX_NAME}",
+        # Remove previous index
+        shutil.rmtree(TRAIN_DIR)
+
+        ix = search.init_index(dirname=TRAIN_DIR, indexname=f"train_{util.get_uuid(8)}_{settings.SPAM_INDEX_NAME}",
                                schema=spam_schema())
-        writer = BufferedWriter(ix, limit=niter, writerargs=dict(limitmb=512, multisegment=True))
+        writer = BufferedWriter(ix, limit=niter, writerargs=dict(limitmb=1026, multisegment=True))
 
         index_writer(writer=writer, title="Placeholder",
                      content_length=0, is_spam=True,
@@ -260,29 +294,35 @@ def test_classify(threshold=None, niter=100):
         one_out = one_out_train(ham=ham, spam=spam, writer=writer, size=size)
         writer.commit()
         writer.close()
-
         post_score = compute_score(post=one_out, ix=ix)
 
+        predicted_spam = post_score >= threshold
         is_spam = one_out.is_spam or one_out.is_deleted
         is_ham = not is_spam
 
-        tested_spam += 1 if is_spam else 0
-        tested_ham += 1 if is_ham else 0
+        seen_spam += 1 if is_spam else 0
+        seen_ham += 1 if is_ham else 0
 
-        if post_score >= threshold:
+        detail(is_spam=is_spam, predict=predicted_spam, post=one_out,
+               verb=verbosity, post_score=post_score)
+
+        if predicted_spam:
             tp += 1 if is_spam else 0
             fp += 1 if is_ham else 0
-        else:
-            if is_spam:
-                print("FALSE", one_out.content,  one_out.is_spam, one_out.author.id,one_out.author)
 
+        else:
             fn += 1 if is_spam else 0
             tn += 1 if is_ham else 0
 
         progress(i, step=5, msg=f"iterations. tp={tp} fp={fp} tn={tn} fn={fn}")
 
-    elapsed(f"Results gathered over {niter} iterations.")
-    report(tested_ham=tested_ham, tested_spam=tested_spam, tn=tn, tp=tp, fp=tp, fn=fn)
+    train_spam = sizer(spam, size)
+    train_ham = sizer(ham, size)
+    print(f"... {train_ham + train_spam}\tSize of index ( per iteration )")
+    print(f"... \t{train_spam}\tSPAM")
+    print(f"... \t{train_ham}\tHAM")
+    print(f"\n... {niter}\tNumber of iterations")
+    report(nham=seen_ham, nspam=seen_spam, tn=tn, tp=tp, fp=fp, fn=fn)
 
     return
 
