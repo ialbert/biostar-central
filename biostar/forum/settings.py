@@ -85,8 +85,11 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
+
+    'biostar.forum.apps.ForumConfig',
     'pagedown',
 ]
+
 
 # Additional middleware.
 MIDDLEWARE += [
