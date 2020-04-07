@@ -172,7 +172,7 @@ def compute_score(post, ix=None):
 
     weighting_factor += boost + 1.5
 
-    weight = (3 / ((post.author.profile.score * 10 + authored) + weighting_factor)) - (log(2)**15) - 1/200
+    weight = (3 / ((post.author.profile.score * 10 + authored) + weighting_factor)) - (log(2)**15) - 1/100
 
     scores = [s.score for s in similar_content if s.is_spam]
 
@@ -311,7 +311,7 @@ def test_classify(threshold=None, niter=100, size=100, verbosity=0):
 
         ix = search.init_index(dirname=TRAIN_DIR, indexname=f"train_{util.get_uuid(8)}_{settings.SPAM_INDEX_NAME}",
                                schema=spam_schema())
-        writer = BufferedWriter(ix, limit=niter, writerargs=dict(limitmb=1026, multisegment=True))
+        writer = BufferedWriter(ix, limit=niter, writerargs=dict(limitmb=10024, multisegment=True))
 
         index_writer(writer=writer, title="Placeholder",
                      content_length=0, is_spam=True,
