@@ -23,9 +23,15 @@ SPAM_THRESHOLD = 0.5
 # Spam index used to classify new posts as spam or ham.
 SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
 TRAIN_SPAM_INDEX = f"train_{SPAM_INDEX_NAME}"
+
+
 SPAM_INDEX_DIR = 'spammers'
+
 # Absolute path to spam index directory in export/
 SPAM_INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', SPAM_INDEX_DIR))
+
+# Classify posts and assign a spam score on creation.
+CLASSIFY_SPAM = True
 
 ENABLE_DIGESTS = False
 

@@ -8,7 +8,6 @@ from django.db import models
 from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
-from biostar.forum.documents import SpamDocument
 from biostar.accounts.models import Profile
 from . import util
 

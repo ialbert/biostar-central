@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
 from django.conf import settings
-from biostar.forum import search, spam, spam2
+from biostar.forum import search, spam
 
 logger = logging.getLogger('engine')
 
@@ -43,6 +43,6 @@ class Command(BaseCommand):
         # Run specificity and sensitivity tests on posts.
         if test:
             indexname = "test"
-            spam.test_classify(niter=100, size=300, verbosity=verbosity)
+            spam.test_classify(niter=400, size=800, verbosity=verbosity)
             #spam2.test(limit=100)
             #spam.test_classify()

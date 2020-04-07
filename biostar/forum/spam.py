@@ -12,7 +12,6 @@ from whoosh.analysis import StemmingAnalyzer
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, NUMERIC, BOOLEAN
 from biostar.forum.models import Post
 from biostar.forum import search, auth, util
-from biostar.forum.documents import SpamDocument
 
 logger = logging.getLogger("engine")
 
@@ -127,6 +126,24 @@ def search_spam(post, ix, include_title=False):
     return similar_content, similar_title
 
 
+def compute_weight(post):
+    weighting_factor = 2/3 #0.65
+
+    emphasis = 5
+
+    boost_const = 2
+
+    authored = post.author.post_set.exclude(id=post.id).count() * emphasis
+
+    boost = (weighting_factor * 2) + boost_const if (post.is_comment or post.is_job) else log(2) ** 4
+
+    weighting_factor += boost
+
+    weight = (1 / ((post.author.profile.score * emphasis + authored) + weighting_factor))
+
+    return weight
+
+
 def compute_score(post, ix=None):
 
     ix = ix or init_spam_index()
@@ -141,18 +158,23 @@ def compute_score(post, ix=None):
 
     # Get the weighted mean of a users activity score.
 
-    weighting_factor = 0.6
+    weighting_factor = 8/15 #0.65
 
-    authored = post.author.post_set.exclude(id=post.id).count() * 5
+    authored = post.author.post_set.exclude(id=post.id).count() * 10
 
-    boost = (1 - weighting_factor) + 2 if (post.is_comment or post.is_job) else 0
+    dates = post.author.profile.last_login - post.author.profile.date_joined
 
-    weighting_factor += boost
+    print(dates.seconds, dates.seconds/60, dates.seconds/60/60/24, post.is_spam)
 
-    weight = (1 / ((post.author.profile.score * 10 + authored) + weighting_factor))
+    weighting_factor += dates.seconds / 60 / 60 / 24 / 7 / 4 / 12 + 1
+
+    boost = (weighting_factor * 2) + 3 if (post.is_comment or post.is_job) else log(weighting_factor)
+
+    weighting_factor += boost + 1.5
+
+    weight = (3 / ((post.author.profile.score * 10 + authored) + weighting_factor)) - (log(2)**15) - 1/200
 
     scores = [s.score for s in similar_content if s.is_spam]
-    #title_scores = [h.score for h in similar_title if h.get("is_spam")]
 
     # Take two local maximums and compute the n between them
     N = 1
@@ -161,11 +183,10 @@ def compute_score(post, ix=None):
 
     # Return the mean of the scores.
     if scores:
-        mean = sum(scores) / len(scores)
+        mean = abs(sum(scores) / len(scores))
     else:
-        mean = weight - log(2) ** 3
+        mean = (weight - log(2))
 
-    print(scores, mean, post.title, weight, post.author.profile.score)
     return mean
 
 
@@ -241,15 +262,20 @@ def detail(post, post_score, is_spam=True, predict=True, verb=1):
         return
 
     if fn:
+
         print(f"-----\tFALSE NEGATIVE ( missed spam )\tuid={post.uid} score={post_score}. deleted={post.is_deleted}")
 
     elif fp:
-        print(f"++++++\tFALSE POSITIVE ( missed ham )\tuid={post.uid} score={post_score}. ")
+        print(f"-----\tFALSE POSITIVE ( missed ham )\tuid={post.uid} score={post_score}. ")
 
     if verb > 1 and (fp or fn):
         print(post.content)
         print(">"*5)
-        print(post.author)
+
+    if verb >= 1 and (fp or fn):
+        print("USER", post.author)
+        print("USER SCORE", post.author.profile.score)
+        print("POSER SCORE", post_score)
 
     print("-" * 5)
     return
@@ -330,6 +356,9 @@ def test_classify(threshold=None, niter=100, size=100, verbosity=0):
 def score(post, threshold=None):
     """
     """
+
+    if not settings.CLASSIFY_SPAM:
+        return
 
     if threshold is None:
         threshold = settings.SPAM_THRESHOLD
