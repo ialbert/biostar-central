@@ -306,7 +306,8 @@ def test_classify(threshold=None, niter=100, size=100, verbosity=0):
 
     for i in range(niter):
         # Remove previous index
-        shutil.rmtree(TRAIN_DIR)
+        if os.path.exists(TRAIN_DIR):
+            shutil.rmtree(TRAIN_DIR)
 
         ix = search.init_index(dirname=TRAIN_DIR, indexname=f"train_{util.get_uuid(8)}_{settings.SPAM_INDEX_NAME}",
                                schema=spam_schema())
