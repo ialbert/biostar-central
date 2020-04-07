@@ -85,19 +85,8 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
-    # Django Elasticsearch integration
-    'django_elasticsearch_dsl',
-    'biostar.forum.apps.ForumConfig',
     'pagedown',
 ]
-
-
-# Elasticsearch configuration
-ELASTICSEARCH_DSL = {
-    'default': {
-        'hosts': 'localhost:9200'
-    },
-}
 
 # Additional middleware.
 MIDDLEWARE += [
