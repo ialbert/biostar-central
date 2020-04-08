@@ -8,4 +8,6 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
+CLASSIFY_SPAM = False
+
 ROOT_URLCONF = 'biostar.server.urls'

@@ -18,8 +18,11 @@ class Command(BaseCommand):
         parser.add_argument('--remove', action='store_true', default=False, help="Removes the existing index.")
         parser.add_argument('--test', action='store_true', default=False,
                             help="Run specificity/sensitivity test against content in database.")
+        parser.add_argument('--niter', type=int, default=400, help="Number of iterations to test.")
+        parser.add_argument('--nsize', type=int, default=800, help="Size of index per iteration.")
+        parser.add_argument('--limitmb', type=int, default=1024, help="Limit the size of the index buffer when testing")
         parser.add_argument('--index', action='store_true', default=False, help="How many posts to index")
-        parser.add_argument('--fname', type=str, default='', help="File with spam to index. Separated by --delim.")
+        parser.add_argument('--verb', type=int, default=0, help="Set the verbosity")
 
     def handle(self, *args, **options):
 
@@ -28,17 +31,16 @@ class Command(BaseCommand):
         reset = options['reset']
         remove = options['remove']
         index = options['index']
-        fname = options['fname']
         test = options['test']
+        verbosity = options['verb']
+        niter = options['niter']
+        nsize = options['nsize']
+        limitmb = options['limitmb']
 
         # Sets the un-indexed flags to false on all posts.
         if reset:
             logger.info(f"Setting indexed field to false on all post.")
             Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED)).update(indexed=False)
-
-        if fname:
-            #spam.add_file_to_index(fname=fname, delim=delim)
-            logger.info(f"Added {fname} to spam index.")
 
         # Index a limited number yet unindexed posts
         if index:
@@ -46,7 +48,4 @@ class Command(BaseCommand):
 
         # Run specificity and sensitivity tests on posts.
         if test:
-            #indexname = "test"
-            spam.test_classify()
-            #spam2.test(indexname=indexname)
-            #spam.test_classify()
+            spam.test_classify(niter=niter, size=nsize, limitmb=limitmb, verbosity=verbosity)

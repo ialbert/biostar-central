@@ -117,6 +117,7 @@ body > .widen.container {
 
 .post.item > .content .ui.label {
     margin-left: 0px;
+    padding: 3px;
 }
 
 .ui.items > .post.item > .image:not(.ui) {
@@ -474,10 +475,12 @@ figure {
 .post.deleted, .post.spam {
     background-color: #ffd2cf !important;
     opacity: .6;
+    border: none !important;
 }
 
 .post.quarantine{
     background-color: #f6f8ce !important;
+    border: none !important;
 }
 
 #dim-similar {
@@ -747,6 +750,7 @@ img {
 
 .ui.divided.items > .post.item {
     padding: 6px 4px 10px 4px !important;
+    border: none;
 }
 
 .ui.divided.items > .item {
