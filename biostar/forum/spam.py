@@ -189,7 +189,7 @@ def compute_score(post, ix=None):
         print(mean, "FOOOO")
         mean -= 1/((post.author.profile.score + date_val/60) - ( post.author.profile.score + authored))
 
-    mean = mean / log(3)
+    mean = mean / log(8)
 
     print(mean, post.is_spam, "FINAL")
 
