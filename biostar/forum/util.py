@@ -50,6 +50,10 @@ def timer_func():
     def progress(index, step=5000, msg=""):
         nonlocal last
         if index % step == 0:
+            print("**" * 5)
+            print()
             elapsed(f"... {index} {msg}")
+            print()
+            print("**" * 5)
 
     return elapsed, progress

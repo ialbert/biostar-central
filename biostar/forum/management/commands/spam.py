@@ -18,6 +18,9 @@ class Command(BaseCommand):
         parser.add_argument('--remove', action='store_true', default=False, help="Removes the existing index.")
         parser.add_argument('--test', action='store_true', default=False,
                             help="Run specificity/sensitivity test against content in database.")
+        parser.add_argument('--niter', type=int, default=400, help="Number of iterations to test.")
+        parser.add_argument('--nsize', type=int, default=800, help="Size of index per iteration.")
+        parser.add_argument('--limitmb', type=int, default=1024, help="Limit the size of the index buffer when testing")
         parser.add_argument('--index', action='store_true', default=False, help="How many posts to index")
         parser.add_argument('--verb', type=int, default=0, help="Set the verbosity")
 
@@ -30,6 +33,9 @@ class Command(BaseCommand):
         index = options['index']
         test = options['test']
         verbosity = options['verb']
+        niter = options['niter']
+        nsize = options['nsize']
+        limitmb = options['limitmb']
 
         # Sets the un-indexed flags to false on all posts.
         if reset:
@@ -42,7 +48,4 @@ class Command(BaseCommand):
 
         # Run specificity and sensitivity tests on posts.
         if test:
-            indexname = "test"
-            spam.test_classify(niter=400, size=800, verbosity=verbosity)
-            #spam2.test(limit=100)
-            #spam.test_classify()
+            spam.test_classify(niter=niter, size=nsize, limitmb=limitmb, verbosity=verbosity)

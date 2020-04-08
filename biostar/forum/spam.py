@@ -2,7 +2,8 @@ import logging
 import os
 import shutil
 import random
-from math import log
+import time
+from math import log, exp
 from itertools import groupby, islice, count, chain
 from django.conf import settings
 from django.db.models import Q
@@ -93,7 +94,7 @@ def build_spam_index(overwrite=False):
     return ix
 
 
-def search_spam(post, ix, include_title=False):
+def search_spam(post, ix,):
     """
     Search spam index for posts similar to this one.
     Returns
@@ -106,12 +107,10 @@ def search_spam(post, ix, include_title=False):
     fields = ['uid']
 
     results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
-    if include_title:
-        similar_title = results[0].more_like_this('title', text=post.title, top=5000)
 
     # Preform more_like_this on this posts content
-    similar_content = results[0].more_like_this('content', top=500)
-    similar_title = []
+    similar_content = results[0].more_like_this('content', top=2)
+
 
     # Remove this post from the spam index after results are collected.
     writer = AsyncWriter(ix)
@@ -123,23 +122,40 @@ def search_spam(post, ix, include_title=False):
 
     #results.searcher.close()
 
-    return similar_content, similar_title
+    return similar_content
 
 
-def compute_weight(post):
-    weighting_factor = 2/3 #0.65
+def compute_weight(post, verbosity=0):
 
-    emphasis = 5
+    def printer(pdict):
+        if verbosity >= 1:
+            print(f"\t{pdict}")
 
-    boost_const = 2
+    weighting_factor = 8/14 #0.65
+    printer(dict(weighting_factor=weighting_factor))
 
-    authored = post.author.post_set.exclude(id=post.id).count() * emphasis
+    authored = (post.author.post_set.exclude(id=post.id).count() ** 5)
+    dates = post.author.profile.last_login - post.author.profile.date_joined
+    date_val = dates.seconds / 60 / 60 / 24 / 7 / 4 / 12 / 5 + 1
+    weighting_factor += date_val
 
-    boost = (weighting_factor * 2) + boost_const if (post.is_comment or post.is_job) else log(2) ** 4
+    printer(dict(weighting_factor=weighting_factor, date_val=date_val, authored=authored))
+
+    if post.is_comment or post.is_job:
+        boost = 8
+    else:
+        boost = (weighting_factor * 2)  # log(abs(weighting_factor))
+
+    boost += 9
 
     weighting_factor += boost
+    weight = 7 / (((post.author.profile.score + date_val - 1) * 40 + authored * 2) + weighting_factor)
 
-    weight = (1 / ((post.author.profile.score * emphasis + authored) + weighting_factor))
+    weight *= weighting_factor + ((1 - (1 / (post.author.profile.score + date_val))) - 30) + post.author.profile.score / 5
+    #extra = (log(2) / 100)
+    #weight = abs(weight - log(2))
+
+    printer(dict(weighting_factor=weighting_factor, boost=boost, weight=weight))
 
     return weight
 
@@ -149,43 +165,33 @@ def compute_score(post, ix=None):
     ix = ix or init_spam_index()
 
     # Search for spam similar to this post.
-    similar_content, similar_title = search_spam(post=post, ix=ix, include_title=True)
+    similar_content = search_spam(post=post, ix=ix)
 
-    # Add weight depending on number of post author has already made.
-    # And the user score.
-    #authored = post.author.post_set.count()
-    # Scales the values.
-
-    # Get the weighted mean of a users activity score.
-
-    weighting_factor = 8/15 #0.65
-
-    authored = post.author.post_set.exclude(id=post.id).count() * 10
-
-    dates = post.author.profile.last_login - post.author.profile.date_joined
-
-    print(dates.seconds, dates.seconds/60, dates.seconds/60/60/24, post.is_spam)
-
-    weighting_factor += dates.seconds / 60 / 60 / 24 / 7 / 4 / 12 + 1
-
-    boost = (weighting_factor * 2) + 3 if (post.is_comment or post.is_job) else log(weighting_factor)
-
-    weighting_factor += boost + 1.5
-
-    weight = (3 / ((post.author.profile.score * 10 + authored) + weighting_factor)) - (log(2)**15) - 1/100
+    # Get some weight depending on the author activity, reputation, post type, etc.
+    weight = abs(compute_weight(post=post))
 
     scores = [s.score for s in similar_content if s.is_spam]
-
+    dates = post.author.profile.last_login - post.author.profile.date_joined
+    authored = (post.author.post_set.exclude(id=post.id).count() ** 5 + 2) * 30
+    date_val = dates.seconds / 60 / 60 / 24 / 7 / 4 / 12 / 5 + 3
     # Take two local maximums and compute the n between them
     N = 1
     scores = sorted(scores, reverse=True)
-    scores = [s * weight for s in scores][:N]
-
+    print("-"*100)
+    print(scores[:N], post.is_spam)
+    scores = [s * (weight/log(5) * abs(1 - (log(2) ** exp(1))))/4 for s in scores][:N]
+    print(scores, post.is_spam, "WEDIGHTED")
     # Return the mean of the scores.
     if scores:
-        mean = abs(sum(scores) / len(scores))
+        mean = abs(sum(scores) / len(scores[:N]))
     else:
-        mean = (weight - log(2))
+        mean = abs((weight - log(3)) * (1 - (log(2) ** exp(1))))/3
+        print(mean, "FOOOO")
+        mean -= 1/((post.author.profile.score + date_val/60) - ( post.author.profile.score + authored))
+
+    mean = mean / log(3)
+
+    print(mean, post.is_spam, "FINAL")
 
     return mean
 
@@ -212,17 +218,16 @@ def false_positive_rate(fp, tn):
     return fp / (fp + tn)
 
 
-def one_out_train(spam, ham, writer, size=100):
+def one_out_train(spam, ham_id, writer, size=100):
 
-    ham = random.sample(ham, k=sizer(ham, size=size))
     spam = random.sample(spam, k=sizer(spam, size=size))
 
     # Remove one random item from the list
-    one_out = random.choice([ham[0], spam[0]])
-    ham, spam = ham[1:], spam[1:]
+    one_out = random.choice([ham_id, spam[0]])
+    ham, spam = ham_id, spam[1:]
 
     # Get final queryset and only required fields
-    posts = Post.objects.filter(id__in=chain(spam, ham)).exclude(id=one_out)
+    posts = Post.objects.filter(id__in=spam).exclude(id=one_out)
     posts = posts.only("content", "uid", "spam", "status", "title")
 
     # Write spam and ham posts to train index
@@ -255,14 +260,13 @@ def report(nham, nspam, tn, tp, fn, fp):
 
 def detail(post, post_score, is_spam=True, predict=True, verb=1):
 
-    fp = not is_spam and predict
-    fn = is_spam and not predict
+    fp = (not is_spam) and predict
+    fn = is_spam and (not predict)
 
     if verb and not (fn or fp):
         return
 
     if fn:
-
         print(f"-----\tFALSE NEGATIVE ( missed spam )\tuid={post.uid} score={post_score}. deleted={post.is_deleted}")
 
     elif fp:
@@ -275,13 +279,17 @@ def detail(post, post_score, is_spam=True, predict=True, verb=1):
     if verb >= 1 and (fp or fn):
         print("USER", post.author)
         print("USER SCORE", post.author.profile.score)
+        print("GIVEN WEIGHT", compute_weight(post, verbosity=verb))
         print("POSER SCORE", post_score)
+        if fp:
+            print(post.content)
+            time.sleep(5)
 
     print("-" * 5)
     return
 
 
-def test_classify(threshold=None, niter=100, size=100, verbosity=0):
+def test_classify(threshold=None, niter=100, limitmb=1024, size=100, verbosity=0):
 
     if threshold is None:
         threshold = settings.SPAM_THRESHOLD
@@ -309,16 +317,18 @@ def test_classify(threshold=None, niter=100, size=100, verbosity=0):
         if os.path.exists(TRAIN_DIR):
             shutil.rmtree(TRAIN_DIR)
 
-        ix = search.init_index(dirname=TRAIN_DIR, indexname=f"train_{util.get_uuid(8)}_{settings.SPAM_INDEX_NAME}",
+        ix = search.init_index(dirname=TRAIN_DIR,
+                               indexname=f"train_{util.get_uuid(8)}_{settings.SPAM_INDEX_NAME}",
                                schema=spam_schema())
-        writer = BufferedWriter(ix, limit=niter, writerargs=dict(limitmb=10024, multisegment=True))
+        writer = BufferedWriter(ix, limit=int((niter/2) + 1), writerargs=dict(limitmb=limitmb, multisegment=True))
 
         index_writer(writer=writer, title="Placeholder",
                      content_length=0, is_spam=True,
                      content='CONTENT', uid=STARTER_UID)
 
         # Take one spam post out of training set.
-        one_out = one_out_train(ham=ham, spam=spam, writer=writer, size=size)
+        ham_id = random.choice(ham)
+        one_out = one_out_train(spam=spam, writer=writer, size=size, ham_id=ham_id)
         writer.commit()
         writer.close()
         post_score = compute_score(post=one_out, ix=ix)
