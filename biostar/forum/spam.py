@@ -120,7 +120,7 @@ def search_spam(post, ix,):
     # Get the results into a list and close the searcher object.
     similar_content = list(map(search.normalize_result, similar_content))
 
-    #results.searcher.close()
+    results.searcher.close()
 
     return similar_content
 

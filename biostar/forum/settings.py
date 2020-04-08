@@ -22,8 +22,6 @@ SPAM_THRESHOLD = 0.5
 
 # Spam index used to classify new posts as spam or ham.
 SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
-TRAIN_SPAM_INDEX = f"train_{SPAM_INDEX_NAME}"
-
 
 SPAM_INDEX_DIR = 'spammers'
 
