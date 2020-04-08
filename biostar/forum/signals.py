@@ -120,7 +120,6 @@ def finalize_post(sender, instance, created, **kwargs):
         # Give it a spam score.
         spam.score(post=instance)
 
-
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)
 

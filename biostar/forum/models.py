@@ -8,7 +8,6 @@ from django.db import models
 from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
-from biostar.forum.documents import SpamDocument
 from biostar.accounts.models import Profile
 from . import util
 
@@ -231,6 +230,10 @@ class Post(models.Model):
         return self.type == Post.QUESTION
 
     @property
+    def is_job(self):
+        return self.type == Post.JOB
+
+    @property
     def is_deleted(self):
         return self.status == Post.DELETED
 
@@ -328,15 +331,6 @@ class Post(models.Model):
         if self.has_accepted and not self.is_toplevel:
             return "accepted"
         return ""
-
-    def spam_indexing(self):
-        obj = SpamDocument(
-            meta={'id': self.id},
-            title=self.title,
-            content=self.content,
-            is_spam=self.is_spam or self.is_deleted
-        )
-        return obj.to_dict(include_meta=True)
 
     @property
     def age_in_days(self):

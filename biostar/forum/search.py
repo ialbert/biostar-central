@@ -22,7 +22,7 @@ from biostar.forum.models import Post
 logger = logging.getLogger('biostar')
 
 # Stop words ignored where searching.
-STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
+STOP = ['there', 'where', 'who', 'that'] + [w for w in STOP_WORDS]
 STOP = set(STOP)
 
 
