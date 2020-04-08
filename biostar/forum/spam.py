@@ -177,21 +177,21 @@ def compute_score(post, ix=None):
     # Take two local maximums and compute the n between them
     N = 1
     scores = sorted(scores, reverse=True)
-    print("-"*100)
-    print(scores[:N], post.is_spam)
+    #print("-"*100)
+    #print(scores[:N], post.is_spam)
     scores = [s * (weight/log(5) * abs(1 - (log(2) ** exp(1))))/4 for s in scores][:N]
-    print(scores, post.is_spam, "WEDIGHTED")
+    #print(scores, post.is_spam, "WEDIGHTED")
     # Return the mean of the scores.
     if scores:
         mean = abs(sum(scores) / len(scores[:N]))
     else:
         mean = abs((weight - log(3)) * (1 - (log(2) ** exp(1))))/3
-        print(mean, "FOOOO")
+        #print(mean, "FOOOO")
         mean -= 1/((post.author.profile.score + date_val/60) - ( post.author.profile.score + authored))
 
     mean = mean / log(8)
 
-    print(mean, post.is_spam, "FINAL")
+    #print(mean, post.is_spam, "FINAL")
 
     return mean
 
