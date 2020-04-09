@@ -105,7 +105,7 @@ def build_spam_index(overwrite=False, add_ham=False, limit=500):
         ham = []
 
     posts = Post.objects.filter(id__in=chain(spam, ham))
-
+    print()
     # Initialize the spam index
     ix = bootstrap_index()
 
@@ -206,7 +206,7 @@ def compute_score(post, ix=None):
 
         return (settings.SPAM_THRESHOLD + (1-1/(weight * date_val))) #* date_val #/ (1 + authored)
 
-    scores = [s * w(s) for s in scores][:N]
+    scores = [s *.96 for s in scores][:N]
 
     print(scores, post.is_spam,post.author.profile.score, "WEDIGHTED")
     # Return the mean of the scores.
@@ -216,7 +216,7 @@ def compute_score(post, ix=None):
         mean = (1-1/(weight * date_val))#(4 + authored)  #* (1 / (date_val + (authored*20)))
         print( "IOIOIOI")
 
-    if post.is_comment or post.is_answer or post.is_job:# or post.is_job:
+    if post.is_comment or post.is_answer or post.is_job:
         mean /= 4
     print(mean, post.is_spam, "IOIOIOI")
     #mean -= 1 - 1/date_val
