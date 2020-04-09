@@ -202,10 +202,6 @@ def compute_score(post, ix=None):
     print("-"*100)
     print(scores[:N], post.is_spam)
 
-    def w(s):
-
-        return (settings.SPAM_THRESHOLD + (1-1/(weight * date_val))) #* date_val #/ (1 + authored)
-
     scores = [s *.96 for s in scores][:N]
 
     print(scores, post.is_spam,post.author.profile.score, "WEDIGHTED")
@@ -213,14 +209,14 @@ def compute_score(post, ix=None):
     if scores:
         mean = abs(sum(scores) / len(scores[:N]))
     else:
-        mean = (1-1/(weight * date_val))#(4 + authored)  #* (1 / (date_val + (authored*20)))
+        mean = (1-1/(weight * date_val))/date_val#(4 + authored)  #* (1 / (date_val + (authored*20)))
         print( "IOIOIOI")
 
     if post.is_comment or post.is_answer or post.is_job:
         mean /= 4
     print(mean, post.is_spam, "IOIOIOI")
     #mean -= 1 - 1/date_val
-    #mean /= 3
+    #mean /= 2.5
     print(mean, post.is_spam,date_val,log(date_val), "FINAL")
 
     return mean
