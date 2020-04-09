@@ -7,6 +7,9 @@
 
     {#  Post title. #}
     {% if post.is_toplevel %}
+
+        {# Show author message about their quarantied post. #}
+
         <div class="title">{{ post.title_prefix }}{{ post.title }}</div>
     {% endif %}
 

@@ -215,6 +215,14 @@ class Profile(models.Model):
         recent = (util.now() - self.date_joined).days > settings.RECENTLY_JOINED_DAYS
         return recent
 
+    def bump_over_threshold(self):
+
+        # Bump the score by smallest values to get over the low rep threshold.
+        score = self.score
+        score += 1 + (settings.LOW_REP_THRESHOLD - self.score)
+
+        Profile.objects.filter(id=self.id).update(score=score)
+
     @property
     def low_rep(self):
         """

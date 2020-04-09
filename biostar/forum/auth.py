@@ -113,7 +113,7 @@ def walk_down_thread(parent, collect=set()):
 def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
 
     # Check if a post with this content already exists.
-    post = Post.objects.filter(content=content).first()
+    post = Post.objects.filter(content=content, author=author).first()
     if post:
         logger.info("Post with this content already exists.")
         return post
@@ -343,6 +343,10 @@ class Moderate(object):
         self.msg = f"Moved post={self.post.uid} to answer. "
 
     def open(self):
+
+        if self.post.suspect_spam and self.post.author.profile.low_rep:
+            self.post.author.profile.bump_over_threshold()
+
         Post.objects.filter(uid=self.post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
         self.msg = f"Opened post: {self.post.title}"
 

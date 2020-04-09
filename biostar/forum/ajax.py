@@ -267,6 +267,11 @@ def release_suspect(request, uid):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="You need to be a moderator to preform that action.")
 
+    # Bump the score by one is the user does not get quarantined again.
+    # basically tells the system the user has gained antibodies.
+    if post.author.profile.low_rep:
+        post.author.profile.bump_over_threshold()
+
     Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
 
     return ajax_success(msg="Released from the quarantine.")

@@ -212,6 +212,7 @@ class Post(models.Model):
     def suspect_spam(self):
         return self.spam == self.SUSPECT
 
+
     @property
     def is_open(self):
         return self.status == Post.OPEN and not self.is_spam and not self.suspect_spam

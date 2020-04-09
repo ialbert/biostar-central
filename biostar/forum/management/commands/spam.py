@@ -44,7 +44,7 @@ class Command(BaseCommand):
 
         # Index a limited number yet unindexed posts
         if index:
-            spam.build_spam_index(overwrite=remove)
+            spam.build_spam_index(overwrite=remove, add_ham=True, limit=20000)
 
         # Run specificity and sensitivity tests on posts.
         if test:
