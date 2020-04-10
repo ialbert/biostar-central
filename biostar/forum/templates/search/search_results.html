@@ -56,14 +56,6 @@
                            class="ui mini blue title header trigger-highlight">{{ result.title|truncatechars:150 }}
                         </a>
                     </div>
-                    <div class="small-stats muted">
-
-                        {{ result.vote_count|bignum }}
-                        Vote{{ result.vote_count|pluralize }}
-                        |
-                        Repl{{ result.reply_count|pluralize:"y,ies" }}
-
-                    </div>
 
                     <div class="muted trigger-highlight">
                         {{ result.content |truncatechars_html:400 }}

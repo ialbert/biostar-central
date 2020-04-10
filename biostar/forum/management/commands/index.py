@@ -32,7 +32,7 @@ class Command(BaseCommand):
         # Sets the un-indexed flags to false on all posts.
         if reset:
             logger.info(f"Setting indexed field to false on all post.")
-            Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
+            Post.objects.valid_posts(indexed=True).exclude(root=None).update(indexed=False)
 
         # Index a limited number yet unindexed posts
         if index:
