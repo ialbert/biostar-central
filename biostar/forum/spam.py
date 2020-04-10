@@ -202,7 +202,7 @@ def compute_score(post, ix=None):
     print("-"*100)
     print(scores[:N], post.is_spam)
 
-    scores = [s *.96 for s in scores][:N]
+    scores = [s *.5 for s in scores][:N]
 
     print(scores, post.is_spam,post.author.profile.score, "WEDIGHTED")
     # Return the mean of the scores.
@@ -216,7 +216,7 @@ def compute_score(post, ix=None):
         mean /= 4
     print(mean, post.is_spam, "IOIOIOI")
     #mean -= 1 - 1/date_val
-    #mean /= 2.5
+    #mean /= 2
     print(mean, post.is_spam,date_val,log(date_val), "FINAL")
 
     return mean
