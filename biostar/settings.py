@@ -13,7 +13,7 @@ def join(*args):
 
 
 # Run tasks in multi threaded mode when UWSGI is not installed.
-MULTI_THREAD = os.getenv("MULTI_THREAD") == "true" or False
+MULTI_THREAD = True
 
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']

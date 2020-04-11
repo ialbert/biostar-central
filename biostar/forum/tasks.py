@@ -20,6 +20,7 @@ def spam_scoring(post):
     Score the spam with a slight delay.
     """
     from biostar.forum import spam
+    # Give spammers the illusion of success by a slight delay
     time.sleep(1)
 
     try:

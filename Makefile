@@ -10,10 +10,6 @@ DJANGO_SETTINGS_MODULE := biostar.server.settings
 # Default app.
 DJANGO_APP :=
 
-
-# Run tasks using multiple threads. true/false
-MULTI_THREAD := true
-
 # Database name
 DATABASE_NAME := database.db
 
@@ -105,7 +101,6 @@ init:
 
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	$(eval MULTI_THREAD := false)
 	python manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(DUMP_FILE)
 
 delete:
@@ -128,8 +123,7 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	$(eval MULTI_THREAD := false)
-	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.settings -v 2 --failfast
+	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.test_settings -v 2 --failfast
 	coverage html --skip-covered
 
 	# Remove files associated with tests
