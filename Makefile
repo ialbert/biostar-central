@@ -18,8 +18,6 @@ LOAD_COMMAND := project
 
 ENGINE_DIR = /export/www/biostar-central
 
-EXAMPLE_HOST:=206.189.228.66
-
 # Search index name
 INDEX_NAME := index
 
@@ -46,7 +44,7 @@ emailer:
 	@echo DJANGO_APP=${DJANGO_APP}
 
 example:
-	$(eval ANSIBLE_HOST := hosts/${EXAMPLE_HOST})
+	$(eval ANSIBLE_HOST := hosts/159.89.90.100)
 	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := engine)
 	$(eval REMOTE_DBNAME := forum.db)
