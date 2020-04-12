@@ -21,7 +21,7 @@ PROTOCOL = 'http'
 
 #ALLOWED_HOSTS = [SITE_DOMAIN]
 
-WSGI_APPLICATION = 'conf.site.site_wsgi.application'
+WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 
 try:
     # Attempts to load site secrets.

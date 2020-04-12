@@ -65,8 +65,6 @@ class SignUpForm(forms.Form):
         user.set_password(password)
         user.save()
 
-        # Send
-        auth.send_verification_email(user=user)
         logger.info(f"Signed up user.id={user.id}, user.email={user.email}")
 
         return user

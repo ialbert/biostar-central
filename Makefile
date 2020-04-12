@@ -16,6 +16,10 @@ DATABASE_NAME := database.db
 # Command used to load initial data
 LOAD_COMMAND := project
 
+ENGINE_DIR = /export/www/biostar-central
+
+EXAMPLE_HOST:=206.189.228.66
+
 # Search index name
 INDEX_NAME := index
 
@@ -41,6 +45,15 @@ emailer:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
+example:
+	$(eval ANSIBLE_HOST := hosts/${EXAMPLE_HOST})
+	$(eval ANSIBLE_ROOT := conf/ansible)
+	$(eval SUPERVISOR_NAME := engine)
+	$(eval REMOTE_DBNAME := forum.db)
+
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	@echo DJANGO_APP=${DJANGO_APP}
+
 
 pg:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -53,7 +66,6 @@ recipes:
 	$(eval ANSIBLE_HOST := hosts/www.bioinformatics.recipes)
 	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := recipes)
-	$(eval ENGINE_DIR := /export/www/biostar-central)
 
     # Set the settings variables.
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -69,7 +81,6 @@ bioconductor:
 	$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
 	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
 	$(eval SUPERVISOR_NAME := forum)
-	$(eval ENGINE_DIR := /export/www/biostar-central)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -173,10 +184,10 @@ next:
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
 
 config:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} config.yml --extra-vars -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-config.yml -v)
 
 install:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --ask-become-pass --extra-vars -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-install.yml --ask-become-pass --extra-vars "db=${REMOTE_DBNAME}" -v)
 
 deploy:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True engine_dir=${ENGINE_DIR}"  -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True main_dir=${ENGINE_DIR}"  -v)

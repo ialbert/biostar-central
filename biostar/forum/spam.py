@@ -94,7 +94,8 @@ def add_spam(post):
 def build_spam_index(overwrite=False, add_ham=False, limit=500):
     # Get all un-indexed spam posts.
 
-    spam = Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED)).order_by("pk")[:limit]
+    spam = Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
+    spam = spam.exclude(Q(spam=Post.SUSPECT)).order_by("pk")[:limit]
     spam = list(spam.values_list("id", flat=True))
     # Set indexed flag here so it does not get added to main index.
     if add_ham:
@@ -105,7 +106,7 @@ def build_spam_index(overwrite=False, add_ham=False, limit=500):
         ham = []
 
     posts = Post.objects.filter(id__in=chain(spam, ham))
-    print()
+
     # Initialize the spam index
     ix = bootstrap_index()
 
@@ -146,78 +147,32 @@ def search_spam(post, ix,):
     return similar_content
 
 
-def compute_weight(post, verbosity=0):
-
-    def printer(pdict):
-        if verbosity >= 1:
-            print(f"\t{pdict}")
-
-    weighting_factor = 0 #0.65
-    printer(dict(weighting_factor=weighting_factor))
-
-    authored = 0#(post.author.post_set.exclude(Q(id=post.id)|Q(spam=Post.SUSPECT)).count()) ** 5
-    dates =  (post.author.profile.date_joined - post.author.profile.last_login)
-    #authored = (post.author.post_set.exclude(Q(id=post.id)|Q(spam=Post.SUSPECT)).count()) ** 5
-    date_val = (dates.seconds)/(util.now()-post.author.profile.date_joined).seconds
-
-    print(dict(date_val=date_val, authored=authored))
-    printer(dict(weighting_factor=weighting_factor, date_val=date_val, authored=authored))
-
-    if post.is_comment or post.is_answer or post.is_job:
-        weighting_factor = 4000
-   # elif post.is_answer:
-   #     weighting_factor = 300
-
-    weight = 1 + (1 / ( authored + weighting_factor + post.author.profile.score + date_val)) #(((post.author.profile.score + date_val - 1) * 40 + authored * 2) + weighting_factor)
-    weight -= dates.seconds / 60 / 60 / 24
-    print(dict(weighting_factor=weighting_factor, post_type=post.get_type_display(), weight=weight))
-    #weight *= ((1 - (1 / (post.author.profile.score + date_val))) - 30)
-
-    printer(dict(weighting_factor=weighting_factor, post_type=post.get_type_display(), weight=weight))
-
-    return weight
-
-
 def compute_score(post, ix=None):
 
     ix = ix or init_spam_index()
+    N = 1
+    weight = 0.96
 
+    # Users above a certain score get green light.
     if not post.author.profile.low_rep:
-        print( "KKKKLKLKLKKLLLLLL")
         return 0
 
     # Search for spam similar to this post.
     similar_content = search_spam(post=post, ix=ix)
 
-    # Get some weight depending on the author activity, reputation, post type, etc.
-    weight = abs(compute_weight(post=post))
-
+    # Gather the scores for each spam that is similar
     scores = [s.score for s in similar_content if s.is_spam]
-    dates =  (post.author.profile.date_joined - post.author.profile.last_login)
-    #authored = (post.author.post_set.exclude(Q(id=post.id)|Q(spam=Post.SUSPECT)).count()) ** 5
-    date_val = (dates.seconds)/(util.now()-post.author.profile.date_joined ).seconds
-    # Take two local maximums and compute the n between them
-    N = 1
+    # Take the top N maximum score and compute the mean
     scores = sorted(scores, reverse=True)
-    print("-"*100)
-    print(scores[:N], post.is_spam)
+    scores = [s for s in scores][:N]
 
-    scores = [s *.96 for s in scores][:N]
-
-    print(scores, post.is_spam,post.author.profile.score, "WEDIGHTED")
     # Return the mean of the scores.
     if scores:
         mean = abs(sum(scores) / len(scores[:N]))
     else:
-        mean = (1-1/(weight * date_val))/date_val#(4 + authored)  #* (1 / (date_val + (authored*20)))
-        print( "IOIOIOI")
-
-    if post.is_comment or post.is_answer or post.is_job:
-        mean /= 4
-    print(mean, post.is_spam, "IOIOIOI")
-    #mean -= 1 - 1/date_val
-    #mean /= 2
-    print(mean, post.is_spam,date_val,log(date_val), "FINAL")
+        # Apply a weighted version of the threshold
+        # when no similar posts are found.
+        mean = settings.SPAM_THRESHOLD * weight
 
     return mean
 
@@ -286,13 +241,12 @@ def report(nham, nspam, tn, tp, fn, fp):
 
 
 def detail(post, post_score, is_spam=True, predict=True, verb=1):
-
     fp = (not is_spam) and predict
     fn = is_spam and (not predict)
 
     if verb and not (fn or fp):
         return
-
+    print()
     if fn:
         print(f"-----\tFALSE NEGATIVE ( missed spam )\tuid={post.uid} score={post_score}. deleted={post.is_deleted}")
 
@@ -306,12 +260,10 @@ def detail(post, post_score, is_spam=True, predict=True, verb=1):
     if verb >= 1 and (fp or fn):
         print("USER", post.author)
         print("USER SCORE", post.author.profile.score)
-        print("GIVEN WEIGHT", compute_weight(post, verbosity=verb))
         print("POSER SCORE", post_score)
         if fp:
             print(post.content)
-            time.sleep(5)
-
+    print()
     print("-" * 5)
     return
 

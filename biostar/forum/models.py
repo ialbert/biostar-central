@@ -239,6 +239,10 @@ class Post(models.Model):
         return self.status == Post.DELETED
 
     @property
+    def not_spam(self):
+        return self.spam == Post.NOT_SPAM
+
+    @property
     def has_accepted(self):
         return bool(self.accept_count)
 

@@ -18,7 +18,7 @@ TAGS_PER_PAGE = 50
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
 
-SPAM_THRESHOLD = 0.5
+SPAM_THRESHOLD = .5
 
 # Spam index used to classify new posts as spam or ham.
 SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")

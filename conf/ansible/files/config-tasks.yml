@@ -79,7 +79,7 @@
   become: yes
   become_user: postgres
   postgresql_user:
-    name: biostar_user
+    name: www
     password: md5437a687918743dac1889ef033bcb5bbd
     role_attr_flags: CREATEDB,CREATEROLE
 
