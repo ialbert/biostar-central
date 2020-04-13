@@ -20,7 +20,7 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
 
-from . import forms
+from . import forms, tasks
 from .auth import validate_login, send_verification_email
 from .const import *
 from .models import User, Profile, Message, Logger
@@ -185,6 +185,7 @@ def user_signup(request):
             Profile.objects.filter(user=user).update(last_login=now())
             messages.success(request, "Login successful!")
             msg = mark_safe("Signup successful!")
+            tasks.verification_email.spool(user=user)
             messages.info(request, msg)
 
             return redirect("/")

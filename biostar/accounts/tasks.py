@@ -69,6 +69,14 @@ def detect_location(ip, user_id):
 
 
 @spool(pass_arguments=True)
+def verification_email(user):
+    from biostar.accounts import auth
+
+    auth.send_verification_email(user=user)
+    return
+
+
+@spool(pass_arguments=True)
 def create_messages(template, rec_list, sender=None, extra_context={}):
     """
     Create batch message from sender to a given recipient_list

@@ -1,6 +1,7 @@
 
-engine_git: https://github.com/ialbert/biostar-central.git
-engine_dir:  "{{ engine_dir | default('/export/www/biostar-central') }}"
+engine_git: https://github.com/Natay/biostar-central.git
+engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
+db_name: "{{ db | default('database.db') }}"
 
 bin_dir: "/export/bin"
 src_dir: "/export/src"

@@ -10,15 +10,13 @@ DJANGO_SETTINGS_MODULE := biostar.server.settings
 # Default app.
 DJANGO_APP :=
 
-
-# Run tasks using multiple threads. true/false
-MULTI_THREAD := true
-
 # Database name
 DATABASE_NAME := database.db
 
 # Command used to load initial data
 LOAD_COMMAND := project
+
+ENGINE_DIR = /export/www/biostar-central
 
 # Search index name
 INDEX_NAME := index
@@ -45,6 +43,15 @@ emailer:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
+example:
+	$(eval ANSIBLE_HOST := hosts/159.89.90.100)
+	$(eval ANSIBLE_ROOT := conf/ansible)
+	$(eval SUPERVISOR_NAME := engine)
+	$(eval REMOTE_DBNAME := forum.db)
+
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	@echo DJANGO_APP=${DJANGO_APP}
+
 
 pg:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -57,7 +64,6 @@ recipes:
 	$(eval ANSIBLE_HOST := hosts/www.bioinformatics.recipes)
 	$(eval ANSIBLE_ROOT := conf/ansible)
 	$(eval SUPERVISOR_NAME := recipes)
-	$(eval ENGINE_DIR := /export/www/biostar-central)
 
     # Set the settings variables.
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -73,7 +79,6 @@ bioconductor:
 	$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
 	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
 	$(eval SUPERVISOR_NAME := forum)
-	$(eval ENGINE_DIR := /export/www/biostar-central)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -105,7 +110,6 @@ init:
 
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	$(eval MULTI_THREAD := false)
 	python manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(DUMP_FILE)
 
 delete:
@@ -128,8 +132,7 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	$(eval MULTI_THREAD := false)
-	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.settings -v 2 --failfast
+	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.test_settings -v 2 --failfast
 	coverage html --skip-covered
 
 	# Remove files associated with tests
@@ -179,10 +182,10 @@ next:
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
 
 config:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} config.yml --extra-vars -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-config.yml -v)
 
 install:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --ask-become-pass --extra-vars -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-install.yml --ask-become-pass --extra-vars "db=${REMOTE_DBNAME}" -v)
 
 deploy:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True engine_dir=${ENGINE_DIR}"  -v)
+	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True main_dir=${ENGINE_DIR}"  -v)

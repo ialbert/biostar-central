@@ -1,20 +1,28 @@
 
+- name: Check if bash profile already exists
+  stat:
+    path : ~/.bash_profile
+  register: profile_created
+
 - name: Set up bash profile
   get_url:
     url: http://data.biostarhandbook.com/install/bash_profile.txt
     dest: ~/.bash_profile
     mode: 0440
+  when: profile_created.stat.exists == False
 
 - name: Get bashrc from remote
   get_url:
     url: http://data.biostarhandbook.com/install/bashrc.txt
     dest: ~/.handbookrc
     mode: 0440
+  when: profile_created.stat.exists == False
 
 - name: Apply the biostar bash customizations
   lineinfile:
     dest: ~/.bashrc
     line: source ~/.handbookrc
+  when: profile_created.stat.exists == False
 
 - name: Check if conda has already been installed
   stat: path={{ conda_dir }}/bin/conda
@@ -39,11 +47,17 @@
   when: conda_installed is success
   with_items: "{{conda_environments}}"
 
-- name: Get the biostar-engine software
+- name: Get the biostar-central software
   git:
     repo: "{{ engine_git }}"
     dest: "{{ engine_dir }}"
     update: yes
+
+- name: Link biostar-central to the home directory
+  file:
+    src: "{{ engine_dir }}"
+    dest: "~/biostar-central"
+    state: link
 
 - name: Make the spooler directory
   file:
@@ -54,7 +68,7 @@
 - name: Initialize local secrets
   copy:
     content: ""
-    dest: "{{ engine_dir }}/conf/site/site_secrets.py"
+    dest: "{{ engine_dir }}/conf/run/site_secrets.py"
     force: no
     mode: 0644
 
@@ -69,6 +83,7 @@
     - server-migrate.sh
     - server-reset.sh
     - server-backup.sh
+    - data-migration.sh
 
 - name: Copy settings file to runtime directories
   copy:
@@ -90,8 +105,18 @@
     chdir: "{{ engine_dir }}"
 
 - name: Install conda requirements
-  shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}}  && conda install --file conf/conda_requirements.txt"
+  shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
+         conda activate {{conda_env}}  &&
+         conda config --add channels conda-forge &&
+         conda install -y --file conf/conda_requirements.txt"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
+
+- name: Create the postgres database
+  shell: "createdb {{db_name}}"
+  register: result
+  failed_when:
+    - result.rc == 0
+    - '"already exists" not in result.stdout'

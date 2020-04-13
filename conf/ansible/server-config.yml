@@ -5,5 +5,3 @@
   tasks:
     - include_vars: files/vars.yml
     - include_tasks: files/config-tasks.yml
-
-
