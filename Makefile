@@ -16,8 +16,6 @@ DATABASE_NAME := database.db
 # Command used to load initial data
 LOAD_COMMAND := project
 
-ENGINE_DIR = /export/www/biostar-central
-
 # Search index name
 INDEX_NAME := index
 
@@ -43,15 +41,6 @@ emailer:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
-example:
-	$(eval ANSIBLE_HOST := hosts/159.89.90.100)
-	$(eval ANSIBLE_ROOT := conf/ansible)
-	$(eval SUPERVISOR_NAME := engine)
-	$(eval REMOTE_DBNAME := forum.db)
-
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
-
 
 pg:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -61,25 +50,8 @@ recipes:
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
 	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
-	$(eval ANSIBLE_HOST := hosts/www.bioinformatics.recipes)
-	$(eval ANSIBLE_ROOT := conf/ansible)
-	$(eval SUPERVISOR_NAME := recipes)
 
     # Set the settings variables.
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
-	@echo DATABASE_NAME=${DATABASE_NAME}
-
-
-bioconductor:
-	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
-	$(eval DJANGO_APP := biostar.forum)
-	$(eval LOAD_COMMAND := populate)
-	$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
-	$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
-	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
-	$(eval SUPERVISOR_NAME := forum)
-
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
@@ -90,10 +62,6 @@ forum:
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
-	$(eval ANSIBLE_HOST := hosts/test.biostars.org)
-	$(eval ANSIBLE_ROOT := conf/ansible)
-	$(eval SUPERVISOR_NAME := engine)
-	$(eval ENGINE_DIR := /export/www/biostar-engine)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -181,11 +149,3 @@ next:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
 
-config:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-config.yml -v)
-
-install:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-install.yml --ask-become-pass --extra-vars "db=${REMOTE_DBNAME}" -v)
-
-deploy:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True main_dir=${ENGINE_DIR}"  -v)

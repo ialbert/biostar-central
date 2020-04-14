@@ -47,6 +47,12 @@
   when: conda_installed is success
   with_items: "{{conda_environments}}"
 
+- name: Add the conda path to the bash rc
+  shell: "{{ conda_dir }}/bin/conda init bash"
+  when: conda_installed is success
+  with_items: "{{conda_environments}}"
+
+
 - name: Get the biostar-central software
   git:
     repo: "{{ engine_git }}"
@@ -112,11 +118,3 @@
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
-
-
-- name: Create the postgres database
-  shell: "createdb {{db_name}}"
-  register: result
-  failed_when:
-    - result.rc == 0
-    - '"already exists" not in result.stdout'

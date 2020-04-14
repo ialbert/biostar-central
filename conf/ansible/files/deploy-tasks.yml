@@ -1,7 +1,7 @@
-- name: Backup servers
-  shell: ls
-  notify:
-    - server backup
+#- name: Backup servers
+#  shell: ls
+#  notify:
+#    - server backup
 
 - name: Update the biostar-engine
   git:
@@ -22,6 +22,7 @@
 - name: Restart servers
   shell: ls
   notify:
+    - server migrate
     - reload supervisor
     - restart nginx
     - restart server
