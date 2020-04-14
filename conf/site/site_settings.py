@@ -2,9 +2,9 @@ from biostar.settings import *
 
 # Enable the right settings.
 
-from biostar.recipes.settings import *
+#from biostar.recipes.settings import *
 
-#from biostar.forum.settings import *
+from biostar.forum.settings import *
 
 import logging
 
@@ -15,11 +15,10 @@ DEBUG = True
 SITE_ID = 1
 SITE_DOMAIN = "www.lvh.me"
 SITE_NAME = "Biostar Engine"
-
 HTTP_PORT = ''
 PROTOCOL = 'http'
 
-#ALLOWED_HOSTS = [SITE_DOMAIN]
+ALLOWED_HOSTS = [SITE_DOMAIN]
 
 WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 
