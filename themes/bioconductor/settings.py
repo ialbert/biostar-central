@@ -69,7 +69,7 @@ GRAVATAR_ICON = 'identicon'
 # These parameters will be inserted into the database automatically.
 SITE_NAME = "Bioconductor Support Forum"
 
-SITE_DOMAIN = "support.bioconductor.org"
+SITE_DOMAIN = "supportupgrade.bioconductor.org"
 
 # What domain will handle the replies.
 EMAIL_REPLY_PATTERN = "reply+%s+code@bioconductor.org"

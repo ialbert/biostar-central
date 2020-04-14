@@ -1,7 +1,9 @@
 
 engine_git: https://github.com/ialbert/biostar-central.git
 engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
+
 db_name: "{{ db | default('database.db') }}"
+
 
 bin_dir: "/export/bin"
 src_dir: "/export/src"
@@ -13,6 +15,16 @@ django_settings_module: "conf.run.site_settings"
 install: False
 restart: False
 reset: False
+
+# Theme locations
+themes: "{{engine_dir}}/themes"
+
+biocon: "{{engine_dir}}/themes/bioconductor"
+
+# Install a specific theme.
+start_biocon: False
+# start_theme1: False
+# ...
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"

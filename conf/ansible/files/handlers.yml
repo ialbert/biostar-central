@@ -1,5 +1,5 @@
 - name: server backup
-  shell: "./server-backup.sh"
+  shell: "./server-backup.sh {{ django_settings_module }}"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
@@ -11,13 +11,13 @@
     state: stopped
 
 - name: server reset
-  shell: "./server-reset.sh"
+  shell: "./server-reset.sh {{ django_settings_module }}"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
 - name: server migrate
-  shell: "./server-migrate.sh"
+  shell: "./server-migrate.sh {{ django_settings_module }}"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"

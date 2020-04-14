@@ -1,4 +1,3 @@
-import os
 from biostar.settings import *
 
 # Enable the right settings.
@@ -11,10 +10,13 @@ import logging
 
 logger = logging.getLogger("biostar")
 
-DEBUG = True
+DEBUG = False
+
+# Edit the site domain for specific cases.
+SITE_DOMAIN = "www.lvh.me"
 
 SITE_ID = 1
-SITE_DOMAIN = "www.lvh.me"
+
 SITE_NAME = "Biostar Engine"
 HTTP_PORT = ''
 PROTOCOL = 'http'
