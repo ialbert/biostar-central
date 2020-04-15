@@ -1,117 +1,79 @@
 {% load forum_tags %}
 
-{# Renders a single top level post or answer.  #}
-<div class="post {{ post.css }}">
+{#  Post anchor. #}
+<a name="{{ post.uid }}"></a>
 
-    {#  Show title on top level posts #}
+<div class="post view {{ post.css }}" data-value="{{ post.uid }}">
+
+    {#  Post title. #}
     {% if post.is_toplevel %}
-        <div class="title wrap-text">
-            {#  Page anchor. #}
-            <a name="{{ post.uid }}"></a>
-            {#  Post title. #}
 
-            <span class="hide-on-edit post-title"
-                  data-value="{{ post.uid }}">{{ post.get_type_display }}: {{ post.title }}</span>
+        {# Show author message about their quarantied post. #}
 
-        </div>
+        <div class="title">{{ post.title_prefix }}{{ post.title }}</div>
     {% endif %}
 
     {#  Post body #}
     <div class="body">
 
-        {#  Page anchor. #}
-        <a name="{{ post.uid }}"></a>
-
-        {#  Voting regions #}
-        <div class="post votebox hide-on-edit" data-value="{{ post.uid }}">
-
-            <button class="ui icon button vote upvote" data-value="{{ post.uid }}" data-type="upvote"
-                    data-position="right center" data-state="{{ post.has_upvote }}" data-content="Upvote">
-                <i class="thumbs up icon "></i>
+        {#  Voting buttons #}
+        <div class="voting">
+            <button class="ui icon button" data-value="upvote"
+                    data-state="{{ post.has_upvote }}"><i class="thumbs up icon"></i>
             </button>
 
-            <div class="score" id="score-{{ post.uid }}">{{ post.vote_count }}</div>
+            <div class="score">{{ post.vote_count }}</div>
 
-            <button class="ui icon button vote bookmark" data-value="{{ post.uid }}" data-type="bookmark"
-                    data-position="right center" data-state="{{ post.has_bookmark }}" data-content="Bookmark">
-                <i class="bookmark icon "></i>
+            <button class="ui icon button" data-value="bookmark"
+                    data-state="{{ post.has_bookmark }}"><i class="bookmark icon"></i>
             </button>
 
             {% if post.can_accept %}
-                <div class="top-padding">
-                    <button class="ui icon button vote accept" data-value="{{ post.uid }}" data-type="accept"
-                            data-position="right center" data-state="{{ post.accept_count }}"
-                            data-content="Accept answer">
-                        <i class="check circle icon "></i>
-                    </button>
-                </div>
+                <button class="ui icon button" data-value="accept"
+                        data-state="{{ post.accept_count }}"><i class="check circle icon"></i>
+                </button>
             {% endif %}
-
         </div>
 
 
-        <div class="content wrap-text">
-
-            <div ondragover="allowDrop(event);" ondrop="drop(event, '{{ post.uid }}')">
-
-                <div class="dimm-on-edit droptarget" data-value="{{ post.uid }}"
-                     ondragover="drag_over(event, $(this))"
-                     ondragleave="drag_leave(event, $(this))">
-
-                    <div class="ui inverted dimmer">
-                        <div class="ui text loader">
-                            <div class="muted">Entering edit mode</div>
-                        </div>
+        {# Render the content#}
+        <div class="content">
+            <div class="droppable inplace">
+                <div class="ui inverted dimmer">
+                    <div class="ui text loader">
+                        <div class="muted">Entering edit mode</div>
                     </div>
-
-                    <div class="wrap magnify editing-drag-off" id="{{ post.uid }}"
-                         draggable="true"
-                         ondragstart="drag(event, '{{ post.uid }}');">
-
-                        {# Display post author. #}
-                        <div class="hide-on-edit menu-tablet" data-value="{{ post.uid }}">
-                            {% post_user_box target_user=post.author %}
-                        </div>
-                        {# Display post content. #}
-                        {% if post.is_editable %}
-                            <div class="editable" data-value="{{ post.uid }}">{{ post.html|safe }}</div>
-                            <inplace data-value="{{ post.uid }}"></inplace>
-                        {% else %}
-                            {{ post.html|safe }}
-                        {% endif %}
-
-                    </div>
-
-
-                    <div class="hide-on-edit" data-value="{{ post.uid }}">
-                        {# Show tags #}
-                        {% if post.is_toplevel %}
-                            <span class="post-tags" data-value="{{ post.uid }}">
-                    {% post_tags post=post show_views=True %}
-                    </span>
-                        {% endif %}
-
-                        {# Show the post actions #}
-
-                        <div class="hide-on-comment" data-value="{{ post.uid }}" style="display: flow-root">
-                            {% post_actions post=post %}
-                        </div>
-
-                        {#  Post moderation actions are inserted here #}
-                        <div class="moderate-insert" data-value="{{ post.uid }}"></div>
-
-                        {#  Comments form will be inserted here #}
-                        <div class="comment-insert" data-post="{{ post.uid }}"></div>
-
-                    </div>
-
                 </div>
-                {# Render all comments #}
-                {% render_comments tree=tree post=post %}
+
+                <div class="wrap magnify">
+
+                    {# Display post author. #}
+                    {% post_user_box target_user=post.author %}
+
+                    {# Display post content. #}
+                    {% if post.is_editable %}
+                        <div class="editable">{{ post.html|safe }}</div>
+                    {% else %}
+                        {{ post.html|safe }}
+                    {% endif %}
+                </div>
+
+                {# Show tags #}
+                {% if post.is_toplevel %}
+                    {% post_tags post=post show_views=True %}
+                {% endif %}
+
+                {# Show the post actions #}
+                {% post_actions post=post %}
+
             </div>
 
+            {# Render all comments #}
+            {% render_comments tree=tree post=post %}
         </div>
+
     </div>
+
 </div>
 
 

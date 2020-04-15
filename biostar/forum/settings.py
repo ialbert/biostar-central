@@ -18,6 +18,19 @@ TAGS_PER_PAGE = 50
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
 
+SPAM_THRESHOLD = .5
+
+# Spam index used to classify new posts as spam or ham.
+SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
+
+SPAM_INDEX_DIR = 'spammers'
+
+# Absolute path to spam index directory in export/
+SPAM_INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', SPAM_INDEX_DIR))
+
+# Classify posts and assign a spam score on creation.
+CLASSIFY_SPAM = True
+
 ENABLE_DIGESTS = False
 
 # Log the time for each request
@@ -70,10 +83,11 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
+
     'biostar.forum.apps.ForumConfig',
     'pagedown',
-
 ]
+
 
 # Additional middleware.
 MIDDLEWARE += [
@@ -119,10 +133,10 @@ DATA_MIGRATION = False
 # This is for convenience only!
 try:
     from conf.run.secrets import *
-    print(f"Loaded secrets from: conf.run.secrets")
+    #print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
     print(f"Secrets module not imported: {exc}")
-
+    pass
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:
@@ -130,8 +144,3 @@ if DEBUG_TOOLBAR:
         'debug_toolbar',
     ])
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
-
-# Add static serving capability
-if DEBUG is False:
-    print("Whitenoise static serve enabled (pip install whitenoise)")
-    MIDDLEWARE.append('whitenoise.middleware.WhiteNoiseMiddleware')

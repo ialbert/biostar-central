@@ -42,7 +42,7 @@ body > .widen.container {
 
 }
 
-.ui.button.vote {
+.voting .ui.button {
     background: none;
     padding: 5px;
     opacity: .6;
@@ -117,6 +117,7 @@ body > .widen.container {
 
 .post.item > .content .ui.label {
     margin-left: 0px;
+    padding: 3px;
 }
 
 .ui.items > .post.item > .image:not(.ui) {
@@ -259,11 +260,6 @@ i.icon {
     overflow: auto;
 }
 
-
-.extra {
-/ / display: none;
-}
-
 .answer-form {
     display: none;
 }
@@ -303,6 +299,7 @@ i.icon {
 
 .post .actions {
     padding: .5rem 0em 0.5rem 0em;
+    display: flow-root;
 }
 
 .post .actions.top-level {
@@ -318,24 +315,52 @@ i.icon {
     opacity: .75;
 }
 
-.post.Deleted, .post.spam {
-    background-color: #f7e4de;
-    opacity: 0.6;
-}
 
 .inline {
     display: inline;
 }
 
-.votebox {
-    padding: 0em 0.5em 0em 0.5em;
+
+.answer{
+    padding-top: 10px;
+
+}
+
+.answer .guide{
+    padding: 5px;
+    font-size: small
+}
+
+.answer .captcha,button {
+    padding-top: 5px;
+}
+
+.voting {
+    padding-right: 0.5em;
     text-align: center;
     flex-direction: column;
     overflow: hidden;
+    width: min-content;
 }
 
-.votebox > .value {
+.voting > .value {
     padding-bottom: 1rem;
+}
+
+.ui-droppable-hover{
+    border: #10ee0a dotted 4px;
+}
+
+.post #modpanel {
+    //width: 60%;
+    margin-right: 20%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.draggable {
+    cursor: pointer;
+    font-size: 85%;
 }
 
 .voteicon {
@@ -348,7 +373,7 @@ i.icon {
     background-color: yellow;
 }
 
-.votebox > .value .icon {
+.voting > .value .icon {
     color: #2F5B14;
     margin: 0;
 }
@@ -359,6 +384,28 @@ i.icon {
     padding-right: 5px;
 }
 
+
+.post .stats {
+    white-space: nowrap;
+    width: fit-content;
+    padding-right: 5px;
+}
+
+
+.post .stats .label div {
+    text-align: center;
+    font-weight: 900;
+}
+
+.post .stats .label div:first-child {
+    font-size: 2.0em;
+    padding-bottom: .2em;
+}
+
+.post .stats .label div:nth-child(2) {
+    font-size: 1.15em;
+    font-weight: 500;
+}
 
 .content.column {
     width: 100% !important;
@@ -389,7 +436,7 @@ i.icon {
     font-size: 108%;
 }
 
-.votebox > .score {
+.voting > .score {
     font-size: 240%;
     padding-bottom: 0.0rem;
     font-weight: bold;
@@ -425,9 +472,15 @@ figure {
     box-shadow: rgba(0, 0, 0, .2) 2px 3px 3px;
 }
 
-.ui.divided.items > .post.item.deleted, .post.item.spam {
-    background-color: #ffd2cf;
+.post.deleted, .post.spam {
+    background-color: #ffd2cf !important;
     opacity: .6;
+    border: none !important;
+}
+
+.post.quarantine{
+    background-color: #f6f8ce !important;
+    border: none !important;
 }
 
 #dim-similar {
@@ -541,6 +594,9 @@ img {
     float: right;
 }
 
+#similar{
+    height: 100%;
+}
 
 .accepted.label {
     color: #E1E818 !important;
@@ -614,17 +670,25 @@ img {
     background: #f9f6f4 !important;
 }
 
-.type-field {
+#inplace form {
+    padding: 0;
+}
+
+#inplace textarea {
+    height: auto;
+}
+
+#inplace .type.field {
     width: 20%;
     padding-right: 2px;
 }
 
 
-.title-field textarea {
+#inplace .title.field textarea {
     padding: .65em !important;
 }
 
-.title-field {
+#inplace .title.field {
     width: 80%;
 }
 
@@ -685,7 +749,8 @@ img {
 }
 
 .ui.divided.items > .post.item {
-    padding: 6px 4px 10px 4px;
+    padding: 6px 4px 10px 4px !important;
+    border: none;
 }
 
 .ui.divided.items > .item {
@@ -719,7 +784,7 @@ img {
 .ui.stat.label {
     width: 48px;
     margin: -1.5px;
-    border-radius: 0;
+    border-radius: 5px;
 }
 
 .number-stat {
@@ -826,12 +891,11 @@ pre {
 }
 
 
-.small-stats {
+.secondary {
     display: none !important;
     width: fit-content;
 
 }
-
 
 .phone-menus {
     display: none;
@@ -862,7 +926,7 @@ pre {
         display: inline;
     }
 
-    .small-stats {
+    .secondary {
         display: block !important;
         width: fit-content;
 
@@ -902,8 +966,7 @@ pre {
         display: none !important;
     }
 
-    .statbox {
-
+    .post .stats {
         padding-bottom: 8px;
     }
 
@@ -912,7 +975,7 @@ pre {
     }
 
     .ui.grid > [class*="four wide"].sidefeed {
-        width: 100% !important;
+     width: 100% !important;
     }
 
 
@@ -922,14 +985,6 @@ pre {
 
     .phone {
         display: none !important;
-    }
-
-}
-
-@media all and (max-width: 750px) {
-
-    .indent {
-        margin-left: 1em;
     }
 
 }

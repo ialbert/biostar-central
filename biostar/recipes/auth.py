@@ -29,7 +29,6 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
               Job.RUNNING: "running", Job.COMPLETED: "completed"
               }
 
-
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 
@@ -57,40 +56,24 @@ def access_denied_message(user, needed_access):
     return tmpl.render(context=context)
 
 
-def clipboard_timestamp(item):
-    """
-    Parse the timestamp out of a clipboard item
-
-   clipboard item is structured as such: ( 'key', [[value-1 ...] , <time stamp>] )
-    """
-    # item = ('key',[ ['value-1' ...], time stamp ]) -- >
-    # --> vals = ['value-1' ...], time_stamp
-    vals = item[-1] if len(item[-1]) else []
-    # vals = ['value-1' ...], time_stamp --> timestamp = time_stamp
-    timestamp = vals[-1] if vals else 0
-
-    return timestamp
-
-
-def most_recent(request):
+def recent_clipboard(request):
     """
     Return most recent item copied in the clipboard.
     """
 
     board = request.session.get(settings.CLIPBOARD_NAME, {})
-    # Sort board by the most recent time stamp
-    board = sorted(board.items(), key=clipboard_timestamp, reverse=True)
 
+    # Get the first item in the clipboard
     if len(board):
-        # Drop the time stamp in returned values.
-        key, vals = board[0]
-        vals = vals[0] if len(vals) == 2 else vals
+        board = list(board.items())[0]
+        key, vals = board
         return key, vals
 
     return "", []
 
 
 def copy_file(request, fullpath):
+
     if not os.path.exists(fullpath):
         messages.error(request, "Path does not exist.")
         return []
@@ -100,13 +83,14 @@ def copy_file(request, fullpath):
         return []
 
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    board_items, timestamp = clipboard.get(COPIED_FILES) or [[], 0]
+    board_items = clipboard.get(COPIED_FILES) or []
     board_items.append(fullpath)
-    board_items = list(set(board_items))
-    # No duplicates in clipboard
-    items = (board_items, util.now().timestamp())
-    clipboard[COPIED_FILES] = items
+
+    # Set new values in clipboard.
+    clipboard = {COPIED_FILES: list(set(board_items))}
+
+    # Clear the clipboard before copying files.
+    clear(request=request)
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
     return board_items
@@ -120,13 +104,16 @@ def copy_uid(request, uid, board):
         messages.error(request, "You need to be logged in.")
         return []
 
+    # Get the clipboard item
     clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-
-    board_items, timestamp = clipboard.get(board) or [[], 0]
+    board_items = clipboard.get(board) or []
     board_items.append(uid)
-    board_items = list(set(board_items))
+
     # No duplicates in clipboard
-    clipboard[board] = (board_items, util.now().timestamp())
+    clipboard = {board: list(set(board_items))}
+
+    # Clear the clipboard before copying items.
+    clear(request=request)
 
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
@@ -142,7 +129,7 @@ def authorize_run(user, recipe):
         return False
 
     # Only users with access can run recipes
-    readable = is_readable(user=user, project=recipe.project)
+    readable = is_readable(user=user, obj=recipe.project)
 
     if not readable:
         return False
@@ -402,16 +389,21 @@ def validate_recipe_run(user, recipe):
 
 def recipe_paste(instance, user, project, clone=False):
 
+    root = None
     # Cascade the root if the recipe is being cloned
     if clone:
         root = instance.root if instance.is_cloned else instance
-    else:
-        root = None
+
+    try:
+        stream = instance.image
+    except Exception as exc:
+        logger.error(exc)
+        stream = None
 
     recipe = create_analysis(project=project, user=user, root=root,
                              json_text=instance.json_text, security=instance.security,
                              template=instance.template,
-                             name=instance.name, text=instance.text, stream=instance.image)
+                             name=instance.name, text=instance.text, stream=stream)
     return recipe
 
 
@@ -423,21 +415,14 @@ def data_paste(user, project, instance=None, path=""):
         return create_data(project=project, path=instance.get_data_dir(),
                            user=user, name=instance.name,
                            type=dtype, text=instance.text)
+
     # Link an existing file.
     elif path and os.path.exists(path):
         return create_data(project=project, path=path, user=user)
 
 
-def clear(request, key=""):
-    if not key:
-        # Fetches the most recent clipboard and clears it.
-        board = most_recent(request=request)
-        key, vals = board
-
-    # Reset the session clipboard
-    clipboard = request.session.get(settings.CLIPBOARD_NAME, {})
-    clipboard[key] = []
-    request.session.update({settings.CLIPBOARD_NAME: clipboard})
+def clear(request):
+    request.session.update({settings.CLIPBOARD_NAME: {}})
     return
 
 
@@ -457,7 +442,7 @@ def paste(project, user, board, clone=False):
             # Paste objects in clipboard as data
             return data_paste(user=user, project=project, instance=instance)
 
-    # Special case function used to paste files.
+    # Special case to paste files.
     if key == COPIED_FILES:
         # Add each path in clipboard as a data object.
         new = [data_paste(project=project, user=user, path=p) for p in vals]
@@ -468,15 +453,30 @@ def paste(project, user, board, clone=False):
     if not klass:
         return []
 
-    # Select valid object uids.
+    # Select existing object by uid.
     objs = [klass.objects.filter(uid=uid).first() for uid in vals]
-    # Only keep existing objects.
     objs = filter(None, objs)
 
-    # Copy the objects into a list of new objects
+    # Apply copier to each object.
     new = list(map(copier, objs))
 
     return new
+
+
+def fill_in(item, value):
+
+    value = str(value)
+    item['files'] = []
+    item['toc'] = value
+    item['file_list'] = value
+    item['id'] = 0
+    item['name'] = os.path.basename(value)
+    item['uid'] = None
+    item['data_dir'] = value
+    item['project_dir'] = value
+    item['data_url'] = "/"
+
+    return item
 
 
 def fill_json_data(project, job=None, source_data={}, fill_with={}):
@@ -499,10 +499,17 @@ def fill_json_data(project, job=None, source_data={}, fill_with={}):
 
         # If the field is a data field then fill in more information.
         if item.get("source") == "PROJECT" and fill_with.get(field, '').isalnum():
-            data_id = int(fill_with.get(field))
-            data = store.get(data_id)
-            # This mutates the `item` dictionary!
-            data.fill_dict(item)
+            try:
+                data_id = int(fill_with.get(field))
+                data = store.get(data_id)
+                # This mutates the `item` dictionary!
+                data.fill_dict(item)
+            except Exception as exc:
+                logger.error(exc)
+                # This mutates the `item` dictionary!
+                value = fill_with.get(field, "MISSING")
+                fill_in(item=item, value=value)
+
             continue
 
         # The JSON value will be overwritten with the selected field value.
@@ -550,7 +557,6 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     job = Job.objects.create(name=name, state=state, json_text=json_text,
                              security=Job.AUTHORIZED, project=project, analysis=analysis, owner=owner,
                              template=analysis.template, uid=uid)
-
     # Fill the json data.
     json_data = fill_json_data(job=job, source_data=json_data, project=project, fill_with=fill_with)
 
@@ -576,13 +582,6 @@ def delete_object(obj, request):
     if access:
         obj.deleted = not obj.deleted
         obj.save()
-        data_count = Data.objects.filter(deleted=False, project=obj.project).count()
-        recipes_count = Analysis.objects.filter(deleted=False, project=obj.project).count()
-        job_count = Job.objects.filter(deleted=False, project=obj.project).count()
-
-        Project.objects.filter(uid=obj.project.uid).update(data_count=data_count,
-                                                           recipes_count=recipes_count,
-                                                           jobs_count=job_count)
 
     return obj.deleted
 
@@ -603,8 +602,9 @@ def transform(root, node, path):
 
     # Get the parent directory
     parent = os.path.dirname(path)
-    
+
     tstamp, size = 0, 0
+
     if os.path.exists(path):
         # Time stamp and size info.
         tstamp = os.stat(path).st_mtime
@@ -630,12 +630,12 @@ def listing(root, node=None, show_all=True):
     node = node or root
 
     try:
+        # Walk the root filesystem and collect all files.
         if show_all:
-            # Walk the filesystem and collect all files.
             for fpath, fdirs, fnames in os.walk(root, followlinks=True):
                 paths.extend([join(fpath, fname) for fname in fnames])
+        # Get the list of file in current directory node being traversed.
         else:
-            # Get the list of file in current directory node being traversed.
             paths = os.listdir(node)
 
         # Add metadata to each path.
@@ -643,10 +643,10 @@ def listing(root, node=None, show_all=True):
 
         paths = list(map(transformer, paths))
 
-        # Sort files by directory
         paths = sorted(paths, key=lambda x: x[-1], reverse=True)
 
     except Exception as exc:
+        paths = []
         logger.error(exc)
 
     return paths
@@ -698,7 +698,18 @@ def create_path(fname, data):
     return path
 
 
-def link_data(path, data):
+def new_uid(obj, objtype, default=None):
+    """
+    Ensure an objects uid is unique.
+    """
+    uid = default or obj.uid
+    while objtype.objects.filter(uid=uid).exclude(uid=obj.uid).exists():
+        uid = generate_uuid(prefix="data", suffix=f"{get_uuid(3)}")
+    return uid
+
+
+def data_link(path, data):
+
     dest = create_path(fname=path, data=data)
 
     if not os.path.exists(dest):
@@ -707,9 +718,23 @@ def link_data(path, data):
     return dest
 
 
-def is_readable(user, project):
-    # Shareable projects can get to see the
+def create_data_link(path, data):
 
+    # The path is a file.
+    if os.path.isfile(path):
+        data_link(path=path, data=data)
+        logger.info(f"Linked file: {path}")
+
+    # The path is a directory.
+    if os.path.isdir(path):
+        for p in os.scandir(path):
+            data_link(path=p.path, data=data)
+        logger.info(f"Linked dir: {path}")
+
+
+def is_readable(user, obj):
+
+    project = obj.project
     if project.is_public:
         return True
 
@@ -803,55 +828,44 @@ def fill_data_by_name(project, json_data):
     return json_data
 
 
-def create_data(project, user=None, stream=None, path='', name='',
-                text='', type='', uid=None, summary=''):
+def create_data(project, user=None, stream=None, path='', name='', text='', type='', uid=None):
+
     # We need absolute paths with no trailing slashes.
-    path = os.path.abspath(path).rstrip("/")
+    path = os.path.abspath(path).rstrip("/") if path else ""
 
     # Create the data.
-    type = type or "DATA"
-
-    # Set the object unique id.
-    uid = uid or util.get_uuid(8)
+    dtype = type or "DATA"
 
     # The owner of the data will be the first admin user if not set otherwise.
     owner = user or models.User.objects.filter(is_staff=True).first()
 
     # Create the data object.
-    data = Data.objects.create(name=name, owner=owner, state=Data.PENDING, project=project,
-                               type=type, text=text, uid=uid)
+    data = Data.objects.create(name=name, owner=owner, state=Data.PENDING,
+                               project=project, type=dtype, text=text, uid=uid)
 
-    # The source of the data is a stream and will become the path
-    # that should be added.
+    # Set the uid.
+    uid = new_uid(obj=data, objtype=Data, default=uid)
+    data.uid = uid
+
+    # Write this stream into a path then link that into the data.
     if stream:
         name = name or stream.name
         fname = '_'.join(name.split())
+        # Create path for the stream
         path = create_path(data=data, fname=fname)
+
+        # Write stream into newly created path.
         util.write_stream(stream=stream, dest=path)
+
         # Mark incoming file as uploaded
         data.method = Data.UPLOAD
 
-    # The path is a file.
-    isfile = os.path.isfile(path)
-
-    # The path is a directory.
-    isdir = os.path.isdir(path)
-
-    # The data is a single file on a path.
-    if isfile:
-        link_data(path=path, data=data)
-        logger.info(f"Linked file: {path}")
-
-    # The data is a directory.
-    # Link each file of the directory into the storage directory.
-    if isdir:
-        for p in os.scandir(path):
-            link_data(path=p.path, data=data)
-            logger.info(f"Linked file: {p}")
+    # Link path to this data object.
+    create_data_link(path=path, data=data)
 
     # Invalid paths and empty streams still create the data
     # but set the data state will be set to error.
-    missing = not (path or stream)
+    missing = not (path or stream or os.path.isdir(path) or os.path.isfile(path))
 
     # An invalid entry here.
     if path and missing:
@@ -860,21 +874,42 @@ def create_data(project, user=None, stream=None, path='', name='',
     else:
         state = Data.READY
 
-    # Make the table of content file with files in data_dir.
-    data.make_toc()
-
     # Set updated attributes
     data.state = state
     data.name = name or os.path.basename(path) or 'Data'
 
-    # Trigger another save.
+    # Trigger another save to remake the toc file.
     data.save()
-
-    # Update the projects lastedit user when a data is uploaded
-    Project.objects.filter(uid=data.project.uid).update(lastedit_user=user,
-                                                        lastedit_date=now())
 
     # Set log for data creation.
     logger.info(f"Added data type={data.type} name={data.name} pk={data.pk}")
 
+    return data
+
+
+def get_or_create(**kwargs):
+    """
+    Get or create a data object associated with a file.
+    """
+    fname = kwargs["file"]
+    project = kwargs['project']
+    uid = kwargs.get('uid')
+
+    # Get the data if it exists.
+    data = Data.objects.filter(uid=uid).first()
+
+    if data and not data.deleted:
+        create_data_link(path=fname, data=data)
+        logger.info("Updated data file, name, and text.")
+    else:
+        # Create new data.
+        data = create_data(project=project, path=fname, uid=uid, user=kwargs.get('user'))
+
+    # Update the name, text, and type.
+    data.name = kwargs.get('name') or data.name
+    data.text = kwargs.get("text") or data.text
+    data.type = kwargs.get("type", '').upper() or data.type or "DATA"
+
+    # Trigger save to update the toc file, last edit date, etc.
+    data.save()
     return data

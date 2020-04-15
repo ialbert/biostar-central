@@ -52,27 +52,25 @@ def valid_tag(text):
 
 class PostLongForm(forms.Form):
 
-    choices = [opt for opt in Post.TYPE_CHOICES]
+    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
 
-    mapper = {
-              Post.QUESTION: "Ask a question", Post.TUTORIAL:"Share a Tutorial",
-              Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
-              Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
-              }
+    # mapper = {
+    #           Post.QUESTION: "Ask a question", Post.TUTORIAL: "Share a Tutorial",
+    #           Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
+    #           Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
+    #           }
+    if settings.ALLOWED_POST_TYPES:
+        choices = [opt for opt in choices if opt[1] in settings.ALLOWED_POST_TYPES]
 
-    choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
-                                 (opt[0] in Post.TOP_LEVEL), choices)
-
-    # Get his
-    if settings.REMAP_TYPE_DISPLAY:
-        type_choices = []
-        for c in choices:
-            type_choices.append((c[0], mapper.get(c[0], c[1])))
-    else:
-        type_choices = choices
+    # if settings.REMAP_TYPE_DISPLAY:
+    #     type_choices = []
+    #     for c in choices:
+    #         type_choices.append((c[0], mapper.get(c[0], c[1])))
+    # else:
+    #     type_choices = choices
 
     post_type = forms.IntegerField(label="Post Type",
-                                   widget=forms.Select(choices=type_choices, attrs={'class': "ui dropdown"}),
+                                   widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type.")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
                             validators=[valid_title, english_only],
@@ -159,43 +157,6 @@ class PostShortForm(forms.Form):
             raise forms.ValidationError("You need to be logged in.")
         return cleaned_data
 
-class CommentForm(forms.Form):
-
-    post_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=5000)
-    content = forms.CharField( widget=forms.Textarea,min_length=2, max_length=5000)
-
-
-def mod_choices(post):
-    """
-    Return available moderation options for a post.
-    """
-    choices = [
-        (BUMP_POST, "Bump post."),
-        (MOVE_ANSWER, "Move comment to answer."),
-        (OPEN_POST, "Open post"),
-        (DELETE, "Delete post."),
-        (REPORT_SPAM, "Mark as spam.")
-    ]
-
-    # Moderation options for top level posts
-    allowed = [BUMP_POST, REPORT_SPAM] if post.is_toplevel else [REPORT_SPAM]
-
-    # Option to open deleted posts
-    if post.status in [Post.DELETED, Post.OFFTOPIC] or post.is_spam:
-        allowed += [OPEN_POST]
-
-    # Option to deleted open posts
-    if post.status != Post.DELETED:
-        allowed += [DELETE]
-
-    if post.is_comment:
-        allowed += [MOVE_ANSWER]
-
-    # Filter the appropriate choices
-    choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
-
-    return choices
-
 
 class PostModForm(forms.Form):
 
@@ -206,40 +167,34 @@ class PostModForm(forms.Form):
 
         super(PostModForm, self).__init__(*args, **kwargs)
 
-        choices = mod_choices(post=self.post)
+        choices = [
+            (OPEN_POST, "Open post"),
+            (DELETE, "Delete post."),
+            (REPORT_SPAM, "Mark as spam."),
 
-        if self.post.is_toplevel:
-            self.fields['dupe'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea)
-            #self.fields['comment'] = forms.CharField(required=False, max_length=200, widget=forms.Textarea)
-        else:
-            self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
+        ]
 
-        self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=False)
+        # Options for top level posts.
+        if post.is_toplevel:
+            prefix = [(BUMP_POST, "Bump post.")]
+            suffix = [(CLOSE, "Close post ( reason required ). "),
+                      (DUPLICATE, "Duplicated post ( links required ).")]
+            choices = prefix + choices + suffix
+            self.fields['comment'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea,
+                                                     strip=True)
 
-    def clean_dupe(self):
-        dupe = self.cleaned_data.get("dupe")
-        dupes = dupe.split(",")[:5]
-        dupes = ','.join(dupes)
-        return dupes
+        self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
 
     def clean(self):
         action = self.cleaned_data.get("action")
-        dupes = self.cleaned_data.get("dupe")
-        pid = self.cleaned_data.get("pid")
-        offtopic = self.cleaned_data.get("comment")
+        comment = self.cleaned_data.get("comment")
 
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
-        if (action is None) and not (dupes or pid or offtopic):
-            raise forms.ValidationError("Select an action.")
-
-        parent = Post.objects.filter(uid=pid).first()
-        if not parent and pid:
-            raise forms.ValidationError(f"Parent id: {pid} does not exist.")
-
-        if parent and parent.root != self.post.root:
-            raise forms.ValidationError(f"Parent does not share the same root.")
+        if (action == CLOSE or action == DUPLICATE) and not comment:
+            raise forms.ValidationError("Closing a post requires a reason.")
 
         return self.cleaned_data
+
 

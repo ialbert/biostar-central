@@ -4,8 +4,8 @@ from django.dispatch import receiver
 from taggit.models import Tag
 from django.db.models import F, Q
 from biostar.accounts.models import Profile, Message, User
-from .models import Post, Award, Subscription
-from . import tasks, auth, util
+from biostar.forum.models import Post, Award, Subscription
+from biostar.forum import tasks, auth, util, spam
 
 
 logger = logging.getLogger("biostar")
@@ -58,11 +58,6 @@ def finalize_post(sender, instance, created, **kwargs):
     # Determine the root of the post.
     root = instance.root if instance.root is not None else instance
 
-    # Add tags
-    instance.tags.clear()
-    tags = [Tag.objects.get_or_create(name=name)[0] for name in instance.parse_tags()]
-    instance.tags.add(*tags)
-
     # Update last contributor, last editor, and last edit date to the thread
     Post.objects.filter(uid=root.uid).update(lastedit_user=instance.lastedit_user,
                                              last_contributor=instance.last_contributor,
@@ -89,8 +84,13 @@ def finalize_post(sender, instance, created, **kwargs):
         # Sanity check.
         assert instance.root and instance.parent
 
-        # Title is inherited from top level.
-        if not instance.is_toplevel:
+        if instance.is_toplevel:
+            # Add tags for top level posts.
+            tags = [Tag.objects.get_or_create(name=name)[0] for name in instance.parse_tags()]
+            instance.tags.remove()
+            instance.tags.add(*tags)
+        else:
+            # Title is inherited from top level.
             instance.title = "%s: %s" % (instance.get_type_display(), instance.root.title[:80])
 
         # Make the last editor first in the list of contributors
@@ -116,6 +116,12 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Notify users who are watching tags in this post
         #tasks.notify_watched_tags(post=instance)
+
+        # Give it a spam score.
+        tasks.spam_scoring.spool(post=instance)
+
+    # Add this post to the spam index if it's spam.
+    tasks.update_spam_index.spool(post=instance)
 
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)

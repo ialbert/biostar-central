@@ -5,6 +5,7 @@ from textwrap import dedent
 import hashlib
 import urllib.parse
 import random
+from itertools import count, islice
 
 from datetime import timedelta, datetime
 from django.contrib import messages
@@ -105,17 +106,55 @@ def gravatar(user, size=80):
     return gravatar_url
 
 
+def find_fragments(source, target, nfrags=3, offset=25):
+
+    # Look for case insensitive matches of target in the source
+    matches = re.finditer(f"(?i){target}", source)
+    matches = islice(zip(count(1), matches), nfrags)
+    fragments = []
+
+    # Collect matches as fragments
+    for idx, match in matches:
+        # Get left side, right side, and center text of match
+        left = match.start(0) - offset
+        right = match.end(0) + offset
+        text = match.group()
+
+        if left < 0:
+            left = 0
+        if right > len(source):
+            right = len(source)
+
+        fragments.append((left,  right, text))
+
+    return fragments
+
+
 @register.filter
 def highlight(source, target):
-    # Look for case insensitive matches in the source
-    highlighting = re.search(f"(?i){target}", source)
 
-    target = highlighting.group() if highlighting else target
+    # Number of fragments to show
+    nfrags = 2
 
-    # Highlight the target
-    highlighted = mark_safe(f"<div class='match'>{target}</div>")
+    # Character offset used to pad highlighted items
+    offset = 30
 
-    return source.replace(target, highlighted)
+    # Applies the highlighter class to each fragment
+    def highlighter(parent, sub):
+        return parent.replace(sub, mark_safe(f"<div class='match'>{sub}</div>"))
+
+    # Gather the fragments.
+    fragments = find_fragments(source=source, target=target, nfrags=nfrags, offset=offset)
+
+    if fragments:
+        result = [highlighter(source[start:end], txt) for start, end, txt in fragments]
+        result = "...".join(result)
+    else:
+        result = source[:offset * 4]
+
+    result += "..." if len(source) > len(result) else ""
+
+    return result
 
 
 @register.simple_tag
@@ -165,7 +204,7 @@ def security_label(context, analysis):
     if user.is_anonymous:
         is_readable = False
     else:
-        is_readable = auth.is_readable(user=user, project=analysis.project)
+        is_readable = auth.is_readable(user=user, obj=analysis.project)
 
     context.update(dict(recipe=analysis, is_readable=is_readable))
 
@@ -353,10 +392,6 @@ def form_errors(form):
 
     return context
 
-@register.filter
-def serve_url(uid, path, view):
-
-    return reverse()
 
 @register.filter
 def markdown(text):

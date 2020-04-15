@@ -94,7 +94,9 @@ def ajax_vote(request):
     type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
     vote_type = request.POST.get('vote_type')
+
     vote_type = type_map.get(vote_type)
+
     post_uid = request.POST.get('post_uid')
 
     # Check the post that is voted on.
@@ -115,6 +117,45 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
+def validate_drop(request):
+    """
+    Vaildates drag and drop and makes
+    """
+    parent_uid = request.POST.get("parent", '')
+    uid = request.POST.get("uid", '')
+    user = request.user
+    parent = Post.objects.filter(uid=parent_uid).first()
+    post = Post.objects.filter(uid=uid).first()
+
+    if not post:
+        msg = "Post does not exist."
+        return False, msg
+
+    if parent_uid == "NEW":
+        return True, "Valid drop."
+
+    if not parent:
+        msg = "Parent needs to be provided."
+        return False, msg
+
+    if not (user.profile.is_moderator or post.author == user):
+        msg = "Only moderators or the author can move posts."
+        return False, msg
+
+    children = set()
+    auth.walk_down_thread(parent=post, collect=children)
+
+    if parent == post or (parent in children) or parent.root != post.root:
+        msg = "Can not move post here."
+        return False, msg
+
+    if post.is_toplevel:
+        msg = "Top level posts can not be moved."
+        return False, msg
+
+    return True, "Valid drop"
+
+
 @ratelimit(key='ip', rate='50/h')
 @ratelimit(key='ip', rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -126,32 +167,19 @@ def drag_and_drop(request):
 
     parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
-    user = request.user
+
     parent = Post.objects.filter(uid=parent_uid).first()
     post = Post.objects.filter(uid=uid).first()
     post_type = Post.COMMENT
 
-    if not post:
-        return ajax_error(msg="Post does not exist.")
+    valid, msg = validate_drop(request)
+    if not valid:
+        return ajax_error(msg=msg)
 
+    # Dropping comment as a new answer
     if parent_uid == "NEW":
         parent = post.root
         post_type = Post.ANSWER
-
-    if not uid or not parent:
-        return ajax_error(msg="Parent and Uid need to be provided. ")
-
-    if not (user.profile.is_moderator or post.author == user):
-        return ajax_error(msg="Only moderators or the author can move posts.")
-
-    collect = set()
-    auth.walk_down_thread(parent=post, collect=collect)
-
-    if parent == post or (parent in collect) or parent.root != post.root:
-        return ajax_error(msg="Can not move post here.")
-
-    if post.is_toplevel:
-        return ajax_error(msg="Top level posts can not be moved.")
 
     Post.objects.filter(uid=post.uid).update(type=post_type, parent=parent)
 
@@ -227,19 +255,26 @@ def validate_recaptcha(token):
     return False, "Invalid reCAPTCHA. Please try again."
 
 
-@ajax_error_wrapper(method="GET", login_required=True)
-def most_recent_users(request):
+def release_suspect(request, uid):
+    """
+    Mark post as not spam and release from score.
+    """
+    post = Post.objects.filter(uid=uid).first()
 
-    recent_locations = Profile.objects.exclude(Q(location="") | Q(state__in=[Profile.BANNED, Profile.SUSPENDED])).prefetch_related("user")
-    recent_locations = recent_locations.order_by('last_login')
-    recent_locations = recent_locations[:settings.LOCATION_FEED_COUNT]
+    if not post:
+        return ajax_error(msg='Post does not exist.')
 
-    users = [dict(username=u.user.username, email=u.user.email, uid=u.uid, name=u.name,
-                  url=u.get_absolute_url(), score=u.score,
-                  gravatar=auth.gravatar(user=u.user, size=30))
-             for u in recent_locations]
+    if not request.user.profile.is_moderator:
+        return ajax_error(msg="You need to be a moderator to preform that action.")
 
-    return ajax_success(msg="recent users", users=users)
+    # Bump the score by one is the user does not get quarantined again.
+    # basically tells the system the user has gained antibodies.
+    if post.author.profile.low_rep:
+        post.author.profile.bump_over_threshold()
+
+    Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
+
+    return ajax_success(msg="Released from the quarantine.")
 
 
 @ajax_error_wrapper(method="GET", login_required=True)
@@ -256,10 +291,11 @@ def report_spam(request, post_uid):
     if not request.user.profile.is_moderator:
         return ajax_error(msg="You need to be a moderator to preform that action.")
 
+    # Can not report your self or a moderator as spam.
     if request.user == post.author or post.author.profile.is_moderator:
         return ajax_error(msg='Invalid action.')
 
-    auth.handle_spam_post(post=post, user=request.user)
+    auth.Moderate(post=post, action=const.REPORT_SPAM, user=request.user)
 
     return ajax_success(msg="Reported user as a spammer.")
 
@@ -392,10 +428,15 @@ def ajax_edit(request, uid):
     tmpl = loader.get_template('widgets/post_tags.html')
     tag_html = tmpl.render(context)
 
+    # Get the newly updated user line
+    context = dict(post=post, avatar=post.is_comment)
+    tmpl = loader.get_template('widgets/post_user_line.html')
+    user_line = tmpl.render(context)
+
     # Prepare the new title to render
     new_title = f'{post.get_type_display()}: {post.title}'
 
-    return ajax_success(msg='success', html=post.html, title=new_title, tag_html=tag_html)
+    return ajax_success(msg='success', html=post.html, title=new_title, user_line=user_line, tag_html=tag_html)
 
 
 @ratelimit(key='ip', rate='50/h')
@@ -435,6 +476,7 @@ def inplace_form(request):
     """
     Used to render inplace forms for editing posts.
     """
+    MIN_LINES = 10
     user = request.user
     if user.is_anonymous:
         return ajax_error(msg="You need to be logged in to edit or create posts.")
@@ -447,12 +489,19 @@ def inplace_form(request):
 
     add_comment = request.GET.get('add_comment', False)
 
+    html = "" if add_comment else post.html
+
     # Load the content and form template
-    template = "forms/inplace_form.html"
+    template = "forms/form_inplace.html"
     tmpl = loader.get_template(template_name=template)
     users_str = auth.get_users_str()
-    context = dict(user=user, post=post, rows=25, add_comment=add_comment, users_str=users_str,
-                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY)
+
+    nlines = post.num_lines(offset=3)
+    rows = nlines if nlines >= MIN_LINES else MIN_LINES
+    form = forms.PostLongForm(user=request.user)
+
+    context = dict(user=user, post=post, new=add_comment,  html=html, users_str=users_str,
+                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY, rows=rows, form=form)
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)
@@ -472,8 +521,8 @@ def similar_posts(request, uid):
 
     if results is None:
         logger.info("Setting similar posts cache.")
-
-        results = search.whoosh_more_like_this(uid=post.uid)
+        results = search.preform_search(query=post.uid, fields=['uid'], sortedby=["lastedit_date"],
+                                        more_like_this=True)
         # Set the results cache for 1 hour
         cache.set(cache_key, results, 3600)
 
@@ -484,3 +533,4 @@ def similar_posts(request, uid):
     results_html = tmpl.render(context)
 
     return ajax_success(html=results_html, msg="success")
+

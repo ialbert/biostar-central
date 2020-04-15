@@ -1,5 +1,5 @@
 {% load forum_tags %}
-<div class="{% if spaced %}spaced-tags{% else %}{% endif %}" style="">
+<div class="tags {% if spaced %}spaced-tags{% else %}{% endif %}" style="">
     {% for tag in tags %}
         {% if tag %}
 

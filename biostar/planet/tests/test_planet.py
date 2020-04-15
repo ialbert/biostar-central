@@ -19,7 +19,7 @@ logger = logging.getLogger('biostar')
 PLANET_DIR = os.path.abspath(os.path.join(TEST_ROOT, "feeds"))
 
 
-@override_settings(PLANET_DIR=PLANET_DIR)
+@override_settings(PLANET_DIR=PLANET_DIR, INIT_PLANET=False)
 class PlanetTest(TestCase):
 
     def setUp(self):

@@ -1,4 +1,4 @@
-### This app is used to server all apps in unison.
+### Used to server all apps in unison.
 
 
 ``

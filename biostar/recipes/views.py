@@ -95,13 +95,13 @@ def project_delete(request, uid):
 
 def search_bar(request):
     results = search.search(request=request)
+
     # Indicate to users that minimum character needs to be met.
     query_lenth = len(request.GET.get("q", "").strip())
     min_length = query_lenth > settings.SEARCH_CHAR_MIN
 
     # Indicate to users that there are no results for search.
-    current_results = len([inner for outer in results.values() for inner in outer])
-    no_results = min_length and current_results == 0
+    no_results = min_length and len(results) == 0
 
     context = dict(results=results, query=request.GET.get("q", "").strip(),
                    min_length=min_length, no_results=no_results)
@@ -165,13 +165,12 @@ def project_list_public(request):
 
 
 def project_list_private(request):
-    target = "private" if request.user.is_authenticated else 'public'
-    return project_list(request, target=target)
+    return project_list(request, target='private')
 
 
 def project_list(request, target=None):
 
-    if target == 'private':
+    if target == 'private' and request.user.is_authenticated:
         active = "private"
         projects = auth.get_project_list(user=request.user, include_public=False)
     else:
@@ -352,7 +351,6 @@ def data_view(request, uid):
     data = Data.objects.filter(uid=uid).first()
     project = data.project
     paths = auth.listing(root=data.get_data_dir())
-
     context = dict(data=data, project=project, paths=paths, serve_view="data_serve",
                    activate='Selected Data', uid=data.uid, show_all=True)
     counts = get_counts(project)
@@ -456,6 +454,7 @@ def recipe_run(request, uid):
         # The form validation will authorize the job.
         if form.is_valid():
             # Create the job from the recipe and incoming json data.
+            #print(form.cleaned_data)
             job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data)
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
@@ -511,7 +510,7 @@ def get_part(request, name, id):
 
     project = recipe.project
 
-    if not auth.is_readable(project=project, user=user):
+    if not auth.is_readable(obj=project, user=user):
         message = str("Recipe is not readable by current user")
         return HttpResponse(message)
 

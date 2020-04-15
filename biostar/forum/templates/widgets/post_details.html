@@ -1,0 +1,67 @@
+{% load forum_tags %}
+
+<div class="post {{ post.css }} item" data-value="{{ post.uid }}">
+
+    <div class="stats">
+
+        <div class="ui mini stat left label">
+            <div>{{ post.get_votecount|bignum }}</div>
+            <div>Vote{{ post.get_votecount|pluralize }}</div>
+        </div>
+
+        <div class="ui label stat mini {% boxclass post %} bookmark">
+            <div>{{ post.reply_count }}</div>
+            <div>Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
+        </div>
+
+        <div class="ui label basic transparent stat mini">
+            <div>{{ post.root.view_count|bignum }}</div>
+            <div>View{{ post.root.view_count|pluralize }}</div>
+        </div>
+
+        {% if show_subs %}
+            {% subscription_label post.subs_count %}
+        {% endif %}
+
+    </div>
+
+    <div class="content">
+
+        <div class="title header">
+            {{ post.title_prefix }}
+            <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header ">
+                {{ post.title|truncatechars:150 }}
+            </a>
+        </div>
+
+        <div class="extra right floated">
+
+            <div class="left floated">
+                {% if post.is_toplevel %}
+                    {% post_tags post spaced=False %}
+                {% endif %}
+            </div>
+
+            {% if post.high_spam_score and user.profile.is_moderator %}
+                <div class="ui simple dropdown spam">
+                    <i class="bug orange icon"></i>
+                    <div class="menu">
+                        <div class="mark item">Mark as Spam</div>
+
+                        {% if post.suspect_spam %}
+                            <div class="release item">Release</div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="right floated muted">
+                {% post_user_line post avatar=True %}
+            </div>
+
+        </div>
+    </div>
+
+</div>
+

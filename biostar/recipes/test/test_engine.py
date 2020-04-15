@@ -26,6 +26,7 @@ class Bunch(object):
         self.__dict__.update(kwargs)
 
 
+
 @override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class SiteAdminTest(TestCase):
 
@@ -55,7 +56,7 @@ class SiteAdminTest(TestCase):
         self.assertEqual(response.status_code, 200, "Can not load recyle bin")
 
 
-@override_settings(MEDIA_ROOT=TEST_ROOT)
+@override_settings(MEDIA_ROOT=TEST_ROOT , MULTI_THREAD=False)
 class FactoryTest(TestCase):
 
     def setUp(self):

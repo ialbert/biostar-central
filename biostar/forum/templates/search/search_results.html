@@ -1,0 +1,125 @@
+{% extends "forum_list.html" %}
+{% load forum_tags %}
+{% load accounts_tags %}
+{% load humanize %}
+{% load cache %}
+
+
+{% block body %}
+
+    {% block search %}
+
+        {% search_bar %}
+
+    {% endblock %}
+    <div class="ui page-bar segment">
+        {% pages_search results %}
+    </div>
+    <div class="ui message"><i class="search icon"></i>Searching for posts containing: <b>{{ query }}</b></div>
+
+    <div class="ui divided items" id="search-results" data-query="{{ query }}" data-stop="{{ stop_words }}">
+        {% for result in results %}
+
+            <div class="post item  top-padding">
+                <div class="statbox">
+                    <div class="ui left stat label mini">
+                        <div class="number-stat">
+                            {{ result.vote_count|bignum }}
+                        </div>
+                        <div class="detail-stat">Vote{{ result.vote_count|pluralize }}</div>
+                    </div>
+                    <div class="ui label stat mini bookmark
+                  {% search_boxclass root_type=result.type answer_count=result.answer_count root_has_accepted=result.root_has_accepted %}
+                   ">
+                        <div class="number-stat">
+                            {{ result.reply_count|bignum }}
+                        </div>
+                        <div class="detail-stat">Repl{{ result.reply_count|pluralize:"y,ies" }}</div>
+                    </div>
+
+                    <div class="ui label basic transparent stat mini">
+                        <div class="number-stat">
+                            {{ result.view_count|bignum }}
+                        </div>
+                        <div class="detail-stat">View{{ result.view_count|pluralize }}</div>
+                    </div>
+                </div>
+                <div class="content">
+                    <div class="post-title header">
+
+                        {% if result.type != question_flag %}
+                            <span class="ui title header">{{ result.type_display }}:</span>
+                        {% endif %}
+                        <a href="
+
+                                {% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
+                           class="ui mini blue title header trigger-highlight">{{ result.title|truncatechars:150 }}
+                        </a>
+                    </div>
+
+                    <div class="muted trigger-highlight">
+                        {{ result.content |truncatechars_html:400 }}
+                    </div>
+
+                    <div class=" extra right floated">
+                        <div class="left floated">
+                            {% post_tags tags_str=result.tags spaced=False %}
+                        </div>
+                        <div class="right floated muted">
+
+                               {% if result.author_uid != result.lastedit_user_id %}
+
+                                        {{ result.creation_date|time_ago }}
+                                            <a href="{% url "user_profile"  result.author_uid %}">
+                                                {{ result.author|truncatechars:40 }}
+                                            </a>
+                                            {% user_icon is_moderator=result.author_is_moderator user='' score=result.author_score %}
+
+                                         &bull;
+                                    updated
+                                    {{ result.lastedit_date|time_ago }}
+                                    <a   href="{% url "user_profile"  result.lastedit_user_uid %}">
+                                        {{ result.lastedit_user|truncatechars:50 }}
+                                    </a>
+                                    {% user_icon is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
+
+                                {% else %}
+
+                                        {{ result.lastedit_date|time_ago }}
+                                        <a href="{% url "user_profile"  result.lastedit_user_uid %}">
+                                            {{ result.lastedit_user }}
+                                        </a>
+                                        {% user_icon user='' is_moderator=result.lastedit_user_is_moderator score=post.lastedit_user_score %}
+
+                                {% endif %}
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        {% empty %}
+            <div class="ui warn message">
+                No posts found.
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="ui page-bar segment">
+        {% pages_search results %}
+    </div>
+
+{% endblock %}
+
+
+{% block sidebar %}
+
+    {% cache 60 sidebar %}
+
+        {% default_feed user=request.user %}
+
+    {% endcache %}
+
+
+{% endblock %}

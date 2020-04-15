@@ -7,16 +7,19 @@ from biostar.accounts.models import User
 
 logger = logging.getLogger('engine')
 
+PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
+SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
+
 TEST_CASES = [
 
     # Top level Post anchors
-    ("http://localhost:8000/p/1/", '<p><a href="http://localhost:8000/p/1/">Test</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/">Test</a></p>'),
 
     # Non-toplevel post anchors
-    ("http://localhost:8000/p/1/#2", '<p><a href="http://localhost:8000/p/1/#2">Comment: Test</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/#2", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/#2">Comment: Test</a></p>'),
 
     # User profile url pattern
-    ("http://localhost:8000/accounts/profile/5", '<p><a href="http://localhost:8000/accounts/profile/5">USER: tested2</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/accounts/profile/5", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/accounts/profile/5">USER: tested2</a></p>'),
 
     # Twitter link
     ("https://twitter.com/Linux/status/2311234267", '<p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">w00t! 10,000 followers!</p>&mdash; Linux (@Linux) <a href="https://twitter.com/Linux/status/2311234267?ref_src=twsrc%5Etfw">June 24, 2009</a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>'),

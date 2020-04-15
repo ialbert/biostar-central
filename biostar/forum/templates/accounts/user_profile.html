@@ -5,11 +5,9 @@
 
 {% block content %}
 
-    <div class="ui stackable three column grid">
+    <div class="ui stackable three column grid profile" data-value="{{ target.profile.id }}" >
 
         <div class="column">
-
-
             <div class="ui center aligned  basic segment">
                 <img class="ui centered circular image" src="{% gravatar user=target size=150 %}">
                 <div class="ui centered header">
@@ -18,7 +16,7 @@
                 </div>
             </div>
 
-            <div class="ui center aligned  basic segment">
+            <div class="ui center aligned basic segment">
 
                 {% if target == request.user %}
                     <a class="ui mini button" href="{% url 'edit_profile' %}">
@@ -27,7 +25,7 @@
                 {% endif %}
 
                 {% if can_moderate %}
-                    <div class="ui mini button orange moderate-user" data-value="{{ target.id }}">
+                    <div class="ui mini button orange moderate">
                         <i class="hand paper icon"></i>
                         Moderate
                     </div>
@@ -41,7 +39,7 @@
 
             </div>
 
-            <div class="moderate-insert" data-value="{{ target.id }}"></div>
+            <div id="mod"></div>
         </div>
 
         <div class="column">
@@ -155,20 +153,27 @@
 
         <div class="ui top attached tabular  menu">
 
-            <a class="{% activate 'posts' active %}  item"
-               href="{% url 'user_profile' target.profile.uid %}?active=posts">
+            <a class="{% activate 'posts' active %} item" href="{{ target.profile.get_absolute_url }}?active=posts">
                 <i class="list alternate outline icon"></i><span class="phone"> Posts</span>
             </a>
 
-            <a class="{% activate 'awards' active %}  item"
-               href="{% url 'user_profile' target.profile.uid %}?active=awards">
+            <a class="{% activate 'awards' active %}  item" href="{{ target.profile.get_absolute_url }}?active=awards">
                 <i class="star outline icon"></i><span class="phone">Awards</span>
             </a>
 
         </div>
         <div class="ui bottom attached profile segment">
             {% if active == 'posts' %}
-                {% list_posts target=target %}
+
+                <div class="ui divided items">
+                    {% for post in target|post_list:request %}
+                        {% post_details post=post user=request.user %}
+                    {% empty %}
+                        <div class="ui warn message">
+                            No posts found.
+                        </div>
+                    {% endfor %}
+                </div>
             {% else %}
                 {% list_awards target=target %}
             {% endif %}

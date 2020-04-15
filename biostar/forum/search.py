@@ -6,7 +6,8 @@ from collections import defaultdict
 
 # Postgres specific queries should go into separate module.
 from django.conf import settings
-from whoosh import writing
+from django.db.models import Q
+from whoosh import writing, classify
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.writing import AsyncWriter
 from whoosh.searching import Results
@@ -21,7 +22,7 @@ from biostar.forum.models import Post
 logger = logging.getLogger('biostar')
 
 # Stop words ignored where searching.
-STOP = ['there', 'where', 'who'] + [w for w in STOP_WORDS]
+STOP = ['there', 'where', 'who', 'that'] + [w for w in STOP_WORDS]
 STOP = set(STOP)
 
 
@@ -83,30 +84,25 @@ class SearchResult(object):
         return self.total
 
 
-def close(r):
-    # Ensure the searcher object gets closed.
-    r.searcher.close() if isinstance(r, Results) else None
-    return
-
-
 def normalize_result(result):
     "Return a bunch object for result."
 
     # Result is a database object.
-    bunched = SearchResult(title=result['title'], content=result['content'], url=result['url'],
-                           type_display=result['type_display'], content_length=result['content_length'],
-                           type=result['type'], lastedit_date=result['lastedit_date'],
-                           is_toplevel=result['is_toplevel'], rank=result['rank'], uid=result['uid'],
-                           author_handle=result['author_handle'], author=result['author'],
-                           author_score=result['author_score'],
-                           thread_votecount=result['thread_votecount'], vote_count=result['vote_count'],
-                           author_uid=result['author_uid'], author_url=result['author_url'])
+    bunched = SearchResult(title=result.get('title'), content=result.get('content'), url=result.get('url'),
+                           type_display=result.get('type_display'), content_length=result.get('content_length'),
+                           type=result.get('type'), lastedit_date=result.get('lastedit_date'),
+                           is_spam=result.get("is_spam", False), is_toplevel=result.get('is_toplevel'),
+                           rank=result.get('rank'), uid=result.get('uid'),
+                           author_handle=result.get('author_handle'), author=result.get('author'),
+                           author_score=result.get('author_score'), score=result.score,
+                           thread_votecount=result.get('thread_votecount'), vote_count=result.get('vote_count'),
+                           author_uid=result.get('author_uid'), author_url=result.get('author_url'))
 
     return bunched
 
 
-def index_exists():
-    return exists_in(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME)
+def index_exists(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME):
+    return exists_in(dirname=dirname, indexname=indexname)
 
 
 def add_index(post, writer):
@@ -181,24 +177,30 @@ def get_schema():
     return schema
 
 
-def init_index():
+def init_index(dirname=None, indexname=None, schema=None):
     # Initialize a new index or return an already existing one.
 
-    if index_exists():
-        ix = open_dir(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME)
+    ix_scheme = schema or get_schema()
+    dirname = dirname or settings.INDEX_DIR
+    indexname = indexname or settings.INDEX_NAME
+
+    if exists_in(dirname=dirname, indexname=indexname):
+        ix = open_dir(dirname=dirname, indexname=indexname)
     else:
         # Ensure index directory exists.
-        os.makedirs(settings.INDEX_DIR, exist_ok=True)
-        ix = create_in(dirname=settings.INDEX_DIR, schema=get_schema(), indexname=settings.INDEX_NAME)
+        os.makedirs(dirname, exist_ok=True)
+        ix = create_in(dirname=dirname, schema=ix_scheme, indexname=indexname)
 
     return ix
 
 
-def print_info():
+def print_info(dirname=None, indexname=None,):
     """
     Prints information on the index.
     """
-    ix = init_index()
+    dirname = dirname or settings.INDEX_DIR
+    indexname = indexname or settings.INDEX_NAME
+    ix = init_index(dirname=dirname, indexname=indexname)
 
     counter = defaultdict(int)
     for index, fields in enumerate(ix.searcher().all_stored_fields()):
@@ -214,12 +216,12 @@ def print_info():
     print(f"{total} total posts")
 
 
-def index_posts(posts, overwrite=False):
+def index_posts(posts, ix=None, overwrite=False, add_func=add_index):
     """
     Create or update a search index of posts.
     """
 
-    ix = init_index()
+    ix = ix or init_index()
     # The writer is asynchronous by default
     writer = AsyncWriter(ix)
 
@@ -230,7 +232,7 @@ def index_posts(posts, overwrite=False):
     # Loop through posts and add to index
     for step, post in stream:
         progress(step, total=total, msg="posts indexed")
-        add_index(post=post, writer=writer)
+        add_func(post=post, writer=writer)
 
     # Commit to index
     if overwrite:
@@ -252,7 +254,7 @@ def crawl(reindex=False, overwrite=False, limit=1000):
         Post.objects.filter(indexed=True).exclude(root=None).update(indexed=False)
 
     # Index a limited number of posts at one time.
-    posts = Post.objects.exclude(root=None, indexed=False)[:limit]
+    posts = Post.objects.valid_posts().exclude(Q(spam=Post.SPAM) | Q(indexed=False))[:limit]
 
     try:
         # Add post to search index.
@@ -267,93 +269,66 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def preform_whoosh_search(query, fields=None, page=None, per_page=20, **kwargs):
+def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None, sortedby=[], **kwargs):
     """
         Query the indexed, looking for a match in the specified fields.
         Results a tuple of results and an open searcher object.
         """
 
-    # Do not preform search if the index does not exist.
-    if not index_exists() or len(query) < settings.SEARCH_CHAR_MIN:
-        return []
-
+    per_page = per_page or settings.SEARCH_RESULTS_PER_PAGE
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
-    ix = init_index()
+    ix = ix or init_index()
     searcher = ix.searcher()
-
-    # profile_score = FieldFacet("author_score", reverse=True)
-    # post_type = FieldFacet("type")
-    # thread = FieldFacet('thread_votecount')
-    # # content_length = FieldFacet("content_length", reverse=True)
-    # rank = FieldFacet("rank", reverse=True)
-    # default = ScoreFacet()
 
     # Splits the query into words and applies
     # and OR filter, eg. 'foo bar' == 'foo OR bar'
     orgroup = OrGroup
 
-    # sort_by = sort_by or [post_type, rank, thread, default, profile_score]
-    # sort_by = [lastedit_date]
-
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
     if page:
         # Return a pagenated version of the results.
-
         results = searcher.search_page(parser,
-                                       pagenum=page, pagelen=per_page, sortedby=["lastedit_date"],
+                                       pagenum=page, pagelen=per_page, sortedby=sortedby,
                                        reverse=True,
                                        terms=True, **kwargs)
         results.results.fragmenter.maxchars = 100
-        # results.fragmenter.charlimit = None
         # Show more context before and after
         results.results.fragmenter.surround = 100
     else:
-        results = searcher.search(parser, limit=settings.SEARCH_LIMIT, sortedby=["lastedit_date"], reverse=True,
+        results = searcher.search(parser, limit=settings.SEARCH_LIMIT, sortedby=sortedby, reverse=True,
                                   terms=True, **kwargs)
         # Allow larger fragments
         results.fragmenter.maxchars = 100
-        # results.fragmenter.charlimit = None
-        # Show more context before and after
         results.fragmenter.surround = 100
 
-    logger.info("Preformed index search")
+    #logger.info("Preformed index search")
 
     return results
 
 
-def whoosh_more_like_this(uid):
-    """
-    Return posts similar to the uid given.
-    """
+def preform_search(query, fields=None, top=0, sortedby=[], more_like_this=False):
 
-    results = preform_whoosh_search(query=uid, fields=['uid'])
+    top = top or settings.SIMILAR_FEED_COUNT
+    length = len(query.replace(" ", ""))
 
-    if isinstance(results, list) or not len(results):
-        return SearchResult()
-
-    results = results[0].more_like_this("content", top=settings.SIMILAR_FEED_COUNT)
-    # Filter results for toplevel posts.
-    results = filter(lambda p: p['is_toplevel'] is True, results)
-
-    final_results = list(map(normalize_result, results))
-    if isinstance(results, Results):
-        # Ensure searcher object gets closed.
-        close(results)
-
-    return final_results
-
-
-def preform_search(query, fields=None, db_search=False):
+    if length < settings.SEARCH_CHAR_MIN:
+        return []
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
+    whoosh_results = preform_whoosh_search(query=query, sortedby=sortedby, fields=fields)
 
-    results = preform_whoosh_search(query=query, fields=fields)
-    if isinstance(results, list) or not len(results):
-        return SearchResult()
+    if more_like_this and len(whoosh_results):
+            results = whoosh_results[0].more_like_this("content", top=top)
+            # Filter results for toplevel posts.
+            results = list(filter(lambda p: p['is_toplevel'] is True, results))
+    else:
+        results = whoosh_results
 
     # Ensure returned results types stay consistent.
     final_results = list(map(normalize_result, results))
-    if isinstance(results, Results):
-        # Ensure searcher object gets closed.
-        close(results)
+    if not len(final_results):
+        return []
+
+    # Ensure searcher object gets closed.
+    whoosh_results.searcher.close()
 
     return final_results

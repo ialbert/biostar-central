@@ -3,7 +3,7 @@ import os
 from unittest.mock import patch, MagicMock
 
 from django.conf import settings
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.urls import reverse
 from django.test import TestCase, override_settings
 #from biostar.accounts.models import Use
@@ -36,7 +36,7 @@ class RecipeRunTest(TestCase):
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
         # Test data
-        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="#test template")
+        self.recipe = auth.create_analysis(project=self.project, json_text="", template="#test template")
         self.recipe.save()
 
     def test_authorize_run(self):
@@ -70,7 +70,7 @@ class RecipeViewTest(TestCase):
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
         # Test data
-        self.recipe = auth.create_analysis(project=self.project, json_text="{}", template="#test template")
+        self.recipe = auth.create_analysis(project=self.project, json_text="", template="#test template")
         self.recipe.save()
 
     @patch('biostar.recipes.models.Job.save', MagicMock(name="save"))

@@ -16,8 +16,7 @@ REMAP_TYPE_DISPLAY = True
 # Post types displayed when creating, empty list displays all types.
 ALLOWED_POST_TYPES = ["Question", "Job", "Tutorial", "News"]
 
-
-STATICFILES_DIRS = [os.path.join(CUSTOM_THEME, 'static')]
+STATICFILES_DIRS += [os.path.join(CUSTOM_THEME, 'static')]
 
 if DEBUG:
     TEMPLATE_LOADERS = (
@@ -61,7 +60,7 @@ AWARDS_FEED_COUNT = 5
 REPLIES_FEED_COUNT = 5
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = "themes.bioconductor.conf.wsgi.application"
+WSGI_APPLICATION = "themes.bioconductor.conf.site.site_wsgi.application"
 
 ADD_THREAD_USERS = False
 GRAVATAR_ICON = 'identicon'
@@ -69,7 +68,7 @@ GRAVATAR_ICON = 'identicon'
 # These parameters will be inserted into the database automatically.
 SITE_NAME = "Bioconductor Support Forum"
 
-SITE_DOMAIN = "support.bioconductor.org"
+SITE_DOMAIN = "127.0.0.1"
 
 # What domain will handle the replies.
 EMAIL_REPLY_PATTERN = "reply+%s+code@bioconductor.org"
@@ -93,9 +92,6 @@ AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-#print(INDEX_DIR, INDEX_NAME, "INDEX")
 
 # Tries to load up secret settings from a predetermined module
 try:

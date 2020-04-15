@@ -14,6 +14,7 @@
 {% endblock %}
 {% block content %}
 <div class="data" data-value="{{ data.uid }}">
+
     <div class="ui large vertical segment">
 
         <div class="ui divided items">
@@ -29,7 +30,7 @@
                         <div class="ui small labels">
                             {% size_label data %}
                             {% type_label data %}
-                            {%  created_by date=data.lastedit_date user=data.owner prefix='created' %}
+                            {%  created_by date=data.lastedit_date user=data.owner %}
                         </div>
                     </div>
                 </div>
@@ -50,7 +51,6 @@
             <a class="ui copy button">
                 <i class="copy icon"></i>Copy Data
             </a>
-
             <a class="ui button tablet" href="{% url 'data_delete' data.uid %}">
                 <i class="trash icon"></i> <span class="tablet">Delete Data</span>
             </a>

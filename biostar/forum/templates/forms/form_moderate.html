@@ -1,0 +1,45 @@
+{% load forum_tags %}
+
+
+<div class="ui form-wrap segment" style="background-color: #f9f6f4">
+    <b>Moderating {{ post.get_type_display }}: {{ post.title }}</b>
+
+    <form method="post" class="ui form" id="modform" action="{% url 'post_moderate' post.uid %}">
+
+        {% csrf_token %}
+
+        <div class="ui divider"></div>
+
+        <div class="ui segment">
+            <div class="field">
+                <label>Select an action</label>
+                {{ form.action }}
+            </div>
+        </div>
+
+        {% if form.comment %}
+
+        <div class="ui segment">
+            <div class="field">
+                <label>Reasons for closure</label>
+                {{ form.comment }}
+                <div class="ui muted">
+                    Reason for closing this post. Enter duplicate links separated by new line.
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+       <button type="submit" class="ui green enter button">
+            <i class="check icon"></i>
+            Submit
+        </button>
+
+        <a class="ui orange button" onclick="javascript:obj=$('#modpanel').remove();">
+            <i class="cancel icon"></i>
+            Cancel
+        </a>
+
+    </form>
+
+</div>

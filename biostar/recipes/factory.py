@@ -225,8 +225,8 @@ def dynamic_field(data, project=None):
 
     # Data should be selected from a project or directrly from database.
     from_project = (data.get("source") == "PROJECT")
-    extras = data.get("extras", [])
     if from_project and project:
+        extras = data.get("choices", [])
         # Project specific data should have a type.
         data_type = data.get("type", "").strip() or ""
 

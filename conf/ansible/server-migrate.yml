@@ -1,0 +1,29 @@
+---
+- hosts: all
+  user: www
+
+
+  handlers:
+    - import_tasks: files/handlers.yml
+      static: yes
+
+  tasks:
+    - include_vars: files/vars.yml
+
+    - name: Backup servers
+      shell: ls
+      notify:
+        - server backup
+
+    - name: Update the biostar-engine
+      git:
+        repo: "{{ engine_git }}"
+        dest: "{{ engine_dir }}"
+        update: yes
+
+    - name: Transfer
+      shell: ls
+      notify:
+        - python install
+        - server migrate
+        - data migrate

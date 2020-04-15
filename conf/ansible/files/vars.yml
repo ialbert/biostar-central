@@ -1,6 +1,6 @@
 
 engine_git: https://github.com/ialbert/biostar-central.git
-engine_dir:  "{{ engine_dir | default('/export/www/biostar-central') }}"
+engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
 
 bin_dir: "/export/bin"
 src_dir: "/export/src"
@@ -13,6 +13,8 @@ install: False
 restart: False
 reset: False
 
+transfer_limit: "{{ limit | default(100) }}"
+
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"
 
@@ -20,7 +22,7 @@ conda_url: https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 conda_dir: "~/miniconda3"
 
 conda_environments:
-  - { name: "{{conda_env}}", python_version: 3.6}
+  - { name: "{{ conda_env }}", python_version: 3.6}
   - { name: test, python_version: 3.6}
   - { name: py2, python_version: 2}
 

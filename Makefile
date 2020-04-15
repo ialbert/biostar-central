@@ -13,12 +13,6 @@ DJANGO_APP :=
 # Database name
 DATABASE_NAME := database.db
 
-# Use postgres database
-USE_POSTGRES := 1
-
-# Set the minimum amount of objects to create for demos.
-DEMO_MIN := 15
-
 # Command used to load initial data
 LOAD_COMMAND := project
 
@@ -49,7 +43,6 @@ emailer:
 
 
 pg:
-	$(eval USE_POSTGRES := 1 )
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 
 recipes:
@@ -57,26 +50,8 @@ recipes:
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
 	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
-	$(eval ANSIBLE_HOST := hosts/www.bioinformatics.recipes)
-	$(eval ANSIBLE_ROOT := conf/ansible)
-	$(eval SUPERVISOR_NAME := recipes)
-	$(eval ENGINE_DIR := /export/www/biostar-central)
 
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
-	@echo DATABASE_NAME=${DATABASE_NAME}
-
-
-bioconductor:
-	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
-	$(eval DJANGO_APP := biostar.forum)
-	$(eval LOAD_COMMAND := populate)
-	$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
-	$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
-	$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
-	$(eval SUPERVISOR_NAME := forum)
-	$(eval ENGINE_DIR := /export/www/biostar-central)
-
+    # Set the settings variables.
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
@@ -87,10 +62,6 @@ forum:
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
-	$(eval ANSIBLE_HOST := hosts/test.biostars.org)
-	$(eval ANSIBLE_ROOT := conf/ansible)
-	$(eval SUPERVISOR_NAME := engine)
-	$(eval ENGINE_DIR := /export/www/biostar-engine)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -104,6 +75,8 @@ init:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
+	python setup.py develop
+
 
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -129,12 +102,12 @@ copy: reset
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-
 	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.test_settings -v 2 --failfast
 	coverage html --skip-covered
 
 	# Remove files associated with tests
 	rm -rf export/tested
+
 
 test_all:test
 
@@ -161,7 +134,7 @@ hard_reset: delete
 dump:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	python manage.py dumpdata --settings ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(DUMP_FILE)
+	python manage.py dumpdata ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(DUMP_FILE)
 	@cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
 	@ls -1 export/database/*.json
 
@@ -178,11 +151,3 @@ next:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
 
-config:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} config.yml --extra-vars -v)
-
-install:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} install.yml --ask-become-pass --extra-vars -v)
-
-deploy:
-	(cd ${ANSIBLE_ROOT} && ansible-playbook -i ${ANSIBLE_HOST} server-deploy.yml --ask-become-pass --extra-vars "supervisor_program=${SUPERVISOR_NAME} restart=True engine_dir=${ENGINE_DIR}"  -v)

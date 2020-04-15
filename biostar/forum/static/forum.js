@@ -1,101 +1,51 @@
-// As seen in: https://stackoverflow.com/questions/1038746/equivalent-of-string-format-in-jquery
-// Usage: 'Hello {0} and {1}, and {0}'.f("World", "John");
+function captcha() {
 
-String.prototype.format = String.prototype.f = function () {
-    var s = this,
-        i = arguments.length;
+    var key = $("#recaptcha_key").val();
 
-    while (i--) {
-        s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+    if (key) {
+        var captchaWidgetId = grecaptcha.render('captcha', {
+            'sitekey': key,
+            'theme': 'light'
+        });
+        return grecaptcha.getResponse(captchaWidgetId);
+
     }
-    return s;
-};
-
-// using jQuery
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie != '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
 }
 
-csrftoken = getCookie('csrftoken');
 
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
+function apply_vote(vote_elem) {
 
-$.ajaxSetup({
-    crossDomain: false, // obviates need for sameOrigin test
-    beforeSend: function (xhr, settings) {
-        if (!csrfSafeMethod(settings.type)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
+    var post = vote_elem.closest('.post');
+    var uid = post.data("value");
+    var type = vote_elem.data("value");
+    var icon = vote_elem.find(".icon");
 
-
-function popup_message(elem, msg, cls, timeout) {
-    timeout = typeof timeout !== 'undefined' ? timeout : 1000;
-    var text = '<div></div>'
-    var tag = $(text).insertBefore(elem)
-    tag.addClass('popover ' + cls)
-    tag.text(msg)
-    tag.delay(timeout).fadeOut(500, function () {
-        $(this).remove()
-    });
-}
-
-// Triggered on network errors.
-function error_message(elem, xhr, status, text) {
-    popup_message(elem, "Error! readyState=" + xhr.readyState + " status=" + status + " text=" + text, "error", timeout = 5000)
-}
-
-function apply_vote(elem, post_uid, vote_type) {
-
-    // Toggle the button to provide feedback
-    elem.toggleClass("on");
-
-    // The vote handler.
-    vote_url = "/ajax/vote/";
-
-    $.ajax(vote_url, {
+    $.ajax("/ajax/vote/", {
         type: 'POST',
         dataType: 'json',
         ContentType: 'application/json',
         data: {
-            'post_uid': post_uid,
-            'vote_type': vote_type,
+            'post_uid': uid,
+            'vote_type': type,
         },
 
         success: function (data) {
             if (data.status === 'error') {
                 // Untoggle the button if there was an error
-                elem.toggleClass("on")
-                popup_message(elem, data.msg, data.status);
-            } else {
-                // Success
-                //popup_message(elem, data.msg, data.status);
-                // Increment the post score counter
-                var score = $("#score-" + post_uid)
-                var value = (parseInt(score.text()) || 0) + parseInt(data.change) || 0;
-                score.text(value)
+                icon.removeClass("on");
+                popup_message(vote_elem, data.msg, data.status);
+                return
             }
+            // Success
+            var score = vote_elem.closest('.voting').find(".score");
+            var value = (parseInt(score.text()) || 0) + parseInt(data.change) || 0;
+            score.text(value);
+            icon.toggleClass("on");
 
         },
         error: function (xhr, status, text) {
-            elem.toggleClass("on")
-            error_message(elem, xhr, status, text)
+            icon.toggleClass("on");
+            error_message(vote_elem, xhr, status, text)
         }
     });
 }
@@ -107,36 +57,13 @@ function remove_trigger() {
     });
 }
 
-
-
-function cancel_inplace() {
-
-    var inplace_content = $('#new-edit');
-    //var inplace_title = $('inplace-title[data-value="'+ uid +'"]');
-    $('.editing-drag-off').attr('draggable', true);
-    //var title = $('.editable-title[data-value="'+ uid +'"]');
-    var content = $('.editable');
-    //var content = $('#wmd-input-' + uid);
-    var hidden = $('.hide-on-edit');
-    $('.hide-on-comment').show();
-
-    //Delete the form
-    inplace_content.remove();
-    //inplace_title.html("");
-    // Hide the container
-    // Show original content
-    content.show();
-    //Show any blocked element
-    hidden.show();
-
-}
-
-
 function highlight_search(target, content_elem, stop_list) {
 
     // Find the target in the content.
 
     var target_list = target.replace(/\s{2,}/g, ' ').split(" ");
+
+    // filter stoplist from target list.
 
     $.each(target_list, function (index, value) {
 
@@ -154,66 +81,8 @@ function highlight_search(target, content_elem, stop_list) {
     });
 }
 
-function inplace_post_edit(elem) {
+function highlight(text) {
 
-    var uid = elem.data("value");
-    var hidden = $('.hide-on-edit[data-value="' + uid + '"]');
-    var form_container = $('inplace[data-value="' + uid + '"]');
-    var dim_elem = $('.dimm-on-edit[data-value="' + uid + '"]');
-    var url = '/inplace/form/';
-
-    // Check if other posts are being edited.
-    var editing = $("#new-edit");
-    $('#new-comment').remove();
-    $('#add-answer').html('');
-    dim_elem.dimmer('show');
-
-    if (editing.length) {
-        // Remove exiting edits
-        $('.hide-on-edit').show();
-        $('.editable').show();
-        editing.remove();
-    } else {
-        // Create a new edit
-        editing = $('<div id="new-edit"></div>')
-    }
-    form_container.after(editing);
-    editing.html('');
-
-    $.ajax(url,
-        {
-            type: 'GET',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'uid': uid,
-            },
-            success: function (data) {
-                if (data.status === 'error') {
-                    popup_message(elem, data.msg, data.status, 3000);
-                    dim_elem.dimmer('hide');
-                } else {
-                    $('.editing-drag-off[id="' + uid + '"]').attr('draggable', false);
-                    //alert($('.editing-drag-off[data-value="'+ uid + '"]').attr('draggable'));
-                    elem.hide();
-                    hidden.hide();
-                    dim_elem.dimmer('hide');
-                    editing.html(data.inplace_form);
-                    editing.show().find('textarea').focus();
-                    var preview = $('#preview');
-                    preview.find('pre').addClass(' language-python');
-                    preview.find('code').addClass('  language-bash language-python');
-
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message(elem, xhr, status, text)
-            }
-        })
-}
-
-
-function highlight(text, preview) {
     var con = markdownit({
         // ESCAPES when html=true
         html: false,
@@ -230,199 +99,87 @@ function highlight(text, preview) {
         }
     });
 
-    var res = con.render(text);
-    preview.html(res);
-    preview.find('pre').addClass('language-bash');
-    preview.find('code').addClass('language-bash');
-
-    //Prism.highlightAll()
-}
-
-function allowDrop(ev) {
-    ev.preventDefault();
-    //alert(ev);
-}
-
-var children = '';
-var dragged_over = '';
-
-function drag(ev, elem_id) {
-    //ev.preventDefault();
-    ev.dataTransfer.setData("text", elem_id);
-    //let elem = $('.droptarget[data-value="' + elem_id + '"]');
-
-    //children = '{0}'.format(elem.data('thread'));
-
-    ev.dataTransfer.setData("text", elem_id);
-    ev.target.style.opacity = "0.4";
-
-    //alert(elem_id);
-
-}
-
-function drag_leave(ev, elem) {
-
-    //let elem = $('.droptarget[data-value="' + pid + '"]');
-    elem.css('border', 'none');
-
-    //elem.css('padding', '0');
-    elem.css('opacity', '1');
-    //elem.css('backgroundColor', 'none');
-    dragged_over = '';
-    //console.log(elem.data('value'), dragged_over);
-
+    return con.render(text);
+    //preview.html(res);
 }
 
 
-function reset_drag(source, target) {
-    console.log(target, source);
-    source.css('opacity', '1');
-    source.css('border', 'none');
-    target.css('opacity', '1');
-    target.css('border', 'none');
-
-}
-
-function drag_over(ev, elem) {
-    dragged_over = '';
-    //console.log(elem.attr('class'), elem.data('value'));
-    dragged_over = elem.data('value');
-    elem.css('border', '#c2ffc2 dashed 5px');
-
-}
-
-
-function drop(ev, elem_id) {
-
-    ev.preventDefault();
-
-    var source = ev.dataTransfer.getData("text");
-    let source_elem = $('#' + source);
-    source_elem.css('opacity', '1');
-    let elem = $('.droptarget[data-value="' + dragged_over + '"]');
-
-    //alert(dragged_over);
-    $.ajax('/drag/and/drop/',
-        {
-            type: 'POST',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'uid': source,
-                'parent': dragged_over,
-
-            },
-            success: function (data) {
-                if (data.status === 'error') {
-                    popup_message(elem, data.msg, data.status, 2000);
-                    reset_drag(elem, source)
-                } else {
-                    source_elem.transition('zoom');
-                    window.location.reload();
-                    //window.location.href = data.redir;
-                    popup_message(source_elem, "Moving Post", 'success', 1000);
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message(elem, xhr, status, text);
-                reset_drag(elem, source)
-            }
-        });
-
-    ev.dataTransfer.clearData();
-    dragged_over = '';
-
-    reset_drag(elem, source)
-
-
-}
-
-
-function autocomplete_users(users_list) {
-    // Add autocomplete to any text area element.
-    var autocomplete = $('.autocomplete');
-
-    // Map values in list to a list of dict [{key:'chosen', name:'displayed name'}....]
-    var vals = $.map(users_list, function (value) {
-        return {
-            key: value,
-            name: value
-        };
-    });
-
-    function img_url(username) {
-        let url = '/ajax/user/image/{0}/'.format(username);
-        return "<li> <img class='ui circular image' style='display: inline' src={0} height='20' width='20' /> <b>{1}</b></li>".format(url, username);
-
-    }
-
-    // Autocomplete settings
-    var AutocompleteSettings = {
-        // Gets triggered at @
-        at: "@",
-        data: vals,
-        displayTpl: img_url('${key}'),
-        insertTpl: '@${key}',
-        delay: 40
-    };
-
-    autocomplete.atwho(AutocompleteSettings);
-
-
-}
-
-
-function mark_spam(post_id, elem) {
-
-    $.ajax('/ajax/report/spam/' + post_id + "/",
+function mark_spam(post) {
+    var uid = post.data("value");
+    $.ajax('/ajax/report/spam/' + uid + "/",
         {
             type: 'GET',
             dataType: 'json',
             ContentType: 'application/json',
             data: {},
             success: function (data) {
-                //alert(elem.html());
+
                 if (data.status === 'error') {
-                    popup_message(elem.parent().parent(), data.msg, data.status);
+                    popup_message(post, data.msg, data.status);
 
                 } else {
-                    popup_message(elem.parent().parent(), data.msg, data.status);
-                    $('#' + post_id).removeClass('open').addClass('spam');
+                    popup_message(post, data.msg, data.status);
+                    post.removeClass('open').removeClass('quarantine').addClass('spam');
                 }
 
             },
             error: function (xhr, status, text) {
-                error_message($('#' + post_id), xhr, status, text)
+                error_message(post, xhr, status, text)
             }
-
         });
-
-
 }
 
 
-function moderate(elem, url) {
+function release_suspect(post){
 
-    event.preventDefault();
+    var uid = post.data("value");
+    $.ajax('/release/' + uid + "/",
+        {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {},
+            success: function (data) {
+
+                if (data.status === 'error') {
+                    popup_message(post, data.msg, data.status);
+                } else {
+                    popup_message(post, data.msg, data.status);
+                    post.removeClass('quarantine').addClass('open');
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message(post, xhr, status, text)
+            }
+        });
+}
+
+
+function moderate(uid, container, url) {
+
+    //event.preventDefault();
     //var elem = $(this);
     $('#modpanel').remove();
 
     // Could be a user or post uid
-    var data_uid = elem.attr('data-value');
-
-    var container = $('.moderate-insert[data-value="' + data_uid + '"]');
-    var mod_url = url + data_uid + '/';
-    //alert("FOOO");
-    var page = $('<div id="modpanel"></div>').load(mod_url);
+    var page = $('<div id="modpanel"></div>');
     container.after(page);
-    //alert(container.html());
+    page.hide();
+    page.load(url, function (response, status, xhr) {
+        page.show(300);
+    });
+    //page.show(1000)
+    //alert("GGG")
+
+
 }
 
 function similar_posts(elem) {
     var uid = elem.attr('post_uid');
     // Construct the similar posts link.
     var feed_url = '/similar/posts/' + uid + '/';
-    var dimm_elem = $('#dim-similar');
+    var dimm_elem = $('#similar');
     dimm_elem.dimmer('show');
 
     $.ajax(feed_url,
@@ -450,41 +207,10 @@ function similar_posts(elem) {
         })
 }
 
-function change_digest(elem, item) {
-    var active = $('#digest-active');
-    var icon_container = $('#digest-icon');
-    var icon_str = item.data('icon');
-    // Subscription url
-    var digest_url = '/ajax/digest/';
-
-    $.ajax(digest_url,
-        {
-            type: 'POST',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'pref': value
-            },
-            success: function (data) {
-                if (data.status === 'error') {
-                    popup_message(elem, data.msg, data.status);
-                } else {
-                    // Replace current item with the select one.
-                    active.text(item.text());
-                    icon_container.removeClass();
-                    icon_container.addClass(icon_str);
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message(elem, xhr, status, text)
-            }
-        })
-}
-
-function change_subs(elem, value, $item) {
-    var post_id = elem.attr("data-uid");
+function change_subs(elem, value) {
+    var post_id = elem.closest('.post').data("value");
     // Currently selected item
-    var active = $('#sub-active');
+    // var active = $('#sub-active');
     // Subscription url
     var subs_url = '/ajax/subscribe/';
 
@@ -502,7 +228,7 @@ function change_subs(elem, value, $item) {
                     popup_message(elem, data.msg, data.status);
                 } else {
                     // Replace current item with the select one.
-                    active.text($item.text());
+                    // active.text($item.text());
                 }
 
             },
@@ -512,23 +238,62 @@ function change_subs(elem, value, $item) {
         })
 }
 
-$(document).ready(function () {
 
+function activate_prism(elem) {
 
-    $('.mark-spam.item').click(function (event) {
-        var post_id = $(this).closest('.post').attr('id');
+    elem = elem || $(document);
+    //if (!elem){
+    elem.each('pre').addClass('language-bash');
+    elem.each('code').addClass('language-bash');
+    Prism.highlightAll();
+}
 
-        //alert($(this).closest('.post').attr('id'));
-        mark_spam(post_id, $(this));
+function tags_dropdown() {
+
+    $('.tags').dropdown({
+        allowAdditions: true,
+        // Get form field to add to
+        onChange: function (value, text, $selectedItem) {
+            // Get form field to add to
+            var field = $(this).find("select").data("value");
+            var tag_field = $('#{0}'.f(field));
+            // Add selected tag to field
+            tag_field.val(value);
+        }
     });
 
+    $('.tags > input.search').keyup(function (event) {
+        // Prevent submitting form when adding tag by pressing ENTER.
 
-    function allowDrop(ev) {
-        ev.preventDefault();
-    }
+        if (event.keyCode === 13) {
+            event.preventDefault();
+        }
 
-    $('.post.comment').mousedown(function () {
-        $(this).css('cursor', 'grabbing')
+        // Set value with SPACE bar
+        if (event.keyCode === 32) {
+            event.preventDefault();
+            //alert( $(this).val().trim());
+            var value = $(this).val().trim();
+            //alert($(this).closest('.tags').html());
+            $(this).closest('.tags').dropdown('set selected', value);
+            $(this).val('');
+        }
+
+    });
+}
+
+$(document).ready(function () {
+
+    $('.spam').dropdown({on: 'hover' });
+    $('.spam .mark.item').click(function (event) {
+        var post = $(this).closest('.post');
+        mark_spam(post);
+    });
+
+    $('.spam .release.item').click(function (event) {
+        var post = $(this).closest('.post');
+        release_suspect(post);
+
     });
 
     $('#similar-feed').each(function () {
@@ -538,180 +303,96 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
 
-    $('.editable').click(function (event) {
-        if (event.metaKey || event.ctrlKey) {
-            inplace_post_edit($(this))
-        }
-    }).dblclick(function (event) {
-        inplace_post_edit($(this))
-    });
-
-    $('.inplace-click').click(function (event) {
-        event.preventDefault();
-        var uid = $(this).data('value');
-        var elem = $('.editable[data-value="' + uid + '"]');
-        inplace_post_edit(elem);
-    });
-
-    $(this).on('keyup', '#wmd-input', function (event) {
+    $(this).on('keyup', 'textarea', function (event) {
         var text = $(this).val();
+        var highlighted = highlight(text);
+        var form = $(this).closest('form');
 
-        var preview = $('#preview');
-        highlight(text, preview);
-
+        form.find('.preview').html(highlighted);
+        form.find('pre').addClass('language-bash');
+        form.find('code').addClass('language-bash');
+        Prism.highlightAll()
     });
+
 
     $(this).on('click', '#wmd-button-bar', function (event) {
-        setTimeout(function () {
-            var text = $('#wmd-input').val();
-            var preview = $('#preview');
-            highlight(text, preview);
-        }, 10);
+
+        var form = $(this).closest('form');
+        var text = form.find('textarea').val();
+        var highlighted = highlight(text);
+
+        form.find('.preview').html(highlighted);
+        form.find('pre').addClass('language-bash');
+        form.find('code').addClass('language-bash');
+        Prism.highlightAll();
 
     });
+     $('#subscribe').dropdown();
+     $(this).on('click', '#subscribe .item', function (event) {
+         var elem = $(this).closest('#subscribe');
+         var value = $(this).data('value');
 
-    $(this).on('click', '#wmd-button-bar.answer', function (event) {
-        setTimeout(function () {
-            var text = $('textarea.answer').val();
-            var preview = $('#answer-preview');
-            highlight(text, preview);
-        }, 10);
+         change_subs(elem, value);
 
-    });
-
-
-    $(this).on('keyup', 'textarea.answer', function (event) {
-        var text = $(this).val();
-        var preview = $('#answer-preview');
-        highlight(text, preview);
-    });
+     });
 
 
-    $(this).on('click', 'textarea.answer', function (event) {
-        setTimeout(function () {
-            var text = $('textarea.answer').val();
-            var preview = $('#answer-preview');
-            highlight(text, preview);
-        }, 10);
 
-    });
-
-
-    $(this).keyup(function (event) {
-        if (event.keyCode === 27) {
-            $('.inplace').each(function () {
-                event.preventDefault();
-                var uid = $(this).data("value");
-                cancel_inplace(uid);
-                $('#new-comment').remove();
-                $('#add-answer').html('');
-            });
-        }
-
-    });
-
-
-    $('#digest').dropdown({
-        action: 'hide',
-        onChange: function (value, text, $item) {
-            var elem = $(this);
-            change_digest(elem, $item);
-        }
-    });
-
-    $('#subscribe')
-        .dropdown({
-            action: 'hide',
-            onChange: function (value, text, $item) {
-                var elem = $(this);
-                change_subs(elem, value, $item);
-            }
-        });
-
-    $(".add-comment").click(function (event) {
+    $(".profile .moderate").click(function (event) {
         event.preventDefault();
+        var profile = $(this).closest('.profile');
+        var uid = profile.data("value");
+        var container = profile.find("#mod");
+        var url = '/accounts/moderate/{0}/'.format(uid);
+        moderate(uid, container, url)
 
-        var create_url = '/inplace/form/';
-        var parent_uid = $(this).data('value');
+    });
+    $(".post .moderate").click(function (event) {
+        event.preventDefault();
+        var post = $(this).closest('.post');
+        var uid = post.data("value");
+        var container = $(this).closest('.post > .body > .content >.inplace');
+        var url = '/moderate/{0}/'.format(uid);
 
-        var container = $('.comment-insert[data-post="' + parent_uid + '"]');
-        var post_actions = $('.hide-on-comment[data-value="' + parent_uid + '"]');
-
+        moderate(uid, container, url);
         cancel_inplace();
 
-        // Check for existing comment.
-        var comment = $("#new-comment");
-
-        if (comment.length) {
-            // Remove comment if exists.
-            comment.remove();
-        } else {
-            // Create a new comment.
-            comment = $('<div id="new-comment"></div>')
-        }
-        container.after(comment);
-        comment.html('');
-        //alert(container.length);
-
-        $.ajax(create_url,
-            {
-                type: 'GET',
-                dataType: 'json',
-                ContentType: 'application/json',
-                data: {
-                    'uid': parent_uid,
-                    'add_comment': 1,
-                },
-                success: function (data) {
-                    if (data.status === 'error') {
-
-                        popup_message(container, data.msg, data.status);
-
-                    } else {
-                        post_actions.hide();
-                        comment.css({'padding-top': '5px', 'padding-bottom': '5px'});
-                        comment.html(data.inplace_form);
-                        //container.transition('slide down', 250);
-                        comment.find('#wmd-input').focus();
-                    }
-                },
-                error: function (xhr, status, text) {
-                    error_message($(this), xhr, status, text)
-                }
-            })
-    });
-
-    remove_trigger();
-
-    $(".moderate-post").click(function (event) {
-        event.preventDefault();
-        var elem = $(this);
-        moderate(elem, '/moderate/');
-    });
-
-    $(".moderate-user").click(function (event) {
-        event.preventDefault();
-        var elem = $(this);
-        moderate(elem, '/accounts/moderate/');
 
     });
 
-    $('.vote').each(function (event) {
-        var elem = $(this);
-        var data_state = elem.attr('data-state');
+    $("[data-value='upvote']").popup({
+        on: 'hover',
+        content: 'Upvote'
+    });
+    $(".draggable").popup({
+        on: 'hover',
+        content: 'Drag and Drop'
+    });
 
+    $("[data-value='bookmark']").popup({
+        on: 'hover',
+        content: 'Bookmark '
+    });
+
+    $("[data-value='accept']").popup({
+        on: 'hover',
+        content: 'Accept answer '
+    });
+    $('.voting button').each(function (event) {
+
+        var elem = $(this);
+        var data_state = elem.data('state');
+        data_state = '{0}'.format(data_state);
         // Set the on class if the vote is selected.
         if (data_state === "1") {
-            elem.addClass("on")
+            elem.find('.icon').addClass("on")
         }
-
         // Actions taken on vote click.
-        $($(this)).click(function () {
-            var elem = $(this);
-            var post_uid = elem.attr('data-value');
-            var data_type = elem.attr('data-type');
-            apply_vote(elem, post_uid, data_type);
-        });
+
+    });
+    $('.voting .button').click(function () {
+
+        apply_vote($(this));
     });
 
     $("#form-errors .error").each(function () {
@@ -730,82 +411,11 @@ $(document).ready(function () {
         field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
-    $(this).on('click', '#cancel', function () {
-        $('#new-comment').remove();
-        cancel_inplace();
-    });
 
     $('.ui.sticky').sticky();
-    //$('#chat-drop')
-    $('pre').addClass('language-bash');
-    $('code').addClass('language-bash');
-    Prism.highlightAll();
-
-
-    $('.tag-field').dropdown({
-
-        allowAdditions: true,
-        // Get form field to add to
-        onChange: function (value, text, $selectedItem) {
-            // Get form field to add to
-
-            var tagid = $(this).children('select').attr('field_id');
-            var tag_field = $('#{0}'.f(tagid));
-            // Add selected tag to field
-            tag_field.val(value);
-
-        }
-    });
-
-    $('.tag-field > input.search').keydown(function (event) {
-        // Prevent submitting form when adding tag by pressing ENTER.
-        if (event.keyCode === 13) {
-            event.preventDefault();
-        }
-        // Set value with SPACE bar
-        if (event.keyCode === 32) {
-            event.preventDefault();
-            //alert(alert( $(this).parent('.tag-field').children('select').attr('class')));
-            $(this).parent('.tag-field').children('select').dropdown('set selected', $(this).val().trim());
-            $(this).val('');
-        }
-
-    });
-
-    // $('.watched-tag-field').dropdown({
-    //     allowAdditions: true,
-    //     onChange: function (value, text, $selectedItem) {
-    //         var tagid = $("#tag-menu").attr('field_id');
-    //         var tag_field = $('#{0}'.f(tagid));
-    //         // Add selected tag to field
-    //         //alert(value);
-    //         // Add selected tag to field
-    //         //alert(value);
-    //         tag_field.val(value);
-    //     }
-    // });
-    //
-    // $('.watched-tag-field >input.search').keydown(function (event) {
-    //     // Prevent submitting form when adding tag by pressing ENTER.
-    //     if (event.keyCode === 13) {
-    //         event.preventDefault();
-    //     }
-    //     // Set value with SPACE bar
-    //     if (event.keyCode === 32) {
-    //         event.preventDefault();
-    //         $("#watched-tags").dropdown('set selected', $(this).val().trim());
-    //         $(this).val('')
-    //
-    //     }
-    //
-    // });
 
     $('#show-answer').click(function () {
-        $('.hidden-answer').show()
-    });
-
-    $('.vote').popup({
-        on: 'hover'
+        $('.hidden-answer').toggle()
     });
 
     $('.trigger-highlight').each(function (event) {
@@ -821,9 +431,15 @@ $(document).ready(function () {
         }
 
     });
-
+    $('pre').addClass('language-bash');
+    $('code').addClass('language-bash');
+    Prism.highlightAll();
     var converter = new Markdown.getSanitizingConverter();
     var editor = new Markdown.Editor(converter);
     editor.run();
+
+    tags_dropdown();
+
+    //remove_trigger();
 })
 ;

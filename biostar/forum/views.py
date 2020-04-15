@@ -91,7 +91,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
-    query = Post.objects.valid_posts(user=user).filter(is_toplevel=True)
+    query = Post.objects.valid_posts(u=user, is_toplevel=True)
 
     # Determines how to start the preform_search.
     if post_type:
@@ -110,6 +110,10 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         tags = user.profile.my_tags.split(",")
         query = query.filter(tags__name__in=tags)
 
+    if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:
+        query = Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
+    else:
+        query = query.exclude(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
     # Filter by tags if specified.
     if tag:
         query = query.filter(tags__name=tag.lower())
@@ -136,18 +140,20 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
 def post_search(request):
 
     query = request.GET.get('query', '')
+    length = len(query.replace(" ", ""))
     page = int(request.GET.get('page', 1))
 
-    if not query:
+    if length < settings.SEARCH_CHAR_MIN:
+        messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    results = search.preform_whoosh_search(query=query, page=page, per_page=settings.SEARCH_RESULTS_PER_PAGE)
+    results = search.preform_whoosh_search(query=query, page=page, sortedby=["lastedit_date"])
 
-    if isinstance(results, list) or not len(results):
-        results = search.SearchResult()
+    #if not len(results):
+    #    results = search.SearchResult()
 
     total = results.total
-    template_name = "widgets/search_results.html"
+    template_name = "search/search_results.html"
 
     question_flag = Post.QUESTION
     context = dict(results=results, query=query, total=total, template_name=template_name,
@@ -190,7 +196,11 @@ def pages(request, fname):
         messages.error(request, "File does not exist.")
         return redirect("post_list")
 
-    context = dict(file_path=doc, tab=fname)
+    admins = User.objects.filter(is_superuser=True)
+    mods = User.objects.filter(profile__role=Profile.MODERATOR).exclude(id__in=admins)
+    admins = admins.prefetch_related("profile").order_by("-profile__score")
+    mods = mods.prefetch_related("profile").order_by("-profile__score")
+    context = dict(file_path=doc, tab=fname, admins=admins, mods=mods)
 
     return render(request, 'pages.html', context=context)
 
@@ -403,15 +413,14 @@ def post_view(request, uid):
         if form.is_valid():
             author = request.user
             content = form.cleaned_data.get("content")
-            # Create answer to root
-            answer = Post.objects.create(title=post.title, parent=post, author=author,
-                                         content=content, type=Post.ANSWER, root=post.root)
+            answer = auth.create_post(title=post.title, parent=post, author=author,
+                                      content=content, ptype=Post.ANSWER, root=post.root)
             return redirect(answer.get_absolute_url())
         messages.error(request, form.errors)
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
-
+    # user string
     users_str = auth.get_users_str()
 
     context = dict(post=root, tree=comment_tree, form=form, answers=answers, users_str=users_str)
@@ -437,10 +446,9 @@ def new_post(request):
             # Create a new post by user
             title = form.cleaned_data.get('title')
             content = form.cleaned_data.get("content")
-            post_type = form.cleaned_data.get('post_type')
+            ptype = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
-            post = Post.objects.create(title=title, content=content, type=post_type,
-                                       tag_val=tag_val, author=author)
+            post = auth.create_post(title=title, content=content, ptype=ptype, tag_val=tag_val, author=author)
 
             tasks.created_post.spool(pid=post.id)
 
@@ -468,13 +476,11 @@ def post_moderate(request, uid):
 
         if form.is_valid():
             action = form.cleaned_data.get('action')
-            dupe = form.cleaned_data.get('dupe', '').split("\n")
-            dupe_comment = form.cleaned_data.get('comment')
-            mod_uid = form.cleaned_data.get('pid')
-            offtopic = form.cleaned_data.get('offtopic')
-            redir = auth.moderate_post(post=post, request=request, action=action, comment=dupe_comment,
-                                       dupes=dupe, pid=mod_uid, offtopic=offtopic)
-            return redirect(redir)
+            comment = form.cleaned_data.get('comment')
+            mod = auth.Moderate(user=user, post=post, action=action, comment=comment)
+            messages.success(request=request, message=mod.msg)
+            auth.log_action(user=user, log_text=f"{mod.msg} ; post.uid={post.uid}.")
+            return redirect(mod.url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])
             messages.error(request, errors)
@@ -483,5 +489,5 @@ def post_moderate(request, uid):
         form = forms.PostModForm(post=post, user=user, request=request)
 
     context = dict(form=form, post=post)
-    return render(request, "post_moderate.html", context)
+    return render(request, "forms/form_moderate.html", context)
 

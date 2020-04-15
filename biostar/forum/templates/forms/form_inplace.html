@@ -1,0 +1,105 @@
+{% load forum_tags %}
+{% load static %}
+
+{% if user.profile.require_recaptcha %}
+
+    <script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
+
+    {#  Include the recaptacha key #}
+    <input id="recaptcha_key" type="hidden" value="{{ captcha_key }}">
+
+{% endif %}
+
+<div class="ui basic form-wrap segment fit" id="inplace">
+    <form class="ui compact form">
+        {# Create a new comment #}
+        {% if new %}
+            <div class="field">
+                <div id="wmd-button-bar"></div>
+                <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="9"></textarea>
+            </div>
+
+        {% else %}
+
+            {% if post.is_toplevel %}
+                <div class="fields">
+                    {# Edit the type #}
+                    <div class="type field">
+                        {% inplace_type_field post=post %}
+                    </div>
+                    {# Edit the title #}
+                    <div class="title field"><textarea id="title" rows="1" cols="8">{{ post.title }}</textarea></div>
+                </div>
+            {% endif %}
+
+            {# Edit the content #}
+            <div class="field">
+                {% if post.is_toplevel %}{% include 'widgets/post_message.html' %}{% endif %}
+                <div id="wmd-button-bar"></div>
+                <textarea id="wmd-input" class="wmd-input autocomplete" rows="{{ rows }}">{{ post.content }}</textarea>
+            </div>
+
+            {# Edit the tags #}
+            {% if post.is_toplevel %}
+                <div class="field">
+                    {% tags_field form_field=form.tag_val initial=post.tag_val %}
+                </div>
+            {% endif %}
+
+        {% endif %}
+
+        {# Include recaptcha fields #}
+        {% if user.profile.require_recaptcha %}
+            <div class="required field">
+                <div id="captcha"></div>
+            </div>
+        {% endif %}
+
+        <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Double-click to edit post. Markdown
+            accepted.</p>
+
+        {# Preview segment #}
+        <div class="ui preview segment">{{ html |safe}}</div>
+
+        {# Submit and cancel buttons #}
+        <div class="field">
+            <a class="ui green button {% if new %}create{% else %}save{% endif %}">
+                <i class="check icon"></i>Save
+            </a>
+            <a class="ui button cancel">
+                <i class="undo icon"></i>Cancel
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+
+<script>
+$(document).ready(function () {
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
+
+    $('.ui.dropdown').dropdown();
+    drag_and_drop();
+
+    // initialize autocomplete
+    var users = "{{ users_str }}".split(',');
+    autocomplete_users(users);
+    // initialize tags dropdown.
+    tags_dropdown();
+
+    $(this).on('click', '#inplace .cancel', function () {
+        cancel_inplace()
+    });
+     $(this).on('keyup', 'body', function (event) {
+         if(event.keyCode === 27) {
+             cancel_inplace()
+         }
+     });
+
+})
+</script>
+

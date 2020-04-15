@@ -54,7 +54,7 @@ class DataViewTest(TestCase):
 
         self.process_response(response=response, data=data, save=True)
 
-    @patch('biostar.recipes.models.Data.save', MagicMock(name="save"))
+    #@patch('biostar.recipes.models.Data.save', MagicMock(name="save"))
     def test_data_upload(self):
         "Test Data upload POST request"
 
@@ -148,6 +148,3 @@ class DataViewTest(TestCase):
 
         self.assertEqual(response.status_code, stat,
                          f"Could not redirect to project view after tested :\nresponse:{response}")
-
-        if save:
-            self.assertTrue(models.Data.save.called, "save() method not called")

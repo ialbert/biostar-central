@@ -1,11 +1,7 @@
-from biostar.server.settings import *
+from .settings import *
 
-# Turn multi threading off during testing.
+# Do not multi-thread tests.
 MULTI_THREAD = False
 
-# reCaptcha left alone during testing
-RECAPTCHA_PUBLIC_KEY = ''
-RECAPTCHA_PRIVATE_KEY = ''
-
-# Don't hammer away at the rss feeds while testing.
-INIT_PLANET = False
+# Skip hitting the spam indexe when creating test posts
+CLASSIFY_SPAM = False
