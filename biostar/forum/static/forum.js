@@ -13,13 +13,6 @@ function captcha() {
 }
 
 
-function init_pagedown() {
-    var converter = new Markdown.getSanitizingConverter();
-    var editor = new Markdown.Editor(converter);
-    editor.run();
-    return editor
-}
-
 function apply_vote(vote_elem) {
 
     var post = vote_elem.closest('.post');
@@ -441,8 +434,12 @@ $(document).ready(function () {
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
 
     tags_dropdown();
+
     //remove_trigger();
 })
 ;

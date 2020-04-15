@@ -12,9 +12,9 @@
 {% endblock %}
 
 {% block js %}
-    <script src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-    <script src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-    <script src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+    <script src="{% static 'pagedown/Markdown.Converter.js' %}{% randparam %}"></script>
+    <script src="{% static 'pagedown/Markdown.Sanitizer.js' %}{% randparam %}"></script>
+    <script src="{% static 'pagedown/Markdown.Editor.js' %}{% randparam %}"></script>
     <script src="{% static 'markdown-it.js' %}"></script>
     <script src="{% static 'autocomplete/at.who.js' %}"></script>
     <script src="{% static 'autocomplete/caret.js' %}"></script>
@@ -64,7 +64,7 @@
             $('.ui.dropdown').dropdown();
             var users = "{{ users_str }}".split(',');
             autocomplete_users(users);
-            init_pagedown();
+            //init_pagedown();
 
             $(this).on('click', '#inplace .save', function () {
                 event.preventDefault();

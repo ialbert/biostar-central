@@ -78,11 +78,13 @@
 
 <script>
 $(document).ready(function () {
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
 
     $('.ui.dropdown').dropdown();
     drag_and_drop();
-    // initialize pagedown
-    init_pagedown();
+
     // initialize autocomplete
     var users = "{{ users_str }}".split(',');
     autocomplete_users(users);

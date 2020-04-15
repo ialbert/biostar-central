@@ -19,16 +19,6 @@ INDEX_NAME := index
 # Search index directory
 INDEX_DIR := search
 
-$(eval UWSGI_INI := themes/bioconductor/conf/uwsgi.ini)
-$(eval ANSIBLE_HOST := supportupgrade.bioconductor.org)
-$(eval ANSIBLE_ROOT := themes/bioconductor/conf/ansible)
-$(eval SUPERVISOR_NAME := forum)
-$(eval ENGINE_DIR := /export/www/biostar-central)
-
-@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-@echo DJANGO_APP=${DJANGO_APP}
-@echo DATABASE_NAME=${DATABASE_NAME}
-
 all: recipes serve
 
 pg:
@@ -36,12 +26,12 @@ pg:
 
 serve:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
+	python ../../manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
 
 init:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
-	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
+	python ../../manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
+	python ../../manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
 load:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -73,12 +63,6 @@ uwsgi: init
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo UWSGI_INI=${UWSGI_INI}
 	uwsgi --ini ${UWSGI_INI}
-
-config:
-	ansible-playbook -i ${HOST} ../conf/ansible/server-config.yml -v
-
-install:
-	ansible-playbook -i ${HOST} ../conf/ansible/server-install.yml -v
 
 deploy:
 	ansible-playbook -i ${HOST} ../conf/ansible/server-deploy.yml --ask-become-pass --extra-vars "restart=True start_biocond=True"  -v
