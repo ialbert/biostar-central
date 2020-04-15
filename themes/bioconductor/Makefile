@@ -65,4 +65,4 @@ uwsgi: init
 	uwsgi --ini ${UWSGI_INI}
 
 deploy:
-	ansible-playbook -i ${HOST} ../conf/ansible/server-deploy.yml --ask-become-pass --extra-vars "restart=True start_biocond=True"  -v
+	ansible-playbook -i ../conf/ansible/${HOST} ../conf/ansible/server-deploy.yml --ask-become-pass --extra-vars "restart=True start_biocond=True"  -v

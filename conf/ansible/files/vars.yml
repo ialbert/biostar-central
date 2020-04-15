@@ -2,9 +2,6 @@
 engine_git: https://github.com/ialbert/biostar-central.git
 engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
 
-db_name: "{{ db | default('database.db') }}"
-
-
 bin_dir: "/export/bin"
 src_dir: "/export/src"
 ref_dir: "/export/refs"
@@ -16,15 +13,7 @@ install: False
 restart: False
 reset: False
 
-# Theme locations
-themes: "{{engine_dir}}/themes"
-
-biocon: "{{engine_dir}}/themes/bioconductor"
-
-# Install a specific theme.
-start_biocon: False
-# start_theme1: False
-# ...
+transfer_limit: "{{ limit | default(100) }}"
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"
@@ -33,7 +22,7 @@ conda_url: https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 conda_dir: "~/miniconda3"
 
 conda_environments:
-  - { name: "{{conda_env}}", python_version: 3.6}
+  - { name: "{{ conda_env }}", python_version: 3.6}
   - { name: test, python_version: 3.6}
   - { name: py2, python_version: 2}
 
