@@ -111,7 +111,7 @@
         - site_settings.py
         - site_wsgi.py
         - site_uwsgi.ini
-
+        -
     - name: Install python requirements
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
       args:

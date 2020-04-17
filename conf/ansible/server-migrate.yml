@@ -10,10 +10,10 @@
   tasks:
     - include_vars: files/vars.yml
 
-    - name: Backup servers
-      shell: ls
-      notify:
-        - server backup
+#    - name: Backup servers
+#      shell: ls
+#      notify:
+#        - server backup
 
     - name: Update the biostar-engine
       git:
@@ -21,7 +21,27 @@
         dest: "{{ engine_dir }}"
         update: yes
 
-    - name: Transfer
+    - name: Create supporting directories
+      file:
+        path: "{{ engine_dir }}/export/sql/"
+        state: directory
+        owner: www
+        group: www
+        mode: 0755
+
+    - name: Check if old database dump exists.
+      stat:
+        path: "{{ old_database }}"
+      register: data_downloaded
+
+    - name: Copy over the old database dump.
+      copy:
+        src: "{{ local_dump }}"
+        dest: "{{ old_database }}"
+        owner: www
+      when: data_downloaded.stat.exists == False
+
+    - name: Install any new reqs, migrate current server, and begin to migrate.
       shell: ls
       notify:
         - python install

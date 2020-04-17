@@ -18,7 +18,7 @@
 
 
 - name: data migrate
-  shell: "./data-migration {{ transfer_limit }}"
+  shell: "./data-migration {{ transfer_limit }} {{ dump }}"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
@@ -31,7 +31,7 @@
     chdir: "{{ engine_dir }}"
 
 - name: server migrate
-  shell: "./server-migrate.sh {{ django_settings_module }}"
+  shell: "./server-migrate.sh"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
