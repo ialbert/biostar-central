@@ -53,6 +53,14 @@ forum_patterns = [
     # Community urls
     path('community/', views.community_list, name='community_list'),
 
+    # Api calls
+    # path(r'^api/traffic/$', api.traffic, name='api-traffic'),
+    # path(r'^api/user/(?P<id>\d+)/$', api.user_details, name='api-user'),
+    # path(r'^api/post/(?P<id>\d+)/$', api.post_details, name='api-post'),
+    # path(r'^api/vote/(?P<id>\d+)/$', api.vote_details, name='api-vote'),
+    # path(r'^api/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api-stats-on-day'),
+    # path(r'^api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$', api.daily_stats_on_date, name='api-stats-on-date'),
+
 ]
 
 
