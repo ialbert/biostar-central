@@ -18,7 +18,7 @@ mkdir -p ${OLD_DUMP_DIR}
 # Get the database dump for old database (postgres sql dump).
 #rsync -avz www@test.biostars.org:/home/www/biostar-engine/export/sql/biostar-database-2.3.0-hourly-00.sql.gz ${OLD_DUMP_DIR}
 
-OLD_DATABASE_DUMP:=${2:=OLD_DUMP_DIR/biostar-database-2.3.0-hourly-00.sql.gz}
+OLD_DATABASE_DUMP=${2:=OLD_DUMP_DIR/biostar-database-2.3.0-hourly-00.sql.gz}
 
 # How many items to load
 LIMIT=${1:100000000}

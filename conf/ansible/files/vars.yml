@@ -12,6 +12,7 @@ django_settings_module: "conf.run.site_settings"
 install: False
 restart: False
 reset: False
+backup: False
 
 
 # Location to the old database in remote node
