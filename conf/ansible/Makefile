@@ -2,8 +2,9 @@
 RUNNER := engine
 
 
-# The postgres sql database found locally to transfer
-TRANSFER_SQL_DUMP := ../../export/sql/old_biostar.sql.gz
+# The relative path to old postgres sql database found locally.
+# relative to biostar-central/
+TRANSFER_SQL_DUMP := export/sql/old-biostar-database.sql.gz
 
 recipes:
 	$(eval HOST := hosts/www.bioinformatics.recipes)
@@ -19,8 +20,6 @@ transfer:
 
 deploy:
 	ansible-playbook -i ${HOST} server-deploy.yml --ask-become-pass --extra-vars "restart=True"  -v
-
-
 
 
 # Temporary command to deploy forum at current state - with directory name being ~/biostar-engine/

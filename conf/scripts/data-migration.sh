@@ -1,10 +1,24 @@
 #!/bin/bash
 
 # Database migration script that  migrates from old biostar to biostar next.
-# Drop existing databases
+
+# Load the conda commands.
+source ~/miniconda3/etc/profile.d/conda.sh
+
+# Activate the conda environemnt.
+conda activate engine
 
 # Stop on errors.
-set -uex
+set -ue
+
+# Set the location for the postgres sql dump
+OLD_DUMP_DIR=export/sql/
+mkdir -p ${OLD_DUMP_DIR}
+
+# Get the database dump for old database (postgres sql dump).
+#rsync -avz www@test.biostars.org:/home/www/biostar-engine/export/sql/biostar-database-2.3.0-hourly-00.sql.gz ${OLD_DUMP_DIR}
+
+OLD_DATABASE_DUMP:=${2:=OLD_DUMP_DIR/biostar-database-2.3.0-hourly-00.sql.gz}
 
 # How many items to load
 LIMIT=${1:100000000}
@@ -18,14 +32,6 @@ export NEW_DATABASE=new_biostar_db
 # Set the configuration module.
 TRANSFER_SETTINGS_MODULE=biostar.transfer.settings
 
-# Set the location for the postgres sql dump
-OLD_DUMP_DIR=export/sql/
-mkdir -p ${OLD_DUMP_DIR}
-
-# Get the database dump for old database (postgres sql dump).
-#rsync -avz www@test.biostars.org:/home/www/biostar-engine/export/sql/biostar-database-2.3.0-hourly-00.sql.gz ${OLD_DUMP_DIR}
-
-OLD_DATABASE_DUMP:=${2:=OLD_DUMP_DIR/biostar-database-2.3.0-hourly-00.sql.gz}
 
 #------------------------------------------------------------------------------------------
 

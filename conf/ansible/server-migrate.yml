@@ -41,9 +41,14 @@
         owner: www
       when: data_downloaded.stat.exists == False
 
-    - name: Install any new reqs, migrate current server, and begin to migrate.
+    - name: Install any new reqs and  migrate database.
       shell: ls
       notify:
         - python install
         - server migrate
+
+    - name: Transfer over data
+      shell: ls
+      notify:
         - data migrate
+
