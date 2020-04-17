@@ -18,7 +18,7 @@
 
 
 - name: data migrate
-  shell: "./data-migration.sh {{ transfer_limit }} {{ old_database }}"
+  shell: "./data-migration.sh {{ old_database }}"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"

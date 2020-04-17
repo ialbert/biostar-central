@@ -18,8 +18,6 @@ backup: False
 # Location to the old database in remote node
 old_database: "{{ engine_dir }}/export/sql/old-biostar-database.sql.gz"
 
-# Number of objects to limit when migration data over
-transfer_limit: "{{ limit | default(100) }}"
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"
