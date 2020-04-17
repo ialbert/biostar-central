@@ -14,6 +14,7 @@
       shell: ls
       notify:
         - server backup
+      when: backup
 
     - name: Update the biostar-engine
       git:
@@ -21,9 +22,34 @@
         dest: "{{ engine_dir }}"
         update: yes
 
-    - name: Transfer
+    - name: Create supporting directories
+      file:
+        path: "{{ engine_dir }}/export/sql/"
+        state: directory
+        owner: www
+        group: www
+        mode: 0755
+
+    - name: Check if old database dump exists.
+      stat:
+        path: "{{ old_database }}"
+      register: data_downloaded
+
+    - name: Copy over the old database dump.
+      copy:
+        src: "{{ local_dump }}"
+        dest: "{{ old_database }}"
+        owner: www
+      when: data_downloaded.stat.exists == False
+
+    - name: Install any new reqs and  migrate database.
       shell: ls
       notify:
         - python install
         - server migrate
+
+    - name: Transfer over data
+      shell: ls
+      notify:
         - data migrate
+

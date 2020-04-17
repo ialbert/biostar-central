@@ -5,15 +5,19 @@ engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
 bin_dir: "/export/bin"
 src_dir: "/export/src"
 ref_dir: "/export/refs"
-
+local_dump : "../../../{{ dump | default('None') }}"
 django_settings_module: "conf.run.site_settings"
 
 # Installs recipe dependencies.
 install: False
 restart: False
 reset: False
+backup: False
 
-transfer_limit: "{{ limit | default(100) }}"
+
+# Location to the old database in remote node
+old_database: "{{ engine_dir }}/export/sql/old-biostar-database.sql.gz"
+
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"

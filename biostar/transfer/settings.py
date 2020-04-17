@@ -16,6 +16,7 @@ OLD_DATABASE = os.environ.setdefault("OLD_DATABASE", "old_biostar_db")
 
 # The new database where the data will be copied into.
 NEW_DATABASE = os.environ.setdefault("NEW_DATABASE", "database.db")
+POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
 
 print(f'NEW_DATABASE={OLD_DATABASE}, OLD_DATABASE={OLD_DATABASE}')
 
@@ -26,7 +27,7 @@ DATABASES = {
         'NAME': NEW_DATABASE,
         'USER': '',
         'PASSWORD': '',
-        'HOST': '',
+        'HOST': POSTGRES_HOST,
         'PORT': '',
     },
 
@@ -35,7 +36,7 @@ DATABASES = {
         'NAME': OLD_DATABASE,
         'USER': '',
         'PASSWORD': '',
-        'HOST': '',
+        'HOST': POSTGRES_HOST,
         'PORT': '',
         'TEST': {
             'MIRROR': 'default',

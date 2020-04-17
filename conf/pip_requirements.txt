@@ -9,6 +9,7 @@ django-debug-toolbar>=2.2
 django-recaptcha2
 django-mailer>=2
 whoosh
+html2text
 hjson
 toml
 pytz
