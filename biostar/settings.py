@@ -30,6 +30,8 @@ CORS_ORIGIN_WHITELIST = [
     'https://view.qiime2.org',
 ]
 
+POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
+
 # Shortcut to first admin information.
 ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 

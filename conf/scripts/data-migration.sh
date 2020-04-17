@@ -11,6 +11,9 @@ conda activate engine
 # Stop on errors.
 set -ue
 
+# Comment out on local machine
+export POSTGRES_HOST=/var/run/postgresql
+
 # Set the location for the postgres sql dump
 OLD_DUMP_DIR=export/sql/
 mkdir -p ${OLD_DUMP_DIR}

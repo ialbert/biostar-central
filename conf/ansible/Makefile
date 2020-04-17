@@ -1,7 +1,6 @@
 
 RUNNER := engine
 
-
 # The relative path to old postgres sql database found locally.
 # relative to biostar-central/
 TRANSFER_SQL_DUMP := export/sql/old-biostar-database.sql.gz
