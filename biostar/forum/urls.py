@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.urls import include, path  # For django versions from 2.0 and up
 import debug_toolbar
 from biostar.forum import views
-from biostar.forum import ajax
+from biostar.forum import ajax, api
 from biostar.accounts.urls import account_patterns
 from biostar.planet.urls import planet_patterns
 
@@ -54,12 +54,15 @@ forum_patterns = [
     path('community/', views.community_list, name='community_list'),
 
     # Api calls
-    # path(r'^api/traffic/$', api.traffic, name='api-traffic'),
-    # path(r'^api/user/(?P<id>\d+)/$', api.user_details, name='api-user'),
-    # path(r'^api/post/(?P<id>\d+)/$', api.post_details, name='api-post'),
-    # path(r'^api/vote/(?P<id>\d+)/$', api.vote_details, name='api-vote'),
-    # path(r'^api/stats/day/(?P<day>\d+)/$', api.daily_stats_on_day, name='api-stats-on-day'),
-    # path(r'^api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$', api.daily_stats_on_date, name='api-stats-on-date'),
+    path(r'api/traffic/', api.traffic, name='api_traffic'),
+    path(r'api/batch/', api.batch_posts, name='api_batch'),
+    path(r'api/user/<int:id>/', api.user_details, name='api_user'),
+    path(r'api/post/<int:id>/', api.post_details, name='api_post'),
+    path(r'api/vote/<int:id>/', api.vote_details, name='api_vote'),
+    path(r'api/post/id/range/<int:start>/<int:end>/', api.vote_details, name='api_vote'),
+    path(r'api/stats/day/<int:day>/$', api.daily_stats_on_day, name='api_stats_on_day'),
+    path(r'api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$', api.daily_stats_on_date,
+         name='api_stats_on_date'),
 
 ]
 

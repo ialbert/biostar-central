@@ -1,7 +1,7 @@
 import datetime
 import logging
 import hashlib
-import urllib.parse
+import urllib.parse as urlparse
 from django.template import loader
 from django.conf import settings
 from django.contrib import messages
@@ -10,6 +10,7 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.utils.timezone import utc
 from django.core.cache import cache
+from django.shortcuts import reverse
 from biostar.accounts.models import Profile, Logger
 from . import util
 from .const import *
@@ -40,12 +41,26 @@ def gravatar_url(email, style='mp', size=80):
     hash_num = hashlib.md5(email).hexdigest()
 
     url = "https://secure.gravatar.com/avatar/%s?" % hash_num
-    url += urllib.parse.urlencode({
+    url += urlparse.urlencode({
         's': str(size),
         'd': style,
     }
     )
     return url
+
+
+def encode_email(email, key):
+    """
+    Use key to encode email
+    """
+    return
+
+
+def decode_email(email):
+    """
+    Use api key to decode email
+    """
+    return
 
 
 def get_users_str():
@@ -108,6 +123,50 @@ def walk_down_thread(parent, collect=set()):
         walk_down_thread(parent=child, collect=collect)
 
     return collect
+
+
+def old_to_new_sync(base_url):
+    """
+    Sync the old biostars with the current new version one post at a time.
+    """
+
+    # Get the most recent post without a 'p' in the uid.
+    # This is most up to date we need to start syncing.
+
+    most_recent = Post.objects.exclude(uid__contains="p").order_by('-lastedit_date').only('id')
+
+    # Get end point url  and construct url
+    relative_url = reverse('api_post', kwargs=dict(id=most_recent.id))
+
+    response = ''
+
+    # Load the response into dict then batch create the posts.
+
+    return
+
+
+def batch_old_to_new_sync(base_url, batch_size=10):
+    """
+    Batch sync the old biostars with the current new version.
+    """
+
+    # Get the most recent post without a 'p' in the uid.
+    # This is most up to date we need to start syncing.
+
+    most_recent = Post.objects.exclude(uid__contains="p").order_by('-lastedit_date').only('lastedit_date')
+
+    # Get end point url  and construct url
+    params = {'start_date': most_recent.lastedit_date.iso, 'batch_size': batch_size}
+    params = urlparse.urlencode(params)
+    endpoint = urlparse.urljoin(base_url, reverse('api_batch'))
+    endpoint = f"{endpoint}?{params}"
+
+    response = ''
+
+    # Load the response into dict then batch create the posts.
+
+
+    return
 
 
 def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
