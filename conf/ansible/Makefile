@@ -1,9 +1,9 @@
 
 RUNNER := engine
 
-# The relative path to old postgres sql database found locally.
-# relative to biostar-central/
-TRANSFER_SQL_DUMP := export/sql/old-biostar-database.sql.gz
+# Absoulute path to the old biostar database on local machine
+LOCAL_OLD_DB := data/old-biostar-database.sql.gz
+
 
 recipes:
 	$(eval HOST := hosts/www.bioinformatics.recipes)
@@ -15,7 +15,8 @@ install:
 	ansible-playbook -i ${HOST} server-install.yml -v
 
 transfer:
-	ansible-playbook -i ${HOST} server-migrate.yml --ask-become-pass --extra-vars "dump=${TRANSFER_SQL_DUMP}"  -v
+	echo LOCAL_OLD_DB=${LOCAL_OLD_DB}
+	ansible-playbook -i ${HOST} server-migrate.yml --ask-become-pass --extra-vars "local_old_db=${LOCAL_OLD_DB}"  -v
 
 deploy:
 	ansible-playbook -i ${HOST} server-deploy.yml --ask-become-pass --extra-vars "restart=True"  -v
