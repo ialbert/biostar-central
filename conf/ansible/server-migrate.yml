@@ -10,6 +10,9 @@
   tasks:
     - include_vars: files/vars.yml
 
+    - debug:
+        msg: "Remote target destination: {{ local_old }} Source file: {{ remote_old }}, "
+
     - name: Backup servers
       shell: ls
       notify:
@@ -30,17 +33,30 @@
         group: www
         mode: 0755
 
-    - name: Check if old database dump exists.
+    - name: Check if old database dump exists in local machine.
+      local_action: stat path="{{ local_old }}"
+      register: local_copy
+
+    - name: Check if old database dump exists in remote site.
       stat:
-        path: "{{ old_database }}"
-      register: data_downloaded
+        path: "{{ remote_old }}"
+      register: remote_copy
+
+    - debug:
+        msg: "Remote target destination: {{ remote_old }} Source file: {{ local_old }} {{local_copy}}. "
+      when: local_copy.stat.exists == False
+
+    - name: Source file required to exist in local machine ( skipped if true ) .
+      fail:
+        msg: "The source file {{ local_old }} does not exist."
+      when: (local_copy.stat.exists == False) and (local_old |length > 0)
 
     - name: Copy over the old database dump.
       copy:
-        src: "{{ local_dump }}"
-        dest: "{{ old_database }}"
+        src: "{{ local_old }}"
+        dest: "{{ remote_old }}"
         owner: www
-      when: data_downloaded.stat.exists == False
+      when: (remote_copy.stat.exists == False) and (local_old |length > 0)
 
     - name: Install any new reqs and  migrate database.
       shell: ls

@@ -23,21 +23,21 @@ ALLOWED_HOSTS = [SITE_DOMAIN]
 
 
 # Uncomment to enable postgres database.
+"""
+DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
+POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
+DATABASES = {
 
-# DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
-# POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
-# DATABASES = {
-#
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': DATABASE_NAME,
-#         'USER': '',
-#         'PASSWORD': '',
-#         'HOST': POSTGRES_HOST,
-#         'PORT': '',
-#     },
-# }
-
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': DATABASE_NAME,
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': POSTGRES_HOST,
+        'PORT': '',
+    },
+}
+"""
 
 WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 

@@ -476,11 +476,13 @@ figure {
     background-color: #ffd2cf !important;
     opacity: .6;
     border: none !important;
+    //border-radius: 12px !important;
 }
 
 .post.quarantine{
     background-color: #f6f8ce !important;
     border: none !important;
+    //border-radius: 8px !important;
 }
 
 #dim-similar {
