@@ -15,6 +15,8 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
+STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
+
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
 
