@@ -1,7 +1,10 @@
 import datetime
 import logging
+import json
 import hashlib
+import html2text
 import urllib.parse as urlparse
+from urllib import request
 from django.template import loader
 from django.conf import settings
 from django.contrib import messages
@@ -35,6 +38,13 @@ def get_votes(user, root):
             store.setdefault(vote_type, set()).add(post_id)
 
     return store
+
+
+def convert_html():
+    """
+    Converts html to text
+    """
+    return
 
 
 def gravatar_url(email, style='mp', size=80):
@@ -125,20 +135,29 @@ def walk_down_thread(parent, collect=set()):
     return collect
 
 
-def old_to_new_sync(base_url):
+def old_to_new_sync(base_url, count=1):
     """
     Sync the old biostars with the current new version one post at a time.
+    count - Number of posts to sync. Equal to the number of requests sent to the server.
     """
 
     # Get the most recent post without a 'p' in the uid.
     # This is most up to date we need to start syncing.
 
-    most_recent = Post.objects.exclude(uid__contains="p").order_by('-lastedit_date').only('id')
+    most_recent = Post.objects.exclude(uid__contains="p").order_by('-pk').only('id')
 
-    # Get end point url  and construct url
-    relative_url = reverse('api_post', kwargs=dict(id=most_recent.id))
+    # Get end point url for the next post
 
-    response = ''
+    next = most_recent.id + 1
+
+    relative_url = reverse('api_post', kwargs=dict(id=next))
+    endpoint = urlparse.urljoin(base_url, relative_url)
+    # Send get
+    response = request.urlopen(endpoint)
+    print(response)
+    1/0
+
+    json_data = json.dumps(response.data)
 
     # Load the response into dict then batch create the posts.
 
@@ -165,7 +184,56 @@ def batch_old_to_new_sync(base_url, batch_size=10):
 
     # Load the response into dict then batch create the posts.
 
+    return
 
+
+def create_post_from_json(**json_data):
+
+    post_uid = json_data['id']
+
+    # Check to see if the uid already exists
+    post = Post.objects.filter(uid=post_uid).first()
+
+    # Update an existing post
+    if post:
+
+        post.content = json_data['']
+        post.lastedit_date = json_data['lastedit_date']
+        post.creation_date = json_data['creation_date']
+
+    # data = {
+    #     'id': self.id,
+    #     'uid': self.uid,
+    #     'title': self.title,
+    #     'type': self.get_type_display(),
+    #     'type_id': self.type,
+    #     'creation_date': util.datetime_to_iso(self.creation_date),
+    #     'lastedit_date': util.datetime_to_iso(self.lastedit_date),
+    #     'lastedit_user_id': self.lastedit_user.id,
+    #     'author_id': self.author.id,
+    #     'author_uid': self.author.profile.uid,
+    #     'lastedit_user_uid': self.lastedit_user.profile.uid,
+    #     'author': self.author.name,
+    #     'status': self.get_status_display(),
+    #     'status_id': self.status,
+    #     'thread_score': self.thread_votecount,
+    #     'rank': self.rank,
+    #     'vote_count': self.vote_count,
+    #     'view_count': self.view_count,
+    #     'reply_count': self.reply_count,
+    #     'comment_count': self.comment_count,
+    #     'book_count': self.book_count,
+    #     'subs_count': self.subs_count,
+    #     'answer_count': self.root.reply_count,
+    #     'has_accepted': self.has_accepted,
+    #     'parent_id': self.parent.id,
+    #     'root_id': self.root_id,
+    #     'xhtml': self.html,
+    #     'content': self.content,
+    #     'tag_val': self.tag_val,
+    #     'url': f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{self.get_absolute_url()}',
+    # }
+    
     return
 
 
