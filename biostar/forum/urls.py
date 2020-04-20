@@ -60,9 +60,9 @@ forum_patterns = [
     path(r'api/post/<int:id>/', api.post_details, name='api_post'),
     path(r'api/vote/<int:id>/', api.vote_details, name='api_vote'),
     path(r'api/post/id/range/<int:start>/<int:end>/', api.vote_details, name='api_vote'),
-    path(r'api/stats/day/<int:day>/$', api.daily_stats_on_day, name='api_stats_on_day'),
-    path(r'api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$', api.daily_stats_on_date,
-         name='api_stats_on_date'),
+    # path(r'api/stats/day/<int:day>/$', api.daily_stats_on_day, name='api_stats_on_day'),
+    # path(r'api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$', api.daily_stats_on_date,
+    #      name='api_stats_on_date'),
 
 ]
 
