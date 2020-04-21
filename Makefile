@@ -1,29 +1,31 @@
 # Database JSON dump files.
-export SAVE_FILE=export/backup/db.last.json
+SAVE_FILE=export/backup/db.last.json
 
 # Backup file.
-export BACKUP_FILE=export/backup/db.`date +'%Y-%m-%d-%H%M'`.json
+BACKUP_FILE=export/backup/db.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
-export DJANGO_SETTINGS_MODULE := biostar.server.settings
+DJANGO_SETTINGS_MODULE := biostar.server.settings
 
 # Default app.
-export DJANGO_APP :=
-
-# Database name
-export DATABASE_NAME := database.db
+DJANGO_APP :=
 
 # Command used to load initial data
-export LOAD_COMMAND := project
+LOAD_COMMAND := project
 
 # Search index name
-export INDEX_NAME := index
+INDEX_NAME := index
 
 # Search index directory
-export INDEX_DIR := search
+INDEX_DIR := search
+
+# Some variables need to come from the enviroment.
 
 # Recipes database to copy
 export COPY_DATABASE := recipes.db
+
+# Database name is accessed via an enviroment variable.
+export DATABASE_NAME := database.db
 
 all: recipes serve
 
