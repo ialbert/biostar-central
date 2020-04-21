@@ -11,7 +11,7 @@ DJANGO_SETTINGS_MODULE := biostar.server.settings
 DJANGO_APP :=
 
 # Database name
-DATABASE_NAME := database.db
+DATABASE_NAME := export/db/database.db
 
 # Command used to load initial data
 LOAD_COMMAND := project
@@ -28,33 +28,19 @@ COPY_DATABASE := recipes.db
 all: recipes serve
 
 accounts:
-	# Sets variables for the accounts app.
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
 	$(eval DJANGO_APP := biostar.accounts)
 
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
 
 emailer:
-	# Sets variables for the emailer app.
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
 	$(eval DJANGO_APP := biostar.emailer)
 
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
-
 recipes:
-	# Sets variables for the recipes app.
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
 	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
-
-	# Print the important variables.
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo DJANGO_APP=${DJANGO_APP}
-	@echo DATABASE_NAME=${DATABASE_NAME}
-
 
 forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
@@ -62,16 +48,15 @@ forum:
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
 
+echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
 
 serve: init
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
 
-init:
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+init: echo
 	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
