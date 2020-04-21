@@ -136,7 +136,10 @@ AUTH_PASSWORD_VALIDATORS = [
 DATABASE_DIR = os.path.join(BASE_DIR, 'export', 'db')
 os.makedirs(DATABASE_DIR, exist_ok=True)
 
-DATABASE_NAME = os.path.join(DATABASE_DIR, os.environ.setdefault("DATABASE_NAME", "database.db"))
+DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
+# Ensure database is inside database directory.
+DATABASE_NAME = os.path.join(DATABASE_DIR, DATABASE_NAME)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
