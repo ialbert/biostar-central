@@ -1,8 +1,8 @@
-# Data dump files.
-DUMP_FILE=export/database/db.json
+# Database JSON dump files.
+SAVE_FILE=export/backup/db.last.json
 
 # Backup file.
-BACKUP_DUMP_FILE=export/database/db.backup.`date +'%Y-%m-%d-%H%M'`.json
+BACKUP_FILE=export/backup/db.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
 DJANGO_SETTINGS_MODULE := biostar.server.settings
@@ -28,6 +28,7 @@ COPY_DATABASE := recipes.db
 all: recipes serve
 
 accounts:
+	# Sets variables for the accounts app.
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
 	$(eval DJANGO_APP := biostar.accounts)
 
@@ -35,23 +36,21 @@ accounts:
 	@echo DJANGO_APP=${DJANGO_APP}
 
 emailer:
+	# Sets variables for the emailer app.
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
 	$(eval DJANGO_APP := biostar.emailer)
 
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 
-
-pg:
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-
 recipes:
+	# Sets variables for the recipes app.
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
 	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
 
-    # Set the settings variables.
+	# Print the important variables.
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
@@ -67,7 +66,7 @@ forum:
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
 
-serve:
+serve: init
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
 
@@ -77,27 +76,6 @@ init:
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
 
-load:
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	python manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(DUMP_FILE)
-
-delete:
-	# Delete the database, logs and CACHE files.
-	# Keep media and spooler.
-	rm -rf export/logs/*.log
-	rm -f export/db/${DATABASE_NAME}
-	rm -rf export/static/CACHE
-	rm -rf *.egg
-	rm -rf *.egg-info
-
-# Resets the site without removing jobs.
-reset: delete init
-    # Initializes the test project.
-
-copy: reset
-	@echo COPY_DATABASE=${COPY_DATABASE}
-	python manage.py copy --db ${COPY_DATABASE} --settings ${DJANGO_SETTINGS_MODULE}
-
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
@@ -106,7 +84,6 @@ test:
 
 	# Remove files associated with tests
 	rm -rf export/tested
-
 
 test_all:test
 
@@ -122,27 +99,45 @@ reindex:
 
 demo: startup serve
 
-startup:init
+startup: init
 	python manage.py ${LOAD_COMMAND} --demo --settings ${DJANGO_SETTINGS_MODULE}
 
-hard_reset: delete
+copy: reset
+	@echo COPY_DATABASE=${COPY_DATABASE}
+	python manage.py copy --db ${COPY_DATABASE} --settings ${DJANGO_SETTINGS_MODULE}
+
+reset:
+	# Delete the database, logs and CACHE files.
+	# Keep media and spooler.
+	rm -rf export/logs/*.log
+	rm -f export/db/${DATABASE_NAME}
+	rm -rf export/static/CACHE
+	rm -rf *.egg
+	rm -rf *.egg-info
+
+hard_reset: reset
 	# Delete media and spooler.
 	rm -rf export/spooler/*spool*
 	rm -rf export/media/*
 
-dump:
+load:
+	# Loads a data fixture.
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	python manage.py loaddata --ignorenonexistent --settings ${DJANGO_SETTINGS_MODULE} $(SAVE_FILE)
+
+save:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	python manage.py dumpdata ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(DUMP_FILE)
-	@cp -f $(DUMP_FILE) $(BACKUP_DUMP_FILE)
-	@ls -1 export/database/*.json
+	python manage.py dumpdata ${DJANGO_APP} --settings ${DJANGO_SETTINGS_MODULE} --exclude auth.permission --exclude contenttypes  > $(SAVE_FILE)
+	@cp -f $(SAVE_FILE) $(BACKUP_FILE)
+	@ls -1 export/backup/*.json
 
 uwsgi: init
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo UWSGI_INI=${UWSGI_INI}
 	uwsgi --ini ${UWSGI_INI}
 
-transfer: pg
+transfer:
 	python manage.py migrate --settings biostar.forum.settings
 	python manage.py transfer -n 300 --settings biostar.transfer.settings
 

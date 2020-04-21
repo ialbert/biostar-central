@@ -1,4 +1,5 @@
 # Inherit from the main settings file.
+import os, sys
 from biostar.accounts.settings import *
 
 # Inherit from the accounts settings file.
@@ -137,7 +138,7 @@ try:
     from conf.run.secrets import *
     #print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
-    print(f"Secrets module not imported: {exc}")
+    print(f"Secrets module not imported: {exc}", file=sys.stderr)
     pass
 
 # Enable debug toolbar specific functions

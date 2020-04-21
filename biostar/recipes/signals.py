@@ -2,7 +2,6 @@ import os
 import logging
 
 import toml
-import hjson
 from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver

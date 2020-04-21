@@ -1,3 +1,4 @@
+import sys
 from biostar.accounts.settings import *
 from biostar.emailer.settings import *
 
@@ -122,7 +123,7 @@ try:
     from conf.run.secrets import *
     print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
-    print(f"Secrets module not imported: {exc}")
+    print(f"Secrets module not imported: {exc}", file=sys.stderr)
 
 
 # Enable debug toolbar specific functions

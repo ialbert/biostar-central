@@ -339,8 +339,8 @@ def project_create(request):
     Input is validated with a form and actual creation is routed through auth.create_project.
     """
     user = request.user
-    project = auth.create_project(user=user)
-    messages.success(request, "Create a new project.")
+    project = auth.create_project(user=user, text="Project information goes here. ")
+    messages.success(request, "Welcome to your new project.")
     return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
 
