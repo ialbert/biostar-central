@@ -1,6 +1,7 @@
 
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
+import time
 from biostar.utils.decorators import spool, timer
 from django.db.models import Q
 #
@@ -11,6 +12,43 @@ from django.db.models import Q
 
 def message(msg, level=0):
     print(f"{msg}")
+
+
+@spool(pass_arguments=True)
+def spam_scoring(post):
+    """
+    Score the spam with a slight delay.
+    """
+    from biostar.forum import spam
+
+    # Give spammers the illusion of success with a slight delay
+    time.sleep(1)
+
+    try:
+        # Give this post a spam score and quarantine it if necessary.
+        spam.score(post=post)
+    except Exception as exc:
+        message(exc)
+
+
+@spool(pass_arguments=True)
+def update_spam_index(post):
+    """
+    Update spam index with this post.
+    """
+    from biostar.forum import spam
+
+    # Index posts explicitly marked as SPAM or NOT_SPAM
+    # indexing SPAM increases true positives.
+    # indexing NOT_SPAM decreases false positives.
+    if not (post.is_spam or post.not_spam):
+        return
+
+    # Update the spam index with most recent spam posts
+    try:
+        spam.add_spam(post=post)
+    except Exception as exc:
+        message(exc)
 
 
 @spool(pass_arguments=True)

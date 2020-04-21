@@ -1,4 +1,5 @@
 # Inherit from the main settings file.
+import os, sys
 from biostar.accounts.settings import *
 
 # Inherit from the accounts settings file.
@@ -15,16 +16,23 @@ USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
 
+STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
+
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
 
-SPAM_THRESHOLD = 0.5
+SPAM_THRESHOLD = .5
 
 # Spam index used to classify new posts as spam or ham.
-SPAM_INDEX_NAME = "spam"
+SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
+
 SPAM_INDEX_DIR = 'spammers'
+
 # Absolute path to spam index directory in export/
 SPAM_INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', SPAM_INDEX_DIR))
+
+# Classify posts and assign a spam score on creation.
+CLASSIFY_SPAM = True
 
 ENABLE_DIGESTS = False
 
@@ -78,10 +86,11 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
+
     'biostar.forum.apps.ForumConfig',
     'pagedown',
-
 ]
+
 
 # Additional middleware.
 MIDDLEWARE += [
@@ -129,11 +138,11 @@ try:
     from conf.run.secrets import *
     #print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
-    print(f"Secrets module not imported: {exc}")
+    print(f"Secrets module not imported: {exc}", file=sys.stderr)
     pass
 
 # Enable debug toolbar specific functions
-if DEBUG_TOOLBAR and 'debug_toolbar' not in INSTALLED_APPS:
+if DEBUG_TOOLBAR:
     INSTALLED_APPS.extend([
         'debug_toolbar',
     ])

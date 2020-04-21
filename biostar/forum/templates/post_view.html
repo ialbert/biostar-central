@@ -64,6 +64,7 @@
             $('.ui.dropdown').dropdown();
             var users = "{{ users_str }}".split(',');
             autocomplete_users(users);
+            //init_pagedown();
 
             $(this).on('click', '#inplace .save', function () {
                 event.preventDefault();
@@ -110,7 +111,7 @@
 
     <b>Similar Posts </b>
 
-    <div class="ui basic segment" id="dim-similar">
+    <div class="ui basic segment" id="similar">
         <div id="similar-feed" post_uid="{{ post.uid }}"></div>
         <div class="ui inverted dimmer">
             <div class="content">

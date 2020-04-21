@@ -210,6 +210,7 @@
                     label = "Pick data"
                     source = "PROJECT"
                     help = "Pick data from this project."
+                    choices = [ ["A","Default"] ]
                     </pre>
                 </div>
 
@@ -283,6 +284,7 @@
 
             // Add clicked field html to preview;
             $("#preview form .preview").append(field.html());
+            $('.ui.dropdown').dropdown();
 
             popup_message($(this), 'Inserted into interface.', "success");
         });

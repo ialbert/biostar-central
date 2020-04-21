@@ -14,10 +14,11 @@
 {% endblock %}
 
 {% block content %}
-    <div>
-
-        <h3 class="ui header">Project Information</h3>
+    <div  id="project_view">
         {{ project.html|safe }}
+
+        <div class="ui divider"></div>
+
         <div class="muted">
             <span class="ui label">{{ project.get_privacy_display }}</span>
             Project owned by <a href="{% url 'user_profile'  project.owner.profile.uid %}">
@@ -44,15 +45,17 @@
 
         {% if write_access %}
             <div class="ui  divider"></div>
-            <div class="ui three small buttons">
+            <div class="ui basic center aligned segment">
 
                 <a class="ui  button" href="{% url 'project_edit' project.uid %}">
                     <i class="edit icon"></i>Edit Project
                 </a>
 
+
                 <a class="ui  button" href="{% url 'project_users' project.uid %}">
                     <i class="users icon"></i>Manage Access
                 </a>
+
 
 
                 <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">

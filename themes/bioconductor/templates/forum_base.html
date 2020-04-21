@@ -14,14 +14,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+
     {# Set the favicon #}
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
-
+    <link rel="icon" href="{% static 'forum_favicon.ico' %}" type="image/x-icon"/>
     {# Load JQuery. #}
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
-    <script type="text/javascript" src="{% static 'markdown-it.js' %}"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+
     {# Load recaptcha #}
     {% recaptcha_init %}
 
@@ -29,26 +31,30 @@
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'prism.css' %}" rel="stylesheet">
-        <link href="{% static 'at.who.css' %}" rel="stylesheet">
-        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
+         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
         <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
+
     {% endcompress %}
 
     {# Javascript compression. #}
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'prism.js' %}"></script>
-        <script src="{% static 'at.who.js' %}"></script>
-        <script src="{% static 'caret.js' %}"></script>
         <script src="{% static 'forum.js' %}{% randparam %}"></script>
+        <script src="{% static 'setup.js' %}{% randparam %}"></script>
+        <script src="{% static 'theme.js' %}"></script>
     {% endcompress %}
 
-    {# Extra header content that needs to be injected into the page. #}
+    {# Optional block header content. #}
     {% block head %}
 
     {% endblock %}
 
-    {# Extra javascript content that needs to be injected into the page. #}
+    {# Optional css header content. #}
+    {% block css %}
+    {% endblock %}
+
+    {# Optional javascaript header content. #}
     {% block js %}
 
     {% endblock %}
@@ -57,29 +63,31 @@
 <body>
 
 <div class="ui inverted container widen">
-{% include 'banners/top-banner.html' %}
 
-<span class="menus">
-    {% include "banners/menu-topics.html" %}
-    {% include "banners/menu-header.html" %}
-</span>
-<span class="phone-menus">
-    {% include "banners/menu-phone.html" %}
-</span>
+    {% include 'banners/top-banner.html' %}
 
+    <span class="menus">
+        {% include "banners/menu-topics.html" %}
+        {% include "banners/menu-header.html" %}
+
+    </span>
+
+    <span class="phone-menus">
+        {% include "banners/menu-phone.html" %}
+    </span>
 
     {% block container %}
         <div class="ui bottom attached segment">
 
-            <div class="ui inverted dimmer"></div>
-
             {% show_messages messages %}
+
             {% block content %}
                 MAIN CONTENT
             {% endblock %}
 
         </div>
     {% endblock %}
+
     {% block footer %}
         {% include 'widgets/footer.html' %}
     {% endblock %}

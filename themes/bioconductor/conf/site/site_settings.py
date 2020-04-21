@@ -1,4 +1,3 @@
-import os
 from biostar.settings import *
 
 # Enable the right settings.
@@ -11,33 +10,18 @@ import logging
 
 logger = logging.getLogger("biostar")
 
-DEBUG = True
+DEBUG = False
+
+# Edit the site domain for specific cases.
+SITE_DOMAIN = "www.lvh.me"
 
 SITE_ID = 1
-SITE_DOMAIN = "www.lvh.me"
+
 SITE_NAME = "Biostar Engine"
 HTTP_PORT = ''
 PROTOCOL = 'http'
 
 ALLOWED_HOSTS = [SITE_DOMAIN]
-
-
-# Uncomment to enable postgres database.
-"""
-DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
-POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
-DATABASES = {
-
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': DATABASE_NAME,
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': POSTGRES_HOST,
-        'PORT': '',
-    },
-}
-"""
 
 WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 

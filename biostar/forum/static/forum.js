@@ -13,13 +13,6 @@ function captcha() {
 }
 
 
-function init_pagedown() {
-    var converter = new Markdown.getSanitizingConverter();
-    var editor = new Markdown.Editor(converter);
-    editor.run();
-    return editor
-}
-
 function apply_vote(vote_elem) {
 
     var post = vote_elem.closest('.post');
@@ -111,9 +104,9 @@ function highlight(text) {
 }
 
 
-function mark_spam(post_id, elem) {
-
-    $.ajax('/ajax/report/spam/' + post_id + "/",
+function mark_spam(post) {
+    var uid = post.data("value");
+    $.ajax('/ajax/report/spam/' + uid + "/",
         {
             type: 'GET',
             dataType: 'json',
@@ -122,16 +115,42 @@ function mark_spam(post_id, elem) {
             success: function (data) {
 
                 if (data.status === 'error') {
-                    popup_message(elem.parent().parent(), data.msg, data.status);
+                    popup_message(post, data.msg, data.status);
 
                 } else {
-                    popup_message(elem.parent().parent(), data.msg, data.status);
-                    $('#' + post_id).removeClass('open').addClass('spam');
+                    popup_message(post, data.msg, data.status);
+                    post.removeClass('open').removeClass('quarantine').addClass('spam');
                 }
 
             },
             error: function (xhr, status, text) {
-                error_message($('#' + post_id), xhr, status, text)
+                error_message(post, xhr, status, text)
+            }
+        });
+}
+
+
+function release_suspect(post){
+
+    var uid = post.data("value");
+    $.ajax('/release/' + uid + "/",
+        {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {},
+            success: function (data) {
+
+                if (data.status === 'error') {
+                    popup_message(post, data.msg, data.status);
+                } else {
+                    popup_message(post, data.msg, data.status);
+                    post.removeClass('quarantine').addClass('open');
+                }
+
+            },
+            error: function (xhr, status, text) {
+                error_message(post, xhr, status, text)
             }
         });
 }
@@ -160,7 +179,7 @@ function similar_posts(elem) {
     var uid = elem.attr('post_uid');
     // Construct the similar posts link.
     var feed_url = '/similar/posts/' + uid + '/';
-    var dimm_elem = $('#dim-similar');
+    var dimm_elem = $('#similar');
     dimm_elem.dimmer('show');
 
     $.ajax(feed_url,
@@ -265,10 +284,16 @@ function tags_dropdown() {
 
 $(document).ready(function () {
 
-    $('.mark-spam.item').click(function (event) {
-        var post_id = $(this).closest('.post').attr('id');
+    $('.spam').dropdown({on: 'hover' });
+    $('.spam .mark.item').click(function (event) {
+        var post = $(this).closest('.post');
+        mark_spam(post);
+    });
 
-        mark_spam(post_id, $(this));
+    $('.spam .release.item').click(function (event) {
+        var post = $(this).closest('.post');
+        release_suspect(post);
+
     });
 
     $('#similar-feed').each(function () {
@@ -329,7 +354,8 @@ $(document).ready(function () {
         var container = $(this).closest('.post > .body > .content >.inplace');
         var url = '/moderate/{0}/'.format(uid);
 
-        moderate(uid, container, url)
+        moderate(uid, container, url);
+        cancel_inplace();
 
 
     });
@@ -408,10 +434,12 @@ $(document).ready(function () {
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
+    var converter = new Markdown.getSanitizingConverter();
+    var editor = new Markdown.Editor(converter);
+    editor.run();
 
     tags_dropdown();
-    //activate_prism($(this));
-    init_pagedown();
-    remove_trigger();
+
+    //remove_trigger();
 })
 ;

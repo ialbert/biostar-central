@@ -13,7 +13,7 @@ def join(*args):
 
 
 # Run tasks in multi threaded mode when UWSGI is not installed.
-MULTI_THREAD = os.getenv("MULTI_THREAD") == "true" or False
+MULTI_THREAD = True
 
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
@@ -29,6 +29,8 @@ DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 CORS_ORIGIN_WHITELIST = [
     'https://view.qiime2.org',
 ]
+
+POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
 
 # Shortcut to first admin information.
 ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]

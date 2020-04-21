@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.urls import include, path  # For django versions from 2.0 and up
 import debug_toolbar
 from biostar.forum import views
-from biostar.forum import ajax
+from biostar.forum import ajax, api
 from biostar.accounts.urls import account_patterns
 from biostar.planet.urls import planet_patterns
 
@@ -45,12 +45,24 @@ forum_patterns = [
     path('ajax/user/image/<str:username>/', ajax.user_image, name='user_image'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
     path('ajax/report/spam/<str:post_uid>/', ajax.report_spam, name='report_spam'),
-    path('most/recent/users/', ajax.most_recent_users, name='most_recent_users'),
+    path('release/<str:uid>/', ajax.release_suspect, name='release_suspect'),
+    #path('most/recent/users/', ajax.most_recent_users, name='most_recent_users'),
 
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 
     # Community urls
     path('community/', views.community_list, name='community_list'),
+
+    # Api calls
+    path(r'api/traffic/', api.traffic, name='api_traffic'),
+    path(r'api/batch/', api.batch_posts, name='api_batch'),
+    path(r'api/user/<int:id>/', api.user_details, name='api_user'),
+    path(r'api/post/<int:id>/', api.post_details, name='api_post'),
+    path(r'api/vote/<int:id>/', api.vote_details, name='api_vote'),
+    path(r'api/post/id/range/<int:start>/<int:end>/', api.vote_details, name='api_vote'),
+    # path(r'api/stats/day/<int:day>/$', api.daily_stats_on_day, name='api_stats_on_day'),
+    # path(r'api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$', api.daily_stats_on_date,
+    #      name='api_stats_on_date'),
 
 ]
 

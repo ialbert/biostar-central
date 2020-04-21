@@ -124,52 +124,6 @@
             </div>
         </div>
     </div>
-
+{# Revolving map api #}
+{% include 'widgets/revolving_map.html' %}
 </div>
-
-{#<script>#}
-{##}
-{##}
-{#    var recent_users = new Vue({#}
-{#        delimiters: ['[[', ']]'],#}
-{#        el: '#recent',#}
-{#        data: {#}
-{#            users: {{ users|safe }}#}
-{#        },#}
-{#        created: function () {#}
-{#            // Set time interval for the given function.#}
-{#            this.interval = setInterval(() => this.getRecentUsers(), 1000);#}
-{##}
-{#        },#}
-{##}
-{#        beforeDestroy: function () {#}
-{#            // Remove time interval when changing pages.#}
-{#            console.log("ANOTHER ONEEEEEEEEEEE")#}
-{#        },#}
-{#        methods: {#}
-{#            getRecentUsers() {#}
-{#                $.ajax({#}
-{#                    url: '/most/recent/users/',#}
-{#                    method: 'GET',#}
-{#                    success: function (data) {#}
-{#                        if (data.status === 'success'){#}
-{#                            console.log(data.users);#}
-{#                            this.users = data.users;#}
-{#                            //console.log(this.users)#}
-{#                            //$('#foo').prepend("HOOO");#}
-{#                            //this.$forceUpdate()// = true;//$forceUpdate();#}
-{#                            //console.log(JSON.parse(data));#}
-{#                        }#}
-{#                    },#}
-{#                    error: function (error) {#}
-{#                        console.log(error);#}
-{#                    }#}
-{#                });#}
-{##}
-{#                console.log("FOOOOOOO")#}
-{#            }#}
-{##}
-{#        }#}
-{##}
-{#    });#}
-{#</script>#}

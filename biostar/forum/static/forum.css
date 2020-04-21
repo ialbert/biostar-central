@@ -117,6 +117,7 @@ body > .widen.container {
 
 .post.item > .content .ui.label {
     margin-left: 0px;
+    padding: 3px;
 }
 
 .ui.items > .post.item > .image:not(.ui) {
@@ -298,6 +299,7 @@ i.icon {
 
 .post .actions {
     padding: .5rem 0em 0.5rem 0em;
+    display: flow-root;
 }
 
 .post .actions.top-level {
@@ -313,10 +315,6 @@ i.icon {
     opacity: .75;
 }
 
-.post.Deleted, .post.spam {
-    background-color: #f7e4de;
-    opacity: 0.6;
-}
 
 .inline {
     display: inline;
@@ -354,8 +352,8 @@ i.icon {
 }
 
 .post #modpanel {
-    width: 60%;
-    margin-left: 20%;
+    //width: 60%;
+    margin-right: 20%;
     padding-top: 10px;
     padding-bottom: 10px;
 }
@@ -474,9 +472,17 @@ figure {
     box-shadow: rgba(0, 0, 0, .2) 2px 3px 3px;
 }
 
-.post.deleted, .post.spam, .post.closed {
+.post.deleted, .post.spam {
     background-color: #ffd2cf !important;
     opacity: .6;
+    border: none !important;
+    //border-radius: 12px !important;
+}
+
+.post.quarantine{
+    background-color: #f6f8ce !important;
+    border: none !important;
+    //border-radius: 8px !important;
 }
 
 #dim-similar {
@@ -590,6 +596,9 @@ img {
     float: right;
 }
 
+#similar{
+    height: 100%;
+}
 
 .accepted.label {
     color: #E1E818 !important;
@@ -742,7 +751,8 @@ img {
 }
 
 .ui.divided.items > .post.item {
-    padding: 6px 4px 10px 4px;
+    padding: 6px 4px 10px 4px !important;
+    border: none;
 }
 
 .ui.divided.items > .item {
@@ -967,7 +977,7 @@ pre {
     }
 
     .ui.grid > [class*="four wide"].sidefeed {
-    / / width: 100 % !important;
+     width: 100% !important;
     }
 
 

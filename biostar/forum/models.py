@@ -8,7 +8,6 @@ from django.db import models
 from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
-
 from biostar.accounts.models import Profile
 from . import util
 
@@ -38,10 +37,13 @@ class PostManager(models.Manager):
 
         # Filter for open posts that are not spam.
         query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
-        query = query.exclude(models.Q(spam=Post.SPAM) | models.Q(root=None) |
-                              models.Q(root__spam=Post.SPAM))
+        query = query.filter(models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT) |
+                             models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT))
+
+        query = query.exclude(root=None)
 
         return query
+
 
 class AwardManager(models.Manager):
 
@@ -80,8 +82,8 @@ class Post(models.Model):
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
     # Possile spam states.
-    SPAM, NOT_SPAM, MAYBE_SPAM, DEFAULT = range(4)
-    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (MAYBE_SPAM, "Quarantined"), (DEFAULT, "Default")]
+    SPAM, NOT_SPAM, DEFAULT, SUSPECT = range(4)
+    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (SUSPECT, "Quarantine"), (DEFAULT, "Default")]
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 
@@ -200,25 +202,80 @@ class Post(models.Model):
         prefix = ""
         if self.is_spam:
             prefix = "Spam:"
+        elif self.suspect_spam:
+            prefix = "Quarantined: "
         elif not (self.is_open or self.is_question):
             prefix = f"{self.get_status_display()}:"
         return prefix
 
     @property
-    def is_open(self):
-        return self.status == Post.OPEN and not self.is_spam
+    def suspect_spam(self):
+        return self.spam == self.SUSPECT
+
 
     @property
-    def calc_score(self):
-        return
+    def is_open(self):
+        return self.status == Post.OPEN and not self.is_spam and not self.suspect_spam
+
+    def recompute_scores(self):
+        # Recompute answers count
+        if self.type == Post.ANSWER:
+            answer_count = Post.objects.filter(root=self.root, type=Post.ANSWER).count()
+            Post.objects.filter(pk=self.parent_id).update(answer_count=answer_count)
+
+        reply_count = Post.objects.filter(root=self.root).count()
+        Post.objects.filter(pk=self.root.id).update(reply_count=reply_count)
+
+    def json_data(self):
+        data = {
+            'id': self.id,
+            'uid': self.uid,
+            'title': self.title,
+            'type': self.get_type_display(),
+            'type_id': self.type,
+            'creation_date': util.datetime_to_iso(self.creation_date),
+            'lastedit_date': util.datetime_to_iso(self.lastedit_date),
+            'lastedit_user_id': self.lastedit_user.id,
+            'author_id': self.author.id,
+            'author_uid': self.author.profile.uid,
+            'lastedit_user_uid': self.lastedit_user.profile.uid,
+            'author': self.author.name,
+            'status': self.get_status_display(),
+            'status_id': self.status,
+            'thread_score': self.thread_votecount,
+            'rank': self.rank,
+            'vote_count': self.vote_count,
+            'view_count': self.view_count,
+            'reply_count': self.reply_count,
+            'comment_count': self.comment_count,
+            'book_count': self.book_count,
+            'subs_count': self.subs_count,
+            'answer_count': self.root.reply_count,
+            'has_accepted': self.has_accepted,
+            'parent_id': self.parent.id,
+            'root_id': self.root_id,
+            'xhtml': self.html,
+            'content': self.content,
+            'tag_val': self.tag_val,
+            'url': f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{self.get_absolute_url()}',
+        }
+        return data
 
     @property
     def is_question(self):
         return self.type == Post.QUESTION
 
     @property
+    def is_job(self):
+        return self.type == Post.JOB
+
+    @property
     def is_deleted(self):
         return self.status == Post.DELETED
+
+    @property
+    def not_spam(self):
+        return self.spam == Post.NOT_SPAM
 
     @property
     def has_accepted(self):
@@ -245,6 +302,10 @@ class Post(models.Model):
     def get_absolute_url(self):
         url = reverse("post_view", kwargs=dict(uid=self.root.uid))
         return url if self.is_toplevel else "%s#%s" % (url, self.uid)
+
+    def high_spam_score(self, threshold=None):
+        threshold = threshold or settings.SPAM_THRESHOLD
+        return (self.spam_score > threshold) or self.is_spam or self.author.profile.low_rep
 
     def save(self, *args, **kwargs):
 
@@ -296,7 +357,12 @@ class Post(models.Model):
     def css(self):
         # Used to simplify CSS rendering.
         status = self.get_status_display()
-        return 'spam' if self.is_spam else f"{status}".lower()
+        if self.is_spam:
+            return "spam"
+        if self.suspect_spam:
+            return "quarantine"
+
+        return f"{status}".lower()
 
     @property
     def accepted_class(self):

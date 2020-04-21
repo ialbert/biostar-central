@@ -1,0 +1,71 @@
+---
+- hosts: all
+  user: www
+
+
+  handlers:
+    - import_tasks: files/handlers.yml
+      static: yes
+
+  tasks:
+    - include_vars: files/vars.yml
+
+    - debug:
+        msg: "Remote target destination: {{ local_old }} Source file: {{ remote_old }}, "
+
+    - name: Backup servers
+      shell: ls
+      notify:
+        - server backup
+      when: backup
+
+    - name: Update the biostar-engine
+      git:
+        repo: "{{ engine_git }}"
+        dest: "{{ engine_dir }}"
+        update: yes
+
+    - name: Create supporting directories
+      file:
+        path: "{{ engine_dir }}/export/sql/"
+        state: directory
+        owner: www
+        group: www
+        mode: 0755
+
+    - name: Check if old database dump exists in local machine.
+      local_action: stat path="{{ local_old }}"
+      register: local_copy
+
+    - name: Check if old database dump exists in remote site.
+      stat:
+        path: "{{ remote_old }}"
+      register: remote_copy
+
+    - debug:
+        msg: "Remote target destination: {{ remote_old }} Source file: {{ local_old }} {{local_copy}}. "
+      when: local_copy.stat.exists == False
+
+    - name: Source file required to exist in local machine ( skipped if true ) .
+      fail:
+        msg: "The source file {{ local_old }} does not exist."
+      when: (local_copy.stat.exists == False) and (local_old |length > 0)
+
+    - name: Copy over the old database dump.
+      copy:
+        src: "{{ local_old }}"
+        dest: "{{ remote_old }}"
+        owner: www
+      when: (remote_copy.stat.exists == False) and (local_old |length > 0)
+
+    - name: Install any new reqs and  migrate database.
+      shell: ls
+      notify:
+        - python install
+        - server migrate
+
+    - name: Transfer over data
+      shell: ls
+      notify:
+        - data migrate
+

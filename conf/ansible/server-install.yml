@@ -2,31 +2,36 @@
 - hosts: all
   user: www
 
-  environment:
-    PATH: "{{ lookup('env','PATH') }}:/home/www/miniconda3/bin/python3"
-
   handlers:
-    - import_tasks: handlers.yml
+    - import_tasks: files/handlers.yml
       static: yes
 
   tasks:
-    - include_vars: vars.yml
+    - include_vars: files/vars.yml
+    - name: Check if bash profile already exists
+      stat:
+        path: ~/.bash_profile
+      register: profile_created
+
     - name: Set up bash profile
       get_url:
         url: http://data.biostarhandbook.com/install/bash_profile.txt
         dest: ~/.bash_profile
         mode: 0440
+      when: profile_created.stat.exists == False
 
     - name: Get bashrc from remote
       get_url:
         url: http://data.biostarhandbook.com/install/bashrc.txt
         dest: ~/.handbookrc
         mode: 0440
+      when: profile_created.stat.exists == False
 
     - name: Apply the biostar bash customizations
       lineinfile:
         dest: ~/.bashrc
         line: source ~/.handbookrc
+      when: profile_created.stat.exists == False
 
     - name: Check if conda has already been installed
       stat: path={{ conda_dir }}/bin/conda
@@ -48,68 +53,76 @@
 
     - name: Create environments
       shell: "{{ conda_dir }}/bin/conda create --yes -q -n {{ item.name }} python={{ item.python_version }} creates={{ conda_dir }}/envs/{{ item.name }}"
-
+      when: conda_installed is success
       with_items: "{{conda_environments}}"
 
-    - name: Get the biostar-engine software
-      become: yes
+    - name: Add the conda path to the bash rc
+      shell: "{{ conda_dir }}/bin/conda init bash"
+      when: conda_installed is success
+      with_items: "{{conda_environments}}"
+
+    - name: Get the biostar-central software
       git:
         repo: "{{ engine_git }}"
         dest: "{{ engine_dir }}"
         update: yes
 
+    - name: Link biostar-central to the home directory
+      file:
+        src: "{{ engine_dir }}"
+        dest: "~/biostar-central"
+        state: link
+
     - name: Make the spooler directory
-      become: yes
       file:
         path: "{{ engine_dir }}/export/spooler"
         state: directory
         mode: 0755
 
-    - name: Initialize scripts
-      become: yes
-      copy:
-        remote_src: true
-        force: no
-        src: "{{ engine_dir }}//themes/bioconductor/conf/scripts/{{item}}"
-        dest: "{{ engine_dir }}/{{ item }}"
-        mode: u+rwx,g+rx,o+rx
-      with_items:
-        - migrate.sh
-        - reset.sh
-        - backup.sh
-
-    - name: Copy settings file to runtime directories
-      become: yes
-      copy:
-        remote_src: true
-        force: no
-        src: "{{ engine_dir }}/themes/bioconductor/conf/{{item}}"
-        dest: "{{ engine_dir }}/conf/run/{{ item }}"
-      with_items:
-        - nginx.conf
-        - supervisor.conf
-        - wsgi.py
-        - uwsgi.ini
-
     - name: Initialize local secrets
-      become: yes
       copy:
         content: ""
-        dest: "{{ conf_dir }}/secrets.py"
+        dest: "{{ engine_dir }}/conf/run/site_secrets.py"
         force: no
         mode: 0644
 
+    - name: Initialize scripts
+      copy:
+        remote_src: true
+        force: no
+        src: "{{ engine_dir }}/conf/scripts/{{item}}"
+        dest: "{{ engine_dir }}/{{ item }}"
+        mode: u+rwx,g+rx,o+rx
+      with_items:
+        - server-migrate.sh
+        - server-reset.sh
+        - server-backup.sh
+        - data-migration.sh
+
+    - name: Copy settings file to runtime directories
+      copy:
+        remote_src: true
+        force: no
+        src: "{{ engine_dir }}/conf/site/{{item}}"
+        dest: "{{ engine_dir }}/conf/run/{{ item }}"
+      with_items:
+        - site_nginx.conf
+        - site_supervisor.conf
+        - site_settings.py
+        - site_wsgi.py
+        - site_uwsgi.ini
+
     - name: Install python requirements
-      become: yes
-      shell: "source /home/www/miniconda3/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
+      shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
 
     - name: Install conda requirements
-      become: yes
-      shell: "source /home/www/miniconda3/etc/profile.d/conda.sh && conda activate {{conda_env}}  && echo 'y' | conda install --file conf/conda_requirements.txt"
+      shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
+             conda activate {{conda_env}}  &&
+             conda config --add channels conda-forge &&
+             conda install -y --file conf/conda_requirements.txt"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
-

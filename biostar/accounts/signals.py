@@ -18,7 +18,7 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         # Make sure staff users are also moderators.
         role = Profile.MANAGER if instance.is_staff else Profile.READER
         Profile.objects.using(using).create(user=instance, uid=username, name=instance.first_name, role=role)
-        tasks.create_messages(rec_list=[instance], template="messages/welcome.md")
+        tasks.create_messages.spool(rec_list=[instance], template="messages/welcome.md")
 
 
 @receiver(pre_save, sender=User)

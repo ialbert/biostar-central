@@ -2,7 +2,7 @@
 {% load engine_tags %}
 
 
-<div class="item recipe" data-value="{{ recipe.uid }}" >
+<div class="item recipe" data-value="{{ recipe.uid }}">
 
     <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
     <div class="content">
@@ -20,11 +20,9 @@
         </div>
 
         <div class="extra">
-            <a
-                href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
-
-            <i class="bar chart icon"></i> {{ recipe.job_count }}
-            result{{ recipe.job_count|pluralize }}</a>
+            <a href="{% url 'job_list' project.uid %}?filter={{ recipe.uid }}">
+                <i class="bar chart icon"></i> {{ recipe.job_count }}
+                result{{ recipe.job_count|pluralize }}</a>
             &bull; {% created_by date=recipe.lastedit_date user=recipe.lastedit_user %}
 
             {% if not recipe.runnable %}
@@ -40,7 +38,7 @@
             </a>
             <div class="or"></div>
             <a class="ui right button " href="{% url 'recipe_delete' recipe.uid %}">
-                <i class="trash icon"></i> <span class="fitme">Delete</span>
+                <i class="trash icon"></i>Delete
             </a>
 
         </div>

@@ -158,39 +158,6 @@ class PostShortForm(forms.Form):
         return cleaned_data
 
 
-def mod_choices(post):
-    """
-    Return available moderation options for a post.
-    """
-    choices = [
-        (BUMP_POST, "Bump post."),
-        (MOVE_ANSWER, "Move comment to answer."),
-        (OPEN_POST, "Open post"),
-        (DELETE, "Delete post."),
-        (REPORT_SPAM, "Mark as spam."),
-        (CLOSE, "Close post")
-    ]
-
-    # Moderation options for common to all posts
-    allowed = [REPORT_SPAM, CLOSE]
-
-    # Options for top level posts.
-    if post.is_toplevel:
-        allowed += [BUMP_POST]
-
-    # Open deletes/closed posts.
-    if not post.is_open:
-        allowed += [OPEN_POST]
-    # Delete/close open posts
-    else:
-        allowed += [DELETE]
-
-    # Filter the appropriate choices
-    choices = filter(lambda action: action[0] in allowed if allowed else True, choices)
-
-    return choices
-
-
 class PostModForm(forms.Form):
 
     def __init__(self, post, request, user, *args, **kwargs):
@@ -200,38 +167,34 @@ class PostModForm(forms.Form):
 
         super(PostModForm, self).__init__(*args, **kwargs)
 
-        choices = mod_choices(post=self.post)
+        choices = [
+            (OPEN_POST, "Open post"),
+            (DELETE, "Delete post."),
+            (REPORT_SPAM, "Mark as spam."),
 
-        if self.post.is_toplevel:
-            self.fields['dupe'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea)
-        else:
-            self.fields['pid'] = forms.CharField(required=False, max_length=200, label="Parent id")
+        ]
 
-        self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=False)
+        # Options for top level posts.
+        if post.is_toplevel:
+            prefix = [(BUMP_POST, "Bump post.")]
+            suffix = [(CLOSE, "Close post ( reason required ). "),
+                      (DUPLICATE, "Duplicated post ( links required ).")]
+            choices = prefix + choices + suffix
+            self.fields['comment'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea,
+                                                     strip=True)
 
-    def clean_dupe(self):
-        dupe = self.cleaned_data.get("dupe")
-        dupes = dupe.split(",")[:5]
-        dupes = ','.join(dupes)
-        return dupes
+        self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
 
     def clean(self):
         action = self.cleaned_data.get("action")
-        dupes = self.cleaned_data.get("dupe")
-        pid = self.cleaned_data.get("pid")
+        comment = self.cleaned_data.get("comment")
 
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
-        if (action is None) and not (dupes or pid):
-            raise forms.ValidationError("Select an action.")
-
-        parent = Post.objects.filter(uid=pid).first()
-        if not parent and pid:
-            raise forms.ValidationError(f"Parent id: {pid} does not exist.")
-
-        if parent and parent.root != self.post.root:
-            raise forms.ValidationError(f"Parent does not share the same root.")
+        if (action == CLOSE or action == DUPLICATE) and not comment:
+            raise forms.ValidationError("Closing a post requires a reason.")
 
         return self.cleaned_data
+
 

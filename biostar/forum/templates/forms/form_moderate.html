@@ -16,7 +16,21 @@
                 {{ form.action }}
             </div>
         </div>
-        <button type="submit" class="ui green enter button">
+
+        {% if form.comment %}
+
+        <div class="ui segment">
+            <div class="field">
+                <label>Reasons for closure</label>
+                {{ form.comment }}
+                <div class="ui muted">
+                    Reason for closing this post. Enter duplicate links separated by new line.
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+       <button type="submit" class="ui green enter button">
             <i class="check icon"></i>
             Submit
         </button>
@@ -25,28 +39,6 @@
             <i class="cancel icon"></i>
             Cancel
         </a>
-        {% if form.dupe %}
-            <div class="ui segment">
-                <div class="field">
-                    <label>Duplicate link(s)</label>
-                    {{ form.dupe }}
-                    <div class="ui muted">
-                        One or more links, new line separated (required for duplicate closing).
-                    </div>
-                </div>
-            </div>
-            <button type="submit" class="ui green enter button">
-                <i class="check icon"></i>
-                Submit
-            </button>
-
-            <a class="ui orange button" onclick="javascript:obj=$('#modpanel').remove();">
-                <i class="cancel icon"></i>
-                Cancel
-            </a>
-        {% endif %}
-
-
 
     </form>
 

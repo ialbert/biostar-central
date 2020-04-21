@@ -16,6 +16,20 @@
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
 
+
+- name: data migrate
+  shell: "./data-migration.sh {{ remote_old }}"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
+
+- name: python install
+  shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
+  args:
+    executable: /bin/bash
+    chdir: "{{ engine_dir }}"
+
 - name: server migrate
   shell: "./server-migrate.sh"
   args:

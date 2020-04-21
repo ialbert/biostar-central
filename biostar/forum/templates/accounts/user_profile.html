@@ -5,11 +5,9 @@
 
 {% block content %}
 
-    <div class="ui stackable three column grid profile" data-value="{{ target.profile.uid }}" >
+    <div class="ui stackable three column grid profile" data-value="{{ target.profile.id }}" >
 
         <div class="column">
-
-
             <div class="ui center aligned  basic segment">
                 <img class="ui centered circular image" src="{% gravatar user=target size=150 %}">
                 <div class="ui centered header">
