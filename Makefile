@@ -1,29 +1,29 @@
 # Database JSON dump files.
-export SAVE_FILE=export/backup/db.last.json
+SAVE_FILE=export/backup/db.last.json
 
 # Backup file.
-export BACKUP_FILE=export/backup/db.`date +'%Y-%m-%d-%H%M'`.json
+BACKUP_FILE=export/backup/db.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
-export DJANGO_SETTINGS_MODULE := biostar.server.settings
+DJANGO_SETTINGS_MODULE := biostar.server.settings
 
 # Default app.
-export DJANGO_APP :=
+DJANGO_APP :=
 
 # Database name
-export DATABASE_NAME := export/db/database.db
+DATABASE_NAME := database.db
 
 # Command used to load initial data
-export LOAD_COMMAND := project
+LOAD_COMMAND := project
 
 # Search index name
-export INDEX_NAME := index
+INDEX_NAME := index
 
 # Search index directory
-export INDEX_DIR := search
+INDEX_DIR := search
 
 # Recipes database to copy
-export COPY_DATABASE := recipes.db
+COPY_DATABASE := recipes.db
 
 all: recipes serve
 
@@ -93,7 +93,7 @@ reset: echo
 	# Delete the database, logs and CACHE files.
 	# Keep media and spooler.
 	rm -rf export/logs/*.log
-	rm -f ${DATABASE_NAME}
+	rm -f export/db/${DATABASE_NAME}
 	rm -rf export/static/CACHE
 	rm -rf *.egg
 	rm -rf *.egg-info
