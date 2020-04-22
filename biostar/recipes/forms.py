@@ -122,7 +122,6 @@ def add_captcha_field(request, fields):
 
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
-    label = forms.CharField(required=False)
     # Should not edit uid because data directories get recreated
 
     def __init__(self, request, create=False, *args, **kwargs):
@@ -138,7 +137,7 @@ class ProjectForm(forms.ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'text', 'privacy', 'rank', 'image', 'label']
+        fields = ['name', 'text', 'privacy', 'rank', 'image', 'uid']
 
     def clean_image(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -147,17 +146,17 @@ class ProjectForm(forms.ModelForm):
 
         return image
 
-    def clean_label(self):
+    def clean_uid(self):
         cleaned_data = super(ProjectForm, self).clean()
-        label = cleaned_data['label']
+        uid = cleaned_data['uid']
 
-        project = Project.objects.filter(label=label).exclude(id=self.instance.id).first()
-        ascii_only(label)
+        project = Project.objects.filter(uid=uid).exclude(id=self.instance.id).first()
+        # Validate uid only has ascii characters.
+        ascii_only(uid)
 
         if project:
-            raise forms.ValidationError("Label already exists. ")
-        return label
-
+            raise forms.ValidationError("Project with this uid already exists.")
+        return uid
 
     def clean(self):
         cleaned_data = super(ProjectForm, self).clean()
@@ -183,12 +182,11 @@ class ProjectForm(forms.ModelForm):
 
     def custom_save(self, owner):
         """Used to save on creation using custom function."""
-
         name = self.cleaned_data["name"]
         text = self.cleaned_data["text"]
         stream = self.cleaned_data["image"]
         label = self.cleaned_data['label']
-        #print(label)
+
         project = auth.create_project(user=owner, label=label, name=name, text=text, stream=stream)
         project.save()
 

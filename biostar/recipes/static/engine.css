@@ -451,12 +451,10 @@ figure {
 }
 
 #clipboard{
-
     position: absolute; /* or absolute */
-    top: 87px;
     text-align: center;
     z-index: 100;
-    width: 80%;
+    width: 79%;
 }
 
 .popover {

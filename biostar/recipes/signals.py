@@ -23,6 +23,7 @@ def join(*args):
 def update_access(sender, instance, created, raw, update_fields, **kwargs):
     # Give the owner WRITE ACCESS if they do not have it.
     entry = Access.objects.filter(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
+
     if entry.first() is None:
         entry = Access.objects.create(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
 

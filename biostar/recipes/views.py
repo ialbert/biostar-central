@@ -340,6 +340,7 @@ def project_create(request):
     """
     user = request.user
     project = auth.create_project(user=user, text="Project information goes here. ")
+
     messages.success(request, "Welcome to your new project.")
     return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
@@ -597,6 +598,7 @@ def recipe_create(request, uid):
     recipe = auth.create_analysis(project=project, name="My New Recipe",
                                   template="echo 'Hello World!'")
     url = reverse("recipe_view", kwargs=dict(uid=recipe.uid))
+    messages.success(request, "Welcome to your new recipe")
     return redirect(url)
 
 

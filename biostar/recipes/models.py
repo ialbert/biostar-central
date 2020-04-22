@@ -244,7 +244,6 @@ class Project(models.Model):
     def get_name(self):
         if self.deleted:
             return f'Deleted: {self.name}'
-
         return self.name
 
 
