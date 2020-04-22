@@ -547,7 +547,6 @@ class Analysis(models.Model):
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
 
-
         self.project.set_counts(save=True)
         super(Analysis, self).save(*args, **kwargs)
 

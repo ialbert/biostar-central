@@ -398,6 +398,14 @@ class RecipeForm(forms.ModelForm):
         check_size(fobj=image)
         return image
 
+    def clean_uid(self):
+
+        uid = self.cleaned_data['uid']
+        # Ensure the correct uid gets set when given en empty string.
+        if not uid:
+            uid = getattr(self.instance, 'uid')
+        return uid
+
     def clean_json_text(self):
         cleaned_data = super(RecipeForm, self).clean()
         json_text = cleaned_data.get('json_text')
