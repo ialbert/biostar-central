@@ -401,7 +401,7 @@ class RecipeForm(forms.ModelForm):
     def clean_uid(self):
 
         uid = self.cleaned_data['uid']
-        # Ensure the correct uid gets set when given en empty string.
+        # Ensure the correct uid gets set when given empty string.
         if not uid:
             uid = getattr(self.instance, 'uid')
         return uid
