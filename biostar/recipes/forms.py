@@ -387,7 +387,8 @@ class RecipeForm(forms.ModelForm):
 
         # Fill with default values.
         for field in self.Meta.fields:
-            cleaned_data[field] = cleaned_data.get(field) or getattr(self.instance, field)
+            if cleaned_data.get(field) is None:
+                cleaned_data[field] = getattr(self.instance, field)
 
         return cleaned_data
 
@@ -396,6 +397,14 @@ class RecipeForm(forms.ModelForm):
         image = cleaned_data.get('image')
         check_size(fobj=image)
         return image
+
+    def clean_uid(self):
+
+        uid = self.cleaned_data['uid']
+        # Ensure the correct uid gets set when given empty string.
+        if not uid:
+            uid = getattr(self.instance, 'uid')
+        return uid
 
     def clean_json_text(self):
         cleaned_data = super(RecipeForm, self).clean()

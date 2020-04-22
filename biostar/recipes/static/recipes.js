@@ -220,7 +220,9 @@ function bind_events() {
     // Forms with ajax submissions.
     $(":submit.ajax").click(function (event) {
         event.preventDefault();
-        submit_form($(this))
+        submit_form($(this));
+        // Update the preview on form submit.
+        update_preview();
     });
 
 }
