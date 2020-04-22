@@ -31,34 +31,32 @@
         </div>
     </div>
 
-    <div class="ui large vertical {% job_color job %} segment">
+    <div class="ui large vertical center aligned {% job_color job %} segment">
 
-        <div class="ui six buttons">
             <a class="ui button" href="{% url 'recipe_view' job.analysis.uid %}#info">
-                <i class="setting icon"></i> <span class="fitme">Recipe</span>
+                <i class="setting icon"></i> <span class="fitme">Recipe View</span>
             </a>
             <a class="ui button" href="{% url "job_rerun" job.uid %}">
                 <i class="redo icon"></i> <span class="fitme">Rerun Recipe</span>
             </a>
 
             <a class="ui button" href="{% url "job_edit" job.uid %}">
-                <i class="edit icon"></i> <span class="fitme">Edit Results</span>
+                <i class="edit icon"></i> <span class="fitme">Edit Result</span>
             </a>
 
-
+            <!--
             <a class="ui copy button">
-                <i class="copy icon"></i>Copy
+                <i class="copy icon"></i>Copy Result
             </a>
+            -->
 
             <a class="ui button" href="{% url "job_delete" job.uid %}">
                 {% if job.deleted %}
                     <i class="undo icon"></i> <span class="fitme">Restore</span>
                 {% else %}
-                    <i class="trash icon"></i> <span class="fitme">Delete</span>
+                    <i class="trash icon"></i> <span class="fitme">Delete Result</span>
                 {% endif %}
             </a>
-
-        </div>
 
     </div>
 </div>
