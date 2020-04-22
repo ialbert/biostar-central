@@ -254,9 +254,6 @@
     $(document).ready(function () {
         var textarea = $('#interface_editor');
         var editor = init_codemirror(textarea, 400);
-        editor.on('keyup', function () {
-            update_preview();
-        });
 
         $(".card").each(function (index) {
             var curr = $(this);
