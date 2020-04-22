@@ -131,3 +131,6 @@ next:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
 
+deploy:
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	(cd conf/ansible && make recipes deploy)
