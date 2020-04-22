@@ -36,6 +36,10 @@
                     <i class="info circle icon"></i> Description
                 </a>
 
+                <a class="item" href="{% url 'recipe_download' recipe.uid %}">
+                    <i class="download icon"></i> Download
+                </a>
+
                 <a class="item click" href="#" data-value="#results">
                     <i class="settings icon"></i> Results ({{ recipe.job_count }})
                 </a>
@@ -44,17 +48,14 @@
                     <i class="setting icon"></i> Execute
                 </a>
 
-                <a class="item click" href="#" data-value="#code">
-                    <i class="code icon"></i> Code
-                </a>
-
                 <a class="item click" href="#" data-value="#interface">
                     <i class="tv icon"></i> Interface
                 </a>
 
-                <a class="item" href="{% url 'recipe_download' recipe.uid %}">
-                    <i class="download icon"></i> Download
+                <a class="item click" href="#" data-value="#code">
+                    <i class="code icon"></i> Code
                 </a>
+
 
             </div>
 
@@ -64,12 +65,12 @@
 
             {# Info panel. Loads dynamically. #}
             <div class="ui basic large segment collapse" id="info">
-               {% include "parts/recipe_info.html" %}
+                {% include "parts/recipe_info.html" %}
             </div>
 
             {# Code panel. #}
             <div class="ui basic large segment collapse" id="code">
-                 {% include "parts/recipe_code.html" %}
+                {% include "parts/recipe_code.html" %}
             </div>
 
             {# Interface panel. #}

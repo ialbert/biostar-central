@@ -139,10 +139,9 @@ config:
 install:
 	cd conf/ansible && make install
 
-deploy:
-	cd conf/ansible && make deploy
-
 remote_transfer:
 	cd conf/ansible && make transfer
 
-
+deploy:
+	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	(cd conf/ansible && make recipes deploy)

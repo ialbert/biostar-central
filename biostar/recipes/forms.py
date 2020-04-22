@@ -385,7 +385,8 @@ class RecipeForm(forms.ModelForm):
 
         # Fill with default values.
         for field in self.Meta.fields:
-            cleaned_data[field] = cleaned_data.get(field) or getattr(self.instance, field)
+            if cleaned_data.get(field) is None:
+                cleaned_data[field] = getattr(self.instance, field)
 
         return cleaned_data
 

@@ -33,6 +33,7 @@ def strip_json(json_text):
     Strip settings parameter in json_text to only contain execute options
     Deletes the 'settings' parameter if there are no execute options.
     """
+
     try:
         local_dict = toml.loads(json_text)
     except Exception as exep:
@@ -53,6 +54,7 @@ def strip_json(json_text):
         del local_dict['settings']
 
     new_json = toml.dumps(local_dict)
+
     return new_json
 
 
