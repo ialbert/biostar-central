@@ -43,10 +43,10 @@
       register: remote_copy
 
     - debug:
-        msg: "Remote target destination: {{ remote_old }} Source file: {{ local_old }} {{local_copy}}. "
+        msg: "Remote target destination: {{ remote_old }} Source file: {{ local_old }}. "
       when: local_copy.stat.exists == False
 
-    - name: Source file required to exist in local machine ( skipped if true ) .
+    - name: Source file required to exist in local machine.
       fail:
         msg: "The source file {{ local_old }} does not exist."
       when: (local_copy.stat.exists == False) and (local_old |length > 0)
@@ -64,7 +64,7 @@
         - python install
         - server migrate
 
-    - name: Transfer over data
+    - name: Migrate over data from old to new.
       shell: ls
       notify:
         - data migrate
