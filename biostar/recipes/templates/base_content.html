@@ -16,17 +16,18 @@
     </a>
 
     <span id="clipboard"></span>
+
     <div style="float: right">
-    {% block ribbon %}
-        {% if user.is_authenticated %}
-            <a class="ui orange label" href="{% url 'recipe_create' project.uid %}">
-                <i class="plus icon"></i>New Recipe
-            </a>
-        {% endif %}
-    {% endblock %}
+        {% block ribbon %}
+            {% if user.is_authenticated %}
+                <a class="ui orange label" href="{% url 'recipe_create' project.uid %}">
+                    <i class="plus icon"></i>New Recipe
+                </a>
+            {% endif %}
+        {% endblock %}
     </div>
 
-    <div class="ui top attached large tabular  menu">
+    <div class="ui large secondary pointing  menu">
 
 
         <a class="{% activate 'info' active %}  item" href="{% url 'project_view' project.uid %}">
@@ -53,13 +54,12 @@
 
     </div>
 
-    
-        <div class="ui bottom attached large segment">
-            {% block content %}
-                Content
-            {% endblock %}
 
-        </div>
+    {% block content %}
+        Content
+    {% endblock %}
+
+
 
 
 

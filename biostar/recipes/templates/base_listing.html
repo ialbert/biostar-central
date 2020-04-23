@@ -23,7 +23,7 @@
             </a>
         {% endif %}
 
-    <div class="ui top attached large tabular  menu">
+    <div class="ui large secondary pointing  menu">
 
         <a class="ui {% activate active "home" %} item" href="{% url 'index' %}">
             <i class="home icon"></i>Home
@@ -57,12 +57,9 @@
 
     </div>
 
-    <div class="ui bottom attached large segment">
-
 
         {% block content %}
 
         {% endblock %}
-    </div>
 
 {% endblock %}
