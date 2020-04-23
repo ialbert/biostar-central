@@ -42,12 +42,14 @@ recipes:
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
 	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
+	$(eval HOST := hosts/www.bioinformatics.recipes)
 
 forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
+	$(eval HOST := hosts/test.biostars.org)
 
 echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -130,6 +132,15 @@ transfer:
 next:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python manage.py job --next --settings ${DJANGO_SETTINGS_MODULE}
+
+config:
+	cd conf/ansible && make config
+
+install:
+	cd conf/ansible && make install
+
+remote_transfer:
+	cd conf/ansible && make transfer
 
 deploy:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}

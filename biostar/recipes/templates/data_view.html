@@ -50,9 +50,13 @@
             <a class="ui copy button">
                 <i class="copy icon"></i>Copy Data
             </a>
-            <a class="ui button tablet" href="{% url 'data_delete' data.uid %}">
-                <i class="trash icon"></i> <span class="tablet">Delete Data</span>
-            </a>
+               <a class="ui button tablet" href="{% url 'data_delete' data.uid %}">
+                    {% if project.deleted %}
+                        <i class="trash icon"></i> <span class="tablet">Restore Data</span>
+                    {% else %}
+                        <i class="trash icon"></i> <span class="tablet">Delete Data</span>
+                    {% endif %}
+                </a>
 
 
 

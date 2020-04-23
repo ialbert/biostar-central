@@ -93,6 +93,7 @@ def ajax_edit(request, id):
 
     if form.is_valid():
         form.save()
+        #print(Analysis.objects.filter(id=id).first().json_text)
         return ajax_success(msg=f"Recipe saved.")
     else:
         message = str(form.errors)

@@ -23,15 +23,10 @@
         - reload supervisor
         - restart nginx
 
-    - name: Install python requirements
-      shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/requirements.txt"
-      args:
-        executable: /bin/bash
-        chdir: "{{ engine_dir }}"
-
     - name: Restart servers
       shell: ls
       notify:
+        - python install
         - server migrate
         - reload supervisor
         - restart nginx

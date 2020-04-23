@@ -13,7 +13,6 @@
 
 {% block content %}
 
-
     <div class="ui divided items">
         {% for project in projects %}
             <div class="item">
@@ -32,15 +31,12 @@
 
                         <span class="ui label">{{ project.get_privacy_display }}</span>
 
-                        <a href="{% url 'data_listing' project.label %}">
-                            <i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
+                        <a href="{% url 'data_list' project.uid %}"><i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
 
-                        <a href="{% url 'recipe_listing' project.label %}">
-                            <i class="setting icon"></i>{{ project.recipes_count }}
+                        <a href="{% url 'recipe_list' project.uid %}"><i class="setting icon"></i>{{ project.recipes_count }}
                             recipe{{ project.recipes_count|pluralize }}</a>&bull;
 
-                        <a href="{% url 'job_listing' project.label %}">
-                            <i class="bar chart icon"></i>{{ project.jobs_count }}
+                        <a href="{% url 'job_list' project.uid %}"><i class="bar chart icon"></i>{{ project.jobs_count }}
                             result{{ project.jobs_count|pluralize }}</a>
 
                         {% created_by date=project.lastedit_date user=project.lastedit_user %}

@@ -113,16 +113,15 @@
         - site_uwsgi.ini
 
     - name: Install python requirements
-      shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
-      args:
-        executable: /bin/bash
-        chdir: "{{ engine_dir }}"
+      shell: ls
+      notify:
+        - python install
 
     - name: Install conda requirements
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
              conda activate {{conda_env}}  &&
              conda config --add channels conda-forge &&
-             conda install -y --file conf/conda_requirements.txt"
+             conda install -y --file conf/conda-packages.txt"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"

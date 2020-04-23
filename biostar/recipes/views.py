@@ -340,6 +340,7 @@ def project_create(request):
     """
     user = request.user
     project = auth.create_project(user=user, text="Project information goes here. ")
+
     messages.success(request, "Welcome to your new project.")
     return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
