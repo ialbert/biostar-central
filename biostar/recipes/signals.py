@@ -100,11 +100,11 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
         # Create a starter recipe if none exist
         if not instance.analysis_set.exists():
             initial_recipe(project=instance)
-
     # Cascade deleted states to recipe, data, and results.
-    Analysis.objects.filter(project__id=instance.pk).update(deleted=True)
-    Data.objects.filter(project__id=instance.pk).update(deleted=True)
-    Job.objects.filter(project__id=instance.pk).update(deleted=True)
+    if instance.deleted:
+        Analysis.objects.filter(project__id=instance.pk).update(deleted=True)
+        Data.objects.filter(project__id=instance.pk).update(deleted=True)
+        Job.objects.filter(project__id=instance.pk).update(deleted=True)
 
 
 @receiver(post_save, sender=Analysis)
