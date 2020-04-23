@@ -5,14 +5,13 @@
 {% block headtitle %}
     {{ data.name }}
 {% endblock %}
-{% block ribbon %}
-    {% if user.is_authenticated %}
 
-        <a class="ui right ribbon obj label" href="{% url 'data_upload' project.uid %}">
-           <i class="plus icon"></i> New Data </a>
-    {% endif %}
+{% block ribbon %}
+    {% include 'widgets/upload_button.html' %}
 {% endblock %}
+
 {% block content %}
+
 <div class="data" data-value="{{ data.uid }}">
 
     <div class="ui large vertical segment">

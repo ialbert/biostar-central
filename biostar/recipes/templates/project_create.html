@@ -1,4 +1,4 @@
-{% extends "engine_base.html" %}
+{% extends "base_template.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
@@ -18,7 +18,6 @@
     </a>
 
 
-    {% show_messages messages %}
     <div class="ui top attached large tabular  menu">
 
         <a class="ui item" href="{% url 'project_list_public' %}">

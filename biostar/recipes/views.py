@@ -594,9 +594,9 @@ def recipe_view(request, uid):
 def recipe_create(request, uid):
     # Get the project
     project = Project.objects.filter(uid=uid).first()
-    recipe = auth.create_analysis(project=project, name="My New Recipe",
-                                  template="echo 'Hello World!'")
+    recipe = auth.create_analysis(project=project, name="My New Recipe", template="echo 'Hello World!'")
     url = reverse("recipe_view", kwargs=dict(uid=recipe.uid))
+    messages.success(request, "Welcome to your new recipe.")
     return redirect(url)
 
 

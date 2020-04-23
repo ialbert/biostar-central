@@ -12,7 +12,7 @@
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
-    font-family: "proxima-nova", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-family: "Lato", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     text-rendering: optimizeLegibility;
 }
 
@@ -453,7 +453,6 @@ figure {
 #clipboard{
 
     position: absolute; /* or absolute */
-    top: 87px;
     text-align: center;
     z-index: 100;
     width: 80%;

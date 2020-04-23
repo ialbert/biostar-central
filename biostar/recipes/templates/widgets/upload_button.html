@@ -1,0 +1,4 @@
+{% if user.is_authenticated %}
+    <a class="ui blue label" href="{% url 'data_upload' project.uid %}">
+       <i class="plus icon"></i> New Data </a>
+{% endif %}
