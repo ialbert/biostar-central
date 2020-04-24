@@ -6,13 +6,22 @@
     Base listing
 {% endblock %}
 
-<div class="ui large header">
+
     {% block title %}
         Listing
     {% endblock %}
-</div>
 
 {% block body %}
+        {% if user.is_authenticated %}
+
+            <a class="ui label" href="{% url 'project_list_public' %}">
+                <i class="database icon"></i> All Projects
+            </a>
+
+            <a class="ui green label" href="{% url 'project_create' %}" style="float:right;">
+                <i class="plus icon"></i>New Project
+            </a>
+        {% endif %}
 
     <div class="ui top attached large tabular  menu">
 
@@ -50,16 +59,6 @@
 
     <div class="ui bottom attached large segment">
 
-        {% if user.is_authenticated %}
-
-            <a class="ui left ribbon projects label" href="{% url 'project_list_public' %}">
-                <i class="database icon"></i> All Projects
-            </a>
-
-            <a class="ui right ribbon obj label" href="{% url 'project_create' %}">
-                <i class="plus icon"></i>New Project
-            </a>
-        {% endif %}
 
         {% block content %}
 

@@ -23,6 +23,7 @@ def join(*args):
 def update_access(sender, instance, created, raw, update_fields, **kwargs):
     # Give the owner WRITE ACCESS if they do not have it.
     entry = Access.objects.filter(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
+
     if entry.first() is None:
         entry = Access.objects.create(user=instance.owner, project=instance, access=Access.WRITE_ACCESS)
 
@@ -32,6 +33,7 @@ def strip_json(json_text):
     Strip settings parameter in json_text to only contain execute options
     Deletes the 'settings' parameter if there are no execute options.
     """
+
     try:
         local_dict = toml.loads(json_text)
     except Exception as exep:
@@ -52,6 +54,7 @@ def strip_json(json_text):
         del local_dict['settings']
 
     new_json = toml.dumps(local_dict)
+
     return new_json
 
 
@@ -73,7 +76,7 @@ def initial_recipe(project):
 
     # Create starter recipe.
     recipe = auth.create_analysis(project=project, json_text=json_text, template=template,
-                                  name=name, text=text, stream=image_stream)
+                                  name=name, text=text, stream=image_stream, security=Analysis.AUTHORIZED)
     return recipe
 
 
@@ -82,8 +85,7 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
     if created:
         # Generate friendly uid
-        uid = auth.generate_uuid(prefix="project", suffix=instance.id)
-        uid = auth.new_uid(obj=instance, objtype=Project, default=uid)
+        uid = auth.new_uid(obj=instance, objtype=Project, prefix="project")
         instance.uid = uid
         instance.label = uid
         # Set the project directory
@@ -97,6 +99,11 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
         # Create a starter recipe if none exist
         if not instance.analysis_set.exists():
             initial_recipe(project=instance)
+    # Cascade deleted states to recipe, data, and results.
+    if instance.deleted:
+        Analysis.objects.filter(project__id=instance.pk).update(deleted=True)
+        Data.objects.filter(project__id=instance.pk).update(deleted=True)
+        Job.objects.filter(project__id=instance.pk).update(deleted=True)
 
 
 @receiver(post_save, sender=Analysis)
@@ -104,8 +111,7 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
     if created:
         # Generate friendly uid
-        uid = auth.generate_uuid(prefix="recipe", suffix=instance.id)
-        uid = auth.new_uid(obj=instance, objtype=Analysis, default=uid)
+        uid = auth.new_uid(obj=instance, objtype=Analysis, prefix="recipe")
         instance.uid = uid
 
         Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
@@ -135,8 +141,7 @@ def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
 
     if created:
         # Generate friendly uid
-        uid = auth.generate_uuid(prefix="job", suffix=instance.id)
-        uid = auth.new_uid(obj=instance, objtype=Job, default=uid)
+        uid = auth.new_uid(obj=instance, objtype=Job, prefix="job")
         instance.uid = uid
         # Generate the path based on the
         instance.path = join(settings.MEDIA_ROOT, "jobs", f"{instance.uid}")
@@ -159,8 +164,7 @@ def finalize_data(sender, instance, created, raw, update_fields, **kwargs):
 
     if created:
         # Generate friendly uid
-        uid = auth.generate_uuid(prefix="data", suffix=instance.id)
-        uid = auth.new_uid(obj=instance, objtype=Data, default=uid)
+        uid = auth.new_uid(obj=instance, objtype=Data, prefix="data")
         instance.uid = uid
         
         # Set the data directory with the recently created uid

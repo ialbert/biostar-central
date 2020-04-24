@@ -69,11 +69,11 @@ def recycle_bin(request):
         projects = auth.get_project_list(user=user, include_deleted=True)
         query_dict = dict(project__in=projects, owner=user)
 
-    projects = projects.filter(deleted=True).order_by("date")
-    data = Data.objects.filter(**query_dict, deleted=True).order_by("date")
-    recipes = Analysis.objects.filter(**query_dict, deleted=True).order_by("date")
+    projects = projects.filter(deleted=True).order_by("-date")
+    data = Data.objects.filter(**query_dict, deleted=True).order_by("-date")
+    recipes = Analysis.objects.filter(**query_dict, deleted=True).order_by("-date")
+    recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
     jobs = Job.objects.filter(**query_dict, deleted=True).order_by("date")
-
     context = dict(jobs=jobs, data=data, recipes=recipes, projects=projects, active="bin")
 
     return render(request, 'recycle_bin.html', context=context)
@@ -236,29 +236,6 @@ def get_counts(project, user=None):
     )
 
 
-@exists(otype=Project)
-def recipe_listing(request, label):
-    project = Project.objects.filter(label=label).first()
-    return recipe_list(request, uid=project.uid)
-
-
-@exists(otype=Project)
-def project_viewing(request, label):
-    project = Project.objects.filter(label=label).first()
-    return project_view(request=request, uid=project.uid)
-
-
-@exists(otype=Project)
-def job_listing(request, label):
-    project = Project.objects.filter(label=label).first()
-    return job_list(request=request, uid=project.uid)
-
-
-@exists(otype=Project)
-def data_listing(request, label):
-    project = Project.objects.filter(label=label).first()
-    return data_list(request, uid=project.uid)
-
 
 @read_access(type=Project)
 def project_view(request, uid, template_name="project_info.html", active='info', show_summary=None,
@@ -340,6 +317,7 @@ def project_create(request):
     """
     user = request.user
     project = auth.create_project(user=user, text="Project information goes here. ")
+
     messages.success(request, "Welcome to your new project.")
     return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
 
@@ -594,9 +572,9 @@ def recipe_view(request, uid):
 def recipe_create(request, uid):
     # Get the project
     project = Project.objects.filter(uid=uid).first()
-    recipe = auth.create_analysis(project=project, name="My New Recipe",
-                                  template="echo 'Hello World!'")
+    recipe = auth.create_analysis(project=project, name="My New Recipe", template="echo 'Hello World!'")
     url = reverse("recipe_view", kwargs=dict(uid=recipe.uid))
+    messages.success(request, "Welcome to your new recipe.")
     return redirect(url)
 
 

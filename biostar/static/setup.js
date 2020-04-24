@@ -87,9 +87,9 @@ function popover_message(elem, message, cls, timeout) {
 function popup_message(elem, msg, cls, timeout) {
     timeout = typeof timeout !== 'undefined' ? timeout : 1000;
     var text = '<div></div>'
-    var tag = $(text).insertBefore(elem)
-    tag.addClass('popover ' + cls)
-    tag.text(msg)
+    var tag = $(text).css('z-index', '1000').insertBefore(elem);
+    tag.addClass('popover ' + cls);
+    tag.text(msg);
     tag.delay(timeout).fadeOut(500, function () {
         $(this).remove()
     });

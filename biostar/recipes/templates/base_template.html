@@ -54,15 +54,13 @@
     {% endblock %}
 
     <div class="ui bottom attached segment">
-
-        <div class="ui center aligned header">
+        <div id="search-results"></div>
+        <div class="ui center aligned header" style="margin-top: 0px">
             {% block title %}
-                Title.
             {% endblock %}
         </div>
 
-        <div id="search-results"></div>
-
+        {% show_messages messages %}
         {% block body %}
             Body
         {% endblock %}

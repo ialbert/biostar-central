@@ -20,6 +20,7 @@ logger = logging.getLogger('engine')
 # Ensure that the table of directory exists.
 os.makedirs(TOC_ROOT, exist_ok=True)
 
+
 @override_settings(MEDIA_ROOT=TEST_ROOT, TOC_ROOT=TOC_ROOT)
 class ProjectViewTest(TestCase):
 
@@ -40,20 +41,10 @@ class ProjectViewTest(TestCase):
     def test_create_view(self):
         "Test project create view with POST request"
 
-        path = os.path.join(TEST_DIR, "data", "image.png")
-        image_stream = open(path, "rb")
-
-        # Create fake request
-        data = {'name': 'My project', 'uid': 'example', "summary": "summary", "rank": 100,
-                'text': 'tested', "privacy": models.Project.PRIVATE, "image": image_stream,
-                "label":"foo"}
-
-        request = fake_request(url=reverse('project_create'), data=data, user=self.owner)
+        request = fake_request(url=reverse('project_create'), data={}, user=self.owner)
         response = views.project_create(request)
 
-        image_stream.close()
-
-        self.process_response(response=response, data=data, save=True)
+        self.process_response(response=response, data={}, save=True)
 
     @patch('biostar.recipes.models.Project.save', MagicMock(name="save"))
     def test_project_delete(self):

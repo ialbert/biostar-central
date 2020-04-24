@@ -255,8 +255,6 @@
         var textarea = $('#interface_editor');
         var editor = init_codemirror(textarea, 400);
 
-        update_preview();
-
         $(".card").each(function (index) {
             var curr = $(this);
             var toml = curr.find(".toml_code").text();

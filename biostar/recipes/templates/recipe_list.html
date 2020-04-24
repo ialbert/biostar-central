@@ -9,11 +9,9 @@
 
     <div class="ui bottom attached segment">
 
-        {% show_messages messages %}
-
         {% block content %}
 
-            <div class="ui large vertical segment">
+
                 <div class="ui divided link items">
                     {% for recipe in recipe_list %}
                         {% recipe_details recipe %}
@@ -30,5 +28,5 @@
             </div>
         {% endblock %}
 
-    </div>
+
 {% endblock %}

@@ -94,11 +94,6 @@ class SiteNavigation(TestCase):
 
         ]
 
-        same_label_urls =[
-            reverse('data_listing', kwargs=dict(label=self.project.label)),
-            reverse('recipe_listing', kwargs=dict(label=self.project.label)),
-            reverse('job_listing', kwargs=dict(label=self.project.label)),
-        ]
 
         urls = [
             reverse('index'),
@@ -132,7 +127,6 @@ class SiteNavigation(TestCase):
         self.visit_urls(urls=api_urls, codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
-        self.visit_urls(urls=same_label_urls, change_label=False, codes=[200])
 
 
     def test_page_redirect(self):
