@@ -141,7 +141,7 @@ def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
 
     if created:
         # Generate friendly uid
-        uid = auth.new_uid(obj=instance, objtype=Job, default=uid, prefix="job")
+        uid = auth.new_uid(obj=instance, objtype=Job, prefix="job")
         instance.uid = uid
         # Generate the path based on the
         instance.path = join(settings.MEDIA_ROOT, "jobs", f"{instance.uid}")
