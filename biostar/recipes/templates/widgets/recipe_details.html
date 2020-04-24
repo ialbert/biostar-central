@@ -38,10 +38,15 @@
             </a>
             <div class="or"></div>
             <a class="ui right button " href="{% url 'recipe_delete' recipe.uid %}">
-                <i class="trash icon"></i>Delete
+                {% if recipe.deleted %}
+                    <i class="undo icon"></i>Restore
+                {% else %}
+                    <i class="trash icon"></i>Delete
+                {% endif %}
             </a>
 
         </div>
 
     {% endif %}
 </div>
+

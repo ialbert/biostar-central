@@ -363,6 +363,7 @@ def ajax_paste(request):
     return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
 
 
+@ensure_csrf_cookie
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_clipboard(request):
     """
