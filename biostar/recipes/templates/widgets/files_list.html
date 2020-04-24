@@ -1,14 +1,14 @@
 {% load engine_tags %}
 
 {% if paths %}
+        {% if not show_all %}
 
+                <a class="ui label" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</a>
+
+        {% endif %}
     <div class="ui relaxed divided large list">
 
-        {% if not show_all %}
-            <div class="ui compact basic segment">
-                <div class="ui small button" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</div>
-            </div>
-        {% endif %}
+
 
         {% for  real_path, rel_path, dir_names, last_name, tstamp, size, is_image, dir_name, is_dir in paths %}
 

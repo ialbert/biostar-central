@@ -5,28 +5,22 @@
 {% endblock %}
 
 
-{% block contain %}
-
-    <div class="ui bottom attached segment">
-
-        {% block content %}
+{% block content %}
 
 
-                <div class="ui divided link items">
-                    {% for recipe in recipe_list %}
-                        {% recipe_details recipe %}
-                    {% empty %}
-                        <div class="item">
-                            <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
-                                contain
-                                recipes.
-                            </div>
-                        </div>
-                    {% endfor %}
+
+        <div class="ui divided link items">
+            {% for recipe in recipe_list %}
+                {% recipe_details recipe %}
+            {% empty %}
+                <div class="item">
+                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
+                        contain
+                        recipes.
+                    </div>
                 </div>
-
-            </div>
-        {% endblock %}
+            {% endfor %}
+        </div>
 
 
 {% endblock %}

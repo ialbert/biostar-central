@@ -54,12 +54,14 @@
 
     </div>
 
+    {% block segment %}
 
-    {% block content %}
-        Content
-    {% endblock %}
-
-
+    <div class="ui basic large segment">
+        {% block content %}
+            Content
+        {% endblock %}
+    </div>
+{% endblock %}
 
 
 
