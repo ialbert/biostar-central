@@ -703,13 +703,14 @@ def create_path(fname, data):
     return path
 
 
-def new_uid(obj, objtype, default=None):
+def new_uid(obj, objtype, default=None, prefix=""):
     """
     Ensure an objects uid is unique.
     """
-    uid = default or obj.uid
+    uid = default or generate_uuid(prefix=prefix, suffix=obj.id)
+
     while objtype.objects.filter(uid=uid).exclude(uid=obj.uid).exists():
-        uid = generate_uuid(prefix="data", suffix=f"{get_uuid(3)}")
+        uid = generate_uuid(prefix=prefix, suffix=f"{get_uuid(3)}")
     return uid
 
 
@@ -849,7 +850,7 @@ def create_data(project, user=None, stream=None, path='', name='', text='', type
                                project=project, type=dtype, text=text, uid=uid)
 
     # Set the uid.
-    uid = new_uid(obj=data, objtype=Data, default=uid)
+    uid = new_uid(obj=data, objtype=Data, default=uid, prefix="data")
     data.uid = uid
 
     # Write this stream into a path then link that into the data.
