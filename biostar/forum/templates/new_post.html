@@ -73,7 +73,7 @@
 
                             <div id="wmd-button-bar"></div>
                             <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete"
-                                      rows="17">{{ content }}</textarea>
+                                      rows="17">{% if content %}{{ content }}{% else %}{% include 'markdown_template.md' %}{% endif %}</textarea>
 
                         </div>
                     </div>

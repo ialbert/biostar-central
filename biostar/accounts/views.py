@@ -151,7 +151,7 @@ def user_profile(request, uid):
     show_info = is_mod or (profile.is_valid and not profile.low_rep)
 
     context = dict(target=profile.user, active=active, debugging=settings.DEBUG, show_info=show_info,
-                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate)
+                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, tab="profile")
 
     return render(request, "accounts/user_profile.html", context)
 
@@ -194,7 +194,7 @@ def user_signup(request):
         form = forms.SignUpWithCaptcha()
 
     context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY,
-                   social_login=SocialApp.objects.all())
+                   social_login=SocialApp.objects.all(), tab='signup')
     return render(request, 'accounts/signup.html', context=context)
 
 
@@ -264,7 +264,7 @@ def user_login(request):
 
         messages.error(request, mark_safe(form.errors))
 
-    context = dict(form=form, active="login", social_login=SocialApp.objects.all())
+    context = dict(form=form, tab="login", social_login=SocialApp.objects.all())
     return render(request, "accounts/login.html", context=context)
 
 
