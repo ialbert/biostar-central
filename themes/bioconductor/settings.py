@@ -60,7 +60,7 @@ AWARDS_FEED_COUNT = 5
 REPLIES_FEED_COUNT = 5
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = "themes.bioconductor.wsgi.application"
+WSGI_APPLICATION = "themes.bioconductor.conf.wsgi.application"
 
 
 CLASSIFY_SPAM = False
