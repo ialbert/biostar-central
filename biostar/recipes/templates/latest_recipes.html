@@ -7,10 +7,11 @@
 {% endblock %}
 
 {% block title %}
-    <i class="list icon"></i> Latest recipes
+    <i class="setting listing icon"></i> Latest recipes
 {% endblock %}
 
 {% block content %}
+
 <div class="ui divided link items">
     {% for recipe in recipes %}
         {% recipe_details recipe %}
@@ -22,4 +23,5 @@
 
     {% endfor %}
 </div>
+
 {% endblock %}
