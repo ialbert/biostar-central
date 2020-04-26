@@ -12,6 +12,9 @@ body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.answer-text{
+    display: none ;
+}
 .wmd-button > span {
     background-image: url("/static/pagedown/bar-button.jpg") !important;
 }

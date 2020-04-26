@@ -9,10 +9,10 @@
 
   tasks:
     - include_vars: files/vars.yml
-    #- name: Backup servers
-    #  shell: ls
-    #  notify:
-    #    - server backup
+    - name: Backup servers
+      shell: ls
+      notify:
+        - server backup
     - name: Update the biostar-engine
       git:
         repo: "{{ engine_git }}"

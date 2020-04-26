@@ -66,4 +66,6 @@ uwsgi: init
 	uwsgi --ini ${UWSGI_INI}
 
 deploy:
-	ansible-playbook -i ../conf/ansible/${HOST} ../conf/ansible/server-deploy.yml --ask-become-pass --extra-vars "restart=True start_biocond=True"  -v
+	$(eval RUNNER := forum)
+	$(eval HOST := hosts/themes/supportupgrade.bioconductor.org)
+	(cd ../../conf && make deploy)
