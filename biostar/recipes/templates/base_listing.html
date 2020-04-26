@@ -7,14 +7,15 @@
 {% endblock %}
 
 
-    {% block title %}
-        Listing
-    {% endblock %}
+{% block title %}
+    Listing
+{% endblock %}
+
 
 {% block body %}
         {% if user.is_authenticated %}
 
-            <a class="ui label" href="{% url 'project_list_public' %}">
+            <a class="ui label" href="{% url 'project_list' %}">
                 <i class="database icon"></i> All Projects
             </a>
 
@@ -30,7 +31,7 @@
         </a>
 
         <a class="ui   {% activate active "latest_recipes" %} item" href="{% url 'latest_recipes' %}">
-            <i class=" list icon"></i>Latest Recipes
+            <i class=" settings icon"></i>Latest Recipes
         </a>
 
         <a class="ui {% activate active "public" %}  item" href="{% url 'project_list_public' %}">

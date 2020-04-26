@@ -4,7 +4,7 @@
 
 
 {% block title %}
-    <img class="ui avatar image" src="{% img project %}"/> {{ project.name }}
+   <img class="ui avatar viewing image" src="{% img project %}"/>{{ project.name }}
 {% endblock %}
 
 {% block body %}
@@ -20,7 +20,7 @@
     <div style="float: right">
         {% block ribbon %}
             {% if user.is_authenticated %}
-                <a class="ui orange label" href="{% url 'recipe_create' project.uid %}">
+                <a class="ui  label" href="{% url 'recipe_create' project.uid %}">
                     <i class="plus icon"></i>New Recipe
                 </a>
             {% endif %}
@@ -53,7 +53,7 @@
         {% endif %}
 
     </div>
-
+    {% csrf_token %}
     {% block segment %}
 
     <div class="ui basic large segment">
