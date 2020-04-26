@@ -1,11 +1,13 @@
 
-RUNNER := engine
-
 # Absoulute path to the old biostar database on local machine
 LOCAL_OLD_DB := data/old-biostar-database.sql.gz
 
 # Github repository to use in the playbooks.
 REPO := https://github.com/ialbert/biostar-central.git
+
+bioconductor:
+	$(eval RUNNER:=forum)
+	$(eval HOST := hosts/themes/supportupgrade.bioconductor.org)
 
 config:
 	ansible-playbook -i ${HOST} server-config.yml -v  --extra-vars "repo=${REPO} runner=${RUNNER}"

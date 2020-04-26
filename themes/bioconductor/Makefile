@@ -66,6 +66,4 @@ uwsgi: init
 	uwsgi --ini ${UWSGI_INI}
 
 deploy:
-	$(eval RUNNER := forum)
-	$(eval HOST := hosts/themes/supportupgrade.bioconductor.org)
-	(cd ../../conf && make deploy)
+	(cd ../../conf/ansible/ && make bioconductor deploy)
