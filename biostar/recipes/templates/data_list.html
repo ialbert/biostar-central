@@ -24,6 +24,8 @@
                                 {% if job.deleted %}Deleted: {% endif %}
                                 <i class="file icon"></i>{{ data.name }}
                             </a>
+                         <div class="meta">{{ data.summary|safe }}</div>
+
                             <div class="meta">
                                 <div class="ui small labels">
                                     {% size_label data %}
@@ -31,7 +33,6 @@
                                     {% created_by date=data.lastedit_date user=data.owner %}
                                 </div>
                             </div>
-                            <div class="meta">{{ data.summary|safe }}</div>
 
                         </div>
 
@@ -60,7 +61,6 @@
                 {% endfor %}
 
             </div>
-
 
 
 

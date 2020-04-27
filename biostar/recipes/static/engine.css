@@ -16,6 +16,10 @@ body {
     text-rendering: optimizeLegibility;
 }
 
+
+#top .header{
+    margin-top: 0px;
+}
 #project_view h1 {
  font-size: 1.28571429rem;
 }
@@ -173,8 +177,38 @@ pre.toml_code {
     color: #6d0080;
 }
 
+
+.access{
+    border-radius: 20px;
+    margin-bottom: 5px;
+    padding: 8px !important;
+    border-top: none !important;
+}
+
+.top-title.header{
+    height: 2.5em;
+}
+
+.top-title.header .listing{
+   font-size: 31px;
+   height: 11px;
+   margin-right: 0.4rem !important;
+}
+
+.top-title.header .viewing{
+    margin-right: 0.7rem;
+    min-width: 1.18em;
+    bottom: 7px;
+}
+
+
+
+.top-title.header span:first-child{
+    margin-left: 19px;
+}
+
+
 .ui.segment.run {
-    width: 70%;
     margin: auto;
     background:var(--run-bg-color);
 }

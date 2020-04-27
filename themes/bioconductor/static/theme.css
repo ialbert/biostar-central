@@ -1,3 +1,8 @@
+:root {
+    --active-item: #fbfdef;
+    --active-item-hover: #fbfdef;
+}
+
 body > .widen.container {
     width: 97%;
 }
@@ -7,8 +12,11 @@ body {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+.answer-text{
+    display: none ;
+}
 .wmd-button > span {
-    background-image: url("/static/pagedown/new-bar-button.png") !important;
+    background-image: url("/static/pagedown/bar-button.jpg") !important;
 }
 
 .ui.question.label {
@@ -36,6 +44,12 @@ body {
     display: none;
 }
 
+#menu-topics .item:hover{
+    color: black;
+    border-radius: 90px;
+}
+
+
 #menu-topics {
     background-color: #1881c2;
     color: white;
@@ -59,6 +73,7 @@ body {
 
 #menu-topics .item.active {
     color: #2a2b2b;
+    border-radius: 90px
 }
 
 

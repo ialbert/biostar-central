@@ -1,5 +1,99 @@
 {% load engine_tags %}
 
+{# The preview panel #}
+<div class="ui center aligned header">Interface Builder</div>
+
+<div class="ui grid">
+    <div class="eleven wide column">
+        <div class="ui basic segment" id="preview"></div>
+    </div>
+    <div class="four wide column">
+        <div class="ui basic segment">
+            <div class="ui large labels">
+
+                <a class="ui label" data-value="
+                        [cutoff]
+                        label = 'P_Value Cutoff'
+                        display = 'FLOAT'
+                        value = 0.05
+                        range = [0, 1]
+                        help = 'Selects the cutoff.'
+                        ">
+                    <i class="plus square outline icon"></i> Float
+                </a>
+                <a class="ui label" data-value="
+                    [file]
+                    label = 'Upload a file'
+                    display = 'UPLOAD'
+                    help = 'Upload a file to analyze'
+                    ">
+                    <i class="plus square outline icon"></i> Upload
+                </a>
+
+                <a class="ui label" data-value="
+                        [size]
+                        label = 'Window size'
+                        display = 'INTEGER'
+                        value = 100
+                        range = [1, 100]
+                        help = 'Selects the smoothing window.'
+                        ">
+                    <i class="plus square outline icon"></i> Integer
+                </a>
+                <a class="ui label" data-value="
+                    [sra]
+                    label = 'Run Number'
+                    display = 'TEXTBOX'
+                    value = 'SRR519926'
+                    regex = 'SRR\d+'
+                    help = 'Please provide SRR Run number'
+                    ">
+                    <i class="plus square outline icon"></i> Text Box
+                </a>
+                <a class="ui label" data-value="
+                    [data]
+                    label = 'Pick data'
+                    source = 'PROJECT'
+                    help = 'Pick data from this project.'
+                    choices = [ ['A','Default'] ]
+                    ">
+                    <i class="plus square outline icon"></i> Pick Data
+                </a>
+                <a class="ui label" data-value="
+                    [validate]
+                    label = 'Cross Validate'
+                    display = 'CHECKBOX'
+                    value = true
+                    help = 'Apply cross validation on the results.'
+                    ">
+                    <i class="plus square outline icon"></i> Checkbox
+                </a>
+
+                <a class="ui label" data-value="
+                    [color]
+                    label = 'Select color'
+                    display = 'DROPDOWN'
+                    choices = [ ['R','Red'], ['B','Blue'] ]
+                    value = 'R'
+                    help = 'Select a color of your choice.'
+                    ">
+                    <i class="plus square outline icon"></i> Dropdown
+                </a>
+                <a class="ui label" data-value="
+                    [species]
+                    label = 'Select species'
+                    display = 'RADIO'
+                    choices = [ ['c','Cat'], ['d','Dog'] ]
+                    value = 'c'
+                    help = 'Select the species.'
+                    ">
+                    <i class="plus square outline icon"></i> Radio Button
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <form method="post" class="ui form" action="#">
 
     <div class="ui vertical segment">
@@ -27,7 +121,7 @@
             </a>
 
             <a class="ui gray button click" data-value="#info">
-                 <i class="redo icon"></i>Cancel
+                <i class="redo icon"></i>Cancel
             </a>
         </div>
 
@@ -35,242 +129,15 @@
 
 </form>
 
-<div class="ui center aligned vertical segment">
-    <div class="ui center aligned basic segment header">Interface Preview</div>
-    Interface preview shows the resulting view of the combined interface elements.
-</div>
-
-{# The preview panel #}
-<div class="ui basic segment" id="preview"></div>
-
-<div class="ui divider"></div>
-
-<div class="ui center aligned vertical segment">
-    <div class="ui center aligned basic segment header">Interface specification</div>
-    Interface element specification. Shows the code and the resulting interface element.
-
-    <div><b>Double click on an element to insert it into the interface.</b> </div>
-</div>
-
-
-<div class="ui basic segment">
-
-
-    <form class="ui form">
-
-        <div class="ui two cards">
-
-            <div class="card">
-
-                <div class="content">
-                    <b>Integer values</b>
-                </div>
-
-                <div class="content">
-                    <pre class="toml_code">
-                        [size]
-                        label = "Window size"
-                        display = "INTEGER"
-                        value = 100
-                        range = [1, 100]
-                        help = "Selects the smoothing window."
-                    </pre>
-                </div>
-
-                <div class="extra content formstyle">
-                    <div class="toml_field"></div>
-                </div>
-
-            </div>
-
-            <div class="card">
-
-                <div class="content">
-                    <b>Float values</b>
-                </div>
-
-                <div class="content">
-                    <pre class="toml_code">
-                        [cutoff]
-                        label = "P_Value Cutoff"
-                        display = "FLOAT"
-                        value = 0.05
-                        range = [0, 1]
-                        help = "Selects the cutoff."
-                    </pre>
-                </div>
-
-                <div class="extra content formstyle">
-                    <div class="toml_field"></div>
-                </div>
-
-            </div>
-
-            <div class="card">
-
-                <div class="content">
-                    <b>Text box</b>
-                </div>
-
-                <div class="content">
-                    <pre class="toml_code">
-                    [sra]
-                    label = "Run Number"
-                    display = "TEXTBOX"
-                    value = "SRR519926"
-                    regex = 'SRR\d+'
-                    help = "Please provide SRR Run number"
-                    </pre>
-                </div>
-
-                <div class="extra content formstyle">
-                    <div class="toml_field"></div>
-                </div>
-
-            </div>
-
-            <div class="card">
-
-
-                <div class="content">
-                    <b>Dropdown menu</b>
-                </div>
-
-                <div class="content">
-
-
-                    <pre class="toml_code">
-                    [color]
-                    label = "Select color"
-                    display = "DROPDOWN"
-                    choices = [ ["R","Red"], ["B","Blue"] ]
-                    value = "R"
-                    help = "Select a color of your choice"
-                    </pre>
-                </div>
-
-                <div class="extra content formstyle">
-                    <div class="toml_field"></div>
-                </div>
-
-            </div>
-
-            <div class="card">
-
-                <div class="content">
-                    <b>Check box</b>
-                </div>
-
-                <div class="content">
-                    <pre class="toml_code">
-                    [validate]
-                    label = "Cross Validate"
-                    display = "CHECKBOX"
-                    value = true
-                    help = "Apply cross validation on the results."
-                    </pre>
-                </div>
-
-                <div class="extra content formstyle">
-                    <div class="toml_field"></div>
-                </div>
-
-            </div>
-            <div class="card">
-
-                <div class="content">
-                    <b>Upload Field</b>
-                </div>
-
-                <div class="content">
-
-                    <pre class="toml_code">
-                    [file]
-                    label = "Upload a file "
-                    display = "UPLOAD"
-                    help = "Upload a file to analyze"
-                    </pre>
-                </div>
-
-                <div class="extra content formstyle">
-                    <div class="toml_field"></div>
-                </div>
-
-            </div>
-
-            <div class="card">
-
-                <div class="content">
-                    <b>Pick Data</b>
-                </div>
-
-                <div class="content">
-                    <pre class="toml_code">
-                    [data]
-                    label = "Pick data"
-                    source = "PROJECT"
-                    help = "Pick data from this project."
-                    choices = [ ["A","Default"] ]
-                    </pre>
-                </div>
-
-                <div class="extra content formstyle">
-                    <div class="toml_field"></div>
-                </div>
-
-            </div>
-
-            <div class="card">
-
-                <div class="content">
-                    <b>Radio Buttons</b>
-                </div>
-
-                <div class="content">
-
-                    <pre class="toml_code">
-                    [species]
-                    label = "Select species"
-                    display = "RADIO"
-                    choices = [ ["c","Cat"], ["d","Dog"] ]
-                    value = "c"
-                    help = "Select the species."
-                    </pre>
-                </div>
-
-                <div class="extra content formstyle">
-                    <div class="ui radio choice toml_field"></div>
-                </div>
-
-            </div>
-
-        </div>
-
-
-    </form>
-
-</div>
 <script>
     $(document).ready(function () {
         var textarea = $('#interface_editor');
         var editor = init_codemirror(textarea, 400);
-
-        $(".card").each(function (index) {
-            var curr = $(this);
-            var toml = curr.find(".toml_code").text();
-            var field = curr.find(".toml_field");
-            var id = get_id();
-
-            field.load( "/ajax/field/render/", {toml: toml, recipe: id},
-                function (response, status, xhr) {
-                });
-        });
-
+        
         update_preview();
-        $(this).on('dblclick', '.card .content:not(.extra)', function () {
-            var curr = $(this).closest(".card");
-            var toml = curr.find(".toml_code").text();
-            var field = curr.find(".toml_field");
+        $(this).on('click', '.labels .label', function () {
+            //var curr = $(this).closest(".card");
+            var toml = $(this).data("value");
 
             // Remove beginning space in first line, replace newline + spaces with newline.
             toml = toml.replace(/^\s+/g, '\n');
@@ -279,12 +146,8 @@
             // Add clicked field to textarea and set values.
             var new_toml = textarea.val() + toml;
             editor.setValue(new_toml);
-
-            // Add clicked field html to preview;
-            $("#preview form .preview").append(field.html());
-            $('.ui.dropdown').dropdown();
-
-            popup_message($(this), 'Inserted into interface.', "success");
+            update_preview();
+            //popup_message($(this), 'Inserted into interface.', "success");
         });
     });
 </script>

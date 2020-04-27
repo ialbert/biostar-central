@@ -1,12 +1,8 @@
 {% load forum_tags %}
 
-<div class="ui info tablet message">
-    Use the <span class="ui tiny label">ADD COMMENT</span> or <span class="ui tiny label">ADD REPLY</span> buttons
-    embedded in each post to comment, to ask for clarifications, to request more details, or respond
-    to a previous answer or comment.
-</div>
+{% include 'forms/form_answers_msg.html' %}
 
-<div class="answer droppable" data-value="NEW">
+<div class="answer-text droppable" data-value="NEW">
     <div class="ui small header">Add your answer</div>
 
     <form method="post" class="ui form" action="{% url 'post_view' post.uid %}">
@@ -24,7 +20,7 @@
                 </div>
 
                 <div id="wmd-button-bar"></div>
-                <textarea class="wmd-input autocomplete" rows="17" name="{{ form.content.name }}" id="wmd-input"></textarea>
+                <textarea class="wmd-input autocomplete" rows="17" name="{{ form.content.name }}" id="wmd-input">{% include 'markdown_template.md' %}</textarea>
             </div>
         </div>
 

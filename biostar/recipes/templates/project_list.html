@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block title %}
-    <i class="file icon"></i> Project list
+    <i class="file listing icon"></i>Project list
 {% endblock %}
 
 
@@ -45,12 +45,13 @@
                 </div>
             </div>
         {% endfor %}
-    </div>
+
 
     {% if not projects %}
-        <div class="item ">
+
             <div class="ui warning message"><i class="ui warning circle icon"></i>No projects found.</div>
-        </div>
+
     {% endif %}
+    </div>
 
 {% endblock %}

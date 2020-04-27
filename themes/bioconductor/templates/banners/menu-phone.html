@@ -84,6 +84,7 @@
 
         <i class="user icon"><i class="dropdown icon"></i></i>
         <div class="menu" id="login-opts">
+
             {% if user.is_authenticated %}
                 <a class="item  {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
                     <i class="user icon"></i> {{ user.profile.name }}{% user_icon user %}

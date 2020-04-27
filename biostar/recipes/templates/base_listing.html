@@ -7,14 +7,15 @@
 {% endblock %}
 
 
-    {% block title %}
-        Listing
-    {% endblock %}
+{% block title %}
+    Listing
+{% endblock %}
+
 
 {% block body %}
         {% if user.is_authenticated %}
 
-            <a class="ui label" href="{% url 'project_list_public' %}">
+            <a class="ui label" href="{% url 'project_list' %}">
                 <i class="database icon"></i> All Projects
             </a>
 
@@ -23,14 +24,14 @@
             </a>
         {% endif %}
 
-    <div class="ui top attached large tabular  menu">
+    <div class="ui large secondary pointing  menu">
 
         <a class="ui {% activate active "home" %} item" href="{% url 'index' %}">
             <i class="home icon"></i>Home
         </a>
 
         <a class="ui   {% activate active "latest_recipes" %} item" href="{% url 'latest_recipes' %}">
-            <i class=" list icon"></i>Latest Recipes
+            <i class=" settings icon"></i>Latest Recipes
         </a>
 
         <a class="ui {% activate active "public" %}  item" href="{% url 'project_list_public' %}">
@@ -57,12 +58,9 @@
 
     </div>
 
-    <div class="ui bottom attached large segment">
-
-
+<div class="ui basic large segment">
         {% block content %}
 
         {% endblock %}
-    </div>
-
+</div>
 {% endblock %}

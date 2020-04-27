@@ -25,6 +25,7 @@ pg:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 
 serve:
+	@echo DATABASE_NAME=${DATABASE_NAME}
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	python ../../manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
 
@@ -65,4 +66,4 @@ uwsgi: init
 	uwsgi --ini ${UWSGI_INI}
 
 deploy:
-	ansible-playbook -i ../conf/ansible/${HOST} ../conf/ansible/server-deploy.yml --ask-become-pass --extra-vars "restart=True start_biocond=True"  -v
+	(cd ../../conf/ansible/ && make bioconductor deploy)

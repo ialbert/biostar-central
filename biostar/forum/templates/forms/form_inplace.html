@@ -16,7 +16,7 @@
         {% if new %}
             <div class="field">
                 <div id="wmd-button-bar"></div>
-                <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="9"></textarea>
+                <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="9">{% include 'markdown_template.md' %}</textarea>
             </div>
 
         {% else %}
@@ -84,7 +84,11 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
     drag_and_drop();
-
+    $('form .preview').each(function () {
+        var text = $(this).closest('form').find('.wmd-input').val();
+        var form = $(this).closest('form');
+        highligh_preview(form, text);
+    });
     // initialize autocomplete
     var users = "{{ users_str }}".split(',');
     autocomplete_users(users);

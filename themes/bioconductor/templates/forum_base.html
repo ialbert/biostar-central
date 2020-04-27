@@ -4,7 +4,7 @@
 {% load forum_tags %}
 {% load accounts_tags %}
 
-<html>
+<html lang="en">
 <head>
 
     <title>
@@ -14,9 +14,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-
     {# Set the favicon #}
-    <link rel="icon" href="{% static 'forum_favicon.ico' %}" type="image/x-icon"/>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
     {# Load JQuery. #}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -31,9 +30,8 @@
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'prism.css' %}" rel="stylesheet">
-         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
+        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
         <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
-
     {% endcompress %}
 
     {# Javascript compression. #}
@@ -41,8 +39,8 @@
         <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'prism.js' %}"></script>
         <script src="{% static 'forum.js' %}{% randparam %}"></script>
+        <script src="{% static 'theme.js' %}{% randparam %}"></script>
         <script src="{% static 'setup.js' %}{% randparam %}"></script>
-        <script src="{% static 'theme.js' %}"></script>
     {% endcompress %}
 
     {# Optional block header content. #}
@@ -88,6 +86,7 @@
         </div>
     {% endblock %}
 
+
     {% block footer %}
         {% include 'widgets/footer.html' %}
     {% endblock %}
@@ -95,3 +94,4 @@
 
 </body>
 </html>
+

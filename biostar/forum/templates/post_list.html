@@ -45,7 +45,7 @@
                     {% post_details post=post user=request.user %}
                 {% endif %}
             {% else %}
-                {% post_details post=post user=request.user %}
+                {% post_details post=post user=request.user avatar=avatar %}
             {% endif %}
 
         {% empty %}
