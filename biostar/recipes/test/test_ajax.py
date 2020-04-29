@@ -72,7 +72,7 @@ class AjaxTest(TestCase):
         """
         Test AJAX function used to copy file
         """
-        data = {'path': os.path.join(IMPORT_ROOT_DIR,"plain-text.txt"), "uid": self.project2.id}
+        data = {'path': os.path.join(IMPORT_ROOT_DIR, "plain-text.txt")}
 
         url = reverse('copy_file')
 
@@ -81,7 +81,6 @@ class AjaxTest(TestCase):
         json_response = ajax.copy_file(request=request)
 
         self.process_response(json_response)
-
 
     def test_toggle_delete(self):
         """

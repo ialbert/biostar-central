@@ -245,7 +245,7 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
 
     # Fill in context.
     context = dict(posts=posts, tab=tab, enable_pages=enable_pages,
-                   tag=tag, order=order, type=show, limit=limit)
+                   tag=tag, order=order, type=show, limit=limit, avatar=True)
     context.update(extra_context)
     # Render the page.
     return render(request, template_name="post_list.html", context=context)

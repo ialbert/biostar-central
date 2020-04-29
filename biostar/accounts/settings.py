@@ -107,6 +107,7 @@ ROOT_URLCONF = 'biostar.accounts.urls'
 # http://localhost:8000/accounts/social/github/login/callback/
 #
 SOCIAL_CLIENTS = [
-    ("Google", "A", "B"),
-    ("GitHub", "A", "B")
+
+    # ("Google", "A", "B"),
+    # ("GitHub", "A", "B")
 ]

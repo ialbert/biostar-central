@@ -40,14 +40,68 @@ Our installation instructions rely on [conda][conda] though other alternatives f
     cd biostar-central
 
     # Install server dependencies.
-    pip install -r conf/pip_requirements.txt
+    pip install -r conf/requirements.txt
 
 The installation is now complete.
 
 All server management commands are run through `make`.
 
-## Testing the code
+## Demo server
 
+To run the demonstration version of the `recipes` app execute:
+
+    make recipes demo
+
+To run a demonstration version of the `forum` app execute:
+
+    make forum demo
+
+Visit <http://127.0.0.1:8000/> to view the site.
+
+## Default users
+
+All users listed in the `ADMINS` attribute of the Django `settings.py` 
+module will gain administritave privileges when the site is initialized. The
+`DEFAULT_ADMIN_PASSWORD` attribute will be set as the default admin password. 
+By default the value for both is:
+
+    admin@localhost
+
+Use this username and password combination to log into the site as an administrator. Change the `DEFAULT_ADMIN_PASSWORD` for public facing installations.
+
+## Running the site
+
+The Makefile has several tasks that demonstrate the commands that may be run. Typically a series of `make` tasks may be run. For example
+
+Initialize and run a new `recipes` app.
+
+    make recipes serve
+
+Initialize and run a demo version of the recipes app:
+
+    make recipes demo
+    
+Initialize and run an new `forum` app.
+
+    make forum serve
+
+## Valid tasks
+
+- `forum`, `recipes`: selects the app to run. It must be the first task in the list.
+- `demo`: runs a demonstration version
+- `init`: initializes the database schema
+- `serve`: runs the app on the default port (`localhost:8080`)
+- `save`: saves the current database content as a JSON fixture file
+- `load`: loads the last database save file from a JSON fixture
+- `reset`: resets the database (deletes all database content)
+- `hard_reset`: runs `reset` then deletes all files in the media/spool folder
+
+## Testing
+
+To run all tests type:
+
+    make test
+    
 To test the `recipes` app run:
 
     make recipes test
@@ -55,39 +109,6 @@ To test the `recipes` app run:
 To test the `forum` app run:
 
     make forum test
-
-## Running the demo server
-
-To run the demonstration version of the `recipes` app execute:
-
-    make recipes_demo
-
-To run a demonstration version of the `forum` app execute:
-
-    make forum_demo
-
-Visit <http://127.0.0.1:8000/> to view the site.
-
-## Default users
-
-All users listed in the `ADMINS` attribute of the Django `settings.py` module when the site is initialized. The
-`DEFAULT_ADMIN_PASSWORD` attribute will be set as their password. By default the value for both is:
-
-    admin@localhost
-
-Use the username and password above to log into the site as an administrator.
-
-## Executing multiple tasks
-
-The Makefile has several tasks that demonstrate the commands that may be chained together:
-
-Initialize and run an empty `recipes` app.
-
-    make recipes init serve
-
-Initialize and run an empty `forum` app.
-
-    make forum init serve
 
 ## Documentation
 

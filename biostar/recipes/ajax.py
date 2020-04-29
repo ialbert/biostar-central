@@ -4,7 +4,7 @@ import logging
 from django.contrib import messages
 import toml
 from ratelimit.decorators import ratelimit
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.http import HttpResponse
 from django.template import Template, Context
 from django.http import JsonResponse
@@ -255,7 +255,7 @@ def manage_access(request):
 
     return ajax_success("Changed access.", no_access=no_access)
 
-
+@ensure_csrf_cookie
 @ajax_error_wrapper(method="POST", login_required=True)
 def copy_file(request):
     """
@@ -284,7 +284,7 @@ def copy_file(request):
     copied = auth.copy_file(request=request, fullpath=path)
     return ajax_success(msg=f"{len(copied)} files copied.")
 
-
+@ensure_csrf_cookie
 @ajax_error_wrapper(method="POST", login_required=True)
 def copy_object(request):
     """
@@ -363,6 +363,7 @@ def ajax_paste(request):
     return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
 
 
+@ensure_csrf_cookie
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_clipboard(request):
     """

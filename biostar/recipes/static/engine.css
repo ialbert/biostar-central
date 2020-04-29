@@ -12,8 +12,29 @@
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
-    font-family: "proxima-nova", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-family: "Lato", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     text-rendering: optimizeLegibility;
+}
+
+
+#interface .grid .labels .label{
+    width: 100%;
+}
+#top .header{
+    margin-top: 0px;
+}
+#project_view h1 {
+ font-size: 1.28571429rem;
+}
+
+
+#project_view h2 {
+ font-size: 1.18571429rem;
+}
+
+
+#project_view h3 {
+ font-size: 1.08571429rem;
 }
 
 .ui.tabular.colored.menu {
@@ -159,8 +180,38 @@ pre.toml_code {
     color: #6d0080;
 }
 
+
+.access{
+    border-radius: 20px;
+    margin-bottom: 5px;
+    padding: 8px !important;
+    border-top: none !important;
+}
+
+.top-title.header{
+    height: 2.5em;
+}
+
+.top-title.header .listing{
+   font-size: 31px;
+   height: 11px;
+   margin-right: 0.4rem !important;
+}
+
+.top-title.header .viewing{
+    margin-right: 0.7rem;
+    min-width: 1.18em;
+    bottom: 7px;
+}
+
+
+
+.top-title.header span:first-child{
+    margin-left: 19px;
+}
+
+
 .ui.segment.run {
-    width: 70%;
     margin: auto;
     background:var(--run-bg-color);
 }
@@ -437,12 +488,10 @@ figure {
 }
 
 #clipboard{
-
     position: absolute; /* or absolute */
-    top: 87px;
     text-align: center;
     z-index: 100;
-    width: 80%;
+    width: 79%;
 }
 
 .popover {
@@ -538,7 +587,7 @@ pre > code{
 }
 
 .muted {
-    color: #999999;
+    color: #999999 !important;
 }
 
 pre {

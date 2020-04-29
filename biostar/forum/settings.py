@@ -1,4 +1,5 @@
 # Inherit from the main settings file.
+import os, sys
 from biostar.accounts.settings import *
 
 # Inherit from the accounts settings file.
@@ -14,6 +15,21 @@ POSTS_PER_PAGE = 40
 USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
+
+STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
+
+# Time period to cache Ips for banning.
+TIME_PERIOD = 24 * 3600
+
+# How many visit within that time period.
+MAX_VISITS = 50
+
+# Whitelist of Ip addresses.
+IP_WHITELIST = [
+
+]
+
+BANNED_IPS = os.path.join(BASE_DIR, 'export', 'logs', 'banned.txt')
 
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
@@ -91,6 +107,7 @@ FORUM_APPS = [
 
 # Additional middleware.
 MIDDLEWARE += [
+    'biostar.forum.middleware.ban_ip',
     'biostar.forum.middleware.user_tasks',
     'biostar.forum.middleware.benchmark',
 ]
@@ -135,7 +152,7 @@ try:
     from conf.run.secrets import *
     #print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
-    print(f"Secrets module not imported: {exc}")
+    print(f"Secrets module not imported: {exc}", file=sys.stderr)
     pass
 
 # Enable debug toolbar specific functions

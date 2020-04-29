@@ -4,10 +4,12 @@ import time
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
-
+from django.core.cache import cache
+from django.shortcuts import redirect
 from biostar.accounts.models import Profile, Message
 from biostar.accounts.tasks import detect_location
-from . import auth, tasks, const
+
+from . import auth, tasks, const, util
 from .models import Vote
 from .util import now
 
@@ -61,6 +63,45 @@ def update_status(user):
             return True
 
     return user.profile.trusted
+
+
+def ban_ip(get_response):
+    """
+
+    """
+    def middleware(request):
+        user = request.user
+
+        if settings.DEBUG:
+            return get_response(request)
+
+        if user.is_anonymous:
+            oip = get_ip(request)
+            ips = oip.split(".")[:-1]
+            ip = ".".join(ips)
+
+            if ip in settings.IP_WHITELIST:
+                return get_response(request)
+
+            if ip not in cache:
+                cache.set(ip, 0, settings.TIME_PERIOD)
+
+            value = cache.get(ip)
+            if value >= settings.MAX_VISITS:
+                # Raise redirect exception
+                now = util.now()
+                message = f"{now}\tbanned\t{ip}\t{oip}\n"
+                logger.error(message)
+                fp = open(settings.BANNED_IPS, "a")
+                fp.write(message)
+                fp.close()
+                return redirect('/static/message.txt')
+            else:
+                cache.incr(ip)
+
+        return get_response(request)
+
+    return middleware
 
 
 def user_tasks(get_response):

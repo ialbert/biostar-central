@@ -56,8 +56,9 @@ class Command(BaseCommand):
         # Set variables needed to execute demo
         if demo:
             update = False
-            pid = ''
+            pid = 'demo'
             privacy = Project.PUBLIC
+            info = "Project information goes here."
 
         # Find project at uid.
         project = Project.objects.filter(uid=pid).first()
@@ -80,4 +81,4 @@ class Command(BaseCommand):
         if update:
             print(f"*** Updated project uid={pr.uid} name={pr.name}")
         else:
-            print (f"*** Created project uid={pr.uid} name={pr.name}")
+            print(f"*** Created project uid={pr.uid} name={pr.name}")

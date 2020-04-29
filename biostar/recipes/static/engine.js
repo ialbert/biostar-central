@@ -155,9 +155,11 @@ function paste(data){
             data:data,
             success: function (data) {
                 if (data.status === "success") {
-
                      window.location.href = data.redirect;
                      popup_message(elem, data.msg, data.status, 500);
+                }
+                else{
+                    popup_message(elem, data.msg, data.status, 2000)
                 }
                 //popup_message(elem, data.msg, data.status, 2000)
             },

@@ -130,7 +130,7 @@ function mark_spam(post) {
 }
 
 
-function release_suspect(post){
+function release_suspect(post) {
 
     var uid = post.data("value");
     $.ajax('/release/' + uid + "/",
@@ -282,9 +282,17 @@ function tags_dropdown() {
     });
 }
 
+function highligh_preview(form, text){
+    var highlighted = highlight(text);
+    form.find('.preview').html(highlighted);
+    form.find('pre').addClass('language-bash');
+    form.find('code').addClass('language-bash');
+    Prism.highlightAll()
+}
+
 $(document).ready(function () {
 
-    $('.spam').dropdown({on: 'hover' });
+    $('.spam').dropdown({on: 'hover'});
     $('.spam .mark.item').click(function (event) {
         var post = $(this).closest('.post');
         mark_spam(post);
@@ -303,39 +311,31 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
 
+    $('form .preview').each(function () {
+        var text = $(this).closest('form').find('.wmd-input').val();
+        var form = $(this).closest('form');
+        highligh_preview(form, text);
+    });
+
     $(this).on('keyup', 'textarea', function (event) {
         var text = $(this).val();
-        var highlighted = highlight(text);
         var form = $(this).closest('form');
-
-        form.find('.preview').html(highlighted);
-        form.find('pre').addClass('language-bash');
-        form.find('code').addClass('language-bash');
-        Prism.highlightAll()
+        highligh_preview(form, text);
     });
-
 
     $(this).on('click', '#wmd-button-bar', function (event) {
-
         var form = $(this).closest('form');
         var text = form.find('textarea').val();
-        var highlighted = highlight(text);
-
-        form.find('.preview').html(highlighted);
-        form.find('pre').addClass('language-bash');
-        form.find('code').addClass('language-bash');
-        Prism.highlightAll();
+        highligh_preview(form, text);
 
     });
-     $('#subscribe').dropdown();
-     $(this).on('click', '#subscribe .item', function (event) {
-         var elem = $(this).closest('#subscribe');
-         var value = $(this).data('value');
+    $('#subscribe').dropdown();
+    $(this).on('click', '#subscribe .item', function (event) {
+        var elem = $(this).closest('#subscribe');
+        var value = $(this).data('value');
+        change_subs(elem, value);
 
-         change_subs(elem, value);
-
-     });
-
+    });
 
 
     $(".profile .moderate").click(function (event) {

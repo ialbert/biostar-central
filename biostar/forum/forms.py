@@ -176,10 +176,9 @@ class PostModForm(forms.Form):
 
         # Options for top level posts.
         if post.is_toplevel:
-            prefix = [(BUMP_POST, "Bump post.")]
             suffix = [(CLOSE, "Close post ( reason required ). "),
                       (DUPLICATE, "Duplicated post ( links required ).")]
-            choices = prefix + choices + suffix
+            choices = [(BUMP_POST, "Bump post.")] + choices + suffix
             self.fields['comment'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea,
                                                      strip=True)
 

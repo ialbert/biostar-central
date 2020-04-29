@@ -4,6 +4,7 @@ import bleach
 from django.apps import AppConfig
 from django.conf import settings
 from django.db.models.signals import post_migrate
+
 logger = logging.getLogger('engine')
 
 
@@ -15,10 +16,12 @@ class AccountsConfig(AppConfig):
         # Triggered after a migration command.
         post_migrate.connect(init_app, sender=self)
 
+
 def init_app(sender, **kwargs):
     init_site()
     init_users()
     init_social()
+
 
 def init_social():
     """Initialize social account providers."""
@@ -70,8 +73,6 @@ def init_users():
     """
     from .models import User, Profile
 
-    logger.info("Setting up admin users.")
-
     for name, email in settings.ADMINS:
         user = User.objects.filter(email=email).first()
         if not user:
@@ -85,12 +86,12 @@ def init_users():
 
             text = "I am not really a user but a background process tasked with the essential duty of keeping things tidy."
             Profile.objects.filter(user__pk=user.pk).update(location="Server Farm", name=name, text=text, html=text)
-            logger.info(f"Created admin user: {user.email}, {user.username}")
+            logger.info(f"Creating admin user: {user.email}, {user.username}")
         else:
             # Reapply the default ADMIN password on migration.
             user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             user.save()
-            logger.info(f"Admin user: {user.email}, {user.username} exists.")
+            logger.info(f"Resetting password for admin user: {user.email}, {user.username}")
 
 
 def init_site():
@@ -101,9 +102,8 @@ def init_site():
 
     # Print information on the database.
     db = settings.DATABASES['default']
-    logger.info("db.engine={}, db.name={}".format(db['ENGINE'], db['NAME']))
-    logger.info("email.backend={}".format(settings.EMAIL_BACKEND))
-    logger.info("default.email={}".format(settings.DEFAULT_FROM_EMAIL))
+    logger.info(f"db.name={db['NAME']}, db.engine={db['ENGINE']}")
+    logger.info(f"email.backend={settings.EMAIL_BACKEND}, email.sender={settings.DEFAULT_FROM_EMAIL}")
 
     # Create the default site if necessary.
     Site.objects.get_or_create(id=settings.SITE_ID)

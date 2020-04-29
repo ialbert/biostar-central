@@ -476,11 +476,13 @@ figure {
     background-color: #ffd2cf !important;
     opacity: .6;
     border: none !important;
+    //border-radius: 12px !important;
 }
 
 .post.quarantine{
     background-color: #f6f8ce !important;
     border: none !important;
+    //border-radius: 8px !important;
 }
 
 #dim-similar {
@@ -749,14 +751,13 @@ img {
 }
 
 .ui.divided.items > .post.item {
-    padding: 6px 4px 10px 4px !important;
     border: none;
 }
 
 .ui.divided.items > .item {
     border-top: 1px solid #ECECEC;;
     margin: 0;
-    padding: 1em 0;
+    padding: .8em 0;
 }
 
 .ui.attached.segment {

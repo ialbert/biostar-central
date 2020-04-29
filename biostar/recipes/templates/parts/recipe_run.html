@@ -35,13 +35,18 @@
                         </button>
                     {% else %}
                         <button type="submit" class="ui disabled green button">
-                            <i class="check icon"></i>Run
+                            <i class="check icon"></i>Run Recipe
                         </button>
                     {% endif %}
+
+                    <a class="ui gray button" href="{% url 'recipe_download' recipe.uid %}">
+                        <i class="download icon"></i> Download
+                    </a>
 
                     <a class="ui  button" href="{% url 'recipe_view' recipe.uid %}">
                         <i class="redo icon"></i>Cancel
                     </a>
+
                 </div>
 
             </div>
@@ -54,17 +59,12 @@
                         <div class="item">You must be logged in and be a trusted user.</div>
                         <div class="item">The recipe must be authorized by an admin.</div>
                     </div>
-                    <p>Read more on security features in the documentation.</p>
+                <p>Read more on security features <a href="https://bioinformatics-recipes.readthedocs.io/en/latest/">in the documentation</a>.</p>
                 </div>
             </div>
         {% endif %}
 
-        <div class="ui center aligned vertical segment">
-            <p> Download the recipe to your computer</p>
-            <p><a class="ui mini teal button" href="{% url 'recipe_download' recipe.uid %}">
-                <i class="download icon"></i> Download recipe </a>
-            </p>
-        </div>
+
 
     </div>
 </form>

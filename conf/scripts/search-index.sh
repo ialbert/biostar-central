@@ -4,6 +4,8 @@ BATCH_SIZE=5000
 # Load the conda commands.
 source ~/miniconda3/etc/profile.d/conda.sh
 
+export POSTGRES_HOST=/var/run/postgresql
+
 # Activate the conda environemnt.
 conda activate engine
 

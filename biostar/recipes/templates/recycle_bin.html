@@ -1,4 +1,4 @@
-{% extends "engine_base.html" %}
+{% extends "base_template.html" %}
 {% load engine_tags %}
 
 {% block headtitle %}
@@ -40,9 +40,11 @@
 
 
     <div class="ui large vertical segment">
+     <div class="ui small horizontal divider header">
     <i class="setting icon"></i>Deleted Recipes
+     </div>
         <div class="ui divided link items">
-            {% for recipe in recipe_list %}
+            {% for recipe in recipes %}
                 {% recipe_details recipe %}
             {% empty %}
                 <div class="item">

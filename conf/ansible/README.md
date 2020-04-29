@@ -86,4 +86,24 @@ Manually
 Makefile
      
     make deploy HOST=hosts/test.biostars.org  
-   
+    
+    
+## Migrating from Biostar 1.0
+
+To migrate from an older version of biostar to a server deploying Biostar 2.0
+
+A copy of the older database existing on the local machine can be passed to the playbook. 
+This gets copied to the remote server if it does not exist already. 
+
+Manually 
+    
+    # File path to database we want to migrate
+    export LOCAL=/full/path/file.sql.gz
+    
+    # Migration playbook
+	ansible-playbook -i hosts/test.biostars.org server-migrate.yml --ask-become-pass --extra-vars "local_old_db=${LOCAL}"
+
+Makefile 
+
+    make transfer HOST=hosts/test.biostars.org  LOCAL_OLD_DB=/full/path/file.sql.gz
+    

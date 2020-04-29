@@ -20,7 +20,8 @@ def spam_scoring(post):
     Score the spam with a slight delay.
     """
     from biostar.forum import spam
-    # Give spammers the illusion of success by a slight delay
+
+    # Give spammers the illusion of success with a slight delay
     time.sleep(1)
 
     try:
@@ -37,6 +38,9 @@ def update_spam_index(post):
     """
     from biostar.forum import spam
 
+    # Index posts explicitly marked as SPAM or NOT_SPAM
+    # indexing SPAM increases true positives.
+    # indexing NOT_SPAM decreases false positives.
     if not (post.is_spam or post.not_spam):
         return
 

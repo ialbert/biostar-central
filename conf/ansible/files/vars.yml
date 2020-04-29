@@ -1,10 +1,17 @@
 
-engine_git: https://github.com/ialbert/biostar-central.git
+engine_git:  "{{ repo | default('https://github.com/ialbert/biostar-central.git') }}"
 engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
 
 bin_dir: "/export/bin"
 src_dir: "/export/src"
 ref_dir: "/export/refs"
+
+# Location of old database on local machine
+local_old: "{{ local_old_db }}"
+
+# Location to the old database in remote node
+# This is the destination where local_old will be copied.
+remote_old: "{{ engine_dir }}/export/sql/{{ local_old_db | basename }}"
 
 django_settings_module: "conf.run.site_settings"
 
@@ -12,8 +19,7 @@ django_settings_module: "conf.run.site_settings"
 install: False
 restart: False
 reset: False
-
-transfer_limit: "{{ limit | default(100) }}"
+backup: False
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"

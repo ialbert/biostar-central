@@ -226,6 +226,41 @@ class Post(models.Model):
         reply_count = Post.objects.filter(root=self.root).count()
         Post.objects.filter(pk=self.root.id).update(reply_count=reply_count)
 
+    def json_data(self):
+        data = {
+            'id': self.id,
+            'uid': self.uid,
+            'title': self.title,
+            'type': self.get_type_display(),
+            'type_id': self.type,
+            'creation_date': util.datetime_to_iso(self.creation_date),
+            'lastedit_date': util.datetime_to_iso(self.lastedit_date),
+            'lastedit_user_id': self.lastedit_user.id,
+            'author_id': self.author.id,
+            'author_uid': self.author.profile.uid,
+            'lastedit_user_uid': self.lastedit_user.profile.uid,
+            'author': self.author.name,
+            'status': self.get_status_display(),
+            'status_id': self.status,
+            'thread_score': self.thread_votecount,
+            'rank': self.rank,
+            'vote_count': self.vote_count,
+            'view_count': self.view_count,
+            'reply_count': self.reply_count,
+            'comment_count': self.comment_count,
+            'book_count': self.book_count,
+            'subs_count': self.subs_count,
+            'answer_count': self.root.reply_count,
+            'has_accepted': self.has_accepted,
+            'parent_id': self.parent.id,
+            'root_id': self.root_id,
+            'xhtml': self.html,
+            'content': self.content,
+            'tag_val': self.tag_val,
+            'url': f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{self.get_absolute_url()}',
+        }
+        return data
+
     @property
     def is_question(self):
         return self.type == Post.QUESTION
