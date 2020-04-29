@@ -108,8 +108,8 @@ def pages_search(context, results):
 
 
 @register.inclusion_tag('widgets/post_details.html')
-def post_details(post, user):
-    return dict(post=post, user=user)
+def post_details(post, user, avatar=True):
+    return dict(post=post, user=user, avatar=avatar)
 
 
 @register.simple_tag

@@ -264,30 +264,35 @@ def create_project(user, name="", uid=None, summary='', text='', stream=None, la
                    privacy=Project.PRIVATE, update=False):
 
     name = name or "My New Project"
-    # Set or create the project uid.
-    uid = uid or util.get_uuid(8)
-
+    text = text or "Project information goes here."
     # Attempts to select the project.
-    project = Project.objects.filter(uid=uid)
+    project = Project.objects.filter(uid=uid).first()
 
     # If it is not an update request return the project unchanged.
     if project and not update:
-        return project.first()
+        return project
 
     if project:
         # Update existing project.
-        current = project.first()
-        text = text or current.text
-        name = name or current.name
-        project.update(text=text, name=name)
-        project = project.first()
+        text = text or project.text
+        name = name or project.name
+        Project.objects.filter(id=project.pk).update(text=text, name=name)
+        project = Project.objects.filter(pk=project.pk).first()
         logger.info(f"Updated project: {project.name} uid: {project.uid}")
+    # Create a new project.
     else:
-        # Create a new project.
-        project = Project.objects.create(label=label, name=name, uid=uid, text=text,
+        # Set uid here as well so it has a value when save()
+        # hasn't been called inside of create() ( i.e in tests ).
+        pid = uid or get_uuid(4)
+        project = Project.objects.create(label=label, name=name, text=text, uid=pid,
                                          owner=user, privacy=privacy)
-
         logger.info(f"Created project: {project.name} uid: {project.uid}")
+
+    # Update the uid when passed
+    if uid:
+        Project.objects.filter(id=project.pk).update(uid=uid)
+        project = Project.objects.filter(pk=project.pk).first()
+        logger.info(f"Changed the uid: {uid}")
 
     # Update the image for the project.
     if stream:
@@ -698,13 +703,14 @@ def create_path(fname, data):
     return path
 
 
-def new_uid(obj, objtype, default=None):
+def new_uid(obj, objtype, default=None, prefix=""):
     """
     Ensure an objects uid is unique.
     """
-    uid = default or obj.uid
+    uid = default or generate_uuid(prefix=prefix, suffix=obj.id)
+
     while objtype.objects.filter(uid=uid).exclude(uid=obj.uid).exists():
-        uid = generate_uuid(prefix="data", suffix=f"{get_uuid(3)}")
+        uid = generate_uuid(prefix=prefix, suffix=f"{get_uuid(3)}")
     return uid
 
 
@@ -844,7 +850,7 @@ def create_data(project, user=None, stream=None, path='', name='', text='', type
                                project=project, type=dtype, text=text, uid=uid)
 
     # Set the uid.
-    uid = new_uid(obj=data, objtype=Data, default=uid)
+    uid = new_uid(obj=data, objtype=Data, default=uid, prefix="data")
     data.uid = uid
 
     # Write this stream into a path then link that into the data.

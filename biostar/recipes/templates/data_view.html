@@ -5,14 +5,13 @@
 {% block headtitle %}
     {{ data.name }}
 {% endblock %}
-{% block ribbon %}
-    {% if user.is_authenticated %}
 
-        <a class="ui right ribbon obj label" href="{% url 'data_upload' project.uid %}">
-           <i class="plus icon"></i> New Data </a>
-    {% endif %}
+{% block ribbon %}
+    {% include 'widgets/upload_button.html' %}
 {% endblock %}
+
 {% block content %}
+
 <div class="data" data-value="{{ data.uid }}">
 
     <div class="ui large vertical segment">
@@ -51,9 +50,13 @@
             <a class="ui copy button">
                 <i class="copy icon"></i>Copy Data
             </a>
-            <a class="ui button tablet" href="{% url 'data_delete' data.uid %}">
-                <i class="trash icon"></i> <span class="tablet">Delete Data</span>
-            </a>
+               <a class="ui button tablet" href="{% url 'data_delete' data.uid %}">
+                    {% if project.deleted %}
+                        <i class="trash icon"></i> <span class="tablet">Restore Data</span>
+                    {% else %}
+                        <i class="trash icon"></i> <span class="tablet">Delete Data</span>
+                    {% endif %}
+                </a>
 
 
 

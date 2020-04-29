@@ -1,53 +1,48 @@
-{% extends "engine_base.html" %}
+{% extends "base_template.html" %}
 {% load engine_tags %}
 {% load static %}
 
-{% block headtitle %}
-    {{ project.get_name }}
-{% endblock %}
 
+{% block title %}
+   <img class="ui avatar viewing image" src="{% img project %}"/>{{ project.name }}
+{% endblock %}
 
 {% block body %}
     <input type="hidden" id="project_id" value="{{ project.id }}">
 
-    <div class="ui center aligned basic vertical segment">
-        <div class="ui large header">
-            <img class="ui avatar image" src="{% img project %}"/> {{ project.name }}
-        </div>
-    </div>
+    <a class="ui label" href="{% url 'project_list' %}">
 
-    <a class="ui left ribbon projects label" href="{% url 'project_list' %}">
         <i class="database icon"></i> All Projects
     </a>
 
     <span id="clipboard"></span>
 
-    {% block ribbon %}
-        {% if user.is_authenticated %}
-            <a class="ui right ribbon obj label" href="{% url 'recipe_create' project.uid %}">
-                <i class="plus icon"></i>New Recipe
-            </a>
-        {% endif %}
-    {% endblock %}
+    <div style="float: right">
+        {% block ribbon %}
+            {% if user.is_authenticated %}
+                <a class="ui  label" href="{% url 'recipe_create' project.uid %}">
+                    <i class="plus icon"></i>New Recipe
+                </a>
+            {% endif %}
+        {% endblock %}
+    </div>
 
-    <div class="ui basic segment" >
-
-    <div class="ui top attached large tabular  menu">
+    <div class="ui large secondary pointing  menu">
 
 
-        <a class="{% activate 'info' active %}  item" href="{% url 'project_viewing' project.label %}">
+        <a class="{% activate 'info' active %}  item" href="{% url 'project_view' project.uid %}">
             <i class="info circle icon"></i><span class="phone">Project Info</span>
         </a>
 
-        <a class="{% activate 'data' active %}  item" href="{% url 'data_listing' project.label %}">
+        <a class="{% activate 'data' active %}  item" href="{% url 'data_list' project.uid %}">
             <i class="file text icon"></i><span id="data_count">{{ data_count }}</span>&nbsp;<span
                 class="phone"> Data</span>
         </a>
-        <a class="{% activate 'recipes' active %}  item" href="{% url 'recipe_listing' project.label %}">
+        <a class="{% activate 'recipes' active %}  item" href="{% url 'recipe_list' project.uid %}">
             <i class="settings icon"></i> {{ recipe_count }}&nbsp;<span class="phone"> Recipes</span>
         </a>
 
-        <a class="{% activate 'jobs' active %} item" href="{% url 'job_listing' project.label %}">
+        <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
             <i class="bar chart icon"></i><span id="job_count">{{ result_count }}</span><span class="phone">&nbsp;Results</span>
         </a>
 
@@ -58,18 +53,16 @@
         {% endif %}
 
     </div>
+    {% csrf_token %}
+    {% block segment %}
 
+    <div class="ui basic large segment">
+        {% block content %}
+            Content
+        {% endblock %}
+    </div>
+{% endblock %}
 
-    {% block contain %}
-        <div class="ui bottom attached large segment">
-
-            {% show_messages messages %}
-            {% block content %}
-                Content
-            {% endblock %}
-
-        </div>
-    {% endblock %}
 
 
 

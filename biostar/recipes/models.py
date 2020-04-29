@@ -244,7 +244,6 @@ class Project(models.Model):
     def get_name(self):
         if self.deleted:
             return f'Deleted: {self.name}'
-
         return self.name
 
 
@@ -546,7 +545,6 @@ class Analysis(models.Model):
 
         # Ensure Unix line endings.
         self.template = self.template.replace('\r\n', '\n') if self.template else ""
-
 
         self.project.set_counts(save=True)
         super(Analysis, self).save(*args, **kwargs)

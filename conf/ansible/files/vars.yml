@@ -1,5 +1,5 @@
 
-engine_git: https://github.com/ialbert/biostar-central.git
+engine_git:  "{{ repo | default('https://github.com/ialbert/biostar-central.git') }}"
 engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
 
 bin_dir: "/export/bin"
@@ -20,7 +20,6 @@ install: False
 restart: False
 reset: False
 backup: False
-
 
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_env: "engine"

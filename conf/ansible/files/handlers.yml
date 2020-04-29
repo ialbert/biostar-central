@@ -25,7 +25,9 @@
 
 
 - name: python install
-  shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/pip_requirements.txt"
+  shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
+          conda activate {{conda_env}} &&
+          pip install -r conf/requirements.txt"
   args:
     executable: /bin/bash
     chdir: "{{ engine_dir }}"
@@ -48,7 +50,7 @@
 
 - name: restart server
   become: yes
-  shell: supervisorctl restart "{{ supervisor_program | default('engine') }}"
+  shell: supervisorctl restart "{{ runner | default('engine') }}"
 
 - name: reload supervisor
   become: yes

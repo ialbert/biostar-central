@@ -18,6 +18,19 @@ TAGS_PER_PAGE = 50
 
 STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
 
+# Time period to cache Ips for banning.
+TIME_PERIOD = 24 * 3600
+
+# How many visit within that time period.
+MAX_VISITS = 50
+
+# Whitelist of Ip addresses.
+IP_WHITELIST = [
+
+]
+
+BANNED_IPS = os.path.join(BASE_DIR, 'export', 'logs', 'banned.txt')
+
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
 
@@ -94,6 +107,7 @@ FORUM_APPS = [
 
 # Additional middleware.
 MIDDLEWARE += [
+    'biostar.forum.middleware.ban_ip',
     'biostar.forum.middleware.user_tasks',
     'biostar.forum.middleware.benchmark',
 ]

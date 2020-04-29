@@ -9,10 +9,16 @@
 
   tasks:
     - include_vars: files/vars.yml
-    #- name: Backup servers
-    #  shell: ls
-    #  notify:
-    #    - server backup
+    - name: Install reqs
+      shell: ls
+      notify:
+        - python install
+
+    - name: Backup servers
+      shell: ls
+      notify:
+        - server backup
+        -
     - name: Update the biostar-engine
       git:
         repo: "{{ engine_git }}"
@@ -23,15 +29,10 @@
         - reload supervisor
         - restart nginx
 
-    - name: Install python requirements
-      shell: "source {{conda_dir}}/etc/profile.d/conda.sh && conda activate {{conda_env}} && pip install -r conf/requirements.txt"
-      args:
-        executable: /bin/bash
-        chdir: "{{ engine_dir }}"
-
     - name: Restart servers
       shell: ls
       notify:
+        - python install
         - server migrate
         - reload supervisor
         - restart nginx

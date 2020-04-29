@@ -7,14 +7,14 @@
 
 {% block ribbon %}
     {% if user.is_authenticated %}
-        <a class="ui right ribbon obj label" href="{% url 'project_create' %}">
+        <a class="ui green label" href="{% url 'project_create' %}">
             <i class="plus icon"></i>New Project
         </a>
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    <div  id="project_view">
+    <div id="project_view">
 
         {{ project.html|safe }}
 
@@ -46,7 +46,7 @@
 
         {% if write_access %}
             <div class="ui  divider"></div>
-            <div class="ui basic center aligned segment">
+            <div class="ui basic vertical center aligned segment">
 
                 <a class="ui  button" href="{% url 'project_edit' project.uid %}">
                     <i class="edit icon"></i>Edit Project

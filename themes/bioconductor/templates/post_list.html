@@ -27,7 +27,7 @@
 
         <div class="ui divided items">
             {% for post in posts %}
-                {% post_details post=post user=request.user %}
+                {% post_details post=post user=request.user avatar=False %}
             {% empty %}
                 <div class="ui warn message">
                     No posts found.

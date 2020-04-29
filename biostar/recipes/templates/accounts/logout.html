@@ -1,4 +1,4 @@
-{% extends "engine_base.html" %}
+{% extends "base_template.html" %}
 {% load engine_tags %}
 
 {% block headtitle %} Biostar Engine {% endblock %}
@@ -7,14 +7,11 @@
 {% block body %}
 
      <form method="post" action="{% url 'logout' %}" >
-    {% show_messages messages %}
+
         <div class="ui center aligned header">
-
             <i class="sign out icon"></i>Do you want to log out?
-
         </div>
         <div class="ui centered card inputcolor">
-
             <div class="ui basic segment">
                     {% csrf_token %}
                     <button class="ui primary button" type="submit"> <i class="sign out icon"></i> Log out</button>

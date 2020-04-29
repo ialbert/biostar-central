@@ -13,7 +13,7 @@
 
                     <div class="content">
 
-                        <a class="subheader" href="{% url 'recipe_listing' project.label %}">
+                        <a class="subheader" href="{% url 'recipe_list' project.uid %}">
                             <i class="database icon"></i>{{ project.get_name }}
                         </a>
 
@@ -24,17 +24,16 @@
                             <span class ="ui label">{{ project.get_privacy_display }}</span>
 
                             <a
-                                    href="{% url 'data_listing' project.label %}">
+                                    href="{% url 'data_list' project.uid %}">
                                 <i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
 
                             <a
-                                    href="{% url 'recipe_listing' project.label %}">
+                                    href="{% url 'recipe_list' project.uid %}">
                                 <i class="setting icon"></i>{{ project.recipes_count }}
                                 recipe{{ project.recipes_count|pluralize }}</a>&bull;
 
                             <a
-                                    {% url 'job_listing' project.label %}
-                                    href="{% url 'job_listing' project.label %}">
+                                    href="{% url 'job_list' project.uid %}">
                                 <i class="bar chart icon"></i>{{ project.jobs_count }}
                                 result{{ project.jobs_count|pluralize }}</a>
 
