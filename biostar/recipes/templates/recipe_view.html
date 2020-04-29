@@ -35,17 +35,12 @@
                 <a class="item click" href="#" data-value="#info">
                     <i class="info circle icon"></i> Description
                 </a>
-
-                <a class="item" href="{% url 'recipe_download' recipe.uid %}">
-                    <i class="download icon"></i> Download
+                <a class="item click" href="#" data-value="#run">
+                    <i class="setting icon"></i> Execute
                 </a>
 
                 <a class="item click" href="#" data-value="#results">
                     <i class="settings icon"></i> Results ({{ recipe.job_count }})
-                </a>
-
-                <a class="item click" href="#" data-value="#run">
-                    <i class="setting icon"></i> Execute
                 </a>
 
                 <a class="item click" href="#" data-value="#interface">
@@ -54,6 +49,10 @@
 
                 <a class="item click" href="#" data-value="#code">
                     <i class="code icon"></i> Code
+                </a>
+
+                <a class="item" href="{% url 'recipe_download' recipe.uid %}">
+                    <i class="download icon"></i> Download
                 </a>
 
 
