@@ -17,6 +17,9 @@ body {
 }
 
 
+#interface .grid .labels .label{
+    width: 100%;
+}
 #top .header{
     margin-top: 0px;
 }
@@ -584,7 +587,7 @@ pre > code{
 }
 
 .muted {
-    color: #999999;
+    color: #999999 !important;
 }
 
 pre {

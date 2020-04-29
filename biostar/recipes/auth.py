@@ -293,7 +293,6 @@ def create_project(user, name="", uid=None, summary='', text='', stream=None, la
         Project.objects.filter(id=project.pk).update(uid=uid)
         project = Project.objects.filter(pk=project.pk).first()
         logger.info(f"Changed the uid: {uid}")
-
     # Update the image for the project.
     if stream:
         project.image.save(stream.name, stream, save=True)
