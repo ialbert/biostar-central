@@ -7,7 +7,10 @@ REPO := https://github.com/ialbert/biostar-central.git
 
 bioconductor:
 	$(eval RUNNER:=forum)
-	$(eval HOST := hosts/themes/supportupgrade.bioconductor.org)
+	$(eval HOST := hosts/supportupgrade.bioconductor.org)
+
+recipes:
+	$(eval HOST := hosts/www.bioinformatics.recipes)
 
 config:
 	ansible-playbook -i ${HOST} server-config.yml -v  --extra-vars "repo=${REPO} runner=${RUNNER}"
