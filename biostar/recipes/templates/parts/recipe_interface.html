@@ -3,43 +3,14 @@
 {# The preview panel #}
 <div class="ui center aligned header">Interface Builder</div>
 
+<div class="ui center aligned muted container">Click buttons to the right to add fields. </div>
+
 <div class="ui grid">
     <div class="eleven wide column">
         <div class="ui basic segment" id="preview"></div>
     </div>
     <div class="four wide column">
-        <div class="ui basic segment">
-            <div class="ui large labels">
-
-                <a class="ui label" data-value="
-                        [cutoff]
-                        label = 'P_Value Cutoff'
-                        display = 'FLOAT'
-                        value = 0.05
-                        range = [0, 1]
-                        help = 'Selects the cutoff.'
-                        ">
-                    <i class="plus square outline icon"></i> Float
-                </a>
-                <a class="ui label" data-value="
-                    [file]
-                    label = 'Upload a file'
-                    display = 'UPLOAD'
-                    help = 'Upload a file to analyze'
-                    ">
-                    <i class="plus square outline icon"></i> Upload
-                </a>
-
-                <a class="ui label" data-value="
-                        [size]
-                        label = 'Window size'
-                        display = 'INTEGER'
-                        value = 100
-                        range = [1, 100]
-                        help = 'Selects the smoothing window.'
-                        ">
-                    <i class="plus square outline icon"></i> Integer
-                </a>
+        <div class="ui large labels">
                 <a class="ui label" data-value="
                     [sra]
                     label = 'Run Number'
@@ -48,7 +19,17 @@
                     regex = 'SRR\d+'
                     help = 'Please provide SRR Run number'
                     ">
-                    <i class="plus square outline icon"></i> Text Box
+                    <i class="plus square outline icon"></i> Add text box
+                </a>
+                <a class="ui label" data-value="
+                        [cutoff]
+                        label = 'P_Value Cutoff'
+                        display = 'FLOAT'
+                        value = 0.05
+                        range = [0, 1]
+                        help = 'Selects the cutoff.'
+                        ">
+                    <i class="plus square outline icon"></i> Add float field
                 </a>
                 <a class="ui label" data-value="
                     [data]
@@ -57,7 +38,7 @@
                     help = 'Pick data from this project.'
                     choices = [ ['A','Default'] ]
                     ">
-                    <i class="plus square outline icon"></i> Pick Data
+                    <i class="plus square outline icon"></i> Add data field
                 </a>
                 <a class="ui label" data-value="
                     [validate]
@@ -66,7 +47,7 @@
                     value = true
                     help = 'Apply cross validation on the results.'
                     ">
-                    <i class="plus square outline icon"></i> Checkbox
+                    <i class="plus square outline icon"></i> Add checkbox
                 </a>
 
                 <a class="ui label" data-value="
@@ -77,7 +58,26 @@
                     value = 'R'
                     help = 'Select a color of your choice.'
                     ">
-                    <i class="plus square outline icon"></i> Dropdown
+                    <i class="plus square outline icon"></i> Add dropdown
+                </a>
+                <a class="ui label" data-value="
+                    [file]
+                    label = 'Upload a file'
+                    display = 'UPLOAD'
+                    help = 'Upload a file to analyze'
+                    ">
+                    <i class="plus square outline icon"></i> Add upload field
+                </a>
+
+                <a class="ui label" data-value="
+                        [size]
+                        label = 'Window size'
+                        display = 'INTEGER'
+                        value = 100
+                        range = [1, 100]
+                        help = 'Selects the smoothing window.'
+                        ">
+                    <i class="plus square outline icon"></i> Add integer field
                 </a>
                 <a class="ui label" data-value="
                     [species]
@@ -87,9 +87,8 @@
                     value = 'c'
                     help = 'Select the species.'
                     ">
-                    <i class="plus square outline icon"></i> Radio Button
+                    <i class="plus square outline icon"></i> Add radio button
                 </a>
-            </div>
         </div>
     </div>
 </div>
@@ -133,7 +132,7 @@
     $(document).ready(function () {
         var textarea = $('#interface_editor');
         var editor = init_codemirror(textarea, 400);
-        
+
         update_preview();
         $(this).on('click', '.labels .label', function () {
             //var curr = $(this).closest(".card");
