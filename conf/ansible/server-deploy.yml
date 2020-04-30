@@ -18,7 +18,7 @@
       shell: ls
       notify:
         - server backup
-        -
+ 
     - name: Update the biostar-engine
       git:
         repo: "{{ engine_git }}"
