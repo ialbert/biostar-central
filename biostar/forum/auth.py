@@ -488,6 +488,7 @@ class Moderate(object):
         if not self.post.author.profile.is_moderator:
             self.post.author.profile.state = Profile.SUSPENDED
             self.post.author.profile.save()
+
         self.post.spam = Post.SPAM
         self.post.save()
 
