@@ -135,3 +135,7 @@ To locally test and edit the top banner,
 you can edit the `themes/bioconductor/templates/banners/top-banners.html`
 
 On the remote site, this top banner is found in `biostar-centra/templates/banners/top-banner.html`
+
+To see the changes in the top-banner.html , restart the server:
+
+    sudo supervisorctl restart forum
