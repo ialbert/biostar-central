@@ -25,6 +25,7 @@ logger = logging.getLogger("engine")
 def api_error(msg="Api Error"):
     return {'error': msg}
 
+
 def stat_file(date, data=None, load=False, dump=False):
 
     os.makedirs(settings.STATS_DIR, exist_ok=True)
@@ -124,6 +125,14 @@ def json_response(f):
             response.reason_phrase = 'Not found'
         return response
     return to_json
+
+
+def recent_batch_date(request):
+    return
+
+
+def recent_batch_id(request):
+    return
 
 
 @json_response

@@ -94,8 +94,8 @@ def add_spam(post):
 def build_spam_index(overwrite=False, add_ham=False, limit=500):
     # Get all un-indexed spam posts.
 
-    spam = Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
-    spam = spam.exclude(Q(spam=Post.SUSPECT)).order_by("pk")[:limit]
+    spam = Post.objects.filter(spam=Post.SPAM).exclude(spam=Post.SUSPECT)
+    spam = spam.order_by("pk")[:limit]
     spam = list(spam.values_list("id", flat=True))
     # Set indexed flag here so it does not get added to main index.
     if add_ham:
@@ -151,7 +151,8 @@ def compute_score(post, ix=None):
 
     ix = ix or init_spam_index()
     N = 1
-    weight = 0.96
+    weight = .7
+    bias = -0.25
 
     # Users above a certain score get green light.
     if not post.author.profile.low_rep:
@@ -164,6 +165,8 @@ def compute_score(post, ix=None):
     scores = [s.score for s in similar_content if s.is_spam]
     # Take the top N maximum score and compute the mean
     scores = sorted(scores, reverse=True)
+    n = len(scores)
+
     scores = [s for s in scores][:N]
 
     # Return the mean of the scores.
@@ -172,7 +175,9 @@ def compute_score(post, ix=None):
     else:
         # Apply a weighted version of the threshold
         # when no similar posts are found.
-        mean = settings.SPAM_THRESHOLD * weight
+        mean = settings.SPAM_THRESHOLD
+
+    mean = ((mean * n) * weight) + bias
 
     return mean
 
@@ -258,11 +263,8 @@ def detail(post, post_score, is_spam=True, predict=True, verb=1):
         print(">"*5)
 
     if verb >= 1 and (fp or fn):
-        print("USER", post.author)
-        print("USER SCORE", post.author.profile.score)
         print("POSER SCORE", post_score)
-        if fp:
-            print(post.content)
+
     print()
     print("-" * 5)
     return
@@ -277,7 +279,7 @@ def test_classify(threshold=None, niter=100, limitmb=1024, size=100, verbosity=0
     spam = Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
 
     # Get the valid posts and shuffle.
-    ham = Post.objects.valid_posts(author__profile__score__lte=0)
+    ham = Post.objects.valid_posts(author__profile__score__lte=0, type__in=[Post.ANSWER, Post.COMMENT])
 
     # Get list of id's for both
     spam = list(spam.values_list("id", flat=True))
