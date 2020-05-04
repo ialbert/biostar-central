@@ -66,7 +66,7 @@ Execute the following to install all anaconda requirements:
  After dependencies have been installed, a migration needs to be made to create the database collect static files.
  
  
- ## 3. Run migrations and tests. 
+## 3. Run migrations and tests. 
  
 Activate the `engine` virtual environment.
 
