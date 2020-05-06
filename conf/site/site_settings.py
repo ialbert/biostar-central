@@ -1,31 +1,30 @@
 import os
+
 from biostar.settings import *
 
-# Enable the right settings.
-
-#from biostar.recipes.settings import *
+# from biostar.recipes.settings import *
 
 from biostar.forum.settings import *
 
 import logging
+import platform
 
 logger = logging.getLogger("biostar")
 
 DEBUG = True
 
 SITE_ID = 1
-SITE_DOMAIN = "www.lvh.me"
-SITE_NAME = "Biostar Engine"
+
+# Attempts to detect hostname automatically.
+SITE_DOMAIN = platform.node()
+SITE_NAME = "Biostar Central"
 HTTP_PORT = ''
 PROTOCOL = 'http'
 
 ALLOWED_HOSTS = [SITE_DOMAIN]
 
+DATABASE_NAME = "biostar-database"
 
-# Uncomment to enable postgres database.
-"""
-DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
-POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
 DATABASES = {
 
     'default': {
@@ -33,11 +32,10 @@ DATABASES = {
         'NAME': DATABASE_NAME,
         'USER': '',
         'PASSWORD': '',
-        'HOST': POSTGRES_HOST,
+        'HOST': '/var/run/postgresql/',
         'PORT': '',
     },
 }
-"""
 
 WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 

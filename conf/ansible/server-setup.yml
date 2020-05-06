@@ -3,23 +3,18 @@
   user: root
 
   tasks:
-    - include_vars: files/vars.yml
-    - name: Aptitude needs to be present.
-      vars:
-        packages: [ 'aptitude' ]
-      apt:
-        name: "{{ packages }}"
+    - include_vars: variables.yml
+
+    - name: Add universe repository
+      apt_repository:
+        repo: deb http://archive.ubuntu.com/ubuntu focal universe
+        state: present
 
     - name: Update and upgrade packages.
       apt:
         upgrade=yes
         update_cache=yes
         cache_valid_time=86400 # One day
-
-    - name: Add certbot repository
-      apt_repository:
-        repo: 'ppa:certbot/certbot'
-        state: present
 
     - name: Create the bioinfo group
       group:
@@ -35,7 +30,7 @@
         shell: /bin/bash
         groups: www, bioinfo, sudo
 
-    - name: Set authorized key for copying it from current user
+    - name: Set authorized key for www user
       authorized_key:
         user: www
         state: present
@@ -43,8 +38,8 @@
 
     - name: Install required packages
       vars:
-        packages: [ 'nginx', 'postgresql', 'software-properties-common', 'python-certbot-nginx', 'python3-pip', 'libpq-dev',
-                    'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'supervisor', 'python-psycopg2' ]
+        packages: [ 'aptitude', 'nginx', 'certbot', 'postgresql', 'software-properties-common', 'python3-pip', 'libpq-dev',
+                    'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'supervisor' ]
       apt:
         name: "{{ packages }}"
 
@@ -81,17 +76,19 @@
         - /etc/nginx/sites-enabled
         - /etc/supervisor/conf.d
 
-    - name: Make sure psycopg2 is installed
-      pip:
-        name: psycopg2
-        state: present
-        executable: pip3
-
     - name: Create postgresql database user
       become: yes
       become_user: postgres
       postgresql_user:
         name: www
         password: md5437a687918743dac1889ef033bcb5bbd
-        role_attr_flags: CREATEDB,CREATEROLE
+        role_attr_flags: CREATEDB
+      no_log: true
 
+    - name: Create postgresql database user
+      become: yes
+      become_user: postgres
+      postgresql_db:
+        name: biostar-database
+        owner: www
+      no_log: true

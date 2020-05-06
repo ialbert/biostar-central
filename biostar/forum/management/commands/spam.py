@@ -18,8 +18,8 @@ class Command(BaseCommand):
         parser.add_argument('--remove', action='store_true', default=False, help="Removes the existing index.")
         parser.add_argument('--test', action='store_true', default=False,
                             help="Run specificity/sensitivity test against content in database.")
-        parser.add_argument('--niter', type=int, default=400, help="Number of iterations to test.")
-        parser.add_argument('--nsize', type=int, default=800, help="Size of index per iteration.")
+        parser.add_argument('--niter', type=int, default=100, help="Number of iterations to test.")
+        parser.add_argument('--nsize', type=int, default=1500, help="Size of index per iteration.")
         parser.add_argument('--limitmb', type=int, default=1024, help="Limit the size of the index buffer when testing")
         parser.add_argument('--index', action='store_true', default=False, help="How many posts to index")
         parser.add_argument('--verb', type=int, default=0, help="Set the verbosity")
@@ -40,7 +40,7 @@ class Command(BaseCommand):
         # Sets the un-indexed flags to false on all posts.
         if reset:
             logger.info(f"Setting indexed field to false on all post.")
-            Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED)).update(indexed=False)
+            Post.objects.filter(Q(spam=Post.SPAM)).update(indexed=False)
 
         # Index a limited number yet unindexed posts
         if index:
