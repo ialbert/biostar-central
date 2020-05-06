@@ -16,12 +16,18 @@ setup:
 install:
 	ansible-playbook -i hosts.ini -l ${TARGET} server-install.yml  --extra-vars "repo=${REPO}"
 
+
+restart:
+	ansible-playbook -i hosts.ini -l ${TARGET} server-restart.yml
+
 transfer:
 	echo LOCAL_OLD_DB=${LOCAL_OLD_DB}
 	ansible-playbook -i ${HOST} server-migrate.yml --ask-become-pass --extra-vars "local_old_db=${LOCAL_OLD_DB} repo=${REPO}"  -v
 
-deploy:
-	ansible-playbook -i ${HOST} server-deploy.yml --ask-become-pass --extra-vars "restart=True repo=${REPO} runner=${RUNNER}"  -v
+deploy-code:
+	ansible-playbook -i hosts.ini -l ${TARGET} server-deploy.yml  --extra-vars "repo=${REPO}"
+
+deploy: deploy-code restart
 
 
 # Temporary command to deploy forum at current state - with directory name being ~/biostar-engine/

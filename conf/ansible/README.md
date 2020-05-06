@@ -20,7 +20,17 @@ Create a copy of this file and add your own hostnames to it.
 
 The installation commands below will target subsets in hosts file.
 
-## Server Setup
+## Quick start
+
+Run:
+
+    make setup install deploy TARGET=test 
+
+Visit your domain to view the default site installed and deployed via Nginx and Postgresql.
+
+Read on for details on what takes place in each step.
+
+## Server setup
 
 The `server-setup.yml` playbook is designed for a Ubuntu 20.04 LTS based linux server. It will install `nginx`, `postgresql` and other packages, and create the user  `www` that will own the application server install.
 
@@ -36,7 +46,7 @@ You may need to (manually) restart the server to load some of the updated packag
     
     reboot now
     
-## Software Installation
+## Software installation
 
 The ansible playbooks below will perform the following actions:
 

@@ -121,11 +121,22 @@
         dest:  /etc/supervisor/conf.d/site_supervisor.conf
         state: link
 
+    - name: Remove default nginx site
+      file:
+       path: /etc/nginx/sites-enabled/default
+       state: absent
+
     - name: Install conda requirements
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
              conda activate {{conda_env}}  &&
              conda config --add channels conda-forge &&
              conda install -y --file conf/conda-packages.txt"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
+
+    - name: Create the first data migration.
+      shell: "./server-migrate.sh"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
