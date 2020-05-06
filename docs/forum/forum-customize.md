@@ -1,7 +1,7 @@
 # Documentation for Customizing the Biostars Forum
 
 
-## Setting up remote postgres database for synchronize
+## Setting up remote postgres database for synchronization 
 
 **Note: You need SSH access to the remote server.**
 
