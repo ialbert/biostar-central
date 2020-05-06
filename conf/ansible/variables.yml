@@ -1,29 +1,24 @@
+#
+# Contains server wide variables.
+#
 
+# The git location that will be cloned.
 engine_git:  "{{ repo | default('https://github.com/ialbert/biostar-central.git') }}"
+
+# The directory the site is deployed to.
 engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
 
+# File structure for bioinformatics tools.
 bin_dir: "/export/bin"
 src_dir: "/export/src"
 ref_dir: "/export/refs"
 
-# Location of old database on local machine
-local_old: "{{ local_old_db }}"
-
-# Location to the old database in remote node
-# This is the destination where local_old will be copied.
-remote_old: "{{ engine_dir }}/export/sql/{{ local_old_db | basename }}"
-
+# Default django settings to be used.
 django_settings_module: "conf.run.site_settings"
 
-# Installs recipe dependencies.
-install: False
-restart: False
-reset: False
-backup: False
-
-conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
+# Conda setup.
 conda_env: "engine"
-
+conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"
 conda_url: https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 conda_dir: "~/miniconda3"
 

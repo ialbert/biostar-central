@@ -1,52 +1,57 @@
 # Setting up the infrastrucuture
 
-Setup is automated via ansible.
+The commands below assume an Ubuntu Linux 20.04 LTS distribution. We assume the remote hostname 
+and timezones have already been set.
 
-Install ansible into the current python environment:
+    hostnamectl set-hostname www.foo.com
+    timedatectl set-timezone US/Eastern
+
+Setup is automated via [ansible][ansible]. Install ansible into the current python environment:
 
     pip install ansible
 
-Check that ansible works (use your domain instead of test.biostars.org):
+[ansible]: https://www.ansible.com/
 
-    ansible test.biostars.org -u www -m ping all
+## Hosts
 
-Alternatively use a host file that contains target server names:
+The `hosts.ini` file lists the groups of servers that can be targeted. 
 
-    ansible -i hosts/test.biostars.org -u www -m ping all
+Create a copy of this file and add your own hostnames to it. 
 
-## Server configuration
+The installation commands below will target subsets in hosts file.
 
-Ensure that you have a generated a public key on your current system. This will be copied over
-to the server for public key authentication.
+## Server Setup
 
-    shh-keygen
+The `server-setup.yml` playbook is designed for a Ubuntu 20.04 LTS based linux server. It will install `nginx`, `postgresql` and other packages, and create the user  `www` that will own the application server install.
 
-Set up the server infrastructure (apt-get, default users, directories)
+Run the playbook with ansible:
 
-Manually
+    ansible-playbook -i hosts.ini -l test server-setup.yml
 
-    ansible-playbook -i hosts/test.biostars.org server-config.yml
-
-Makefile
+The same can be done using `make`:
      
-    make config HOST=hosts/test.biostars.org  
+    make setup TARGET=test 
 
-The playbook above will bootstrap a Ubuntu based linux server, a user named `www` and
-`nginx` and `postgresql`. You may log into the `www` server via public key authentication.
-
-
-## Software installation
-
-To install the server and the python dependencies run:
-
-Manually
-
-    ansible-playbook -i hosts/test.biostars.org server-config.yml
-
-Makefile
-     
-    make install HOST=hosts/test.biostars.org  
+You may need to (manually) restart the server to load some of the updated packages:
     
+    reboot now
+    
+## Software Installation
+
+The ansible playbooks below will perform the following actions:
+
+1. download and install conda, 
+2. create a conda enviroment called `engine` prepared to run the biostars software
+3. clone the application server and create copies for each configuration file.
+4. create copies for the migration and backup scripts.
+
+Run the playbook with ansible:
+
+    ansible-playbook -i hosts.ini -l test server-install.yml
+
+The same can be done using `make`:
+     
+    make install TARGET=test   
     
 The playbook above will clone the repository into the directory.
 
@@ -56,19 +61,18 @@ At the end of the installation, the playbook will copy the configuration files f
 
     /export/www/biostar-engine/biostar-central/conf/site/
 
-to
+to 
 
     /export/www/biostar-engine/biostar-central/conf/run/
 
-Link server files manually with:
+You will need to link the configuration files from command line:
 
     ln -sf /export/www/biostar-central/conf/run/site_nginx.conf /etc/nginx/sites-enabled/
     ln -sf /export/www/biostar-central/conf/run/site_supervisor.conf /etc/supervisor/conf.d/
 
 You may now edit and customize the settings file located in `biostar-engine/conf/run/`
 
-
-Activate and install the conda dependencies:
+By default only the immediate software requirements are installed. 
 
     conda config --add channels bioconda
     conda config --add channels conda-forge
