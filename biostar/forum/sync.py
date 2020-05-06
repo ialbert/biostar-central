@@ -61,7 +61,7 @@ def query_posts(cursor, start, end):
 
 def get_closest_dates(cursor, start, days):
 
-    logger.info(f"Getting the closest start date to: {start.date()}")
+    logger.info(f"Getting the closest date to: {start.date()}")
     end = start + timedelta(days=days)
 
     cursor.execute(f"""SELECT creation_date
@@ -81,8 +81,17 @@ def get_closest_dates(cursor, start, days):
     return start, end
 
 
-def load_posts(posts):
-    print(posts[0])
+def update_thread(root_id):
+    """
+    Fetch every post with this root id on both ends.
+    If either do not exist, then create.
+
+    """
+    return
+
+
+def load_posts(thread):
+    print(thread[0])
     logger.info(f"Loading {len(posts)} posts.")
 
     # print(cur.fetchone())
