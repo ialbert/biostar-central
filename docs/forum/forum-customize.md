@@ -5,19 +5,19 @@
 
 **Note: You need SSH access to the remote server.**
 
-1. Login to remote server.
+### 1. Login to remote server.
 
 
      ssh user@host      # Log into remote server
 
-2. Get location of `postgresql.conf`.
+### 2. Get location of `postgresql.conf`.
  
  
     find / -name "postgresql.conf" # Find the postgresql.conf
     
 The location is expected to look like : `/etc/postgresql/10/main/postgresql.conf`
 
-3. Edit `postgresql.conf`. 
+### 3. Edit `postgresql.conf`. 
 
 Open postgresql.conf file and add the following line to the end.
 
@@ -26,9 +26,9 @@ Open postgresql.conf file and add the following line to the end.
 This allows for postgres to listen to all IP address on the remote server. Without this, it is restricted to 127.0.0.1 
 
 
-4. Find and edit `pg_hba.conf`
+### 4. Find and edit `pg_hba.conf`
 
-Repeat step 2 to find this file:
+Repeat step 2 to find `pg_hba.conf` file:
 
      find / -name "pg_hba.conf"
 
@@ -47,7 +47,7 @@ Add the following line to the end of `pg_hba.conf` file after replacing the `IP`
 For more on PostgresSQL authentication: https://www.postgresql.org/docs/9.6/auth-pg-hba-conf.html
 
 
-5. Restart PostgreSQL server to apply the changes.
+### 5. Restart PostgreSQL server to apply the changes.
 
 
     # Restart method 1
