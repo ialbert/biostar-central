@@ -1,4 +1,5 @@
 import os
+import uuid
 
 from biostar.settings import *
 
@@ -13,10 +14,23 @@ logger = logging.getLogger("biostar")
 
 DEBUG = True
 
-SITE_ID = 1
+# Set your own secret key here.
+SECRET_KEY = str(uuid.uuid4())
+
+# Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
+ADMINS = [
+    ("Admin User", "admin@localhost")
+]
+
+# Set the default adming password.
+DEFAULT_ADMIN_PASSWORD = SECRET_KEY
 
 # Attempts to detect hostname automatically.
+# Override with your own domain.
 SITE_DOMAIN = platform.node()
+
+SITE_ID = 1
+
 SITE_NAME = "Biostar Central"
 HTTP_PORT = ''
 PROTOCOL = 'http'
