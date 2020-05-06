@@ -38,7 +38,7 @@
 
     - name: Install required packages
       vars:
-        packages: [ 'nginx', 'certbot', 'postgresql', 'software-properties-common', 'python3-pip', 'libpq-dev',
+        packages: [ 'aptitude', 'nginx', 'certbot', 'postgresql', 'software-properties-common', 'python3-pip', 'libpq-dev',
                     'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'supervisor' ]
       apt:
         name: "{{ packages }}"
@@ -82,5 +82,13 @@
       postgresql_user:
         name: www
         password: md5437a687918743dac1889ef033bcb5bbd
-        role_attr_flags: CREATEDB, CREATEROLE
+        role_attr_flags: CREATEDB
+      no_log: true
+
+    - name: Create postgresql database user
+      become: yes
+      become_user: postgres
+      postgresql_db:
+        name: biostar-database
+        owner: www
       no_log: true

@@ -32,7 +32,7 @@ DATABASES = {
         'NAME': DATABASE_NAME,
         'USER': '',
         'PASSWORD': '',
-        'HOST': '',
+        'HOST': '/var/run/postgresql/',
         'PORT': '',
     },
 }
