@@ -82,5 +82,5 @@
       postgresql_user:
         name: www
         password: md5437a687918743dac1889ef033bcb5bbd
-        role_attr_flags: CREATEDB,CREATEROLE
+        role_attr_flags: CREATEDB, CREATEROLE
       no_log: true

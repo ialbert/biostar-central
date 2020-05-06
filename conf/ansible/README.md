@@ -57,27 +57,13 @@ The playbook above will clone the repository into the directory.
 
     /export/www/biostar-central/
     
-At the end of the installation, the playbook will copy the configuration files from
+You must edit the settings file located in `biostar-engine/conf/run/site_settings.py` and 
+change the `SITE_DOMAIN` variable to match your current domain.
 
-    /export/www/biostar-engine/biostar-central/conf/site/
+## Database settings
 
-to 
-
-    /export/www/biostar-engine/biostar-central/conf/run/
-
-You will need to link the configuration files from command line:
-
-    ln -sf /export/www/biostar-central/conf/run/site_nginx.conf /etc/nginx/sites-enabled/
-    ln -sf /export/www/biostar-central/conf/run/site_supervisor.conf /etc/supervisor/conf.d/
-
-You may now edit and customize the settings file located in `biostar-engine/conf/run/`
-
-By default only the immediate software requirements are installed. 
-
-    conda config --add channels bioconda
-    conda config --add channels conda-forge
-    conda activate engine
-    conda install --file conf/conda_requirements.txt
+By default the postgresql database will be accessible only from the local 
+machine with `www` user having database creation roles.
 
 ## Software deployment
 
