@@ -7,7 +7,7 @@ Setup is automated via [ansible][ansible]. Install ansible into the current pyth
 The commands below assume the following:
 
 1. An Ubuntu Linux 20.04 LTS distribution. 
-2. You can log into the `root` user of the distribution (public-key authentication preferred)
+2. You are able to log into the `root` user of the host (public-key authentication preferred)
 2. The remote hostname and timezones have already been set.
 
         hostnamectl set-hostname www.foo.com
@@ -39,15 +39,13 @@ Read on for details on what takes place during each step.
 
 ## Server setup
 
-The `server-setup.yml` playbook is designed for a Ubuntu 20.04 LTS based linux server. It will install `nginx`, `postgresql` and other packages, and create the user  `www` that will own the application server install.
+The `server-setup.yml` playbook is designed for a Ubuntu 20.04 LTS based linux server. It will install `nginx`, `postgresql` and other packages, creates the user  `www` that will own the application server install.
 
-Run the playbook with ansible:
+    make setup TARGET=test 
+    
+or you can run the playbook with ansible:
 
     ansible-playbook -i hosts.ini -l test server-setup.yml
-
-The same can be done using `make`:
-     
-    make setup TARGET=test 
 
 You may need to manually restart the server to apply some of the updates:
     
@@ -55,7 +53,7 @@ You may need to manually restart the server to apply some of the updates:
     
 ## Software install
 
-The ansible playbooks below will perform the following actions:
+The ansible playbooks below will perform the following actions as user `www`:
 
 1. download and install `conda`, 
 1. create a conda enviroment called `engine` that can run the biostars software
@@ -75,11 +73,15 @@ The playbook above will clone the repository into the directory.
 
     /export/www/biostar-central/
     
-Edit the settings file located in `biostar-engine/conf/run/site_settings.py` and change:
+Edit the settings file located in `conf/run/site_settings.py` and change:
 
 * `SECRET_KEY`
 * `SITE_DOMAIN`
 
+Add more settings as needed then restart the servers:
+
+    make restart TARGET=test
+    
 ## Database settings
 
 By default the postgresql database will be accessible only from the local 
