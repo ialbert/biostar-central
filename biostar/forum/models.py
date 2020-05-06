@@ -44,6 +44,14 @@ class PostManager(models.Manager):
 
         return query
 
+    def old(self, **kwargs):
+        """
+        Return posts that were transferred over from an older verion of biostars
+        """
+        query = super().get_queryset().exclude(uid__contains='p').filter(**kwargs)
+        return query
+
+
 
 class AwardManager(models.Manager):
 
