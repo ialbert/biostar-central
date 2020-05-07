@@ -1,0 +1,15 @@
+---
+- hosts: all
+  user: root
+
+  tasks:
+
+    - name: Reload supervisor
+      become: yes
+      service:
+        name: supervisor
+        state: reloaded
+
+    - name: Restart nginx
+      become: yes
+      service: name=nginx state=restarted

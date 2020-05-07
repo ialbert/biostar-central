@@ -1,65 +1,87 @@
-# Setting up the infrastrucuture
-
-The commands below assume an Ubuntu Linux 20.04 LTS distribution. We assume the remote hostname 
-and timezones have already been set.
-
-    hostnamectl set-hostname www.foo.com
-    timedatectl set-timezone US/Eastern
+# System setup
 
 Setup is automated via [ansible][ansible]. Install ansible into the current python environment:
 
     pip install ansible
+    
+The commands below assume the following:
+
+1. An Ubuntu Linux 20.04 LTS distribution. 
+2. You are able to log into the `root` user of the host (public-key authentication preferred)
+2. The remote hostname and timezones have already been set.
+
+        hostnamectl set-hostname www.foo.com
+        timedatectl set-timezone US/Eastern
 
 [ansible]: https://www.ansible.com/
 
 ## Hosts
 
-The `hosts.ini` file lists the groups of servers that can be targeted. 
+The `hosts.ini` file lists the groups of servers that can be targeted. For example:
 
-Create a copy of this file and add your own hostnames to it. 
+    [test]
+    test.biostars.org
+    
+    [recipes]
+    www.bioinformatics.recipes
 
 The installation commands below will target subsets in hosts file.
 
-## Server Setup
+## Quick start
 
-The `server-setup.yml` playbook is designed for a Ubuntu 20.04 LTS based linux server. It will install `nginx`, `postgresql` and other packages, and create the user  `www` that will own the application server install.
+Run:
 
-Run the playbook with ansible:
+    make setup install deploy TARGET=test 
+
+Once completed a default site will be installed and deployed via Nginx and Postgresql.
+
+Read on for details on what takes place during each step.
+
+## Server setup
+
+The `server-setup.yml` playbook is designed for a Ubuntu 20.04 LTS based linux server. It will install `nginx`, `postgresql` and other packages, creates the user  `www` that will own the application server install.
+
+    make setup TARGET=test 
+    
+or you can run the playbook with ansible:
 
     ansible-playbook -i hosts.ini -l test server-setup.yml
 
-The same can be done using `make`:
-     
-    make setup TARGET=test 
-
-You may need to (manually) restart the server to load some of the updated packages:
+You may need to manually restart the server to apply some of the updates:
     
     reboot now
     
-## Software Installation
+## Software install
 
-The ansible playbooks below will perform the following actions:
+The ansible playbooks below will perform the following actions as user `www`:
 
-1. download and install conda, 
-2. create a conda enviroment called `engine` prepared to run the biostars software
-3. clone the application server and create copies for each configuration file.
-4. create copies for the migration and backup scripts.
+1. download and install `conda`, 
+1. create a conda enviroment called `engine` that can run the biostars software
+1. clone the source code for the application server 
+1. create local copies for the configurations (`conf/run` folder)
+1. create data migration and backup scripts 
 
-Run the playbook with ansible:
-
-    ansible-playbook -i hosts.ini -l test server-install.yml
-
-The same can be done using `make`:
+To perform the install run:
      
     make install TARGET=test   
+
+Or you may run the ansible playbook directly:
+
+    ansible-playbook -i hosts.ini -l test server-install.yml
     
 The playbook above will clone the repository into the directory.
 
     /export/www/biostar-central/
     
-You must edit the settings file located in `biostar-engine/conf/run/site_settings.py` and 
-change the `SITE_DOMAIN` variable to match your current domain.
+Edit the settings file located in `conf/run/site_settings.py` and change:
 
+* `SECRET_KEY`
+* `SITE_DOMAIN`
+
+Add more settings as needed then restart the servers:
+
+    make restart TARGET=test
+    
 ## Database settings
 
 By default the postgresql database will be accessible only from the local 
@@ -68,17 +90,18 @@ machine with `www` user having database creation roles.
 ## Software deployment
 
 To deploy the latest version and restart the servers:
-
-Manually
+ 
+    make deploy TARGET=test  
+        
+or via the playbook:
 
     ansible-playbook -i hosts/test.biostars.org server-deploy.yml --ask-become-pass
 
-Makefile
-     
-    make deploy HOST=hosts/test.biostars.org  
+## Restart remote 
+
+    make restart TARGET=test
     
-    
-## Migrating from Biostar 1.0
+## Migrating from Biostar 1.0 (TODO)
 
 To migrate from an older version of biostar to a server deploying Biostar 2.0
 
