@@ -16,7 +16,6 @@ setup:
 install:
 	ansible-playbook -i hosts.ini -l ${TARGET} server-install.yml  --extra-vars "repo=${REPO}"
 
-
 restart:
 	ansible-playbook -i hosts.ini -l ${TARGET} server-restart.yml
 

@@ -27,6 +27,19 @@ def psycopg_required(func):
     return wrap
 
 
+def timer(func):
+    """
+    Time a given function.
+    """
+
+    def wrap():
+
+
+        return
+
+    return
+
+
 def get_local_start_date(day_range):
     """
     Return creation date of the most recently synced post in local database.
@@ -43,56 +56,120 @@ def get_local_start_date(day_range):
     return start_date
 
 
-def query_posts(cursor, start, end):
+def get_column_names(cursor):
+    """
+    Return a dictionary of column names currently in the cursor.
+    column name : column index
+    """
+    colnames = [col[0] for col in cursor.description]
 
-    start, end = sorted([start, end])
-    logger.info(f"Start date={start.date()}")
-    logger.info(f"End date={end.date()}")
+    cols = {k: i for i, k in enumerate(colnames)}
 
-    # Gets all root and parent posts.
-    cursor.execute(f"""SELECT *
-                       FROM posts_post A
-                       INNER JOIN posts_post B ON (A.root_id = B.id)
-                       WHERE A.creation_date between '{start}'::timestamp and '{end}'::timestamp
-                       """)
-
-    return cursor.fetchall()
+    return cols
 
 
-def get_closest_dates(cursor, start, days):
+def select_related_users(posts, cursor):
+    """
+    Select all author and last edit users for each post
+    """
+    cols = get_column_names(cursor)
 
-    logger.info(f"Getting the closest date to: {start.date()}")
-    end = start + timedelta(days=days)
+    # Get author and last edit user ids into a set.
+    user_ids = [(p[cols['author_id']], p[cols['lastedit_user_id']]) for p in posts if p]
+    user_ids = {x for y in user_ids for x in y}
+    user_ids = tuple(user_ids)
 
-    cursor.execute(f"""SELECT creation_date
-                    FROM posts_post
-                    WHERE creation_date < '{start}'::timestamp 
-                    ORDER BY creation_date DESC
-                    LIMIT 1;
+    # Joins the user profile as well.
+    cursor.execute(f"""
+                    SELECT *
+                    FROM users_user
+                    INNER JOIN users_profile ON (users_user.id = users_profile.user_id)
+                    WHERE users_user.id IN {user_ids}
                     """)
 
-    new_start = cursor.fetchall()
-    if not new_start:
-        return start, end
+    users = cursor.fetchall()
+    #colnames = [col[0] for col in cursor.description]
+    #print([(idx, cols) for idx, cols in enumerate(colnames)])
+    #1/0
+    #cols = {k: i for i, k in enumerate(colnames)}
+    #print(get_column_names(cursor), "KPPPPPPP")
+    #1/0
+    return users
 
-    start = new_start[0][0]
+
+def posts_query_str(start, end, batch=None):
+
+    # Prefetch the thread associated with each post
+    # Order by id so the roots and parents always come before children.
+    q = f"""SELECT DISTINCT ON (thread.id) thread.id, thread.root_id, thread.parent_id, 
+                                           thread.author_id, thread.lastedit_user_id, 
+                                           thread.rank, thread.status, thread.type, 
+                                           thread.creation_date, thread.lastedit_date,
+                                           thread.title, thread.tag_val, 
+                                           thread.content,thread.html, 
+                                           thread.view_count, thread.vote_count, 
+                                           thread.book_count, thread.has_accepted, 
+                                           thread.thread_score
+            FROM posts_post post
+            INNER JOIN posts_post thread ON (post.root_id = thread.root_id)
+            WHERE post.lastedit_date between '{start}'::timestamp and '{end}'::timestamp 
+            OR post.creation_date between '{start}'::timestamp and '{end}'::timestamp  
+            ORDER BY thread.id ASC
+         """
+    if batch:
+        q += f"LIMIT '{batch}'"
+
+    return q
+
+
+def retrieve(cursor, start, days, batch=None):
+    """
+    Retrieve relevant data between a given date range.
+    """
+    # The end date is calculated
     end = start + timedelta(days=days)
 
-    return start, end
+    start, end = sorted([start, end])
+
+    sd, ed = start.date(), end.date()
+
+    query = posts_query_str(start=start, end=end, batch=batch)
+
+    # Execute actual query and hit the database
+    cursor.execute(query)
+    threads = cursor.fetchall()
+
+    # No posts exist for the given date range
+    if not threads:
+        logger.info(f"No posts found for start date={sd}, end date={ed}")
+        return dict()
+
+    # Retrieve column names from cursor to later map to rows
+    post_cols = get_column_names(cursor=cursor)
+
+    # Preform a select_related query for the users in each post.
+    users = select_related_users(posts=threads, cursor=cursor)
+    # Get the column name for the users table.
+    user_cols = get_column_names(cursor=cursor)
+
+    # Collapse results into a single dict
+    context = dict(threads=dict(columns=post_cols, rows=threads),
+                   users=dict(columns=user_cols, rows=users))
+
+    logger.info(f"Start date={sd}")
+    logger.info(f"End date={ed}")
+    logger.info(f"Number of posts= {len(threads)}")
+    logger.info(f"Number of users= {len(users)}")
+
+    return context
 
 
-def update_thread(root_id):
-    """
-    Fetch every post with this root id on both ends.
-    If either do not exist, then create.
+def update_posts(threads):
+    len(threads)
 
-    """
-    return
-
-
-def load_posts(thread):
-    print(thread[0])
-    logger.info(f"Loading {len(posts)} posts.")
+    # Get all of the users
+    # print(threads[1])
+    logger.info(f"Loading {len(threads)} posts.")
 
     # print(cur.fetchone())
     1 / 0
@@ -108,34 +185,28 @@ def load_posts(thread):
     return
 
 
-def get_posts(connection, start, days, batch=None):
-    """
-    """
+def update_users(users):
 
-    # Get the start and end date
-    start = start or get_local_start_date(day_range=days)
-    end = start + timedelta(days=days)
+    # Get the column for the table
+    column = users.get('columns')
+    rows = users.get('rows', [])
 
-    # Get the cursor.
-    cur = connection.cursor()
+    # Check if this user already exists.
+    for row in rows:
 
-    # Get all of the posts for given time range
-    posts = query_posts(cursor=cur, start=start, end=end)
+        #user_dict = {name: val for name, val in zip(column, row)}
+        print(row, sorted(column.items(), key=lambda x: x[1] ))
 
-    # There are no posts for the given time range.
-    if not posts:
-        # Get the closest times possible and retry.
-        start, end = get_closest_dates(cursor=cur, start=start, days=days)
+        print("FOOOOO" *5)
+        1/0
 
-        # Query using new start and end times
-        posts = query_posts(cursor=cur, start=start, end=end)
+    1/0
 
-    return posts
+    return
 
 
 @psycopg_required
 def begin_sync(start=None, days=1, options=dict()):
-
     # Create initial connection to database
     conn = psycopg2.connect(dbname=options['dbname'],
                             host=options['host'],
@@ -144,9 +215,27 @@ def begin_sync(start=None, days=1, options=dict()):
                             port=options['port'],
                             sslmode='require')
 
-    # Preform database query to get posts.
-    posts = get_posts(connection=conn, start=start, days=days)
+    # Get the start date
+    start = start or get_local_start_date(day_range=days)
 
-    load_posts(posts=posts)
+    # Get the cursor.
+    cur = conn.cursor()
+
+    # Get all relevant data within a given timespan
+    # data is a dict with threads, users, etc.
+    data = retrieve(cursor=cur, start=start, days=days)
+
+    users = data.get('users', {})
+    threads = data.get('threads', {})
+
+    for p in threads['rows']:
+        print('-'*5)
+        print("thread root, parent, post, post parent")
+        print(p[0], p[1], p[2], p[3], p[4], )
+        print('-'*5)
+
+    #update_users(users=users)
+
+    update_posts(threads=threads)
 
     return

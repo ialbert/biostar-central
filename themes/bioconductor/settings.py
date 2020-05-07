@@ -1,6 +1,6 @@
 from biostar.forum.settings import *
 import os
-
+from biostar.forum.settings import BASE_DIR
 
 DEBUG = True
 

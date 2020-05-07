@@ -177,6 +177,7 @@ def compute_score(post, ix=None):
         # when no similar posts are found.
         mean = settings.SPAM_THRESHOLD
 
+    # Multiple the mean by the total amount of similar spam found.
     mean = ((mean * n) * weight) + bias
 
     return mean

@@ -52,7 +52,6 @@ class PostManager(models.Manager):
         return query
 
 
-
 class AwardManager(models.Manager):
 
     def valid_awards(self):
