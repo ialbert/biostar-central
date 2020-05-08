@@ -2,12 +2,9 @@
 - hosts: all
   user: www
 
-  handlers:
-    - import_tasks: files/handlers.yml
-      static: yes
-
   tasks:
-    - include_vars: files/vars.yml
+    - include_vars: variables.yml
+
     - name: Check if bash profile already exists
       stat:
         path: ~/.bash_profile
@@ -67,7 +64,7 @@
         dest: "{{ engine_dir }}"
         update: yes
 
-    - name: Link biostar-central to the home directory
+    - name: Link directory to the home
       file:
         src: "{{ engine_dir }}"
         dest: "~/biostar-central"
@@ -112,16 +109,34 @@
         - site_wsgi.py
         - site_uwsgi.ini
 
-    - name: Install python requirements
-      shell: ls
-      notify:
-        - python install
+    - name: Link nginx configuration
+      file:
+        src:  "{{ engine_dir }}/conf/run/site_nginx.conf"
+        dest:  /etc/nginx/sites-enabled/site_nginx.conf
+        state: link
+
+    - name: Link supervisor configuration
+      file:
+        src:  "{{ engine_dir }}/conf/run/site_supervisor.conf"
+        dest:  /etc/supervisor/conf.d/site_supervisor.conf
+        state: link
+
+    - name: Remove default nginx site
+      file:
+       path: /etc/nginx/sites-enabled/default
+       state: absent
 
     - name: Install conda requirements
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
              conda activate {{conda_env}}  &&
              conda config --add channels conda-forge &&
              conda install -y --file conf/conda-packages.txt"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
+
+    - name: Create the first data migration.
+      shell: "./server-migrate.sh"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"

@@ -1,7 +1,4 @@
-from functools import wraps, partial
-import logging
-from datetime import datetime, timedelta
-from django.utils import dateparse
+
 import json
 import os
 import logging
@@ -11,8 +8,6 @@ from django.conf import settings
 from datetime import datetime, timedelta
 
 from django.http import HttpResponse
-
-from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
 from . import util
@@ -24,6 +19,7 @@ logger = logging.getLogger("engine")
 
 def api_error(msg="Api Error"):
     return {'error': msg}
+
 
 def stat_file(date, data=None, load=False, dump=False):
 
@@ -124,30 +120,6 @@ def json_response(f):
             response.reason_phrase = 'Not found'
         return response
     return to_json
-
-
-@json_response
-def batch_posts(request):
-    """
-    Return batch of posts with a set size and starting from a given date.
-    """
-    # Size of data to return
-    batch_size = request.GET("batch_size") or 10
-
-    # Start date in ISO8601 format, like: 2014-05-20T06:11:41.733900.
-    start_date = request.GET("start_date")
-
-    if not start_date:
-        msg = "Start date ( start_date ) parameter required in GET request."
-        return api_error(msg=msg)
-
-    batch = Post.objects.filter(lastedit_date__gte=start_date)[:batch_size]
-    data = {}
-
-    for post in batch:
-        data.setdefault('posts', []).append(post.json_data())
-
-    return data
 
 
 @json_response

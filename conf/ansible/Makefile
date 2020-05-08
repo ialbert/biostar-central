@@ -5,25 +5,29 @@ LOCAL_OLD_DB := data/old-biostar-database.sql.gz
 # Github repository to use in the playbooks.
 REPO := https://github.com/ialbert/biostar-central.git
 
-bioconductor:
-	$(eval RUNNER:=forum)
-	$(eval HOST := hosts/themes/supportupgrade.bioconductor.org)
+# Target host must be set.
+ifndef TARGET
+$(error TARGET parameter must be set)
+endif
 
-recipes:
-	$(eval HOST := hosts/www.bioinformatics.recipes)
-
-config:
-	ansible-playbook -i ${HOST} server-config.yml -v  --extra-vars "repo=${REPO} runner=${RUNNER}"
+setup:
+	ansible-playbook -i hosts.ini -l ${TARGET} server-setup.yml
 
 install:
-	ansible-playbook -i ${HOST} server-install.yml -v --extra-vars "repo=${REPO} runner=${RUNNER}"
+	ansible-playbook -i hosts.ini -l ${TARGET} server-install.yml  --extra-vars "repo=${REPO}"
+
+
+restart:
+	ansible-playbook -i hosts.ini -l ${TARGET} server-restart.yml
 
 transfer:
 	echo LOCAL_OLD_DB=${LOCAL_OLD_DB}
 	ansible-playbook -i ${HOST} server-migrate.yml --ask-become-pass --extra-vars "local_old_db=${LOCAL_OLD_DB} repo=${REPO}"  -v
 
-deploy:
-	ansible-playbook -i ${HOST} server-deploy.yml --ask-become-pass --extra-vars "restart=True repo=${REPO} runner=${RUNNER}"  -v
+deploy-code:
+	ansible-playbook -i hosts.ini -l ${TARGET} server-deploy.yml  --extra-vars "repo=${REPO}"
+
+deploy: deploy-code restart
 
 
 # Temporary command to deploy forum at current state - with directory name being ~/biostar-engine/

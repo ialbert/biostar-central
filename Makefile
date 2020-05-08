@@ -44,6 +44,14 @@ recipes:
 	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
 	$(eval HOST := hosts/www.bioinformatics.recipes)
 
+bioconductor:
+	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
+	$(eval DJANGO_APP := biostar.forum)
+	$(eval LOAD_COMMAND := populate)
+	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
+	$(eval RUNNER:=forum)
+	$(eval HOST:=hosts/themes/supportupgrade.bioconductor.org)
+
 forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
@@ -144,4 +152,4 @@ remote_transfer:
 
 deploy:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	(cd conf/ansible && make recipes deploy)
+	(cd conf/ansible && make deploy)
