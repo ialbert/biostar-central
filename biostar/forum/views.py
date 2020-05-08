@@ -110,9 +110,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         tags = user.profile.my_tags.split(",")
         query = query.filter(tags__name__in=tags)
 
-    if topic == SHOW_SPAM and user.is_authenticated and user.profile.is_moderator:
-        query = Post.objects.filter(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
-    else:
+    if user.is_anonymous or not user.profile.is_moderator:
         query = query.exclude(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
     # Filter by tags if specified.
     if tag:
