@@ -59,13 +59,11 @@
       when: (remote_copy.stat.exists == False) and (local_old |length > 0)
 
     - name: Install any new reqs and  migrate database.
-      shell: ls
       notify:
         - python install
         - server migrate
 
     - name: Migrate over data from old to new.
-      shell: ls
       notify:
         - data migrate
 

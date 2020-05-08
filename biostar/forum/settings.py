@@ -49,6 +49,9 @@ CLASSIFY_SPAM = True
 
 ENABLE_DIGESTS = False
 
+# Disable all asynchronous tasks
+DISABLE_TASKS = False
+
 # Log the time for each request
 TIME_REQUESTS = True
 

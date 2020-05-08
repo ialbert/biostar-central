@@ -322,7 +322,7 @@ class Post(models.Model):
         self.lastedit_user = self.lastedit_user or self.author
 
         self.creation_date = self.creation_date or util.now()
-        self.lastedit_date = util.now()
+        self.lastedit_date = self.lastedit_date or util.now()
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
