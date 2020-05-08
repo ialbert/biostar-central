@@ -326,7 +326,7 @@ def begin_sync(start=None, days=1, options=dict()):
 
     slow_update(threads=threads)
 
-    cache.clear()
+    #cache.clear()
     #update_posts(threads=threads, users=added)
 
     return
