@@ -189,11 +189,7 @@ def slow_update(threads):
         row = {col: val for col, val in zip(column, row)}
 
         # Get an exisiting post or start an empty one.
-        post = Post.objects.filter(uid=row['id']).first()
-        if post:
-            continue
-
-        post = Post()
+        post = Post.objects.filter(uid=row['id']).first() or Post()
 
         sync_post(post, **row)
 
