@@ -211,8 +211,9 @@ class Post(models.Model):
             prefix = "Spam:"
         elif self.suspect_spam:
             prefix = "Quarantined: "
-        elif not (self.is_open or self.is_question):
-            prefix = f"{self.get_status_display()}:"
+        elif not self.is_open or not self.is_question:
+            prefix = f"{self.get_type_display()}:" if self.is_open else f"{self.get_status_display()}:"
+
         return prefix
 
     @property

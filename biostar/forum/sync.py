@@ -43,14 +43,14 @@ def timer(func):
     Time a given function.
     """
 
-    def time_function(*args, **kwargs):
+    def time_func(*args, **kwargs):
         last = time.time()
         res = func(*args, **kwargs)
         diff = round(time.time() - last, 1)
-        logger.info(f"{func.__name__} time={diff}secs")
+        logger.info(f"{func.__name__}() time = {diff}secs")
         return res
 
-    return time_function
+    return time_func
 
 
 def column_list(cursor):
@@ -83,7 +83,6 @@ def select_related_votes(posts, cursor):
     return votes
 
 
-@timer
 def select_related_users(posts, cursor):
     """
     Select all author and last edit users found in list of posts.
@@ -137,7 +136,7 @@ def get_start():
     """
     if os.path.isfile(START):
         start = open(START, 'r').readline().strip()
-        start = datetime.fromtimestamp(float(start))
+        start = datetime.fromisoformat(start)
     else:
         start = util.now()
 
@@ -152,7 +151,7 @@ def set_start(start, end, days):
     else:
         store = max([start, end])
 
-    open(START, 'w').write(str(store.timestamp()))
+    open(START, 'w').write(str(store))
 
 
 @timer
@@ -192,11 +191,11 @@ def retrieve(cursor, start, days, batch=None):
                    users=dict(column=user_cols, rows=users))
 
     threads = [r for r in posts if r[0] == r[1]]
-    logger.info(f"Start date={start.date()}")
-    logger.info(f"End date={end.date()}")
-    logger.info(f"Number of total posts= {len(posts)}")
-    logger.info(f"Number of threads= {len(threads)}")
-    logger.info(f"Number of users= {len(users)}")
+    logger.info(f"Start\t{start.date()}")
+    logger.info(f"End\t{end.date()}")
+    logger.info(f"Number of total posts \t{len(posts)}")
+    logger.info(f"Number of threads \t{len(threads)}")
+    logger.info(f"Number of users \t{len(users)}")
 
     return context
 
@@ -210,8 +209,8 @@ def split_rows(rows):
     update = list(filter(lambda r: str(r[0]) in posts, rows))
     create = list(filter(lambda r: str(r[0]) not in posts, rows))
 
-    logger.info(f"Creating {len(create)} posts")
-    logger.info(f"Updating {len(update)} posts")
+    logger.info(f"Number being created\t{len(create)}")
+    logger.info(f"Number being updated\t{len(update)}")
     return create, update
 
 
@@ -330,7 +329,6 @@ def update_posts(threads, users, preform_updates=True):
                              fields=["reply_count", "comment_count", "answer_count"],
                              batch_size=1000)
 
-    logger.info(f"Synced {len(rows)} posts.")
     return
 
 
