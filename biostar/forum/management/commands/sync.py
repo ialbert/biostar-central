@@ -18,6 +18,9 @@ class Command(BaseCommand):
         parser.add_argument('--password', type=str, default="", help="Postgres password.")
         parser.add_argument('--batch', type=int, default=10, help="How many posts to load for the given date range.")
         parser.add_argument('--start', type=str, default="", help="""Start syncing from this date.""")
+        parser.add_argument('--update', action='store_true', default=False, help="""Update exiting posts when syncing.""")
+        # parser.add_argument('--sslmode', type=str, default='require',
+        #                     help="""sslmode required to connect to postgres database.""")
         parser.add_argument('--range', type=int, default=1,
                             help="""Number of days to sync, stating at start_date.  
                                     Use negative numbers to indicate looking syncing older posts. 
@@ -31,4 +34,4 @@ class Command(BaseCommand):
         start_date = options['start']
         date_range = options['range']
 
-        sync.begin_sync(start=start_date, days=date_range, options=options)
+        sync.sync_db(start=start_date, days=date_range, options=options)

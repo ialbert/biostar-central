@@ -394,6 +394,7 @@ def post_view(request, uid):
 
     # Get the post.
     post = Post.objects.filter(uid=uid).select_related('root').first()
+
     if not post:
         messages.error(request, "Post does not exist.")
         return redirect("post_list")
