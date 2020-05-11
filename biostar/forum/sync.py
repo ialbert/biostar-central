@@ -278,8 +278,8 @@ def bulk_create_votes(rows, pdict, udict):
     for row in rows:
         pass
 
-def split_votes():
 
+def split_votes():
     return
 
 
