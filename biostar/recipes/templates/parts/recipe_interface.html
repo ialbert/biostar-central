@@ -1,17 +1,22 @@
 {% load engine_tags %}
 
 {# The preview panel #}
-<div class="ui center aligned header">Interface Builder</div>
 
-<div class="ui center aligned muted container">Click buttons to the right to add fields. </div>
+<div class="ui basic segment">
+    <div class="ui center aligned header">Recipe Interface Builder</div>
+
+    <div class="ui center aligned muted container">Click the buttons on the right to create new fields.</div>
+</div>
 
 <div class="ui grid">
+
     <div class="eleven wide column">
-        <div class="ui basic segment" id="preview"></div>
+        <div class="ui" id="preview"></div>
     </div>
+
     <div class="four wide column">
-        <div class="ui large labels">
-                <a class="ui label" data-value="
+        <div class="ui labels">
+            <a class="ui left pointing small label" data-value="
                     [sra]
                     label = 'Run Number'
                     display = 'TEXTBOX'
@@ -19,9 +24,9 @@
                     regex = 'SRR\d+'
                     help = 'Please provide SRR Run number'
                     ">
-                    <i class="plus square outline icon"></i> Add text box
-                </a>
-                <a class="ui label" data-value="
+                <i class="plus square outline icon"></i> Add text field
+            </a>
+            <a class="ui left pointing small label" data-value="
                         [cutoff]
                         label = 'P_Value Cutoff'
                         display = 'FLOAT'
@@ -29,28 +34,28 @@
                         range = [0, 1]
                         help = 'Selects the cutoff.'
                         ">
-                    <i class="plus square outline icon"></i> Add float field
-                </a>
-                <a class="ui label" data-value="
+                <i class="plus square outline icon"></i> Add float field
+            </a>
+            <a class="ui left pointing small label" data-value="
                     [data]
                     label = 'Pick data'
                     source = 'PROJECT'
                     help = 'Pick data from this project.'
                     choices = [ ['A','Default'] ]
                     ">
-                    <i class="plus square outline icon"></i> Add data field
-                </a>
-                <a class="ui label" data-value="
+                <i class="plus square outline icon"></i> Add data field
+            </a>
+            <a class="ui left pointing small label" data-value="
                     [validate]
                     label = 'Cross Validate'
                     display = 'CHECKBOX'
                     value = true
                     help = 'Apply cross validation on the results.'
                     ">
-                    <i class="plus square outline icon"></i> Add checkbox
-                </a>
+                <i class="plus square outline icon"></i> Add checkbox
+            </a>
 
-                <a class="ui label" data-value="
+            <a class="ui left pointing small label" data-value="
                     [color]
                     label = 'Select color'
                     display = 'DROPDOWN'
@@ -58,18 +63,18 @@
                     value = 'R'
                     help = 'Select a color of your choice.'
                     ">
-                    <i class="plus square outline icon"></i> Add dropdown
-                </a>
-                <a class="ui label" data-value="
+                <i class="plus square outline icon"></i> Add dropdown
+            </a>
+            <a class="ui left pointing small label" data-value="
                     [file]
                     label = 'Upload a file'
                     display = 'UPLOAD'
                     help = 'Upload a file to analyze'
                     ">
-                    <i class="plus square outline icon"></i> Add upload field
-                </a>
+                <i class="plus square outline icon"></i> Add upload field
+            </a>
 
-                <a class="ui label" data-value="
+            <a class="ui left pointing small label" data-value="
                         [size]
                         label = 'Window size'
                         display = 'INTEGER'
@@ -77,9 +82,9 @@
                         range = [1, 100]
                         help = 'Selects the smoothing window.'
                         ">
-                    <i class="plus square outline icon"></i> Add integer field
-                </a>
-                <a class="ui label" data-value="
+                <i class="plus square outline icon"></i> Add integer field
+            </a>
+            <a class="ui left pointing small label" data-value="
                     [species]
                     label = 'Select species'
                     display = 'RADIO'
@@ -87,16 +92,19 @@
                     value = 'c'
                     help = 'Select the species.'
                     ">
-                    <i class="plus square outline icon"></i> Add radio button
-                </a>
+                <i class="plus square outline icon"></i> Add radio button
+            </a>
         </div>
     </div>
 </div>
 
 <form method="post" class="ui form" action="#">
 
-    <div class="ui vertical segment">
-        <span class="ui title header">Recipe Interface</span>
+    <div class="ui basic segment">
+        <div class="ui center aligned header">Interface Editor</div>
+
+        <div class="ui center aligned muted container">Edit the content of each interface element.</div>
+
     </div>
 
     <div class="field" id="json_field">

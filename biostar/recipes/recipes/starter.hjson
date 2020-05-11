@@ -1,5 +1,5 @@
-[parameter]
-label = "Example Integer field"
+[count]
+label = "How many times to repeat the message"
 display = "INTEGER"
 value = 10
 range = [ 0, 100,]
