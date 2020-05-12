@@ -83,6 +83,23 @@ def select_related_votes(posts, cursor):
     return votes
 
 
+def query_by_pk():
+    q = f"""SELECT posts_post.id, posts_post.root_id, posts_post.parent_id, 
+                   posts_post.author_id, posts_post.lastedit_user_id, 
+                   posts_post.rank, posts_post.status, posts_post.type, 
+                     post_post.creation_date,   post_post.lastedit_date,
+                     post_post.title,   post_post.tag_val, 
+                     post_post.content,  post_post.html, 
+                     post_post.view_count,   post_post.vote_count, 
+                     post_post.book_count,   post_post.has_accepted, 
+                     post_post.thread_score
+            FROM posts_post post
+            ORDER BY posts_post.id ASC
+         """
+
+    return q
+
+
 def select_related_users(posts, cursor):
     """
     Select all author and last edit users found in list of posts.
@@ -91,8 +108,8 @@ def select_related_users(posts, cursor):
 
     # Get author and last edit user ids into a set.
     user_ids = [(p[cols['author_id']], p[cols['lastedit_user_id']]) for p in posts if p]
-    user_ids = {x for y in user_ids for x in y}
-    user_ids = tuple(user_ids)
+    user_ids = {str(x) for y in user_ids for x in y}
+    user_ids = f"({','.join(user_ids)})"
 
     # Joins the user profile as well.
     cursor.execute(f"""
@@ -130,28 +147,22 @@ def posts_query_str(start, end, batch=None):
     return q
 
 
-def get_start():
+def get_start(days):
     """
     Return the start date stored in cache.
     """
-    if os.path.isfile(START):
-        start = open(START, 'r').readline().strip()
-        start = datetime.fromisoformat(start)
+
+    if days < 0:
+        # Most recent pk here is considered older time span pk there.
+        # TODO: this assumptions is wrong as soon as one forward pass is made.
+        recent = Post.objects.old().order_by('-pk').first()
     else:
-        start = util.now()
+        recent = Post.objects.old().order_by('-creation_date').first()
+
+    start = recent.creation_date if recent else util.now()
 
     return start
 
-
-def set_start(start, end, days):
-
-    # Start from the minimum of two time points when going backwards.
-    if days < 0:
-        store = min([start, end])
-    else:
-        store = max([start, end])
-
-    open(START, 'w').write(str(store))
 
 
 @timer
@@ -161,12 +172,7 @@ def retrieve(cursor, start, days, batch=None):
     """
     # The calculated end date
     end = start + timedelta(days=days)
-
     start, end = sorted([start, end])
-
-    # Set the start day cache
-    set_start(start, end, days)
-
     query = posts_query_str(start=start, end=end, batch=batch)
 
     # Execute query and hit the database
@@ -208,8 +214,10 @@ def split_rows(rows):
     posts = set(Post.objects.all().values_list('uid', flat=True))
     update = list(filter(lambda r: str(r[0]) in posts, rows))
     create = list(filter(lambda r: str(r[0]) not in posts, rows))
+    threads = list(filter(lambda r: (str(r[0]) not in posts) and r[0] == r[1], rows))
 
-    logger.info(f"Number being created\t{len(create)}")
+    logger.info(f"Number being of posts created\t{len(create)}")
+    logger.info(f"Number being of threads created\t{len(threads)}")
     logger.info(f"Number being updated\t{len(update)}")
     return create, update
 
@@ -241,7 +249,6 @@ def bulk_create(rows, column, users, relations=dict()):
 
 
 def set_relations(relations):
-
     posts = {post.uid: post for post in Post.objects.filter(uid__in=relations.keys())}
     for pid in relations:
         root_uid, parent_uid = relations[pid][0], relations[pid][1]
@@ -257,7 +264,6 @@ def set_relations(relations):
 
 
 def set_counts(relations):
-
     descendants = lambda p: (Post.objects.filter(root=p).exclude(id=p.id)
                              if p.is_toplevel else Post.objects.filter(parent=p))
 
@@ -285,12 +291,11 @@ def split_votes():
 
 @timer
 def update_votes(rows, threads, users):
-
     posts_map = {post.uid: post for post in Post.objects.all()}
     users_map = {user.email: user for user in User.objects.all()}
 
     # Bulk create the votes.
-    #Vote.objects.bulk_create(objs=bulk_create_votes(rows=rows, pdict, udict), batch_size=1000)
+    # Vote.objects.bulk_create(objs=bulk_create_votes(rows=rows, pdict, udict), batch_size=1000)
 
     return
 
@@ -386,7 +391,7 @@ def sync_db(start=None, days=1, options=dict()):
 
     # Get the start date from input or cache.
     # If none are provided, now() is returned.
-    start = start or get_start()
+    start = start or get_start(days=days)
 
     update = options['update']
     # Get the cursor.
