@@ -18,13 +18,14 @@ class Command(BaseCommand):
         parser.add_argument('--password', type=str, default="", help="Postgres password.")
         parser.add_argument('--batch', type=int, default=10, help="How many posts to load for the given date range.")
         parser.add_argument('--start', type=str, default="",
-                            help="""Start syncing from this date; ISO format.
-                                   """)
-        parser.add_argument('--update', action='store_true', default=False,
-                            help="""Update exiting posts when syncing.""")
+                            help="""Start syncing from this date; ISO format.""")
+        parser.add_argument('--update', action='store_true', default=True,
+                            help="""Preform update when syncing.""")
         parser.add_argument('--reset', action='store_true', default=False,
                             help="""Reset the last_synced date stored in the local database.
                                     This only matters when syncing older dates ( --range is negative ). """)
+        parser.add_argument('--report', action='store_true', default=False,
+                            help="""Print report on what has/has not been synced between databases. """)
 
         parser.add_argument('--range', type=int, default=1,
                             help="""Number of days to sync relative to --start.  
