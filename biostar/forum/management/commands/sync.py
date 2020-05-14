@@ -17,12 +17,20 @@ class Command(BaseCommand):
         parser.add_argument('--user', type=str, default="www", help="Postgres user.")
         parser.add_argument('--password', type=str, default="", help="Postgres password.")
         parser.add_argument('--batch', type=int, default=10, help="How many posts to load for the given date range.")
-        parser.add_argument('--start', type=str, default="", help="""Start syncing from this date.""")
-        parser.add_argument('--update', action='store_true', default=False, help="""Update exiting posts when syncing.""")
-        # parser.add_argument('--sslmode', type=str, default='require',
-        #                     help="""sslmode required to connect to postgres database.""")
+        parser.add_argument('--start', type=str, default="",
+                            help="""Start syncing from this date; ISO format.
+                                   """)
+        parser.add_argument('--update', action='store_true', default=False,
+                            help="""Update exiting posts when syncing.""")
+        parser.add_argument('--reset', action='store_true', default=False,
+                            help="""Reset the last_synced date stored in the local database.
+                                    This only matters when syncing older dates ( --range is negative ). """)
+
         parser.add_argument('--range', type=int, default=1,
-                            help="""Number of days to sync, stating at start_date.  
+                            help="""Number of days to sync relative to --start.  
+                                    If --start is empty and --range is negative ( syncing older posts ) 
+                                    last_synced from db is chosen as the start.
+                                    
                                     Use negative numbers to indicate looking syncing older posts. 
                                     eg. -1 --> load post 1 day before start date
                                          1 --> load posts 1 day after start date. """)

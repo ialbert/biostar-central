@@ -5,9 +5,9 @@ from datetime import timedelta, datetime
 from functools import partial
 from django.conf import settings
 from django.db.models import Q
-from biostar.forum.models import Post, Vote
+from biostar.forum.models import Post, Vote, Sync
 from biostar.accounts.models import Profile, User, Logger
-from biostar.forum import util
+from biostar.forum import util, auth
 from django.core.cache import cache
 
 try:
@@ -18,10 +18,6 @@ except ImportError as exc:
     PSYCOPG_INSTALLED = False
 
 logger = logging.getLogger('engine')
-
-# Most recent start date stored in a file for the next iteration
-# TODO: being refactored out
-START = os.path.join(settings.BASE_DIR, "export", 'start_sync.txt')
 
 
 def psycopg_required(func):
@@ -75,7 +71,6 @@ def select_related_votes(posts, cursor):
     cursor.execute(f"""
                     SELECT *
                     FROM posts_vote
-                    INNER JOIN users_profile ON (posts_vote.author_id = users_profile.user_id)
                     WHERE posts_vote.post_id IN {post_ids}
                     """)
 
@@ -83,31 +78,14 @@ def select_related_votes(posts, cursor):
     return votes
 
 
-def query_by_pk():
-    q = f"""SELECT posts_post.id, posts_post.root_id, posts_post.parent_id, 
-                   posts_post.author_id, posts_post.lastedit_user_id, 
-                   posts_post.rank, posts_post.status, posts_post.type, 
-                     post_post.creation_date,   post_post.lastedit_date,
-                     post_post.title,   post_post.tag_val, 
-                     post_post.content,  post_post.html, 
-                     post_post.view_count,   post_post.vote_count, 
-                     post_post.book_count,   post_post.has_accepted, 
-                     post_post.thread_score
-            FROM posts_post post
-            ORDER BY posts_post.id ASC
-         """
-
-    return q
-
-
-def select_related_users(posts, cursor):
+def select_related_users(user_ids, cursor):
     """
     Select all author and last edit users found in list of posts.
     """
     cols = {k: i for i, k in enumerate(column_list(cursor))}
 
     # Get author and last edit user ids into a set.
-    user_ids = [(p[cols['author_id']], p[cols['lastedit_user_id']]) for p in posts if p]
+
     user_ids = {str(x) for y in user_ids for x in y}
     user_ids = f"({','.join(user_ids)})"
 
@@ -153,57 +131,29 @@ def get_start(days):
     """
 
     if days < 0:
-        # Most recent pk here is considered older time span pk there.
-        # TODO: this assumptions is wrong as soon as one forward pass is made.
-        recent = Post.objects.old().order_by('-pk').first()
+        recent = Sync.objects.filter(pk=1).first()
+        recent = recent.last_synced if recent else None
     else:
         recent = Post.objects.old().order_by('-creation_date').first()
+        recent = recent.creation_date if recent else None
 
-    start = recent.creation_date if recent else util.now()
+    start = recent or util.now()
 
     return start
 
 
+def store_synced_date(date):
 
-@timer
-def retrieve(cursor, start, days, batch=None):
-    """
-    Retrieve relevant data between a given date range.
-    """
-    # The calculated end date
-    end = start + timedelta(days=days)
-    start, end = sorted([start, end])
-    query = posts_query_str(start=start, end=end, batch=batch)
+    recent = Sync.objects.filter(pk=1).first()
 
-    # Execute query and hit the database
-    cursor.execute(query)
-    posts = cursor.fetchall()
+    # Go back 12 hours from this date to ensure nothing is missed.
+    date = date + timedelta(hours=12)
 
-    # No posts exist for the given date range
-    if not posts:
-        logger.info(f"No posts found for start={start.date()} end={end.date()}")
-        return dict()
-
-    # Retrieve column names from cursor to later map to rows
-    post_cols = column_list(cursor=cursor)
-
-    # Preform a select_related query for the users in each post.
-    users = select_related_users(posts=posts, cursor=cursor)
-    # Get the column name for the users table.
-    user_cols = column_list(cursor=cursor)
-
-    # Collapse results into a single dict
-    context = dict(threads=dict(column=post_cols, rows=posts),
-                   users=dict(column=user_cols, rows=users))
-
-    threads = [r for r in posts if r[0] == r[1]]
-    logger.info(f"Start\t{start.date()}")
-    logger.info(f"End\t{end.date()}")
-    logger.info(f"Number of total posts \t{len(posts)}")
-    logger.info(f"Number of threads \t{len(threads)}")
-    logger.info(f"Number of users \t{len(users)}")
-
-    return context
+    # Update the existing sync date
+    if recent:
+        Sync.objects.filter(pk=1).update(last_synced=date)
+    else:
+        Sync.objects.create(last_synced=date)
 
 
 def split_rows(rows):
@@ -222,14 +172,20 @@ def split_rows(rows):
     return create, update
 
 
-def bulk_create(rows, column, users, relations=dict()):
+
+
+
+def bulk_create_subs(rows):
+    return
+
+
+def bulk_create_posts(rows, column, users, relations=dict()):
     for row in rows:
         # Map column names to row.
         row = {col: val for col, val in zip(column, row)}
         post = Post(lastedit_user=users[row['lastedit_user_id']],
                     author=users[row['author_id']],
                     uid=row['id'],
-                    is_toplevel=row['id'] == row['root_id'],
                     view_count=row['view_count'],
                     vote_count=row['vote_count'],
                     book_count=row['book_count'],
@@ -248,7 +204,7 @@ def bulk_create(rows, column, users, relations=dict()):
         yield post
 
 
-def set_relations(relations):
+def bulk_relations(relations):
     posts = {post.uid: post for post in Post.objects.filter(uid__in=relations.keys())}
     for pid in relations:
         root_uid, parent_uid = relations[pid][0], relations[pid][1]
@@ -256,14 +212,14 @@ def set_relations(relations):
         root = posts.get(root_uid)
         parent = posts.get(parent_uid)
         if not (root and parent):
-            print("MISSING", pid, root_uid, root)
             continue
         post.root = root
         post.parent = parent
+        post.is_toplevel = root == post
         yield post
 
 
-def set_counts(relations):
+def bulk_counts(relations):
     descendants = lambda p: (Post.objects.filter(root=p).exclude(id=p.id)
                              if p.is_toplevel else Post.objects.filter(parent=p))
 
@@ -280,28 +236,126 @@ def set_counts(relations):
         yield post
 
 
-def bulk_create_votes(rows, pdict, udict):
+def bulk_create_votes(rows, column, pdict, udict):
+
     for row in rows:
-        pass
+        row = {col: val for col, val in zip(column, row)}
+        post = pdict[str(row['post_id'])]
+        author = udict[row['author_id']]
+        vtype = row['type']
+        # Skip existing votes and incomplete post/author information.
+        if not (post and author) or not post.root:
+            continue
+
+        vote = Vote(post=post, author=author, type=vtype, uid=row['id'],
+                    date=row['date'])
+
+        yield vote
 
 
-def split_votes():
-    return
+def clean_votes(rows, column):
+
+    for row in rows:
+        row = {col: val for col, val in zip(column, row)}
+        user_uid = row['author_id']
+        post_uid = row['post_id']
+        vtype = row['type']
+        # Check if votes exists with the votes.
+        vote = Vote.objects.filter(author__profile__uid=user_uid, post__uid=post_uid, type=vtype).first()
+        # Delete the existing vote and
+        if vote:
+            vote.delete()
 
 
 @timer
-def update_votes(rows, threads, users):
-    posts_map = {post.uid: post for post in Post.objects.all()}
-    users_map = {user.email: user for user in User.objects.all()}
+def sync_votes(votes, users):
 
-    # Bulk create the votes.
-    # Vote.objects.bulk_create(objs=bulk_create_votes(rows=rows, pdict, udict), batch_size=1000)
+    rows = votes.get('rows', [])
+    column = votes.get('column', [])
 
-    return
+    cols = {k: i for i, k in enumerate(column)}
+
+    post_ids = set([str(r[cols.get('post_id')]) for r in rows])
+
+    posts = {p.uid: p for p in Post.objects.filter(uid__in=post_ids)}
+
+    # Clean the votes by deleting existing ones.
+    clean_votes(rows=rows, column=column)
+
+    # Bulk create votes.
+    Vote.objects.bulk_create(objs=bulk_create_votes(rows=rows, column=column,
+                                                    pdict=posts, udict=users),
+                             batch_size=500)
+
+
+def get_user_ids(rows, column, is_posts=False):
+    cols = {k: i for i, k in enumerate(column)}
+    if is_posts:
+        user_ids = [(r[cols['author_id']], r[cols['lastedit_user_id']]) for r in rows if r]
+    else:
+        user_ids = [(r[cols['author_id']], ) for r in rows if r]
+
+    return user_ids
 
 
 @timer
-def update_posts(threads, users, preform_updates=True):
+def retrieve(cursor, start, days, batch=None):
+    """
+    Retrieve relevant data between a given date range.
+    """
+    # The calculated end date
+    end = start + timedelta(days=days)
+    start, end = sorted([start, end])
+    query = posts_query_str(start=start, end=end, batch=batch)
+
+    # Execute query and return posts.
+    cursor.execute(query)
+    posts = cursor.fetchall()
+
+    # No posts exist for the given date range
+    if not posts:
+        logger.info(f"No posts found for start={start.date()} end={end.date()}")
+        return dict()
+
+    # Retrieve column names from cursor to later map to rows
+    post_cols = column_list(cursor=cursor)
+
+    # Get the user ids involved with this post.
+    user_ids = get_user_ids(rows=posts, is_posts=True, column=post_cols)
+
+    # Preform a select_related query for the users and votes.
+    votes = select_related_votes(posts=posts, cursor=cursor)
+    votes_cols = column_list(cursor=cursor)
+
+    # Add user id's involved with votes after the 'cursor' has been altered.
+    user_ids += get_user_ids(rows=votes, column=votes_cols)
+
+    # Select all related users found in votes and subs
+    users = select_related_users(user_ids=user_ids, cursor=cursor)
+    user_cols = column_list(cursor=cursor)
+
+    # Store the last synced date into the
+    store_synced_date(start)
+
+    # Collapse results into a single dict
+    context = dict(threads=dict(column=post_cols, rows=posts),
+                   users=dict(column=user_cols, rows=users),
+                   votes=dict(column=votes_cols, rows=votes))
+
+    threads = [r for r in posts if r[0] == r[1]]
+    logger.info(f"Start\t{start.date()}")
+    logger.info(f"End\t{end.date()}")
+    logger.info(f"Number of total posts \t{len(posts)}")
+    logger.info(f"Number of threads \t{len(threads)}")
+    logger.info(f"Number of votes \t{len(votes)}")
+    logger.info(f"Number of users \t{len(users)}")
+
+    return context
+
+
+
+@timer
+def sync_posts(threads, users, preform_updates=True):
     """
     Update local database with posts in 'threads'.
     Creates the posts if it does not exist.
@@ -314,8 +368,8 @@ def update_posts(threads, users, preform_updates=True):
     to_create, to_update = split_rows(rows)
 
     # Bulk create new posts
-    Post.objects.bulk_create(objs=bulk_create(rows=to_create, column=column, users=users,
-                                              relations=relations),
+    Post.objects.bulk_create(objs=bulk_create_posts(rows=to_create, column=column, users=users,
+                                                    relations=relations),
                              batch_size=500)
 
     # # Bulk update existing posts
@@ -326,19 +380,20 @@ def update_posts(threads, users, preform_updates=True):
     #     logger.info("Skipped preforming updates.")
 
     # Update the root, parent relationships in the queried posts
-    Post.objects.bulk_update(objs=set_relations(relations=relations),
-                             fields=["root", "parent"],
+    Post.objects.bulk_update(objs=bulk_relations(relations=relations),
+                             fields=["root", "parent", 'is_toplevel'],
                              batch_size=1000)
     # Update counts on  posts
-    Post.objects.bulk_update(objs=set_counts(relations=relations),
+    Post.objects.bulk_update(objs=bulk_counts(relations=relations),
                              fields=["reply_count", "comment_count", "answer_count"],
                              batch_size=1000)
 
-    return
-
 
 @timer
-def update_users(users):
+def sync_users(users):
+    """
+    Sync users one at a time instead of bulk creating.
+    """
     # Get the column names
     column = users.get('column')
     rows = users.get('rows', [])
@@ -405,10 +460,16 @@ def sync_db(start=None, days=1, options=dict()):
     threads = data.get('threads', {})
     votes = data.get('votes', {})
 
-    added = update_users(users=users)
+    # Sync users fist
+    synced_users = sync_users(users=users)
 
-    update_posts(threads=threads, users=added, preform_updates=update)
+    # Then sync posts, votes, and subscriptions, and awards.
+    sync_posts(threads=threads, users=synced_users, preform_updates=update)
 
-    # update_votes()
+    sync_votes(votes, users=synced_users)
+
+    #sync_subs()
+
+    #sync_awards()
 
     return

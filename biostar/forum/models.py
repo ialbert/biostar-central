@@ -68,6 +68,11 @@ class AwardManager(models.Manager):
         return query
 
 
+class Sync(models.Model):
+
+    last_synced = models.DateTimeField(null=True)
+
+
 class Post(models.Model):
     "Represents a post in a forum"
 
