@@ -510,8 +510,8 @@ def sync_users(users):
     return added
 
 
-@timer
 @psycopg_required
+@timer
 def sync_db(start=None, days=1, options=dict()):
     # Create initial connection to database
     conn = psycopg2.connect(dbname=options['dbname'],
@@ -597,6 +597,6 @@ def report(start=None, days=1, options=dict()):
     # Get the currently loaded data
     logger.info(f"Synced posts\t{already_synced.count()}")
     logger.info(f"Missing posts \t{missing}")
-    logger.info(f"Newest post \t{newest}\n")
+    logger.info(f"Newest post \t{newest}")
 
     return

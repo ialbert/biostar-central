@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
         report = options['report']
 
-        start_date = datetime.fromisoformat(start_date)
+        start_date = datetime.fromisoformat(start_date) if start_date else ''
 
         if report:
             sync.report(start=start_date, days=date_range, options=options)
