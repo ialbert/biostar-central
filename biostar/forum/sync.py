@@ -169,7 +169,6 @@ def get_start(days):
 
 
 def store_synced_date(date):
-
     recent = Sync.objects.filter(pk=1).first()
 
     # Go back 12 hours from this date to ensure nothing is missed.
@@ -194,7 +193,7 @@ def split_rows(rows):
 
     logger.info(f"Number being of posts created\t{len(create)}")
     logger.info(f"Number being of threads created\t{len(threads)}")
-    logger.info(f"Number being updated\t{len(update)}")
+    logger.info(f"Number being of posts updated\t{len(update)}")
     return create, update
 
 
@@ -256,7 +255,6 @@ def bulk_counts(relations):
 
 
 def bulk_create_votes(rows, column, pdict, udict):
-
     for row in rows:
         row = {col: val for col, val in zip(column, row)}
         post = pdict[str(row['post_id'])]
@@ -266,13 +264,12 @@ def bulk_create_votes(rows, column, pdict, udict):
         if not (post and author) or not post.root:
             continue
 
-        vote = Vote(post=post, author=author, type=vtype, uid=row['id'],  date=row['date'])
+        vote = Vote(post=post, author=author, type=vtype, uid=row['id'], date=row['date'])
 
         yield vote
 
 
 def bulk_create_subs(rows, column, pdict, udict):
-
     for row in rows:
         row = {col: val for col, val in zip(column, row)}
         user = udict.get(row['user_id'])
@@ -320,7 +317,6 @@ def clean_subs(rows, column):
 
 @timer
 def sync_votes(votes, users):
-
     rows = votes.get('rows', [])
     column = votes.get('column', [])
 
@@ -336,12 +332,11 @@ def sync_votes(votes, users):
     # Bulk create votes.
     generator = bulk_create_votes(rows=rows, column=column, pdict=posts, udict=users)
 
-    Vote.objects.bulk_create(objs=generator,  batch_size=500)
+    Vote.objects.bulk_create(objs=generator, batch_size=500)
 
 
 @timer
 def sync_subs(subs, users):
-
     rows = subs.get('rows', [])
     column = subs.get('column', [])
 
@@ -369,7 +364,7 @@ def get_user_ids(rows, column, is_posts=False, is_subs=False):
     elif is_subs:
         user_ids = [(r[cols['user_id']],) for r in rows if r]
     else:
-        user_ids = [(r[cols['author_id']], ) for r in rows if r]
+        user_ids = [(r[cols['author_id']],) for r in rows if r]
 
     return user_ids
 
@@ -456,7 +451,7 @@ def sync_posts(threads, users, update=True):
 
     # Bulk update existing posts
     if update:
-        #Post.objects.bulk_update(objs=updator, batch_size=500)
+        # Post.objects.bulk_update(objs=updator, batch_size=500)
         pass
     else:
         logger.info("Skipped updates.")
@@ -557,7 +552,27 @@ def sync_db(start=None, days=1, options=dict()):
 
 
 @timer
+def db_report(cursor, synced):
+
+    # Get a count of all of the posts
+    synced = tuple(synced)
+    nposts = f"SELECT COUNT(*) FROM posts_post WHERE posts_post.id NOT IN {synced}"
+
+    cursor.execute(nposts)
+    nposts = cursor.fetchone()[0]
+
+    # Return the newest post date.
+    newest = f""" SELECT posts_post.creation_date FROM posts_post 
+                       WHERE posts_post.id NOT IN {synced} 
+                       ORDER BY posts_post.id DESC LIMIT 1"""
+    cursor.execute(newest)
+    newest = cursor.fetchone()[0]
+
+    return nposts, newest
+
+
 @psycopg_required
+@timer
 def report(start=None, days=1, options=dict()):
     # Create initial connection to database
     conn = psycopg2.connect(dbname=options['dbname'],
@@ -567,13 +582,21 @@ def report(start=None, days=1, options=dict()):
                             port=options['port'],
                             sslmode='require')
 
+    # Get the start date from input or cache.
+    # If none are provided, now() is returned.
+    start = start or get_start(days=days)
+
     # Get the cursor.
     cur = conn.cursor()
 
-    # Get all relevant data within a given timespan
-    # data is a dict with threads, users, etc.
-    data = retrieve(cursor=cur, start=start, days=days)
+    retrieve(cursor=cur, start=start, days=days)
+
+    already_synced = Post.objects.old().values_list('uid', flat=True)
+
+    missing, newest = db_report(cursor=cur, synced=already_synced)
+    # Get the currently loaded data
+    logger.info(f"Synced posts\t{already_synced.count()}")
+    logger.info(f"Missing posts \t{missing}")
+    logger.info(f"Newest post \t{newest}\n")
 
     return
-
-

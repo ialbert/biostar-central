@@ -43,4 +43,9 @@ class Command(BaseCommand):
         start_date = options['start']
         date_range = options['range']
 
-        sync.sync_db(start=start_date, days=date_range, options=options)
+        report = options['report']
+
+        if report:
+            sync.report(start=start_date, days=date_range, options=options)
+        else:
+            sync.sync_db(start=start_date, days=date_range, options=options)
