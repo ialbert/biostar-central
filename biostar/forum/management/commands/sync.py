@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from biostar.forum.models import Post
@@ -44,6 +45,8 @@ class Command(BaseCommand):
         date_range = options['range']
 
         report = options['report']
+
+        start_date = datetime.fromisoformat(start_date)
 
         if report:
             sync.report(start=start_date, days=date_range, options=options)
