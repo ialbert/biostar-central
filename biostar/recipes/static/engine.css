@@ -7,6 +7,7 @@
     --job-erorr: #db2828;
     --job-running: #f2711c;
     --job-queued: #00b5ad;
+
 }
 
 body {
@@ -16,6 +17,10 @@ body {
     text-rendering: optimizeLegibility;
 }
 
+
+.recipes.grid .text.menu{
+    width: auto;
+}
 
 #interface .grid .labels .label{
     width: 100%;

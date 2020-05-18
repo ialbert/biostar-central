@@ -315,6 +315,7 @@ def read_tags(filepath, exclude=[], limit=500):
     stream = open(filepath, 'r') if os.path.exists(filepath) else []
     stream = islice(zip(count(1), stream), limit)
     tags_opts = set()
+
     for idx, line in stream:
         line = line.strip()
         if line in exclude:

@@ -15,7 +15,8 @@ except Exception as exc:
         def outer(func):
             @functools.wraps(func)
             def inner(*args, **kwargs):
-
+                if settings.DISABLE_TASKS:
+                    return
                 if settings.MULTI_THREAD:
                     # Run process in separate thread.
                     logger.info(f"new thread for function f{func} {args} {kwargs}")
@@ -33,6 +34,9 @@ except Exception as exc:
         def outer(func):
             @functools.wraps(func)
             def inner(*args, **kwargs):
+                if settings.DISABLE_TASKS:
+                    return
+
                 # The loop repeats the timer.
                 def loop():
                     ticker = threading.Event()

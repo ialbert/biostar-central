@@ -1,6 +1,6 @@
 from biostar.forum.settings import *
 import os
-
+from biostar.forum.settings import BASE_DIR
 
 DEBUG = True
 
@@ -16,7 +16,9 @@ REMAP_TYPE_DISPLAY = True
 # Post types displayed when creating, empty list displays all types.
 ALLOWED_POST_TYPES = ["Question", "Job", "Tutorial", "News"]
 
-STATICFILES_DIRS += [os.path.join(CUSTOM_THEME, 'static')]
+DOCS_ROOT = os.path.join(CUSTOM_THEME, 'docs')
+
+STATICFILES_DIRS = [os.path.join(CUSTOM_THEME, 'static'), DOCS_ROOT] + STATICFILES_DIRS
 
 if DEBUG:
     TEMPLATE_LOADERS = (

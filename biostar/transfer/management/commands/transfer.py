@@ -336,7 +336,7 @@ def bulk_copy_subs(limit):
     elapsed(f"Updated {scount} subscription counts")
 
     #dcount = Digest.objects.all().count()
-    #Digest.objects.bulk_create(objs=gen_digests(), batch_size=10000)
+    #Digest.objects.bulk_create_posts(objs=gen_digests(), batch_size=10000)
     #elapsed(f"Updated {dcount} user digests")
 
     return

@@ -49,8 +49,7 @@ bioconductor:
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
-	$(eval RUNNER:=forum)
-	$(eval HOST:=hosts/themes/supportupgrade.bioconductor.org)
+	$(eval TARGET:=supportupgrade)
 
 forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
@@ -152,4 +151,5 @@ remote_transfer:
 
 deploy:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	(cd conf/ansible && make deploy)
+	@echo TARGET=${TARGET}
+	(cd conf/ansible && make deploy TARGET=${TARGET})

@@ -52,7 +52,6 @@ class PostManager(models.Manager):
         return query
 
 
-
 class AwardManager(models.Manager):
 
     def valid_awards(self):
@@ -67,6 +66,11 @@ class AwardManager(models.Manager):
         query = query.filter(models.Q(post__status=Post.OPEN) | models.Q(post__root__status=Post.OPEN))
 
         return query
+
+
+class Sync(models.Model):
+
+    last_synced = models.DateTimeField(null=True)
 
 
 class Post(models.Model):
@@ -212,8 +216,9 @@ class Post(models.Model):
             prefix = "Spam:"
         elif self.suspect_spam:
             prefix = "Quarantined: "
-        elif not (self.is_open or self.is_question):
-            prefix = f"{self.get_status_display()}:"
+        elif not self.is_open or not self.is_question:
+            prefix = f"{self.get_type_display()}:" if self.is_open else f"{self.get_status_display()}:"
+
         return prefix
 
     @property
@@ -323,7 +328,7 @@ class Post(models.Model):
         self.lastedit_user = self.lastedit_user or self.author
 
         self.creation_date = self.creation_date or util.now()
-        self.lastedit_date = util.now()
+        self.lastedit_date = self.lastedit_date or util.now()
         self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
