@@ -89,9 +89,10 @@ def init_users():
             logger.info(f"Creating admin user: {user.email}, {user.username}")
         else:
             # Reapply the default ADMIN password on migration.
-            user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
-            user.save()
-            logger.info(f"Resetting password for admin user: {user.email}, {user.username}")
+            #user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
+            #user.save()
+            logger.info(f"User already exists: {user.email}, {user.username}")
+            #logger.info(f"Resetting password for admin user: {user.email}, {user.username}")
 
 
 def init_site():

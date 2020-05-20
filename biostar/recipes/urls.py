@@ -90,6 +90,8 @@ recipes_patterns = [
     path(r'api/project/<str:uid>/', api.project_info, name='project_api_info'),
     path(r'api/project/image/<str:uid>/', api.project_image, name='project_api_image'),
 
+    #
+    path(r'pavian/<str:uid>/', ajax.pavian_view, name='pavian_view')
 ]
 
 
