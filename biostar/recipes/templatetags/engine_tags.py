@@ -232,7 +232,7 @@ def activate(value1, value2):
     """
     Returns a color based on job status.
     """
-    return "active" if value1 == value2 else ''
+    return "orange active" if value1 == value2 else ''
 
 
 @register.simple_tag
