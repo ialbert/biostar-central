@@ -13,16 +13,7 @@
 
 
 {% block body %}
-        {% if user.is_authenticated %}
 
-            <a class="ui label" href="{% url 'project_list' %}">
-                <i class="database icon"></i> All Projects
-            </a>
-
-            <a class="ui green label" href="{% url 'project_create' %}" style="float:right;">
-                <i class="plus icon"></i>New Project
-            </a>
-        {% endif %}
 
     <div class="ui large secondary pointing  menu">
 
@@ -41,6 +32,10 @@
         {% if user.is_authenticated %}
             <a class="ui {% activate active "private" %}  item" href="{% url 'project_list_private' %}">
                 <i class=" briefcase icon"></i>Private Projects
+            </a>
+
+            <a class="ui item" href="{% url 'project_create' %}">
+                <i class="circle plus icon"></i>Create Project
             </a>
         {% endif %}
 

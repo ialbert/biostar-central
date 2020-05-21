@@ -85,8 +85,11 @@ def project_delete(request, uid):
     project.deleted = not project.deleted
     project.save()
 
-    msg = f"Project:{project.name} successfully "
-    msg += "deleted!" if project.deleted else "restored!"
+    # Same function called tor restore projects.
+    if project.deleted:
+        msg = f"Project:{project.name} deleted"
+    else:
+        msg = f"Project:{project.name} restored"
 
     messages.success(request, msg)
 
@@ -316,10 +319,15 @@ def project_create(request):
     Input is validated with a form and actual creation is routed through auth.create_project.
     """
     user = request.user
-    project = auth.create_project(user=user, text="Project information goes here. ")
+    project = auth.create_project(user=user, text="Project information goes here. ", name="Project")
 
-    messages.success(request, "Welcome to your new project.")
-    return redirect(reverse("project_info", kwargs=dict(uid=project.uid)))
+    # Ensure project name is unique.
+    project.name = f"{project.name} {project.id}"
+    project.text = f"Add more information on {project.name}"
+    project.save()
+
+    messages.success(request, "A new project has been created. Please set the project details")
+    return redirect(reverse("project_edit", kwargs=dict(uid=project.uid)))
 
 
 @read_access(type=Data)
@@ -572,9 +580,14 @@ def recipe_view(request, uid):
 def recipe_create(request, uid):
     # Get the project
     project = Project.objects.filter(uid=uid).first()
-    recipe = auth.create_analysis(project=project, name="My New Recipe", template="echo 'Hello World!'")
+    recipe = auth.create_analysis(project=project, name="Recipe", template="echo 'Hello World!'")
+
+    # Ensure recipe names are distinguishable from one another.
+    recipe.name = f"{recipe.name} {recipe.id}"
+    recipe.save()
+
     url = reverse("recipe_view", kwargs=dict(uid=recipe.uid))
-    messages.success(request, "Welcome to your new recipe.")
+    messages.success(request, "A new recipe has been created.")
     return redirect(url)
 
 

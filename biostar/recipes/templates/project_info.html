@@ -49,21 +49,24 @@
             <div class="ui basic vertical center aligned segment">
 
                 <a class="ui  button" href="{% url 'project_edit' project.uid %}">
-                    <i class="edit icon"></i>Edit Project
+                    <i class="edit icon"></i>Edit project
                 </a>
 
+                <a class="ui button" href="{% url 'recipe_create' project.uid %}">
+                    <i class="circle plus icon"></i>Create recipe
+                </a>
 
                 <a class="ui  button" href="{% url 'project_users' project.uid %}">
-                    <i class="users icon"></i>Manage Access
+                    <i class="users icon"></i>Manage access
                 </a>
 
 
 
                 <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
                     {% if project.deleted %}
-                        <i class="undo icon"></i> <span class="tablet">Restore Project</span>
+                        <i class="undo icon"></i> <span class="tablet">Restore project</span>
                     {% else %}
-                        <i class="trash icon"></i> <span class="tablet">Delete Project</span>
+                        <i class="trash icon"></i> <span class="tablet">Delete project</span>
                     {% endif %}
                 </a>
 
