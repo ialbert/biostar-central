@@ -27,6 +27,8 @@ body {
 }
 #top .header{
     margin-top: 0px;
+    height: auto;
+    margin-bottom: 0px;
 }
 #project_view h1 {
  font-size: 1.28571429rem;
@@ -493,10 +495,10 @@ figure {
 }
 
 #clipboard{
-    position: absolute; /* or absolute */
     text-align: center;
     z-index: 100;
-    width: 79%;
+    width: 100%;
+
 }
 
 .popover {

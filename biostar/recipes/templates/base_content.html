@@ -4,19 +4,16 @@
 
 
 {% block title %}
-   <img class="ui avatar viewing image" src="{% img project %}"/>{{ project.name }}
+    <img class="ui avatar viewing image" src="{% img project %}"/>{{ project.name }}
 {% endblock %}
 
 {% block body %}
     <input type="hidden" id="project_id" value="{{ project.id }}">
 
-
-    <span id="clipboard"></span>
-
-
+<div style="text-align: center">
     <div class="ui large secondary pointing  menu">
 
-    <a class="item" href="{% url 'project_list' %}">
+        <a class="item" href="{% url 'project_list' %}">
             <i class="database icon"></i><span class="phone">All projects</span>
         </a>
 
@@ -33,10 +30,21 @@
             <i class="settings icon"></i> {{ recipe_count }}&nbsp;<span class="phone"> Recipes</span>
         </a>
 
+
         <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
             <i class="bar chart icon"></i><span id="job_count">{{ result_count }}</span><span class="phone">&nbsp;Results</span>
         </a>
 
+        {% if  user.is_authenticated %}
+
+            <a class="ui item" href="{% url 'recipe_create' project.uid %}">
+                <i class="circle plus icon"></i>Create Recipe
+            </a>
+
+            <a class="ui {% activate 'upload' active %} item" href="{% url 'data_upload' project.uid %}">
+                <i class="circle plus icon"></i>Add Data
+            </a>
+        {% endif %}
         {% if activate %}
             <div class="active orange item" id="job_item">
                 <i class="angle double down icon"></i> <span class="tablet">{{ activate }}</span>
@@ -44,15 +52,18 @@
         {% endif %}
 
     </div>
+    <span id="clipboard">{% clipboard project.uid %}</span>
+
+</div>
     {% csrf_token %}
     {% block segment %}
 
-    <div class="ui basic large segment">
-        {% block content %}
-            Content
-        {% endblock %}
-    </div>
-{% endblock %}
+        <div class="ui basic large segment">
+            {% block content %}
+                Content
+            {% endblock %}
+        </div>
+    {% endblock %}
 
 
 

@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q, Count
+from django.template import loader
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
@@ -386,7 +387,7 @@ def data_upload(request, uid):
     # Maximum data that may be uploaded.
     maximum_size = owner.profile.max_upload_size * 1024 * 1024
 
-    context = dict(project=project, form=form, activate="Add Data",
+    context = dict(project=project, form=form, active="upload",
                    maximum_size=maximum_size,
                    current_size=current_size)
 
@@ -622,7 +623,10 @@ def recipe_delete(request, uid):
         messages.success(request, msg)
     else:
         auth.delete_object(obj=recipe, request=request)
-        msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
+        tmpl = loader.get_template('widgets/delete_msg.html')
+        context = dict(obj=recipe, undo_url=reverse('recipe_delete', kwargs=dict(uid=recipe.uid)))
+        msg = tmpl.render(context=context)
+
         messages.success(request, mark_safe(msg))
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
