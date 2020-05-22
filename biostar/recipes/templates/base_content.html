@@ -4,19 +4,17 @@
 
 
 {% block title %}
-   <img class="ui avatar viewing image" src="{% img project %}"/>{{ project.name }}
+    <img class="ui avatar viewing image" src="{% img project %}"/>{{ project.name }}
 {% endblock %}
 
 {% block body %}
     <input type="hidden" id="project_id" value="{{ project.id }}">
 
 
-    <span id="clipboard"></span>
-
-
+<div id="clipboard">{% clipboard project.uid %}</div>
     <div class="ui large secondary pointing  menu">
 
-    <a class="item" href="{% url 'project_list' %}">
+        <a class="item" href="{% url 'project_list' %}">
             <i class="database icon"></i><span class="phone">All projects</span>
         </a>
 
@@ -33,10 +31,10 @@
             <i class="settings icon"></i> {{ recipe_count }}&nbsp;<span class="phone"> Recipes</span>
         </a>
 
+
         <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
             <i class="bar chart icon"></i><span id="job_count">{{ result_count }}</span><span class="phone">&nbsp;Results</span>
         </a>
-
         {% if activate %}
             <div class="active orange item" id="job_item">
                 <i class="angle double down icon"></i> <span class="tablet">{{ activate }}</span>
@@ -44,15 +42,16 @@
         {% endif %}
 
     </div>
+
     {% csrf_token %}
     {% block segment %}
 
-    <div class="ui basic large segment">
-        {% block content %}
-            Content
-        {% endblock %}
-    </div>
-{% endblock %}
+        <div class="ui basic large segment">
+            {% block content %}
+                Content
+            {% endblock %}
+        </div>
+    {% endblock %}
 
 
 

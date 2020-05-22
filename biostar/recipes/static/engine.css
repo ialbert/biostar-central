@@ -492,12 +492,6 @@ figure {
     cursor: pointer;
 }
 
-#clipboard{
-    position: absolute; /* or absolute */
-    text-align: center;
-    z-index: 100;
-    width: 79%;
-}
 
 .popover {
 

@@ -1,0 +1,8 @@
+{% if obj.deleted %}
+    Deleted <b>{{ obj.name }}</b>.
+    <a class="ui blue large label" href="{{ undo_url }}">
+        <i class="undo icon"></i>Click here to restore.
+    </a>
+{% else %}
+    Restored {{ obj.name }}
+{% endif %}

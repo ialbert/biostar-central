@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q, Count
+from django.template import loader
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
@@ -278,7 +279,8 @@ def project_view(request, uid, template_name="project_info.html", active='info',
 
     # Build the context for the project.
     context = dict(project=project, data_list=data_list, recipe_list=recipe_list, job_list=job_list,
-                   active=active, recipe_filter=recipe_filter, write_access=write_access, rerun_btn=True)
+                   active=active, recipe_filter=recipe_filter, write_access=write_access, rerun_btn=True,
+                   include_copy=False)
 
     # Compute counts for the project.
     counts = get_counts(project)
@@ -527,11 +529,13 @@ def get_part(request, name, id):
 
     # Get the list of jobs required for recipe results
     jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
-    context = dict(recipe=recipe, form=form, is_runnable=is_runnable, job_list=jobs, rerun_btn=False)
+    context = dict(recipe=recipe, form=form, is_runnable=is_runnable, job_list=jobs, rerun_btn=False,
+                   include_copy=False)
     context.update(counts)
 
     html = render(request, name, context=context)
     return html
+
 
 @ensure_csrf_cookie
 @read_access(type=Analysis)
@@ -568,7 +572,8 @@ def recipe_view(request, uid):
 
     # Generate the context.
     context = dict(recipe=recipe, job_list=jobs, project=project, form=form, btn_state=btn_state,
-                   is_runnable=is_runnable, activate='Recipe View', rerun_btn=False)
+                   is_runnable=is_runnable, activate='Recipe View', rerun_btn=False,
+                   include_copy=False)
 
     # Update context with counts.
     context.update(counts)
@@ -622,7 +627,10 @@ def recipe_delete(request, uid):
         messages.success(request, msg)
     else:
         auth.delete_object(obj=recipe, request=request)
-        msg = f"Deleted <b>{recipe.name}</b>." if recipe.deleted else f"Restored <b>{recipe.name}</b>."
+        tmpl = loader.get_template('widgets/delete_msg.html')
+        context = dict(obj=recipe, undo_url=reverse('recipe_delete', kwargs=dict(uid=recipe.uid)))
+        msg = tmpl.render(context=context)
+
         messages.success(request, mark_safe(msg))
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))

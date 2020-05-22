@@ -96,6 +96,7 @@ def init_users():
             logger.info(f"Admin user: {user.email} already exists")
             pass
 
+
 def init_site():
     """
     Updates site domain and name.
