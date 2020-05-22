@@ -495,10 +495,12 @@ figure {
 }
 
 #clipboard{
-    text-align: center;
     z-index: 100;
     width: 100%;
 
+}
+.topmenu{
+    text-align: center
 }
 
 .popover {
