@@ -27,7 +27,6 @@ body {
 }
 #top .header{
     margin-top: 0px;
-    height: auto;
     margin-bottom: 0px;
 }
 #project_view h1 {
@@ -495,12 +494,8 @@ figure {
 }
 
 #clipboard{
-    z-index: 100;
     width: 100%;
 
-}
-.topmenu{
-    text-align: center
 }
 
 .popover {
