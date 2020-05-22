@@ -296,10 +296,10 @@ def interface_options():
 
 
 @register.inclusion_tag('widgets/recipe_details.html', takes_context=True)
-def recipe_details(context, recipe):
+def recipe_details(context, recipe, include_copy=True):
     user = context['request'].user
 
-    return dict(user=user, recipe=recipe, project=recipe.project)
+    return dict(user=user, recipe=recipe, project=recipe.project, include_copy=include_copy)
 
 
 @register.simple_tag

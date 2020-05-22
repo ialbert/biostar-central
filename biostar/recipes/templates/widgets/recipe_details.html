@@ -31,7 +31,7 @@
 
         </div>
     </div>
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and include_copy %}
         <div class="ui mini buttons">
             <a class="ui right copy button">
                 <i class="copy icon"></i>Copy

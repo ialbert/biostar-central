@@ -2,7 +2,7 @@
 {% load engine_tags %}
 
 {% block headtitle %}
-    Data List
+   Project Information
 {% endblock %}
 
 {% block ribbon %}
@@ -46,6 +46,7 @@
 
         {% if write_access %}
             <div class="ui  divider"></div>
+
             <div class="ui basic vertical center aligned segment">
 
                 <a class="ui  button" href="{% url 'project_edit' project.uid %}">
@@ -56,11 +57,13 @@
                     <i class="circle plus icon"></i>Create recipe
                 </a>
 
+                <a class="ui button" href="{% url 'data_upload' project.uid %}">
+                    <i class="folder open icon"></i>Add Data
+                </a>
+
                 <a class="ui  button" href="{% url 'project_users' project.uid %}">
                     <i class="users icon"></i>Manage access
                 </a>
-
-
 
                 <a class="ui button tablet" href="{% url 'project_delete' project.uid %}">
                     {% if project.deleted %}

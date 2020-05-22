@@ -94,6 +94,7 @@ function check_jobs() {
 
 function copy_object(data, container) {
 
+
     $.ajax('/copy/object/',
         {
             type: 'POST',
@@ -354,7 +355,7 @@ $(document).ready(function () {
         let obj = $(this).closest('.data');
         let uid = obj.data('value');
         var data = {'uid': uid, 'clipboard': "data"};
-        copy_object(uid, "data", data);
+        copy_object(data, obj);
     });
 
     $(this).on('click', '.job .copy.button', function () {
@@ -371,8 +372,8 @@ $(document).ready(function () {
         copy_object(data, recipe);
     });
 
-    $(this).on('click', '.recipes .item.copy', function () {
-        let recipe = $(this).closest('.recipe');
+    $(this).on('click', '.recipes .copy', function () {
+        let recipe = $("#info");
         var data = {'id': get_id(), 'clipboard': "recipe"};
         copy_object(data, recipe);
     });

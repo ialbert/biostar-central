@@ -10,7 +10,8 @@
 {% block body %}
     <input type="hidden" id="project_id" value="{{ project.id }}">
 
-<div class="topmenu">
+
+<div id="clipboard">{% clipboard project.uid %}</div>
     <div class="ui large secondary pointing  menu">
 
         <a class="item" href="{% url 'project_list' %}">
@@ -34,27 +35,14 @@
         <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
             <i class="bar chart icon"></i><span id="job_count">{{ result_count }}</span><span class="phone">&nbsp;Results</span>
         </a>
-       {% if activate %}
+        {% if activate %}
             <div class="active orange item" id="job_item">
                 <i class="angle double down icon"></i> <span class="tablet">{{ activate }}</span>
             </div>
         {% endif %}
 
-        {% if  user.is_authenticated %}
-
-            <a class="ui item" href="{% url 'recipe_create' project.uid %}">
-                <i class="circle plus icon"></i>Create Recipe
-            </a>
-
-            <a class="ui {% activate 'upload' active %} item" href="{% url 'data_upload' project.uid %}">
-                <i class="circle plus icon"></i>Add Data
-            </a>
-        {% endif %}
-
     </div>
-    <span id="clipboard">{% clipboard project.uid %}</span>
 
-</div>
     {% csrf_token %}
     {% block segment %}
 
