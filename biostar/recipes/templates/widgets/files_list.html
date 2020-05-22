@@ -6,13 +6,7 @@
                 <a class="ui label" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</a>
 
         {% endif %}
-    {% if uid %}
-        <div class="ui basic segment" style="padding-left: 0px;">
-            <a target="_blank" href="{% url 'pavian_view' uid %}" class="ui right floated blue  large label">
-               <i class="bar chart icon"></i> Pavian Data Explorer</a>
-            <p class="ui muted"> Click to use Pavian metagenomics data explorer on kraken results. </p>
-        </div>
-    {% endif %}
+
     <div class="ui relaxed divided large list">
 
 
