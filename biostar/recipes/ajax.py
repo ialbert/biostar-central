@@ -396,36 +396,6 @@ def ajax_clipboard(request):
     return ajax_success(html=template, msg="Refreshed clipboard")
 
 
-def pavian_view(request, uid):
-    """
-    Copy a job directory into the pavian viewer for further investigation.
-    Copied using docker.
-    """
-    import subprocess
-    from urllib.parse import urlencode
-
-    # Get the job
-    job = Job.objects.filter(uid=uid).first()
-
-    # Get directory to copy
-    direct = job.get_data_dir()
-
-    pav_dir = os.path.join(direct, 'pavian')
-    cmd = f"docker exec -i pavian_now mkdir /export/{job.uid} && docker cp {pav_dir} pavian_now:/export/{job.uid}"
-
-    # Copy this dir into the already running docker container.
-    proc = subprocess.run(cmd, cwd=direct, shell=True)
-
-    print(proc)
-    print(urlencode({'server.dir':f'/export/{job.uid}/pavian'}))
-
-    params = urlencode({'server.dir':f'/export/{job.uid}/pavian'})
-    url = f'http://127.0.0.1:5000/?{params}'
-
-    print(url)
-    return redirect(url)
-
-
 def field_render(request):
     """
     Renders and returns an HTML field based on the incoming toml data.
