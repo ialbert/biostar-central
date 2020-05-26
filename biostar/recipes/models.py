@@ -230,6 +230,10 @@ class Project(models.Model):
         return first
 
     @property
+    def delete_url(self):
+        return reverse('project_delete', kwargs=dict(uid=self.uid))
+
+    @property
     def is_shareable(self):
         return self.privacy == self.SHAREABLE
 
@@ -243,7 +247,7 @@ class Project(models.Model):
 
     def get_name(self):
         if self.deleted:
-            return f'Deleted: {self.name}'
+            return f'Deleted Project: {self.name}'
         return self.name
 
 
@@ -364,8 +368,22 @@ class Data(models.Model):
         except Exception as exc:
             return f"Error :{exc}"
 
+    def table_of_contents(self):
+        try:
+            target = self.get_path()
+            lines = open(target, 'rt').readlines()
+            lines = [os.path.relpath(path, self.get_data_dir()) for path in lines]
+        except Exception as exc:
+            return f"Error :{exc}"
+
+        return lines
+
     def __str__(self):
         return self.name
+
+    @property
+    def delete_url(self):
+        return reverse('data_delete', kwargs=dict(uid=self.uid))
 
     def get_data_dir(self):
         "The data directory"
@@ -449,7 +467,7 @@ class Data(models.Model):
 
     def get_name(self):
         if self.deleted:
-            return f'Deleted: {self.name}'
+            return f'Deleted Data: {self.name}'
 
         return self.name
 
@@ -553,6 +571,10 @@ class Analysis(models.Model):
         return self.project.get_project_dir()
 
     @property
+    def delete_url(self):
+        return reverse('recipe_delete', kwargs=dict(uid=self.uid))
+
+    @property
     def is_cloned(self):
         """
         Return True if recipe is a clone ( linked ).
@@ -613,7 +635,7 @@ class Analysis(models.Model):
 
     def get_name(self):
         if self.deleted:
-            return f'Deleted: {self.name}'
+            return f'Deleted Recipe: {self.name}'
 
         return self.name
 
@@ -698,6 +720,10 @@ class Job(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def delete_url(self):
+        return reverse('job_delete', kwargs=dict(uid=self.uid))
 
     def get_url(self, path=''):
         """
@@ -792,6 +818,6 @@ class Job(models.Model):
 
     def get_name(self):
         if self.deleted:
-            return f'Deleted: {self.name}'
+            return f'Deleted Job: {self.name}'
 
         return self.name

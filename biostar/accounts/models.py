@@ -147,6 +147,14 @@ class Profile(models.Model):
     def state_dict(self):
         return dict(self.STATE_CHOICES)
 
+    @property
+    def upload_size(self):
+
+        # Give staff higher limits.
+        if self.user.is_staff or self.user.is_superuser:
+            return self.max_upload_size * 100
+        return self.max_upload_size
+
     def get_upload_size(self):
 
         # Admin users upload limit

@@ -1,7 +1,7 @@
 {% load engine_tags %}
 
 {% if job.is_started %}
-        <div class="ui active inverted running dimmer" id="img" >
+    <div class="ui active inverted running dimmer" id="img" >
         <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
         <div class="ui indeterminate text inline loader"></div>
     </div>

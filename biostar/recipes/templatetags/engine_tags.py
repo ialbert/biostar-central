@@ -83,6 +83,11 @@ def list_projects(context, target):
     return dict(projects=projects, user=user, target=target)
 
 
+@register.filter
+def is_job(obj):
+    return isinstance(obj, Job)
+
+
 @register.simple_tag
 def gravatar(user, size=80):
     style = "retro"

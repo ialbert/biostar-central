@@ -101,7 +101,7 @@ function submit_form(elem) {
     var url = '/ajax/recipe/edit/{0}/'.format(id)
 
     // Remove any prior notification that may exist.
-    remove_messages()
+    remove_messages();
 
     $.ajax(url, {
             type: 'POST',
@@ -111,13 +111,14 @@ function submit_form(elem) {
             data: data,
             success: function (resp) {
                 if (resp.status === 'error') {
-                    show_message(elem, resp.msg, "error")
+                    show_message(elem, resp.msg, "error");
                     flash("fadeout_error")
                 } else {
                     if (window.location.hash === '#edit') {
                         toggle_panels('#info', 1);
                     } else {
-                        flash("fadeout_success")
+                        //flash("fadeout_final")
+                        form.transition('flash');
                         popover_message(form, resp.msg, "success")
                     }
                     update_panels();
@@ -135,12 +136,12 @@ function flash(cls) {
     elem = $(".CodeMirror");
 
     function fadeout() {
-        elem.removeClass(cls)
+        elem.removeClass(cls);
         elem.addClass("fadeout_final")
     }
 
     elem.removeClass("fadeout_final")
-    elem.addClass(cls)
+    elem.addClass(cls);
 
     setTimeout(fadeout, 1500);
 
@@ -223,6 +224,7 @@ function bind_events() {
         submit_form($(this));
         // Update the preview on form submit.
         update_preview();
+
     });
 
 }

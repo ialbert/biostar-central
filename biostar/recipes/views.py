@@ -61,6 +61,8 @@ def recycle_bin(request):
     "Recycle bin view for a user"
     user = request.user
 
+    BIN_LIMIT = 200000
+
     if user.is_superuser:
         # Super users get access to all deleted objects.
         projects = Project.objects.all()
@@ -70,12 +72,23 @@ def recycle_bin(request):
         projects = auth.get_project_list(user=user, include_deleted=True)
         query_dict = dict(project__in=projects, owner=user)
 
-    projects = projects.filter(deleted=True).order_by("-date")
-    data = Data.objects.filter(**query_dict, deleted=True).order_by("-date")
-    recipes = Analysis.objects.filter(**query_dict, deleted=True).order_by("-date")
-    recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
-    jobs = Job.objects.filter(**query_dict, deleted=True).order_by("date")
-    context = dict(jobs=jobs, data=data, recipes=recipes, projects=projects, active="bin")
+    projects = projects.filter(deleted=True).order_by("-lastedit_date")[:BIN_LIMIT]
+
+    # Filter data, recipes, and jobs according to projects user has access to.
+    data = Data.objects.filter(**query_dict, deleted=True).order_by("-lastedit_date")[:BIN_LIMIT]
+
+    recipes = Analysis.objects.filter(**query_dict, deleted=True).order_by("-lastedit_date")[:BIN_LIMIT]
+
+    jobs = Job.objects.filter(**query_dict, deleted=True).order_by("-lastedit_date")[:BIN_LIMIT]
+
+    deleted = []
+
+    for obj in [projects, data, recipes, jobs]:
+        for item in obj:
+            deleted.append(item)
+
+    deleted = sorted(deleted, key=lambda x: x.lastedit_date, reverse=True)
+    context = dict(deleted=deleted, active="bin")
 
     return render(request, 'recycle_bin.html', context=context)
 
@@ -174,7 +187,7 @@ def project_list_private(request):
 
 def project_list(request, target=None):
 
-    if target == 'private' and request.user.is_authenticated:
+    if target == 'private' or request.user.is_authenticated:
         active = "private"
         projects = auth.get_project_list(user=request.user, include_public=False)
     else:
@@ -386,7 +399,7 @@ def data_upload(request, uid):
     # The current size of the existing data
     current_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
     # Maximum data that may be uploaded.
-    maximum_size = owner.profile.max_upload_size * 1024 * 1024
+    maximum_size = owner.profile.upload_size * 1024 * 1024
 
     context = dict(project=project, form=form, activate="Add Data",
                    maximum_size=maximum_size,
