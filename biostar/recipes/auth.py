@@ -647,7 +647,7 @@ def listing(root, node=None, show_all=True):
 
         paths = list(map(transformer, paths))
 
-        paths = sorted(paths, key=lambda x: x[-1], reverse=True)
+        paths = sorted(paths, key=lambda x: x[0])
 
     except Exception as exc:
         paths = []
