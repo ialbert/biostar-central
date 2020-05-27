@@ -112,13 +112,13 @@ function submit_form(elem) {
             success: function (resp) {
                 if (resp.status === 'error') {
                     show_message(elem, resp.msg, "error");
-                    flash("fadeout_error")
+                    //flash("fadeout_error")
                 } else {
                     if (window.location.hash === '#edit') {
                         toggle_panels('#info', 1);
                     } else {
                         //flash("fadeout_final")
-                        form.transition('flash');
+
                         popover_message(form, resp.msg, "success")
                     }
                     update_panels();
