@@ -75,11 +75,7 @@ def check_upload_limit(file, user):
     projected_size = file.size + current_size
 
     # Maximal cumulative sizes.
-    max_size = user.profile.max_upload_size * 1024 * 1024
-
-    # Allow much higher limits for staff.
-    if user.is_staff:
-        max_size = max_size * 10
+    max_size = user.profile.upload_size * 1024 * 1024
 
     # Current file size in MB
     file_mb = file.size / 1024 / 1024

@@ -4,12 +4,11 @@
 
 
 {% block title %}
-    <img class="ui avatar viewing image" src="{% img project %}"/>{{ project.name }}
+    <img class="ui avatar viewing image" src="{% img project %}"/>{{ project.get_name }}
 {% endblock %}
 
 {% block body %}
     <input type="hidden" id="project_id" value="{{ project.id }}">
-
 
 <div id="clipboard">{% clipboard project.uid %}</div>
     <div class="ui large secondary pointing  menu">

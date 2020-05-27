@@ -137,7 +137,7 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
         self.html = self.html or mistune.markdown(self.text)
-        self.max_upload_size = self.max_upload_size or self.get_upload_size()
+        self.max_upload_size = self.max_upload_size or self.set_upload_size()
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or now()
         self.last_login = self.last_login or now() #- timedelta(days=1)
@@ -147,7 +147,18 @@ class Profile(models.Model):
     def state_dict(self):
         return dict(self.STATE_CHOICES)
 
-    def get_upload_size(self):
+    @property
+    def upload_size(self):
+
+        # Give staff higher limits.
+        if self.user.is_staff or self.user.is_superuser:
+            return self.max_upload_size * 100
+        return self.max_upload_size
+
+    def set_upload_size(self):
+        """
+        Used to set the inital value
+        """
 
         # Admin users upload limit
         if self.user.is_superuser or self.user.is_staff:
