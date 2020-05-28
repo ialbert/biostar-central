@@ -66,6 +66,12 @@ def user_icon(user):
     context = dict(user=user, score=score)
     return context
 
+@register.inclusion_tag('widgets/privacy_label.html')
+def privacy_label(project):
+    context = dict(project=project)
+    return context
+
+
 
 @register.inclusion_tag('widgets/list_view.html', takes_context=True)
 def list_projects(context, target):

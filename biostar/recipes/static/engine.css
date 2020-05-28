@@ -22,6 +22,10 @@ body {
     width: auto;
 }
 
+.faded.label {
+    opacity: 80%;
+}
+
 #interface .grid .labels .label{
     width: 100%;
 }

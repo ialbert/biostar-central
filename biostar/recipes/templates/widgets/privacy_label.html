@@ -1,0 +1,5 @@
+{%  if project.is_public %}
+    <span class="ui green faded label">{{ project.get_privacy_display }}</span>
+{%  else %}
+    <span class="ui purple faded label">{{ project.get_privacy_display }}</span>
+{%  endif %}

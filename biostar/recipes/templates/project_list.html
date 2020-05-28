@@ -29,7 +29,7 @@
 
                     <div class="extra">
 
-                        <span class="ui label">{{ project.get_privacy_display }}</span>
+                        {% privacy_label project %}
 
                         <a href="{% url 'data_list' project.uid %}"><i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
 
