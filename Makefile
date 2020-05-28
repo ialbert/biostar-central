@@ -152,4 +152,4 @@ remote_transfer:
 
 deploy:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	(cd conf/ansible && make deploy)
+	(cd conf/ansible && make deploy TARGET=${TARGET})

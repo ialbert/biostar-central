@@ -87,6 +87,12 @@ Add more settings as needed then restart the servers:
 By default the postgresql database will be accessible only from the local 
 machine with `www` user having database creation roles.
 
+## Sending mail
+
+The default site set up with ansible will send email via SMTP. To set up your system run:
+
+    aptitude install mailutils
+
 ## Software deployment
 
 To deploy the latest version and restart the servers:
