@@ -44,9 +44,13 @@
                 {% if post.author == request.user or request.user.profile.is_moderator %}
                     {% post_details post=post user=request.user %}
                 {% endif %}
+
             {% else %}
                 {% post_details post=post user=request.user avatar=avatar %}
             {% endif %}
+
+{{ post.rank }}
+            {{ post.lastedit_date }}
 
         {% empty %}
             <div class="ui warn message">

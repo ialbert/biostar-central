@@ -31,18 +31,10 @@
 
         </div>
     </div>
-    {% if user.is_authenticated %}
+    {% if user.is_authenticated and include_copy %}
         <div class="ui mini buttons">
             <a class="ui right copy button">
                 <i class="copy icon"></i>Copy
-            </a>
-            <div class="or"></div>
-            <a class="ui right button " href="{% url 'recipe_delete' recipe.uid %}">
-                {% if recipe.deleted %}
-                    <i class="undo icon"></i>Restore
-                {% else %}
-                    <i class="trash icon"></i>Delete
-                {% endif %}
             </a>
 
         </div>

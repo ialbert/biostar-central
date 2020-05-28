@@ -84,14 +84,17 @@ def init_users():
 
             user.save()
 
-            text = "I am not really a user but a background process tasked with the essential duty of keeping things tidy."
-            Profile.objects.filter(user__pk=user.pk).update(location="Server Farm", name=name, text=text, html=text)
-            logger.info(f"Creating admin user: {user.email}, {user.username}")
+            text = "Admin user created automatically on startup."
+            Profile.objects.filter(user=user).update(location="Server Farm", name=name, text=text, html=text)
+            logger.info(f"Creating admin user: {user.email}")
         else:
-            # Reapply the default ADMIN password on migration.
-            user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
-            user.save()
-            logger.info(f"Resetting password for admin user: {user.email}, {user.username}")
+            # You might want to reapply the default ADMIN password on migration.
+            # This will destroy existing admin sessions.
+            #user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
+            #user.save()
+            #logger.info(f"Resetting password for admin user: {user.email}, {user.username}")
+            logger.info(f"Admin user: {user.email} already exists")
+            pass
 
 
 def init_site():

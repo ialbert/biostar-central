@@ -92,13 +92,14 @@ function check_jobs() {
 }
 
 
-function copy_object(uid, clipboard, container) {
+function copy_object(data, container) {
+
 
     $.ajax('/copy/object/',
         {
             type: 'POST',
             dataType: 'json',
-            data: {'uid': uid, 'clipboard': clipboard},
+            data: data,
 
             success: function (data) {
                 if (data.status === 'success') {
@@ -351,31 +352,36 @@ $(document).ready(function () {
     $('.checkbox').checkbox();
 
     $(this).on('click', '.data .copy.button', function () {
-        let data = $(this).closest('.data');
-        let uid = data.data('value');
-        copy_object(uid, "data", data);
+        let obj = $(this).closest('.data');
+        let uid = obj.data('value');
+        var data = {'uid': uid, 'clipboard': "data"};
+        copy_object(data, obj);
     });
 
     $(this).on('click', '.job .copy.button', function () {
         let job = $(this).closest('.job');
         let uid = job.data('value');
-        copy_object(uid, "job", job);
+        var data = {'uid': uid, 'clipboard': "job"};
+        copy_object(data, job);
     });
 
     $(this).on('click', '.recipe .copy.button', function () {
         let recipe = $(this).closest('.recipe');
         let uid = recipe.data("value");
-        copy_object(uid, "recipe", recipe);
+        var data = {'uid': uid, 'clipboard': "recipe"};
+        copy_object(data, recipe);
+    });
+
+    $(this).on('click', '.recipes .copy', function () {
+        let recipe = $("#info");
+        var data = {'id': get_id(), 'clipboard': "recipe"};
+        copy_object(data, recipe);
     });
 
     $(this).on('click', '.file .copy', function () {
         let file = $(this).closest('.file');
         let path = file.data("value");
         copy_file(path, file);
-    });
-
-    $('#clipboard').each(function () {
-        update_clipboard();
     });
 
     $(this).on('click', '#clipboard .paste', function () {

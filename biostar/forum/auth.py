@@ -300,17 +300,10 @@ def post_tree(user, root):
     # Get all posts that belong to post root.
     query = Post.objects.valid_posts(u=user, root=root).exclude(pk=root.id)
     # Filter quarantined and deleted comments or answers.
-    if not user.profile.is_moderator:
+    if user.is_anonymous or not user.profile.is_moderator:
         query = query.exclude(Q(spam=Post.SUSPECT) | Q(status=Post.DELETED))
 
     query = query.select_related("lastedit_user__profile", "author__profile", "root__author__profile")
-
-    # is_moderator = user.is_authenticated and user.profile.is_moderator
-
-    # Only moderators
-    # if not is_moderator:
-    #    query = query.filter(status=Post.OPEN)
-    # query = query.exclude(spam=Post.SPAM)
 
     # Apply the sort order to all posts in thread.
     thread = query.order_by("type", "-accept_count", "-vote_count", "creation_date")
@@ -330,7 +323,6 @@ def post_tree(user, root):
             comment_tree.setdefault(post.parent_id, []).append(post)
         post.has_bookmark = int(post.id in bookmarks)
         post.has_upvote = int(post.id in upvotes)
-
         if user.is_authenticated:
             post.can_accept = not post.is_toplevel and (user == post.root.author or user.profile.is_moderator)
             post.can_moderate = user.profile.is_moderator

@@ -7,6 +7,7 @@
     --job-erorr: #db2828;
     --job-running: #f2711c;
     --job-queued: #00b5ad;
+
 }
 
 body {
@@ -16,6 +17,10 @@ body {
     text-rendering: optimizeLegibility;
 }
 
+
+.recipes.grid .text.menu{
+    width: auto;
+}
 
 #interface .grid .labels .label{
     width: 100%;
@@ -326,7 +331,7 @@ pre.toml_code {
     box-shadow: 0 2px 4px 0 rgba(34, 36, 38, .12), 0 .01em .001em 0 rgba(34, 36, 38, .15) !important;
 }
 
-.file.item:hover {
+.emphasize.item:hover {
     background-color: #f2f2f2;
 }
 
@@ -483,16 +488,18 @@ figure {
 }
 
 
+.data .items{
+    margin: 0px;
+}
+
+.data .segment{
+    padding: 0px;
+}
+
 .card .content:not(.extra):hover{
     cursor: pointer;
 }
 
-#clipboard{
-    position: absolute; /* or absolute */
-    text-align: center;
-    z-index: 100;
-    width: 79%;
-}
 
 .popover {
 
@@ -526,7 +533,7 @@ figure {
 }
 
 .popover.success {
-    background-color: #fcfff5;
+    background-color: yellow;
     color: #2c662d;
 }
 

@@ -1,10 +1,7 @@
 {% load engine_tags %}
 
 <div class="ui items">
-    {% recipe_details recipe %}
-</div>
-
-<div class="ui large vertical segment">
+    {% recipe_details recipe include_copy %}
     {{ recipe.html | safe }}
 </div>
 
@@ -15,9 +12,21 @@
 {% else %}
 
     <div class="ui center aligned basic segment">
+       <a class="ui gray small button copy" data-value="#edit">
+            <i class="copy icon"></i> Copy recipe
+        </a>
         <a class="ui gray small button click" href="#" data-value="#edit">
             <i class="edit icon"></i> Edit description
         </a>
+
+     <a class="ui small button " href="{% url 'recipe_delete' recipe.uid %}">
+                {% if recipe.deleted %}
+                    <i class="undo icon"></i>Restore recipe
+                {% else %}
+                    <i class="trash icon"></i>Delete recipe
+                {% endif %}
+            </a>
+
     </div>
 
 {% endif %}

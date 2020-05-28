@@ -14,13 +14,10 @@
 
 <div class="data" data-value="{{ data.uid }}">
 
-    <div class="ui large vertical segment">
-
         <div class="ui divided items">
 
             <div class="item">
                 <div class="content">
-
                     <a class="subheader" href="{% url 'data_view' data.uid %}">
                         <i class="file icon"></i>Data: {{ data.get_name }}
                     </a>
@@ -29,7 +26,7 @@
                         <div class="ui small labels">
                             {% size_label data %}
                             {% type_label data %}
-                            {%  created_by date=data.lastedit_date user=data.owner %}
+                            {%  created_by date=data.lastedit_date user=data.lastedit_user %}
                         </div>
                     </div>
                 </div>
@@ -37,11 +34,8 @@
 
 
         </div>
-    </div>
 
-
-    <div class="ui large center aligned vertical segment">
-
+    <div class="ui large center aligned vertical segment" style="padding: 0px">
 
             <a class="ui button" href="{% url 'data_edit' data.uid %}">
                 <i class="edit icon"></i> <span class="tablet">Edit Data</span>
@@ -57,10 +51,8 @@
                         <i class="trash icon"></i> <span class="tablet">Delete Data</span>
                     {% endif %}
                 </a>
-
-
-
     </div>
+
 </div>
     <div class="ui vertical large segment">
         <div class="ui aligned header">Data List</div>
@@ -78,6 +70,10 @@
     <div class="ui vertical large segment">
         <div class="ui aligned header">Data Content</div>
         <pre>{{ data.peek }}</pre>
+    </div>
+    <div class="ui vertical large segment">
+        <div class="ui aligned header">Table of Contents</div>
+        <pre>{{ data.table_of_contents|join:"" }}</pre>
     </div>
 
 

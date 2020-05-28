@@ -6,14 +6,15 @@
                 <a class="ui label" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</a>
 
         {% endif %}
-    <div class="ui relaxed divided large list">
 
+    <div class="ui relaxed divided large list">
 
 
         {% for  real_path, rel_path, dir_names, last_name, tstamp, size, is_image, dir_name, is_dir in paths %}
 
-            <div class="file item" data-value="{{ dir_name }}/{{ last_name }}">
+            <div class="emphasize item" data-value="{{ dir_name }}/{{ last_name }}">
                 <span>
+
                     {% if uid %}
 
                         <a href="{% url serve_view uid=uid path=rel_path %}">

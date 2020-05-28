@@ -50,24 +50,31 @@ def valid_tag(text):
         raise ValidationError('You have too many tags (5 allowed)')
 
 
+def informative_choices(choices):
+    """
+    Map choices for post types to a more informative description.
+    """
+    mapper = {
+              Post.QUESTION: "Ask a question", Post.TUTORIAL: "Share a Tutorial",
+              Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
+              Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
+              }
+    new_choices = []
+    for c in choices:
+        new_choices.append((c[0], mapper.get(c[0], c[1])))
+
+    return new_choices
+
+
 class PostLongForm(forms.Form):
 
     choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
 
-    # mapper = {
-    #           Post.QUESTION: "Ask a question", Post.TUTORIAL: "Share a Tutorial",
-    #           Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
-    #           Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
-    #           }
     if settings.ALLOWED_POST_TYPES:
         choices = [opt for opt in choices if opt[1] in settings.ALLOWED_POST_TYPES]
 
-    # if settings.REMAP_TYPE_DISPLAY:
-    #     type_choices = []
-    #     for c in choices:
-    #         type_choices.append((c[0], mapper.get(c[0], c[1])))
-    # else:
-    #     type_choices = choices
+    if settings.REMAP_TYPE_DISPLAY:
+        choices = informative_choices(choices=choices)
 
     post_type = forms.IntegerField(label="Post Type",
                                    widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),

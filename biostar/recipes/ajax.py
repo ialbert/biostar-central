@@ -284,6 +284,7 @@ def copy_file(request):
     copied = auth.copy_file(request=request, fullpath=path)
     return ajax_success(msg=f"{len(copied)} files copied.")
 
+
 @ensure_csrf_cookie
 @ajax_error_wrapper(method="POST", login_required=True)
 def copy_object(request):
@@ -293,22 +294,27 @@ def copy_object(request):
     # Map the query parameter to a clipboard and database model.
     mapper = {"data": (Data, COPIED_DATA),  "job": (Job, COPIED_RESULTS), "recipe": (Analysis, COPIED_RECIPES)}
     uid = request.POST.get('uid', '')
+    oid = request.POST.get('id', 0)
 
     # Get the clipboard to copy to
     clipboard = request.POST.get(settings.CLIPBOARD_NAME)
-    klass, board = mapper.get(clipboard, (None, None))
 
-    if not (klass and board):
+    klass, board = mapper.get(clipboard, (None, None))
+    if uid:
+        obj = klass.objects.filter(uid=uid).first()
+    else:
+        obj = klass.objects.filter(id=oid).first()
+
+    if not (klass and board and obj):
         return ajax_error("Object or board does not exist.")
 
-    obj = klass.objects.filter(uid=uid).first()
     is_readable = auth.is_readable(user=request.user, obj=obj)
 
     if not is_readable:
         return ajax_error('You do not have access to copy this object.')
 
     # Return current clipboard contents
-    copied = auth.copy_uid(request=request, uid=uid, board=board)
+    copied = auth.copy_uid(request=request, uid=obj.uid, board=board)
 
     return ajax_success(f"Copied. Clipboard contains :{len(copied)} objects.")
 
@@ -382,7 +388,7 @@ def ajax_clipboard(request):
     if project and auth.is_readable(user=user, obj=project) and count:
         # Load items into clipboard
         tmpl = loader.get_template('widgets/clipboard.html')
-        context = dict(count=count, board=key, is_recipe=key==COPIED_RECIPES)
+        context = dict(count=count, board=key, is_recipe=key == COPIED_RECIPES)
         template = tmpl.render(context=context)
     else:
         template = ''
