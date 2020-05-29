@@ -89,18 +89,16 @@ class SiteNavigation(TestCase):
         ]
         anon_urls = [
             reverse("index"),
-            reverse("project_list"),
+            reverse('project_list_public'),
             reverse('project_view', kwargs=self.proj_params),
 
         ]
-
 
         urls = [
             reverse('index'),
             reverse('logout'),
             reverse('login'),
             reverse('search'),
-            reverse('project_list'),
             reverse('project_list_private'),
             reverse('data_list', kwargs=self.proj_params),
             reverse('data_view', kwargs=self.data_params),
@@ -155,6 +153,7 @@ class SiteNavigation(TestCase):
             reverse('signup'),
             reverse("recycle_bin"),
             reverse('index'),
+            reverse('project_list'),
             reverse('logout'),
             reverse('login'),
             reverse('recipe_create', kwargs=self.proj_params),

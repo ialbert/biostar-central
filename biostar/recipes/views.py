@@ -61,7 +61,7 @@ def recycle_bin(request):
     "Recycle bin view for a user"
     user = request.user
 
-    BIN_LIMIT = 200000
+    BIN_LIMIT = 200
 
     if user.is_superuser:
         # Super users get access to all deleted objects.
@@ -150,6 +150,7 @@ def project_users(request, uid):
 
     counts = get_counts(project)
     context.update(counts)
+
     return render(request, "project_users.html", context=context)
 
 
@@ -178,32 +179,48 @@ def project_info(request, uid):
 
 
 def project_list_public(request):
-    return project_list(request, target='public')
+    user = request.user
+    projects = auth.get_project_list(user=user)
 
-
-def project_list_private(request):
-    return project_list(request, target='private')
-
-
-def project_list(request, target=None):
-
-    if target == 'private' or request.user.is_authenticated:
-        active = "private"
-        projects = auth.get_project_list(user=request.user, include_public=False)
+    # Filter for public and read access projects.
+    if user.is_authenticated:
+        projects = projects.filter(Q(access__user=user,
+                                     access__access__in=[Access.READ_ACCESS, Access.SHARE_ACCESS]) |
+                                   Q(privacy=Project.PUBLIC))
     else:
-        projects = auth.get_project_list(user=request.user)
-        projects = projects.exclude(privacy__in=[Project.PRIVATE, Project.SHAREABLE])
-        active = "public"
+        projects = projects.filter(privacy=Project.PUBLIC)
 
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
-    context = dict(projects=projects, active=active)
+    context = dict(projects=projects, active="public")
 
     return render(request, "project_list.html", context=context)
 
 
+def project_list_private(request):
+    user = request.user
+    projects = auth.get_project_list(user=request.user)
+
+    # Filter for projects user has write access to
+    if user.is_authenticated:
+        projects = projects.filter(Q(access__user=request.user, access__access=Access.WRITE_ACCESS))
+
+    projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
+    context = dict(projects=projects, active="private")
+
+    return render(request, "project_list.html", context=context)
+
+
+def project_list(request):
+
+    # Redirect authenticated users to my projects.
+    if request.user.is_authenticated:
+        return redirect("project_list_private")
+
+    return redirect("project_list_public")
+
+
 def latest_recipes(request):
     """
-
     """
 
     # Select public recipes
