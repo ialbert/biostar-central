@@ -150,6 +150,7 @@ def project_users(request, uid):
 
     counts = get_counts(project)
     context.update(counts)
+
     return render(request, "project_users.html", context=context)
 
 
@@ -178,10 +179,16 @@ def project_info(request, uid):
 
 
 def project_list_public(request):
-    projects = auth.get_project_list(user=request.user)
+    user = request.user
+    projects = auth.get_project_list(user=user)
 
-    # Get projects the author has read access to
-    projects = projects.filter(access__access__in=[Access.READ_ACCESS, Access.SHARE_ACCESS])
+    # Filter for public and read access projects.
+    if user.is_authenticated:
+        projects = projects.filter(Q(access__user=user,
+                                     access__access__in=[Access.READ_ACCESS, Access.SHARE_ACCESS]) |
+                                   Q(privacy=Project.PUBLIC))
+    else:
+        projects = projects.filter(privacy=Project.PUBLIC)
 
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     context = dict(projects=projects, active="public")
@@ -190,10 +197,12 @@ def project_list_public(request):
 
 
 def project_list_private(request):
+    user = request.user
     projects = auth.get_project_list(user=request.user)
 
-    # Get project you have write access to.
-    projects = projects.filter(access__access=Access.WRITE_ACCESS)
+    # Filter for projects user has write access to
+    if user.is_authenticated:
+        projects = projects.filter(Q(access__user=request.user, access__access=Access.WRITE_ACCESS))
 
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     context = dict(projects=projects, active="private")
@@ -212,7 +221,6 @@ def project_list(request):
 
 def latest_recipes(request):
     """
-
     """
 
     # Select public recipes

@@ -59,7 +59,7 @@ ALLOW_SELF_MODERATE = False
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 300
 
-LOGIN_REDIRECT_URL = "/project/list/private/"
+LOGIN_REDIRECT_URL = "/my/projects/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 ENGINE_APPS = [
