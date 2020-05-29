@@ -21,7 +21,7 @@
         <div class="ui divider"></div>
 
         <div class="muted">
-            <span class="ui label">{{ project.get_privacy_display }}</span>
+            {% privacy_label project %}
             Project owned by <a href="{% url 'user_profile'  project.owner.profile.uid %}">
             {{ project.owner.profile.name }}
         </a>&bull;
