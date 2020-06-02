@@ -66,6 +66,16 @@ def informative_choices(choices):
     return new_choices
 
 
+def validate_tags_package(text):
+    """
+    Ensure at least one tag is present in the
+    """
+
+    # Get the tags file.
+
+    return
+
+
 class PostLongForm(forms.Form):
 
     choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
@@ -73,8 +83,7 @@ class PostLongForm(forms.Form):
     if settings.ALLOWED_POST_TYPES:
         choices = [opt for opt in choices if opt[1] in settings.ALLOWED_POST_TYPES]
 
-    if settings.REMAP_TYPE_DISPLAY:
-        choices = informative_choices(choices=choices)
+    choices = informative_choices(choices=choices)
 
     post_type = forms.IntegerField(label="Post Type",
                                    widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
