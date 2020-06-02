@@ -113,7 +113,19 @@ The site is now available at http://127.0.0.1:8000/.
 You can also load data and start a local server with one command `make bioconductor demo`:
 
     make bioconductor demo     # Load data and start local server
+
     
+## Default user for local testing site
+
+All users listed in the `ADMINS` attribute of the Django `settings.py` 
+module will gain administritave privileges when the site is initialized. The
+`DEFAULT_ADMIN_PASSWORD` attribute will be set as the default admin password. 
+By default the value for both is:
+
+    admin@localhost
+
+Use this username and password combination to log into the site as an administrator. Change the `DEFAULT_ADMIN_PASSWORD` for public facing installations.
+
 
 When the site initializes the admin username and password are using the ``ADMINS`` and the ``ADMIN_PASSWORD`` settings in ``biostar/acccounts/settings.py``.
 
