@@ -649,19 +649,14 @@ def job_edit(request, uid):
 @write_access(type=Analysis, fallback_view="recipe_view")
 def recipe_delete(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
-    clones = Analysis.objects.filter(root=recipe, deleted=False)
+    user = request.user
 
-    if recipe.is_root and clones.exists():
-        # Check if a root recipe
-        msg = "Can not delete a cloned recipe."
-        messages.success(request, msg)
-    else:
-        auth.delete_object(obj=recipe, request=request)
-        tmpl = loader.get_template('widgets/delete_msg.html')
-        context = dict(obj=recipe, undo_url=reverse('recipe_delete', kwargs=dict(uid=recipe.uid)))
-        msg = tmpl.render(context=context)
+    auth.delete_recipe(recipe=recipe, user=user)
+    tmpl = loader.get_template('widgets/delete_msg.html')
+    context = dict(obj=recipe, undo_url=reverse('recipe_delete', kwargs=dict(uid=recipe.uid)))
+    msg = tmpl.render(context=context)
 
-        messages.success(request, mark_safe(msg))
+    messages.success(request, mark_safe(msg))
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 
