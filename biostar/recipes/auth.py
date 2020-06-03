@@ -607,6 +607,10 @@ def delete_recipe(recipe, user):
     recipe.deleted = state
     recipe.save()
 
+    # Do not restore all cloned recipes.
+    if not recipe.deleted:
+        return
+
     clones = Analysis.objects.filter(root=recipe)
 
     # Update clones to the same state as the parent.
