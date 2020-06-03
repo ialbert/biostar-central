@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  user: root
+  user: "{{ username | default(root) }}"
 
   tasks:
 

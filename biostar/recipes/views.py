@@ -182,13 +182,8 @@ def project_list_public(request):
     user = request.user
     projects = auth.get_project_list(user=user)
 
-    # Filter for public and read access projects.
-    if user.is_authenticated:
-        projects = projects.filter(Q(access__user=user,
-                                     access__access__in=[Access.READ_ACCESS, Access.SHARE_ACCESS]) |
-                                   Q(privacy=Project.PUBLIC))
-    else:
-        projects = projects.filter(privacy=Project.PUBLIC)
+    # Filter for public projects
+    projects = projects.filter(privacy=Project.PUBLIC)
 
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     context = dict(projects=projects, active="public")
@@ -198,11 +193,10 @@ def project_list_public(request):
 
 def project_list_private(request):
     user = request.user
-    projects = auth.get_project_list(user=request.user)
+    projects = auth.get_project_list(user=user)
 
-    # Filter for projects user has write access to
-    if user.is_authenticated:
-        projects = projects.filter(Q(access__user=request.user, access__access=Access.WRITE_ACCESS))
+    # Filter for private projects
+    #projects = projects.filter(privacy=Project.PRIVATE)
 
     projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
     context = dict(projects=projects, active="private")
@@ -224,7 +218,7 @@ def latest_recipes(request):
     """
 
     # Select public recipes
-    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, root=None, deleted=False).order_by("-id")[:50]
+    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, deleted=False).order_by("-id")[:50]
 
     recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
@@ -649,19 +643,14 @@ def job_edit(request, uid):
 @write_access(type=Analysis, fallback_view="recipe_view")
 def recipe_delete(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
-    clones = Analysis.objects.filter(root=recipe, deleted=False)
+    user = request.user
 
-    if recipe.is_root and clones.exists():
-        # Check if a root recipe
-        msg = "Can not delete a cloned recipe."
-        messages.success(request, msg)
-    else:
-        auth.delete_object(obj=recipe, request=request)
-        tmpl = loader.get_template('widgets/delete_msg.html')
-        context = dict(obj=recipe, undo_url=reverse('recipe_delete', kwargs=dict(uid=recipe.uid)))
-        msg = tmpl.render(context=context)
+    auth.delete_recipe(recipe=recipe, user=user)
+    tmpl = loader.get_template('widgets/delete_msg.html')
+    context = dict(obj=recipe, undo_url=reverse('recipe_delete', kwargs=dict(uid=recipe.uid)))
+    msg = tmpl.render(context=context)
 
-        messages.success(request, mark_safe(msg))
+    messages.success(request, mark_safe(msg))
 
     return redirect(reverse("recipe_list", kwargs=dict(uid=recipe.project.uid)))
 

@@ -590,6 +590,37 @@ def delete_object(obj, request):
     return obj.deleted
 
 
+def delete_recipe(recipe, user):
+    """
+    Toggle the delete state on a recipe and it's clones.
+    """
+    access = is_writable(user=user, project=recipe.project)
+
+    # Bail out when user has no write access
+    if not access:
+        return
+
+    # New recipe delete state.
+    state = not recipe.deleted
+
+    # Toggle the root recipe
+    recipe.deleted = state
+    recipe.save()
+
+    # Do not restore all cloned recipes.
+    if not recipe.deleted:
+        return
+
+    clones = Analysis.objects.filter(root=recipe)
+
+    # Update clones to the same state as the parent.
+    clones.update(deleted=state, lastedit_date=recipe.lastedit_date)
+
+    # Set the correct count for projects with cloned recipes.
+    for clone in clones:
+        clone.project.set_counts()
+
+
 def transform(root, node, path):
 
     # Image extension types.

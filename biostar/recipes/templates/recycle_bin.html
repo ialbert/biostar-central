@@ -13,6 +13,7 @@
     <div class="ui relaxed divided large list">
         {% for item in deleted %}
             <div class="emphasize item">
+
                 <a href="{{ item.delete_url }}" class="right floated content">
                     <div class="ui button"><i class="undo icon"></i>Restore</div>
                 </a>
@@ -22,6 +23,9 @@
                     <img class="ui avatar image" src="{% img item %}"/>
                 {% endif %}
                 <div class="content">
+                    {% if item.is_cloned %}
+                        <i class="linkify icon"></i>
+                    {% endif %}
 
                     <a href="{{ item.url }}">{{ item.get_name|truncatechars:150 }}</a>
 
