@@ -26,7 +26,6 @@ class Bunch(object):
 
 
 def make_html(text, user=None):
-
     if user and user.profile.trusted:
         html = mistune.markdown(text, escape=False)
     else:
@@ -131,7 +130,7 @@ class Project(models.Model):
     # Internal uid that is not editable.
     uid = models.CharField(max_length=32, unique=True)
     # Unique project label that is editable.
-    #TODO: being refactored out.
+    # TODO: being refactored out.
     label = models.CharField(max_length=32, unique=True, null=True)
 
     # FilePathField points to an existing project directory.
@@ -215,7 +214,7 @@ class Project(models.Model):
                 project_uid=self.uid,
                 id=self.pk,
 
-                ),
+            ),
             recipes=[recipe.uid for recipe in self.analysis_set.all()])
 
         return payload
@@ -610,6 +609,36 @@ class Analysis(models.Model):
         Project.objects.filter(analysis__root=self).update(lastedit_date=self.lastedit_date,
                                                            lastedit_user=self.lastedit_user)
 
+    def update_root(self):
+        """
+        Update the root whenever a child is updated.
+        """
+        if self.root:
+            root = Analysis.objects.filter(id=self.root.id)
+
+            # Sync root to children
+            self.root.json_text = self.json_text
+            self.root.template = self.template
+            self.root.name = self.name
+            self.root.security = self.security
+            self.root.lastedit_date = self.lastedit_date
+            self.root.lastedit_user = self.lastedit_user
+            self.root.text = self.text
+            self.root.html = self.html
+            self.root.image = self.image
+
+            # Update the root
+            root.update(json_text=self.root.json_text, template=self.root.template, name=self.root.name,
+                        security=self.root.security, lastedit_date=self.root.lastedit_date, image=self.root.image,
+                        lastedit_user=self.root.lastedit_user, text=self.root.text, html=self.root.html)
+
+            # Update the siblings
+            self.root.update_children()
+
+            # Update last edit user and date for root project.
+            Project.objects.filter(analysis=self.root).update(lastedit_date=self.root.lastedit_date,
+                                                              lastedit_user=self.root.lastedit_user)
+
     def url(self):
         assert self.uid, "Sanity check. UID should always be set."
         return reverse("recipe_view", kwargs=dict(uid=self.uid))
@@ -619,7 +648,7 @@ class Analysis(models.Model):
 
     def edit_url(self):
         # Return root edit url if this recipe is cloned.
-        #if self.is_cloned:
+        # if self.is_cloned:
         #    return reverse('recipe_edit', kwargs=dict(uid=self.root.uid))
 
         return reverse('recipe_view', kwargs=dict(uid=self.uid))

@@ -1,29 +1,32 @@
 {% load engine_tags %}
 
 <div class="ui items">
-    {% recipe_details recipe include_copy %}
     {{ recipe.html | safe }}
 </div>
-{% if recipe.is_cloned %}
+<div class="ui center aligned basic segment">
 
-    {% recipe_clone_message recipe %}
-    <div class="ui center aligned basic segment">
-{% else %}
-    <div class="ui center aligned basic segment">
     <a class="ui gray small button copy" data-value="#edit">
         <i class="copy icon"></i> Copy recipe
     </a>
-    <a class="ui gray small button click" href="#" data-value="#edit">
-        <i class="edit icon"></i> Edit description
-    </a>
 
-{% endif %}
+    {% if editable %}
 
-<a class="ui small button " href="{% url 'recipe_delete' recipe.uid %}">
-    {% if recipe.deleted %}
-        <i class="undo icon"></i>Restore recipe
+        <a class="ui gray small button click" href="#" data-value="#edit">
+            <i class="edit icon"></i> Edit description
+        </a>
+        <a class="ui small button " href="{% url 'recipe_delete' recipe.uid %}">
+            {% if recipe.deleted %}
+                <i class="undo icon"></i>Restore recipe
+            {% else %}
+                <i class="trash icon"></i>Delete recipe
+            {% endif %}
+        </a>
+
     {% else %}
-        <i class="trash icon"></i>Delete recipe
+        <div class="ui large muted center aligned vertical segment">
+            You need write access to the <a href="{{ recipe.root.url }}">original recipe</a> to edit.
+        </div>
+
     {% endif %}
-</a>
+
 </div>

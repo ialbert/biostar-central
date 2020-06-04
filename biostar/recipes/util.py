@@ -46,6 +46,25 @@ def pp(json):
     return text
 
 
+def toml_error(exp_msg, text):
+
+    # Parse the last part with the line number
+    if "already exists" in exp_msg.msg:
+        err = "Key already exists."
+    else:
+        err = "Toml parser error. "
+
+    padding = 2
+    start, end = exp_msg.lineno - padding, exp_msg.lineno + padding
+    data = text.split("\n")
+    error_frame = data[start: end]
+    error_frame = "\n".join(error_frame)
+
+    err += f' ...{error_frame}...\t( line {exp_msg.lineno} column {exp_msg.colno}) '
+
+    return err
+
+
 def smart_preview(fname):
     CHUNK_SIZE, LINE_COUNT = 1024, 10
     try:

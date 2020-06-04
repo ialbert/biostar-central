@@ -340,7 +340,7 @@ pre.toml_code {
 }
 
 .job .buttons, .data .buttons, .recipe .buttons{
-    height: fit-content;
+   height: min-content;
 }
 
 

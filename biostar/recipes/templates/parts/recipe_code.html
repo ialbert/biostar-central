@@ -7,11 +7,8 @@
         <textarea class="code" rows="80" cols="55" name="template" id="code_editor">{{ form.template.value }}</textarea>
     </div>
 
-    {% if recipe.is_cloned %}
-        {% recipe_clone_message recipe %}
-    {% else %}
-
-        <div class="item">
+    {% if editable %}
+          <div class="item">
             <button class="ui green {{ btn_state }} button ajax" type="submit">
                 <i class="save icon"></i> Save Code
             </button>
@@ -20,12 +17,15 @@
                 <i class="download icon"></i> Download
              </a>
 
-
-            <a class="ui right floated gray button click" data-value="#info">
+            <a class="ui gray button click" data-value="#info">
                  <i class="redo icon"></i>Cancel
             </a>
         </div>
 
+    {% else %}
+       <div class="ui large muted center aligned vertical segment">
+            You need write access to the <a href="{{ recipe.root.url }}">original recipe</a> to edit.
+        </div>
     {% endif %}
 
 </form>
