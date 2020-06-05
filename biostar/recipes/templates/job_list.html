@@ -22,7 +22,10 @@
         </div>
     {% endif %}
 
-        {% include 'parts/recipe_results.html' %}
+        {# Set the column width in the grid. #}
+        {% with colwidth='fourteen' %}
+           {% include 'parts/recipe_results.html' %}
+        {% endwith %}
 
 
 {% endblock %}

@@ -194,7 +194,7 @@ def data_field_generator(field, project, type="", extras=[]):
     # Add the data type to the label.
     if type:
         help_text = field.get('help', '')
-        type_text = f" Data Type: {type}"
+        type_text = f" Required data type: {type}"
         # Add a line break for the data type
         help_text = f'{help_text} {type_text}' if help_text else type_text
         # Insert new help text
