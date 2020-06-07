@@ -1,7 +1,7 @@
 bleach==3.1.4
 chardet==3.0.4
 coverage==5.0.3
-Django==3.0.3
+Django==3.0.7
 django-allauth==0.41.0
 django-appconf==1.0.3
 django-compressor==2.4
