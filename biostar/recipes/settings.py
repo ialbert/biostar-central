@@ -23,6 +23,12 @@ MAX_PROJECTS = 20
 # Root directory relative to the job path usd to store logs.
 JOB_LOGDIR = 'runlog'
 
+
+PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
+
+
+PAGEDOWN_IMAGE_UPLOAD_PATH = ""
+
 # Stdout filename for each job relative to the log directory.
 JOB_STDOUT = os.path.join(JOB_LOGDIR, 'stdout.txt')
 JOB_STDERR = os.path.join(JOB_LOGDIR, 'stderr.txt')
@@ -64,7 +70,8 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 ENGINE_APPS = [
     'biostar.recipes.apps.EngineConfig',
-    'django.contrib.redirects'
+    'django.contrib.redirects',
+    'pagedown.apps.PagedownConfig'
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP

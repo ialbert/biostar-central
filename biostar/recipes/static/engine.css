@@ -130,18 +130,40 @@ pre.toml_code {
     left: calc(-1rem - 1.4em);
 }
 
-.ui.ribbon.label.obj {
-    left: 91.6%;
-    top:-5px;
+
+.wmd-button > span{
+    background-image: url('/static/pagedown/wmd-buttons.png') !important;
 }
+
+.wmd-button-bar{
+    background-color: transparent !important;
+}
+
+.pagedown-image-upload{
+    transform: none !important;
+    left: 35% !important;
+    top: 33% !important;
+}
+
+.wmd-preview{
+    padding:14px;
+    background: #ececec;
+    margin: 10px;
+    border-radius: 15px;
+}
+
+.wmd-prompt-background{
+    display: none !important;
+}
+
+
+.wmd-prompt-dialog{
+    display: none !important;
+}
+
 
 #clipboard .message .muted{
     margin-bottom: 1ex;
-}
-
-.ui.ribbon.label.info {
-    left: 14.3%;
-    float: right;
 }
 
 

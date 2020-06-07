@@ -828,3 +828,24 @@ def import_files(request, path=""):
     context = dict(paths=paths, active="import", show_all=False)
 
     return render(request, 'import_files.html', context=context)
+
+
+@login_required
+def image_upload_view(request):
+
+    1/0
+    if not request.method == 'POST':
+        raise PermissionDenied()
+
+    if not IMAGE_UPLOAD_ENABLED:
+        raise ImproperlyConfigured('Image upload is disabled')
+
+    form = ImageUploadForm(request.POST, request.FILES)
+    if form.is_valid():
+        image = request.FILES['image']
+        path = os.path.join(IMAGE_UPLOAD_PATH, image.name)
+        path = default_storage.save(path, image)
+        url = default_storage.url(path)
+        return JsonResponse({'success': True, 'url': url})
+
+    return JsonResponse({'success': False, 'error': form.errors})

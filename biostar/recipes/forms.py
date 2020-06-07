@@ -12,7 +12,7 @@ from django.utils.timezone import now
 from django.contrib import messages
 from django.urls import reverse
 from django.core.validators import validate_slug
-
+from pagedown.widgets import PagedownWidget
 from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
@@ -116,8 +116,15 @@ def add_captcha_field(request, fields):
     return
 
 
+class TextWidget(PagedownWidget):
+    template_name = "pagedown/default.html"
+
+    pass
+
+
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
+    text = forms.CharField(widget=TextWidget())
     # Should not edit uid because data directories get recreated
 
     def __init__(self, request, create=False, *args, **kwargs):

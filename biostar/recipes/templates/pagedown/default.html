@@ -1,0 +1,29 @@
+<div class="wmd-wrapper {% if image_upload_enabled %}image-upload-enabled{% endif %}">
+    <div class="wmd-panel">
+        <div id="wmd-button-bar-{{ widget.attrs.id }}" class="wmd-button-bar"></div>
+        {% include 'pagedown/forms/widgets/textarea.html' %}
+    </div>
+    <div id="wmd-preview-{{ widget.attrs.id }}" class="wmd-preview"></div>
+    {% if image_upload_enabled %}
+        <div class="pagedown-image-upload">
+            <h2>Insert Image</h2>
+            <div class="form-row">
+                <div>
+                    <label class="label">From the web</label>
+                    <input class="url-input" type="text" placeholder="http://" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div>
+                    <label class="label">From your computer</label>
+                    <input class="file-input" type="file" name="image" id="file" data-action="{% url 'pagedown-image-upload' %}" accept="image/*"/>
+                </div>
+            </div>
+            <div class="submit-row">
+                <a class="ui green label"> Save</a>
+                <a class="ui orange right floated label ">Cancel</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
