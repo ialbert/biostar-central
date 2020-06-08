@@ -1,26 +1,25 @@
 {% load engine_tags %}
 
 {% if job.is_started %}
-    <div class="ui active inverted running dimmer" id="img" >
-        <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
-        <div class="ui indeterminate text inline loader"></div>
-    </div>
-
+    <span class="parent" id="img">
+        <img class="ui opaque bottom mytiny rounded fancy image" src="{% img job.analysis %}">
+        <div class="ui top active inline loader"></div>
+    </span>
 {% elif job.is_success %}
-<div class="ui active inverted dimmer dim" id="img" >
-    <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
-    <i class="large check success icon"></i>
-</div>
+    <span class="parent" id="img">
+    <img class="ui bottom mytiny rounded fancy image" src="{% img job.analysis %}">
+    <i class="large top check success icon"></i>
+</span>
 
 
 {% elif job.is_error %}
-    <div class="ui active inverted dimmer dim" id="img" >
-    <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}">
-      <i class="large times error icon"></i>
-</div>
+    <span class="parent" id="img">
+    <img class="ui bottom  mytiny rounded fancy image" src="{% img job.analysis %}">
+      <i class="large top times error icon"></i>
+</span>
 
 {% else %}
 
-    <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}" id="img" >
+    <img class="ui mytiny rounded fancy image" src="{% img job.analysis %}" id="img">
 
 {% endif %}

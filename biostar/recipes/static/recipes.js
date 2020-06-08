@@ -80,7 +80,8 @@ function update_preview() {
                 return
             }
             $('#preview').html(preview_template(data.html));
-
+            //alert(preview_template(data.html));
+            //$('#preview').show()
         }
     });
 }
@@ -154,7 +155,7 @@ function toggle_panels(elem_id, quick) {
     var elem = $(elem_id);
 
     // Move the element so it is first, thus always opens downwards.
-    $(elem).parent().prepend(elem);
+    $(elem).prepend(elem);
 
     //Hide all collapsible elements.
     $(".collapse").hide();
@@ -185,8 +186,8 @@ function toggle_panels(elem_id, quick) {
 // Updates content in dynamic panels
 function update_panels() {
 
-    var panels = ['info', 'run', 'results'];
-    var server = "/get/part/{0}/{1}/"
+    var panels = ['info', 'run', 'results', 'details'];
+    var server = "/get/part/{0}/{1}/";
     var id = get_id();
 
     function loader(name) {
@@ -199,6 +200,41 @@ function update_panels() {
 
     panels.forEach(loader);
 }
+
+
+
+function validate_toml(input_field, toml_text){
+    /*
+     Check if a new toml field is already present in the text.
+     Increments the field key to resolve conflicts.
+     */
+
+    // List of the current toml parameter being added
+    var input_list = input_field.trim().split("\n");
+
+    /// Get the key of this interface parameter
+    var current = input_list[0].trim();
+    var key = current.slice(1, -1);
+    var i = 1;
+
+    // Loop until we get to a unique key
+    while (toml_text.includes(current, 0)){
+        new_key = "{0}_{1}".format(key, i);
+        current = "[{0}]".format(new_key);
+        console.log(current);
+        i ++;
+    }
+
+    input_list[0] = current;
+
+    // Join the new toml
+    let input_str = "\n\n" + input_list.join("\n");
+
+    return input_str
+
+
+}
+
 
 // Binds events dynamically.
 function bind_events() {

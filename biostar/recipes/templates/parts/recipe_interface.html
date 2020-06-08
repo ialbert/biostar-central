@@ -112,11 +112,7 @@
                                   name="json_text" id="interface_editor">{{ form.json_text.value }}</textarea>
     </div>
 
-    {% if recipe.is_cloned %}
-
-        {% recipe_clone_message recipe %}
-
-    {% else %}
+    {% if editable %}
 
         <div class="item">
             <button class="ui green  {{ btn_state }} button ajax" type="submit">
@@ -132,6 +128,11 @@
             </a>
         </div>
 
+    {% else %}
+        <div class="ui large muted center aligned vertical segment">
+            You need write access to the <a href="{{ recipe.root.url }}">original recipe</a> to edit.
+        </div>
+
     {% endif %}
 
 </form>
@@ -142,6 +143,7 @@
         var editor = init_codemirror(textarea, 400);
 
         update_preview();
+
         $(this).on('click', '.labels .label', function () {
             //var curr = $(this).closest(".card");
             var toml = $(this).data("value");
@@ -150,9 +152,17 @@
             toml = toml.replace(/^\s+/g, '\n');
             toml = toml.replace(/\n[\s]+/g, '\n');
 
+            // Get the first line, take out the brackets.
+            toml = validate_toml(toml, textarea.val());
+
             // Add clicked field to textarea and set values.
+            //var new_toml = textarea.val() + toml;
+            //editor.setValue(new_toml);
+            //var callback = function (){
             var new_toml = textarea.val() + toml;
             editor.setValue(new_toml);
+            //};
+
             update_preview();
             //popup_message($(this), 'Inserted into interface.', "success");
         });

@@ -306,7 +306,7 @@ def interface_options():
     return dict()
 
 
-@register.inclusion_tag('widgets/recipe_details.html', takes_context=True)
+@register.inclusion_tag('parts/recipe_details.html', takes_context=True)
 def recipe_details(context, recipe, include_copy=True):
     user = context['request'].user
 

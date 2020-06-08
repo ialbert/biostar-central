@@ -1,54 +1,59 @@
 {% load engine_tags %}
- <div class="ui divided link items">
+<div class="ui divided link items">
 
-{% for job in job_list %}
+    {% for job in job_list %}
 
-    <div class="item job" data-value="{{ job.uid }}">
+        <div class="item job" data-value="{{ job.uid }}">
 
-        {% job_img job %}
+            {% job_img job %}
+            <div class="ui grid">
 
-        <div class="content">
+                <div class="{% if colwidth %}{{ colwidth }}{% else %}twelve{% endif %} wide column">
+                    <div class="content">
 
-            {# Display the job name #}
-            <a class="subheader link" href="{{ job.url }}">
-                <i class="bar chart icon"></i>{{ job.get_name }}
-            </a>
+                        {# Display the job name #}
+                        <a class="subheader link" href="{{ job.url }}">
+                            <i class="bar chart icon"></i>{{ job.get_name }}
+                        </a>
+                        {# Display the job summary #}
+                        <div class="ui text container">
+                            <div class="meta">{{ job.analysis.summary|markdown|safe|truncatechars_html:150 }}</div>
+                        </div>
+                        {# Show the job state and time elapsed  #}
+                        <div class="extra">
+                            <span class="state">{% job_minutes job view=False %}</span>&bull;
+                            {% created_by date=job.lastedit_date user=job.lastedit_user %}
+                        </div>
 
-            {# Display the job summary #}
-                <div class="ui text container">
-                        <div class="meta">{{ job.analysis.summary|markdown|safe|truncatechars_html:150 }}</div>
+                    </div>
                 </div>
-            {# Show the job state and time elapsed  #}
-            <div class="extra">
-                <span class="state">{% job_minutes job view=False %}</span>&bull;
-                {% created_by date=job.lastedit_date user=job.lastedit_user %}
-            </div>
 
+                <div class="two wide column">
+                    {# Rerun and delete options for authenticated users #}
+                    {% if user.is_authenticated %}
+                        <div class="ui mini buttons">
+
+                            <a class="ui right button" href="{% url "job_rerun" job.uid %}">
+                                <i class="redo icon"></i>Rerun
+                            </a>
+
+                            <div class="or"></div>
+
+                            <a class="ui right button delete">
+                                <i class="trash icon"></i> Delete
+                            </a>
+                        </div>
+
+                    {% endif %}
+                </div>
+            </div>
         </div>
 
-        {# Rerun and delete options for authenticated users #}
-        {% if user.is_authenticated %}
-            <div class="ui mini buttons">
-
-                <a class="ui right button" href="{% url "job_rerun" job.uid %}">
-                    <i class="redo icon"></i>Rerun
-                </a>
-
-                <div class="or"></div>
-
-                <a class="ui right button delete">
-                    <i class="trash icon"></i> <span class="fitme">Delete</span>
-                </a>
-
+    {% empty %}
+        <div class="item">
+            <div class="ui warning message"><i class="ui info circle icon"></i>This recipe does not have results in the
+                current project.
             </div>
-
-        {% endif %}
-    </div>
-
-{% empty %}
-    <div class="item">
-        <div class="ui warning message"><i class="ui info circle icon"></i>This recipe does not have results in the current project.
         </div>
-    </div>
-{% endfor %}
- </div>
+    {% endfor %}
+</div>

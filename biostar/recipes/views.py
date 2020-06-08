@@ -466,7 +466,6 @@ def recipe_run(request, uid):
         # The form validation will authorize the job.
         if form.is_valid():
             # Create the job from the recipe and incoming json data.
-            #print(form.cleaned_data)
             job = auth.create_job(analysis=recipe, user=request.user, fill_with=form.cleaned_data)
             # Spool via UWSGI or start it synchronously.
             tasks.execute_job.spool(job_id=job.id)
@@ -544,6 +543,7 @@ def get_part(request, name, id):
         interface="parts/recipe_interface.html",
         run="parts/recipe_run.html",
         results="parts/recipe_results.html",
+        details='parts/recipe_details.html',
     )
 
     name = remap.get(name, "parts/placeholder.html")
@@ -551,10 +551,13 @@ def get_part(request, name, id):
     # Check to see if this recipe is runnable by the user.
     is_runnable = auth.authorize_run(user=user, recipe=recipe)
 
+    # Check to see if recipe is editable
+    editable = auth.writeable_recipe(user=user, source=recipe)
+
     # Get the list of jobs required for recipe results
     jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
     context = dict(recipe=recipe, form=form, is_runnable=is_runnable, job_list=jobs, rerun_btn=False,
-                   include_copy=False)
+                   include_copy=False, editable=editable, user=user, project=recipe.project)
     context.update(counts)
 
     html = render(request, name, context=context)
@@ -594,10 +597,13 @@ def recipe_view(request, uid):
     # Check to see if this recipe is runnable by the user.
     is_runnable = auth.authorize_run(user=user, recipe=recipe)
 
+    # Check to see if recipe is editable
+    editable = auth.writeable_recipe(user=user, source=recipe)
+
     # Generate the context.
     context = dict(recipe=recipe, job_list=jobs, project=project, form=form, btn_state=btn_state,
                    is_runnable=is_runnable, activate='Recipe View', rerun_btn=False,
-                   include_copy=False)
+                   include_copy=False, editable=editable)
 
     # Update context with counts.
     context.update(counts)

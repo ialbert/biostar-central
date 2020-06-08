@@ -14,7 +14,7 @@ from biostar.accounts.models import User
 from biostar.recipes.const import *
 from biostar.recipes.models import Job, Analysis, Data, Project, MAX_TEXT_LEN, Access
 from biostar.recipes.forms import RecipeInterface
-from biostar.recipes import auth
+from biostar.recipes import auth, util
 from django.shortcuts import render, redirect, reverse
 
 from biostar.recipes.forms import RecipeForm
@@ -162,11 +162,11 @@ def preview_json(request):
 
     try:
         json_data = toml.loads(text)
-    except Exception as exc:
-        return ajax_error(msg=f"{exc}")
+    except toml.decoder.TomlDecodeError as exc:
+        msg = util.toml_error(exp_msg=exc, text=text)
+        return ajax_error(msg=f"{msg}")
 
     project = recipe.project
-
     # Render the recipe interface
     interface = RecipeInterface(request=request, json_data=json_data, project=project,
                                 add_captcha=False)
