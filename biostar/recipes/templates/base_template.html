@@ -30,8 +30,7 @@
     {% endcompress %}
 
     {% compress js %}
-        <script src="{% static 'semantic.min.js' %}">
-        </script>
+        <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'setup.js' %}{% randparam %}"></script>
         <script src="{% static 'engine.js' %}{% randparam %}"></script>
         <script src="{% static 'prism.js' %}{% randparam %}"></script>
