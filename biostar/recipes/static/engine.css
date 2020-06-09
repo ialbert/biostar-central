@@ -36,6 +36,12 @@ body {
  font-size: 1.28571429rem;
 }
 
+.wmd-panel {
+    margin-left:0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    }
+
 
 #project_view h2 {
  font-size: 1.18571429rem;
@@ -146,21 +152,19 @@ pre.toml_code {
 }
 
 .wmd-preview{
-    padding:14px;
-    background: #ececec;
-    margin: 10px;
-    border-radius: 15px;
+    padding:14px !important;
+    background: #ececec !important;
+    margin: 10px !important;
+    border-radius: 15px !important;
 }
 
 .wmd-prompt-background{
     display: none !important;
 }
 
-
-.wmd-prompt-dialog{
-    display: none !important;
+.deletelink-box{
+    display: inline;
 }
-
 
 #clipboard .message .muted{
     margin-bottom: 1ex;

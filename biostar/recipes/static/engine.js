@@ -401,13 +401,6 @@ $(document).ready(function () {
     $(this).on('click', '#clipboard .clear', function () {
        // clear();
     });
-   $(this).on('click', '[id^="wmd-image-button"]', function (event) {
-       //event.preventDefault();
-       //event.stopPropagation();
-        //alert("fooo")
-       $('.pagedown-image-upload').show()
-    });
-
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');

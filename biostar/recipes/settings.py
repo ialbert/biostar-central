@@ -27,7 +27,8 @@ JOB_LOGDIR = 'runlog'
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 
 
-PAGEDOWN_IMAGE_UPLOAD_PATH = ""
+# Upload path for pagedown images, relative to media root.
+PAGEDOWN_IMAGE_UPLOAD_PATH = "editor"
 
 # Stdout filename for each job relative to the log directory.
 JOB_STDOUT = os.path.join(JOB_LOGDIR, 'stdout.txt')

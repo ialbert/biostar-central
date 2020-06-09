@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q, Count
 from django.template import loader
 from django.db.models import Sum
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -830,22 +831,5 @@ def import_files(request, path=""):
     return render(request, 'import_files.html', context=context)
 
 
-@login_required
-def image_upload_view(request):
 
-    1/0
-    if not request.method == 'POST':
-        raise PermissionDenied()
 
-    if not IMAGE_UPLOAD_ENABLED:
-        raise ImproperlyConfigured('Image upload is disabled')
-
-    form = ImageUploadForm(request.POST, request.FILES)
-    if form.is_valid():
-        image = request.FILES['image']
-        path = os.path.join(IMAGE_UPLOAD_PATH, image.name)
-        path = default_storage.save(path, image)
-        url = default_storage.url(path)
-        return JsonResponse({'success': True, 'url': url})
-
-    return JsonResponse({'success': False, 'error': form.errors})

@@ -116,15 +116,9 @@ def add_captcha_field(request, fields):
     return
 
 
-class TextWidget(PagedownWidget):
-    template_name = "pagedown/default.html"
-
-    pass
-
-
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
-    text = forms.CharField(widget=TextWidget())
+    text = forms.CharField(widget=PagedownWidget())
     # Should not edit uid because data directories get recreated
 
     def __init__(self, request, create=False, *args, **kwargs):
