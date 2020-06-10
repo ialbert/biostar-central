@@ -72,10 +72,11 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 ENGINE_APPS = [
     'biostar.recipes.apps.EngineConfig',
     'django.contrib.redirects',
-    'pagedown.apps.PagedownConfig'
 ]
 
-INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
+PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
+
+INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP + PAGEDOWN_APP
 
 # Additional middleware.
 MIDDLEWARE += [

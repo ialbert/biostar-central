@@ -348,7 +348,7 @@ class RecipeForm(forms.ModelForm):
             authorized = self.instance.security
             choices = Analysis.SECURITY_STATES
             self.fields['security'] = forms.IntegerField(widget=forms.Select(attrs={'class': 'ui dropdown'}, choices=choices),
-                                                           initial=authorized, required=False,)
+                                                           initial=authorized, required=False)
     class Meta:
         model = Analysis
         fields = ["name", "rank", "text", "uid", "json_text", "template", "security" ]
