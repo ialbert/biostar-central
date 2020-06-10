@@ -12,7 +12,7 @@ from django.utils.timezone import now
 from django.contrib import messages
 from django.urls import reverse
 from django.core.validators import validate_slug
-
+from pagedown.widgets import PagedownWidget
 from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
@@ -116,8 +116,10 @@ def add_captcha_field(request, fields):
     return
 
 
+
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
+    text = forms.CharField(widget=PagedownWidget())
     # Should not edit uid because data directories get recreated
 
     def __init__(self, request, create=False, *args, **kwargs):
@@ -333,7 +335,7 @@ class RecipeForm(forms.ModelForm):
     template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# code", required=False)
     name = forms.CharField(max_length=MAX_NAME_LEN, required=False)
     rank = forms.FloatField(required=False, initial=100)
-    text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=False)
+    text = forms.CharField(initial="Recipe description", widget=PagedownWidget(), required=False)
 
     def __init__(self, user,  project=None, *args, **kwargs):
         self.user = user
@@ -346,7 +348,7 @@ class RecipeForm(forms.ModelForm):
             authorized = self.instance.security
             choices = Analysis.SECURITY_STATES
             self.fields['security'] = forms.IntegerField(widget=forms.Select(attrs={'class': 'ui dropdown'}, choices=choices),
-                                                           initial=authorized, required=False,)
+                                                           initial=authorized, required=False)
     class Meta:
         model = Analysis
         fields = ["name", "rank", "text", "uid", "json_text", "template", "security" ]

@@ -282,6 +282,6 @@ $(document).ready(function () {
     update_panels();
 
     // Bind the events.
-    bind_events()
+    bind_events();
 
 });

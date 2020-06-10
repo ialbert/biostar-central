@@ -6,11 +6,22 @@
 
     <link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}{% randparam %}">
     <link rel="stylesheet" href="{% static 'codemirror/theme/idea.css' %}{% randparam %}">
+    <link rel="stylesheet" href="{% static 'pagedown.css' %}{% randparam %}">
+    <link rel="stylesheet" href="{% static 'pagedown/demo/browser/demo.css' %}{% randparam %}">
+
     <script src="{% static 'codemirror/lib/codemirror.js' %}"></script>
     <script src="{% static 'codemirror/addon/display/autorefresh.js' %}"></script>
     <script src="{% static 'codemirror/mode/simple.js' %}"></script>
     <script src="{% static 'codemirror/mode/engine.js' %}"></script>
     <script src="{% static 'codemirror/mode/shell.js' %}"></script>
+
+    <script src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
+    <script src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+    <script src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+    <script src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
+
+    <script src="{% static 'pagedown_init.js' %}"></script>
 
     {#  Javascript code that handles the recipe interfaces. #}
     <script src="{% static 'recipes.js' %}{% randparam %}"></script>
@@ -114,6 +125,5 @@
         </div>
 
     </div>
-
-
+    
 {% endblock %}
