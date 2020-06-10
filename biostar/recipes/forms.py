@@ -116,6 +116,7 @@ def add_captcha_field(request, fields):
     return
 
 
+
 class ProjectForm(forms.ModelForm):
     image = forms.ImageField(required=False)
     text = forms.CharField(widget=PagedownWidget())
@@ -334,7 +335,7 @@ class RecipeForm(forms.ModelForm):
     template = forms.CharField(max_length=MAX_TEXT_LEN, initial="# code", required=False)
     name = forms.CharField(max_length=MAX_NAME_LEN, required=False)
     rank = forms.FloatField(required=False, initial=100)
-    text = forms.CharField(initial="Recipe description", widget=forms.Textarea, required=False)
+    text = forms.CharField(initial="Recipe description", widget=PagedownWidget(), required=False)
 
     def __init__(self, user,  project=None, *args, **kwargs):
         self.user = user

@@ -147,19 +147,18 @@ function copy_file(path, elem) {
 }
 
 
-function paste(data){
+function paste(data) {
     // Paste a given item into the clipboard
     var elem = $("#clipboard");
     $.ajax('/paste/', {
             type: 'POST',
             dataType: 'json',
-            data:data,
+            data: data,
             success: function (data) {
                 if (data.status === "success") {
-                     window.location.href = data.redirect;
-                     popup_message(elem, data.msg, data.status, 500);
-                }
-                else{
+                    window.location.href = data.redirect;
+                    popup_message(elem, data.msg, data.status, 500);
+                } else {
                     popup_message(elem, data.msg, data.status, 2000)
                 }
                 //popup_message(elem, data.msg, data.status, 2000)
@@ -171,20 +170,21 @@ function paste(data){
     )
 }
 
-function clear(){
+function clear() {
     var elem = $("#clipboard");
     $.ajax('/clear/', {
             type: 'POST',
             dataType: 'json',
             success: function (data) {
                 if (data.status === "success") {
-                     popup_message(elem, data.msg, data.status, 500);
-                     elem.hide();
-                     elem.html(data.html);
-                     elem.fadeIn("slow", function () {});
-                     $('.copied.item').each(function () {
-                         $(this).removeClass(" copied")
-                     })
+                    popup_message(elem, data.msg, data.status, 500);
+                    elem.hide();
+                    elem.html(data.html);
+                    elem.fadeIn("slow", function () {
+                    });
+                    $('.copied.item').each(function () {
+                        $(this).removeClass(" copied")
+                    })
                     return
                 }
                 popup_message(elem, data.msg, data.status, 4000)
@@ -196,17 +196,18 @@ function clear(){
     )
 }
 
-function update_clipboard(){
+function update_clipboard() {
     var elem = $("#clipboard");
     $.ajax('/clipboard/', {
             type: 'POST',
             dataType: 'json',
-            data:{"id": project_id()},
+            data: {"id": project_id()},
             success: function (data) {
                 if (data.html) {
-                     elem.hide();
-                     elem.html(data.html);
-                     elem.fadeIn("slow", function () {});
+                    elem.hide();
+                    elem.html(data.html);
+                    elem.fadeIn("slow", function () {
+                    });
                 }
                 //popup_message(elem, data.msg, data.status, 2000)
             },
@@ -390,7 +391,7 @@ $(document).ready(function () {
     });
 
     $(this).on('click', '#clipboard .clone', function () {
-        var data = {"id": project_id(), "target":"clone"};
+        var data = {"id": project_id(), "target": "clone"};
         paste(data);
     });
 
@@ -398,9 +399,6 @@ $(document).ready(function () {
         clear();
     });
 
-    $(this).on('click', '#clipboard .clear', function () {
-       // clear();
-    });
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
