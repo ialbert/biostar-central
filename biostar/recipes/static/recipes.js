@@ -283,7 +283,5 @@ $(document).ready(function () {
 
     // Bind the events.
     bind_events();
-    $('pre').addClass('language-bash');
-    $('code').addClass('language-bash').css('padding', '0');
-    Prism.highlightAll();
+
 });
