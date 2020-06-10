@@ -4,13 +4,18 @@ logger = logging.getLogger('biostar')
 import threading
 
 try:
-    # Loads up uwsgi
+    # When run with uwsgi the tasks will be spooled via uwsgi.
     from uwsgidecorators import spool, timer
 
 except Exception as exc:
-    logger.warning("uwsgi decorators not found, tasks are synchronous")
+    #
+    # With no uwsgi module the tasks will be spooled.
+    # Creating threaded versions of the decorators from uwsgi.
+    #
 
-    # Create a synchronous version of the spooler
+    logger.warning("uwsgi module not found, tasks will run in threads")
+
+    # Create a threaded version of the spooler
     def spool(pass_arguments=True):
         def outer(func):
             @functools.wraps(func)
@@ -29,7 +34,7 @@ except Exception as exc:
         # Gains an attribute called spool that runs the function in the background.
         return outer
 
-    # Create a synchronous version of the timer
+    # Create a threaded version of the timer
     def timer(secs, **kwargs):
         def outer(func):
             @functools.wraps(func)
