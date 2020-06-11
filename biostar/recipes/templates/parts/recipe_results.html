@@ -8,7 +8,7 @@
             {% job_img job %}
             <div class="ui grid">
 
-                <div class="{% if colwidth %}{{ colwidth }}{% else %}twelve{% endif %} wide column">
+                <div class="{% if colwidth %}{{ colwidth }}{% else %}twelve{% endif %} wide column" style="max-width: 58rem;">
                     <div class="content">
 
                         {# Display the job name #}
@@ -17,7 +17,7 @@
                         </a>
                         {# Display the job summary #}
                         <div class="ui text container">
-                            <div class="meta">{{ job.text|markdown|safe|truncatechars_html:150 }}</div>
+                            <div class="meta">{{ job.summary|markdown|safe|truncatechars_html:150 }}</div>
                         </div>
                         {# Show the job state and time elapsed  #}
                         <div class="extra">

@@ -102,7 +102,8 @@ urlpatterns = [
     path(r'accounts/', include(account_patterns)),
 
     # Pagedown image upload url.
-    path('', include('pagedown.urls')),
+    #path('', include('pagedown.urls')),
+    path('pagedown/image-upload/', views.image_upload_view, name="pagedown-image-upload"),
 
 ]
 

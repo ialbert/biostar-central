@@ -29,6 +29,10 @@ IP_WHITELIST = [
 
 ]
 
+
+PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
+
+
 BANNED_IPS = os.path.join(BASE_DIR, 'export', 'logs', 'banned.txt')
 
 # File containing list of tags, at least one being required
