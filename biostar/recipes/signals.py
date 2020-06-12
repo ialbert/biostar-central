@@ -1,6 +1,7 @@
 import os
 import logging
 
+import mistune
 import toml
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -146,14 +147,19 @@ def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
         # Generate friendly uid
         uid = auth.new_uid(obj=instance, objtype=Job, prefix="job")
         instance.uid = uid
-        # Generate the path based on the
+        # Generate the path based on the uid.
         instance.path = join(settings.MEDIA_ROOT, "jobs", f"{instance.uid}")
 
         # Create the job directory if it does not exist.
         os.makedirs(instance.path, exist_ok=True)
 
+        # Append parameter summary to job on creation.
+        instance.text = f"{instance.text}\n{instance.parameter_summary}"
+        instance.html = mistune.markdown(text=instance.text, escape=False)
+
         # Update the information in db.
-        Job.objects.filter(id=instance.id).update(uid=instance.uid, path=instance.path)
+        Job.objects.filter(id=instance.id).update(uid=instance.uid, path=instance.path,
+                                                  text=instance.text, html=instance.html)
 
 
 @receiver(post_save, sender=Data)

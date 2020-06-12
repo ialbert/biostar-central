@@ -4,6 +4,10 @@ import toml as hjson
 import hashlib
 import itertools
 import mistune
+from django.http import JsonResponse
+from django.core.files.storage import default_storage
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,6 +15,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q, Count
 from django.template import loader
 from django.db.models import Sum
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
@@ -828,3 +833,26 @@ def import_files(request, path=""):
     context = dict(paths=paths, active="import", show_all=False)
 
     return render(request, 'import_files.html', context=context)
+
+
+@login_required
+@csrf_exempt
+def image_upload_view(request):
+
+    user = request.user
+
+    if not request.method == 'POST':
+        raise PermissionDenied()
+
+    if not settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
+        raise ImproperlyConfigured('Image upload is disabled')
+
+    form = forms.ImageUploadForm(data=request.POST, files=request.FILES, user=user)
+    if form.is_valid():
+        url = form.save()
+        return JsonResponse({'success': True, 'url': url})
+
+    return JsonResponse({'success': False, 'error': form.errors})
+
+
+

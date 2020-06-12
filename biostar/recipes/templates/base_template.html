@@ -16,6 +16,7 @@
 
     {% endblock %}
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{% static 'recipes_favicon.ico' %}" type="image/x-icon"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -27,11 +28,11 @@
         <link href="{% static 'engine.css' %}{% randparam %}" rel="stylesheet">
         <link href="{% static 'prism.css' %}" rel="stylesheet">
 
+
     {% endcompress %}
 
     {% compress js %}
-        <script src="{% static 'semantic.min.js' %}">
-        </script>
+        <script src="{% static 'semantic.min.js' %}"></script>
         <script src="{% static 'setup.js' %}{% randparam %}"></script>
         <script src="{% static 'engine.js' %}{% randparam %}"></script>
         <script src="{% static 'prism.js' %}{% randparam %}"></script>

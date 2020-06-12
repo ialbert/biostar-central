@@ -36,6 +36,12 @@ body {
  font-size: 1.28571429rem;
 }
 
+.wmd-panel {
+    margin-left:0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    }
+
 
 #project_view h2 {
  font-size: 1.18571429rem;
@@ -130,18 +136,38 @@ pre.toml_code {
     left: calc(-1rem - 1.4em);
 }
 
-.ui.ribbon.label.obj {
-    left: 91.6%;
-    top:-5px;
+
+.wmd-button > span{
+    background-image: url('/static/pagedown/wmd-buttons.png') !important;
+}
+
+.wmd-button-bar{
+    background-color: transparent !important;
+}
+
+.pagedown-image-upload{
+    transform: none !important;
+    left: 35% !important;
+    top: 33% !important;
+}
+
+.wmd-preview{
+    padding:14px !important;
+    background: #ececec !important;
+    margin: 10px !important;
+    border-radius: 15px !important;
+}
+
+.wmd-prompt-background{
+    display: none !important;
+}
+
+.deletelink-box{
+    display: inline;
 }
 
 #clipboard .message .muted{
     margin-bottom: 1ex;
-}
-
-.ui.ribbon.label.info {
-    left: 14.3%;
-    float: right;
 }
 
 

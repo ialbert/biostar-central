@@ -6,7 +6,6 @@ from django.conf.urls.static import static
 from biostar.accounts.urls import account_patterns
 from biostar.recipes import views, api, ajax
 
-
 recipes_patterns = [
 
     path('', views.index, name="index"),
@@ -101,6 +100,10 @@ urlpatterns = [
 
     # Include the accounts urls
     path(r'accounts/', include(account_patterns)),
+
+    # Pagedown image upload url.
+    #path('', include('pagedown.urls')),
+    path('pagedown/image-upload/', views.image_upload_view, name="pagedown-image-upload"),
 
 ]
 

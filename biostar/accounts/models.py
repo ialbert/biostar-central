@@ -1,4 +1,5 @@
 import uuid
+import os
 from datetime import datetime, timedelta
 
 import mistune
@@ -35,6 +36,21 @@ class ProfileManager(models.Manager):
         query = super().get_queryset().filter(models.Q(state=Profile.TRUSTED) | models.Q(state=Profile.NEW))
 
         return query
+
+
+def image_path(instance, filename):
+    # Name the data by the filename.
+    imgpath = os.path.join(settings.PAGEDOWN_IMAGE_UPLOAD_PATH, filename)
+
+    return imgpath
+
+
+class UserImage(models.Model):
+
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+
+    # Image file path, relative to MEDIA_ROOT
+    image = models.ImageField(default=None, blank=True, upload_to=image_path, max_length=MAX_FIELD_LEN)
 
 
 class Profile(models.Model):

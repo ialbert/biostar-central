@@ -13,7 +13,8 @@
     {% form_errors form %}
         <form method="post" class="ui form" action="{% url 'job_edit' job.uid %}" enctype="multipart/form-data">
 
-            {% csrf_token %}
+                {% csrf_token %}
+                {{ form.media }}
 
             <div class="field segment">
                 <label>Result Name</label>
@@ -28,8 +29,9 @@
 
             <div class="field segment">
                 <label>Result description</label>
+                  <p class="muted">A detailed explanation of what the result contains (markdown OK).</p>
                 {{ form.text }}
-                <p class="muted">A detailed explanation of what the result contains (markdown OK).</p>
+
             </div>
 
              <div class="ui center aligned basic segment">
@@ -41,7 +43,6 @@
                     <i class="undo icon"></i>Cancel
                 </a>
              </div>
-
 
         </form>
     </div>

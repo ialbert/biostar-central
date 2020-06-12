@@ -19,7 +19,7 @@
                         <a class="subheader link" href="{% url 'job_view' job.uid %}">
                             <i class="bar chart icon"></i>{{ job.get_name }}
                         </a>
-                        <div class="meta">{{ job.analysis.summary|markdown|safe }}</div>
+                        <div class="meta">{{ job.summary|markdown|safe }}</div>
                         <div class="extra">
                             <span class="state">{% job_minutes job view=True %}</span>&bull;
                             {% created_by date=job.lastedit_date user=job.lastedit_user %}
@@ -62,9 +62,6 @@
 </div>
 
     <div class="ui vertical large segment">
-        <div class="ui aligned header">Run Parameters</div>
-        <div>Parameters used during the run:</div>
-        {{ job.summary|safe }}
         {{ job.html|safe }}
     </div>
 

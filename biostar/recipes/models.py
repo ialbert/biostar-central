@@ -827,16 +827,23 @@ class Job(models.Model):
         super(Job, self).save(*args, **kwargs)
 
     @property
-    def summary(self):
+    def parameter_summary(self):
         """
-        Creates informative job summary that shows job parameters.
         """
-        summary_template = "widgets/job_summary.html"
+        summary_template = "widgets/job_summary.md"
         context = dict(data=self.json_data)
         template = loader.get_template(summary_template)
         result = template.render(context)
-
         return result
+
+    @property
+    def summary(self):
+        """
+        Return the first line in self.text.
+        """
+        lines = self.text.splitlines() or ['']
+        first = lines[0]
+        return first
 
     def runnable(self):
         """

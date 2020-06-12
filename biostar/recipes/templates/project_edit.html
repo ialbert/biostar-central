@@ -7,63 +7,65 @@
 
 
 {% block content %}
-<div class="narrow">
-    {% if project.is_shareable %}
-        Sharable link : <code><a href="{% url 'project_share' project.sharable_token %}">
-        {% full_url %}{% url 'project_share' project.sharable_token %}</a>
+    <div class="narrow">
+        {% if project.is_shareable %}
+            Sharable link : <code><a href="{% url 'project_share' project.sharable_token %}">
+            {% full_url %}{% url 'project_share' project.sharable_token %}</a>
         </code>
-    {% endif %}
-    <div class="ui raised segment inputcolor">
-    {% form_errors form %}
+        {% endif %}
+        <div class="ui raised segment inputcolor">
+            {% form_errors form %}
 
-        <form method="post" class="ui form" enctype="multipart/form-data" action="{% url 'project_edit' project.uid %}">
+            <form method="post" class="ui form" enctype="multipart/form-data"
+                  action="{% url 'project_edit' project.uid %}">
 
-            {% csrf_token %}
-            {{ form.media }}
+                {% csrf_token %}
+                {{ form.media }}
 
-            <div class="field">
-                <label>Project Title</label>
-                {{ form.name }}
-                   <p class="muted">What do you want to call the project</p>
-            </div>
+                <div class="field">
+                    <label>Project Title</label>
+                    {{ form.name }}
+                    <p class="muted">What do you want to call the project</p>
+                </div>
 
-             <div class="field">
-                  <label>Project Image</label>
-                  {{ form.image }}
-                  <p class="muted">Optional image to recognize the project by (square image, no more than 500px)</p>
-             </div>
-         <div class="field">
+                <div class="field">
+                    <label>Project Image</label>
+                    {{ form.image }}
+                    <p class="muted">Optional image to recognize the project by (square image, no more than 500px)</p>
+                </div>
+                <div class="field">
                     <label>Project UID</label>
                     {{ form.uid }}
                     <p class="muted">Unique identifier used to construct the url.</p>
                 </div>
 
-            <div class="field">
-                  <label>Project Privacy</label>
-                  {{ form.privacy }}
-                  <p class="muted">Set the visibility of the project</p>
-             </div>
+                <div class="field">
+                    <label>Project Privacy</label>
+                    {{ form.privacy }}
+                    <p class="muted">Set the visibility of the project</p>
+                </div>
 
-            <div class="field">
-                  <label>Project Rank</label>
-                  {{ form.rank }}
-                  <p class="muted">Used in ordering project lists on the page</p>
-             </div>
+                <div class="field">
+                    <label>Project Rank</label>
+                    {{ form.rank }}
+                    <p class="muted">Used in ordering project lists on the page</p>
+                </div>
 
-            <div class="field">
-                <label>Project Description</label>
-                 {{ form.text }}
-                <p class="muted">A detailed explanation of the project (markdown OK).</p>
-            </div>
+                <div class="field">
+                    <label>Project Description</label>
+                     <p class="muted">A detailed explanation of the project (markdown OK).</p>
+                    {{ form.text }}
 
-            <button type="submit" class="ui submit green button">
-                <i class="save icon"></i>Save
-            </button>
-            <a class="ui right floated button" href="{{project.url}}">
-                 <i class="undo icon"></i>Cancel
-            </a>
+                </div>
 
-        </form>
+                <button type="submit" class="ui submit green button">
+                    <i class="save icon"></i>Save
+                </button>
+                <a class="ui right floated button" href="{{ project.url }}">
+                    <i class="undo icon"></i>Cancel
+                </a>
+
+            </form>
+        </div>
     </div>
-</div>
 {% endblock %}
