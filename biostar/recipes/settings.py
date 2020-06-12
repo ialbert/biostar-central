@@ -38,10 +38,13 @@ JOB_STDERR = os.path.join(JOB_LOGDIR, 'stderr.txt')
 MAX_DATA = 100
 
 # Maximum size per image uploaded, in mb.
-MAX_IMAGE_SIZE_MB = 1
+MAX_IMAGE_SIZE_MB = 2
 
 # Cumulative image size limited per user.
 TOTAL_IMAGE_SIZE_MB = 3
+
+# TODO: only check if not admin user.
+# TODO: total images count threshold. ( 100 images)
 
 # Maximum amount of items per clipboard
 MAX_CLIPBOARD = 5
