@@ -505,14 +505,11 @@ class ImageUploadForm(forms.Form):
         # Check for current image size being uploaded.
         check_size(fobj=img, maxsize=settings.MAX_IMAGE_SIZE_MB)
 
-        # Get cumulative size of images for this user
-        sizes = [ui.image.size for ui in userimg]
-        total = sum(sizes)
+        # Moderators get no limit on images.
+        if self.user.is_authenticated and self.user.profile.is_moderator:
+            return img
 
-        total_mb = total / 1024 / 1024
-
-        # Check if cumulative size is over threshold.
-        if total_mb >= settings.TOTAL_IMAGE_SIZE_MB:
+        if userimg.count() >= settings.MAX_IMAGES:
             raise forms.ValidationError("Exceeded the maximum amount of images you can upload.")
 
         return img
