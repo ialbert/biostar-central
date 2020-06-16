@@ -24,6 +24,7 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 from biostar.accounts.models import User
+from biostar.accounts.forms import ImageUploadForm
 from biostar.recipes import tasks, auth, forms, const, search, util
 from biostar.recipes.decorators import read_access, write_access, exists
 from biostar.recipes.models import Project, Data, Analysis, Job, Access
@@ -833,26 +834,5 @@ def import_files(request, path=""):
     context = dict(paths=paths, active="import", show_all=False)
 
     return render(request, 'import_files.html', context=context)
-
-
-@login_required
-@csrf_exempt
-def image_upload_view(request):
-
-    user = request.user
-
-    if not request.method == 'POST':
-        raise PermissionDenied()
-
-    if not settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
-        raise ImproperlyConfigured('Image upload is disabled')
-
-    form = forms.ImageUploadForm(data=request.POST, files=request.FILES, user=user)
-    if form.is_valid():
-        url = form.save()
-        return JsonResponse({'success': True, 'url': url})
-
-    return JsonResponse({'success': False, 'error': form.errors})
-
 
 

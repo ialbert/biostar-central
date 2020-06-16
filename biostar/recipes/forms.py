@@ -6,7 +6,6 @@ import re
 
 from django import forms
 from django.template import Template, Context
-from django.core.validators import FileExtensionValidator
 from django.db.models import Sum
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
@@ -31,11 +30,6 @@ TEXT_UPLOAD_MAX = 10000
 # Maximum file size that can be uploaded to recipe in megabytes.
 MAX_RECIPE_FILE_MB = 5
 
-IMG_EXTENTIONS = ['jpg',
-                  'jpeg',
-                  'png',
-                  'webp'
-                  ]
 
 
 def join(*args):
@@ -483,49 +477,6 @@ class JobEditForm(forms.ModelForm):
 
 def clean_text(textbox):
     return shlex.quote(textbox)
-
-
-class ImageUploadForm(forms.Form):
-
-    def __init__(self, user=None, *args, **kwargs):
-
-        self.user = user
-        super(ImageUploadForm, self).__init__(*args, **kwargs)
-
-    image = forms.ImageField(required=True,
-                             validators=[FileExtensionValidator(allowed_extensions=IMG_EXTENTIONS)])
-
-    def clean_image(self):
-
-        img = self.cleaned_data['image']
-
-        # Get all images this user has uploaded so far.
-        userimg = UserImage.objects.filter(user=self.user)
-
-        # Check for current image size being uploaded.
-        check_size(fobj=img, maxsize=settings.MAX_IMAGE_SIZE_MB)
-
-        # Moderators get no limit on images.
-        if self.user.is_authenticated and self.user.profile.is_moderator:
-            return img
-
-        if userimg.count() >= settings.MAX_IMAGES:
-            raise forms.ValidationError("Exceeded the maximum amount of images you can upload.")
-
-        return img
-
-    def save(self):
-
-        # Store the file
-        image = self.cleaned_data['image']
-
-        # Create user image object
-        userimg = UserImage.objects.create(user=self.user)
-
-        # Save image to database.
-        userimg.image.save(image.name, image, save=True)
-
-        return userimg.image.url
 
 
 class RecipeInterface(forms.Form):

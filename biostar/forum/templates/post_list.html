@@ -49,9 +49,6 @@
                 {% post_details post=post user=request.user avatar=avatar %}
             {% endif %}
 
-{{ post.rank }}
-            {{ post.lastedit_date }}
-
         {% empty %}
             <div class="ui warn message">
                 No posts found.

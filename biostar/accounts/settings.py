@@ -16,6 +16,17 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
+
+PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
+
+# Maximum size per image uploaded, in mb.
+MAX_IMAGE_SIZE_MB = 2
+
+# Maximum number of images allowed.
+MAX_IMAGES = 100
+
+
 # User above this score do not get a reCAPTCHA
 RECAPTCHA_THRESHOLD_USER_SCORE = 1
 
@@ -87,7 +98,7 @@ ACCOUNTS_APPS = [
 # Should the server look up locations in a task.
 LOCATION_LOOKUP = False
 
-INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS + EMAILER_APP
+INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS + EMAILER_APP + PAGEDOWN_APP
 
 AUTHENTICATION_BACKENDS += ["allauth.account.auth_backends.AuthenticationBackend"]
 

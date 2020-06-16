@@ -4,6 +4,7 @@ import debug_toolbar
 from django.conf import settings
 from django.conf.urls.static import static
 from biostar.accounts.urls import account_patterns
+from biostar.accounts.views import image_upload_view
 from biostar.recipes import views, api, ajax
 
 recipes_patterns = [
@@ -101,12 +102,14 @@ urlpatterns = [
     # Include the accounts urls
     path(r'accounts/', include(account_patterns)),
 
-    # Pagedown image upload url.
-    #path('', include('pagedown.urls')),
-    path('pagedown/image-upload/', views.image_upload_view, name="pagedown-image-upload"),
-
 ]
 
+if settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
+
+    urlpatterns += [
+        # Pagedown image upload url.
+        path('pagedown/image-upload/', image_upload_view, name="pagedown-image-upload")
+    ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)

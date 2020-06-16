@@ -6,6 +6,6 @@ from biostar.emailer.settings import *
 from biostar.recipes.settings import *
 from biostar.forum.settings import *
 
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PLANET_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PAGEDOWN_APP + PLANET_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
 ROOT_URLCONF = 'biostar.server.urls'

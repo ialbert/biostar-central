@@ -5,6 +5,12 @@ import os
 import zlib
 from urllib.parse import urljoin
 from whoosh.searching import Results
+from django.core.files.storage import default_storage
+from django.http import JsonResponse
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+
+from django.views.decorators.csrf import csrf_exempt
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -201,7 +207,6 @@ def pages(request, fname):
     context = dict(file_path=doc, tab=fname, admins=admins, mods=mods)
 
     return render(request, 'pages.html', context=context)
-
 
 @ensure_csrf_cookie
 def post_list(request, show=None, cache_key='', extra_context=dict()):

@@ -9,13 +9,18 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 {% block css %}
     <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+    <link href=" {% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
+    <link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
 {% endblock %}
 
 {% block js %}
-    <script src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-    <script src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-    <script src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown_init.js' %}{% randparam %}"></script>
+
     <script src="{% static 'markdown-it.js' %}"></script>
     <script src="{% static 'autocomplete/at.who.js' %}"></script>
     <script src="{% static 'autocomplete/caret.js' %}"></script>
@@ -66,14 +71,70 @@
 
                     </div>
 
+
+                    {% comment %}                <div class="wmd-wrapper {% if image_upload_enabled %}image-upload-enabled{% endif %}">
+    <div class="wmd-panel">
+        <div id="wmd-button-bar-{{ widget.attrs.id }}" class="wmd-button-bar"></div>
+        {% include 'pagedown/forms/widgets/textarea.html' %}
+    </div>
+    <div id="wmd-preview-{{ widget.attrs.id }}" class="wmd-preview"></div>
+    {% if image_upload_enabled %}
+        <div class="pagedown-image-upload">
+            <h2>Insert Image</h2>
+            <div class="form-row">
+                <div>
+                    <label class="label">From the web</label>
+                    <input class="url-input" type="text" placeholder="http://" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div>
+                    <label class="label">From your computer</label>
+                    <input class="file-input" type="file" name="image" id="file" data-action="{% url 'pagedown-image-upload' %}" accept="image/*"/>
+                </div>
+            </div>
+            <div class="submit-row">
+                <input class="submit-input" type="submit" value="Save" name="_addanother">
+                <p class="deletelink-box"><a href="#" class="close-image-upload deletelink">Cancel</a></p>
+            </div>
+        </div>
+    {% endif %}
+</div>{% endcomment %}
+
+
                     <div class="ui form-wrap segment">
                         <div class="required input field">
                             {% include 'widgets/post_message.html' %}
+                            <div class="wmd-wrapper image-upload-enabled ">
+                                <div id="wmd-button-bar"></div>
+                                <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete"
+                                          rows="17">{% if content %}{{ content }}{% else %}
+                                    {% include 'markdown_template.md' %}{% endif %}</textarea>
 
-                            <div id="wmd-button-bar"></div>
-                            <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete"
-                                      rows="17">{% if content %}{{ content }}{% else %}{% include 'markdown_template.md' %}{% endif %}</textarea>
+                                <div class="pagedown-image-upload">
+                                    <h2>Insert Image</h2>
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="label">From the web</label>
+                                            <input class="url-input" type="text" placeholder="http://"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="label">From your computer</label>
+                                            <input class="file-input" type="file" name="image" id="file"
+                                                   data-action="{% url 'pagedown-image-upload' %}" accept="image/*"/>
+                                        </div>
+                                    </div>
+                                    <div class="submit-row">
+                                        <input class="submit-input" type="submit" value="Save" name="_addanother">
+                                        <p class="deletelink-box"><a href="#" class="close-image-upload deletelink">Cancel</a>
+                                        </p>
+                                    </div>
+                                </div>
 
+
+                            </div>
                         </div>
                     </div>
 
