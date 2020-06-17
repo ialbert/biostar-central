@@ -42,7 +42,7 @@ recipes:
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
 	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
-	$(eval HOST := hosts/www.bioinformatics.recipes)
+	$(eval TARGET:=recipes)
 
 bioconductor:
 	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)

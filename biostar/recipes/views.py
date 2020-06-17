@@ -24,7 +24,6 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 from biostar.accounts.models import User
-from biostar.accounts.forms import ImageUploadForm
 from biostar.recipes import tasks, auth, forms, const, search, util
 from biostar.recipes.decorators import read_access, write_access, exists
 from biostar.recipes.models import Project, Data, Analysis, Job, Access
