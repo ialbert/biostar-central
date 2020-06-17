@@ -434,9 +434,9 @@ $(document).ready(function () {
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
-    var converter = new Markdown.getSanitizingConverter();
-    var editor = new Markdown.Editor(converter);
-    editor.run();
+    //var converter = new Markdown.getSanitizingConverter();
+    //var editor = new Markdown.Editor(converter);
+    //editor.run();
 
     tags_dropdown();
 

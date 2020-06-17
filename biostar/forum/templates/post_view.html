@@ -8,13 +8,21 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 {% block css %}
     <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{% static 'pagedown/demo/browser/demo.css' %}"/>
+    <link href=" {% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
+    <link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
 {% endblock %}
 
+
 {% block js %}
-    <script src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-    <script src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-    <script src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown_init.js' %}"></script>
+
+
     <script src="{% static 'markdown-it.js' %}"></script>
     <script src="{% static 'autocomplete/at.who.js' %}"></script>
     <script src="{% static 'autocomplete/caret.js' %}"></script>
@@ -97,6 +105,10 @@
                 // Insert inplace form with double click.
                 inplace_form($(this))
             });
+
+            //var converter = new Markdown.getSanitizingConverter();
+            //var editor = new Markdown.Editor(converter);
+            //editor.run();
 
 
         })

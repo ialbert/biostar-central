@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.urls import include, path  # For django versions from 2.0 and up
 import debug_toolbar
 from biostar.forum import views
+from biostar.accounts.views import image_upload_view
 from biostar.forum import ajax, api
 from biostar.accounts.urls import account_patterns
 from biostar.planet.urls import planet_patterns
@@ -78,6 +79,13 @@ urlpatterns = [
     path('planet/', include(planet_patterns)),
 
 ]
+
+if settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
+
+    urlpatterns += [
+        # Pagedown image upload url.
+        path('pagedown/image-upload/', image_upload_view, name="pagedown-image-upload")
+    ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT, show_indexes=True)

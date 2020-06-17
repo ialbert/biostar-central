@@ -49,3 +49,10 @@ urlpatterns = [
     path("", include(account_patterns)),
 
 ]
+
+if settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
+
+    urlpatterns += [
+        # Pagedown image upload url.
+        path('pagedown/image-upload/', views.image_upload_view, name="pagedown-image-upload")
+    ]

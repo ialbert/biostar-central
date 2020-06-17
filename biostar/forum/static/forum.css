@@ -16,6 +16,10 @@ body > .widen.container {
     width: 97%;
 }
 
+.deletelink-box{
+    display: inline;
+}
+
 
 #menu-topics .item:before{
     background: none;

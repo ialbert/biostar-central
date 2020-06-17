@@ -1,0 +1,30 @@
+<div class="wmd-wrapper image-upload-enabled ">
+    <div id="wmd-button-bar"></div>
+    <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete"
+              rows="{% if rows %}{{ rows }}{% else %}17 {% endif%}">{% if content %}{{ content }}{% else %}
+        {% include 'markdown_template.md' %}{% endif %}</textarea>
+
+    <div class="pagedown-image-upload">
+        <h2>Insert Image</h2>
+        <div class="form-row">
+            <div>
+                <label class="label">From the web</label>
+                <input class="url-input" type="text" placeholder="http://"/>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label class="label">From your computer</label>
+                <input class="file-input" type="file" name="image" id="file"
+                       data-action="{% url 'pagedown-image-upload' %}" accept="image/*"/>
+            </div>
+        </div>
+        <div class="submit-row">
+            <input class="submit-input" type="submit" value="Save" name="_addanother">
+            <p class="deletelink-box"><a href="#" class="close-image-upload deletelink">Cancel</a>
+            </p>
+        </div>
+    </div>
+
+
+</div>

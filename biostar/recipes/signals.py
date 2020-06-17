@@ -153,10 +153,6 @@ def finalize_job(sender, instance, created, raw, update_fields, **kwargs):
         # Create the job directory if it does not exist.
         os.makedirs(instance.path, exist_ok=True)
 
-        # Append parameter summary to job on creation.
-        instance.text = f"{instance.text}\n{instance.parameter_summary}"
-        instance.html = mistune.markdown(text=instance.text, escape=False)
-
         # Update the information in db.
         Job.objects.filter(id=instance.id).update(uid=instance.uid, path=instance.path,
                                                   text=instance.text, html=instance.html)

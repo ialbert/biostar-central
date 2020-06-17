@@ -1,20 +1,44 @@
 
 import logging
 from django import forms
-
+from django.core.validators import FileExtensionValidator
 from django.contrib import messages
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
 from django.conf import settings
-from .models import Profile
+from .models import Profile, UserImage
 from . import auth, util
 
 
 logger = logging.getLogger("engine")
 
 MAX_TAGS = 50
+IMG_EXTENTIONS = ['jpg',
+                  'jpeg',
+                  'png',
+                  'webp'
+                  ]
 
+
+
+
+def check_size(fobj, maxsize=0.3, field=None):
+    # maxsize in megabytes!
+    error_msg = ''
+    try:
+        if fobj and fobj.size > maxsize * 1024 * 1024.0:
+            curr_size = fobj.size / 1024 / 1024.0
+            prefix = f'{field} field : '.capitalize() if field else ''
+            error_msg = prefix + f"file too large, {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
+
+    except Exception as exc:
+        error_msg = f"File size validation error: {exc}"
+
+    if error_msg:
+        raise forms.ValidationError(error_msg)
+
+    return fobj
 
 class SignUpForm(forms.Form):
 
@@ -197,3 +221,45 @@ class UserModerate(forms.Form):
         if self.target == self.source:
             raise forms.ValidationError("You can not moderate yourself.")
 
+
+class ImageUploadForm(forms.Form):
+
+    def __init__(self, user=None, *args, **kwargs):
+
+        self.user = user
+        super(ImageUploadForm, self).__init__(*args, **kwargs)
+
+    image = forms.ImageField(required=True,
+                             validators=[FileExtensionValidator(allowed_extensions=IMG_EXTENTIONS)])
+
+    def clean_image(self):
+
+        img = self.cleaned_data['image']
+
+        # Get all images this user has uploaded so far.
+        userimg = UserImage.objects.filter(user=self.user)
+
+        # Check for current image size being uploaded.
+        check_size(fobj=img, maxsize=settings.MAX_IMAGE_SIZE_MB)
+
+        # Moderators get no limit on images.
+        if self.user.is_authenticated and self.user.profile.is_moderator:
+            return img
+
+        if userimg.count() >= settings.MAX_IMAGES:
+            raise forms.ValidationError("Exceeded the maximum amount of images you can upload.")
+
+        return img
+
+    def save(self):
+
+        # Store the file
+        image = self.cleaned_data['image']
+
+        # Create user image object
+        userimg = UserImage.objects.create(user=self.user)
+
+        # Save image to database.
+        userimg.image.save(image.name, image, save=True)
+
+        return userimg.image.url

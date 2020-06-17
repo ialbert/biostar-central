@@ -835,24 +835,3 @@ def import_files(request, path=""):
     return render(request, 'import_files.html', context=context)
 
 
-@login_required
-@csrf_exempt
-def image_upload_view(request):
-
-    user = request.user
-
-    if not request.method == 'POST':
-        raise PermissionDenied()
-
-    if not settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
-        raise ImproperlyConfigured('Image upload is disabled')
-
-    form = forms.ImageUploadForm(data=request.POST, files=request.FILES, user=user)
-    if form.is_valid():
-        url = form.save()
-        return JsonResponse({'success': True, 'url': url})
-
-    return JsonResponse({'success': False, 'error': form.errors})
-
-
-

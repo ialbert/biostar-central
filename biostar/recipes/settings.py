@@ -26,7 +26,6 @@ JOB_LOGDIR = 'runlog'
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 
-
 # Upload path for pagedown images, relative to media root.
 PAGEDOWN_IMAGE_UPLOAD_PATH = "images"
 
@@ -36,12 +35,6 @@ JOB_STDERR = os.path.join(JOB_LOGDIR, 'stderr.txt')
 
 # Maximum amount of data allowed
 MAX_DATA = 100
-
-# Maximum size per image uploaded, in mb.
-MAX_IMAGE_SIZE_MB = 2
-
-# Maxium number of images allowed.
-MAX_IMAGES = 100
 
 # Maximum amount of items per clipboard
 MAX_CLIPBOARD = 5

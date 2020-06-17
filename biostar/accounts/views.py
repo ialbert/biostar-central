@@ -10,6 +10,10 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
                                        PasswordResetConfirmView, PasswordResetCompleteView,
                                        )
+from django.http import JsonResponse
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+
+from django.views.decorators.csrf import csrf_exempt
 from ratelimit.decorators import ratelimit
 from django.core import signing
 from django.core.paginator import Paginator
@@ -196,6 +200,26 @@ def user_signup(request):
     context = dict(form=form, captcha_site_key=settings.RECAPTCHA_PUBLIC_KEY,
                    social_login=SocialApp.objects.all(), tab='signup')
     return render(request, 'accounts/signup.html', context=context)
+
+
+@login_required
+@csrf_exempt
+def image_upload_view(request):
+
+    user = request.user
+
+    if not request.method == 'POST':
+        raise PermissionDenied()
+
+    if not settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
+        raise ImproperlyConfigured('Image upload is disabled')
+
+    form = forms.ImageUploadForm(data=request.POST, files=request.FILES, user=user)
+    if form.is_valid():
+        url = form.save()
+        return JsonResponse({'success': True, 'url': url})
+
+    return JsonResponse({'success': False, 'error': form.errors})
 
 
 @user_passes_test(lambda u: u.is_superuser)

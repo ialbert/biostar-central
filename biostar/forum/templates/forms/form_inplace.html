@@ -8,15 +8,22 @@
     {#  Include the recaptacha key #}
     <input id="recaptcha_key" type="hidden" value="{{ captcha_key }}">
 
+
 {% endif %}
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown_init.js' %}"></script>
 
 <div class="ui basic form-wrap segment fit" id="inplace">
+
     <form class="ui compact form">
         {# Create a new comment #}
         {% if new %}
             <div class="field">
-                <div id="wmd-button-bar"></div>
-                <textarea id="wmd-input" class="wmd-input comment autocomplete" rows="9">{% include 'markdown_template.md' %}</textarea>
+                {% include 'widgets/textarea.html' with rows=7 %}
             </div>
 
         {% else %}
@@ -34,9 +41,13 @@
 
             {# Edit the content #}
             <div class="field">
-                {% if post.is_toplevel %}{% include 'widgets/post_message.html' %}{% endif %}
-                <div id="wmd-button-bar"></div>
-                <textarea id="wmd-input" class="wmd-input autocomplete" rows="{{ rows }}">{{ post.content }}</textarea>
+                {% if post.is_toplevel %}
+                    {% include 'widgets/post_message.html' %}
+                {% endif %}
+
+                {% include 'widgets/textarea.html' %}
+
+
             </div>
 
             {# Edit the tags #}
@@ -59,7 +70,7 @@
             accepted.</p>
 
         {# Preview segment #}
-        <div class="ui preview segment">{{ html |safe}}</div>
+        <div class="ui preview segment">{{ html |safe }}</div>
 
         {# Submit and cancel buttons #}
         <div class="field">
@@ -77,33 +88,37 @@
 
 
 <script>
-$(document).ready(function () {
-    var converter = new Markdown.getSanitizingConverter();
-    var editor = new Markdown.Editor(converter);
-    editor.run();
+    $(document).ready(function () {
 
-    $('.ui.dropdown').dropdown();
-    drag_and_drop();
-    $('form .preview').each(function () {
-        var text = $(this).closest('form').find('.wmd-input').val();
-        var form = $(this).closest('form');
-        highligh_preview(form, text);
-    });
-    // initialize autocomplete
-    var users = "{{ users_str }}".split(',');
-    autocomplete_users(users);
-    // initialize tags dropdown.
-    tags_dropdown();
+        $('.ui.dropdown').dropdown();
+        drag_and_drop();
+        $('form .preview').each(function () {
+            var text = $(this).closest('form').find('.wmd-input').val();
+            var form = $(this).closest('form');
+            highligh_preview(form, text);
+        });
+        // initialize autocomplete
+        var users = "{{ users_str }}".split(',');
+        autocomplete_users(users);
+        // initialize tags dropdown.
+        tags_dropdown();
 
-    $(this).on('click', '#inplace .cancel', function () {
-        cancel_inplace()
-    });
-     $(this).on('keyup', 'body', function (event) {
-         if(event.keyCode === 27) {
-             cancel_inplace()
-         }
-     });
+        $(this).on('click', '#inplace .cancel', function () {
+            cancel_inplace()
+        });
+        $(this).on('keyup', 'body', function (event) {
+            if (event.keyCode === 27) {
+                cancel_inplace()
+            }
+        });
 
-})
+        //
+        //window.onload = DjangoPagedown.init;
+        var converter = new Markdown.getSanitizingConverter();
+        var editor = new Markdown.Editor(converter);
+        editor.run();
+
+
+    })
 </script>
 

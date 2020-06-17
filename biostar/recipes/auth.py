@@ -5,7 +5,7 @@ import os
 import subprocess
 import random
 from mimetypes import guess_type
-
+import mistune
 import toml as hjson
 from django.conf import settings
 from django.contrib import messages
@@ -569,6 +569,10 @@ def create_job(analysis, user=None, json_text='', json_data={}, name=None, state
     # Update the json_text and name
     job.json_text = hjson.dumps(json_data)
     job.name = name
+
+    # Append parameter summary to job on creation.
+    job.text = f"{job.text}\n{job.parameter_summary}"
+    job.html = mistune.markdown(text=job.text, escape=False)
 
     if save:
         # Save the updated json_text and name.

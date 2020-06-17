@@ -19,8 +19,8 @@
                     on creating a post.<br>
                 </div>
 
-                <div id="wmd-button-bar"></div>
-                <textarea class="wmd-input autocomplete" rows="17" name="{{ form.content.name }}" id="wmd-input">{% include 'markdown_template.md' %}</textarea>
+                {% include 'widgets/textarea.html' %}
+
             </div>
         </div>
 
