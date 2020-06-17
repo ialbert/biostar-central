@@ -10,47 +10,20 @@
 
 
 {% endif %}
-
-<div class="ui basic form-wrap segment fit" id="inplace">
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown_init.js' %}{% randparam %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown_init.js' %}"></script>
+
+<div class="ui basic form-wrap segment fit" id="inplace">
+
     <form class="ui compact form">
         {# Create a new comment #}
         {% if new %}
             <div class="field">
-                <div class="wmd-wrapper image-upload-enabled ">
-                    <div id="wmd-button-bar"></div>
-
-                    <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input comment autocomplete"
-                              rows="9">{% include 'markdown_template.md' %}</textarea>
-                    <div class="pagedown-image-upload">
-                        <h2>Insert Image</h2>
-                        <div class="form-row">
-                            <div>
-                                <label class="label">From the web</label>
-                                <input class="url-input" type="text" placeholder="http://"/>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div>
-                                <label class="label">From your computer</label>
-                                <input class="file-input" type="file" name="image" id="file"
-                                       data-action="{% url 'pagedown-image-upload' %}" accept="image/*"/>
-                            </div>
-                        </div>
-                        <div class="submit-row">
-                            <input class="submit-input" type="submit" value="Save" name="_addanother">
-                            <p class="deletelink-box"><a href="#" class="close-image-upload deletelink">Cancel</a>
-                            </p>
-                        </div>
-                    </div>
-
-
-                </div>
+                {% include 'widgets/textarea.html' with rows=7 %}
             </div>
 
         {% else %}
@@ -68,38 +41,11 @@
 
             {# Edit the content #}
             <div class="field">
-                {% if post.is_toplevel %}{% include 'widgets/post_message.html' %}{% endif %}
+                {% if post.is_toplevel %}
+                    {% include 'widgets/post_message.html' %}
+                {% endif %}
 
-                <div class="wmd-wrapper image-upload-enabled ">
-                    <div id="wmd-button-bar"></div>
-                    <textarea id="wmd-input" class="wmd-input autocomplete"
-                              rows="{{ rows }}">{{ post.content }}</textarea>
-
-
-                    <div class="pagedown-image-upload">
-                        <h2>Insert Image</h2>
-                        <div class="form-row">
-                            <div>
-                                <label class="label">From the web</label>
-                                <input class="url-input" type="text" placeholder="http://"/>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div>
-                                <label class="label">From your computer</label>
-                                <input class="file-input" type="file" name="image" id="file"
-                                       data-action="{% url 'pagedown-image-upload' %}" accept="image/*"/>
-                            </div>
-                        </div>
-                        <div class="submit-row">
-                            <input class="submit-input" type="submit" value="Save" name="_addanother">
-                            <p class="deletelink-box"><a href="#" class="close-image-upload deletelink">Cancel</a>
-                            </p>
-                        </div>
-                    </div>
-
-
-                </div>
+                {% include 'widgets/textarea.html' %}
 
 
             </div>
@@ -165,6 +111,13 @@
                 cancel_inplace()
             }
         });
+
+        //
+        //window.onload = DjangoPagedown.init;
+        var converter = new Markdown.getSanitizingConverter();
+        var editor = new Markdown.Editor(converter);
+        editor.run();
+
 
     })
 </script>
