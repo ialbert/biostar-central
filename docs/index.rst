@@ -9,6 +9,9 @@ It is a simple, generic, flexible and extensible software that connects computat
 .. image:: _images/main.gif
    :width: 800
 
+.. image:: _images/main2.gif
+   :width: 800
+
 .. toctree::
    :caption: Table of Contents
    :maxdepth: 2

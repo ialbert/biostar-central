@@ -49,7 +49,6 @@ Public:
 - Read and copy data.
 - Read and copy results.
 
-![](images/project-public-ribbon.png)
 
 Read:
 
@@ -59,15 +58,11 @@ Read:
 - Create and edit their own recipes.
 - _Trusted users_ : can run recipes.
 
-![](images/project-read-ribbon.png)
-
 Users without read access are informed of their restrictions when trying to create a recipe.
 
-![](images/project-read-msg.png)
 
 Trusted users without read access to a recipe are also informed of their restrictions when trying to run it.
  
-![](images/project-run-error.png)
 
 Share:
 
@@ -82,7 +77,6 @@ Write:
 - Can edit all recipes in the project.
 - Add or remove collaborators to the project 
 
-![](images/project-write-ribbon.png)
 
 Users that try to edit a recipe without write access are informed of their limitations in this project with:
 
@@ -97,7 +91,6 @@ Users without write access that try to upload data or delete objects are informe
 ## Granting Access
 
 Click on a project and open the first tab. 
-![](images/project-info-view-circlied.png)
 
 Click on the middle button labeled `Manage Access` 
 ![](images/manage-access-button.png)
@@ -135,10 +128,9 @@ Web interface options:
   - Import directory
   
 
-Open the `Data` tab inside of a project. 
+Open the `Project` tab inside of a project. 
 
-Then click on the `New Data` tab on the right. 
-![](images/new-data.png)
+Then click on the `Add Data` button
 
 This opens another a form with two options.
 
