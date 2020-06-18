@@ -6,7 +6,7 @@ data analysis platform.
 
 It is a simple, generic, flexible and extensible software that connects computational experts with end users.
 
-.. image:: /docs/recipes/images/main.gif
+.. image:: docs/recipes/images/main.gif
    :width: 400
 
 .. toctree::
