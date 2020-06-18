@@ -329,6 +329,44 @@ def ajax_clear_clipboard(request):
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
+def ajax_move(request):
+
+    pid = request.POST.get("id", 0)
+    user = request.user
+    project = Project.objects.filter(id=pid).first()
+
+    # Get the board.
+    board = auth.recent_clipboard(request=request)
+    key, vals = board
+    redir = reverse("recipe_list", kwargs=dict(uid=project.uid))
+
+    count = len(vals)
+
+    if not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if not auth.is_writable(user=user, project=project):
+        return ajax_error(msg="You do not have access to paste here.")
+
+    # Get recipes to move
+    recipes = [Analysis.objects.filter(uid=uid).first() for uid in vals]
+
+    for recipe in recipes:
+        # Get recipe project
+        previous = recipe.project
+        # Swap projects
+        recipe.project = project
+        recipe.save()
+        # Set the count for the previous project
+        previous.set_counts()
+
+    # Clear the clipboard after moving.
+    auth.clear(request=request)
+
+    return ajax_success(msg=f"Moved {count} items into project.", redirect=redir)
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
 def ajax_paste(request):
     """
     Paste the most recent

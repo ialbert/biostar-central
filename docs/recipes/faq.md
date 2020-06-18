@@ -5,7 +5,7 @@
 We created this section to answer questions reviewers posed while reviewing our scientific publication.
 
 ### Who can run a recipe?
-
+![](images/main.gif)
 To run a recipe, the recipe must be **authorized**, and the user must have **trusted** designation.
 
 ### What is an authorized recipe?

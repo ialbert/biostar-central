@@ -507,8 +507,11 @@ def job_rerun(request, uid):
 
     # Spool via UWSGI or run it synchronously.
     tasks.execute_job.spool(job_id=job.id)
+    if auth.is_readable(user=request.user, obj=recipe):
+        url = reverse('recipe_view', kwargs=dict(uid=job.analysis.uid)) + "#results"
+    else:
+        url = job.url()
 
-    url = reverse('recipe_view', kwargs=dict(uid=job.analysis.uid)) + "#results"
     return redirect(url)
 
 
