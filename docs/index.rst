@@ -9,7 +9,7 @@ It is a simple, generic, flexible and extensible software that connects computat
 .. image:: _images/main.gif
    :width: 800
 
-.. image:: _images/main2.gif
+.. image:: _images/new-recipe-button.png
    :width: 800
 
 .. toctree::
