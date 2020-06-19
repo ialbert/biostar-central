@@ -267,3 +267,7 @@ Recipe template executed during analysis.
 Image in response:
 
 ![](images/starter.jpeg)
+
+
+
+![](images/workflow-all.gif)
