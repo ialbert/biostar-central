@@ -9,7 +9,7 @@ It is a simple, generic, flexible and extensible software that connects computat
 .. image:: _images/brand-new-main4.gif
    :width: 800
 
-.. image:: _images/actual-brand-new.gif
+.. image:: _images/branch-brand-new.gif
    :width: 800
 
 
