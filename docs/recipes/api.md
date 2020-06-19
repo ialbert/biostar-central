@@ -269,6 +269,3 @@ Image in response:
 ![](images/starter.jpeg)
 
 
-
-![](images/workflow-all.gif)
-![](images/workflow-recipes.gif)
