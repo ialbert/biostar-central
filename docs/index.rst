@@ -6,6 +6,15 @@ data analysis platform.
 
 It is a simple, generic, flexible and extensible software that connects computational experts with end users.
 
+Below is an example workflow of a user editing and running a recipe.
+
+
+.. image:: _images/workflow-recipes.gif
+   :width: 800
+
+Below is an example workflow of a user navigating the full website.
+
+
 .. image:: _images/workflow-all.gif
    :width: 800
 

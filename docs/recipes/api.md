@@ -271,3 +271,4 @@ Image in response:
 
 
 ![](images/workflow-all.gif)
+![](images/workflow-recipes.gif)
