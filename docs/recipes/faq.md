@@ -13,6 +13,7 @@ To run a recipe, the recipe must be **authorized**, and the user must have **tru
 Since a recipe may contain shell commands and other code, security checks are needed to avoid the misuse of computational resources. Every new recipe starts in a so-called **pending authorization** state, displayed with an orange ribbon. A recipe with **pending authorization** cannot be executed on the website, but it may be inspected, viewed, shared, or downloaded.
 
 ![](images/authorization-pending.png)
+FOO
 ![](images/main2.gif)
 
 A user with administrative privileges (an administrator) must approve a recipe in the recipe edit window for the recipe to become executable within the website. A green ribbon decorates authorized recipes.
