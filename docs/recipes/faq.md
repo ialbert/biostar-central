@@ -16,6 +16,9 @@ Since a recipe may contain shell commands and other code, security checks are ne
 FOO
 ![](images/main2.gif)
 
+NEW
+![](images/new-image2.png)
+
 A user with administrative privileges (an administrator) must approve a recipe in the recipe edit window for the recipe to become executable within the website. A green ribbon decorates authorized recipes.
 
 ![](images/authorization-valid.png)
