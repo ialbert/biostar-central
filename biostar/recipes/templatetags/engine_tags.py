@@ -150,10 +150,11 @@ def clipboard(context, project_uid):
     board = auth.recent_clipboard(request=request)
     key, vals = board
     board_count = len(vals)
-
+    movable = key in [const.COPIED_RECIPES, const.COPIED_DATA]
     if project and auth.is_readable(user=user, obj=project) and board_count:
         # Load items into clipboard
-        context = dict(count=board_count, board=key, is_recipe=key == const.COPIED_RECIPES)
+        context = dict(count=board_count, board=key, is_recipe=key == const.COPIED_RECIPES,
+                       movable=movable)
     else:
         context = dict()
 

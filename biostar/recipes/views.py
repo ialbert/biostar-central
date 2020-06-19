@@ -223,7 +223,8 @@ def latest_recipes(request):
     """
 
     # Select public recipes
-    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, deleted=False).order_by("-id")[:50]
+    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, deleted=False)
+    recipes = recipes.order_by("-lastedit_date", "-rank")[:50]
 
     recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 

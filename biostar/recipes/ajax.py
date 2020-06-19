@@ -338,7 +338,7 @@ def ajax_move(request):
     # Get the board.
     board = auth.recent_clipboard(request=request)
     key, vals = board
-    redir = reverse("recipe_list", kwargs=dict(uid=project.uid))
+    next_url = auth.resolve_paste_url(key=key, project=project)
 
     count = len(vals)
 
@@ -348,22 +348,13 @@ def ajax_move(request):
     if not auth.is_writable(user=user, project=project):
         return ajax_error(msg="You do not have access to paste here.")
 
-    # Get recipes to move
-    recipes = [Analysis.objects.filter(uid=uid).first() for uid in vals]
-
-    for recipe in recipes:
-        # Get recipe project
-        previous = recipe.project
-        # Swap projects
-        recipe.project = project
-        recipe.save()
-        # Set the count for the previous project
-        previous.set_counts()
+    # Move objects in clipboard to given project.
+    auth.move(uids=vals, project=project, otype=key)
 
     # Clear the clipboard after moving.
     auth.clear(request=request)
 
-    return ajax_success(msg=f"Moved {count} items into project.", redirect=redir)
+    return ajax_success(msg=f"Moved {count} items into project.", redirect=next_url)
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -390,21 +381,18 @@ def ajax_paste(request):
         return ajax_error(msg="Clipboard is empty")
 
     # The target of this action is to clone.
-    clone = request.POST.get('target')
+    clone = request.POST.get('target') == CLONED_RECIPES
 
     # Paste the clipboard item into the project
     auth.paste(board=board, user=user, project=project, clone=clone)
 
-    data_url = reverse("data_list", kwargs=dict(uid=project.uid))
-    recipes_url = reverse("recipe_list", kwargs=dict(uid=project.uid))
-
     # Resolve the redirect url.
-    redir = recipes_url if key == COPIED_RECIPES else data_url
+    next_url = auth.resolve_paste_url(key=key, project=project)
 
     # Clear the clipboard after pasting.
     auth.clear(request=request)
 
-    return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
+    return ajax_success(msg=f"Pasted {count} items into project.", redirect=next_url)
 
 
 @ensure_csrf_cookie
@@ -426,7 +414,8 @@ def ajax_clipboard(request):
     if project and auth.is_readable(user=user, obj=project) and count:
         # Load items into clipboard
         tmpl = loader.get_template('widgets/clipboard.html')
-        context = dict(count=count, board=key, is_recipe=key == COPIED_RECIPES)
+        movable = key in [COPIED_RECIPES, COPIED_DATA]
+        context = dict(count=count, board=key, is_recipe=key == COPIED_RECIPES, movable=movable)
         template = tmpl.render(context=context)
     else:
         template = ''
