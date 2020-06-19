@@ -14,8 +14,8 @@ Since a recipe may contain shell commands and other code, security checks are ne
 
 ![](images/authorization-pending.png)
 
-![](images/brand-new-main4.gif)
-![](images/branch-brand-new.gif)
+![](images/workflow-all.gif)
+![](images/workflow-recipes.gif)
 
 A user with administrative privileges (an administrator) must approve a recipe in the recipe edit window for the recipe to become executable within the website. A green ribbon decorates authorized recipes.
 
