@@ -6,7 +6,7 @@ data analysis platform.
 
 It is a simple, generic, flexible and extensible software that connects computational experts with end users.
 
-.. image:: _images/main.gif
+.. image:: _images/brand-new-main4.gif
    :width: 800
 
 
