@@ -34,9 +34,8 @@ function trigger_running(job, data) {
         // Anchor link to the log when job is running
         link.attr("href", '/job/view/{0}/#log'.format(uid));
         // Add the "Running" loader under log
-        loader.html('<div id="log" class="ui log message">' +
+        loader.html('<div id="log" class="ui log compact message">' +
             '<span class="ui active small inline loader"></span>' +
-            '<span>Running</span>' +
             '</div>');
     } else {
         loader.html("");
@@ -89,6 +88,32 @@ function check_jobs() {
         })
     });
 
+}
+
+
+function move(data){
+    var elem = $("#clipboard");
+    $.ajax('/ajax/move/recipe/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            data: data,
+
+            success: function (data) {
+                if (data.status === "success") {
+                    window.location.href = data.redirect;
+                    popup_message(elem, data.msg, data.status, 500);
+                } else {
+                    popup_message(elem, data.msg, data.status, 2000)
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(container, xhr, status, text)
+            }
+
+
+        }
+    )
 }
 
 
@@ -393,6 +418,11 @@ $(document).ready(function () {
     $(this).on('click', '#clipboard .clone', function () {
         var data = {"id": project_id(), "target": "clone"};
         paste(data);
+    });
+
+    $(this).on('click', '#clipboard .move', function () {
+        var data = {"id": project_id()};
+        move(data);
     });
 
     $(this).on('click', '#clipboard .clear', function () {

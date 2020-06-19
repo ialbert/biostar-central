@@ -223,7 +223,8 @@ def latest_recipes(request):
     """
 
     # Select public recipes
-    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, deleted=False).order_by("-id")[:50]
+    recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, deleted=False)
+    recipes = recipes.order_by("-lastedit_date", "-rank")[:50]
 
     recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
@@ -507,8 +508,11 @@ def job_rerun(request, uid):
 
     # Spool via UWSGI or run it synchronously.
     tasks.execute_job.spool(job_id=job.id)
+    if auth.is_readable(user=request.user, obj=recipe):
+        url = reverse('recipe_view', kwargs=dict(uid=job.analysis.uid)) + "#results"
+    else:
+        url = job.url()
 
-    url = reverse('recipe_view', kwargs=dict(uid=job.analysis.uid)) + "#results"
     return redirect(url)
 
 

@@ -167,8 +167,14 @@ pre.toml_code {
 
 
 .ui.message.log {
-    width: 20%;
+    //width: 20%;
 }
+
+
+.ui.recipe_res.segment{
+    border: 1px solid purple !important;
+}
+
 
 .ui.message.log > span:nth-child(2) {
     padding-right: 5px

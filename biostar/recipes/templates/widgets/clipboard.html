@@ -11,17 +11,21 @@
         {% endif %}
 
         <a class="ui blue paste button"><i class="sticky note icon"></i>Paste</a>
+        {# Files can not be moved, so the button is not shown. #}
+        {% if movable %}
+            <div class="or"></div>
+            <a class="ui move button"><i class="crosshairs icon"></i>Move</a>
+        {% endif %}
 
         <div class="or"></div>
-
         <a class="ui clear button">
             <i class="window close icon"></i> Clear
         </a>
 
     </span>
-    {% if is_recipe %}
-         <span class="muted">Cloned recipes remain synced with the original.</span>
-    {% endif %}
+        {% if is_recipe %}
+            <span class="muted">Cloned recipes remain synced with the original.</span>
+        {% endif %}
 
     </span>
     </div>

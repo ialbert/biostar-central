@@ -13,11 +13,11 @@ Our installation instructions rely on [conda][conda] though other alternatives f
     # Clone the source server code and the recipe code.
     git clone https://github.com/ialbert/biostar-central.git
 
-    # Switch to the biostar-engine directory.
+    # Switch to the biostar-central directory.
     cd biostar-central
 
     # Install server dependencies.
-    pip install -r conf/pip_requirements.txt
+    pip install -r conf/requirements.txt
 
 The installation is now complete. All server management commands are run through `make` by running one or more `make` tasks.
 For example to test the `recipes` app run:
@@ -28,7 +28,7 @@ For example to test the `recipes` app run:
 
 To run the demonstration version of the `recipes` app execute:
 
-    make recipes_demo
+    make recipes demo
 
 Visit <http://127.0.0.1:8000/> to view the site.
 
@@ -59,7 +59,7 @@ To ensure installation and migration was successful, run a test by executing the
   
 To populate the database with random data run:
     
-    make load_recipes
+    make recipes startup
       
     
 ## Start Server 

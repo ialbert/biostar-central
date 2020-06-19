@@ -64,6 +64,7 @@ recipes_patterns = [
     path(r'ajax/recipe/edit/<int:id>/', ajax.ajax_edit, name='ajax_recipe_edit'),
     # Renders an HTML form field base on the TOML input.
     path(r'ajax/field/render/', ajax.field_render, name='ajax_field_render'),
+    path(r'ajax/move/recipe/', ajax.ajax_move, name='ajax_move_recipe'),
 
     path(r'recipe/delete/<str:uid>/', views.recipe_delete, name='recipe_delete'),
     path(r'recipe/code/download/<str:uid>/', views.recipe_code_download, name='recipe_download'),

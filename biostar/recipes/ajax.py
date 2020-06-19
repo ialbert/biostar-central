@@ -329,6 +329,35 @@ def ajax_clear_clipboard(request):
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
+def ajax_move(request):
+
+    pid = request.POST.get("id", 0)
+    user = request.user
+    project = Project.objects.filter(id=pid).first()
+
+    # Get the board.
+    board = auth.recent_clipboard(request=request)
+    key, vals = board
+    next_url = auth.resolve_paste_url(key=key, project=project)
+
+    count = len(vals)
+
+    if not project:
+        return ajax_error(msg="Project does not exist.")
+
+    if not auth.is_writable(user=user, project=project):
+        return ajax_error(msg="You do not have access to paste here.")
+
+    # Move objects in clipboard to given project.
+    auth.move(uids=vals, project=project, otype=key)
+
+    # Clear the clipboard after moving.
+    auth.clear(request=request)
+
+    return ajax_success(msg=f"Moved {count} items into project.", redirect=next_url)
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
 def ajax_paste(request):
     """
     Paste the most recent
@@ -352,21 +381,18 @@ def ajax_paste(request):
         return ajax_error(msg="Clipboard is empty")
 
     # The target of this action is to clone.
-    clone = request.POST.get('target')
+    clone = request.POST.get('target') == CLONED_RECIPES
 
     # Paste the clipboard item into the project
     auth.paste(board=board, user=user, project=project, clone=clone)
 
-    data_url = reverse("data_list", kwargs=dict(uid=project.uid))
-    recipes_url = reverse("recipe_list", kwargs=dict(uid=project.uid))
-
     # Resolve the redirect url.
-    redir = recipes_url if key == COPIED_RECIPES else data_url
+    next_url = auth.resolve_paste_url(key=key, project=project)
 
     # Clear the clipboard after pasting.
     auth.clear(request=request)
 
-    return ajax_success(msg=f"Pasted {count} items into project.", redirect=redir)
+    return ajax_success(msg=f"Pasted {count} items into project.", redirect=next_url)
 
 
 @ensure_csrf_cookie
@@ -388,7 +414,8 @@ def ajax_clipboard(request):
     if project and auth.is_readable(user=user, obj=project) and count:
         # Load items into clipboard
         tmpl = loader.get_template('widgets/clipboard.html')
-        context = dict(count=count, board=key, is_recipe=key == COPIED_RECIPES)
+        movable = key in [COPIED_RECIPES, COPIED_DATA]
+        context = dict(count=count, board=key, is_recipe=key == COPIED_RECIPES, movable=movable)
         template = tmpl.render(context=context)
     else:
         template = ''

@@ -13,6 +13,7 @@ from django.contrib.messages.storage import fallback
 from django.db.models import Q
 from django.template import Template, Context
 from django.template import loader
+from django.shortcuts import reverse
 from django.test import RequestFactory
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
@@ -28,6 +29,7 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
               Job.ERROR: "errored", Job.QUEUED: "queued",
               Job.RUNNING: "running", Job.COMPLETED: "completed"
               }
+
 
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
@@ -73,7 +75,6 @@ def recent_clipboard(request):
 
 
 def copy_file(request, fullpath):
-
     if not os.path.exists(fullpath):
         messages.error(request, "Path does not exist.")
         return []
@@ -262,7 +263,6 @@ def get_project_list(user, include_public=True, include_deleted=False):
 
 def create_project(user, name="", uid=None, summary='', text='', stream=None, label=None,
                    privacy=Project.PRIVATE, update=False):
-
     name = name or "My New Project"
     text = text or "Project information goes here."
     # Attempts to select the project.
@@ -303,7 +303,6 @@ def create_project(user, name="", uid=None, summary='', text='', stream=None, la
 def create_analysis(project, json_text='', template='# code', uid=None, user=None, summary='', rank=100,
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
                     root=None):
-
     owner = user or project.owner
     analysis = Analysis.objects.filter(uid=uid)
 
@@ -345,12 +344,16 @@ def make_job_title(recipe, data):
 
     # Extracts the field that gets displayed for a parameter
     def extract(param):
-        if not param.get("display"):
-            return None
+
         if param.get("source"):
             return param.get("name")
+
         if param.get('display') == UPLOAD:
             return os.path.basename(param.get('value')) if param.get('value') else None
+
+        if not param.get("display"):
+            return None
+
         return param.get("value")
 
     vals = map(extract, params)
@@ -392,7 +395,6 @@ def validate_recipe_run(user, recipe):
 
 
 def recipe_paste(instance, user, project, clone=False):
-
     root = None
     # Cascade the root if the recipe is being cloned
     if clone:
@@ -428,6 +430,38 @@ def data_paste(user, project, instance=None, path=""):
 def clear(request):
     request.session.update({settings.CLIPBOARD_NAME: {}})
     return
+
+
+def resolve_paste_url(key, project):
+    """
+    Resolve redirect url after pasting or moving.
+    """
+    url = project.url()
+    if key == COPIED_RECIPES:
+        url = reverse("recipe_list", kwargs=dict(uid=project.uid))
+    elif key in [COPIED_DATA, COPIED_FILES]:
+        url = reverse("data_list", kwargs=dict(uid=project.uid))
+
+    return url
+
+
+def move(uids, project, otype="data"):
+    type_map = {'data': Data, 'recipes': Analysis}
+
+    klass = type_map.get(otype)
+    if not klass:
+        logger.error("Invalid class type given.")
+        return
+
+    items = [klass.objects.filter(uid=uid).first() for uid in uids]
+    for item in items:
+        # Get previous project to reset counts after swapping.
+        previous = item.project
+        item.project = project
+        # Swap projects
+        item.save()
+        # Reset counts for the previous project.
+        previous.set_counts()
 
 
 def paste(project, user, board, clone=False):
@@ -468,7 +502,6 @@ def paste(project, user, board, clone=False):
 
 
 def fill_in(item, value):
-
     value = str(value)
     item['files'] = []
     item['toc'] = value
@@ -626,7 +659,6 @@ def delete_recipe(recipe, user):
 
 
 def transform(root, node, path):
-
     # Image extension types.
     IMAGE_EXT = {"png", "jpg", "gif", "jpeg"}
 
@@ -749,7 +781,6 @@ def new_uid(obj, objtype, default=None, prefix=""):
 
 
 def data_link(path, data):
-
     dest = create_path(fname=path, data=data)
 
     if not os.path.exists(dest):
@@ -759,7 +790,6 @@ def data_link(path, data):
 
 
 def create_data_link(path, data):
-
     # The path is a file.
     if os.path.isfile(path):
         data_link(path=path, data=data)
@@ -773,7 +803,6 @@ def create_data_link(path, data):
 
 
 def is_readable(user, obj):
-
     project = obj.project
     if project.is_public:
         return True
@@ -869,7 +898,6 @@ def fill_data_by_name(project, json_data):
 
 
 def create_data(project, user=None, stream=None, path='', name='', text='', type='', uid=None):
-
     # We need absolute paths with no trailing slashes.
     path = os.path.abspath(path).rstrip("/") if path else ""
 
