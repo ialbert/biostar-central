@@ -10,7 +10,7 @@ It is a simple, generic, flexible and extensible software that connects computat
 .. raw:: html
 
     <div style="position: relative; padding-bottom: 2.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-       <iframe width="100%" height="315" src="https://www.youtube.com/embed/GWrL0s1bKao" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe width="100%" height="315" src="https://www.youtube.com/embed/bGnhPROqqgw" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
 
 .. toctree::
