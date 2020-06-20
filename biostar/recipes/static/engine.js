@@ -93,7 +93,7 @@ function check_jobs() {
 
 function move(data){
     var elem = $("#clipboard");
-    $.ajax('/ajax/move/recipe/',
+    $.ajax('/ajax/move/',
         {
             type: 'POST',
             dataType: 'json',

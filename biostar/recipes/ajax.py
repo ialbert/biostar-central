@@ -346,7 +346,7 @@ def ajax_move(request):
         return ajax_error(msg="Project does not exist.")
 
     if not auth.is_writable(user=user, project=project):
-        return ajax_error(msg="You do not have access to paste here.")
+        return ajax_error(msg="You do not have access to move here.")
 
     # Move objects in clipboard to given project.
     auth.move(uids=vals, project=project, otype=key)
