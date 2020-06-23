@@ -51,6 +51,10 @@
                         <i class="trash icon"></i> <span class="tablet">Delete Data</span>
                     {% endif %}
                 </a>
+
+          <a class="ui button" href="{% url 'data_download' data.uid %}">
+                <i class="download icon"></i> <span class="tablet">Download Data</span>
+            </a>
     </div>
 
 </div>
