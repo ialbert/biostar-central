@@ -50,6 +50,7 @@ recipes_patterns = [
     path(r'data/view/<str:uid>/', views.data_view, name='data_view'),
     path(r'data/edit/<str:uid>/', views.data_edit, name='data_edit'),
     path(r'data/upload/<str:uid>/', views.data_upload, name='data_upload'),
+    path(r'data/download/<str:uid>/', views.data_download, name='data_download'),
     path(r'data/delete/<str:uid>/', views.data_delete, name='data_delete'),
     re_path(r'^data/serve/(?P<uid>[-\w]+)/(?P<path>.+)$', views.data_serve, name='data_serve'),
 

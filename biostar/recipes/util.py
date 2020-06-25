@@ -128,7 +128,6 @@ def qiime2view_link(file_url):
     return template + file_url
 
 
-
 def findfiles(location, collect):
     """
     Returns a list of all files in a directory.
