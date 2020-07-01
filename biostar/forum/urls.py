@@ -51,6 +51,8 @@ forum_patterns = [
 
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 
+    path('packages/', views.packages_list, name='packages_list'),
+
     # Community urls
     path('community/', views.community_list, name='community_list'),
 

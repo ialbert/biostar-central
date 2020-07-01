@@ -1,8 +1,9 @@
 
 from pagedown.widgets import PagedownWidget
 from django import forms
-
+from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
+from django.shortcuts import reverse
 from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
@@ -66,12 +67,35 @@ def informative_choices(choices):
     return new_choices
 
 
-def validate_tags_package(text):
+def common_elem(set_a, set_b):
+    # Return True if two sets share at least one
+    # common element.
+    if len(set_a.intersection(set_b)) > 0:
+        return True
+    return False
+
+
+def validate_tags_package(lst):
     """
     Ensure at least one tag is present in the
     """
 
+    if not settings.REQUIRED_TAGS:
+        return
+
     # Get the tags file.
+    tags = open(settings.REQUIRED_TAGS, 'r').readlines()
+    tags = set([x.strip() for x in tags])
+
+    # Create two sets from the source ( input parameter)
+    # and target ( file with required tags ) .
+    source_set = set(lst)
+    target_set = set(tags)
+
+    if not common_elem(source_set, target_set):
+        url = reverse('packages_list')
+        msg = mark_safe(f"At least one package from <a href='{url}' target='_blank'>this list</a> is required.")
+        raise forms.ValidationError(msg)
 
     return
 
@@ -133,6 +157,9 @@ class PostLongForm(forms.Form):
         """
         tag_val = self.cleaned_data["tag_val"] or 'tag1,tag2'
         tags = set([x for x in tag_val.split(",") if x])
+
+        validate_tags_package(tags)
+
         return ",".join(tags)
 
     def clean_content(self):

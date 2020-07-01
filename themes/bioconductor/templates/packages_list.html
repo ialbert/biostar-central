@@ -1,0 +1,20 @@
+{% extends "forum_base.html" %}
+
+{% load forum_tags %}
+
+{% block content %}
+    <div class="ui center aligned header"> Packages List</div>
+    <div class="ui four column grid" style="margin: 0px">
+        {% for tag in tags %}
+            <div class="column" style="padding: 3px">
+                <div class="item">
+
+                        {{ tag }}
+
+                </div>
+            </div>
+
+        {% endfor %}
+    </div>
+
+{% endblock %}

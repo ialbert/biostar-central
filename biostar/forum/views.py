@@ -285,6 +285,21 @@ def myvotes(request):
     return render(request, template_name="votes_list.html", context=context)
 
 
+def packages_list(request):
+    """
+    Show posts by user
+    """
+    if not settings.REQUIRED_TAGS:
+        return
+
+    # Get the tags file.
+    tags = open(settings.REQUIRED_TAGS, 'r').readlines()
+    tags = set([x.strip() for x in tags])
+    context = dict(tags=tags)
+
+    return render(request, 'packages_list.html', context=context)
+
+
 def tags_list(request):
     """
     Show posts by user

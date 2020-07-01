@@ -18,6 +18,8 @@ TAGS_PER_PAGE = 50
 
 STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
 
+REQUIRED_TAGS = ""
+
 # Time period to cache Ips for banning.
 TIME_PERIOD = 24 * 3600
 
