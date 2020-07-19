@@ -500,8 +500,11 @@ def inplace_form(request):
     rows = nlines if nlines >= MIN_LINES else MIN_LINES
     form = forms.PostLongForm(user=request.user)
 
+    content = '' if add_comment else post.content
     context = dict(user=user, post=post, new=add_comment,  html=html, users_str=users_str,
-                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY, rows=rows, form=form)
+                   captcha_key=settings.RECAPTCHA_PUBLIC_KEY, rows=rows, form=form,
+                   content=content)
+
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)

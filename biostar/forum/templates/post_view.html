@@ -8,7 +8,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 {% block css %}
     <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
-    <link href=" {% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
+    <link href="{% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
     <link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
 {% endblock %}
 
@@ -20,7 +20,7 @@
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown_init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pagedown_init.js' %}{% randparam %}"></script>
 
 
     <script src="{% static 'markdown-it.js' %}"></script>
@@ -63,6 +63,7 @@
         </div>
 
     {% endif %}
+
 
     <script>
 
