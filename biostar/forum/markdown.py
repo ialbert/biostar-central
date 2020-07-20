@@ -344,7 +344,7 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
                             attributes=ALLOWED_ATTRIBUTES)
 
     # Initialize the renderer
-    # parse_block_html=True ensures unbalanced tags are dealt with without being escaped.
+    # parse_block_html=True ensures '>','<', etc are dealt with without being escaped.
     renderer = BiostarRenderer(escape=escape, parse_block_html=True)
 
     # Initialize the lexer 

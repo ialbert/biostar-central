@@ -93,7 +93,7 @@ def validate_tags_package(lst):
     target_set = set(tags)
 
     if not common_elem(source_set, target_set):
-        url = reverse('packages_list')
+        url = settings.PACKAGES_URL
         msg = mark_safe(f"At least one package from <a href='{url}' target='_blank'>this list</a> is required.")
         raise forms.ValidationError(msg)
 

@@ -37,6 +37,7 @@ PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 # Upload path for pagedown images, relative to media root.
 PAGEDOWN_IMAGE_UPLOAD_PATH = "images"
 
+PACKAGES_URL = "/"
 
 BANNED_IPS = os.path.join(BASE_DIR, 'export', 'logs', 'banned.txt')
 
