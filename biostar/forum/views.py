@@ -307,6 +307,7 @@ def tags_list(request):
     # Apply the votes paging.
     tags = paginator.get_page(page)
 
+
     context = dict(tags=tags, tab='tags', query=query)
 
     return render(request, 'tags_list.html', context=context)
