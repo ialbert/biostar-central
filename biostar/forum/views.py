@@ -1,16 +1,9 @@
 import logging
 from datetime import timedelta
-from functools import wraps
+from functools import wraps, lru_cache
 import os
-import zlib
-from urllib.parse import urljoin
-from whoosh.searching import Results
-from django.core.files.storage import default_storage
-from django.http import JsonResponse
-from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 
-from django.views.decorators.csrf import csrf_exempt
-
+from django.db import models, connections
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -23,7 +16,7 @@ from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
 
 from biostar.accounts.models import Profile
-from biostar.forum import forms, auth, tasks, util, search, const, markdown
+from biostar.forum import forms, auth, tasks, util, search
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge
 
@@ -88,6 +81,26 @@ def post_exists(func):
     return _wrapper_
 
 
+class FuzzyCountQuerySet(models.QuerySet):
+
+    @property
+    def count(self):
+
+        postgres_engines = ("postgis", "postgresql", "django_postgrespool", 'postgresql_psycopg2')
+        engine = settings.DATABASES[self.db]["ENGINE"].split(".")[-1]
+        is_postgres = engine.startswith(postgres_engines)
+
+        is_filtered = 0 #self.query.where or self.query.having
+        if not is_postgres or is_filtered:
+            1/0
+            return super(FuzzyCountQuerySet, self).count()
+        cursor = connections[self.db].cursor()
+        cursor.execute("SELECT reltuples FROM pg_class "
+                       "WHERE relname = '%s';" % self.model._meta.db_table)
+        print("HEREEEEEEEE")
+        return int(cursor.fetchone()[0])
+
+
 def get_posts(user, show="latest", tag="", order="rank", limit=None):
     """
     Generates a post list on a topic.
@@ -98,6 +111,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
     query = Post.objects.valid_posts(u=user, is_toplevel=True)
+    #query = FuzzyCountQuerySet(model=Post)
 
     # Determines how to start the preform_search.
     if post_type:
@@ -170,7 +184,13 @@ class CachedPaginator(Paginator):
     """
     Paginator that caches the count call.
     """
+
     COUNT_KEY = "COUNT_KEY"
+
+    # Time to live for the cache, in seconds
+    TTL = 150
+    # Offset to estimate post counts without missing newly created posts since TTL.
+    OFFSET = settings.POSTS_PER_PAGE
 
     def __init__(self, count_key='', *args, **kwargs):
         self.count_key = count_key or self.COUNT_KEY
@@ -182,9 +202,10 @@ class CachedPaginator(Paginator):
         if self.count_key not in cache:
             value = super(CachedPaginator, self).count
             logger.info("Setting paginator count cache")
-            cache.set(self.count_key, value, 300)
+            cache.set(self.count_key, value, self.TTL)
 
-        value = cache.get(self.count_key)
+        # If the count is less than minimum, then set it to minimum.
+        value = cache.get(self.count_key) + self.OFFSET
 
         return value
 
@@ -199,7 +220,7 @@ def pages(request, fname):
     if not os.path.exists(doc):
         messages.error(request, "File does not exist.")
         return redirect("post_list")
-    print(doc)
+
     admins = User.objects.filter(is_superuser=True)
     mods = User.objects.filter(profile__role=Profile.MODERATOR).exclude(id__in=admins)
     admins = admins.prefetch_related("profile").order_by("-profile__score")
@@ -207,6 +228,7 @@ def pages(request, fname):
     context = dict(file_path=doc, tab=fname, admins=admins, mods=mods)
 
     return render(request, 'pages.html', context=context)
+
 
 @ensure_csrf_cookie
 def post_list(request, show=None, cache_key='', extra_context=dict()):
