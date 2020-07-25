@@ -18,10 +18,9 @@
 {% endif %}
 
 
-<span class="phone">{{ objs.paginator.count|intcomma }}
-    result{{ objs.paginator.count|pluralize }}
+<span class="phone">{{ objs.paginator.count|format_page_count|intcomma }}
+    result{{ objs.paginator.count|format_page_count|pluralize }}
     &bull;
-
         Page </span> {{ objs.number }} of {{ objs.paginator.num_pages }}
 
 

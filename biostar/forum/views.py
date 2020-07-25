@@ -189,8 +189,6 @@ class CachedPaginator(Paginator):
 
     # Time to live for the cache, in seconds
     TTL = 150
-    # Offset to estimate post counts without missing newly created posts since TTL.
-    OFFSET = settings.POSTS_PER_PAGE
 
     def __init__(self, count_key='', *args, **kwargs):
         self.count_key = count_key or self.COUNT_KEY
@@ -204,8 +202,8 @@ class CachedPaginator(Paginator):
             logger.info("Setting paginator count cache")
             cache.set(self.count_key, value, self.TTL)
 
-        # If the count is less than minimum, then set it to minimum.
-        value = cache.get(self.count_key) + self.OFFSET
+        # Offset to estimate post counts without missing newly created posts since TTL.
+        value = cache.get(self.count_key) + settings.CACHE_OFFSET
 
         return value
 
