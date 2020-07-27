@@ -96,10 +96,10 @@ function prepare_inplace(content) {
 }
 
 function activate_inplace(current, form, hide, elem) {
-    // TODO: need to rename variables, hard to understand.
+
     current.hide();
     current.html(form);
-    current.show(300).find('textarea').focus();
+    current.show(100).find('textarea').focus();
 
     //var preview = $('#preview');
     current.find('pre').addClass('language-python');

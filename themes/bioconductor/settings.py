@@ -12,6 +12,12 @@ HTTP_PROTOCOL = "http"
 # Each line is a list of comma separated tags.
 TAGS_OPTIONS_FILE = os.path.join(CUSTOM_THEME, 'tags', 'tags.txt')
 
+
+# Ensure at least one tag in file is included.
+REQUIRED_TAGS = os.path.join(CUSTOM_THEME, 'tags', 'packageList.txt')
+
+REQUIRED_TAGS_URL = 'http://bioconductor.org/packages/devel/BiocViews.html#___Software'
+
 REMAP_TYPE_DISPLAY = True
 # Post types displayed when creating, empty list displays all types.
 ALLOWED_POST_TYPES = ["Question", "Job", "Tutorial", "News"]

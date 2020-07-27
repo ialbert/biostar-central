@@ -10,12 +10,25 @@
 
 
 {% endif %}
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
-    <script type="text/javascript" src="{% static 'pagedown_init.js' %}"></script>
+
+<link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
+<link href="{% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
+<link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
+
+
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+<script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
+<script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
+<script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
+<script type="text/javascript" src="{% static 'inplace_pagedown.js' %}{% randparam %}"></script>
+
+
+<script src="{% static 'markdown-it.js' %}"></script>
+<script src="{% static 'autocomplete/at.who.js' %}"></script>
+<script src="{% static 'autocomplete/caret.js' %}"></script>
+<script src="{% static 'effects.js' %}{% randparam %}"></script>
+<script src="{% static 'inplace.js' %}{% randparam %}"></script>
 
 <div class="ui basic form-wrap segment fit" id="inplace">
 
@@ -47,9 +60,7 @@
 
                 {% include 'widgets/textarea.html' %}
 
-
             </div>
-
             {# Edit the tags #}
             {% if post.is_toplevel %}
                 <div class="field">
@@ -111,13 +122,6 @@
                 cancel_inplace()
             }
         });
-
-        //
-        //window.onload = DjangoPagedown.init;
-        var converter = new Markdown.getSanitizingConverter();
-        var editor = new Markdown.Editor(converter);
-        editor.run();
-
 
     })
 </script>

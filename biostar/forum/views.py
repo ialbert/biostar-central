@@ -1,16 +1,9 @@
 import logging
 from datetime import timedelta
-from functools import wraps
+from functools import wraps, lru_cache
 import os
-import zlib
-from urllib.parse import urljoin
-from whoosh.searching import Results
-from django.core.files.storage import default_storage
-from django.http import JsonResponse
-from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 
-from django.views.decorators.csrf import csrf_exempt
-
+from django.db import models, connections
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -23,7 +16,7 @@ from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
 
 from biostar.accounts.models import Profile
-from biostar.forum import forms, auth, tasks, util, search, const, markdown
+from biostar.forum import forms, auth, tasks, util, search
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge
 
@@ -170,21 +163,35 @@ class CachedPaginator(Paginator):
     """
     Paginator that caches the count call.
     """
-    COUNT_KEY = "COUNT_KEY"
 
-    def __init__(self, count_key='', *args, **kwargs):
-        self.count_key = count_key or self.COUNT_KEY
+    # Time to live for the cache, in seconds
+    TTL = 300
+
+    LIMIT = 1000
+
+    def __init__(self, count_key='', ttl=None, *args, **kwargs):
+        self.count_key = count_key
+        self.ttl = ttl or self.TTL
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
     @property
     def count(self):
+        value = 1
+
+        # Return uncached paginator.
+        if self.count_key is None:
+            return super(CachedPaginator, self).count
 
         if self.count_key not in cache:
             value = super(CachedPaginator, self).count
-            logger.info("Setting paginator count cache")
-            cache.set(self.count_key, value, 300)
 
-        value = cache.get(self.count_key)
+            # Small values do not need to be cached.
+            if value > self.LIMIT:
+                logger.info("Setting paginator count cache")
+                cache.set(self.count_key, value, self.ttl)
+
+        # Offset to estimate post counts without missing newly created posts since TTL.
+        value = cache.get(self.count_key, value)
 
         return value
 
@@ -199,7 +206,7 @@ def pages(request, fname):
     if not os.path.exists(doc):
         messages.error(request, "File does not exist.")
         return redirect("post_list")
-    print(doc)
+
     admins = User.objects.filter(is_superuser=True)
     mods = User.objects.filter(profile__role=Profile.MODERATOR).exclude(id__in=admins)
     admins = admins.prefetch_related("profile").order_by("-profile__score")
@@ -207,6 +214,7 @@ def pages(request, fname):
     context = dict(file_path=doc, tab=fname, admins=admins, mods=mods)
 
     return render(request, 'pages.html', context=context)
+
 
 @ensure_csrf_cookie
 def post_list(request, show=None, cache_key='', extra_context=dict()):
@@ -237,7 +245,8 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
         # Show top 100 posts without pages.
         cache_key = cache_key or generate_cache_key(limit, tag, show)
         # Create the paginator
-        paginator = CachedPaginator(cache_key, posts, settings.POSTS_PER_PAGE)
+        paginator = CachedPaginator(count_key=cache_key, object_list=posts,
+                                    per_page=settings.POSTS_PER_PAGE)
         # Apply the post paging.
         posts = paginator.get_page(page)
     else:
@@ -276,7 +285,8 @@ def myvotes(request):
     votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
                                                                             'author__profile').order_by("-date")
     # Create the paginator
-    paginator = CachedPaginator(MYVOTES_CACHE_KEY, votes, settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(count_key=MYVOTES_CACHE_KEY, object_list=votes,
+                                    per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
     votes = paginator.get_page(votes)
@@ -302,7 +312,8 @@ def tags_list(request):
     tags = tags.order_by('-nitems')
 
     # Create the paginator
-    paginator = CachedPaginator(TAGS_CACHE_KEY, tags, 150)
+    paginator = CachedPaginator(count_key=TAGS_CACHE_KEY, object_list=tags,
+                                per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
     tags = paginator.get_page(page)
@@ -317,7 +328,7 @@ def myposts(request):
     """
     Show posts by user
     """
-    return post_list(request, show=MYPOSTS, cache_key=MYPOSTS_CACHE_KEY)
+    return post_list(request, show=MYPOSTS)
 
 
 @authenticated
@@ -325,7 +336,7 @@ def following(request):
     """
     Show posts followed by user
     """
-    return post_list(request, show=FOLLOWING, cache_key=FOLLOWING_CACHE_KEY)
+    return post_list(request, show=FOLLOWING)
 
 
 @authenticated
@@ -333,13 +344,13 @@ def bookmarks(request):
     """
     Show posts bookmarked by user
     """
-    return post_list(request, show=BOOKMARKS, cache_key=BOOKMARKS_CACHE_KEY)
+    return post_list(request, show=BOOKMARKS)
 
 
 @authenticated
 def mytags(request):
 
-    return post_list(request=request, show=MYTAGS, cache_key=MYTAGS_CACHE_KEY)
+    return post_list(request=request, show=MYTAGS)
 
 
 def community_list(request):
@@ -364,8 +375,9 @@ def community_list(request):
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
     users = users.order_by(order)
 
-    paginator = CachedPaginator("USERS", users, settings.USERS_PER_PAGE)
-
+    # Create the paginator
+    paginator = CachedPaginator(count_key="USERS", object_list=users,
+                                per_page=settings.POSTS_PER_PAGE)
     users = paginator.get_page(page)
     context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)
 
