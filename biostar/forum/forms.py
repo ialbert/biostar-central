@@ -75,7 +75,7 @@ def common_elem(set_a, set_b):
     return False
 
 
-def validate_tags_package(lst):
+def required_tags(lst):
     """
     Ensure at least one tag is present in the
     """
@@ -93,7 +93,7 @@ def validate_tags_package(lst):
     target_set = set(tags)
 
     if not common_elem(source_set, target_set):
-        url = settings.PACKAGES_URL
+        url = settings.REQUIRED_TAGS_URL
         msg = mark_safe(f"At least one package from <a href='{url}' target='_blank'>this list</a> is required.")
         raise forms.ValidationError(msg)
 
@@ -158,7 +158,7 @@ class PostLongForm(forms.Form):
         tag_val = self.cleaned_data["tag_val"] or 'tag1,tag2'
         tags = set([x for x in tag_val.split(",") if x])
 
-        validate_tags_package(tags)
+        required_tags(tags)
 
         return ",".join(tags)
 

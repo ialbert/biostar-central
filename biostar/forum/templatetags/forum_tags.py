@@ -107,19 +107,6 @@ def pages_search(context, results):
     return context
 
 
-@register.filter
-def format_page_count(count):
-    """
-    Remove CACHE_OFFSET from the displayed count.
-    """
-
-    final = int(count) - settings.CACHE_OFFSET
-
-    final = 0 if final < 0 else final
-
-    return final
-
-
 @register.inclusion_tag('widgets/post_details.html')
 def post_details(post, user, avatar=True):
     return dict(post=post, user=user, avatar=avatar)
