@@ -57,6 +57,7 @@ forum:
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
 	$(eval HOST := hosts/test.biostars.org)
+	$(eval TARGET:=test)
 
 echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
