@@ -167,7 +167,6 @@ def get_start(days, cursor):
     start = recent or util.now()
     start = start + timedelta(days=2)
 
-    print(start, "WHATTTT IS THISSS")
     return start
 
 
