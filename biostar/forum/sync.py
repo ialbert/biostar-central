@@ -57,10 +57,7 @@ def column_list(cursor):
     return colnames
 
 
-def select_related_votes(posts, cursor):
-    """
-    Select votes that been made recently.
-    """
+def select_related(posts, cursor, fr='posts_vote', where='posts_vote.post_id'):
     cols = {k: i for i, k in enumerate(column_list(cursor))}
 
     # Get author and last edit user ids into a set.
@@ -69,12 +66,27 @@ def select_related_votes(posts, cursor):
 
     cursor.execute(f"""
                     SELECT *
-                    FROM posts_vote
-                    WHERE posts_vote.post_id IN {post_ids}
+                    FROM {fr}
+                    WHERE {where} IN {post_ids}
                     """)
 
-    votes = cursor.fetchall()
-    return votes
+    objs = cursor.fetchall()
+    return objs
+
+
+def select_related_votes(posts, cursor):
+    """
+    Select votes that been made recently.
+    """
+    from_q = 'posts_vote'
+    where_q = 'posts_vote.post_id'
+    return select_related(posts=posts, cursor=cursor, fr=from_q, where=where_q)
+
+
+def select_related_subs(posts, cursor):
+    from_q = 'posts_subscription'
+    where_q = 'posts_subscription.post_id'
+    return select_related(posts=posts, cursor=cursor, fr=from_q, where=where_q)
 
 
 def select_related_users(user_ids, cursor):
@@ -95,24 +107,6 @@ def select_related_users(user_ids, cursor):
 
     users = cursor.fetchall()
     return users
-
-
-def select_related_subs(posts, cursor):
-    cols = {k: i for i, k in enumerate(column_list(cursor))}
-
-    # Get author and last edit user ids into a set.
-    post_ids = {p[cols['id']] for p in posts if p}
-    post_ids = tuple(post_ids)
-
-    cursor.execute(f"""
-                    SELECT *
-                    FROM posts_subscription
-                    WHERE posts_subscription.post_id IN {post_ids}
-                    """)
-
-    subs = cursor.fetchall()
-
-    return subs
 
 
 def posts_query_str(start, end, batch=None):
@@ -139,36 +133,48 @@ def posts_query_str(start, end, batch=None):
     return q
 
 
-def report_query(batch):
-    # Return all posts in a database
-    q = f"""SELECT *
-            FROM posts_post post
-            ORDER BY posts_post.id ASC
-         """
-    if batch:
-        q += f" LIMIT '{batch}'"
+def most_recent(cursor):
 
-    return q
+    # Fetch the most current post made in the remote database
+    cursor.execute(f"""
+                     SELECT *
+                     FROM posts_post
+                     ORDER BY posts_post.id DESC 
+                     LIMIT 1
+                     """)
+
+    post = cursor.fetchone()
+    cols = {k: i for i, k in enumerate(column_list(cursor))}
+
+    # Get the creation date for this post.
+    date = post[cols['creation_date']]
+
+    return date
 
 
-def get_start(days):
+def get_start(days, cursor):
     """
-    Return the start date stored in cache.
+    Return the start date stored in database
     """
 
     if days < 0:
         recent = Sync.objects.filter(pk=1).first()
-        recent = recent.last_synced if recent else None
+        recent = recent.last_synced if recent else most_recent(cursor=cursor)
     else:
         recent = Post.objects.old().order_by('-creation_date').first()
         recent = recent.creation_date if recent else None
 
     start = recent or util.now()
+    start = start + timedelta(days=2)
 
+    print(start, "WHATTTT IS THISSS")
     return start
 
 
 def store_synced_date(date):
+    """
+    Stored when syncing backwards.
+    """
     recent = Sync.objects.filter(pk=1).first()
 
     # Go back 12 hours from this date to ensure nothing is missed.
@@ -411,7 +417,7 @@ def retrieve(cursor, start, days, batch=None):
     users = select_related_users(user_ids=user_ids, cursor=cursor)
     user_cols = column_list(cursor=cursor)
 
-    # Store the last synced date into the
+    # Store the last synced date into the database.
     store_synced_date(start)
 
     # Collapse results into a single dict
@@ -520,14 +526,14 @@ def sync_db(start=None, days=1, options=dict()):
                             password=options['password'],
                             port=options['port'],
                             sslmode='require')
+    # Get the cursor.
+    cur = conn.cursor()
 
     # Get the start date from input or cache.
     # If none are provided, now() is returned.
-    start = start or get_start(days=days)
+    start = start or get_start(days=days, cursor=cur)
 
     update = options['update']
-    # Get the cursor.
-    cur = conn.cursor()
 
     # Get all relevant data within a given timespan
     # data is a dict with threads, users, etc.
@@ -582,12 +588,12 @@ def report(start=None, days=1, options=dict()):
                             port=options['port'],
                             sslmode='require')
 
-    # Get the start date from input or cache.
-    # If none are provided, now() is returned.
-    start = start or get_start(days=days)
-
     # Get the cursor.
     cur = conn.cursor()
+
+    # Get the start date from input or cache.
+    # If none are provided, now() is returned.
+    start = start or get_start(days=days, cursor=cur)
 
     retrieve(cursor=cur, start=start, days=days)
 

@@ -68,11 +68,8 @@ def informative_choices(choices):
 
 
 def common_elem(set_a, set_b):
-    # Return True if two sets share at least one
-    # common element.
-    if len(set_a.intersection(set_b)) > 0:
-        return True
-    return False
+    # Return True if two sets share at least one common element.
+    return len(set_a.intersection(set_b)) > 0
 
 
 def required_tags(lst):
