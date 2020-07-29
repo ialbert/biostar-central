@@ -12,6 +12,7 @@ class Command(BaseCommand):
     help = 'Sync contents of one site to this one.'
 
     def add_arguments(self, parser):
+
         parser.add_argument('--host', type=str, default="", help="Remote host name housing the postgres database.")
         parser.add_argument('--dbname', type=str, default="", help="Remote postgres database name.")
         parser.add_argument('--port', type=str, default="5432", help="Postgres port on remote host.")
@@ -19,7 +20,7 @@ class Command(BaseCommand):
         parser.add_argument('--password', type=str, default="", help="Postgres password.")
         parser.add_argument('--batch', type=int, default=10, help="How many posts to load for the given date range.")
         parser.add_argument('--start', type=str, default="",
-                            help="""Start syncing from this date; ISO format.""")
+                            help="""Start syncing from this date; ISO format. <year>-<month>-<date> eg: 2013-02-14""")
         parser.add_argument('--update', action='store_true', default=True,
                             help="""Preform update when syncing.""")
         parser.add_argument('--reset', action='store_true', default=False,
