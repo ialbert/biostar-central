@@ -14,7 +14,7 @@ django-sendfile==0.3.11
 django-taggit==1.2.0
 feedparser==5.2.1
 mistune==0.8.4
-Pillow==7.0.0
+Pillow==7.1.0
 pip==20.0.2
 python3-openid==3.1.0
 pytz==2019.3
