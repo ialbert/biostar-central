@@ -160,12 +160,14 @@ def get_start(days, cursor):
     if days < 0:
         recent = Sync.objects.filter(pk=1).first()
         recent = recent.last_synced if recent else most_recent(cursor=cursor)
+        recent = recent + timedelta(days=2)
     else:
+        # Get the most recently created post on the remote server.
         recent = Post.objects.old().order_by('-creation_date').first()
         recent = recent.creation_date if recent else None
+        recent = recent - timedelta(days=2)
 
     start = recent or util.now()
-    start = start + timedelta(days=2)
 
     return start
 
