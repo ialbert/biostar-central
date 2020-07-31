@@ -4,7 +4,7 @@
 <div class="ui page-bar segment">
     {% if objs.has_previous %}
         <a class="ui small basic button no-shadow"
-           href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
+           href="{{ url }}?page={{objs.previous_page_number}}">
             <i class="ui angle  double left icon"> </i>
         </a>
     {% else %}
@@ -19,7 +19,7 @@
     {% if objs.has_next %}
 
         <a class="ui small basic button no-shadow"
-           href="{{ url }}{% relative_url objs.next_page_number 'page' request.GET.urlencode %}">
+           href="{{ url }}?page={{ objs.next_page_number}}">
             <i class="ui angle  double right icon"></i>
         </a>
 
