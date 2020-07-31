@@ -24,7 +24,13 @@
 
     {% else %}
         <div class="ui large muted center aligned vertical segment">
-            You need write access to the <a href="{{ recipe.root.url }}">original recipe</a> to edit.
+            You need write access to the
+            {% if recipe.is_clone %}
+                <a href="{{ recipe.root.url }}">original recipe</a>
+            {% else %}
+               project
+            {% endif %}
+            to edit.
         </div>
 
     {% endif %}

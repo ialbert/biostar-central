@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Q, Count
 from django.template import loader
 from django.db.models import Sum
+from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, reverse
@@ -112,7 +113,7 @@ def project_delete(request, uid):
 
     messages.success(request, msg)
 
-    return redirect(reverse("project_list_private"))
+    return redirect(reverse("project_list"))
 
 
 def search_bar(request):
@@ -183,50 +184,32 @@ def project_info(request, uid):
     return render(request, "project_info.html", context)
 
 
-def project_list_public(request):
-    user = request.user
-    projects = auth.get_project_list(user=user)
-
-    # Filter for public projects
-    projects = projects.filter(privacy=Project.PUBLIC)
-
-    projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
-    context = dict(projects=projects, active="public")
-
-    return render(request, "project_list.html", context=context)
-
-
-def project_list_private(request):
-    user = request.user
-    projects = auth.get_project_list(user=user)
-
-    # Filter for private projects
-    #projects = projects.filter(privacy=Project.PRIVATE)
-
-    projects = projects.order_by("rank", "-date", "-lastedit_date", "-id")
-    context = dict(projects=projects, active="private")
-
-    return render(request, "project_list.html", context=context)
-
-
 def project_list(request):
+    user = request.user
+    projects = auth.get_project_list(user=user)
+    page = request.GET.get("page")
+    projects = projects.order_by("-lastedit_date", "rank", "-date",  "-id")
 
-    # Redirect authenticated users to my projects.
-    if request.user.is_authenticated:
-        return redirect("project_list_private")
+    # Add pagination.
+    paginator = Paginator(projects, per_page=settings.PER_PAGE)
+    projects = paginator.get_page(page)
 
-    return redirect("project_list_public")
+    context = dict(projects=projects, active="project_list")
+    return render(request, "project_list.html", context=context)
 
 
 def latest_recipes(request):
     """
     """
-
+    page = request.GET.get("page")
     # Select public recipes
     recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, deleted=False)
     recipes = recipes.order_by("-lastedit_date", "-rank")[:50]
 
     recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
+
+    paginator = Paginator(recipes, per_page=settings.PER_PAGE)
+    recipes = paginator.get_page(page)
 
     context = dict(recipes=recipes, active="latest_recipes")
 
@@ -247,6 +230,7 @@ def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
+
     return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
 
 
@@ -270,13 +254,13 @@ def get_counts(project, user=None):
     )
 
 
-
 @read_access(type=Project)
 def project_view(request, uid, template_name="project_info.html", active='info', show_summary=None,
                  extra_context={}):
     """
     This view handles the project info, data list, recipe list, result list views.
     """
+    page = request.GET.get('page')
 
     # The user making the request
     user = request.user
@@ -286,10 +270,15 @@ def project_view(request, uid, template_name="project_info.html", active='info',
 
     # Select all the data in the project.
     data_list = project.data_set.filter(deleted=False).order_by("rank", "-date").all()
+    data_paginator = Paginator(data_list, per_page=settings.PER_PAGE)
+    data_list = data_paginator.get_page(page)
+
     recipe_list = project.analysis_set.filter(deleted=False).order_by("rank", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
+    recipe_paginator = Paginator(recipe_list, per_page=settings.PER_PAGE)
+    recipe_list = recipe_paginator.get_page(page)
 
     job_list = project.job_set.filter(deleted=False).order_by("-lastedit_date").all()
 
@@ -303,6 +292,8 @@ def project_view(request, uid, template_name="project_info.html", active='info',
 
     # Add related content.
     job_list = job_list.select_related("analysis")
+    job_paginator = Paginator(job_list, per_page=settings.PER_PAGE)
+    job_list = job_paginator.get_page(page)
 
     # Who has write access
     write_access = auth.is_writable(user=user, project=project)
@@ -418,7 +409,7 @@ def data_upload(request, uid):
     # Maximum data that may be uploaded.
     maximum_size = owner.profile.upload_size * 1024 * 1024
 
-    context = dict(project=project, form=form, activate="Add Data",
+    context = dict(project=project, form=form, active="data_upload",
                    maximum_size=maximum_size,
                    current_size=current_size)
 

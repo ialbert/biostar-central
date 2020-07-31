@@ -17,6 +17,20 @@ body {
     text-rendering: optimizeLegibility;
 }
 
+.ui.page-bar.segment {
+    text-align: center;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    margin: 0;
+}
+
+
+.no-shadow {
+    box-shadow: none !important;
+    border: none !important;
+    -webkit-box-shadow: none;
+}
 
 .recipes.grid .text.menu{
     width: auto;

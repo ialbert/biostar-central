@@ -8,6 +8,7 @@
 
 {% block content %}
 
+
     {% if recipe_filter %}
         <div class="ui center aligned large vertical segment ">
             <div class="ui success message">
@@ -27,5 +28,5 @@
            {% include 'parts/recipe_results.html' %}
         {% endwith %}
 
-
+{% pages objs=job_list %}
 {% endblock %}

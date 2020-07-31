@@ -51,7 +51,7 @@ def send_verification_email(user):
 
     # Send the verification email
     send_email(template_name=template, recipient_list=email_list,
-               extra_context=context, from_email=from_email)
+               extra_context=context, from_email=from_email, subject="Welcome to Bioinformatics Recipes!")
 
     return True
 

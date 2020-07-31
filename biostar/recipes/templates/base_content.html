@@ -10,12 +10,8 @@
 {% block body %}
     <input type="hidden" id="project_id" value="{{ project.id }}">
 
-<div id="clipboard">{% clipboard project.uid %}</div>
+    <div id="clipboard">{% clipboard project.uid %}</div>
     <div class="ui large secondary pointing  menu">
-
-        <a class="item" href="{% url 'project_list' %}">
-            <i class="list icon"></i><span class="phone">Project List</span>
-        </a>
 
 
         <a class="{% activate 'info' active %} item" href="{% url 'project_view' project.uid %}">
@@ -27,16 +23,30 @@
                 class="phone"> Data</span>
         </a>
         <a class="{% activate 'recipes' active %} item" href="{% url 'recipe_list' project.uid %}">
-            <i class="settings icon"></i> {{ recipe_count }}&nbsp;<span class="phone"> Recipes</span>
+            <i class="setting icon"></i> {{ recipe_count }}&nbsp;<span class="phone"> Recipes</span>
         </a>
 
 
         <a class="{% activate 'jobs' active %} item" href="{% url 'job_list' project.uid %}">
             <i class="bar chart icon"></i><span id="job_count">{{ result_count }}</span><span class="phone">&nbsp;Results</span>
         </a>
+
         {% if activate %}
             <div class="active orange item" id="job_item">
                 <i class="angle double down icon"></i> <span class="tablet">{{ activate }}</span>
+            </div>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <div class="right menu">
+                <a class="{% activate 'data_upload' active %} item" href="{% url 'data_upload' project.uid %}">
+                    <i class="folder open icon"></i>Add data
+                </a>
+
+                <a class="item" href="{% url 'recipe_create' project.uid %}">
+                    <i class="circle plus icon"></i>Create recipe
+                </a>
+
             </div>
         {% endif %}
 
