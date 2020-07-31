@@ -26,6 +26,9 @@ JOB_LOGDIR = 'runlog'
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 
+# Amount of objects shown per page.
+PER_PAGE = 50
+
 # Upload path for pagedown images, relative to media root.
 PAGEDOWN_IMAGE_UPLOAD_PATH = "images"
 
@@ -65,7 +68,7 @@ ALLOW_SELF_MODERATE = False
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 300
 
-LOGIN_REDIRECT_URL = "/my/projects/"
+LOGIN_REDIRECT_URL = "/project/list/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 ENGINE_APPS = [

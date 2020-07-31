@@ -6,40 +6,44 @@
         <i class="home icon"></i>
     </a>
 
+    <a class="item {% activate active "project_list" %}" href="{% url 'project_list' %}">
+        <i class="list icon"></i><span class="phone">Projects</span>
+    </a>
+    <a class="{% activate active "latest_recipes" %} item" href="{% url 'latest_recipes' %}">
+        <i class="settings icon"></i>Recipes
+    </a>
+
     <div class="ui category search fluid item">
         <div class="ui transparent icon input">
-            <input class="prompt" id="recipe-search" type="text"
-                   placeholder="Search recipes...">
+            <input class="prompt" id="recipe-search" type="text" placeholder="Search recipes...">
             <i class="search link icon"></i>
         </div>
     </div>
 
     <div class="right menu">
-        <a class="item widescreen" href="https://bioinformatics-recipes.readthedocs.io/">
-            <i class="question circle icon"></i> About
-        </a>
+
 
         {% if user.is_authenticated %}
-                <a class="{% activate "profile" active %} {% if user.is_superuser %}trusted{% endif %} item"
-                   href="{% url "user_profile" user.profile.uid %}" >
+            <a class="{% activate "profile" active %} {% if user.is_superuser %}trusted{% endif %} item"
+               href="{% url "user_profile" user.profile.uid %}">
 
-                    {% if user.is_superuser %}
-                        <i class="user md icon"></i>
-                    {% elif user.profile.trusted %}
-                        <i class="user plus icon"></i>
-                    {% else %}
-                        <i class="user outline icon"></i>
-                    {% endif %}
+                {% if user.is_superuser %}
+                    <i class="user md icon"></i>
+                {% elif user.profile.trusted %}
+                    <i class="user plus icon"></i>
+                {% else %}
+                    <i class="user outline icon"></i>
+                {% endif %}
 
-                    <span class="widescreen">{{ user.profile.name }}</span>
-                </a>
-
-            <a class="{% activate "bin" active %} item" href="{% url 'recycle_bin' %}">
-                <i class="trash icon"></i>
+                <span class="widescreen">{{ user.profile.name }}</span>
             </a>
+
 
             <a class="{% activate "logout" active %} item" href="{% url 'logout' %}">
                 <i class="sign out icon"></i><span class="widescreen">Logout</span>
+            </a>
+            <a class="{% activate "bin" active %} item" href="{% url 'recycle_bin' %}">
+                <i class="trash icon"></i>
             </a>
 
         {% else %}
@@ -49,7 +53,10 @@
             </a>
 
         {% endif %}
-
+    
+        <a class="item widescreen" target="_blank" href="https://bioinformatics-recipes.readthedocs.io/">
+            <i class="question circle icon"></i>
+        </a>
 
     </div>
 

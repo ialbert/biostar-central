@@ -1,0 +1,33 @@
+{% load engine_tags %}
+{% load humanize %}
+
+<div class="ui page-bar segment">
+    {% if objs.has_previous %}
+        <a class="ui small basic button no-shadow"
+           href="{{ url }}?page={{objs.previous_page_number}}">
+            <i class="ui angle  double left icon"> </i>
+        </a>
+    {% else %}
+        <div class="ui small basic button no-shadow">
+            <i class="ui angle double left icon"> </i>
+        </div>
+    {% endif %}
+
+    <span class="phone">{{ objs.paginator.count|intcomma }} result{{ objs.paginator.count|pluralize }} &bull; Page
+    </span> {{ objs.number }} of {{ objs.paginator.num_pages }}
+
+    {% if objs.has_next %}
+
+        <a class="ui small basic button no-shadow"
+           href="{{ url }}?page={{ objs.next_page_number}}">
+            <i class="ui angle  double right icon"></i>
+        </a>
+
+    {% else %}
+
+        <div class="ui small basic button no-shadow">
+            <i class="ui angle  double right icon"></i>
+        </div>
+
+    {% endif %}
+</div>

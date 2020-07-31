@@ -94,6 +94,29 @@ def is_job(obj):
     return isinstance(obj, Job)
 
 
+@register.inclusion_tag('widgets/pages.html', takes_context=True)
+def pages(context, objs, show_step=True):
+    request = context["request"]
+    url = request.path
+    return dict(objs=objs, url=url, show_step=show_step, request=request)
+
+
+@register.simple_tag
+def display_access(user, project):
+
+    if user == project.owner:
+        return "Project Owner"
+    if user.is_anonymous:
+        return "Read Access"
+
+    access = Access.objects.filter(user=user, project=project).first()
+
+    if access and access.access == access.WRITE_ACCESS:
+        return "Write Access"
+    # User have read/public access at this point.
+    return "Read Access"
+
+
 @register.simple_tag
 def gravatar(user, size=80):
     style = "retro"

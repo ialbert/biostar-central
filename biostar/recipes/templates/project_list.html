@@ -13,6 +13,7 @@
 
 {% block content %}
 
+
     <div class="ui divided items">
         {% for project in projects %}
             <div class="item">
@@ -41,7 +42,10 @@
 
                         {% created_by date=project.lastedit_date user=project.lastedit_user %}
 
+                        <div class="ui tag right floated label">{% display_access user project %}</div>
+
                     </div>
+
                 </div>
             </div>
         {% endfor %}
@@ -53,5 +57,6 @@
 
     {% endif %}
     </div>
+    {% pages objs=projects %}
 
 {% endblock %}
