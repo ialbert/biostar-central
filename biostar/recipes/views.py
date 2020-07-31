@@ -269,11 +269,11 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     project = Project.objects.filter(uid=uid).first()
 
     # Select all the data in the project.
-    data_list = project.data_set.filter(deleted=False).order_by("rank", "-date").all()
+    data_list = project.data_set.filter(deleted=False).order_by("-lastedit_date", "rank", "-date").all()
     data_paginator = Paginator(data_list, per_page=settings.PER_PAGE)
     data_list = data_paginator.get_page(page)
 
-    recipe_list = project.analysis_set.filter(deleted=False).order_by("rank", "-date").all()
+    recipe_list = project.analysis_set.filter(deleted=False).order_by("-lastedit_date", "rank", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))

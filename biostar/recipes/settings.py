@@ -27,7 +27,7 @@ JOB_LOGDIR = 'runlog'
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 
 # Amount of objects shown per page.
-PER_PAGE = 2
+PER_PAGE = 50
 
 # Upload path for pagedown images, relative to media root.
 PAGEDOWN_IMAGE_UPLOAD_PATH = "images"
