@@ -37,18 +37,21 @@
             </div>
         {% endif %}
 
-        {% if user.is_authenticated %}
-            <div class="right menu">
+
+        <div class="right menu">
+            {% if data_actions %}
                 <a class="{% activate 'data_upload' active %} item" href="{% url 'data_upload' project.uid %}">
                     <i class="folder open icon"></i>Add data
                 </a>
+            {% endif %}
 
+            {% if recipe_actions %}
                 <a class="item" href="{% url 'recipe_create' project.uid %}">
                     <i class="circle plus icon"></i>Create recipe
                 </a>
+            {% endif %}
+        </div>
 
-            </div>
-        {% endif %}
 
     </div>
 
