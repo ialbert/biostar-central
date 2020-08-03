@@ -366,6 +366,9 @@ pre.toml_code {
 }
 
 
+/* Fix for the name clash in semantic UI. */
+i.icon.mylist:before{content:"\f03a"}
+
 .ui.list.questions > .item > .description {
     margin: 0ex 0em 0ex 0em;
     line-height: 1.5;

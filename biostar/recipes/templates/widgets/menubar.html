@@ -7,11 +7,51 @@
     </a>
 
     <a class="item {% activate active "project_list" %}" href="{% url 'project_list' %}">
-        <i class="list icon"></i><span class="phone">Projects</span>
+        <i class="list icon"></i><span class="phone">Project List</span>
     </a>
     <a class="{% activate active "latest_recipes" %} item" href="{% url 'latest_recipes' %}">
-        <i class="settings icon"></i>Recipes
+        <i class="settings icon"></i>Latest Recipes
     </a>
+
+
+        {% if user.is_authenticated %}
+
+            <div class="ui simple dropdown item">
+
+                Actions <i class="dropdown icon"></i>
+                <div class="menu">
+
+                    <a class="ui item" href="{% url 'project_create' %}">
+                        <i class="circle plus icon"></i>New Project
+                    </a>
+
+                    <a class="ui item" href="{% url 'project_create' %}">
+                        <i class="circle plus icon"></i>Upload Data
+                    </a>
+
+                    <a class="ui item" href="{% url 'project_create' %}">
+                        <i class="circle plus icon"></i>New Recipe
+                    </a>
+
+                    {% if user.is_superuser %}
+
+                        <a class="ui item" href="{% url 'root_list' %}">
+                            <i class="download  icon"></i>Import Data
+                        </a>
+
+                        <a class="ui item" href="{% url 'site_admin' %}">
+                            <i class="dashboard icon"></i>Site Admin
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+
+        {% endif %}
+
 
     <div class="ui category search fluid item">
         <div class="ui transparent icon input">
