@@ -230,7 +230,6 @@ def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
-
     return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
 
 
@@ -360,6 +359,7 @@ def data_view(request, uid):
     data = Data.objects.filter(uid=uid).first()
     project = data.project
     paths = auth.listing(root=data.get_data_dir())
+
     context = dict(data=data, project=project, paths=paths, serve_view="data_serve",
                    activate='Selected Data', uid=data.uid, show_all=True)
     counts = get_counts(project)
@@ -373,7 +373,6 @@ def data_edit(request, uid):
     """
     Edit meta-data associated with Data.
     """
-
     data = Data.objects.filter(uid=uid).first()
     form = forms.DataEditForm(instance=data, initial=dict(type=data.type), user=request.user)
 
@@ -382,6 +381,7 @@ def data_edit(request, uid):
         if form.is_valid():
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
+
     context = dict(data=data, form=form, activate='Edit Data', project=data.project)
 
     context.update(get_counts(data.project))
@@ -409,8 +409,8 @@ def data_upload(request, uid):
     # Maximum data that may be uploaded.
     maximum_size = owner.profile.upload_size * 1024 * 1024
 
-    context = dict(project=project, form=form, active="data_upload",
-                   maximum_size=maximum_size,
+    context = dict(project=project, form=form,
+                   maximum_size=maximum_size, activate='Upload data',
                    current_size=current_size)
 
     counts = get_counts(project)
