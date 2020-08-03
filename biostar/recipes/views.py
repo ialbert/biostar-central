@@ -221,10 +221,8 @@ def data_list(request, uid):
     """
     Returns the list of data for a project uid.
     """
-    user = request.user
-    extra_context = dict(data_actions=user.is_authenticated)
     return project_view(request=request, uid=uid, template_name="data_list.html",
-                        active='data', show_summary=True, extra_context=extra_context)
+                        active='data', show_summary=True)
 
 
 @read_access(type=Project)
@@ -232,10 +230,7 @@ def recipe_list(request, uid):
     """
     Returns the list of recipes for a project uid.
     """
-    user = request.user
-    extra_context = dict(recipe_actions=user.is_authenticated)
-    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes',
-                        extra_context=extra_context)
+    return project_view(request=request, uid=uid, template_name="recipe_list.html", active='recipes')
 
 
 def job_list(request, uid):
@@ -363,12 +358,10 @@ def data_view(request, uid):
 
     data = Data.objects.filter(uid=uid).first()
     project = data.project
-    user = request.user
     paths = auth.listing(root=data.get_data_dir())
 
     context = dict(data=data, project=project, paths=paths, serve_view="data_serve",
-                   activate='Selected Data', uid=data.uid, show_all=True,
-                   data_actions=user.is_authenticated)
+                   activate='Selected Data', uid=data.uid, show_all=True)
     counts = get_counts(project)
     context.update(counts)
 
@@ -380,7 +373,6 @@ def data_edit(request, uid):
     """
     Edit meta-data associated with Data.
     """
-    user = request.user
     data = Data.objects.filter(uid=uid).first()
     form = forms.DataEditForm(instance=data, initial=dict(type=data.type), user=request.user)
 
@@ -390,8 +382,7 @@ def data_edit(request, uid):
             form.save()
             return redirect(reverse("data_view", kwargs=dict(uid=data.uid)))
 
-    context = dict(data=data, form=form, activate='Edit Data', project=data.project,
-                   data_actions=user.is_authenticated)
+    context = dict(data=data, form=form, activate='Edit Data', project=data.project)
 
     context.update(get_counts(data.project))
     return render(request, 'data_edit.html', context)
@@ -418,8 +409,8 @@ def data_upload(request, uid):
     # Maximum data that may be uploaded.
     maximum_size = owner.profile.upload_size * 1024 * 1024
 
-    context = dict(project=project, form=form, active="data_upload",
-                   maximum_size=maximum_size, data_actions=owner.is_authenticated,
+    context = dict(project=project, form=form,
+                   maximum_size=maximum_size, activate='Upload data',
                    current_size=current_size)
 
     counts = get_counts(project)
@@ -612,8 +603,7 @@ def recipe_view(request, uid):
     # Generate the context.
     context = dict(recipe=recipe, job_list=jobs, project=project, form=form, btn_state=btn_state,
                    is_runnable=is_runnable, activate='Recipe View', rerun_btn=False,
-                   include_copy=False, editable=editable,
-                   recipe_actions=user.is_authenticated)
+                   include_copy=False, editable=editable)
 
     # Update context with counts.
     context.update(counts)
