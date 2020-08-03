@@ -15,35 +15,18 @@
 {% block body %}
 
 
-    <div class="ui large secondary pointing  menu">
-     <a class="{% activate "home" active %} item " href="/">
-        <i class="home icon"></i> Home
-    </a>
 
-        {% if user.is_authenticated %}
 
-            <a class="ui item" href="{% url 'project_create' %}">
-                <i class="circle plus icon"></i>Create Project
-            </a>
-        {% endif %}
 
-        {% if user.is_superuser %}
-
-            <a class="ui {% activate active "import" %}  item" href="{% url 'root_list' %}">
-                <i class="download  icon"></i>Import
-            </a>
-
-            <a class="ui {% activate active "admin" %} item" href="{% url 'site_admin' %}">
-                <i class="dashboard icon"></i>Admin
-            </a>
-
-        {% endif %}
-
-    </div>
-
-<div class="ui basic large segment">
+    <div class="ui basic large segment">
         {% block content %}
 
         {% endblock %}
-</div>
+    </div>
+
+    <div class="ui large  menu">
+
+
+    </div>
+
 {% endblock %}
