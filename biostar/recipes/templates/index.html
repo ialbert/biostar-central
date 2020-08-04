@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block title %}
-    <i class="barcode listing icon"></i> Welcome to Bioinformatics Recipes
+    <i class="settings icon"></i> Welcome to Bioinformatics Recipes
 {% endblock %}
 
 {% block body %}
@@ -28,44 +28,54 @@
                 <div class="item padme">
                     <div class="subheader">Where are the recipes?</div>
                     <div class="description">
+                        <ul>
+                        <li>The <a href="{% url 'project_list' %}"><i class="mylist icon"></i>Project List
+                        </a> page contains recipes collected into projects.</li>
+
+                            <li>The <a href="{% url 'latest_recipes' %}"><i class="settings icon"></i>Latest
+                            Recipes</a> page displays the most recently updated recipes.</li>
+                        </ul>
 
 
-                            <div class="item">The <a href="{% url 'project_list' %}"><i class="mylist icon"></i>Project List
-                            </a>  page contains recipes collected into projects.
-                            </div>
-
-                            <div class="item">The <a href="{% url 'latest_recipes' %}"><i class="settings icon"></i>Latest
-                                Recipes</a> page displays the most recently updated recipes.</div>
-
-                        </div>
 
                     </div>
 
-                    <div class="item padme">
-                        <div class="subheader">What types of recipes can I find here?</div>
-                        <div class="description">
-                            Most recipes demonstrate typical use cases for various bioinformatics tools.
-                            Many recipes have been developed to support bioinformatics education.
-                        </div>
-                    </div>
+                </div>
 
-                    <div class="item padme ">
-                        <div class="subheader">Can I run recipes on my computer?</div>
-                        <div class="description">
-                            Yes! All recipes are designed to run both through this website and at the command line on
-                            your computer.
-                        </div>
+                <div class="item padme">
+                    <div class="subheader">What types of recipes can I find here?</div>
+                    <div class="description">
+                        Most recipes demonstrate typical use cases for various bioinformatics tools.
+                        Many recipes have been developed to support bioinformatics education.
                     </div>
+                </div>
 
-                    <div class="item padme ">
-                        <div class="subheader">Where can I learn more of how the site works?</div>
-                        <div class="description">
-                            Site documentation at <a
-                                href="https://bioinformatics-recipes.readthedocs.io/"><i
-                                class="book icon"></i>Biostar
-                            Recipes: Read The Docs</a>.
-                        </div>
+                <div class="item padme ">
+                    <div class="subheader">Can I run recipes on my computer?</div>
+                    <div class="description">
+                        Yes! All recipes are designed to run both through this website and at the command line on
+                        your computer.
                     </div>
+                </div>
+
+                <div class="item padme ">
+                    <div class="subheader">Where can I learn more of how the site works?</div>
+                    <div class="description">
+                        <ul style="width: 100%">
+                            <li>
+                                <a href="https://bioinformatics-recipes.readthedocs.io/">Biostar Recipes: documentation.</a>
+                            </li>
+                            <li>
+                                <a href="https://github.com/ialbert/biostar-central"> Biostar Central GitHub repository.</a>
+                            </li>
+                              <li>
+                                  <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-020-03602-6">Bioinformatics recipes: creating, executing and distributing reproducible data analysis workflows</a>, BMC Bioinformatics, (2020) .
+                            </li>
+                        </ul>
+
+
+                    </div>
+                </div>
 
 
             </ul>

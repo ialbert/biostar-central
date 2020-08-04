@@ -18,8 +18,9 @@ INDEX_NAME := index
 
 # Search index directory
 INDEX_DIR := search
-
 # Some variables need to come from the enviroment.
+
+.PHONY:  recipes accounts demo
 
 # Recipes database to copy
 export COPY_DATABASE := recipes.db
@@ -30,21 +31,26 @@ export DATABASE_NAME := database.db
 all: recipes serve
 
 accounts:
+	@echo "*** Setting variables for accounts app."
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
 	$(eval DJANGO_APP := biostar.accounts)
 
 emailer:
+	@echo "*** Setting variables for emails app."
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
 	$(eval DJANGO_APP := biostar.emailer)
 
 recipes:
+	@echo "*** Setting variables for recipe app."
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
 	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
 	$(eval TARGET:=recipes)
 
+
 bioconductor:
+	@echo "*** Setting variables for bioconductor app."
 	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
@@ -52,6 +58,7 @@ bioconductor:
 	$(eval TARGET:=supportupgrade)
 
 forum:
+	@echo "*** Setting variables for forum app."
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)

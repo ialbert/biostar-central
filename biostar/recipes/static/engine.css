@@ -365,6 +365,10 @@ pre.toml_code {
     text-align: initial;
 }
 
+.write_access {
+    border-left: 20px solid #f1f8e9 !important;
+    //background-color: #f1f8e9 !important;
+}
 
 /* Fix for the name clash in semantic UI. */
 i.icon.mylist:before{content:"\f03a"}
