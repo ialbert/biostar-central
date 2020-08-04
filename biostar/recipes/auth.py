@@ -413,7 +413,7 @@ def recipe_paste(instance, user, project, clone=False):
 
     recipe = create_analysis(project=project, user=user, root=root,
                              json_text=instance.json_text, security=instance.security,
-                             template=instance.template, lastedit_date=lastedit_date,
+                             template=instance.template,
                              name=instance.name, text=instance.text, stream=stream)
 
     Analysis.objects.filter(pk=recipe.pk).update(lastedit_date=lastedit_date)

@@ -102,19 +102,20 @@ def pages(context, objs, show_step=True):
 
 
 @register.simple_tag
-def display_access(user, project):
+def access_class(user, project):
+    """
+    CSS class returned based on access to a project
+    """
+
+    if user.is_anonymous:
+        return ""
 
     if user == project.owner:
-        return "Project Owner"
-    if user.is_anonymous:
-        return "Read Access"
+        return "write_access"
 
-    access = Access.objects.filter(user=user, project=project).first()
+    obj = Access.objects.filter(user=user, project=project).first()
 
-    if access and access.access == access.WRITE_ACCESS:
-        return "Write Access"
-    # User have read/public access at this point.
-    return "Read Access"
+    return obj.access if obj else ""
 
 
 @register.simple_tag

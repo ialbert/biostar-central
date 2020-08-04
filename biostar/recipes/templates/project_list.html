@@ -16,7 +16,8 @@
 
     <div class="ui divided items">
         {% for project in projects %}
-            <div class="item">
+
+            <div class="item {%  access_class user=user project=project %}">
 
                 <img class="ui mytiny circular fancy image" src="{% img project %}"/>
 
@@ -41,8 +42,6 @@
                             result{{ project.jobs_count|pluralize }}</a>
 
                         {% created_by date=project.lastedit_date user=project.lastedit_user %}
-
-                        <div class="ui tag right floated label">{% display_access user project %}</div>
 
                     </div>
 

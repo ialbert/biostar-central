@@ -27,13 +27,12 @@
 
                 {% if project %}
                     <a class="item" href="{% url 'recipe_create' project.uid %}">
-                        <i class="settings icon"></i>New Recipe
+                        <i class="settings icon"></i>Create Recipe
                     </a>
 
                     <a class="item" href="{% url 'data_upload' project.uid %}">
                         <i class="folder open icon"></i>New Data
                     </a>
-
 
                 {% endif %}
 
