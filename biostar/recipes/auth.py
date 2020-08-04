@@ -397,13 +397,10 @@ def validate_recipe_run(user, recipe):
 
 def recipe_paste(instance, user, project, clone=False):
     root = None
-    lastedit_date = instance.lastedit_date
     # Cascade the root, last edit date, and last edit user
     # if the recipe is being cloned.
     if clone:
         root = instance.root if instance.is_cloned else instance
-        user = instance.lastedit_user
-        lastedit_date = root.lastedit_date
 
     try:
         stream = instance.image
@@ -415,8 +412,6 @@ def recipe_paste(instance, user, project, clone=False):
                              json_text=instance.json_text, security=instance.security,
                              template=instance.template,
                              name=instance.name, text=instance.text, stream=stream)
-
-    Analysis.objects.filter(pk=recipe.pk).update(lastedit_date=lastedit_date)
 
     return recipe
 
