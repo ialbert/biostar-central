@@ -621,6 +621,7 @@ class Analysis(models.Model):
             self.root.template = self.template
             self.root.name = self.name
             self.root.security = self.security
+            # Do not update last edit date and user.
             #self.root.lastedit_date = self.lastedit_date
             #self.root.lastedit_user = self.lastedit_user
             self.root.text = self.text
