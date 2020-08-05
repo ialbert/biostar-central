@@ -110,12 +110,6 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 @receiver(post_save, sender=Analysis)
 def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
-    def update_root():
-        # Only update root information on edits.
-        if not created:
-            instance.update_root()
-        return
-
     if created:
         # Generate friendly uid
         uid = auth.new_uid(obj=instance, objtype=Analysis, prefix="recipe")
@@ -135,8 +129,6 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
     # Update information of all children belonging to this root.
     if instance.is_root:
         instance.update_children()
-    else:
-        update_root()
 
     # Update the project count and last edit date when job is created
     instance.project.set_counts()

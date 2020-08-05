@@ -608,37 +608,7 @@ class Analysis(models.Model):
         # Update last edit user and date for children projects.
         Project.objects.filter(analysis__root=self).update(lastedit_date=self.lastedit_date,
                                                            lastedit_user=self.lastedit_user)
-
-    def update_root(self):
-        """
-        Update the root whenever a child is updated.
-        """
-        if self.root:
-            root = Analysis.objects.filter(id=self.root.id)
-
-            # Sync root to children
-            self.root.json_text = self.json_text
-            self.root.template = self.template
-            self.root.name = self.name
-            self.root.security = self.security
-            self.root.lastedit_date = self.lastedit_date
-            self.root.lastedit_user = self.lastedit_user
-            self.root.text = self.text
-            self.root.html = self.html
-            self.root.image = self.image
-
-            # Update the root
-            root.update(json_text=self.root.json_text, template=self.root.template, name=self.root.name,
-                        security=self.root.security, lastedit_date=self.root.lastedit_date, image=self.root.image,
-                        lastedit_user=self.root.lastedit_user, text=self.root.text, html=self.root.html)
-
-            # Update the siblings
-            self.root.update_children()
-
-            # Update last edit user and date for root project.
-            Project.objects.filter(analysis=self.root).update(lastedit_date=self.root.lastedit_date,
-                                                              lastedit_user=self.root.lastedit_user)
-
+        
     def url(self):
         assert self.uid, "Sanity check. UID should always be set."
         return reverse("recipe_view", kwargs=dict(uid=self.uid))
