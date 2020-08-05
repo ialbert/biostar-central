@@ -397,8 +397,6 @@ def validate_recipe_run(user, recipe):
 
 def recipe_paste(instance, user, project, clone=False):
     root = None
-    # Cascade the root, last edit date, and last edit user
-    # if the recipe is being cloned.
     if clone:
         root = instance.root if instance.is_cloned else instance
 
