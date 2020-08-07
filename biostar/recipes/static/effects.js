@@ -5,7 +5,7 @@ function move_object(parent_elem, source_elem, child_elem){
 
     var source_id = source_elem.attr("id");
     var parent_id = parent_elem.attr("id");
-    var child_id = child_elem.attr("id");
+    //var child_id = child_elem.attr("id");
 
     $.ajax('/recipes/drop/',
         {
@@ -15,7 +15,7 @@ function move_object(parent_elem, source_elem, child_elem){
             data: {
                 'source_id': source_id,
                 'parent_id': parent_id,
-                'child_id':c
+               
             },
             success: function (data) {
 
