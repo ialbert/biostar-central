@@ -87,7 +87,6 @@ def ajax_edit(request, id):
 
     # The project of for the recipe.
     project = recipe.project
-
     form = RecipeForm(data=request.POST, instance=recipe, files=request.FILES, user=user,
                       project=project)
 
