@@ -122,7 +122,6 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
     # Strip json text of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
-
     Project.objects.filter(id=instance.project.id).update(lastedit_date=instance.lastedit_date,
                                                           lastedit_user=user)
 

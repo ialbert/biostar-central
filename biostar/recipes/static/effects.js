@@ -1,17 +1,21 @@
 
-function move_post(parent_elem, source_elem) {
 
-    var parent = parent_elem.data("value");
-    var source = source_elem.data("value");
 
-    $.ajax('/drag/and/drop/',
+function move_object(parent_elem, source_elem, child_elem){
+
+    var source_id = source_elem.attr("id");
+    var parent_id = parent_elem.attr("id");
+    var child_id = child_elem.attr("id");
+
+    $.ajax('/recipes/drop/',
         {
             type: 'POST',
             dataType: 'json',
             ContentType: 'application/json',
             data: {
-                'uid': source,
-                'parent': parent,
+                'source_id': source_id,
+                'parent_id': parent_id,
+                'child_id':c
             },
             success: function (data) {
 
@@ -31,81 +35,44 @@ function move_post(parent_elem, source_elem) {
 
 }
 
-
-function autocomplete_users(users_list) {
-    // Add autocomplete to any text area element with autocomplete tag.
-    var autocomplete = $('.autocomplete');
-
-    // Map values in list to a list of dict [{key:'chosen', name:'displayed name'}....]
-    var vals = $.map(users_list, function (value) {
-        return {
-            key: value,
-            name: value
-        };
-    });
-
-    function img_url(username) {
-        let url = '/ajax/user/image/{0}/'.format(username);
-        return "<li> <img class='ui circular image' style='display: inline' src={0} height='20' width='20' /> <b>{1}</b></li>".format(url, username);
-
-    }
-
-    // Autocomplete settings
-    var AutocompleteSettings = {
-        // Gets triggered at @
-        at: "@",
-        data: vals,
-        displayTpl: img_url('${key}'),
-        insertTpl: '@${key}',
-        delay: 40
-    };
-
-    autocomplete.atwho(AutocompleteSettings);
-
-}
-
 function drag_and_drop() {
 
     $(".droppable").droppable(
         {
-            accept: ".post",
+            accept: ".recipes .item, .projects .item",
             drop: function (event, ui) {
 
                 // Source post being dragged.
                 var source = ui.draggable;
 
                 // Parent post to drop into.
-                var parent = $(this).closest(".post");
+                var parent = $(this).closest(".recipes .item, .projects .item");
                 if (!parent.length){
                     parent = $(this)
                 }
-
                 // Move target post to parent.
-                move_post(parent, source);
+                move_object(parent, source)
             },
-
         });
 
     // Bind to any post object with the .draggable class
     $('.draggable').mousedown(function () {
         $(this).css('cursor', 'grabbing');
-        var post = $(this).closest('.post');
+        var obj = $(this).closest('.recipes .item, .projects .item');
 
-        post.draggable(
+        obj.draggable(
         {
             addClasses: false,
             scroll: false,
             helper: 'clone',
             iframeFix: true,
             opacity: .7,
-            containment: $('body'),
+            containment: $('item'),
             revert:true,
             zIndex: 100,
             cursor:'grabbing'
 
         });
     });
-
-
-
 }
+

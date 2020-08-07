@@ -25,11 +25,20 @@ body {
     margin: 0;
 }
 
+.ui-droppable-hover{
+    border: #10ee0a dotted 5px !important;
+    height: 50% !important;
+}
+
 
 .no-shadow {
     box-shadow: none !important;
     border: none !important;
     -webkit-box-shadow: none;
+}
+
+.float-right{
+    float:right
 }
 
 .recipes.grid .text.menu{

@@ -430,6 +430,14 @@ $(document).ready(function () {
     });
 
 
+    $(this).on("mousedown", ".draggable", function () {
+
+        $('.top-rank').show(100);
+    });
+
+   drag_and_drop();
+
+
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
     Prism.highlightAll();

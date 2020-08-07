@@ -188,7 +188,7 @@ def project_list(request):
     user = request.user
     projects = auth.get_project_list(user=user)
     page = request.GET.get("page")
-    projects = projects.order_by("-lastedit_date", "rank", "-date",  "-id")
+    projects = projects.order_by("-rank")
 
     # Add pagination.
     paginator = Paginator(projects, per_page=settings.PER_PAGE)

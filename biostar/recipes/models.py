@@ -608,7 +608,7 @@ class Analysis(models.Model):
         # Update last edit user and date for children projects.
         Project.objects.filter(analysis__root=self).update(lastedit_date=self.lastedit_date,
                                                            lastedit_user=self.lastedit_user)
-        
+
     def url(self):
         assert self.uid, "Sanity check. UID should always be set."
         return reverse("recipe_view", kwargs=dict(uid=self.uid))
