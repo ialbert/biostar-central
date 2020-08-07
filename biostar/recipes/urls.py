@@ -21,7 +21,7 @@ recipes_patterns = [
     path(r'toggle/delete/', ajax.toggle_delete, name="toggle_delete"),
     path(r'manage/access/', ajax.manage_access, name="manage_access"),
 
-    # Ajax clipclboard actions.
+    # Ajax clipboard actions.
     path(r'clear/', ajax.ajax_clear_clipboard, name='clear_clipboard'),
     path(r'file/copy/', ajax.copy_file, name='copy_file'),
     path(r'copy/object/', ajax.copy_object, name="copy_object"),
@@ -120,5 +120,4 @@ if settings.DEBUG:
     urlpatterns += [
           path('__debug__/', include(debug_toolbar.urls)),
     ]
-
 

@@ -303,6 +303,7 @@ def create_project(user, name="", uid=None, summary='', text='', stream=None, la
 def create_analysis(project, json_text='', template='# code', uid=None, user=None, summary='', rank=100,
                     name='', text='', stream=None, security=Analysis.NOT_AUTHORIZED, update=False,
                     root=None):
+
     owner = user or project.owner
     analysis = Analysis.objects.filter(uid=uid)
 
@@ -324,7 +325,7 @@ def create_analysis(project, json_text='', template='# code', uid=None, user=Non
                                            owner=owner, name=name, text=text, security=security,
                                            template=template, root=root)
 
-        # Update the projects lastedit user when a recipe is created
+        # Update the projects last edit user when a recipe is created
         Project.objects.filter(uid=analysis.project.uid).update(lastedit_user=user,
                                                                 lastedit_date=now())
 
@@ -396,7 +397,6 @@ def validate_recipe_run(user, recipe):
 
 def recipe_paste(instance, user, project, clone=False):
     root = None
-    # Cascade the root if the recipe is being cloned
     if clone:
         root = instance.root if instance.is_cloned else instance
 
@@ -410,6 +410,7 @@ def recipe_paste(instance, user, project, clone=False):
                              json_text=instance.json_text, security=instance.security,
                              template=instance.template,
                              name=instance.name, text=instance.text, stream=stream)
+
     return recipe
 
 

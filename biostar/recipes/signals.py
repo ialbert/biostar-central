@@ -129,9 +129,6 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
     # Update information of all children belonging to this root.
     if instance.is_root:
         instance.update_children()
-    # Update root information belonging to this child
-    else:
-        instance.update_root()
 
     # Update the project count and last edit date when job is created
     instance.project.set_counts()
