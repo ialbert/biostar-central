@@ -345,7 +345,7 @@ class RecipeForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Admins get an added field
-        if 1:
+        if self.user.is_superuser:
             authorized = self.instance.security
             choices = Analysis.SECURITY_STATES
             self.fields['security'] = forms.IntegerField(
@@ -377,7 +377,7 @@ class RecipeForm(forms.ModelForm):
         """
         cleaned_data = super(RecipeForm, self).clean()
 
-        # Anonymoys users cannot edit.
+        # Anonymous users cannot edit.
         if self.user.is_anonymous:
             raise forms.ValidationError('You need to be logged in.')
 
@@ -449,7 +449,6 @@ class RecipeForm(forms.ModelForm):
     def save(self, commit=True):
         self.instance.lastedit_date = now()
         self.instance.lastedit_user = self.user
-
         image = self.cleaned_data['image']
         self.instance.image = image or self.instance.image
 

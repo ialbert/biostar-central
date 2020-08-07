@@ -575,9 +575,9 @@ def recipe_view(request, uid):
     user = request.user
 
     # The recipe that needs to be edited.
-    recipe = Analysis.objects.filter(uid=uid).annotate(
-        job_count=Count("job", filter=Q(job__deleted=False))
-    ).first()
+    recipe = Analysis.objects.filter(uid=uid).filter(uid=uid).annotate(
+            job_count=Count("job", filter=Q(job__deleted=False))
+        ).first()
 
     # The project that recipe belongs to.
     project = recipe.project

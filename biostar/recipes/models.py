@@ -587,6 +587,13 @@ class Analysis(models.Model):
         """
         return self.root is None
 
+    @property
+    def is_clone(self):
+        """
+        Return True if recipe is a clone.
+        """
+        return not self.is_root
+
     def update_children(self):
         """
         Update information for children belonging to this root.
