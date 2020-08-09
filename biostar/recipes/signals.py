@@ -88,18 +88,22 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
         # Generate friendly uid
         uid = auth.new_uid(obj=instance, objtype=Project, prefix="project")
         instance.uid = uid
-        instance.label = uid
+
         # Set the project directory
         instance.dir = instance.dir or join(settings.MEDIA_ROOT, "projects", f"{instance.uid}")
+
+        # Give the pk as rank, weight an added weight.
+        instance.rank = Project.objects.order_by('-rank').first().rank + 1000
 
         # Create the job directory if it does not exist.
         os.makedirs(instance.dir, exist_ok=True)
 
         # Update project fields.
-        Project.objects.filter(id=instance.id).update(uid=instance.uid, label=instance.label, dir=instance.dir)
+        Project.objects.filter(id=instance.id).update(uid=instance.uid, dir=instance.dir, rank=instance.rank)
         # Create a starter recipe if none exist
         if not instance.analysis_set.exists():
             initial_recipe(project=instance)
+
     # Cascade deleted states to recipe, data, and results.
     if instance.deleted:
         Analysis.objects.filter(project__id=instance.pk).update(deleted=True)
@@ -116,6 +120,9 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
         instance.uid = uid
 
         Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
+
+        # Give the pk as rank, weight an added weight.
+        instance.rank = Analysis.objects.order_by('-rank').first().rank + 1000
 
     # Update the last edit date and user of project
     user = instance.lastedit_user

@@ -177,30 +177,44 @@ def preview_json(request):
     return ajax_success(msg="Recipe json", html=template)
 
 
-def drop(request):
+@ajax_error_wrapper(method="POST", login_required=True)
+def drop(request, klass=None):
     """
     Order objects in a list using drag and drop. 'rank' attribute is required .
     """
     user = request.user
     # Current object uid being moved/dropped
     source = int(request.POST.get("source_id", 0))
-    source = Project.objects.filter(pk=source).first()
+    source = klass.objects.filter(pk=source).first()
 
     # The object we intend to move it under
-    parent = int(request.POST.get("parent_id", 0))
-    parent = Project.objects.filter(pk=parent).first()
-    prank = parent.rank
+    top = int(request.POST.get("parent_id", 0))
+    top = klass.objects.filter(pk=top).first()
 
+    # Next object after the 'source'
+    bottom = int(request.POST.get("next_id", 0))
+    bottom = klass.objects.filter(pk=bottom).first()
+
+    project = source.project
     # Check if the user has write access to source before moving.
-    if not auth.is_writable(user=user, project=source):
+    if not auth.is_writable(user=user, project=project):
         ajax_error(msg="You need write access to move objects.")
 
-    # Update the source rank to slightly greater than parents
-    source.rank = ((prank - 0.5) + (source.rank - 0.5))/2
-    Project.objects.filter(pk=source.pk).update(rank=source.rank)
+    # Compute and update the source with a new rank.
+    maxrank = klass.objects.order_by('-rank').first().rank
+    source.rank = auth.compute_rank(source=source, top=top, bottom=bottom, klass=klass, maxrank=maxrank)
+    klass.objects.filter(pk=source.pk).update(rank=source.rank)
 
-    print(prank, source.rank)
     return ajax_success(msg="Successfully moved")
+
+
+def drop_project(request):
+    return drop(request=request, klass=Project)
+
+
+def drop_recipe(request):
+
+    return drop(request=request, klass=Analysis)
 
 
 @ajax_error_wrapper(method="POST", login_required=True)

@@ -30,6 +30,10 @@ body {
     height: 50% !important;
 }
 
+.draggable{
+    cursor: grab;
+}
+
 
 .no-shadow {
     box-shadow: none !important;

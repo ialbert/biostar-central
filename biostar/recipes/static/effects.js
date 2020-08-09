@@ -1,13 +1,13 @@
 
 
 
-function move_object(parent_elem, source_elem, child_elem){
+function move_object(parent_elem, source_elem, next_elem, url){
 
     var source_id = source_elem.attr("id");
     var parent_id = parent_elem.attr("id");
-    //var child_id = child_elem.attr("id");
+    var next_id = next_elem.attr("id");
 
-    $.ajax('/recipes/drop/',
+    $.ajax(url,
         {
             type: 'POST',
             dataType: 'json',
@@ -15,7 +15,7 @@ function move_object(parent_elem, source_elem, child_elem){
             data: {
                 'source_id': source_id,
                 'parent_id': parent_id,
-               
+                'next_id': next_id,
             },
             success: function (data) {
 
@@ -39,26 +39,39 @@ function drag_and_drop() {
 
     $(".droppable").droppable(
         {
-            accept: ".recipes .item, .projects .item",
+            accept: ".recipe.item, .projects .item",
             drop: function (event, ui) {
 
                 // Source post being dragged.
                 var source = ui.draggable;
 
                 // Parent post to drop into.
-                var parent = $(this).closest(".recipes .item, .projects .item");
+                var parent = $(this).closest(".recipe.item, .projects .item");
                 if (!parent.length){
                     parent = $(this)
                 }
+
+                // Get the rank of the parent and the next rank.
+
+                var next = parent.next();
+
                 // Move target post to parent.
-                move_object(parent, source)
+
+                if (parent.closest(".projects").hasClass('projects') || source.closest(".projects").hasClass('projects')){
+                    var url = '/project/drop/'
+                }else{
+                    var url = '/recipe/drop/';
+                    var next = parent.next().next();
+                }
+
+                move_object(parent, source, next, url)
             },
         });
 
     // Bind to any post object with the .draggable class
     $('.draggable').mousedown(function () {
         $(this).css('cursor', 'grabbing');
-        var obj = $(this).closest('.recipes .item, .projects .item');
+        var obj = $(this).closest('.recipe.item, .projects .item');
 
         obj.draggable(
         {

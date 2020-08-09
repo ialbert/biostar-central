@@ -20,7 +20,8 @@ recipes_patterns = [
     path(r'preview/json/', ajax.preview_json, name="preview_json"),
     path(r'toggle/delete/', ajax.toggle_delete, name="toggle_delete"),
     path(r'manage/access/', ajax.manage_access, name="manage_access"),
-    path(r'recipes/drop/', ajax.drop, name="recipes_drop"),
+    path(r'recipe/drop/', ajax.drop_recipe, name="drop_recipe"),
+    path(r'project/drop/', ajax.drop_project, name="drop_project"),
 
     # Ajax clipboard actions.
     path(r'clear/', ajax.ajax_clear_clipboard, name='clear_clipboard'),
@@ -28,7 +29,6 @@ recipes_patterns = [
     path(r'copy/object/', ajax.copy_object, name="copy_object"),
     path(r'clipboard/', ajax.ajax_clipboard, name="ajax_clipboard"),
     path(r'paste/', ajax.ajax_paste, name='ajax_paste'),
-    path(r'recipes/drop/', ajax.drop, name="recipes_drop"),
 
     # Project
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),

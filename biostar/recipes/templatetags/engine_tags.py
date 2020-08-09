@@ -326,16 +326,19 @@ def recipe_form(form):
     return dict(form=form)
 
 
-@register.inclusion_tag('widgets/interface_options.html')
-def interface_options():
-    return dict()
-
-
 @register.inclusion_tag('parts/recipe_details.html', takes_context=True)
 def recipe_details(context, recipe, include_copy=True):
     user = context['request'].user
 
     return dict(user=user, recipe=recipe, project=recipe.project, include_copy=include_copy)
+
+
+@register.filter
+def writable(project, user):
+    """
+    Check if user has write access to the project.
+    """
+    return auth.is_writable(user=user, project=project)
 
 
 @register.simple_tag
@@ -349,18 +352,6 @@ def image_field(default=''):
     image_widget = image_field.widget.render('image', value=placeholder)
 
     return mark_safe(image_widget)
-
-
-@register.inclusion_tag('widgets/json_field.html')
-def json_field(json_text):
-    context = dict(json_text=json_text)
-    return context
-
-
-@register.inclusion_tag('widgets/template_field.html')
-def template_field(tmpl):
-    context = dict(template=tmpl)
-    return context
 
 
 @register.inclusion_tag('widgets/created_by.html')

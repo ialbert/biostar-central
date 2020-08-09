@@ -184,9 +184,8 @@ class ProjectForm(forms.ModelForm):
         name = self.cleaned_data["name"]
         text = self.cleaned_data["text"]
         stream = self.cleaned_data["image"]
-        label = self.cleaned_data['label']
 
-        project = auth.create_project(user=owner, label=label, name=name, text=text, stream=stream)
+        project = auth.create_project(user=owner, name=name, text=text, stream=stream)
         project.save()
 
         return project
