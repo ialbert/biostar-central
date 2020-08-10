@@ -88,18 +88,24 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
         # Generate friendly uid
         uid = auth.new_uid(obj=instance, objtype=Project, prefix="project")
         instance.uid = uid
-        instance.label = uid
+
         # Set the project directory
         instance.dir = instance.dir or join(settings.MEDIA_ROOT, "projects", f"{instance.uid}")
+
+        # Get project with highest rank and add to it,
+        # ensuring this new project is at the top of lists
+        first = Project.objects.order_by('-rank').first()
+        instance.rank = first.rank + instance.pk if first else instance.pk
 
         # Create the job directory if it does not exist.
         os.makedirs(instance.dir, exist_ok=True)
 
         # Update project fields.
-        Project.objects.filter(id=instance.id).update(uid=instance.uid, label=instance.label, dir=instance.dir)
+        Project.objects.filter(id=instance.id).update(uid=instance.uid, dir=instance.dir, rank=instance.rank)
         # Create a starter recipe if none exist
         if not instance.analysis_set.exists():
             initial_recipe(project=instance)
+
     # Cascade deleted states to recipe, data, and results.
     if instance.deleted:
         Analysis.objects.filter(project__id=instance.pk).update(deleted=True)
@@ -117,12 +123,16 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
         Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
 
+        # Get recipe with highest rank and add to it,
+        # ensuring this new recipe is at the top of lists
+        first = Analysis.objects.order_by('-rank').first()
+        instance.rank = first.rank + instance.pk if first else instance.pk
+
     # Update the last edit date and user of project
     user = instance.lastedit_user
 
     # Strip json text of 'settings' parameter
     instance.json_text = strip_json(instance.json_text)
-
     Project.objects.filter(id=instance.project.id).update(lastedit_date=instance.lastedit_date,
                                                           lastedit_user=user)
 

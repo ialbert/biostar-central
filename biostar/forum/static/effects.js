@@ -86,7 +86,7 @@ function drag_and_drop() {
 
         });
 
-    // Bind to any object with the .draggable class
+    // Bind to any post object with the .draggable class
     $('.draggable').mousedown(function () {
         $(this).css('cursor', 'grabbing');
         var post = $(this).closest('.post');

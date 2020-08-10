@@ -62,10 +62,12 @@
                 <div class="item padme ">
                     <div class="subheader">Where can I learn more?</div>
                     <div class="description">
-                        <p>Scientific publication:  <a href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-020-03602-6">Bioinformatics
-                                    recipes: creating, executing and distributing reproducible data analysis
-                                    workflows</a> by <i>Natay Aberra,
-                            Aswathy Sebastian, Aaron P. Maloy, Christopher B. Rees, Meredith L. Bartron, and Istvan Albert </i>,
+                        <p>Scientific publication: <a
+                                href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-020-03602-6">Bioinformatics
+                            recipes: creating, executing and distributing reproducible data analysis
+                            workflows</a> by <i>Natay Aberra,
+                            Aswathy Sebastian, Aaron P. Maloy, Christopher B. Rees, Meredith L. Bartron, and Istvan
+                            Albert </i>,
                             <b>BMC Bioinformatics, (2020)</b> .
                         </p>
 
@@ -90,12 +92,13 @@
 
                         </ul>
 
-
                     </div>
                 </div>
 
 
             </ul>
+
+
         </div>
 
         <div class="six wide center column">
@@ -105,9 +108,40 @@
                          src="{% static 'images/screenshot.jpg' %}">
                 </a>
             </div>
+
+              <div class="ui muted horizontal list" style="position: absolute; bottom: 2%;right: 7%;">
+                  <div class="item">
+
+                    <div class="content">
+                        <i class="users icon"></i> {{ nusers }} Users
+                    </div>
+                </div>
+
+                <div class="item">
+
+                    <div class="content">
+                        <i class="mylist  icon"></i> {{ nprojects }} Projects
+                    </div>
+                </div>
+
+                <div class="item">
+
+                    <div class="content">
+                        <i class="settings icon"></i> {{ nrecipes }} Recipes
+                    </div>
+                </div>
+                <div class="item">
+
+                    <div class="content">
+                        <i class="bar chart icon"></i> {{ nresults }}  Results
+                    </div>
+                </div>
+
+            </div>
         </div>
-    </div>
+</div>
 
 
 
 {% endblock %}
+
