@@ -7,22 +7,21 @@
 
 {% block content %}
 
-<div class="ui segment top-rank droppable" style="display: none">
-    <div class="ui center blue aligned header"> Move to the top</div>
-</div>
-
-        <div class="ui divided link recipes items">
-            {% for recipe in recipe_list %}
-                {% recipe_details recipe %}
-            {% empty %}
-                <div class="item">
-                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
-                        contain
-                        recipes.
-                    </div>
+    <div class="ui segment top-rank droppable">
+        <div class="ui center blue aligned header"> Move to the top</div>
+    </div>
+    <div class="ui divided link recipes items">
+        {% for recipe in recipe_list %}
+            {% recipe_details recipe %}
+        {% empty %}
+            <div class="item">
+                <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
+                    contain
+                    recipes.
                 </div>
-            {% endfor %}
-        </div>
-{% pages objs=recipe_list %}
+            </div>
+        {% endfor %}
+    </div>
+    {% pages objs=recipe_list %}
 
 {% endblock %}

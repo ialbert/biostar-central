@@ -4,10 +4,10 @@ import toml as hjson
 import hashlib
 import itertools
 import mistune
+
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -22,6 +22,7 @@ from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
+from django.core.cache import cache
 from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 from biostar.accounts.models import User
@@ -47,7 +48,25 @@ def valid_path(path):
 
 
 def index(request):
+
+    # Get the counts from cache
+    key = "INDEX_CACHE"
+
+    # Time to live in seconds.
+    ttl = 300
+    if key not in cache:
+        nusers = User.objects.all().count()
+        nprojects = Project.objects.all().count()
+        nrecipes = Analysis.objects.all().count()
+        nresults = Job.objects.all().count()
+        value = dict(nusers=nusers, nprojects=nprojects, nrecipes=nrecipes, nresults=nresults)
+        cache.set(key, value, ttl)
+    else:
+        value = cache.get(key, dict())
+
     context = dict(active="home")
+    context.update(value)
+
     return render(request, 'index.html', context)
 
 
@@ -204,7 +223,7 @@ def latest_recipes(request):
     page = request.GET.get("page")
     # Select public recipes
     recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, deleted=False)
-    recipes = recipes.order_by("-lastedit_date", "-rank")[:50]
+    recipes = recipes.order_by("-rank", "-lastedit_date")[:50]
 
     recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 

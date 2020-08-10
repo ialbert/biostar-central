@@ -270,7 +270,7 @@ def compute_rank(source, top=None, bottom=None, maxrank=5000, klass=None):
     # No top, move to the top.
     if not top:
         # Add to the max rank and bump to the top
-        rank = maxrank + (source.rank / 10)
+        rank = maxrank + (source.rank / 2)
         return rank
 
     # No bottom, move as bottom.

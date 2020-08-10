@@ -13,15 +13,15 @@
 
 {% block content %}
 
-<div class="ui segment top-rank droppable" style="display: none">
-    <div class="ui center blue aligned header"> Move to the top</div>
-</div>
+    <div class="ui segment top-rank droppable">
+        <div class="ui center blue aligned header"> Move to the top</div>
+    </div>
 
     <div class="ui divided items projects">
 
         {% for project in projects %}
 
-            <div class="item droppable {%  access_class user=user project=project %}" id="{{ project.id }}" >
+            <div class="item droppable {% access_class user=user project=project %}" id="{{ project.id }}">
 
                 <img class="ui mytiny circular fancy image" src="{% img project %}"/>
 
@@ -37,12 +37,15 @@
 
                         {% privacy_label project %}
 
-                        <a href="{% url 'data_list' project.uid %}"><i class="file text icon"></i>{{ project.data_count }} data</a>&bull;
+                        <a href="{% url 'data_list' project.uid %}"><i
+                                class="file text icon"></i>{{ project.data_count }} data</a>&bull;
 
-                        <a href="{% url 'recipe_list' project.uid %}"><i class="setting icon"></i>{{ project.recipes_count }}
+                        <a href="{% url 'recipe_list' project.uid %}"><i
+                                class="setting icon"></i>{{ project.recipes_count }}
                             recipe{{ project.recipes_count|pluralize }}</a>&bull;
 
-                        <a href="{% url 'job_list' project.uid %}"><i class="bar chart icon"></i>{{ project.jobs_count }}
+                        <a href="{% url 'job_list' project.uid %}"><i
+                                class="bar chart icon"></i>{{ project.jobs_count }}
                             result{{ project.jobs_count|pluralize }}</a>
 
                         {% created_by date=project.lastedit_date user=project.lastedit_user %}
@@ -56,11 +59,11 @@
         {% endfor %}
 
 
-    {% if not projects %}
+        {% if not projects %}
 
             <div class="ui warning message"><i class="ui warning circle icon"></i>No projects found.</div>
 
-    {% endif %}
+        {% endif %}
     </div>
     {% pages objs=projects %}
 

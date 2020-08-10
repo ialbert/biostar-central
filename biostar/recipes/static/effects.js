@@ -25,7 +25,7 @@ function move_object(parent_elem, source_elem, next_elem, url){
                     //alert(data.status);
                     source_elem.transition('zoom');
                     window.location.reload();
-                    popup_message(parent_elem, "Moved Post", 'success', 2000);
+                    popup_message(parent_elem, "Moved Object", 'success', 2000);
                 }
             },
             error: function (xhr, status, text) {

@@ -13,16 +13,14 @@ def order_rank(apps, schema_editor):
     recipes = apps.get_model('recipes', 'Analysis')
     recipes = recipes.objects.all()
 
-    # Allow for more
-    gap = 1000
     # Update the ranks to be pk's.
 
     for prj in projects:
-        prj.rank = prj.pk * gap
+        prj.rank = prj.pk
         prj.save()
 
     for rec in recipes:
-        rec.rank = rec.pk * gap
+        rec.rank = rec.pk
         rec.save()
 
     return

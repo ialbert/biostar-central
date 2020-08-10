@@ -28,16 +28,16 @@
             {% if not recipe.runnable %}
                 &bull; needs authorization
             {% endif %}
-{% if project|writable:user %}
-            <div class="float-right draggable muted grab icon">&bull;</div>
-        {% endif %}
+
+            {% if project|writable:user %}
+                <div class="float-right draggable muted grab icon" style="left: 100%; top: 5%;position: absolute">&bull;
+                </div>
+            {% endif %}
         </div>
 
 
-
-
     </div>
-          {% if user.is_authenticated and include_copy %}
+    {% if user.is_authenticated and include_copy %}
         <div class="ui mini buttons" style="float: right">
             <a class="ui right copy button">
                 <i class="copy icon"></i>Copy

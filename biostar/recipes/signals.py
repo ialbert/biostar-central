@@ -92,8 +92,10 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
         # Set the project directory
         instance.dir = instance.dir or join(settings.MEDIA_ROOT, "projects", f"{instance.uid}")
 
-        # Give the pk as rank, weight an added weight.
-        instance.rank = Project.objects.order_by('-rank').first().rank + 1000
+        # Get project with highest rank and add to it,
+        # ensuring this new project is at the top of lists
+        first = Project.objects.order_by('-rank').first()
+        instance.rank = first.rank + instance.pk if first else instance.pk
 
         # Create the job directory if it does not exist.
         os.makedirs(instance.dir, exist_ok=True)
@@ -121,8 +123,10 @@ def finalize_recipe(sender, instance, created, raw, update_fields, **kwargs):
 
         Analysis.objects.filter(id=instance.id).update(uid=instance.uid)
 
-        # Give the pk as rank, weight an added weight.
-        instance.rank = Analysis.objects.order_by('-rank').first().rank + 1000
+        # Get recipe with highest rank and add to it,
+        # ensuring this new recipe is at the top of lists
+        first = Analysis.objects.order_by('-rank').first()
+        instance.rank = first.rank + instance.pk if first else instance.pk
 
     # Update the last edit date and user of project
     user = instance.lastedit_user

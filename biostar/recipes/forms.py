@@ -343,13 +343,11 @@ class RecipeForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        # Admins get an added field
-        if self.user.is_superuser:
-            authorized = self.instance.security
-            choices = Analysis.SECURITY_STATES
-            self.fields['security'] = forms.IntegerField(
-                widget=forms.Select(attrs={'class': 'ui dropdown'}, choices=choices),
-                initial=authorized, required=False)
+        authorized = self.instance.security
+        choices = Analysis.SECURITY_STATES
+        self.fields['security'] = forms.IntegerField(
+            widget=forms.Select(attrs={'class': 'ui dropdown'}, choices=choices),
+            initial=authorized, required=False)
 
     class Meta:
         model = Analysis
@@ -362,6 +360,7 @@ class RecipeForm(forms.ModelForm):
         initial = super(RecipeForm, self).get_initial()
         for field in self.Meta.fields:
             initial['field'] = getattr(self.instance, field)
+
         return initial
 
     def validate_writable(self):
