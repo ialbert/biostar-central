@@ -177,7 +177,6 @@ def preview_json(request):
     return ajax_success(msg="Recipe json", html=template)
 
 
-@ajax_error_wrapper(method="POST", login_required=True)
 def drop(request, klass=None):
     """
     Order objects in a list using drag and drop. 'rank' attribute is required .
@@ -208,12 +207,13 @@ def drop(request, klass=None):
     return ajax_success(msg="Successfully moved")
 
 
+@ajax_error_wrapper(method="POST", login_required=True)
 def drop_project(request):
     return drop(request=request, klass=Project)
 
 
+@ajax_error_wrapper(method="POST", login_required=True)
 def drop_recipe(request):
-
     return drop(request=request, klass=Analysis)
 
 

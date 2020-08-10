@@ -225,6 +225,13 @@ pre.toml_code {
 .top-rank{
     display: none;
 }
+
+.counting.list{
+    position: absolute;
+    bottom: 2%;
+    right: 7%;
+}
+
 .top-title.header{
     height: 2.5em;
 }
