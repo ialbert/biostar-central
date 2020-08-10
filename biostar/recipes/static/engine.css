@@ -25,11 +25,24 @@ body {
     margin: 0;
 }
 
+.ui-droppable-hover{
+    border: #10ee0a dotted 5px !important;
+    height: 50% !important;
+}
+
+.draggable{
+    cursor: grab;
+}
+
 
 .no-shadow {
     box-shadow: none !important;
     border: none !important;
     -webkit-box-shadow: none;
+}
+
+.float-right{
+    float:right
 }
 
 .recipes.grid .text.menu{
@@ -207,6 +220,16 @@ pre.toml_code {
     margin-bottom: 5px;
     padding: 8px !important;
     border-top: none !important;
+}
+
+.top-rank{
+    display: none;
+}
+
+.float-right.draggable{
+   padding-top: 30px;
+    height: 100%;
+
 }
 
 .top-title.header{

@@ -391,7 +391,7 @@ $(document).ready(function () {
         copy_object(data, job);
     });
 
-    $(this).on('click', '.recipe .copy.button', function () {
+    $(this).on('click', '.recipe .copy.button, .recipe .copy.label', function () {
         let recipe = $(this).closest('.recipe');
         let uid = recipe.data("value");
         var data = {'uid': uid, 'clipboard': "recipe"};
@@ -428,6 +428,9 @@ $(document).ready(function () {
     $(this).on('click', '#clipboard .clear', function () {
         clear();
     });
+
+
+   drag_and_drop();
 
 
     $('pre').addClass('language-bash');

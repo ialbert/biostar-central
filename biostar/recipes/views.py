@@ -4,10 +4,10 @@ import toml as hjson
 import hashlib
 import itertools
 import mistune
+
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -22,11 +22,12 @@ from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.template import Template, Context
 from django.utils.safestring import mark_safe
+from django.core.cache import cache
 from ratelimit.decorators import ratelimit
 from sendfile import sendfile
 from biostar.accounts.models import User
 from biostar.recipes import tasks, auth, forms, const, search, util
-from biostar.recipes.decorators import read_access, write_access, exists
+from biostar.recipes.decorators import read_access, write_access
 from biostar.recipes.models import Project, Data, Analysis, Job, Access
 
 # The current directory
@@ -47,7 +48,25 @@ def valid_path(path):
 
 
 def index(request):
+
+    # Get the counts from cache
+    key = "INDEX_CACHE"
+
+    # Time to live in seconds.
+    ttl = 300
+    if key not in cache:
+        nusers = User.objects.all().count()
+        nprojects = Project.objects.all().count()
+        nrecipes = Analysis.objects.all().count()
+        nresults = Job.objects.all().count()
+        value = dict(nusers=nusers, nprojects=nprojects, nrecipes=nrecipes, nresults=nresults)
+        cache.set(key, value, ttl)
+    else:
+        value = cache.get(key, dict())
+
     context = dict(active="home")
+    context.update(value)
+
     return render(request, 'index.html', context)
 
 
@@ -188,7 +207,7 @@ def project_list(request):
     user = request.user
     projects = auth.get_project_list(user=user)
     page = request.GET.get("page")
-    projects = projects.order_by("-lastedit_date", "rank", "-date",  "-id")
+    projects = projects.order_by("-rank")
 
     # Add pagination.
     paginator = Paginator(projects, per_page=settings.PER_PAGE)
@@ -204,7 +223,7 @@ def latest_recipes(request):
     page = request.GET.get("page")
     # Select public recipes
     recipes = Analysis.objects.filter(project__privacy=Project.PUBLIC, deleted=False)
-    recipes = recipes.order_by("-lastedit_date", "-rank")[:50]
+    recipes = recipes.order_by("-rank", "-lastedit_date")[:50]
 
     recipes = recipes.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
 
@@ -272,7 +291,7 @@ def project_view(request, uid, template_name="project_info.html", active='info',
     data_paginator = Paginator(data_list, per_page=settings.PER_PAGE)
     data_list = data_paginator.get_page(page)
 
-    recipe_list = project.analysis_set.filter(deleted=False).order_by("-lastedit_date", "rank", "-date").all()
+    recipe_list = project.analysis_set.filter(deleted=False).order_by("-rank", "-lastedit_date", "-date").all()
 
     # Annotate each recipe with the number of jobs it has.
     recipe_list = recipe_list.annotate(job_count=Count("job", filter=Q(job__deleted=False)))
@@ -611,7 +630,7 @@ def recipe_view(request, uid):
     return render(request, 'recipe_view.html', context)
 
 
-@read_access(type=Project)
+@read_access(type=Project, strict=True)
 def recipe_create(request, uid):
     # Get the project
     project = Project.objects.filter(uid=uid).first()

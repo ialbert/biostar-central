@@ -130,7 +130,7 @@ def authorize_run(user, recipe):
         return False
 
     # Only users with access can run recipes
-    readable = is_readable(user=user, obj=recipe.project)
+    readable = is_readable(user=user, obj=recipe.project, strict=True)
 
     if not readable:
         return False
@@ -261,6 +261,41 @@ def get_project_list(user, include_public=True, include_deleted=False):
     return query
 
 
+def compute_rank(source, top=None, bottom=None, maxrank=5000, klass=None):
+    """
+    top, bottom, and source are all objects with the .rank attribute.
+    maxrank is the maximum rank to aim for when placing objects at the top.
+    """
+
+    # No top, move to the top.
+    if not top:
+        # Add to the max rank and bump to the top
+        rank = maxrank + (source.rank / 2)
+        return rank
+
+    # No bottom, move as bottom.
+    if not bottom:
+        # Reduce from top to place on bottom.
+        rank = top.rank - (top.rank / 2)
+        return rank
+
+    # Get the ranks of the top and bottom objects
+    brank = bottom.rank
+    trank = top.rank
+
+    # Deal with corner case: top and bottom ranks are the same.
+    if brank == trank:
+        # Reduce the bottom rank by a given bias
+        brank = bottom.rank = brank - 1
+        # Update the bottom rank to be below top.
+        klass.objects.filter(pk=bottom.pk).update(rank=bottom.rank)
+
+    # Place the current rank in between the top and bottom.
+    rank = (trank + brank) / 2
+
+    return rank
+
+
 def create_project(user, name="", uid=None, summary='', text='', stream=None, label=None,
                    privacy=Project.PRIVATE, update=False):
     name = name or "My New Project"
@@ -284,7 +319,7 @@ def create_project(user, name="", uid=None, summary='', text='', stream=None, la
         # Set uid here as well so it has a value when save()
         # hasn't been called inside of create() ( i.e in tests ).
         pid = uid or get_uuid(4)
-        project = Project.objects.create(label=label, name=name, text=text, uid=pid,
+        project = Project.objects.create(name=name, text=text, uid=pid,
                                          owner=user, privacy=privacy)
         logger.info(f"Created project: {project.name} uid: {project.uid}")
 
@@ -446,7 +481,7 @@ def resolve_paste_url(key, project):
     return url
 
 
-def move(uids, project, otype="data"):
+def move(uids, project, user, otype="data"):
     type_map = {'data': Data, 'recipes': Analysis}
 
     klass = type_map.get(otype)
@@ -458,6 +493,11 @@ def move(uids, project, otype="data"):
     for item in items:
         # Get previous project to reset counts after swapping.
         previous = item.project
+
+        # Check for write access before moving object from project.
+        if not is_writable(user=user, project=previous):
+            continue
+
         item.project = project
         # Swap projects
         item.save()
@@ -803,9 +843,12 @@ def create_data_link(path, data):
         logger.info(f"Linked dir: {path}")
 
 
-def is_readable(user, obj):
+def is_readable(user, obj, strict=False):
+    """
+    strict=True policy ensures public projects still get their access checked.
+    """
     project = obj.project
-    if project.is_public:
+    if project.is_public and not strict:
         return True
 
     if user.is_anonymous:

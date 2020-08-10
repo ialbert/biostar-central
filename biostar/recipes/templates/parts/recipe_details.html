@@ -2,10 +2,16 @@
 {% load engine_tags %}
 
 
-<div class="item recipe" data-value="{{ recipe.uid }}">
+<div class="item droppable recipe" data-value="{{ recipe.uid }}" id="{{ recipe.id }}">
+
 
     <img class="ui mytiny rounded fancy image" src="{% img recipe %}">
     <div class="content">
+            {% if project|writable:user and include_copy %}
+                <div class="float-right draggable muted" >&bull;
+                </div>
+            {% endif %}
+
         <a class="subheader" href="{% url 'recipe_view' recipe.uid %}">
             {% if recipe.is_cloned %}
                 <i class="linkify icon"></i>
@@ -29,23 +35,29 @@
                 &bull; needs authorization
             {% endif %}
 
-        </div>
-    </div>
-    {% if user.is_authenticated and include_copy %}
-        <div class="ui mini buttons">
-            <a class="ui right copy button">
+   {% if user.is_authenticated and include_copy %}
+        &bull;
+            <a class="ui right copy mini label">
                 <i class="copy icon"></i>Copy
             </a>
 
-        </div>
 
     {% endif %}
+
+
+        </div>
+
+
+    </div>
+
+
 </div>
+
 <script>
     $(document).ready(function () {
-    $('pre').addClass('language-bash');
-    $('code').addClass('language-bash').css('padding', '0');
-    Prism.highlightAll();
+        $('pre').addClass('language-bash');
+        $('code').addClass('language-bash').css('padding', '0');
+        Prism.highlightAll();
     });
 </script>
 

@@ -25,7 +25,7 @@
                     <i class="circle plus icon"></i>New Project
                 </a>
 
-                {% if project %}
+                {% if project and project|writable:user %}
                     <a class="item" href="{% url 'recipe_create' project.uid %}">
                         <i class="settings icon"></i>Create Recipe
                     </a>

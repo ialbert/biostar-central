@@ -5,7 +5,7 @@
 
     <div class="ui title header">Edit Recipe</div>
 
-    <div class="three fields">
+    <div class="two fields">
         <div class="field">
             <label>Name</label>
             {{ form.name }}
@@ -17,11 +17,13 @@
             <div class="muted">Unique identifier for the recipe.</div>
         </div>
 
-        <div class="field">
-            <label>Authorization</label>
-            {{ form.security }}
-            <p class="muted"> Determines who can run a recipe.</p>
-        </div>
+        {% if user.is_superuser %}
+            <div class="field">
+                <label>Authorization</label>
+                {{ form.security }}
+                <p class="muted"> Determines who can run a recipe.</p>
+            </div>
+        {% endif %}
 
     </div>
 

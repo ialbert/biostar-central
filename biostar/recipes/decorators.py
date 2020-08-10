@@ -12,45 +12,18 @@ from . import models, auth
 logger = models.logger
 
 
-class exists:
-    """
-    Used as decorator to trap/display  errors in the ajax calls
-    """
-
-    def __init__(self, otype, login_required=False):
-        self.otype = otype
-        self.login_required = login_required
-
-    def __call__(self, func, *args, **kwargs):
-
-        @wraps(func)
-        def _view(request, *args, **kwargs):
-            label = kwargs.get('label')
-            instance = self.otype.objects.filter(label=label).first()
-            if request.user.is_anonymous and self.login_required:
-                messages.error(request, "You need to be logged in.")
-                return redirect(reverse("project_list"))
-
-            # Object does not exist.
-            if not instance:
-                messages.error(request, f"Object label={label} does not exist")
-                return redirect(reverse("project_list"))
-
-            return func(request, *args, **kwargs)
-
-        return _view
-
-
 class read_access:
     """
     Controls READ level access to urls.
     """
 
-    def __init__(self, type, allowed_cors=None, fallback_view="", login_required=False, json=False):
+    def __init__(self, type, allowed_cors=None, strict=False, fallback_view="", login_required=False, json=False):
         self.type = type
         self.allowed_cors = allowed_cors
         self.login_required = login_required
         self.fallback_view = fallback_view
+        # Strict policy enforced so public projects still get their access checked.
+        self.strict = strict
 
     def __call__(self, function, *args, **kwargs):
         # Pass function attributes to the wrapper
@@ -100,7 +73,7 @@ class read_access:
                 return redirect("project_list")
 
             # Check the presence of READ or WRITE access
-            readable = auth.is_readable(user=user, obj=project)
+            readable = auth.is_readable(user=user, obj=project, strict=self.strict)
 
             # Project owners may read their project.
             if readable or project.owner == user:

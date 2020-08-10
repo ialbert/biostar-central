@@ -7,18 +7,18 @@
 
 {% block content %}
 
-        <div class="ui divided link items">
-            {% for recipe in recipe_list %}
-                {% recipe_details recipe %}
-            {% empty %}
-                <div class="item">
-                    <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
-                        contain
-                        recipes.
-                    </div>
+    <div class="ui divided link recipes items">
+        {% for recipe in recipe_list %}
+            {% recipe_details recipe %}
+        {% empty %}
+            <div class="item">
+                <div class="ui warning message"><i class="ui info circle icon"></i>This project does not yet
+                    contain
+                    recipes.
                 </div>
-            {% endfor %}
-        </div>
-{% pages objs=recipe_list %}
+            </div>
+        {% endfor %}
+    </div>
+    {% pages objs=recipe_list %}
 
 {% endblock %}

@@ -177,6 +177,46 @@ def preview_json(request):
     return ajax_success(msg="Recipe json", html=template)
 
 
+def drop(request, klass=None):
+    """
+    Order objects in a list using drag and drop. 'rank' attribute is required .
+    """
+    user = request.user
+    # Current object uid being moved/dropped
+    source = int(request.POST.get("source_id", 0))
+    source = klass.objects.filter(pk=source).first()
+
+    # The object we intend to move it under
+    top = int(request.POST.get("parent_id", 0))
+    top = klass.objects.filter(pk=top).first()
+
+    # Next object after the 'source'
+    bottom = int(request.POST.get("next_id", 0))
+    bottom = klass.objects.filter(pk=bottom).first()
+
+    project = source.project
+    # Check if the user has write access to source before moving.
+    if not auth.is_writable(user=user, project=project):
+        ajax_error(msg="You need write access to move objects.")
+
+    # Compute and update the source with a new rank.
+    maxrank = klass.objects.order_by('-rank').first().rank
+    source.rank = auth.compute_rank(source=source, top=top, bottom=bottom, klass=klass, maxrank=maxrank)
+    klass.objects.filter(pk=source.pk).update(rank=source.rank)
+
+    return ajax_success(msg="Successfully moved")
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def drop_project(request):
+    return drop(request=request, klass=Project)
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def drop_recipe(request):
+    return drop(request=request, klass=Analysis)
+
+
 @ajax_error_wrapper(method="POST", login_required=True)
 def toggle_delete(request):
     """
@@ -348,7 +388,7 @@ def ajax_move(request):
         return ajax_error(msg="You do not have access to move here.")
 
     # Move objects in clipboard to given project.
-    auth.move(uids=vals, project=project, otype=key)
+    auth.move(uids=vals, project=project, otype=key, user=user)
 
     # Clear the clipboard after moving.
     auth.clear(request=request)
