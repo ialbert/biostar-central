@@ -226,10 +226,10 @@ pre.toml_code {
     display: none;
 }
 
-.counting.list{
-    position: absolute;
-    bottom: 2%;
-    right: 7%;
+.float-right.draggable{
+   padding-top: 30px;
+    height: 100%;
+
 }
 
 .top-title.header{

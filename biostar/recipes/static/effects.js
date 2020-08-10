@@ -23,9 +23,11 @@ function move_object(parent_elem, source_elem, next_elem, url){
                     popup_message(parent_elem, data.msg, data.status, 2000);
                 } else {
                     //alert(data.status);
-                    source_elem.transition('zoom');
-                    window.location.reload();
-                    popup_message(parent_elem, "Moved Object", 'success', 2000);
+                    //window.location.reload();
+                    parent_elem.after(source_elem);
+                    //popup_message(parent_elem, "Moved Object", 'success', 2000);
+                    source_elem.transition('pulse').transition('glow')
+
                 }
             },
             error: function (xhr, status, text) {
@@ -42,7 +44,7 @@ function drag_and_drop() {
             accept: ".recipe.item, .projects .item",
             drop: function (event, ui) {
 
-                // Source post being dragged.
+                // Source object being dragged.
                 var source = ui.draggable;
 
                 // Get the object to drop under
@@ -56,10 +58,14 @@ function drag_and_drop() {
 
                 // Resolve the url.
                 if (parent.closest(".projects").hasClass('projects') || source.closest(".projects").hasClass('projects')){
-                    var url = '/project/drop/'
+                    url = '/project/drop/'
                 }else{
-                    var url = '/recipe/drop/';
-                    var next = parent.next().next();
+                    url = '/recipe/drop/';
+
+                }
+
+                if (!next.attr("id")){
+                    next = parent.next().next();
                 }
 
                 move_object(parent, source, next, url)

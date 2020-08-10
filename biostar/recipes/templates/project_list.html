@@ -13,9 +13,6 @@
 
 {% block content %}
 
-    <div class="ui segment top-rank droppable">
-        <div class="ui center blue aligned header"> Move to the top</div>
-    </div>
 
     <div class="ui divided items projects">
 
@@ -26,6 +23,9 @@
                 <img class="ui mytiny circular fancy image" src="{% img project %}"/>
 
                 <div class="content">
+                    {% if project|writable:user %}
+                        <div class="float-right draggable muted">&bull;</div>
+                    {% endif %}
 
                     <a class="subheader" href="{% url 'project_view' project.uid %}">
                         <i class="database icon"></i>{{ project.get_name }}
@@ -49,9 +49,7 @@
                             result{{ project.jobs_count|pluralize }}</a>
 
                         {% created_by date=project.lastedit_date user=project.lastedit_user %}
-                        {% if project|writable:user %}
-                            <div class="float-right draggable grab icon">&bull;</div>
-                        {% endif %}
+
                     </div>
 
                 </div>

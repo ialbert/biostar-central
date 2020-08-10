@@ -388,7 +388,7 @@ def ajax_move(request):
         return ajax_error(msg="You do not have access to move here.")
 
     # Move objects in clipboard to given project.
-    auth.move(uids=vals, project=project, otype=key)
+    auth.move(uids=vals, project=project, otype=key, user=user)
 
     # Clear the clipboard after moving.
     auth.clear(request=request)

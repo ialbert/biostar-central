@@ -434,6 +434,9 @@ class RecipeForm(forms.ModelForm):
         # The current state of authorization
         security = cleaned_data['security']
 
+        if security != self.instance.security and not superuser:
+            raise forms.ValidationError("Only super users can change recipe security")
+
         # Recipe becomes un-authorized when the template or JSON are changed.
         if superuser:
             security = security

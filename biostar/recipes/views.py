@@ -630,7 +630,7 @@ def recipe_view(request, uid):
     return render(request, 'recipe_view.html', context)
 
 
-@read_access(type=Project)
+@read_access(type=Project, strict=True)
 def recipe_create(request, uid):
     # Get the project
     project = Project.objects.filter(uid=uid).first()

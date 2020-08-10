@@ -130,7 +130,7 @@ def authorize_run(user, recipe):
         return False
 
     # Only users with access can run recipes
-    readable = is_readable(user=user, obj=recipe.project)
+    readable = is_readable(user=user, obj=recipe.project, strict=True)
 
     if not readable:
         return False
@@ -481,7 +481,7 @@ def resolve_paste_url(key, project):
     return url
 
 
-def move(uids, project, otype="data"):
+def move(uids, project, user, otype="data"):
     type_map = {'data': Data, 'recipes': Analysis}
 
     klass = type_map.get(otype)
@@ -493,6 +493,11 @@ def move(uids, project, otype="data"):
     for item in items:
         # Get previous project to reset counts after swapping.
         previous = item.project
+
+        # Check for write access before moving object from project.
+        if not is_writable(user=user, project=previous):
+            continue
+
         item.project = project
         # Swap projects
         item.save()
@@ -838,9 +843,12 @@ def create_data_link(path, data):
         logger.info(f"Linked dir: {path}")
 
 
-def is_readable(user, obj):
+def is_readable(user, obj, strict=False):
+    """
+    strict=True policy ensures public projects still get their access checked.
+    """
     project = obj.project
-    if project.is_public:
+    if project.is_public and not strict:
         return True
 
     if user.is_anonymous:

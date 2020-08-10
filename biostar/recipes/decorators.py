@@ -17,11 +17,13 @@ class read_access:
     Controls READ level access to urls.
     """
 
-    def __init__(self, type, allowed_cors=None, fallback_view="", login_required=False, json=False):
+    def __init__(self, type, allowed_cors=None, strict=False, fallback_view="", login_required=False, json=False):
         self.type = type
         self.allowed_cors = allowed_cors
         self.login_required = login_required
         self.fallback_view = fallback_view
+        # Strict policy enforced so public projects still get their access checked.
+        self.strict = strict
 
     def __call__(self, function, *args, **kwargs):
         # Pass function attributes to the wrapper
@@ -71,7 +73,7 @@ class read_access:
                 return redirect("project_list")
 
             # Check the presence of READ or WRITE access
-            readable = auth.is_readable(user=user, obj=project)
+            readable = auth.is_readable(user=user, obj=project, strict=self.strict)
 
             # Project owners may read their project.
             if readable or project.owner == user:
