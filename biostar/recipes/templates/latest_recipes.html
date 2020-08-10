@@ -13,18 +13,20 @@
 {% block content %}
 
 
+    <div class="ui segment top-rank droppable">
+        <div class="ui center blue aligned header"> Move to the top</div>
+    </div>
+    <div class="ui divided link items">
+        {% for recipe in recipes %}
+            {% recipe_details recipe %}
 
-<div class="ui divided link items">
-    {% for recipe in recipes %}
-        {% recipe_details recipe %}
-
-    {% empty %}
+        {% empty %}
 
             <div class="ui warning message"><i class="ui info circle icon"></i>There are no public recipes yet.
             </div>
 
-    {% endfor %}
-</div>
+        {% endfor %}
+    </div>
     {% pages objs=recipes %}
 
 {% endblock %}
