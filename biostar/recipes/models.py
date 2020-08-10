@@ -170,10 +170,6 @@ class Project(models.Model):
         "Match consistency of data dir calls"
         return self.get_project_dir()
 
-    @property
-    def highest_rank(self):
-        return
-
     def set_counts(self, save=True):
         """
         Set the data, recipe, and job count for this project

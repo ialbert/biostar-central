@@ -45,18 +45,16 @@ function drag_and_drop() {
                 // Source post being dragged.
                 var source = ui.draggable;
 
-                // Parent post to drop into.
+                // Get the object to drop under
                 var parent = $(this).closest(".recipe.item, .projects .item");
                 if (!parent.length){
                     parent = $(this)
                 }
 
-                // Get the rank of the parent and the next rank.
-
+                // Get the object that will be below.
                 var next = parent.next();
 
-                // Move target post to parent.
-
+                // Resolve the url.
                 if (parent.closest(".projects").hasClass('projects') || source.closest(".projects").hasClass('projects')){
                     var url = '/project/drop/'
                 }else{
@@ -68,7 +66,7 @@ function drag_and_drop() {
             },
         });
 
-    // Bind to any post object with the .draggable class
+    // Bind to any object with the .draggable class
     $('.draggable').mousedown(function () {
         $(this).css('cursor', 'grabbing');
         var obj = $(this).closest('.recipe.item, .projects .item');
