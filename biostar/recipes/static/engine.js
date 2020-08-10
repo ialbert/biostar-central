@@ -430,11 +430,6 @@ $(document).ready(function () {
     });
 
 
-    $(this).on("mousedown", ".draggable", function () {
-
-        $('.top-rank').show(100);
-    });
-
    drag_and_drop();
 
 
