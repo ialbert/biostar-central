@@ -7,11 +7,25 @@
         <div class="item job" data-value="{{ job.uid }}">
 
             {% job_img job %}
-            <div class="ui grid">
 
-                <div class="{% if colwidth %}{{ colwidth }}{% else %}twelve{% endif %} wide column" style="max-width: 58rem;">
+                <div class="{% if colwidth %}{{ colwidth }}{% else %}twelve{% endif %} wide column">
                     <div class="content">
+ {# Rerun and delete options for authenticated users #}
+                    {% if user.is_authenticated %}
+                        <div class="ui mini buttons" style="float: right;">
 
+                            <a class="ui right button" href="{% url "job_rerun" job.uid %}">
+                                <i class="redo icon"></i>Rerun
+                            </a>
+
+                            <div class="or"></div>
+
+                            <a class="ui right button delete">
+                                <i class="trash icon"></i> Delete
+                            </a>
+                        </div>
+
+                    {% endif %}
                         {# Display the job name #}
                         <a class="subheader link" href="{{ job.url }}">
                             <i class="bar chart icon"></i>{{ job.get_name }}
@@ -29,25 +43,7 @@
                     </div>
                 </div>
 
-                <div class="two wide column">
-                    {# Rerun and delete options for authenticated users #}
-                    {% if user.is_authenticated %}
-                        <div class="ui mini buttons">
 
-                            <a class="ui right button" href="{% url "job_rerun" job.uid %}">
-                                <i class="redo icon"></i>Rerun
-                            </a>
-
-                            <div class="or"></div>
-
-                            <a class="ui right button delete">
-                                <i class="trash icon"></i> Delete
-                            </a>
-                        </div>
-
-                    {% endif %}
-                </div>
-            </div>
         </div>
 
     {% empty %}

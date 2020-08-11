@@ -1,9 +1,10 @@
 {% load engine_tags %}
+{% load static %}
 
-<div class="ui large top attached menu">
-
-    <a class="{% activate "home" active %} item widescreen" href="/">
-        <i class="home icon"></i>
+<div  class="ui inverted horizontal menu" style="box-shadow: none; background: #292958;margin-bottom: 0px;border-radius: 0;" id="topmenu">
+    <a class="ui {% activate active "home" %} item" href="{% url 'index' %}" style=" color: white!important;">
+         <img class="ui avatar viewing image" src="{% static 'recipes_favicon.ico' %}"
+              style="width: 20px;height: 20px;"/> Bioinformatics Recipes
     </a>
 
     <a class="item {% activate active "project_list" %}" href="{% url 'project_list' %}">
@@ -59,8 +60,9 @@
 
     <div class="ui category search fluid item">
         <div class="ui transparent icon input">
-            <input class="prompt" id="recipe-search" type="text" placeholder="Search recipes...">
-            <i class="search link icon"></i>
+            <input class="prompt" id="recipe-search" type="text" placeholder="Search recipes..." style="border-radius: .2rem !important;background-color: #72677f !important;    height: 35px;
+    width: 254px;    padding: 9px !important;">
+            <i class="search link icon" style="padding-right: 20px;"></i>
         </div>
     </div>
 

@@ -1,9 +1,10 @@
-{% extends "accounts/profile_base.html" %}
+{% extends "base_template.html" %}
 {% load engine_tags %}
 {% load accounts_tags %}
 {% load humanize %}
 
 {% block headtitle %}{{ target.profile.name }}{% endblock %}
+{% block title %}{{ target.profile.name }}{% endblock %}
 
 {% block body %}
 
