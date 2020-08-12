@@ -155,7 +155,8 @@ def user_profile(request, uid):
     show_info = is_mod or (profile.is_valid and not profile.low_rep)
 
     context = dict(target=profile.user, active=active, debugging=settings.DEBUG, show_info=show_info,
-                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, tab="profile")
+                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate,
+                   tab="profile")
 
     return render(request, "accounts/user_profile.html", context)
 

@@ -70,7 +70,7 @@
 
 
         {% if user.is_authenticated %}
-            <a class="{% activate "profile" active %} {% if user.is_superuser %}trusted{% endif %} item"
+            <a class="{% activate "profile" tab %} {% if user.is_superuser %}trusted{% endif %} item"
                href="{% url "user_profile" user.profile.uid %}">
 
                 {% if user.is_superuser %}
