@@ -23,6 +23,13 @@
                         bioinformatics data analysis task. A recipe can be thought
                         of as a <em>bioinformatics workflow</em> or a <em>bioinformatics pipeline</em>.
                     </div>
+
+                    <div class="ui center aligned basic segment">
+                        <a href="{% url "latest_recipes" %}">
+                            <img
+                                    src="{% static 'images/demo.gif' %}">
+                        </a>
+                    </div>
                 </div>
 
                 <div class="item padme">
@@ -100,17 +107,14 @@
 
         <div class="six wide center column">
 
-                <a href="{% url "latest_recipes" %}">
-                    <img class="ui medium rounded  image"
-                         src="{% static 'images/screenshot.jpg' %}" style="width: 100%;padding-bottom: 120px;
+            <a href="{% url "latest_recipes" %}">
+                <img class="ui medium rounded  image"
+                     src="{% static 'images/screenshot.jpg' %}" style="width: 100%;padding-bottom: 120px;
                          padding-left: 60px; margin-right: 0;padding-right: 60px;">
-                </a>
+            </a>
 
-                <a href="{% url "latest_recipes" %}">
-                    <img class="ui rounded  large image"
-                         src="{% static 'images/demo.gif' %}" style="width: 100%; height: 230px">
-                </a>
-            </div>
+
+        </div>
 
     </div>
 
