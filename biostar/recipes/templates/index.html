@@ -12,6 +12,41 @@
 
 {% block body %}
 
+  <div class="ui basic center aligned segment" style="padding:0px">
+
+        <div class="ui muted horizontal  list">
+            <div class="item">
+
+                <div class="content">
+                    <i class="users icon"></i> {{ nusers }} Users
+                </div>
+            </div>
+
+            <div class="item">
+
+                <div class="content">
+                    <i class="mylist  icon"></i> {{ nprojects }} Projects
+                </div>
+            </div>
+
+            <div class="item">
+
+                <div class="content">
+                    <i class="settings icon"></i> {{ nrecipes }} Recipes
+                </div>
+            </div>
+            <div class="item">
+
+                <div class="content">
+                    <i class="bar chart icon"></i> {{ nresults }} Results
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
     <div class="ui grid">
         <div class="ten wide column home">
             <ul class="ui large relaxed divided list questions">
@@ -107,41 +142,6 @@
                     <img class="ui medium rounded  image"
                          src="{% static 'images/screenshot.jpg' %}">
                 </a>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="ui basic center aligned segment">
-        <div class="ui basic segment">
-            <div class="ui subheader ">Current stats</div>
-        </div>
-        <div class="ui muted horizontal  list">
-            <div class="item">
-
-                <div class="content">
-                    <i class="users icon"></i> {{ nusers }} Users
-                </div>
-            </div>
-
-            <div class="item">
-
-                <div class="content">
-                    <i class="mylist  icon"></i> {{ nprojects }} Projects
-                </div>
-            </div>
-
-            <div class="item">
-
-                <div class="content">
-                    <i class="settings icon"></i> {{ nrecipes }} Recipes
-                </div>
-            </div>
-            <div class="item">
-
-                <div class="content">
-                    <i class="bar chart icon"></i> {{ nresults }} Results
-                </div>
             </div>
 
         </div>
