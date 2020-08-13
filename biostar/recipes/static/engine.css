@@ -17,6 +17,14 @@ body {
     text-rendering: optimizeLegibility;
 }
 
+#recipe-search{
+    border-radius: .2rem !important;
+    background-color: #72677f !important;
+    height: 35px ;
+    width: 254px ;
+    padding: 9px ;
+}
+
 .ui.page-bar.segment {
     text-align: center;
     padding: 0;
