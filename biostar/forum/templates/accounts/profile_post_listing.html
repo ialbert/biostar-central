@@ -1,0 +1,56 @@
+{% load forum_tags %}
+{% load accounts_tags %}
+
+{% with params=request.GET.urlencode %}
+    <div class="ui small compact menu no-shadow">
+        <div class="ui simple dropdown item">
+            <i class="{% get_icon string=limit default='all' %}"></i>
+            <span class="tablet">Show</span>
+            <i class="dropdown icon"></i>
+
+            <div class="menu">
+                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'all' 'show' params %}">
+                    <i class="question mark icon"></i>all
+                </a>
+                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'tools' 'show' params %}">
+                    <i class="cogs icon"></i>tools
+                </a>
+
+                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'blogs' 'show' params %}">
+                    <i class="file icon"></i>blogs
+                </a>
+                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'news' 'show' params %}">
+                    <i class="newspaper icon"></i>news
+                </a>
+                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'tutorials' 'show' params %}">
+                    <i class="help icon"></i>tutorials
+                </a>
+                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'forum' 'show' params %}">
+                    <i class="list icon"></i>forum
+                </a>
+                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'answers' 'show' params %}">
+                    <i class="{% get_icon 'week' %}"></i>answers
+                </a>
+                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'comments' 'show' params %}">
+                    <i class="{% get_icon 'month' %}"></i>comments
+                </a>
+
+            </div>
+        </div>
+    </div>
+{% endwith %}
+
+{% if show %}
+    <div class="ui blue message"> Showing :<b> {{ show }}</b></div>
+{% endif %}
+
+<div class="ui divided items">
+    {% get_post_list request=request target=target show=show as post_list %}
+    {% for post in post_list %}
+        {% post_details post=post user=request.user %}
+    {% empty %}
+        <div class="ui warn message">
+            No posts found.
+        </div>
+    {% endfor %}
+</div>

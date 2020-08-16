@@ -148,6 +148,9 @@ def user_profile(request, uid):
     # Get the active tab, defaults to project
     active = request.GET.get("active", "posts")
 
+    # Apply filter to what is shown.
+    show = request.GET.get('show', '')
+
     # User viewing profile is a moderator
     is_mod = (request.user.is_authenticated and request.user.profile.is_moderator)
 
@@ -155,7 +158,7 @@ def user_profile(request, uid):
     show_info = is_mod or (profile.is_valid and not profile.low_rep)
 
     context = dict(target=profile.user, active=active, debugging=settings.DEBUG, show_info=show_info,
-                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate,
+                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, show=show,
                    tab="profile")
 
     return render(request, "accounts/user_profile.html", context)

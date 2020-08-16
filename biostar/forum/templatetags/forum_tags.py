@@ -444,11 +444,22 @@ def search_bar(context, tags=False, users=False):
     return context
 
 
-@register.filter
-def post_list(target, request):
+@register.simple_tag
+def get_post_list(target, request, show=None):
     user = request.user
 
     posts = Post.objects.valid_posts(u=user, author=target)
+
+    # Show a specific post listing.
+
+    show_map = dict(questions=Post.QUESTION, tools=Post.TOOL, news=Post.NEWS,
+                    blogs=Post.BLOG, tutorials=Post.TUTORIAL, answers=Post.ANSWER,
+                    comments=Post.COMMENT)
+
+    if show_map.get(show):
+        show_filter = show_map.get(show)
+        posts = posts.filter(type=show_filter)
+
     posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
     posts = posts.order_by("-rank")
     posts = posts[:100]
