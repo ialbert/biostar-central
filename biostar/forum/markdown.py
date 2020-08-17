@@ -338,7 +338,9 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     root = post.parent.root if (post and post.parent) else None
 
     # Bleach clean the text before handing it over to mistune.
-    if clean:
+    # Only clean for non moderators.
+    non_mod = not post.lastedit_user.profile.is_moderator if post else True
+    if clean and non_mod:
         # strip=True strips all disallowed elements
         text = bleach.clean(text, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES,
                             attributes=ALLOWED_ATTRIBUTES)
