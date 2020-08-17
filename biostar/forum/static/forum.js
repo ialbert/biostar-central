@@ -282,12 +282,32 @@ function tags_dropdown() {
     });
 }
 
-function highligh_preview(form, text){
+function highligh_preview(form, text) {
     var highlighted = highlight(text);
+    let node = form.find('.preview');
+
     form.find('.preview').html(highlighted);
     form.find('pre').addClass('language-bash');
     form.find('code').addClass('language-bash');
-    Prism.highlightAll()
+    //let node = document.querySelector('#math');
+    MathJax = {
+        loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
+        asciimath: {
+            delimiters: [['$', '$'], ['`', '`']]
+        }
+    };
+    MathJax.Hub.Queue(['Typeset',MathJax.Hub,form.find('.preview')]);
+
+    Prism.highlightAll();
+/*    MathJax.queue.Hub.Config(
+        {
+            loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
+            asciimath: {
+                delimiters: [['$', '$'], ['`', '`']]
+            }
+        });*/
+
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub,form.find('.preview')]);
 }
 
 $(document).ready(function () {
@@ -434,12 +454,13 @@ $(document).ready(function () {
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
-    //var converter = new Markdown.getSanitizingConverter();
-    //var editor = new Markdown.Editor(converter);
-    //editor.run();
 
     tags_dropdown();
-
-    //remove_trigger();
+    MathJax = {
+        loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
+        asciimath: {
+            delimiters: [['$', '$'], ['`', '`']]
+        }
+    };
 })
 ;

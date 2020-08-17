@@ -5,7 +5,12 @@
 {% block headtitle %}
     {{ post.title }}
 {% endblock %}
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3.0.0/es5/tex-mml-chtml.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
 {% block css %}
     <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
     <link href="{% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
@@ -28,8 +33,8 @@
     <script src="{% static 'autocomplete/caret.js' %}"></script>
     <script src="{% static 'effects.js' %}{% randparam %}"></script>
     <script src="{% static 'inplace.js' %}{% randparam %}"></script>
+    <script src="{% static 'forum.js' %}{% randparam %}"></script>
 {% endblock %}
-
 
 {% block body %}
 
@@ -106,15 +111,11 @@
                 // Insert inplace form with double click.
                 inplace_form($(this))
             });
-
-            //var converter = new Markdown.getSanitizingConverter();
-            //var editor = new Markdown.Editor(converter);
-            //editor.run();
-
-
-        })
+        });
 
     </script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 
 {% endblock %}
 
