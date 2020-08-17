@@ -284,30 +284,13 @@ function tags_dropdown() {
 
 function highligh_preview(form, text) {
     var highlighted = highlight(text);
-    let node = form.find('.preview');
 
     form.find('.preview').html(highlighted);
     form.find('pre').addClass('language-bash');
     form.find('code').addClass('language-bash');
-    //let node = document.querySelector('#math');
-    MathJax = {
-        loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
-        asciimath: {
-            delimiters: [['$', '$'], ['`', '`']]
-        }
-    };
-    MathJax.Hub.Queue(['Typeset',MathJax.Hub,form.find('.preview')]);
 
     Prism.highlightAll();
-/*    MathJax.queue.Hub.Config(
-        {
-            loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
-            asciimath: {
-                delimiters: [['$', '$'], ['`', '`']]
-            }
-        });*/
 
-    MathJax.Hub.Queue(["Typeset",MathJax.Hub,form.find('.preview')]);
 }
 
 $(document).ready(function () {
@@ -462,5 +445,6 @@ $(document).ready(function () {
             delimiters: [['$', '$'], ['`', '`']]
         }
     };
+
 })
 ;
