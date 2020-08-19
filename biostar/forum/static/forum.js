@@ -81,6 +81,7 @@ function highlight_search(target, content_elem, stop_list) {
     });
 }
 
+
 function highlight(text) {
 
     var con = markdownit({
@@ -290,6 +291,13 @@ function highligh_preview(form, text) {
     form.find('code').addClass('language-bash');
 
     Prism.highlightAll();
+    // Enable mathjax in preview.
+    const content = document.createElement('p');
+    content.textContent = text;
+    MathJax.typesetPromise().then(() => {
+        MathJax.typesetPromise();
+    }).catch((err) => console.log(err.message));
+
 
 }
 
@@ -439,12 +447,7 @@ $(document).ready(function () {
     Prism.highlightAll();
 
     tags_dropdown();
-    MathJax = {
-        loader: {load: ['input/asciimath', 'output/chtml', 'ui/menu']},
-        asciimath: {
-            delimiters: [['$', '$'], ['`', '`']]
-        }
-    };
+
 
 })
 ;
