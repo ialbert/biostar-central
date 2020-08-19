@@ -1,11 +1,11 @@
 bleach==3.1.4
 chardet==3.0.4
 coverage==5.0.3
-Django==3.0.7
+Django==3.1.0
 django-allauth==0.41.0
 django-appconf==1.0.3
 django-compressor==2.4
-django-debug-toolbar==2.1
+django-debug-toolbar==3.0a2
 django-mailer==2.0
 django-pagedown==2.1.2
 django-ratelimit==2.0.0
