@@ -451,12 +451,11 @@ def get_post_list(target, request, show=None):
     posts = Post.objects.valid_posts(u=user, author=target)
 
     # Show a specific post listing.
-
     show_map = dict(questions=Post.QUESTION, tools=Post.TOOL, news=Post.NEWS,
                     blogs=Post.BLOG, tutorials=Post.TUTORIAL, answers=Post.ANSWER,
                     comments=Post.COMMENT)
 
-    if show_map.get(show):
+    if show_map.get(show) is not None:
         show_filter = show_map.get(show)
         posts = posts.filter(type=show_filter)
 
