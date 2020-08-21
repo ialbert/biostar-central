@@ -1,9 +1,9 @@
 {% load engine_tags %}
+{% load static %}
 
-<div class="ui large top attached menu">
-
-    <a class="{% activate "home" active %} item widescreen" href="/">
-        <i class="home icon"></i>
+<div  class="ui inverted horizontal menu" id="topmenu">
+    <a class="ui {% activate active "home" %} item" href="{% url 'index' %}">
+          <i class="home icon"></i> Home
     </a>
 
     <a class="item {% activate active "project_list" %}" href="{% url 'project_list' %}">
@@ -60,7 +60,7 @@
     <div class="ui category search fluid item">
         <div class="ui transparent icon input">
             <input class="prompt" id="recipe-search" type="text" placeholder="Search recipes...">
-            <i class="search link icon"></i>
+            <i class="search link icon" style="padding-right: 20px;"></i>
         </div>
     </div>
 
@@ -68,7 +68,7 @@
 
 
         {% if user.is_authenticated %}
-            <a class="{% activate "profile" active %} {% if user.is_superuser %}trusted{% endif %} item"
+            <a class="{% activate "profile" tab %} {% if user.is_superuser %}trusted{% endif %} item"
                href="{% url "user_profile" user.profile.uid %}">
 
                 {% if user.is_superuser %}

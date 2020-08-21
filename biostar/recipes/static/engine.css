@@ -12,9 +12,17 @@
 
 body {
     background-color: #f8f8f9 !important;
-    padding-top: 1rem;
+    //padding-top: 1rem;
     font-family: "Lato", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     text-rendering: optimizeLegibility;
+}
+
+#recipe-search{
+    border-radius: .2rem !important;
+    background-color: #72677f !important;
+    height: 35px ;
+    width: 254px ;
+    padding: 9px ;
 }
 
 .ui.page-bar.segment {
@@ -58,6 +66,17 @@ body {
 }
 #top .header{
     margin-top: 0px;
+}
+
+#topmenu{
+    box-shadow: none;
+    background: #292958;
+    margin-bottom: 0px;
+    border-radius: 0;
+}
+#top{
+    width: 100%;
+
 }
 #project_view h1 {
  font-size: 1.28571429rem;
@@ -211,7 +230,7 @@ pre.toml_code {
 }
 
 .ui.menu .item.trusted {
-    color: #6d0080;
+    color: white;
 }
 
 

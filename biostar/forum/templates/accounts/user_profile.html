@@ -5,7 +5,7 @@
 
 {% block content %}
 
-    <div class="ui stackable three column grid profile" data-value="{{ target.profile.id }}" >
+    <div class="ui stackable three column grid profile" data-value="{{ target.profile.id }}">
 
         <div class="column">
             <div class="ui center aligned  basic segment">
@@ -165,15 +165,8 @@
         <div class="ui bottom attached profile segment">
             {% if active == 'posts' %}
 
-                <div class="ui divided items">
-                    {% for post in target|post_list:request %}
-                        {% post_details post=post user=request.user %}
-                    {% empty %}
-                        <div class="ui warn message">
-                            No posts found.
-                        </div>
-                    {% endfor %}
-                </div>
+                {% include 'accounts/profile_post_listing.html' %}
+
             {% else %}
                 {% list_awards target=target %}
             {% endif %}

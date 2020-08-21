@@ -1,6 +1,8 @@
-{% extends "accounts/profile_base.html" %}
+{% extends "base_template.html" %}
 {% load engine_tags %}
 {% block headtitle %}Edit Profile{% endblock %}
+
+{% block title %}Edit Profile{% endblock %}
 
 {% block body %}
 
@@ -124,7 +126,7 @@
 <div class="ui basic segment ">
 
         <div class="two fields">
-
+{% if form.digest_prefs  %}
           <div class="field inputcolor">
 
               <b>Email Digest</b>
@@ -133,6 +135,7 @@
               {{ form.digest_prefs.help_text }}
               </div>
           </div>
+            {% endif %}
 
           <div class="field inputcolor">
 
@@ -145,6 +148,7 @@
           </div>
 
         </div>
+
                  <div class="field inputcolor">
 
               <b>My Tags</b>

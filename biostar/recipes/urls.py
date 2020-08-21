@@ -34,9 +34,6 @@ recipes_patterns = [
     path(r'project/users/<str:uid>/', views.project_users, name='project_users'),
     path(r'project/create/', views.project_create, name='project_create'),
 
-    #path(r'project/list/public/', views.project_list_public, name='project_list_public'),
-    #path(r'my/projects/', views.project_list_private, name='project_list_private'),
-
     # Redirects users to public or private projects.
     path(r'project/list/', views.project_list, name='project_list'),
 

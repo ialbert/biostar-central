@@ -81,6 +81,7 @@ function highlight_search(target, content_elem, stop_list) {
     });
 }
 
+
 function highlight(text) {
 
     var con = markdownit({
@@ -282,12 +283,22 @@ function tags_dropdown() {
     });
 }
 
-function highligh_preview(form, text){
+function highligh_preview(form, text) {
     var highlighted = highlight(text);
+
     form.find('.preview').html(highlighted);
     form.find('pre').addClass('language-bash');
     form.find('code').addClass('language-bash');
-    Prism.highlightAll()
+
+    Prism.highlightAll();
+    // Enable mathjax in preview.
+    const content = document.createElement('p');
+    content.textContent = text;
+    MathJax.typesetPromise().then(() => {
+        MathJax.typesetPromise();
+    }).catch((err) => console.log(err.message));
+
+
 }
 
 $(document).ready(function () {
@@ -434,12 +445,9 @@ $(document).ready(function () {
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
-    //var converter = new Markdown.getSanitizingConverter();
-    //var editor = new Markdown.Editor(converter);
-    //editor.run();
 
     tags_dropdown();
 
-    //remove_trigger();
+
 })
 ;

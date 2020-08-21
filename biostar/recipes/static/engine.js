@@ -429,9 +429,7 @@ $(document).ready(function () {
         clear();
     });
 
-
-   drag_and_drop();
-
+    drag_and_drop();
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash').css('padding', '0');
