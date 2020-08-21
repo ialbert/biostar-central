@@ -2,6 +2,10 @@
 {% load static %}
 {% load engine_tags %}
 
+{% block title %}
+    <img class="ui avatar image" src="{% img recipe %}"/>{{ recipe.get_name }}
+{% endblock %}
+
 {% block js %}
 
     <link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}{% randparam %}">
