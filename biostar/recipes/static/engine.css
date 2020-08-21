@@ -8,6 +8,9 @@
     --job-running: #f2711c;
     --job-queued: #00b5ad;
 
+    --top-menu-color: #292958;
+    --recipe-search-color: #72677f;
+
 }
 
 body {
@@ -19,7 +22,7 @@ body {
 
 #recipe-search{
     border-radius: .2rem !important;
-    background-color: #72677f !important;
+    background-color: var(--recipe-search-color) !important;
     height: 35px ;
     width: 254px ;
     padding: 9px ;
@@ -64,13 +67,14 @@ body {
 #interface .grid .labels .label{
     width: 100%;
 }
+
 #top .header{
-    margin-top: 0px;
+    //margin-top: 0px;
 }
 
 #topmenu{
     box-shadow: none;
-    background: #292958;
+    background: var(--top-menu-color);
     margin-bottom: 0px;
     border-radius: 0;
 }
@@ -147,7 +151,7 @@ pre.toml_code {
 }
 
 #img i.error {
-    color: var(--job-erorr);
+    color: var(--job-error);
 }
 
 .CodeMirror-sizer {
