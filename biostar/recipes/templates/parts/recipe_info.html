@@ -1,5 +1,12 @@
 {% load engine_tags %}
 
+<div class="ui basic large segment">
+    <div class="ui items" id="details">
+        {% recipe_details recipe include_copy %}
+    </div>
+    <div class="ui divider" style="margin-bottom: -20px;"></div>
+</div>
+
 <div class="ui items">
     {{ recipe.html | safe }}
 </div>
@@ -28,7 +35,7 @@
             {% if recipe.is_clone %}
                 <a href="{{ recipe.root.url }}">original recipe</a>
             {% else %}
-               project
+                project
             {% endif %}
             to edit.
         </div>
@@ -38,8 +45,8 @@
 </div>
 <script>
     $(document).ready(function () {
-    $('pre').addClass('language-bash');
-    $('code').addClass('language-bash').css('padding', '0');
-    Prism.highlightAll();
+        $('pre').addClass('language-bash');
+        $('code').addClass('language-bash').css('padding', '0');
+        Prism.highlightAll();
     });
 </script>

@@ -4,7 +4,13 @@
 
 
 {% block title %}
-    <img class="ui avatar image" src="{% img project %}"/>{{ project.get_name }}
+
+    {% if recipe %}
+         <img class="ui avatar image" src="{% img recipe %}"/>{{ recipe.get_name }}
+    {% else %}
+         <img class="ui avatar image" src="{% img project %}"/>{{ project.get_name }}
+    {% endif %}
+
 {% endblock %}
 
 {% block body %}
