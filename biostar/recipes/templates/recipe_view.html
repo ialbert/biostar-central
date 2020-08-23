@@ -2,6 +2,10 @@
 {% load static %}
 {% load engine_tags %}
 
+{% block title %}
+    <img class="ui avatar image" src="{% img recipe %}"/>{{ recipe.get_name }}
+{% endblock %}
+
 {% block js %}
 
     <link rel="stylesheet" href="{% static 'codemirror/lib/codemirror.css' %}{% randparam %}">
@@ -80,15 +84,9 @@
 
         <div class="thirteen wide column">
 
-            <div class="ui basic large segment">
-                <div class="ui items" id="details">
-                    {% recipe_details recipe include_copy %}
-                </div>
-                <div class="ui divider" style="margin-bottom: -20px;"></div>
-            </div>
-
             {# Info panel. Loads dynamically. #}
             <div class="ui basic large segment collapse" id="info">
+
                 {% include "parts/recipe_info.html" %}
             </div>
 

@@ -1,12 +1,12 @@
 {% extends "base_content.html" %}
 {% load engine_tags %}
 
-{% block headtitle %}
-    {{ recipe.name }}
+{% block title %}
+    <img class="ui avatar image" src="{% img recipe %}"/>{{ recipe.get_name }}
 {% endblock %}
 
-{% block title %}
-    Run {{ recipe.name }}
+{% block headtitle %}
+    {{ recipe.name }}
 {% endblock %}
 
 {% block content %}
