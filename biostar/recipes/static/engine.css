@@ -761,6 +761,14 @@ blockquote {
 
 }
 
+@media all and (min-width: 1400px) {
+
+    #top > .segment{
+        padding-left: 10%;
+        padding-right: 10%;
+    }
+}
+
 @media all and (max-width: 500px) {
 
 
