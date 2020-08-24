@@ -25,7 +25,7 @@ body {
     background-color: var(--recipe-search-color) !important;
     height: 35px ;
     width: 254px ;
-    padding: 9px ;
+    padding: 9px !important;
 }
 
 .ui.page-bar.segment {
