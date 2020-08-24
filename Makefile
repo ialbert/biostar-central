@@ -63,8 +63,6 @@ forum:
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
-	$(eval HOST := hosts/test.biostars.org)
-	$(eval TARGET:=test)
 
 echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -159,4 +157,10 @@ remote_transfer:
 
 deploy:
 	@echo TARGET=${TARGET}
-	(cd conf/ansible && make deploy TARGET=${TARGET})
+	(cd conf/ansible && make ${DEPLOY_COMMAND} TARGET=${TARGET})
+
+# Temporary command to deploy forum on test server - with directory name being ~/biostar-engine/
+# Being refactored out once migrated.
+forum_deploy:
+	@echo "Deploying forum on test server."
+	(cd conf/ansible && make forum_deploy TARGET=test)

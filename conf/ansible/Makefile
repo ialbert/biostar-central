@@ -33,5 +33,6 @@ deploy: deploy-code restart
 
 # Temporary command to deploy forum on test server - with directory name being ~/biostar-engine/
 # Being refactored out
-forum_deploy: restart
-	ansible-playbook -i hosts.ini -l ${TARGET} server-deploy.yml --extra-vars "runner=forum restart=True main_dir=/export/www/biostar-engine username=${USER}" -v
+forum_deploy:
+	ansible-playbook -i hosts.ini -l test server-deploy.yml --extra-vars "main_dir=/export/www/biostar-engine username=${USER} repo=${REPO}" -v
+	ansible-playbook -i hosts.ini -l test server-restart.yml --extra-vars "main_dir=/export/www/biostar-engine username=${USER} repo=${REPO}"
