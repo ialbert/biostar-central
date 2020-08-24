@@ -157,7 +157,7 @@ remote_transfer:
 
 deploy:
 	@echo TARGET=${TARGET}
-	(cd conf/ansible && make ${DEPLOY_COMMAND} TARGET=${TARGET})
+	(cd conf/ansible && make deploy TARGET=${TARGET})
 
 # Temporary command to deploy forum on test server - with directory name being ~/biostar-engine/
 # Being refactored out once migrated.
