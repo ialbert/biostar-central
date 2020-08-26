@@ -4,7 +4,7 @@
     --code-bg-color: #f9f9f9;
     --job-completed: #21ba45;
     --job-spooled: #6435c9;
-    --job-erorr: #db2828;
+    --job-error: #db2828;
     --job-running: #f2711c;
     --job-queued: #00b5ad;
 
@@ -319,17 +319,17 @@ pre.toml_code {
 
 
 .errored {
-    border-color: var(--job-erorr) !important;
+    border-color: var(--job-error) !important;
 }
 
 .errored.label {
-    border-bottom: 1px solid var(--job-erorr) !important;
-    background-color: var(--job-erorr) !important;
+    border-bottom: 1px solid var(--job-error) !important;
+    background-color: var(--job-error) !important;
     color: white;
 }
 
 .errored.item {
-    color:  var(--job-erorr) !important;
+    color:  var(--job-error) !important;
 }
 
 .running {
