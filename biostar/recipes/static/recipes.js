@@ -273,12 +273,17 @@ function get_id() {
 $(document).ready(function () {
 
     // Select default open item.
-    var open_id = window.location.hash || "#info";
+    var open_id = window.location.hash;
 
-    // Initial toggle has no animation.
-    toggle_panels(open_id, 1);
+    // Update information in dynamic panels when id is provided.
+    if (open_id){
+        // Initial toggle has no animation.
+        toggle_panels(open_id, 1);
+    }else{
+        // Show the info panel by default when a hash is not set.
+        $(".collapse:not(#info)").hide();
+    }
 
-    // Update information in dynamic panels.
     update_panels();
 
     // Bind the events.
