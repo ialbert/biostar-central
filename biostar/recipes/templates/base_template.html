@@ -58,13 +58,16 @@
 
     <div class="ui bottom attached padded segment">
         <div id="search-results"></div>
-        <div class="ui center aligned top-title header" >
-         <span>
+
+    {% block subheader %}
+        <h3 class="ui center aligned top-title header" >
+        <span>
             {% block title %}
                 Title
             {% endblock %}
-         </span>
-        </div>
+        </span>
+        </h3>
+    {% endblock %}
 
         {% show_messages messages %}
 

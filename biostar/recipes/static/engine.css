@@ -72,6 +72,18 @@ body {
     //margin-top: 0px;
 }
 
+.ui.tiny.statistics.index .statistic>.value {
+    font-size: 1.1rem!important;
+    color: #999999 !important;
+}
+
+.ui.tiny.statistics.index .statistic>.label {
+    font-size: 0.7rem!important;
+    color: #999999 !important;
+}
+
+
+
 #topmenu{
     box-shadow: none;
     background: var(--top-menu-color);
