@@ -68,10 +68,6 @@ body {
     width: 100%;
 }
 
-#code, #interface, #edit{
-    display: none;
-}
-
 #top .header{
     //margin-top: 0px;
 }
