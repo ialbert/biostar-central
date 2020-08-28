@@ -39,6 +39,14 @@ body {
     background-color: #032d57;
 }
 
+.landing.image{
+    width: 265px !important;
+}
+
+.landing.second.image{
+    margin-right:
+}
+
 .landing.segment{
     margin-left: 17% !important;
     margin-right: 17% !important;
