@@ -8,8 +8,8 @@
     --job-running: #f2711c;
     --job-queued: #00b5ad;
 
-    --top-menu-color: #292958;
-    --recipe-search-color: #72677f;
+    --top-menu-color: #061d38;
+    --recipe-search-color: #1b395b;
 
 }
 
@@ -26,6 +26,22 @@ body {
     height: 35px ;
     width: 254px ;
     padding: 9px !important;
+    color: white !important;
+}
+
+
+#landing.segment{
+    margin-right: -22px !important;
+    margin-left: -22px;
+    margin-top: -22px;
+    padding-left: 19%;
+    padding-top: 2%;
+    background-color: #032d57;
+}
+
+.landing.segment{
+    margin-left: 17% !important;
+    margin-right: 17% !important;
 }
 
 .ui.page-bar.segment {
