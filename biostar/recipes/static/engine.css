@@ -31,10 +31,10 @@ body {
 
 
 #landing.segment{
-    margin-right: -22px !important;
-    margin-left: -22px;
+    margin-right: -22% !important;
+    margin-left: -22%;
     margin-top: -22px;
-    padding-left: 19%;
+    padding-left: 39%;
     padding-top: 2%;
     background-color: #032d57;
 }
