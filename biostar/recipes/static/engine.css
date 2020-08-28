@@ -8,8 +8,8 @@
     --job-running: #f2711c;
     --job-queued: #00b5ad;
 
-    --top-menu-color: #292958;
-    --recipe-search-color: #72677f;
+    --top-menu-color: #061d38;
+    --recipe-search-color: #1b395b;
 
 }
 
@@ -26,6 +26,23 @@ body {
     height: 35px ;
     width: 254px ;
     padding: 9px !important;
+    color: white !important;
+}
+
+
+#landing.segment{
+    margin-right: -22% !important;
+    margin-left: -22%;
+    margin-top: -22px;
+    padding-left: 39%;
+    padding-top: 2%;
+    background-color: #032d57;
+}
+
+
+.landing.segment{
+    margin-left: 17% !important;
+    margin-right: 17% !important;
 }
 
 .ui.page-bar.segment {
@@ -68,9 +85,21 @@ body {
     width: 100%;
 }
 
-#top .header{
-    //margin-top: 0px;
+#top .top-title.header{
+    margin-top: .5%;
 }
+
+.ui.tiny.statistics.index .statistic>.value {
+    font-size: 1.1rem!important;
+    color: #999999 !important;
+}
+
+.ui.tiny.statistics.index .statistic>.label {
+    font-size: 0.7rem!important;
+    color: #999999 !important;
+}
+
+
 
 #topmenu{
     box-shadow: none;
@@ -257,6 +286,7 @@ pre.toml_code {
 
 .top-title.header{
     height: 2.5em;
+    margin-top: .5%;
 }
 
 .top-title.header .listing{

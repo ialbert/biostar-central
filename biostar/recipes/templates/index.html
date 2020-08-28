@@ -6,147 +6,154 @@
     Bioinformatics Recipes
 {% endblock %}
 
-{% block title %}
-    <i class="settings icon"></i> Welcome to Bioinformatics Recipes
+{% block subheader %}
+    <div class="ui inverted vertical masthead segment" id="landing">
+
+        <div>
+            <h1 class="ui inverted header">
+                <i class="setting icon"></i> Bioinformatics Recipes
+            </h1>
+
+            <a class="ui  primary button" href="{% url 'latest_recipes' %}">Latest Recipes <i class="right arrow icon"></i></a>
+
+        </div>
+        <div class="ui tiny statistics muted index">
+            <div class="statistic">
+                <div class="value">
+                    <i class="users icon"></i> {{ nusers }}
+                </div>
+                <div class="label">
+                    Users
+                </div>
+            </div>
+            <div class="statistic">
+                <div class=" value">
+                    <i class="list  icon"></i> {{ nprojects }}
+                </div>
+                <div class="label">
+                    Projects
+                </div>
+            </div>
+            <div class="statistic">
+                <div class="value">
+                    <i class="settings icon"></i> {{ nrecipes }}
+                </div>
+                <div class="label">
+                    Recipes
+                </div>
+            </div>
+            <div class="statistic">
+                <div class="value">
+                    <i class="bar chart icon"></i> {{ nresults }}
+                </div>
+                <div class="label">
+                    Results
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
 {% endblock %}
 
 {% block body %}
+    <div class="ui landing segment">
 
-  <div class="ui basic center aligned segment" style="padding:0px">
-
-        <div class="ui muted horizontal  list">
-            <div class="item">
-
-                <div class="content">
-                    <i class="users icon"></i> {{ nusers }} Users
-                </div>
-            </div>
-
-            <div class="item">
-
-                <div class="content">
-                    <i class="mylist  icon"></i> {{ nprojects }} Projects
-                </div>
-            </div>
-
-            <div class="item">
-
-                <div class="content">
-                    <i class="settings icon"></i> {{ nrecipes }} Recipes
-                </div>
-            </div>
-            <div class="item">
-
-                <div class="content">
-                    <i class="bar chart icon"></i> {{ nresults }} Results
-                </div>
-            </div>
-
+        <h4 class="ui header">What is a recipe?</h4>
+        <div class="description">
+            A "bioinformatics recipe" is a collection of commands used to perform a
+            bioinformatics data analysis task. A recipe can be thought
+            of as a <em>bioinformatics workflow</em> or a <em>bioinformatics pipeline</em>.
         </div>
+
     </div>
 
 
 
-    <div class="ui grid">
-        <div class="ten wide column home">
-            <ul class="ui large relaxed divided list questions">
+    <div class="ui landing  segment">
+        <h4 class="ui header">Where are the recipes?</h4>
+        <div class="description">
+            <ul>
+                <li>The <a href="{% url 'project_list' %}"><i class="mylist icon"></i>Project List
+                </a> page contains recipes collected into projects.
+                </li>
 
-                <div class="item padme">
-                    <div class="subheader">What is a recipe?</div>
-                    <div class="description">
-                        A "bioinformatics recipe" is a collection of commands used to perform a
-                        bioinformatics data analysis task. A recipe can be thought
-                        of as a <em>bioinformatics workflow</em> or a <em>bioinformatics pipeline</em>.
-                    </div>
+                <li>The <a href="{% url 'latest_recipes' %}"><i class="settings icon"></i>Latest
+                    Recipes</a> page displays the most recently updated recipes.
+                </li>
+            </ul>
 
+        </div>
 
-                </div>
+    </div>
 
-                <div class="item padme">
-                    <div class="subheader">Where are the recipes?</div>
-                    <div class="description">
-                        <ul>
-                            <li>The <a href="{% url 'project_list' %}"><i class="mylist icon"></i>Project List
-                            </a> page contains recipes collected into projects.
-                            </li>
+    <div class="ui landing segment">
+        <h4 class="ui header">What types of recipes can I find here?</h4>
+        <p>
+            Most recipes demonstrate typical use cases for various bioinformatics tools.
+            Many recipes have been developed to support bioinformatics education.
+        </p>
 
-                            <li>The <a href="{% url 'latest_recipes' %}"><i class="settings icon"></i>Latest
-                                Recipes</a> page displays the most recently updated recipes.
-                            </li>
-                        </ul>
-                        <div class="ui center aligned basic segment">
-                        <a href="{% url "latest_recipes" %}">
-                            <img src="{% static 'images/index.gif' %}">
-                        </a>
-                        </div>
+        <a href="{% url 'latest_recipes' %}">
+            <img class="ui  float-right landing image" src="{% static 'images/recipes-first.png' %}"
+                 style="width: 32%;">
+            <img class="ui second float-right landing image" src="{% static 'images/recipes-second.png' %}"
+                 style="margin-right: 2%;width: 32%;">
+            <img class="ui landing image" src="{% static 'images/recipes-thrid.png' %}" style="width: 32%">
+        </a>
 
-                    </div>
+    </div>
 
-                </div>
+    <div class="ui  landing segment">
+        <h4 class="ui header">Can I run recipes on my computer?</h4>
+        <p>
+            Yes! All recipes are designed to run both through this website and at the command line on
+            your computer.
+        </p>
+        <div style="position: relative; padding-bottom: 2.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
 
-                <div class="item padme">
-                    <div class="subheader">What types of recipes can I find here?</div>
-                    <div class="description">
-                        Most recipes demonstrate typical use cases for various bioinformatics tools.
-                        Many recipes have been developed to support bioinformatics education.
-                    </div>
-                </div>
+            <iframe width="100%" height="315" src="https://www.youtube.com/embed/3kKqsqa5llk" frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
 
-                <div class="item padme ">
-                    <div class="subheader">Can I run recipes on my computer?</div>
-                    <div class="description">
-                        Yes! All recipes are designed to run both through this website and at the command line on
-                        your computer.
-                    </div>
-                </div>
-
-                <div class="item padme ">
-                    <div class="subheader">Where can I learn more?</div>
-                    <div class="description">
-                        <p>Scientific publication: <a
-                                href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-020-03602-6">Bioinformatics
-                            recipes: creating, executing and distributing reproducible data analysis
-                            workflows</a> by <i>Natay Aberra,
-                            Aswathy Sebastian, Aaron P. Maloy, Christopher B. Rees, Meredith L. Bartron, and Istvan
-                            Albert </i>,
-                            <b>BMC Bioinformatics, (2020)</b> .
-                        </p>
-
-                        <p>An introductory video by lead software developer Natay Aberra: </p>
-                        <div style="position: relative; padding-bottom: 2.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-                            <iframe width="100%" height="315" src="https://www.youtube.com/embed/xRFsueCZfc0"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen></iframe>
-                        </div>
-                        <div class="ui subheader"> See also:</div>
-                        <ul>
-                            <li>
-                                <a href="https://bioinformatics-recipes.readthedocs.io/">Biostar Recipes:
-                                    Documentation.</a>
-                            </li>
-                            <li>
-                                <a href="https://github.com/ialbert/biostar-central"> Biostar Central GitHub
-                                    repository.</a>
-                            </li>
+            </iframe>
+        </div>
+    </div>
 
 
-                        </ul>
+    <div class="ui landing segment">
+        <div class="subheader">Where can I learn more?</div>
+        <div class="description">
+            <p>Scientific publication: <a
+                    href="https://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-020-03602-6">Bioinformatics
+                recipes: creating, executing and distributing reproducible data analysis
+                workflows</a> by <i>Natay Aberra,
+                Aswathy Sebastian, Aaron P. Maloy, Christopher B. Rees, Meredith L. Bartron, and Istvan
+                Albert </i>,
+                <b>BMC Bioinformatics, (2020)</b> .
+            </p>
 
-                    </div>
-                </div>
+            <p>An introductory video by lead software developer Natay Aberra: </p>
+            <div style="position: relative; padding-bottom: 2.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
+                <iframe width="100%" height="315" src="https://www.youtube.com/embed/xRFsueCZfc0"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+            </div>
+            <div class="ui subheader"> See also:</div>
+            <ul>
+                <li>
+                    <a href="https://bioinformatics-recipes.readthedocs.io/">Biostar Recipes:
+                        Documentation.</a>
+                </li>
+                <li>
+                    <a href="https://github.com/ialbert/biostar-central"> Biostar Central GitHub
+                        repository.</a>
+                </li>
 
             </ul>
-        </div>
-
-        <div class="six wide center column">
-
-            <a href="{% url "latest_recipes" %}">
-                <img class="ui centered medium rounded  image" src="{% static 'images/screenshot.jpg' %}">
-            </a>
 
         </div>
-
     </div>
 
 
