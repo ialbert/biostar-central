@@ -86,7 +86,7 @@ body {
 }
 
 #top .header{
-    //margin-top: 0px;
+    margin-top: .5%;
 }
 
 .ui.tiny.statistics.index .statistic>.value {
@@ -286,6 +286,7 @@ pre.toml_code {
 
 .top-title.header{
     height: 2.5em;
+    margin-top: .5%;
 }
 
 .top-title.header .listing{
