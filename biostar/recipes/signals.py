@@ -102,7 +102,8 @@ def finalize_project(sender, instance, created, raw, update_fields, **kwargs):
 
         # Update project fields.
         Project.objects.filter(id=instance.id).update(uid=instance.uid, dir=instance.dir, rank=instance.rank)
-        # Create a starter recipe if none exist
+
+        # Create a starter recipe if none exist.
         if not instance.analysis_set.exists():
             initial_recipe(project=instance)
 

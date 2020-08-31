@@ -174,12 +174,15 @@ class Project(models.Model):
         """
         Set the data, recipe, and job count for this project
         """
-        data_count = self.data_set.filter(deleted=False).count()
-        recipes_count = self.analysis_set.filter(project=self, deleted=False).count()
-        job_count = self.job_set.filter(deleted=False).count()
 
-        Project.objects.filter(id=self.id).update(data_count=data_count, recipes_count=recipes_count,
-                                                  jobs_count=job_count)
+        # Set the counts on current instance and also update in database.
+        self.recipes_count = self.analysis_set.filter(project=self, deleted=False).count()
+        self.data_count = self.data_set.filter(deleted=False).count()
+        self.job_count = self.job_set.filter(deleted=False).count()
+
+        Project.objects.filter(id=self.id).update(data_count=self.data_count,
+                                                  recipes_count=self.recipes_count,
+                                                  jobs_count=self.job_count)
 
     @property
     def is_public(self):
