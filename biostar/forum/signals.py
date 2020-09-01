@@ -36,7 +36,7 @@ def ban_user(sender, instance, created, **kwargs):
         #print(Post.objects.filter(author=instance.user).thread_users)
         Post.objects.filter(author=instance.user).delete()
         #print(Post.objects.filter(author=instance))
-        # Remove all 'lastedit user' flags
+        # Remove all 'lastedit user' flags for this user.
         # posts = Post.objects.filter(lastedit_user=instance.user)
         # for post in posts:
         #     Post.objects.filter(id=post.id).update(lastedit_user=post.author)
@@ -50,6 +50,10 @@ def ban_user(sender, instance, created, **kwargs):
 
         # Delete all messages
         Message.objects.filter(Q(sender=instance.user) | Q(recipient=instance.user)).delete()
+
+    # Label all posts by a spammer as 'spam'
+    if instance.is_spammer:
+        Post.objects.filter(author=instance.user).update(spam=Post.SPAM)
 
 
 @receiver(post_save, sender=Post)
