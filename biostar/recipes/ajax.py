@@ -434,6 +434,20 @@ def ajax_paste(request):
     return ajax_success(msg=f"Pasted {count} items into project.", redirect=next_url)
 
 
+@ajax_error_wrapper(method="GET", login_required=False)
+def render_plugins(request):
+
+    # Plugin to apply.
+    plugin = request.GET.get('plugin')
+    # Filename to apply plugin to.
+    fname = request.GET.get('fname')
+    html = ''
+    if plugin == 'jupyter':
+        html = open(fname, 'r').read()
+
+    return ajax_success(msg="Process successfully", html=html)
+
+
 @ensure_csrf_cookie
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_clipboard(request):

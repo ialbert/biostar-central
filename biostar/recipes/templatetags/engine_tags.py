@@ -141,6 +141,18 @@ def gravatar(user, size=80):
     return gravatar_url
 
 
+@register.inclusion_tag('widgets/plugins.html')
+def plugins(fname, plugin=None):
+
+    context = dict(plugin=plugin, fname=fname)
+
+    # Check the file name and return plugin if valid.
+    if plugin == 'jupyter' and fname.endswith('.html'):
+        return context
+
+    return None
+
+
 def find_fragments(source, target, nfrags=3, offset=25):
 
     # Look for case insensitive matches of target in the source

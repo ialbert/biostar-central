@@ -116,6 +116,33 @@ function move(data){
     )
 }
 
+function render_plugin(plugin, fname, elem){
+
+        $.ajax('/render/plugin/',
+        {
+            type: 'GET',
+            dataType: 'json',
+            data: {'plugin': plugin, 'fname': fname},
+
+            success: function (data) {
+                if (data.status === 'success') {
+
+                    // Embed plugin into <iframe> to resolve css conflict
+                    elem.parent().after('<span id="insert">' +
+                        '<a class="ui right floated close-plugin red label" style="float: right"> Close</a>' +
+                        '<iframe class="expanded" width="100%" height="500" src="data:text/html;charset=utf-8,'+ escape(data.html) +'"></iframe>' +
+                        '</span>');
+                    return
+                }
+                popup_message(elem, data.msg, data.status, 4000)
+
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        }
+    )
+}
 
 function copy_object(data, container) {
 
@@ -408,6 +435,17 @@ $(document).ready(function () {
         let file = $(this).closest('.file');
         let path = file.data("value");
         copy_file(path, file);
+    });
+    $(this).on('click', '.close-plugin', function () {
+
+            $('#insert').html('');
+    });
+
+    $(this).on('click', '.plugin', function () {
+        var fname = $(this).data('fname');
+        var plugin = $(this).data('value');
+
+        render_plugin(plugin, fname, $(this));
     });
 
     $(this).on('click', '#clipboard .paste', function () {

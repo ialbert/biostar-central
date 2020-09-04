@@ -1,11 +1,13 @@
 {% load engine_tags %}
+{% load humanize %}
+
 
 {% if paths %}
-        {% if not show_all %}
+    {% if not show_all %}
 
-                <a class="ui label" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</a>
+        <a class="ui label" onclick="window.history.back()"> <i class="left chevron icon"></i>Back</a>
 
-        {% endif %}
+    {% endif %}
 
     <div class="ui relaxed divided large list">
 
@@ -19,7 +21,8 @@
 
                         <a href="{% url serve_view uid=uid path=rel_path %}">
                             {% if is_image %}
-                                <img class="ui small middle aligned image" src="{% url serve_view uid=uid path=rel_path %}">
+                                <img class="ui small middle aligned image"
+                                     src="{% url serve_view uid=uid path=rel_path %}">
                             {% endif %}
                             {{ rel_path }}
                         </a>
@@ -27,17 +30,19 @@
 
                         {% if is_dir %}
                             <a href="{% url 'file_list' rel_path %}"> {{ real_path }}/</a>
-                        {% else%}
+                        {% else %}
                             {{ real_path }}
                         {% endif %}
 
-
                     {% endif %}
+
                 </span>
                 {% if user.is_authenticated %}
                     <a class="ui small right floated label copy"> COPY</a>
                 {% endif %}
                 <span class="ui right floated small label">{{ size|filesizeformat }}</span>
+
+                {% plugins fname=real_path plugin=plugin %}
 
             </div>
         {% endfor %}

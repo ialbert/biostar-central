@@ -93,6 +93,9 @@ recipes_patterns = [
     path(r'api/project/<str:uid>/', api.project_info, name='project_api_info'),
     path(r'api/project/image/<str:uid>/', api.project_image, name='project_api_image'),
 
+    # Plugins
+    path(r'render/plugin/', ajax.render_plugins, name='render_plugins'),
+
 ]
 
 
