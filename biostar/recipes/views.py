@@ -726,8 +726,13 @@ def job_view(request, uid):
         stderr = open(stderr_path, 'r').read()
 
     paths = auth.listing(root=job.get_data_dir())
+
+    # Pass along any plugins this job has.
+    plugin = job.json_data.get('settings', {}).get('plugin')
+
     context = dict(job=job, project=project, stderr=stderr, stdout=stdout,uid=job.uid, show_all=True,
-                   activate='View Result', paths=paths, serve_view="job_serve")
+                   activate='View Result', paths=paths, serve_view="job_serve",
+                   plugin=plugin)
 
     counts = get_counts(project)
     context.update(counts)

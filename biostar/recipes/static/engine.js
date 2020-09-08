@@ -114,8 +114,35 @@ function move(data){
 
         }
     )
-}
+};
 
+
+function render_plugin(plugin, fname, elem){
+
+        $.ajax('/render/plugin/',
+        {
+            type: 'GET',
+            dataType: 'json',
+            data: {'plugin': plugin, 'fname': fname},
+
+            success: function (data) {
+                if (data.status === 'success') {
+
+                    // Embed plugin into <iframe> to resolve css conflict
+                    elem.append('<span id="insert">' +
+                        '<iframe class="expanded" width="100%" height="205%"  frameBorder="0" src="data:text/html;charset=utf-8,'+ escape(data.html) +'"></iframe>' +
+                        '</span>');
+                    return
+                }
+                popup_message(elem, data.msg, data.status, 4000)
+
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        }
+    )
+}
 
 function copy_object(data, container) {
 
@@ -409,6 +436,13 @@ $(document).ready(function () {
         let path = file.data("value");
         copy_file(path, file);
     });
+
+    $('.plugin').each(function () {
+        var fname = $(this).data('value');
+        var plugin = $(this).data('plugin');
+        render_plugin(plugin, fname, $(this));
+    });
+
 
     $(this).on('click', '#clipboard .paste', function () {
         var data = {"id": project_id()};

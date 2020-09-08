@@ -141,6 +141,12 @@ def gravatar(user, size=80):
     return gravatar_url
 
 
+@register.filter
+def endswith(string, suffix):
+
+    return string.endswith(suffix)
+
+
 def find_fragments(source, target, nfrags=3, offset=25):
 
     # Look for case insensitive matches of target in the source
