@@ -436,22 +436,13 @@ $(document).ready(function () {
         let path = file.data("value");
         copy_file(path, file);
     });
-    $(this).on('click', '.close-plugin', function () {
-
-            $('#insert').html('');
-    });
 
     $('.plugin').each(function () {
         var fname = $(this).data('value');
         var plugin = $(this).data('plugin');
         render_plugin(plugin, fname, $(this));
     });
-    $(this).on('each', '.plugin', function () {
-        var fname = $(this).data('value');
-        var plugin = $(this).data('plugin');
-        //$('#insert').html('');
-        render_plugin(plugin, fname, $(this));
-    });
+
 
     $(this).on('click', '#clipboard .paste', function () {
         var data = {"id": project_id()};
