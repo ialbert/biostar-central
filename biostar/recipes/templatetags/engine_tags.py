@@ -141,16 +141,10 @@ def gravatar(user, size=80):
     return gravatar_url
 
 
-@register.inclusion_tag('widgets/plugins.html')
-def plugins(fname, plugin=None):
+@register.filter
+def endswith(string, suffix):
 
-    context = dict(plugin=plugin, fname=fname)
-
-    # Check the file name and return plugin if valid.
-    if plugin == 'jupyter' and fname.endswith('.html'):
-        return context
-
-    return None
+    return string.endswith(suffix)
 
 
 def find_fragments(source, target, nfrags=3, offset=25):

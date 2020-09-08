@@ -114,7 +114,8 @@ function move(data){
 
         }
     )
-}
+};
+
 
 function render_plugin(plugin, fname, elem){
 
@@ -128,9 +129,8 @@ function render_plugin(plugin, fname, elem){
                 if (data.status === 'success') {
 
                     // Embed plugin into <iframe> to resolve css conflict
-                    elem.parent().after('<span id="insert">' +
-                        '<a class="ui right floated close-plugin red label" style="float: right"> Close</a>' +
-                        '<iframe class="expanded" width="100%" height="500" src="data:text/html;charset=utf-8,'+ escape(data.html) +'"></iframe>' +
+                    elem.append('<span id="insert">' +
+                        '<iframe class="expanded" width="100%" height="205%"  frameBorder="0" src="data:text/html;charset=utf-8,'+ escape(data.html) +'"></iframe>' +
                         '</span>');
                     return
                 }
@@ -441,10 +441,15 @@ $(document).ready(function () {
             $('#insert').html('');
     });
 
-    $(this).on('click', '.plugin', function () {
-        var fname = $(this).data('fname');
-        var plugin = $(this).data('value');
-
+    $('.plugin').each(function () {
+        var fname = $(this).data('value');
+        var plugin = $(this).data('plugin');
+        render_plugin(plugin, fname, $(this));
+    });
+    $(this).on('each', '.plugin', function () {
+        var fname = $(this).data('value');
+        var plugin = $(this).data('plugin');
+        //$('#insert').html('');
         render_plugin(plugin, fname, $(this));
     });
 
