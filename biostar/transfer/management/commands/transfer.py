@@ -280,7 +280,8 @@ def bulk_copy_posts(limit):
     pcount = Post.objects.all().count()
     elapsed(f"transferred {pcount} posts")
 
-    Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"], batch_size=1000)
+    Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"],
+                             batch_size=1000)
     update_threadusers()
     add_tags()
     elapsed(f"Updated {pcount} post threads")

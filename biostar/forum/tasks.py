@@ -3,6 +3,8 @@ from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 import time
 from biostar.utils.decorators import spool, timer
+from biostar.accounts.models import User
+
 from django.db.models import Q
 #
 # Do not use logging in tasks! Deadlocking may occur!
@@ -29,6 +31,28 @@ def spam_scoring(post):
         spam.score(post=post)
     except Exception as exc:
         message(exc)
+
+
+@spool(pass_arguments=True)
+def notify_watched_tags(post):
+    """
+    Send emails to users watching this tags
+    """
+
+    # Get all users that have watched tags with this post
+    tags = post.tags.all()
+    # Iterate over tags and get users that are watching them
+    users = [User.objects.filter(profile__watched_tags__contains=tag) for tag in tags]
+
+    # Get the emails to send notifications to.
+    emails = [u.first().email for u in users for u.email in u]
+    emails = set(emails)
+
+    context = dict(post=post)
+    template = 'messages/watched_tags.html'
+    send_email(template_name=template, extra_context=context, recipient_list=emails)
+
+    return
 
 
 @spool(pass_arguments=True)
