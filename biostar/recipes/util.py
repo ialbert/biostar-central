@@ -8,6 +8,7 @@ import uuid
 import bleach
 import shlex
 import random
+import tempfile
 from itertools import islice
 from urllib.parse import quote
 from datetime import datetime
@@ -103,13 +104,27 @@ def write_stream(stream, dest):
 
     # Output needs to be opened in "w" if the incoming stream is a string
     # and "wb" if the incoming stream is a file.
-    mode = "w" if isinstance(stream, io.StringIO) else "wb"
+    mode = "w+t" if isinstance(stream, io.StringIO) else "w+b"
 
-    with open(dest, mode) as fp:
-        chunk = stream.read(CHUNK)
-        while chunk:
-            fp.write(chunk)
-            chunk = stream.read(CHUNK)
+    # Save a stream into file.
+    # Use a temporary file in case the process fails.
+    # We don't want a failed cache file.
+    tmp = tempfile.NamedTemporaryFile(mode=mode)
+
+    for line in stream:
+        tmp.write(line)
+
+    # Not sure if this is needed. Can't hurt.
+    tmp.flush()
+
+    # Rewind temporary file to beginning
+    tmp.seek(0)
+
+    with open(dest, mode, buffering=CHUNK) as fp:
+        for line in tmp:
+            fp.write(line)
+    tmp.close()
+
     return dest
 
 
