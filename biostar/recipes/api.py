@@ -6,13 +6,19 @@ import os
 from functools import wraps
 from django.conf import settings
 from django.http import HttpResponse
+from ratelimit.decorators import ratelimit
 
+from biostar.accounts.models import User
 from biostar.recipes.models import Analysis, Project, Data, image_path
 from biostar.recipes import util
 from biostar.recipes.decorators import require_api_key
 
 
 logger = logging.getLogger("engine")
+
+
+# Maximum file size to be sent and received via api.
+MAX_FILE_SIZE = 100
 
 
 class api_error_wrapper:
@@ -62,6 +68,7 @@ def tabular_list():
 
 
 @api_error_wrapper(['GET'])
+@ratelimit(key='ip', rate='20/m')
 def api_list(request):
     payload = tabular_list()
     return HttpResponse(content=payload, content_type="text/plain")
@@ -69,6 +76,7 @@ def api_list(request):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Project)
+@ratelimit(key='ip', rate='20/m')
 def project_info(request, uid):
     """
     GET request : return project info as json data
@@ -92,6 +100,7 @@ def project_info(request, uid):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Project)
+@ratelimit(key='ip', rate='20/m')
 def project_image(request, uid):
     """
     GET request : return project image
@@ -111,6 +120,7 @@ def project_image(request, uid):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
+@ratelimit(key='ip', rate='20/m')
 def recipe_image(request, uid):
     """
     GET request: Return recipe image.
@@ -130,6 +140,7 @@ def recipe_image(request, uid):
 
 
 @api_error_wrapper(['GET'])
+@ratelimit(key='ip', rate='20/m')
 def recipe_api_list(request, uid):
 
     api_key = request.GET.get("k", "")
@@ -151,6 +162,7 @@ def recipe_api_list(request, uid):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
+@ratelimit(key='ip', rate='20/m')
 def recipe_json(request, uid):
     """
     GET request: Returns recipe json
@@ -178,6 +190,7 @@ def recipe_json(request, uid):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
+@ratelimit(key='ip', rate='20/m')
 def recipe_template(request, uid):
     """
     GET request: Returns recipe template
@@ -196,34 +209,4 @@ def recipe_template(request, uid):
     payload = recipe.template
 
     return HttpResponse(content=payload, content_type="text/plain")
-
-
-@api_error_wrapper(['GET', 'PUT'])
-@require_api_key(type=Data)
-def update_data(request, uid):
-    """
-    GET request: Returns data
-    PUT request: Updates file in data with given file.
-    """
-
-    data = Data.objects.filter(uid=uid).first()
-
-    # Get the file to update
-    fname = request.data.get("fname")
-
-    # Target western
-    target = list(filter(lambda f: f.endswith(fname),  data.get_files()))[0]
-
-    # API key is always checked by @require_api_key decorator.
-    if request.method == "PUT":
-        # Get the new template that will replace the current one
-        file_object = request.data.get("file", "")
-
-        # Write file to the current
-        target = util.write_stream(stream=file_object, dest=target)
-
-    #target = ''
-    #payload = recipe.template
-
-    return HttpResponse(content="", content_type="text/plain")
 

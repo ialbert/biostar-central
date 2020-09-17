@@ -26,9 +26,12 @@ Complete upgrade and redesign of the backend with the following added features.
 - Mention a user by name
 - Upload images directly 
 - Mathjax enabled
-- search feature enhanced
-- spam classier added
+- Search feature enhanced
+- Spam classier added
 - Drag and drop your answers and comments 
+
+Modertor features:
+
 - 
    
 

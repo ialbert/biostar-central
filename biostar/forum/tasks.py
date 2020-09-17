@@ -38,6 +38,8 @@ def notify_watched_tags(post):
     """
     Send emails to users watching this tags
     """
+    if not post.is_toplevel:
+        return
 
     # Get all users that have watched tags with this post
     tags = post.tags.all()
