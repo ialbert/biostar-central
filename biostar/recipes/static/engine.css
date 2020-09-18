@@ -206,6 +206,12 @@ pre.toml_code {
 
 }
 
+.ui.segment.form-wrap {
+    box-shadow: none;
+    background: #f9f6f4;
+    overflow-wrap: break-word;
+}
+
 .small-font {
     font-size: x-small !important;
 }
