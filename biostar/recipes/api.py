@@ -238,6 +238,8 @@ def update_data(request, uid):
     # Get token to validate user access.
     token = request.data.get("token")
     target_user = User.objects.filter(profile__token=token).first()
+    
+    #TODO: checking for user access level to this data
 
     # Get the source that will replace target
     source = request.data.get("file", "")
