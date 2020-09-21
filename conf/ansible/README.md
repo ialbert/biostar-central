@@ -1,8 +1,12 @@
 # System setup
 
 Setup is automated via [ansible][ansible]. Install ansible into the current python environment:
-
+    
+    # Using pip
     pip install ansible
+    
+    # Using apt-get
+    sudo apt install ansible 
     
 The commands below assume the following:
 

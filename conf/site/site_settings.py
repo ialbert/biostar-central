@@ -62,3 +62,5 @@ try:
     logger.info("Imported settings from .site_secrets")
 except ImportError as exc:
     logger.warn(f"No secrets module could be imported: {exc}")
+
+print(SITE_DOMAIN, "DOMAIN")
