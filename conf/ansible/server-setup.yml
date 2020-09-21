@@ -1,49 +1,58 @@
 ---
 - hosts: all
-  user: root
+  user: "{{ username | default(root) }}"
 
   tasks:
     - include_vars: variables.yml
 
     - name: Add universe repository
+      become: yes
       apt_repository:
         repo: deb http://archive.ubuntu.com/ubuntu focal universe
         state: present
 
     - name: Update and upgrade packages.
+      become: yes
       apt:
         upgrade=yes
         update_cache=yes
         cache_valid_time=86400 # One day
 
     - name: Create the bioinfo group
+      become: yes
       group:
         name: bioinfo
 
     - name: Create the www group
+      become: yes
       group:
         name: www
 
     - name: Create the www user
+      become: yes
       user:
         name: www
         shell: /bin/bash
         groups: www, bioinfo, sudo
 
     - name: Set authorized key for www user
+      become: yes
       authorized_key:
         user: www
         state: present
         key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
 
     - name: Install required packages
+      become: yes
       vars:
         packages: [ 'aptitude', 'nginx', 'certbot', 'postgresql', 'software-properties-common', 'python3-pip', 'libpq-dev',
-                    'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'supervisor' ]
+                    'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'supervisor',
+                     'acl', 'python3-psycopg2']
       apt:
         name: "{{ packages }}"
 
     - name: Allow SSH through the firewall
+      become: yes
       ufw: rule=allow port={{item}}
       with_items:
         - ssh
@@ -51,9 +60,11 @@
         - https
 
     - name: Enable firewall
+      become: yes
       ufw: state=enabled policy=deny
 
     - name: Create supporting directories
+      become: yes
       file:
         path: "{{item}}"
         state: directory
@@ -67,6 +78,7 @@
         - "{{ engine_dir }}"
 
     - name: Allow write access to configuration directories
+      become: yes
       file:
         path: "{{ item }}"
         owner: www
@@ -85,7 +97,8 @@
         role_attr_flags: CREATEDB
       no_log: true
 
-    - name: Create postgresql database user
+
+    - name: Create postgresql database
       become: yes
       become_user: postgres
       postgresql_db:

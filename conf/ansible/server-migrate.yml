@@ -2,13 +2,8 @@
 - hosts: all
   user: www
 
-
-  handlers:
-    - import_tasks: files/handlers.yml
-      static: yes
-
   tasks:
-    - include_vars: files/vars.yml
+    - include_vars: variables.yml
 
     - debug:
         msg: "Remote target destination: {{ local_old }} Source file: {{ remote_old }}, "
