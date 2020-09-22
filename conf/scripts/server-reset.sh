@@ -11,7 +11,7 @@ export POSTGRES_HOST=/var/run/postgresql
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
 # Set the site domain.
-SITE_DOMAIN=${1}
+SITE_DOMAIN=${1:=''}
 export SITE_DOMAIN=${SITE_DOMAIN}
 
 #python manage.py flush --noinput

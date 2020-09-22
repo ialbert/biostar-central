@@ -13,7 +13,7 @@ conda activate engine
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
 # Set the site domain.
-SITE_DOMAIN=${1}
+SITE_DOMAIN=${1:=''}
 export SITE_DOMAIN=${SITE_DOMAIN}
 
 # Add 5000 posts to search index every 3 minutes

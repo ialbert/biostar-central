@@ -13,7 +13,7 @@ conda activate engine
 set -ue
 
 # Set the site domain.
-SITE_DOMAIN=${1}
+SITE_DOMAIN=${1:=''}
 export SITE_DOMAIN=${SITE_DOMAIN}
 
 # Set the configuration module.
