@@ -16,7 +16,8 @@ ref_dir: "/export/refs"
 # Default django settings to be used.
 django_settings_module: "conf.run.site_settings"
 
-remote : '{{ engine_dir }}/export/sql/target.gz'
+remote : '{{ engine_dir }}/export/sql/transfer.gz'
+
 # Conda setup.
 conda_env: "engine"
 conda_activate: "/home/www/miniconda3/envs/engine/bin/activate"

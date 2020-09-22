@@ -31,7 +31,7 @@ LIMIT=1000
 export OLD_DATABASE=old_biostar_db
 
 # Set the new database
-export NEW_DATABASE=${2:=biostar-database}
+export NEW_DATABASE=biostar-database
 
 # Set the configuration module.
 TRANSFER_SETTINGS_MODULE=biostar.transfer.settings

@@ -23,7 +23,7 @@ restart:
 
 transfer:
 	echo LOCAL_OLD=${LOCAL_OLD_DB}
-	ansible-playbook -i hosts.ini -l ${TARGET} server-transfer.yml --extra-vars "local_old=${LOCAL_OLD_DB} repo=${REPO} username=${USER}"  -v
+	ansible-playbook -i hosts.ini -l ${TARGET} server-transfer.yml --extra-vars "local_old=${LOCAL_OLD_DB} repo=${REPO} username=${USER}"  -vv
 
 deploy-code:
 	ansible-playbook -i hosts.ini -l ${TARGET} server-deploy.yml  --extra-vars "repo=${REPO} username=${USER}"

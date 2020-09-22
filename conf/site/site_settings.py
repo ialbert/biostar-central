@@ -1,18 +1,17 @@
 import os
 import uuid
+import requests
+import logging
+import platform
 
 from biostar.settings import *
 
 # from biostar.recipes.settings import *
 
-# from themes.bioconductor.settings import *
+from themes.bioconductor.settings import *
 
-from biostar.forum.settings import *
+# from biostar.forum.settings import *
 
-import requests
-
-import logging
-import platform
 
 logger = logging.getLogger("biostar")
 
@@ -39,7 +38,6 @@ except Exception as err:
 
 
 SITE_ID = 1
-SITE_NAME = "Biostar Central"
 HTTP_PORT = ''
 PROTOCOL = 'http'
 
