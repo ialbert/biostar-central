@@ -62,7 +62,7 @@
         chdir: "{{ engine_dir }}"
 
     - name: Migrate the server
-      shell: "./server-migrate.sh {{inventory_hostname}}"
+      shell: "./server-migrate.sh"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"

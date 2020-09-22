@@ -25,12 +25,8 @@
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
 
-    - debug:
-          msg: "Host name: {{inventory_hostname}} "
-      when: True
-
     - name: Migrate the server
-      shell: "./server-migrate.sh {{inventory_hostname}}"
+      shell: "./server-migrate.sh"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"

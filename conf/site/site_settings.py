@@ -9,6 +9,7 @@ from biostar.settings import *
 
 from biostar.forum.settings import *
 
+import requests
 
 import logging
 import platform
@@ -29,9 +30,13 @@ ADMINS = [
 # Set the default admin password.
 DEFAULT_ADMIN_PASSWORD = SECRET_KEY
 
-# Attempts to detect hostname so that automatic deployment works. It is best to set it with known data.
-SITE_DOMAIN = os.environ.setdefault("SITE_DOMAIN", "")
-SITE_DOMAIN = SITE_DOMAIN or platform.node()
+# Attempts to detect hostname so that automatic deployment works.
+# It is best to set it with known data.
+try:
+    SITE_DOMAIN = requests.get('https://checkip.amazonaws.com').text.strip()
+except Exception as err:
+    SITE_DOMAIN = platform.node()
+
 
 SITE_ID = 1
 SITE_NAME = "Biostar Central"
