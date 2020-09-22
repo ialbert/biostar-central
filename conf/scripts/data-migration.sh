@@ -16,6 +16,7 @@ export POSTGRES_HOST=/var/run/postgresql
 
 # Set the location for the postgres sql dump
 OLD_DUMP_DIR=export/sql/
+
 mkdir -p ${OLD_DUMP_DIR}
 
 # Get the database dump for old database (postgres sql dump).
@@ -30,7 +31,7 @@ LIMIT=1000
 export OLD_DATABASE=old_biostar_db
 
 # Set the new database
-export NEW_DATABASE=new_biostar_db
+export NEW_DATABASE=${2:=biostar-database}
 
 # Set the configuration module.
 TRANSFER_SETTINGS_MODULE=biostar.transfer.settings

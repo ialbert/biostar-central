@@ -137,7 +137,7 @@
         chdir: "{{ engine_dir }}"
 
     - name: Create the first data migration.
-      shell: "./server-migrate.sh"
+      shell: "./server-migrate.sh {{inventory_hostname}}"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"

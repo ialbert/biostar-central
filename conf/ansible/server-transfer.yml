@@ -6,13 +6,13 @@
     - include_vars: variables.yml
 
     - debug:
-        msg: "Remote target destination: {{ local_old }} Source file: {{ remote_old }}, "
+        msg: "Remote target destination: {{ remote }} Source file: {{ local_old }}, "
 
-    - name: Backup servers
-      shell: ls
-      notify:
-        - server backup
-      when: backup
+    - name: Create data backup
+      shell: "./server-backup.sh"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
 
     - name: Update the biostar-engine
       git:
@@ -34,11 +34,11 @@
 
     - name: Check if old database dump exists in remote site.
       stat:
-        path: "{{ remote_old }}"
+        path: "{{ remote }}"
       register: remote_copy
 
     - debug:
-        msg: "Remote target destination: {{ remote_old }} Source file: {{ local_old }}. "
+        msg: "Remote target destination: {{ remote }} Source file: {{ local_old }}. "
       when: local_copy.stat.exists == False
 
     - name: Source file required to exist in local machine.
@@ -49,16 +49,27 @@
     - name: Copy over the old database dump.
       copy:
         src: "{{ local_old }}"
-        dest: "{{ remote_old }}"
+        dest: "{{ remote }}"
         owner: www
       when: (remote_copy.stat.exists == False) and (local_old |length > 0)
 
-    - name: Install any new reqs and  migrate database.
-      notify:
-        - python install
-        - server migrate
+    - name: Install python requirements
+      shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
+      conda activate {{conda_env}} &&
+      pip install -r conf/requirements.txt"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
+
+    - name: Migrate the server
+      shell: "./server-migrate.sh {{inventory_hostname}}"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
 
     - name: Migrate over data from old to new.
-      notify:
-        - data migrate
+      shell: "./data-migration.sh {{ remote_copy }}"
+      args:
+        executable: /bin/bash
+        chdir: "{{ engine_dir }}"
 
