@@ -6,7 +6,7 @@
     - include_vars: variables.yml
 
     - name: Create data backup
-      shell: "./server-backup.sh {{inventory_hostname}}"
+      shell: "./server-backup.sh"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
