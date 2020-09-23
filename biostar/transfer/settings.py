@@ -18,7 +18,7 @@ OLD_DATABASE = os.environ.setdefault("OLD_DATABASE", "old_biostar_db")
 NEW_DATABASE = os.environ.setdefault("NEW_DATABASE", "database.db")
 POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
 
-print(f'NEW_DATABASE={OLD_DATABASE}, OLD_DATABASE={OLD_DATABASE}')
+print(f'NEW_DATABASE={NEW_DATABASE}, OLD_DATABASE={OLD_DATABASE}')
 
 DATABASES = {
 

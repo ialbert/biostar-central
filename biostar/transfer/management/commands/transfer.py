@@ -284,9 +284,11 @@ def bulk_copy_posts(limit):
                              batch_size=1000)
     update_threadusers()
     add_tags()
-    elapsed(f"Updated {pcount} post threads")
 
-    Post.objects.bulk_update(objs=set_counts(), fields=["reply_count", "comment_count", "answer_count"], batch_size=1000)
+    elapsed(f"Updated {pcount} post threads and added tags.")
+
+    Post.objects.bulk_update(objs=set_counts(), fields=["reply_count", "comment_count", "answer_count"],
+                             batch_size=1000)
     elapsed(f"Set {pcount} post counts.")
 
     Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
@@ -358,7 +360,12 @@ def test():
         print(len(subs), p)
         for sub in subs:
             print(sub.post.author.profile.digest_prefs)
-            print(sub.id, sub.user.id, sub.user.email, sub.user.profile.digest_prefs, sub.post.author.email, sub.post.title,
+            print(sub.id,
+                  sub.user.id,
+                  sub.user.email,
+                  sub.user.profile.digest_prefs,
+                  sub.post.author.email,
+                  sub.post.title,
                   sub.user.profile.message_prefs, sub.type)
 
             if sub.user.id in seen:
