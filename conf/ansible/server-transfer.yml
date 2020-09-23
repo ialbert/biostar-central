@@ -52,16 +52,6 @@
         dest: "{{ remote }}"
         owner: www
       when: (remote_copy.stat.exists == False) and (local_old |length > 0)
-      async: 1000
-      poll: 0
-      register: copied_data
-
-    - name: Check on status of database dump
-      async_status:
-        jid: "{{ copied_data.ansible_job_id }}"
-      register: job_result
-      until: job_result.finished
-      retries: 30
 
     - name: Install python requirements
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
