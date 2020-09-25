@@ -1,8 +1,12 @@
 # System setup
 
 Setup is automated via [ansible][ansible]. Install ansible into the current python environment:
-
+    
+    # Using pip
     pip install ansible
+    
+    # Using apt-get
+    sudo apt install ansible 
     
 The commands below assume the following:
 
@@ -31,7 +35,7 @@ The installation commands below will target subsets in hosts file.
 
 Run:
 
-    make setup install deploy TARGET=test 
+    make setup install deploy transfer TARGET=test 
 
 Once completed a default site will be installed and deployed via Nginx and Postgresql.
 
@@ -120,9 +124,12 @@ Manually
     export LOCAL=/full/path/file.sql.gz
     
     # Migration playbook
-	ansible-playbook -i hosts/test.biostars.org server-migrate.yml --ask-become-pass --extra-vars "local_old_db=${LOCAL}"
+	ansible-playbook -i test.biostars.org server-migrate.yml --extra-vars "local_old=${LOCAL}"
 
 Makefile 
 
-    make transfer HOST=hosts/test.biostars.org  LOCAL_OLD_DB=/full/path/file.sql.gz
-    
+    make transfer TARGET=test LOCAL_OLD_DB=/full/path/file.sql.gz
+ 
+Deploy and transfer using different user,host,repo, and data dump.
+
+    make setup install deploy transfer TARGET=demo USER=ubuntu REPO=https://github.com/Natay/biostar-central.git LOCAL_OLD_DB=~/tmp/data-dump.gz

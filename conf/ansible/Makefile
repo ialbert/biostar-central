@@ -13,7 +13,7 @@ $(error TARGET parameter must be set)
 endif
 
 setup:
-	ansible-playbook -i hosts.ini -l ${TARGET} server-setup.yml
+	ansible-playbook -i hosts.ini -l ${TARGET} server-setup.yml --extra-vars "repo=${REPO} username=${USER}"
 
 install:
 	ansible-playbook -i hosts.ini -l ${TARGET} server-install.yml  --extra-vars "repo=${REPO} username=${USER}"
@@ -22,8 +22,8 @@ restart:
 	ansible-playbook -i hosts.ini -l ${TARGET} server-restart.yml --extra-vars "repo=${REPO} username=${USER}"
 
 transfer:
-	echo LOCAL_OLD_DB=${LOCAL_OLD_DB}
-	ansible-playbook -i ${HOST} server-migrate.yml --ask-become-pass --extra-vars "local_old_db=${LOCAL_OLD_DB} repo=${REPO} username=${USER}"  -v
+	echo LOCAL_OLD=${LOCAL_OLD_DB}
+	ansible-playbook -i hosts.ini -l ${TARGET} server-transfer.yml --extra-vars "local_old=${LOCAL_OLD_DB} repo=${REPO} username=${USER}"  -vv
 
 deploy-code:
 	ansible-playbook -i hosts.ini -l ${TARGET} server-deploy.yml  --extra-vars "repo=${REPO} username=${USER}"

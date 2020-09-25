@@ -130,7 +130,8 @@
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
              conda activate {{conda_env}}  &&
              conda config --add channels conda-forge &&
-             conda install -y --file conf/conda-packages.txt"
+             conda install -y --file conf/conda-packages.txt &&
+             pip install -r conf/requirements.txt"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
