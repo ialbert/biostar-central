@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.http import QueryDict
 
+from biostar.accounts.models import User
 from . import models, auth
 
 # Share the logger with models
@@ -187,3 +188,42 @@ class require_api_key:
 
         return _api_view
 
+
+def check_token(klass):
+    """
+    Check users access to an object using their token.
+    """
+
+    def __outer__(func):
+
+        @wraps(func)
+        def __wrapper__(request, *args, **kwargs):
+
+            # Get the object user is trying to access
+            uid = kwargs.get('uid')
+            obj = klass.objects.filter(uid=uid).first()
+            project = obj.project
+            print(request.POST, request.FILES)
+            1/0
+
+            # Get the token from the request data
+            token = request.FILES.get("token").readline()
+            # Find the target user.
+            user = User.objects.filter(profile__token=token).first()
+
+            # GET requests require read access
+            if request.method == "GET":
+                acc = auth.is_readable(user=user, obj=obj, strict=True)
+
+            # PUT and POST requests require write access
+            else:
+                acc = auth.is_writable(user=user, project=project)
+            # User passes test.
+            if acc:
+                return func(request, *args, **kwargs)
+
+            return False
+
+        return __wrapper__
+
+    return __outer__

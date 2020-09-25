@@ -160,7 +160,7 @@ class Profile(models.Model):
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or now()
         self.last_login = self.last_login or now() #- timedelta(days=1)
-        self.token = self.token or util.get_uuid(32)
+        self.token = self.token or util.get_uuid(16)
 
         super(Profile, self).save(*args, **kwargs)
 

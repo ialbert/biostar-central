@@ -13,8 +13,8 @@ def add_token(apps, schema_editor):
     Profile = apps.get_model('accounts', 'Profile')
     profiles = Profile.objects.all()
     for pro in profiles:
-        # Set a token for this user.
-        pro.token = get_uuid(32)
+        # Set a token for users.
+        pro.token = get_uuid(16)
         pro.save()
 
 

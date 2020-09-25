@@ -225,8 +225,10 @@ def push_recipe(root_dir, json_file, api_key="", root_url=None, url_from_json=Fa
     json_data = hjson.loads(open(source, "r").read())
 
     rid, url, image, template = parse_recipe(json_data=json_data)
+
     image_stream = open(abspath(image), "rb")
     template_stream = open(abspath(template), "r")
+
     url = url if url_from_json else root_url
 
     if url:
@@ -274,10 +276,15 @@ def push_project(root_dir, json_file, root_url=None, api_key="", url_from_json=F
     logger.info(f"*** Pushed project id=({pid}) from:{source} into {url if url else 'database'}.")
 
 
+def push():
+    return
+
+
 def write_recipe(recipe, root_dir, image):
 
     # Make output directory.
     os.makedirs(root_dir, exist_ok=True)
+
     # Write image, template, and json
     fnames = generate_fnames(recipe.json_data)
     img_fname = os.path.join(root_dir, fnames[0])
@@ -358,7 +365,7 @@ def get_json_files(root_dir, json_fname=None):
     Return all existing .hjson or .json files in a directory
     """
 
-    is_json = lambda fname: fname.is_file() and fname.name.endswith(".hjson") or fname.name.endswith(".json")
+    is_json = lambda fname: fname.is_file() and (fname.name.endswith(".hjson") or fname.name.endswith(".json"))
     json_files = [fname.name for fname in os.scandir(root_dir) if is_json(fname)]
     if json_fname:
         # Return one json file if provided.
@@ -387,14 +394,15 @@ def list_ids(url=None, api_key=""):
 class Command(BaseCommand):
     help = 'Dump and load items using api.'
 
-    def manage_push(self, **options):
+    def push(self, **options):
         root_url = options.get("url")
         api_key = options.get("key")
         root_dir = options.get("dir")
         rid = options.get("rid")
         pid = options.get("pid") or ""
 
-        json_file = options.get("json")
+        # Get the file to push to remote site.
+        json_file = options.get("file")
         url_from_json = options.get("url_from_json")
 
         # Get root dir from directory name with json file.
@@ -402,13 +410,6 @@ class Command(BaseCommand):
             full_path = os.path.abspath(json_file)
             root_dir = root_dir or os.path.dirname(full_path)
             json_file = os.path.basename(full_path)
-
-        # Require api key when pushing to remote url
-        if (root_url or url_from_json) and not api_key:
-            sys.argv.append("--help")
-            self.stdout.write(self.style.NOTICE("[error] --key is required when loading data to remote site."))
-            self.run_from_argv(sys.argv)
-            sys.exit()
 
         root_dir = root_dir or os.getcwd()
         if not os.path.exists(root_dir):
@@ -418,21 +419,30 @@ class Command(BaseCommand):
         # Get json files from the root dir.
         json_files = get_json_files(root_dir=root_dir, json_fname=json_file)
         for fname in json_files:
+
             json_text = open(os.path.abspath(os.path.join(root_dir, fname)), "r").read()
             recipe_uid = hjson.loads(json_text).get("settings", {}).get("recipe_uid")
             project_uid = hjson.loads(json_text).get("settings", {}).get("project_uid")
+
             # Skip pushing when rid/pid in json != --rid/--pid given
             if (rid and recipe_uid != rid) or (pid and project_uid != pid):
                 continue
+
             if recipe_uid:
-                push_recipe(root_dir=root_dir, root_url=root_url, api_key=api_key, json_file=fname,
+                push_recipe(root_dir=root_dir,
+                            root_url=root_url,
+                            api_key=api_key,
+                            json_file=fname,
                             url_from_json=url_from_json)
             else:
-                push_project(root_dir=root_dir, root_url=root_url, api_key=api_key, url_from_json=url_from_json,
+                push_project(root_dir=root_dir,
+                             root_url=root_url,
+                             api_key=api_key,
+                             url_from_json=url_from_json,
                              json_file=fname)
         return
 
-    def manage_pull(self, **options):
+    def pull(self, **options):
 
         pull_recipes = options.get("recipes")
         root_url = options.get("url")
@@ -467,7 +477,7 @@ class Command(BaseCommand):
             write_project(project=project, root_dir=root_dir, image=image)
         return
 
-    def manage_create(self, **options):
+    def create(self, **options):
 
         root_dir = options.get("dir")
         json_file = options.get("json")
@@ -495,7 +505,7 @@ class Command(BaseCommand):
 
         return
 
-    def manage_list(self, **options):
+    def list(self, **options):
 
         url = options.get("url")
         api_key = options.get("key")
@@ -533,7 +543,7 @@ class Command(BaseCommand):
         parser.add_argument('--dir', default='', help="Base directory with json files.")
         parser.add_argument('--create_jobs', action="store_true", help="Create job when creating recipe found in --json.")
         parser.add_argument('--is_data', action="store_true", help="Create data object from --json.")
-        parser.add_argument('--json', default='', help="""JSON file path relative to create object from.""")
+        parser.add_argument('--file', default='', help="""File path to create object from.""")
         pass
 
     def add_arguments(self, parser):
@@ -561,7 +571,7 @@ class Command(BaseCommand):
         subcommand = sys.argv[2] if len(sys.argv) > 2 else None
 
         if subcommand == "list":
-            self.manage_list(**options)
+            self.list(**options)
             return
 
         if len(sys.argv) <= 3:
@@ -570,11 +580,11 @@ class Command(BaseCommand):
             sys.exit()
 
         if subcommand == "push":
-            self.manage_push(**options)
+            self.push(**options)
             return
         if subcommand == "create":
-            self.manage_create(**options)
+            self.create(**options)
             return
         if subcommand == "pull":
-            self.manage_pull(**options)
+            self.pull(**options)
             return

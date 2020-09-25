@@ -7,11 +7,11 @@ from functools import wraps
 from django.conf import settings
 from django.http import HttpResponse
 from ratelimit.decorators import ratelimit
-
+from django.views.decorators.csrf import csrf_exempt
 from biostar.accounts.models import User
-from biostar.recipes.models import Analysis, Project, Data, image_path
+from biostar.recipes.models import Analysis, Project, Data, image_path, Access
 from biostar.recipes import util
-from biostar.recipes.decorators import require_api_key
+from biostar.recipes.decorators import check_token, require_api_key
 
 
 logger = logging.getLogger("engine")
@@ -216,16 +216,14 @@ def validate_data_api(target, request, source, user, data):
     # Get the file to update
     fname = request.data.get("fname")
 
-    # Get token to validate user.
-    token = request.data.get("token")
-
     maxsize = 50
 
     return False, ''
 
 
-@api_error_wrapper(['GET', 'PUT'])
-@require_api_key(type=Data)
+@api_error_wrapper(['GET', 'POST'])
+@check_token(klass=Data)
+@csrf_exempt
 @ratelimit(key='ip', rate='20/m')
 def update_data(request, uid):
     """
@@ -235,34 +233,33 @@ def update_data(request, uid):
 
     data = Data.objects.filter(uid=uid).first()
 
-    # Get token to validate user access.
-    token = request.data.get("token")
-    target_user = User.objects.filter(profile__token=token).first()
-    
-    #TODO: checking for user access level to this data
+    # Get token file to belonging to user.
+    token = request.GET.get("token", request.POST.get("token")).readline()
+
+    user = User.objects.filter(profile__token=token).first()
 
     # Get the source that will replace target
     source = request.data.get("file", "")
-
     fname = source.name
 
-    print(source, "LOPPPLEVOP")
+    print(source, fname, token, user, request.data, "LOPPPLEVOP")
     1 / 0
 
     # Search for target in the data directory.
     target = list(filter(lambda f: f.endswith(fname), data.get_files()))[0]
 
-    # Get the source that will replace target
-    source = request.data.get("file", "")
-
-    # Validate both files before processing.
-    valid, msg = validate_data_api(target=target, request=request, user=target_user)
-
-    if not valid:
+    if not target:
+        msg = f"File name: {target} does not exist."
         return HttpResponse(content=msg, content_type="text/plain")
 
     # Write source into target
     if request.method == "PUT":
+        # Validate source and target files before upload.
+        valid, msg = validate_data_api(target=target, request=request, user=user)
+        if not valid:
+            return HttpResponse(content=msg, content_type="text/plain")
+
+        # Write source to target file.
         target = util.write_stream(stream=source, dest=target)
 
     # Return file contents in payload
