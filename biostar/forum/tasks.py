@@ -47,7 +47,7 @@ def notify_watched_tags(post):
     users = [User.objects.filter(profile__watched_tags__contains=tag) for tag in tags]
 
     # Get the emails to send notifications to.
-    emails = [u.first().email for u in users for u.email in u]
+    emails = [u.email for qs in users for u in qs if u.id != post.author.id]
     emails = set(emails)
 
     context = dict(post=post)
