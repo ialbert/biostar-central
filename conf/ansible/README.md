@@ -102,6 +102,8 @@ The default site set up with ansible will send email via SMTP. To set up your sy
 To deploy the latest version and restart the servers:
  
     make deploy TARGET=test  
+    
+    make deploy TARGET=demo REPO=https://github.com/Bioconductor/SupportUpgrade/tree/master/conf USER=ubuntu
         
 or via the playbook:
 
