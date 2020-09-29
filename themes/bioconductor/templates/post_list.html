@@ -18,6 +18,16 @@
 
     </div>
 
+    {% if not enable_pages %}
+        <div class="ui blue filter message">
+            Showing top <b>100</b> posts ordered by <code>{{ order }}</code> and limited to <code>{{ limit }}</code>
+            &bull;
+            <a class="ui blue label" href="{% url 'post_list' %}">
+                Show All <i class="undo small icon"></i>
+            </a>
+        </div>
+    {% endif %}
+
     {% if tag %}
         <div class="ui blue filter message">
             Showing : <code>{{ tag }}</code> &bull; <a href="{% url 'post_list' %}">reset <i
@@ -25,21 +35,23 @@
         </div>
     {% endif %}
 
-        <div class="ui divided items">
-            {% for post in posts %}
-                {% post_details post=post user=request.user avatar=False %}
-            {% empty %}
-                <div class="ui warn message">
-                    No posts found.
-                </div>
-            {% endfor %}
-        </div>
-
-    <div class="ui horizontal basic top-menu segments">
-        <div class="ui page-bar segment">
-            {% pages objs=posts %}
-        </div>
+    <div class="ui divided items">
+        {% for post in posts %}
+            {% post_details post=post user=request.user avatar=False %}
+        {% empty %}
+            <div class="ui warn message">
+                No posts found.
+            </div>
+        {% endfor %}
     </div>
+    {% if enable_pages %}
+        <div class="ui horizontal basic top-menu segments">
+            <div class="ui page-bar segment">
+                {% pages objs=posts %}
+            </div>
+        </div>
+    {% endif %}
+
 
 {% endblock %}
 

@@ -241,13 +241,18 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     # Get posts available to users.
     posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
 
-    # Generate cache key
-    cache_key = cache_key or generate_cache_key(limit, tag, show)
-    # Create the paginator
-    paginator = CachedPaginator(count_key=cache_key, object_list=posts,
-                                per_page=settings.POSTS_PER_PAGE)
-    # Apply the post paging.
-    posts = paginator.get_page(page)
+    if enable_pages:
+        # Generate cache key
+        cache_key = cache_key or generate_cache_key(limit, show)
+
+        # Create the paginator
+        paginator = CachedPaginator(count_key=cache_key, object_list=posts,
+                                    per_page=settings.POSTS_PER_PAGE)
+        # Apply the post paging.
+        posts = paginator.get_page(page)
+    else:
+        # Clip posts to the first 100 when filtering.
+        posts = posts[:100]
 
     # Set the active tab.
     tab = tag or show or "latest"
