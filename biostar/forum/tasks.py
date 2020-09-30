@@ -52,6 +52,7 @@ def notify_watched_tags(post):
 
     context = dict(post=post)
     template = 'messages/watched_tags.html'
+    # Make the emailing system works.
     send_email(template_name=template, extra_context=context, recipient_list=emails)
 
     return
