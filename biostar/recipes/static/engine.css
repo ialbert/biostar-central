@@ -10,6 +10,7 @@
 
     --top-menu-color: #061d38;
     --recipe-search-color: #1b395b;
+    --active-color: #d05e21;
 
 }
 
@@ -281,12 +282,6 @@ pre.toml_code {
     padding-bottom: 0;
     border-bottom: none;
 }
-
-.ui.menu .item.trusted {
-    color: white;
-}
-
-
 .access {
     border-radius: 20px;
     margin-bottom: 5px;
