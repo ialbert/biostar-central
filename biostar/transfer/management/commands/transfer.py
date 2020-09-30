@@ -359,9 +359,7 @@ def test():
                   sub.post.author.email,
                   sub.post.title,
                   sub.user.profile.message_prefs, sub.type)
-            print("--"*50)
-            print()
-            print('foo bar too me far too')
+
             if sub.user.id in seen:
                 print(f"Already subbed to post={p}, {sub.user.email}")
                 continue

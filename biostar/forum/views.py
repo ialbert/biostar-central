@@ -58,8 +58,6 @@ ORDER_MAPPER = dict(
 
 )
 
-
-
 def post_exists(func):
     """
     Ensure uid passed to view function exists.
