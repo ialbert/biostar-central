@@ -23,16 +23,6 @@ body {
 
 
 
-#landing.segment {
-    margin-right: -22% !important;
-    margin-left: -22%;
-    margin-top: -22px;
-    padding-left: 39%;
-    padding-top: 2%;
-    background-color: #032d57;
-}
-
-
 .landing.segment {
     margin-left: 17% !important;
     margin-right: 17% !important;
@@ -716,6 +706,10 @@ a:hover {
     left: 24px !important;
 }
 
+#top > .segment {
+    padding-left: 10%;
+    padding-right: 10%;
+}
 
 code {
     color: var(--code-color);

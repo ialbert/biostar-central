@@ -61,6 +61,8 @@
     {% endblock %}
 
     <div class="ui vertical segment">
+    
+        <div id="search-results"></div>
 
         {% block subheader %}
             <h3 class="ui center aligned top-title header">
@@ -72,7 +74,6 @@
             </h3>
         {% endblock %}
 
-        <div id="search-results"></div>
         {% show_messages messages %}
 
         {% block body %}
