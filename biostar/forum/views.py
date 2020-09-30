@@ -59,12 +59,13 @@ def post_exists(func):
     return _wrapper_
 
 
-def get_posts(user, show="latest", tag="", order="", limit=None):
+def get_posts(user, topic="", tag="", order="", limit=None):
     """
     Generates a post list on a topic.
     """
     # Topics are case insensitive.
-    topic = show.lower()
+    topic = topic or LATEST
+    topic = topic.lower()
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
@@ -195,7 +196,7 @@ def pages(request, fname):
 
 
 @ensure_csrf_cookie
-def post_list(request, show=None, cache_key='', extra_context=dict()):
+def post_list(request, topic=None, cache_key='', extra_context=dict()):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -206,18 +207,17 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     page = request.GET.get('page', 1)
     order = request.GET.get("order", "")
     tag = request.GET.get("tag", "")
-    show = show or request.GET.get("type", "")
+    topic = topic or request.GET.get("type", "")
     limit = request.GET.get("limit", "")
 
     # Get posts available to users.
-    posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
+    posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
 
-    # Cut posts to first 1000 when applying filters.
-    if limit or order or tag or show:
+    # Cut posts to first 1000 when applying any filter.
+    if limit or order or tag or topic:
         posts = posts[:1000]
-    # Set cache key when no filters are applied.
-    else:
-        cache_key = cache_key or "POST-LIST"
+        # cache_key not used when applying filters.
+        cache_key = None
 
     # Create the paginator
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
@@ -226,10 +226,10 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     posts = paginator.get_page(page)
 
     # Set the active tab.
-    tab = tag or show or "latest"
+    tab = tag or topic or LATEST
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=show,
+    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=topic,
                    limit=limit, avatar=True)
     context.update(extra_context)
     # Render the page.
@@ -237,8 +237,13 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
 
 
 def latest(request):
-    show = request.GET.get("type", "") or LATEST
-    return post_list(request, show=show)
+    """
+    Show latest post listing.
+    """
+    # Cache the latest posts.
+    cache_key = DEFAULT_CACHE_KEY
+
+    return post_list(request, cache_key=cache_key)
 
 
 def authenticated(func):
@@ -258,8 +263,7 @@ def myvotes(request):
     votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
                                                                             'author__profile').order_by("-date")
     # Create the paginator
-    paginator = CachedPaginator(cache_key=MYVOTES_CACHE_KEY, object_list=votes,
-                                    per_page=settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(object_list=votes, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
     votes = paginator.get_page(votes)
@@ -302,7 +306,7 @@ def myposts(request):
     Show posts by user
     """
 
-    return post_list(request, show=MYPOSTS)
+    return post_list(request, topic=MYPOSTS)
 
 
 @authenticated
@@ -310,7 +314,7 @@ def following(request):
     """
     Show posts followed by user
     """
-    return post_list(request, show=FOLLOWING)
+    return post_list(request, topic=FOLLOWING)
 
 
 @authenticated
@@ -318,13 +322,13 @@ def bookmarks(request):
     """
     Show posts bookmarked by user
     """
-    return post_list(request, show=BOOKMARKS)
+    return post_list(request, topic=BOOKMARKS)
 
 
 @authenticated
 def mytags(request):
 
-    return post_list(request=request, show=MYTAGS)
+    return post_list(request=request, topic=MYTAGS)
 
 
 def community_list(request):
@@ -340,8 +344,10 @@ def community_list(request):
         users = users.filter(profile__last_login__gt=delta)
 
     if query and len(query) > 2:
-        db_query = Q(email__in=query) | Q(profile__name__contains=query) | Q(profile__uid__contains=query) | \
-                   Q(username__contains=query) | Q(profile__name__in=query) | Q(email=query) |Q(email__contains=query) |\
+        db_query = Q(email__in=query) | Q(profile__name__contains=query) | \
+                   Q(profile__uid__contains=query) | Q(username__contains=query) | \
+                   Q(profile__name__in=query) | Q(email=query) | \
+                   Q(email__contains=query) |\
                    Q(profile__uid__contains=query)
         users = users.filter(db_query)
 

@@ -6,7 +6,8 @@ BUMP_POST, OPEN_POST, TOGGLE_ACCEPT, MOVE_ANSWER, DUPLICATE, OFFTOPIC, DELETE, C
 RANK, VIEWS, REPLIES, TAGGED, VOTES, VISIT, REPUTATION, JOINED, ACTIVITY = ("rank", "views", "replies",
                                                           "tagged", "votes", "visit", "reputation",
                                                           "joined", "activity")
-# Map to
+
+# Map filter actions to respective database filters.
 ORDER_MAPPER = {
     RANK: "-rank",
     TAGGED: '-tagged',
@@ -19,12 +20,10 @@ ORDER_MAPPER = {
     ACTIVITY: '-profile__date_joined'
 }
 
-MYVOTES_CACHE_KEY = "MYVOTES"
+
+DEFAULT_CACHE_KEY = "CACHE-KEY"
+
 TAGS_CACHE_KEY = "TAGS"
-MYPOSTS_CACHE_KEY = "MYPOSTS"
-FOLLOWING_CACHE_KEY = "FOLLOWING"
-BOOKMARKS_CACHE_KEY = "BOOKMARKS"
-MYTAGS_CACHE_KEY = "MYTAGS"
 
 SIMILAR_CACHE_KEY = "SIMILAR"
 USERS_CACHE_KEY = "MENTIONED_USERS"

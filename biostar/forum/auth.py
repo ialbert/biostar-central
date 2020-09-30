@@ -75,7 +75,7 @@ def decode_email(email):
 
 def get_users_str():
     """
-    Return comma separated string of username used for autocomplete
+    Return comma separated string of username used for autocomplete.
     """
 
     cache_days = 5
