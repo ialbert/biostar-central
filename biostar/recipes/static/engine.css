@@ -21,14 +21,6 @@ body {
     text-rendering: optimizeLegibility;
 }
 
-#recipe-search {
-    border-radius: .2rem !important;
-    background-color: var(--recipe-search-color) !important;
-    height: 35px;
-    width: 254px;
-    padding: 9px !important;
-    color: white !important;
-}
 
 
 #landing.segment {
@@ -724,6 +716,10 @@ a:hover {
     left: 24px !important;
 }
 
+#top > .segment {
+    padding-left: 10%;
+    padding-right: 10%;
+}
 
 code {
     color: var(--code-color);
@@ -803,13 +799,6 @@ blockquote {
 
 }
 
-@media all and (min-width: 1400px) {
-
-    #top > .segment {
-        padding-left: 10%;
-        padding-right: 10%;
-    }
-}
 
 @media all and (max-width: 500px) {
 
