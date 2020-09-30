@@ -59,12 +59,6 @@ ORDER_MAPPER = dict(
 )
 
 
-def generate_cache_key(*args):
-    # Combine list of values to form a single key
-    vals = [str(v).replace(' ', '') for v in args]
-    key = ''.join(vals)
-    return key
-
 
 def post_exists(func):
     """
