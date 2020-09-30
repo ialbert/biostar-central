@@ -5,9 +5,11 @@
 {% block headtitle %}
     Bioinformatics Recipes
 {% endblock %}
+{%  block title %}
+{%  endblock %}
 
-{% block subheader %}
-    <div class="ui vertical masthead segment">
+{% block masthead %}
+    <div class="ui bottom attached vertical masthead segment">
 
         <div>
             <h1 class="ui header">
@@ -61,9 +63,10 @@
 {% endblock %}
 
 {% block body %}
-    <div class="ui  vertical segment">
 
-        <h4 class="ui header">What is a recipe?</h4>
+    <div class="ui large vertical segment" style="margin-top: -5em;">
+
+        <div class="ui header">What is a recipe?</div>
         <div class="description">
             A "bioinformatics recipe" is a collection of commands used to perform a
             bioinformatics data analysis task. A recipe can be thought
@@ -72,10 +75,8 @@
 
     </div>
 
-
-
-    <div class="ui vertical segment">
-        <h4 class="ui header">Where are the recipes?</h4>
+    <div class="ui large vertical segment">
+        <div class="ui header">Where are the recipes?</div>
         <div class="description">
             <ul>
                 <li>The <a href="{% url 'project_list' %}"><i class="mylist icon"></i>Project List
@@ -91,8 +92,8 @@
 
     </div>
 
-    <div class="ui vertical segment">
-        <h4 class="ui header">What types of recipes can I find here?</h4>
+    <div class="ui large vertical segment">
+        <div class="ui header">What types of recipes can I find here?</div>
         <p>
             Most recipes demonstrate typical use cases for various bioinformatics tools.
             Many recipes have been developed to support bioinformatics education.
@@ -100,8 +101,8 @@
 
     </div>
 
-    <div class="ui vertical segment">
-        <h4 class="ui header">Can I run recipes on my computer?</h4>
+    <div class="ui large vertical segment">
+        <div class="ui header">Can I run recipes on my computer?</div>
         <p>
             Yes! All recipes are designed to run both through this website and at the command line on
             your computer.
@@ -109,8 +110,8 @@
     </div>
 
 
-    <div class="ui vertical segment">
-        <h4 class="ui header">Where can I learn more?</h4>
+    <div class="ui large vertical segment">
+        <div class="ui header">Where can I learn more?</div>
 
         <p>Scientific publication:
 
@@ -129,8 +130,8 @@
 
     </div>
 
-    <div class="ui vertical segment">
-        <h4 class="ui header">Where is the documentation?</h4>
+    <div class="ui large vertical segment">
+        <div class="ui header">Where is the documentation?</div>
         <p>
 
 
@@ -150,8 +151,8 @@
     </div>
 
 
-    <div class="ui vertical segment">
-        <h4 class="ui header">Is there a video?</h4>
+    <div class="ui large vertical segment">
+        <div class="ui header">Is there a video?</div>
 
         <p>An introductory video by lead software developer Natay Aberra: </p>
         <div style="position: relative; padding-bottom: 2.25%; height: 0; overflow: hidden;  height: auto;">

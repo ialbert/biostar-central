@@ -1,6 +1,6 @@
 :root {
     --run-bg-color: #fdfbee;
-    --code-color:  #00008B;;
+    --code-color: #00008B;;
     --code-bg-color: #f9f9f9;
     --job-completed: #21ba45;
     --job-spooled: #6435c9;
@@ -14,23 +14,23 @@
 }
 
 body {
-    background-color: #f8f8f9 !important;
-    //padding-top: 1rem;
+    //background-color: #f8f8f9 !important;
+    //padding-top: 1 rem;
     font-family: "Lato", "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
     text-rendering: optimizeLegibility;
 }
 
-#recipe-search{
+#recipe-search {
     border-radius: .2rem !important;
     background-color: var(--recipe-search-color) !important;
-    height: 35px ;
-    width: 254px ;
+    height: 35px;
+    width: 254px;
     padding: 9px !important;
     color: white !important;
 }
 
 
-#landing.segment{
+#landing.segment {
     margin-right: -22% !important;
     margin-left: -22%;
     margin-top: -22px;
@@ -40,7 +40,7 @@ body {
 }
 
 
-.landing.segment{
+.landing.segment {
     margin-left: 17% !important;
     margin-right: 17% !important;
 }
@@ -53,12 +53,12 @@ body {
     margin: 0;
 }
 
-.ui-droppable-hover{
+.ui-droppable-hover {
     border: #10ee0a dotted 5px !important;
     height: 50% !important;
 }
 
-.draggable{
+.draggable {
     cursor: grab;
 }
 
@@ -69,11 +69,11 @@ body {
     -webkit-box-shadow: none;
 }
 
-.float-right{
-    float:right
+.float-right {
+    float: right
 }
 
-.recipes.grid .text.menu{
+.recipes.grid .text.menu {
     width: auto;
 }
 
@@ -81,54 +81,67 @@ body {
     opacity: 80%;
 }
 
-#interface .grid .labels .label{
+#interface .grid .labels .label {
     width: 100%;
 }
 
-#top .top-title.header{
+#top .top-title.header {
     margin-top: .5%;
 }
 
-.ui.tiny.statistics.index .statistic>.value {
-    font-size: 1.1rem!important;
-    //color: #f2711c; !important;
+.ui.vertical.masthead.segment {
+    background-color: #fcf5f2;
+    padding-top: 2em;
+
 }
 
-.ui.tiny.statistics.index .statistic>.label {
-    font-size: 0.7rem!important;
-    //color: #f2711c; !important;
+.ui.header:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+    font-size: 1.1em;
+}
+
+.ui.tiny.statistics.index .statistic > .value {
+    font-size: 1.1rem !important;
+/ / color: #f2711c;
+!important;
+}
+
+.ui.tiny.statistics.index .statistic > .label {
+    font-size: 0.7rem !important;
+/ / color: #f2711c;
+!important;
 }
 
 
-
-#topmenu{
+#topmenu {
     box-shadow: none;
     background: var(--top-menu-color);
     margin-bottom: 0px;
     border-radius: 0;
 }
-#top{
+
+#top {
     width: 100%;
 
 }
+
 #project_view h1 {
- font-size: 1.28571429rem;
+    font-size: 1.28571429rem;
 }
 
 .wmd-panel {
-    margin-left:0 !important;
+    margin-left: 0 !important;
     margin-right: 0 !important;
     width: 100% !important;
-    }
+}
 
 
 #project_view h2 {
- font-size: 1.18571429rem;
+    font-size: 1.18571429rem;
 }
 
 
 #project_view h3 {
- font-size: 1.08571429rem;
+    font-size: 1.08571429rem;
 }
 
 .ui.tabular.colored.menu {
@@ -139,12 +152,14 @@ body {
 .ui.ribbon.projects.label {
     left: calc(-1rem - 1.4em);
 }
+
 .hidden {
     display: none;
     color: #fefefe;
 }
+
 pre.toml_code {
-    white-space: pre-line!important;
+    white-space: pre-line !important;
 }
 
 .ui.basic.segment.collapse {
@@ -154,9 +169,10 @@ pre.toml_code {
 }
 
 
-.data .content, .job .content, .recipe.content{
-        width: 0;
+.data .content, .job .content, .recipe.content {
+    width: 0;
 }
+
 .narrow {
     margin-left: 15%;
     margin-right: 15%;
@@ -166,7 +182,7 @@ pre.toml_code {
     display: inline;
 }
 
-.data .content, .job .content, .recipe.content{
+.data .content, .job .content, .recipe.content {
     width: auto;
 }
 
@@ -192,8 +208,7 @@ pre.toml_code {
 }
 
 
-
-.text.container{
+.text.container {
     margin-left: 0 !important;
     margin-right: 0 !important;
     max-width: fit-content !important;
@@ -222,39 +237,38 @@ pre.toml_code {
 }
 
 
-.wmd-button > span{
+.wmd-button > span {
     background-image: url('/static/pagedown/wmd-buttons.png') !important;
 }
 
-.wmd-button-bar{
+.wmd-button-bar {
     background-color: transparent !important;
 }
 
 
-.wmd-preview{
-    padding:14px !important;
+.wmd-preview {
+    padding: 14px !important;
     background: #ececec !important;
     margin: 10px !important;
     border-radius: 15px !important;
 }
 
-.wmd-prompt-background{
+.wmd-prompt-background {
     display: none !important;
 }
 
-.deletelink-box{
+.deletelink-box {
     display: inline;
 }
 
-#clipboard .message .muted{
+#clipboard .message .muted {
     margin-bottom: 1ex;
 }
 
 
 .ui.message.log {
-    //width: 20%;
+/ / width: 20 %;
 }
-
 
 
 .ui.message.log > span:nth-child(2) {
@@ -273,55 +287,54 @@ pre.toml_code {
 }
 
 
-.access{
+.access {
     border-radius: 20px;
     margin-bottom: 5px;
     padding: 8px !important;
     border-top: none !important;
 }
 
-.top-rank{
+.top-rank {
     display: none;
 }
 
-.float-right.draggable{
-   padding-top: 30px;
+.float-right.draggable {
+    padding-top: 30px;
     height: 100%;
 
 }
 
-.top-title.header{
+.top-title.header {
     height: 2.5em;
     margin-top: .5%;
 }
 
-.top-title.header .listing{
-   font-size: 31px;
-   height: 11px;
-   margin-right: 0.4rem !important;
+.top-title.header .listing {
+    font-size: 31px;
+    height: 11px;
+    margin-right: 0.4rem !important;
 }
 
-.top-title.header .viewing{
+.top-title.header .viewing {
     margin-right: 0.7rem;
     min-width: 1.18em;
     bottom: 7px;
 }
 
 
-
-.top-title.header span:first-child{
+.top-title.header span:first-child {
     margin-left: 19px;
 }
 
 
 .ui.segment.run {
     margin: auto;
-    background:var(--run-bg-color);
+    background: var(--run-bg-color);
 }
 
 
 .completed {
-    border-color: var(--job-completed)!important;
+    border-color: var(--job-completed) !important;
 }
 
 .completed.label {
@@ -361,11 +374,11 @@ pre.toml_code {
 }
 
 .errored.item {
-    color:  var(--job-error) !important;
+    color: var(--job-error) !important;
 }
 
 .running {
-    border-color:var(--job-running) !important;
+    border-color: var(--job-running) !important;
 }
 
 
@@ -380,7 +393,7 @@ pre.toml_code {
 }
 
 .queued {
-    border-color:var(--job-queued)!important;
+    border-color: var(--job-queued) !important;
 }
 
 .queued.label {
@@ -433,8 +446,8 @@ pre.toml_code {
     background-color: #f2f2f2;
 }
 
-.job .buttons, .data .buttons, .recipe .buttons{
-   height: min-content;
+.job .buttons, .data .buttons, .recipe .buttons {
+    height: min-content;
 }
 
 
@@ -449,11 +462,13 @@ pre.toml_code {
 
 .write_access {
     border-left: 20px solid #f1f8e9 !important;
-    //background-color: #f1f8e9 !important;
+/ / background-color: #f1f8e9 !important;
 }
 
 /* Fix for the name clash in semantic UI. */
-i.icon.mylist:before{content:"\f03a"}
+i.icon.mylist:before {
+    content: "\f03a"
+}
 
 .ui.list.questions > .item > .description {
     margin: 0ex 0em 0ex 0em;
@@ -506,7 +521,7 @@ figure {
     display: inline-block !important;
 }
 
-.opaque{
+.opaque {
     opacity: .5;
 }
 
@@ -597,15 +612,15 @@ figure {
 }
 
 
-.data .items{
+.data .items {
     margin: 0px;
 }
 
-.data .segment{
+.data .segment {
     padding: 0px;
 }
 
-.card .content:not(.extra):hover{
+.card .content:not(.extra):hover {
     cursor: pointer;
 }
 
@@ -631,7 +646,7 @@ figure {
 }
 
 
-#clipboard .message{
+#clipboard .message {
     display: contents
 }
 
@@ -689,16 +704,17 @@ a:hover {
 
 
 .parent {
-  position: relative;
-  top: 0;
-  left: 0;
+    position: relative;
+    top: 0;
+    left: 0;
 }
 
 .bottom.image {
-  position: relative;
-  top: 0;
-  left: 0;
+    position: relative;
+    top: 0;
+    left: 0;
 }
+
 .top.icon, .top.image, .top.loader {
     position: absolute !important;
     top: 5px !important;
@@ -706,7 +722,7 @@ a:hover {
 
 }
 
-.top.loader{
+.top.loader {
     display: inline;
     font-size: 50px;
     top: 24px !important;
@@ -723,7 +739,7 @@ code {
     font-size: .88em !important;
 }
 
-pre > code{
+pre > code {
     padding: 0;
 }
 
@@ -794,7 +810,7 @@ blockquote {
 
 @media all and (min-width: 1400px) {
 
-    #top > .segment{
+    #top > .segment {
         padding-left: 10%;
         padding-right: 10%;
     }
