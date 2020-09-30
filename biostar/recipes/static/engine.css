@@ -91,12 +91,12 @@ body {
 
 .ui.tiny.statistics.index .statistic>.value {
     font-size: 1.1rem!important;
-    color: #999999 !important;
+    //color: #f2711c; !important;
 }
 
 .ui.tiny.statistics.index .statistic>.label {
     font-size: 0.7rem!important;
-    color: #999999 !important;
+    //color: #f2711c; !important;
 }
 
 
