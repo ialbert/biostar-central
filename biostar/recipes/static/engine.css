@@ -21,14 +21,6 @@ body {
     text-rendering: optimizeLegibility;
 }
 
-#recipe-search {
-    border-radius: .2rem !important;
-    background-color: var(--recipe-search-color) !important;
-    height: 35px;
-    width: 254px;
-    padding: 9px !important;
-    color: white !important;
-}
 
 
 #landing.segment {

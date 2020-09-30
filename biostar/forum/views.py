@@ -258,7 +258,7 @@ def myvotes(request):
     votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
                                                                             'author__profile').order_by("-date")
     # Create the paginator
-    paginator = CachedPaginator(count_key=MYVOTES_CACHE_KEY, object_list=votes,
+    paginator = CachedPaginator(cache_key=MYVOTES_CACHE_KEY, object_list=votes,
                                     per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
@@ -285,7 +285,7 @@ def tags_list(request):
     tags = tags.order_by('-nitems')
 
     # Create the paginator
-    paginator = CachedPaginator(count_key=TAGS_CACHE_KEY, object_list=tags,
+    paginator = CachedPaginator(cache_key=TAGS_CACHE_KEY, object_list=tags,
                                 per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
@@ -350,7 +350,7 @@ def community_list(request):
     users = users.order_by(order)
 
     # Create the paginator
-    paginator = CachedPaginator(count_key="USERS", object_list=users,
+    paginator = CachedPaginator(cache_key="USERS", object_list=users,
                                 per_page=settings.POSTS_PER_PAGE)
     users = paginator.get_page(page)
     context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)
