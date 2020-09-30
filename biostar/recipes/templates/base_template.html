@@ -34,7 +34,7 @@
 
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
-         <script src="{% static 'effects.js' %}"></script>
+        <script src="{% static 'effects.js' %}"></script>
         <script src="{% static 'setup.js' %}{% randparam %}"></script>
         <script src="{% static 'engine.js' %}{% randparam %}"></script>
         <script src="{% static 'prism.js' %}{% randparam %}"></script>
@@ -56,17 +56,21 @@
         {% menubar request=request %}
     {% endblock %}
 
-    <div class="ui bottom attached padded segment">
+    {% block masthead %}
+        {#  Used only on the landing page #}
+    {% endblock %}
 
-    {% block subheader %}
-        <h3 class="ui center aligned top-title header" >
+    <div class="ui vertical segment">
+
+        {% block subheader %}
+            <h3 class="ui center aligned top-title header">
         <span>
             {% block title %}
                 Title
             {% endblock %}
         </span>
-        </h3>
-    {% endblock %}
+            </h3>
+        {% endblock %}
 
         <div id="search-results"></div>
         {% show_messages messages %}
