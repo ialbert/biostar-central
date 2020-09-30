@@ -789,6 +789,11 @@ blockquote {
     opacity: 0.95;
 }
 
+#top > .segment {
+    padding-left: 10%;
+    padding-right: 10%;
+}
+
 @media all and (max-width: 999px) {
 
     .widescreen {
@@ -801,14 +806,6 @@ blockquote {
         margin-left: 0 !important;
     }
 
-}
-
-@media all and (min-width: 1400px) {
-
-    #top > .segment {
-        padding-left: 10%;
-        padding-right: 10%;
-    }
 }
 
 @media all and (max-width: 500px) {
