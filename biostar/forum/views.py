@@ -242,8 +242,8 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
     posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
 
     if enable_pages:
-        # Generate cache key
-        cache_key = cache_key or generate_cache_key(limit, show)
+        # Get cache key or use the limit value.
+        cache_key = cache_key or limit
 
         # Create the paginator
         paginator = CachedPaginator(count_key=cache_key, object_list=posts,
