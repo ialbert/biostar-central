@@ -18,15 +18,6 @@
         {% filter_dropdown %}
     </div>
 
-    {% if not enable_pages %}
-        <div class="ui blue filter message">
-            Showing top <b>100</b> posts ordered by <code>{{ order }}</code> and limited to <code>{{ limit }}</code>
-            &bull;
-            <a class="ui blue label" href="{% url 'post_list' %}">
-                Show All <i class="undo small icon"></i>
-            </a>
-        </div>
-    {% endif %}
 
     {% if tag %}
         <div class="ui blue filter message">
@@ -56,11 +47,11 @@
         {% endfor %}
     </div>
 
-    {% if enable_pages %}
-        <div class="ui page-bar segment">
-            {% pages objs=posts %}
-        </div>
-    {% endif %}
+
+    <div class="ui page-bar segment">
+        {% pages objs=posts %}
+    </div>
+
 
 {% endblock %}
 

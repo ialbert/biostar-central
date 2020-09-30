@@ -43,20 +43,6 @@ LIMIT_MAP = dict(
     month=30,
     year=365
 )
-# Valid order values value as they correspond to database ordering fields.
-ORDER_MAPPER = dict(
-    rank="-rank",
-    tagged='-tagged',
-    views="-view_count",
-    replies="-reply_count",
-    votes="-thread_votecount",
-    visit='-profile__last_login',
-    reputation='-profile__score',
-    joined='-profile__date_joined',
-    activity='-profile__date_joined'
-
-
-)
 
 def post_exists(func):
     """
@@ -73,7 +59,7 @@ def post_exists(func):
     return _wrapper_
 
 
-def get_posts(user, show="latest", tag="", order="rank", limit=None):
+def get_posts(user, show="latest", tag="", order="", limit=None):
     """
     Generates a post list on a topic.
     """
@@ -161,8 +147,8 @@ class CachedPaginator(Paginator):
 
     LIMIT = 1000
 
-    def __init__(self, count_key='', ttl=None, *args, **kwargs):
-        self.count_key = count_key
+    def __init__(self, cache_key='', ttl=None, *args, **kwargs):
+        self.cache_key = cache_key
         self.ttl = ttl or self.TTL
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
@@ -171,19 +157,19 @@ class CachedPaginator(Paginator):
         value = 1
 
         # Return uncached paginator.
-        if self.count_key is None:
+        if self.cache_key is None:
             return super(CachedPaginator, self).count
 
-        if self.count_key not in cache:
+        if self.cache_key not in cache:
             value = super(CachedPaginator, self).count
 
             # Small values do not need to be cached.
             if value > self.LIMIT:
                 logger.info("Setting paginator count cache")
-                cache.set(self.count_key, value, self.ttl)
+                cache.set(self.cache_key, value, self.ttl)
 
         # Offset to estimate post counts without missing newly created posts since TTL.
-        value = cache.get(self.count_key, value)
+        value = cache.get(self.cache_key, value)
 
         return value
 
@@ -218,40 +204,33 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
 
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
-    order = request.GET.get("order", "rank")
+    order = request.GET.get("order", "")
     tag = request.GET.get("tag", "")
     show = show or request.GET.get("type", "")
-    limit = request.GET.get("limit", "all")
-
-    # Pages are enable when showing 'all' ordered by 'rank'
-    cond1 = limit == 'all' and order == 'rank'
-    # Pages are also enabled when a page number is provided.
-    cond2 = request.GET.get('page') is not None
-
-    enable_pages = cond1 or cond2
+    limit = request.GET.get("limit", "")
 
     # Get posts available to users.
     posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
 
-    if enable_pages:
-        # Get cache key or use the limit value.
-        cache_key = cache_key or limit
-
-        # Create the paginator
-        paginator = CachedPaginator(count_key=cache_key, object_list=posts,
-                                    per_page=settings.POSTS_PER_PAGE)
-        # Apply the post paging.
-        posts = paginator.get_page(page)
+    # Cut posts to first 1000 when applying filters.
+    if limit or order or tag or show:
+        posts = posts[:1000]
+    # Set cache key when no filters are applied.
     else:
-        # Clip posts to the first 100 when filtering.
-        posts = posts[:100]
+        cache_key = cache_key or "POST-LIST"
+
+    # Create the paginator
+    paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
+
+    # Apply the post paging.
+    posts = paginator.get_page(page)
 
     # Set the active tab.
     tab = tag or show or "latest"
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, enable_pages=enable_pages,
-                   tag=tag, order=order, type=show, limit=limit, avatar=True)
+    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=show,
+                   limit=limit, avatar=True)
     context.update(extra_context)
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
@@ -322,6 +301,7 @@ def myposts(request):
     """
     Show posts by user
     """
+
     return post_list(request, show=MYPOSTS)
 
 
