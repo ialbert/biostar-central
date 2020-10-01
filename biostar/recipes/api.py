@@ -211,15 +211,6 @@ def recipe_template(request, uid):
     return HttpResponse(content=payload, content_type="text/plain")
 
 
-def validate_data_api(target, request, source, user, data):
-    # Maximum size for a data to be updated via api.
-    # Get the file to update
-    fname = request.data.get("fname")
-
-    maxsize = 50
-
-    return False, ''
-
 
 @api_error_wrapper(['GET', 'POST'])
 @check_token(klass=Data)
@@ -233,13 +224,8 @@ def update_data(request, uid):
 
     data = Data.objects.filter(uid=uid).first()
 
-    # Get the token out
-    token = auth.get_token(request=request)
-    user = User.objects.filter(profile__token=token).first()
-
     # Get the source that will replace target
     source = request.data.get("file", "")
-    fname = source.name
 
     # Target first file in data directory.
     target = data.get_files()[0]
@@ -251,7 +237,7 @@ def update_data(request, uid):
     # Write source into target
     if request.method == "POST":
         # Validate source and target files before upload.
-        valid, msg = validate_data_api(target=target, request=request, user=user)
+        valid, msg = auth.validate_file(source=source)
         if not valid:
             return HttpResponse(content=msg, content_type="text/plain")
 

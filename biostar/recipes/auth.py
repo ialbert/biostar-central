@@ -133,6 +133,22 @@ def get_token(request):
     return token
 
 
+def validate_file(source, maxsize=50):
+    # Maximum size for a data to be updated via api.
+
+    try:
+        if source and source.size > maxsize * 1024 * 1024.0:
+            curr_size = source.size / 1024 / 1024.0
+            error_msg = f"File too large, {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
+            return False, error_msg
+
+    except Exception as exc:
+        error_msg = f"File size validation error: {exc}"
+        return False, error_msg
+
+    return True, ""
+
+
 def authorize_run(user, recipe):
     """
     Returns runnable.
