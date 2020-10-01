@@ -16,7 +16,7 @@
         {% for tag in tags %}
             <div class="column">
                 <div class="item">
-                    <a class="ui small label listing tags" href="{% url 'post_list' %}?tag={{ tag }}">
+                    <a class="ui small label listing tags-list" href="{% url 'post_list' %}?tag={{ tag }}">
                         {{ tag }}
                     </a>
                     <i class="ui tags icon"></i> {{ tag.nitems }}
