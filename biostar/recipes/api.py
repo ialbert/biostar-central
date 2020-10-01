@@ -10,7 +10,7 @@ from ratelimit.decorators import ratelimit
 from django.views.decorators.csrf import csrf_exempt
 from biostar.accounts.models import User
 from biostar.recipes.models import Analysis, Project, Data, image_path, Access
-from biostar.recipes import util
+from biostar.recipes import util, auth
 from biostar.recipes.decorators import check_token, require_api_key
 
 
@@ -233,27 +233,23 @@ def update_data(request, uid):
 
     data = Data.objects.filter(uid=uid).first()
 
-    # Get token file to belonging to user.
-    token = request.GET.get("token", request.POST.get("token")).readline()
-
+    # Get the token out
+    token = auth.get_token(request=request)
     user = User.objects.filter(profile__token=token).first()
 
     # Get the source that will replace target
     source = request.data.get("file", "")
     fname = source.name
-
-    print(source, fname, token, user, request.data, "LOPPPLEVOP")
-    1 / 0
-
-    # Search for target in the data directory.
-    target = list(filter(lambda f: f.endswith(fname), data.get_files()))[0]
+    
+    # Target first file in data directory.
+    target = data.get_files()[0]
 
     if not target:
         msg = f"File name: {target} does not exist."
         return HttpResponse(content=msg, content_type="text/plain")
 
     # Write source into target
-    if request.method == "PUT":
+    if request.method == "POST":
         # Validate source and target files before upload.
         valid, msg = validate_data_api(target=target, request=request, user=user)
         if not valid:

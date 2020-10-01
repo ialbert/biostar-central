@@ -203,26 +203,27 @@ def check_token(klass):
             uid = kwargs.get('uid')
             obj = klass.objects.filter(uid=uid).first()
             project = obj.project
-            print(request.POST, request.FILES)
-            1/0
 
             # Get the token from the request data
-            token = request.FILES.get("token").readline()
+            token = auth.get_token(request=request)
             # Find the target user.
             user = User.objects.filter(profile__token=token).first()
+
+            if not user:
+                return HttpResponse(content="Token does not belong to any user.")
 
             # GET requests require read access
             if request.method == "GET":
                 acc = auth.is_readable(user=user, obj=obj, strict=True)
-
             # PUT and POST requests require write access
             else:
                 acc = auth.is_writable(user=user, project=project)
+
             # User passes test.
             if acc:
                 return func(request, *args, **kwargs)
 
-            return False
+            return HttpResponse(content="User does not have access to preform that action.")
 
         return __wrapper__
 

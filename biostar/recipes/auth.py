@@ -121,6 +121,18 @@ def copy_uid(request, uid, board):
     return board_items
 
 
+def get_token(request):
+    """
+    Fetch user token from request.
+    """
+
+    token = request.FILES.get("token")
+    if token:
+        token = token.readline()
+
+    return token
+
+
 def authorize_run(user, recipe):
     """
     Returns runnable.

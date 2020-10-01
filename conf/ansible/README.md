@@ -35,7 +35,7 @@ The installation commands below will target subsets in hosts file.
 
 Run:
 
-    make setup install deploy transfer TARGET=test 
+    make setup install deploy TARGET=test 
 
 Once completed a default site will be installed and deployed via Nginx and Postgresql.
 
