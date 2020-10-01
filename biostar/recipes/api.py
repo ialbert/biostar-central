@@ -240,7 +240,7 @@ def update_data(request, uid):
     # Get the source that will replace target
     source = request.data.get("file", "")
     fname = source.name
-    
+
     # Target first file in data directory.
     target = data.get_files()[0]
 
