@@ -9,12 +9,12 @@
         {% counts as counts %}
 
         <a class="item messages {% activate tab "messages" %}" href="{% url 'inbox' %}">
-            <i class="envelope icon"></i> Messages {{ counts.messages.count }}
+            <i class="envelope icon"></i> Messages {% if counts.messages.count %}{{ counts.messages.count }}{% endif %}
 
         </a>
 
         <a class="item votes {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-            <i class="heart icon"></i> Votes {{ counts.votes.count }}
+            <i class="heart icon"></i> Votes {% if counts.votes.count %}{{ counts.votes.count }}{% endif %}
 
         </a>
 

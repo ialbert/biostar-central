@@ -1,19 +1,32 @@
-# Action codes.
+# Moderation action codes.
 MOD_ACTIONS = list(range(9))
 BUMP_POST, OPEN_POST, TOGGLE_ACCEPT, MOVE_ANSWER, DUPLICATE, OFFTOPIC, DELETE, CLOSE, REPORT_SPAM = MOD_ACTIONS
-# Valid values for the order GET parameter.
-RANK, VIEWS, REPLIES = ("rank", "views", "replies")
 
-MYVOTES_CACHE_KEY = "MYVOTES"
+# Filter actions
+RANK, VIEWS, REPLIES, TAGGED, VOTES, VISIT, REPUTATION, JOINED, ACTIVITY = ("rank", "views", "replies",
+                                                          "tagged", "votes", "visit", "reputation",
+                                                          "joined", "activity")
+
+# Map filter actions to respective database filters.
+ORDER_MAPPER = {
+    RANK: "-rank",
+    TAGGED: '-tagged',
+    VIEWS: "-view_count",
+    REPLIES: "-reply_count",
+    VOTES: "-thread_votecount",
+    VISIT: '-profile__last_login',
+    REPUTATION: '-profile__score',
+    JOINED: '-profile__date_joined',
+    ACTIVITY: '-profile__date_joined'
+}
+
+
+DEFAULT_CACHE_KEY = "CACHE-KEY"
+
 TAGS_CACHE_KEY = "TAGS"
-MYPOSTS_CACHE_KEY = "MYPOSTS"
-FOLLOWING_CACHE_KEY = "FOLLOWING"
-BOOKMARKS_CACHE_KEY = "BOOKMARKS"
-MYTAGS_CACHE_KEY = "MYTAGS"
 
 SIMILAR_CACHE_KEY = "SIMILAR"
 USERS_CACHE_KEY = "MENTIONED_USERS"
-
 
 # The name of the session count data.
 COUNT_DATA_KEY = "COUNT_DATA"

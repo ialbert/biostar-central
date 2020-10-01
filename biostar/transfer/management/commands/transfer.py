@@ -90,7 +90,6 @@ def bulk_copy_users(limit):
             text = util.strip_tags(user.profile.info)
 
             # The incoming users have weekly digest prefs as a default.
-            #digest_prefs = Profile.NO_DIGEST if user.profile.digest_prefs == Profile.WEEKLY_DIGEST else user.profile.digest_prefs
             profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
                               message_prefs=user.profile.message_prefs,
                               role=user.type, last_login=user.last_login, html=user.profile.info,
@@ -350,13 +349,6 @@ def test():
     seen = []
     for p in post_ids:
         subs = PostsSubscription.objects.filter(post_id=p)
-        #1/0
-        # new_subs = Subscription.objects.filter(post_id=121146)
-
-        #print(len(UsersProfile.objects.filter(digest_prefs__in=[Profile.WEEKLY_DIGEST, Profile.DAILY_DIGEST,
-        #                                                        Profile.MONTHLY_DIGEST])),
-        #      len(UsersProfile.objects.all()))
-        #return
         print(len(subs), p)
         for sub in subs:
             print(sub.post.author.profile.digest_prefs)

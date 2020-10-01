@@ -1,3 +1,4 @@
+#!/bin/bash
 
 BATCH_SIZE=5000
 

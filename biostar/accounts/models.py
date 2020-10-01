@@ -110,7 +110,7 @@ class Profile(models.Model):
     new_messages = models.IntegerField(default=0, db_index=True)
 
     # The last visit by the user.
-    date_joined = models.DateTimeField(auto_now_add=True, max_length=255)
+    date_joined = models.DateTimeField(max_length=255)
 
     # User provided location.
     location = models.CharField(default="", max_length=255, blank=True, db_index=True)

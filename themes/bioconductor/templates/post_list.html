@@ -18,6 +18,7 @@
 
     </div>
 
+
     {% if tag %}
         <div class="ui blue filter message">
             Showing : <code>{{ tag }}</code> &bull; <a href="{% url 'post_list' %}">reset <i
@@ -25,21 +26,23 @@
         </div>
     {% endif %}
 
-        <div class="ui divided items">
-            {% for post in posts %}
-                {% post_details post=post user=request.user avatar=False %}
-            {% empty %}
-                <div class="ui warn message">
-                    No posts found.
-                </div>
-            {% endfor %}
-        </div>
+    <div class="ui divided items">
+        {% for post in posts %}
+            {% post_details post=post user=request.user avatar=False %}
+        {% empty %}
+            <div class="ui warn message">
+                No posts found.
+            </div>
+        {% endfor %}
+    </div>
 
     <div class="ui horizontal basic top-menu segments">
         <div class="ui page-bar segment">
             {% pages objs=posts %}
         </div>
     </div>
+
+
 
 {% endblock %}
 

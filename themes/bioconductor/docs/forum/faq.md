@@ -354,6 +354,30 @@ for the main post, as well as any answer, comment, or reply.
 
 <a name="other"></a>
 
+
+####  What HTML tags allowed in the post content
+
+Font styling:
+   -  `b`, `i`,`img`, `strong`, `strike`, `em`, `underline`
+   - `sub`, `sup`, `img`
+   - `h1` , `h2`, `h3`, `h4`
+   
+Content layouts:
+   - `div`, `span`, `br`,`p`, `hr`
+   
+Code render
+   - `code`, `pre` 
+   
+Tables
+   -`table`, `thead`, `tr`, `th`, `td`, `tbody`
+
+Allowed styles:
+
+   - `color`
+   - `font-weight`
+   - `background-color`
+   - `width height`
+   
 # Other
 
 Can't find what your looking for? Consider opening an issue on the

@@ -12,11 +12,9 @@ account_patterns = [
     path(r'password/reset/', views.password_reset, name='password_reset'),
     path(r'password/reset/done/', views.password_reset_done, name='password_reset_done'),
 
-    re_path(r'verify/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',
-            views.email_verify_account, name='email_verify_account'),
+    path(r'verify/<uidb64>/<token>/', views.email_verify_account, name='email_verify_account'),
 
-    re_path(r'reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',
-            views.pass_reset_confirm, name='password_reset_confirm'),
+    path(r'reset/<uidb64>/<token>/', views.pass_reset_confirm, name='password_reset_confirm'),
 
     path(r'verify/', views.send_email_verify, name="send_email_verify"),
 

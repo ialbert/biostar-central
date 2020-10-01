@@ -27,6 +27,7 @@
                     <i class="dashboard icon"></i> Site Admin
                 </a>
             {% endif %}
+
             {% if target == request.user %}
                 <a class="ui mini button" href="{% url 'edit_profile' %}">
                     <i class="write icon"></i>Edit profile
@@ -55,15 +56,10 @@
 
     <div class="column">
 
-
         <div class="ui center aligned basic segment">
-
-
 
             <table class="ui very basic table profile">
                 <tbody>
-
-
 
                 {% if target.profile.is_moderator %}
                     <tr>
