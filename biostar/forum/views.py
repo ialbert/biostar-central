@@ -69,8 +69,6 @@ class CachedPaginator(Paginator):
     # Time to live for the cache, in seconds
     TTL = 300
 
-    LIMIT = 1000
-
     def __init__(self, cache_key='', ttl=None, *args, **kwargs):
         self.cache_key = cache_key
         self.ttl = ttl or self.TTL
@@ -78,22 +76,13 @@ class CachedPaginator(Paginator):
 
     @property
     def count(self):
-        value = 1
 
-        # Return uncached paginator.
-        if self.cache_key is None:
-            return super(CachedPaginator, self).count
+        if self.cache_key:
+            value = cache.get(self.cache_key) or super(CachedPaginator, self).count
 
-        if self.cache_key not in cache:
+            cache.add(self.cache_key, value, self.ttl)
+        else:
             value = super(CachedPaginator, self).count
-
-            # Small values do not need to be cached.
-            if value > self.LIMIT:
-                logger.info("Setting paginator count cache")
-                cache.set(self.cache_key, value, self.ttl)
-
-        # Offset to estimate post counts without missing newly created posts since TTL.
-        value = cache.get(self.cache_key, value)
 
         return value
 
@@ -212,12 +201,6 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
 
-    # Cut posts when applying any filter.
-    if limit or order or tag or topic:
-        posts = posts[:settings.CUTOFF]
-        # Cache not used when applying filters.
-        cache_key = None
-
     # Create the paginator.
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
@@ -238,7 +221,7 @@ def latest(request):
     """
     Show latest post listing.
     """
-    # Cache the latest posts.
+    # TODO: set key Cache the latest posts.
     cache_key = LATEST_CACHE_KEY
 
     return post_list(request, cache_key=cache_key)
