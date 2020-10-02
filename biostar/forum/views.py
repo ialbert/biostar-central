@@ -214,7 +214,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
 
     # Cut posts when applying any filter.
     if limit or order or tag or topic:
-        posts = posts[:settings.FILTER_CUTOFF]
+        posts = posts[:settings.CUTOFF]
         # cache_key not used when applying filters.
         cache_key = None
 

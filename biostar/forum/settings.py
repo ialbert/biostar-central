@@ -45,7 +45,7 @@ BANNED_IPS = os.path.join(BASE_DIR, 'export', 'logs', 'banned.txt')
 #REQUIRED_TAGS = open()
 
 # Posts cut off when applying a filtre
-FILTER_CUTOFF = 1000
+CUTOFF = 1000
 
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
