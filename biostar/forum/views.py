@@ -219,7 +219,15 @@ def latest(request):
     """
     Show latest post listing.
     """
-    cache_key = LATEST_CACHE_KEY
+    order = request.GET.get("order", "")
+    tag = request.GET.get("tag", "")
+    topic = request.GET.get("type", "")
+    limit = request.GET.get("limit", "")
+    
+    if order or limit or tag or topic:
+        cache_key = LATEST_CACHE_KEY
+    else:
+        cache_key = None
 
     return post_list(request, cache_key=cache_key)
 
