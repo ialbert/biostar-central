@@ -60,7 +60,6 @@ def post_exists(func):
     return _wrapper_
 
 
-
 class CachedPaginator(Paginator):
     """
     Paginator that caches the count call.
@@ -79,7 +78,6 @@ class CachedPaginator(Paginator):
 
         if self.cache_key:
             value = cache.get(self.cache_key) or super(CachedPaginator, self).count
-
             cache.add(self.cache_key, value, self.ttl)
         else:
             value = super(CachedPaginator, self).count
@@ -221,7 +219,6 @@ def latest(request):
     """
     Show latest post listing.
     """
-    # TODO: set key Cache the latest posts.
     cache_key = LATEST_CACHE_KEY
 
     return post_list(request, cache_key=cache_key)
