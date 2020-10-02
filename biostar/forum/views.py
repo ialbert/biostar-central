@@ -10,13 +10,14 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.db.models import Count, Q
-from taggit.models import Tag
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
 
+from taggit.models import Tag
+
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search
-from biostar.forum.auth import CachedPaginator
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge
 
@@ -57,6 +58,44 @@ def post_exists(func):
             return redirect(reverse("post_list"))
         return func(request, **kwargs)
     return _wrapper_
+
+
+
+class CachedPaginator(Paginator):
+    """
+    Paginator that caches the count call.
+    """
+
+    # Time to live for the cache, in seconds
+    TTL = 300
+
+    LIMIT = 1000
+
+    def __init__(self, cache_key='', ttl=None, *args, **kwargs):
+        self.cache_key = cache_key
+        self.ttl = ttl or self.TTL
+        super(CachedPaginator, self).__init__(*args, **kwargs)
+
+    @property
+    def count(self):
+        value = 1
+
+        # Return uncached paginator.
+        if self.cache_key is None:
+            return super(CachedPaginator, self).count
+
+        if self.cache_key not in cache:
+            value = super(CachedPaginator, self).count
+
+            # Small values do not need to be cached.
+            if value > self.LIMIT:
+                logger.info("Setting paginator count cache")
+                cache.set(self.cache_key, value, self.ttl)
+
+        # Offset to estimate post counts without missing newly created posts since TTL.
+        value = cache.get(self.cache_key, value)
+
+        return value
 
 
 def get_posts(user, topic="", tag="", order="", limit=None):
@@ -173,9 +212,9 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
 
-    # Cut posts to first 1000 when applying any filter.
+    # Cut posts when applying any filter.
     if limit or order or tag or topic:
-        posts = posts[:1000]
+        posts = posts[:settings.FILTER_CUTOFF]
         # cache_key not used when applying filters.
         cache_key = None
 

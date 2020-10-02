@@ -369,43 +369,6 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
     return post
 
 
-class CachedPaginator(Paginator):
-    """
-    Paginator that caches the count call.
-    """
-
-    # Time to live for the cache, in seconds
-    TTL = 300
-
-    LIMIT = 1000
-
-    def __init__(self, cache_key='', ttl=None, *args, **kwargs):
-        self.cache_key = cache_key
-        self.ttl = ttl or self.TTL
-        super(CachedPaginator, self).__init__(*args, **kwargs)
-
-    @property
-    def count(self):
-        value = 1
-
-        # Return uncached paginator.
-        if self.cache_key is None:
-            return super(CachedPaginator, self).count
-
-        if self.cache_key not in cache:
-            value = super(CachedPaginator, self).count
-
-            # Small values do not need to be cached.
-            if value > self.LIMIT:
-                logger.info("Setting paginator count cache")
-                cache.set(self.cache_key, value, self.ttl)
-
-        # Offset to estimate post counts without missing newly created posts since TTL.
-        value = cache.get(self.cache_key, value)
-
-        return value
-
-
 @transaction.atomic
 def apply_vote(post, user, vote_type):
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
