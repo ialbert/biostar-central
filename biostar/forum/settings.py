@@ -44,6 +44,9 @@ BANNED_IPS = os.path.join(BASE_DIR, 'export', 'logs', 'banned.txt')
 # File containing list of tags, at least one being required
 #REQUIRED_TAGS = open()
 
+# Posts cut off when applying a filtre
+CUTOFF = 1000
+
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
 

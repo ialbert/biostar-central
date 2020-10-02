@@ -13,6 +13,7 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.utils.timezone import utc
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from biostar.accounts.models import Profile, Logger
 from . import util
@@ -75,7 +76,7 @@ def decode_email(email):
 
 def get_users_str():
     """
-    Return comma separated string of username used for autocomplete
+    Return comma separated string of username used for autocomplete.
     """
 
     cache_days = 5

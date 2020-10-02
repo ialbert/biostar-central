@@ -9,11 +9,12 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django.core.paginator import Paginator
 from django.db.models import Count, Q
-from taggit.models import Tag
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
+
+from taggit.models import Tag
 
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search
@@ -43,28 +44,6 @@ LIMIT_MAP = dict(
     month=30,
     year=365
 )
-# Valid order values value as they correspond to database ordering fields.
-ORDER_MAPPER = dict(
-    rank="-rank",
-    tagged='-tagged',
-    views="-view_count",
-    replies="-reply_count",
-    votes="-thread_votecount",
-    visit='-profile__last_login',
-    reputation='-profile__score',
-    joined='-profile__date_joined',
-    activity='-profile__date_joined'
-
-
-)
-
-
-def generate_cache_key(*args):
-    # Combine list of values to form a single key
-    vals = [str(v).replace(' ', '') for v in args]
-    key = ''.join(vals)
-    return key
-
 
 def post_exists(func):
     """
@@ -81,12 +60,38 @@ def post_exists(func):
     return _wrapper_
 
 
-def get_posts(user, show="latest", tag="", order="rank", limit=None):
+class CachedPaginator(Paginator):
+    """
+    Paginator that caches the count call.
+    """
+
+    # Time to live for the cache, in seconds
+    TTL = 300
+
+    def __init__(self, cache_key='', ttl=None, *args, **kwargs):
+        self.cache_key = cache_key
+        self.ttl = ttl or self.TTL
+        super(CachedPaginator, self).__init__(*args, **kwargs)
+
+    @property
+    def count(self):
+
+        if self.cache_key:
+            value = cache.get(self.cache_key) or super(CachedPaginator, self).count
+            cache.add(self.cache_key, value, self.ttl)
+        else:
+            value = super(CachedPaginator, self).count
+
+        return value
+
+
+def get_posts(user, topic="", tag="", order="", limit=None):
     """
     Generates a post list on a topic.
     """
     # Topics are case insensitive.
-    topic = show.lower()
+    topic = topic or LATEST
+    topic = topic.lower()
 
     # Detect known post types.
     post_type = POST_TYPE_MAPPER.get(topic)
@@ -129,7 +134,7 @@ def get_posts(user, show="latest", tag="", order="rank", limit=None):
         query = query.filter(lastedit_date__gt=delta)
 
     # Select related information used during rendering.
-    query = query.select_related("root").prefetch_related( "author__profile", "lastedit_user__profile")
+    query = query.select_related("root").select_related("author__profile", "lastedit_user__profile")
 
     return query
 
@@ -146,9 +151,6 @@ def post_search(request):
 
     results = search.preform_whoosh_search(query=query, page=page, sortedby=["lastedit_date"])
 
-    #if not len(results):
-    #    results = search.SearchResult()
-
     total = results.total
     template_name = "search/search_results.html"
 
@@ -157,43 +159,6 @@ def post_search(request):
                    question_flag=question_flag, stop_words=','.join(search.STOP))
 
     return render(request, template_name=template_name, context=context)
-
-
-class CachedPaginator(Paginator):
-    """
-    Paginator that caches the count call.
-    """
-
-    # Time to live for the cache, in seconds
-    TTL = 300
-
-    LIMIT = 1000
-
-    def __init__(self, count_key='', ttl=None, *args, **kwargs):
-        self.count_key = count_key
-        self.ttl = ttl or self.TTL
-        super(CachedPaginator, self).__init__(*args, **kwargs)
-
-    @property
-    def count(self):
-        value = 1
-
-        # Return uncached paginator.
-        if self.count_key is None:
-            return super(CachedPaginator, self).count
-
-        if self.count_key not in cache:
-            value = super(CachedPaginator, self).count
-
-            # Small values do not need to be cached.
-            if value > self.LIMIT:
-                logger.info("Setting paginator count cache")
-                cache.set(self.count_key, value, self.ttl)
-
-        # Offset to estimate post counts without missing newly created posts since TTL.
-        value = cache.get(self.count_key, value)
-
-        return value
 
 
 def pages(request, fname):
@@ -217,7 +182,7 @@ def pages(request, fname):
 
 
 @ensure_csrf_cookie
-def post_list(request, show=None, cache_key='', extra_context=dict()):
+def post_list(request, topic=None, cache_key='', extra_context=dict()):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -226,46 +191,37 @@ def post_list(request, show=None, cache_key='', extra_context=dict()):
 
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
-    order = request.GET.get("order", "rank")
+    order = request.GET.get("order", "")
     tag = request.GET.get("tag", "")
-    show = show or request.GET.get("type", "")
-    limit = request.GET.get("limit", "all")
-
-    # Pages are enable when showing 'all' ordered by 'rank'
-    cond1 = limit == 'all' and order == 'rank'
-    # Pages are also enabled when a page number is provided.
-    cond2 = request.GET.get('page') is not None
-
-    enable_pages = cond1 or cond2
+    topic = topic or request.GET.get("type", "")
+    limit = request.GET.get("limit", "")
 
     # Get posts available to users.
-    posts = get_posts(user=user, show=show, tag=tag, order=order, limit=limit)
+    posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
 
-    if enable_pages:
-        # Show top 100 posts without pages.
-        cache_key = cache_key or generate_cache_key(limit, tag, show)
-        # Create the paginator
-        paginator = CachedPaginator(count_key=cache_key, object_list=posts,
-                                    per_page=settings.POSTS_PER_PAGE)
-        # Apply the post paging.
-        posts = paginator.get_page(page)
-    else:
-        posts = posts[:100]
+    # Create the paginator.
+    paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
+
+    # Apply the post paging.
+    posts = paginator.get_page(page)
 
     # Set the active tab.
-    tab = tag or show or "latest"
+    tab = tag or topic or LATEST
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, enable_pages=enable_pages,
-                   tag=tag, order=order, type=show, limit=limit, avatar=True)
+    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=topic, limit=limit, avatar=True)
     context.update(extra_context)
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
 
 
 def latest(request):
-    show = request.GET.get("type", "") or LATEST
-    return post_list(request, show=show)
+    """
+    Show latest post listing.
+    """
+    cache_key = LATEST_CACHE_KEY
+
+    return post_list(request, cache_key=cache_key)
 
 
 def authenticated(func):
@@ -285,8 +241,7 @@ def myvotes(request):
     votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
                                                                             'author__profile').order_by("-date")
     # Create the paginator
-    paginator = CachedPaginator(count_key=MYVOTES_CACHE_KEY, object_list=votes,
-                                    per_page=settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(object_list=votes, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
     votes = paginator.get_page(votes)
@@ -312,7 +267,7 @@ def tags_list(request):
     tags = tags.order_by('-nitems')
 
     # Create the paginator
-    paginator = CachedPaginator(count_key=TAGS_CACHE_KEY, object_list=tags,
+    paginator = CachedPaginator(cache_key=TAGS_CACHE_KEY, object_list=tags,
                                 per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
@@ -328,7 +283,8 @@ def myposts(request):
     """
     Show posts by user
     """
-    return post_list(request, show=MYPOSTS)
+
+    return post_list(request, topic=MYPOSTS)
 
 
 @authenticated
@@ -336,7 +292,7 @@ def following(request):
     """
     Show posts followed by user
     """
-    return post_list(request, show=FOLLOWING)
+    return post_list(request, topic=FOLLOWING)
 
 
 @authenticated
@@ -344,13 +300,13 @@ def bookmarks(request):
     """
     Show posts bookmarked by user
     """
-    return post_list(request, show=BOOKMARKS)
+    return post_list(request, topic=BOOKMARKS)
 
 
 @authenticated
 def mytags(request):
 
-    return post_list(request=request, show=MYTAGS)
+    return post_list(request=request, topic=MYTAGS)
 
 
 def community_list(request):
@@ -366,8 +322,10 @@ def community_list(request):
         users = users.filter(profile__last_login__gt=delta)
 
     if query and len(query) > 2:
-        db_query = Q(email__in=query) | Q(profile__name__contains=query) | Q(profile__uid__contains=query) | \
-                   Q(username__contains=query) | Q(profile__name__in=query) | Q(email=query) |Q(email__contains=query) |\
+        db_query = Q(email__in=query) | Q(profile__name__contains=query) | \
+                   Q(profile__uid__contains=query) | Q(username__contains=query) | \
+                   Q(profile__name__in=query) | Q(email=query) | \
+                   Q(email__contains=query) |\
                    Q(profile__uid__contains=query)
         users = users.filter(db_query)
 
@@ -376,7 +334,7 @@ def community_list(request):
     users = users.order_by(order)
 
     # Create the paginator
-    paginator = CachedPaginator(count_key="USERS", object_list=users,
+    paginator = CachedPaginator(cache_key="USERS", object_list=users,
                                 per_page=settings.POSTS_PER_PAGE)
     users = paginator.get_page(page)
     context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)

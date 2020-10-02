@@ -86,7 +86,7 @@ function highlight(text) {
 
     var con = markdownit({
         // ESCAPES when html=true
-        html: false,
+        html: true,
         highlight: function (str, lang) {
             if (lang && hljs.getLanguage(lang)) {
                 try {

@@ -35,7 +35,7 @@ The installation commands below will target subsets in hosts file.
 
 Run:
 
-    make setup install transfer deploy TARGET=test 
+    make setup install deploy transfer TARGET=test 
 
 Once completed a default site will be installed and deployed via Nginx and Postgresql.
 
@@ -102,6 +102,8 @@ The default site set up with ansible will send email via SMTP. To set up your sy
 To deploy the latest version and restart the servers:
  
     make deploy TARGET=test  
+    
+    make deploy TARGET=demo REPO=https://github.com/Bioconductor/SupportUpgrade/tree/master/conf USER=ubuntu
         
 or via the playbook:
 
@@ -129,4 +131,7 @@ Manually
 Makefile 
 
     make transfer TARGET=test LOCAL_OLD_DB=/full/path/file.sql.gz
-    
+ 
+Deploy and transfer using different user,host,repo, and data dump.
+
+    make setup install deploy transfer TARGET=demo USER=ubuntu REPO=https://github.com/Natay/biostar-central.git LOCAL_OLD_DB=~/tmp/data-dump.gz

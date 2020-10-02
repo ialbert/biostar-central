@@ -132,26 +132,26 @@ body > .widen.container {
     width: max-content;
 }
 
-.ui.small.label.tags {
+.ui.small.label.tags-list {
     font-weight: inherit;
     font-size: small;
     padding: .4em .4em .4em .4em;
 
 }
 
-.ui.grid.tags {
+.ui.grid.tags-list {
     margin: 0px;
 }
 
-.ui.grid.tags > .column {
+.ui.grid.tags-list > .column {
     padding: 3px;
 }
 
-.ui.small.label.tags.listing {
+.ui.small.label.tags-list.listing {
     padding: 5px;
 }
 
-.ui.tags.icon {
+.ui.tags-list.icon {
     margin: 0px;
 }
 

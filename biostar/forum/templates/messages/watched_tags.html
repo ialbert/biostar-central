@@ -7,9 +7,9 @@
 
 {% block html %}
 
-   There is activity on a tag you are watching on  <a href="{{ protocol }}://{{ domain }}{{ http_port }}">Biostar</a>
+   There is activity on a tag you are watching on  <a href="{{ protocol }}://{{ domain }}{{ port }}">Biostar</a>
     <p>
-        User <a href="{{ protocol }}://{{ domain }}{{ http_port }}{{ post.author.profile.get_absolute_url }}">
+        User <a href="{{ protocol }}://{{ domain }}{{ port }}{{ post.author.profile.get_absolute_url }}">
         {{ post.author.profile.name }}</a> wrote
         <a href="{{ protocol }}://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>:
     </p>
@@ -36,7 +36,7 @@
 
     {{ post.content }}
 
-    with the tags {{ post.tags_vals }}
+    with the tags {{ post.tag_val }}
 
     You may visit {{ protocol }}://{{ domain }}{{ post.get_absolute_url }}
 

@@ -24,7 +24,7 @@ TSTAMP=`date +'%Y-%m-%d-%H-%m'`
 BACKUP="export/backup/data-${TSTAMP}.json"
 
 # Dump the data in the desired format.
-python manage.py dumpdata --exclude contenttypes > $BACKUP
+# python manage.py dumpdata --exclude contenttypes > $BACKUP
 
 # Show the backup filename.
 echo "$BACKUP"
