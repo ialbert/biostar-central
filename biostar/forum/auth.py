@@ -13,6 +13,7 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.utils.timezone import utc
 from django.core.cache import cache
+from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from biostar.accounts.models import Profile, Logger
 from . import util
@@ -366,6 +367,43 @@ def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
         PostView.objects.create(ip=ip, post=post, date=now)
         Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
     return post
+
+
+class CachedPaginator(Paginator):
+    """
+    Paginator that caches the count call.
+    """
+
+    # Time to live for the cache, in seconds
+    TTL = 300
+
+    LIMIT = 1000
+
+    def __init__(self, cache_key='', ttl=None, *args, **kwargs):
+        self.cache_key = cache_key
+        self.ttl = ttl or self.TTL
+        super(CachedPaginator, self).__init__(*args, **kwargs)
+
+    @property
+    def count(self):
+        value = 1
+
+        # Return uncached paginator.
+        if self.cache_key is None:
+            return super(CachedPaginator, self).count
+
+        if self.cache_key not in cache:
+            value = super(CachedPaginator, self).count
+
+            # Small values do not need to be cached.
+            if value > self.LIMIT:
+                logger.info("Setting paginator count cache")
+                cache.set(self.cache_key, value, self.ttl)
+
+        # Offset to estimate post counts without missing newly created posts since TTL.
+        value = cache.get(self.cache_key, value)
+
+        return value
 
 
 @transaction.atomic

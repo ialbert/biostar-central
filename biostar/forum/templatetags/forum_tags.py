@@ -14,7 +14,6 @@ from taggit.models import Tag
 from django import template, forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from django.db.models import Q
 from django.utils.safestring import mark_safe
@@ -23,6 +22,7 @@ from biostar.forum import markdown
 
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const, auth
+from biostar.forum.auth import CachedPaginator
 from biostar.forum.models import Post, Vote, Award, Subscription
 
 User = get_user_model()
@@ -446,22 +446,25 @@ def search_bar(context, tags=False, users=False):
 
 @register.simple_tag
 def get_post_list(target, request, show=None):
-    user = request.user
 
-    posts = Post.objects.valid_posts(u=user, author=target)
+    page = request.GET.get("page", 1)
+    posts = Post.objects.filter(author=target)
 
     # Show a specific post listing.
     show_map = dict(questions=Post.QUESTION, tools=Post.TOOL, news=Post.NEWS,
                     blogs=Post.BLOG, tutorials=Post.TUTORIAL, answers=Post.ANSWER,
                     comments=Post.COMMENT)
 
-    if show_map.get(show) is not None:
-        show_filter = show_map.get(show)
-        posts = posts.filter(type=show_filter)
+    type_filter = show_map.get(show)
+    posts = posts.filter(type=type_filter) if type_filter is not None else posts
 
-    posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
+    posts = posts.select_related("root").select_related("author__profile", "lastedit_user__profile")
     posts = posts.order_by("-rank")
-    posts = posts[:100]
+
+    # Cache the users posts add pagination to posts.
+    cache_key = f"{target.id}-KEY"
+    paginator = CachedPaginator(object_list=posts, cache_key=cache_key, per_page=settings.POSTS_PER_PAGE)
+    posts = paginator.get_page(page)
 
     return posts
 
@@ -525,7 +528,7 @@ def list_awards(context, target):
                                                               'badge').order_by("-date")
     page = request.GET.get('page', 1)
     # Create the paginator
-    paginator = Paginator(awards, 20)
+    paginator = CachedPaginator(object_list=awards, per_page=20)
 
     # Apply the votes paging.
     awards = paginator.get_page(page)
