@@ -215,10 +215,10 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
     # Cut posts when applying any filter.
     if limit or order or tag or topic:
         posts = posts[:settings.CUTOFF]
-        # cache_key not used when applying filters.
+        # Cache not used when applying filters.
         cache_key = None
 
-    # Create the paginator
+    # Create the paginator.
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
