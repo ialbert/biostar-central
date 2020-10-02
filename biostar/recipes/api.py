@@ -211,7 +211,6 @@ def recipe_template(request, uid):
     return HttpResponse(content=payload, content_type="text/plain")
 
 
-
 @api_error_wrapper(['GET', 'POST'])
 @check_token(klass=Data)
 @csrf_exempt
@@ -231,7 +230,7 @@ def update_data(request, uid):
     target = data.get_files()[0]
 
     if not target:
-        msg = f"File name: {target} does not exist."
+        msg = f"File does not exist."
         return HttpResponse(content=msg, content_type="text/plain")
 
     # Write source into target
