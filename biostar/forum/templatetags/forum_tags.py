@@ -310,9 +310,11 @@ def inplace_type_field(post=None, field_id='type'):
     return mark_safe(post_type)
 
 
-def read_tags(filepath, exclude=[], limit=500):
+def read_tags(exclude=[], limit=500):
     """Read tags from a file. Each line is considered a tag. """
-    stream = open(filepath, 'r') if os.path.exists(filepath) else []
+    # Get tags from a file
+    tags_file = get_tags_file() or ''
+    stream = open(tags_file, 'r') if os.path.exists(tags_file) else []
     stream = islice(zip(count(1), stream), limit)
     tags_opts = set()
 
@@ -336,33 +338,37 @@ def get_tags_file():
 
 
 def get_dropdown_options(selected_list):
+    """
+    Present tags tags in a multi-select dropdown format.
+    """
+    limit = 50
 
-    tags_file = get_tags_file()
+    # Gather already selected tags
+    selected = {(val, True) for val in selected_list}
 
-    # Read tags file from a file if it is set
-    selected_tags = {(val, True) for val in selected_list}
+    # Read tags from file.
+    opts = read_tags(exclude=selected_list)
 
-    if tags_file:
-        tags_opts = read_tags(filepath=tags_file, exclude=selected_list)
-    else:
-        tags_query = Tag.objects.exclude(name__in=selected_list)[:50].values_list("name", flat=True)
-        tags_opts = {(name.strip(), False) for name in tags_query}
+    # Read tags from database if none found in file.
+    if not opts:
+        query = Tag.objects.exclude(name__in=selected_list)[:limit].values_list("name", flat=True)
+        opts = {(name.strip(), False) for name in query}
 
     # Chain the selected and rest of the options
-    tags_opts = itertools.chain(selected_tags, tags_opts)
+    opts = itertools.chain(selected, opts)
 
-    return tags_opts
+    return opts
 
 
 @register.inclusion_tag('forms/field_tags.html', takes_context=True)
 def tags_field(context, form_field, initial=''):
-    """Render multiple select dropdown options for tags. """
+    """Render multi-select dropdown options for tags. """
 
     # Get currently selected tags from the post or request
-    selected_list = initial.split(",") if initial else []
-    dropdown_options = get_dropdown_options(selected_list=selected_list)
+    selected = initial.split(",") if initial else []
+    options = get_dropdown_options(selected_list=selected)
 
-    context = dict(initial=initial, form_field=form_field, dropdown_options=dropdown_options)
+    context = dict(initial=initial, form_field=form_field, dropdown_options=options)
 
     return context
 

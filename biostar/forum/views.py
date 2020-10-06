@@ -226,7 +226,7 @@ def latest(request):
 
     cache_key = LATEST_CACHE_KEY
 
-    # Cache not used when
+    # Cache not used when filtering.
     if order or limit or tag or topic:
         cache_key = None
 
@@ -237,6 +237,7 @@ def authenticated(func):
     def _wrapper_(request, **kwargs):
         if request.user.is_anonymous:
             messages.error(request, "You need to be logged in to view this page.")
+            return reverse('post_list')
         return func(request, **kwargs)
     return _wrapper_
 
