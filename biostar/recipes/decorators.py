@@ -189,7 +189,7 @@ class require_api_key:
         return _api_view
 
 
-def check_token(klass):
+def token_access(klass):
     """
     Check users access to an object using their token.
     """
