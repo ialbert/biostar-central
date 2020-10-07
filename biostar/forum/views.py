@@ -223,12 +223,10 @@ def latest(request):
     tag = request.GET.get("tag", "")
     topic = request.GET.get("type", "")
     limit = request.GET.get("limit", "")
-
-    cache_key = LATEST_CACHE_KEY
-
-    # Cache not used when filtering.
-    if order or limit or tag or topic:
-        cache_key = None
+    
+    # Only cache unfiltered posts.
+    cache_off = (order or limit or tag or topic)
+    cache_key = None if cache_off else LATEST_CACHE_KEY
 
     return post_list(request, cache_key=cache_key)
 

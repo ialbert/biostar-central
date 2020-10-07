@@ -16,6 +16,7 @@ from biostar.recipes.decorators import require_api_key
 
 logger = logging.getLogger("engine")
 
+RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 # Maximum file size to be sent and received via api.
 MAX_FILE_SIZE = 100
@@ -120,7 +121,7 @@ def project_image(request, uid):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def recipe_image(request, uid):
     """
     GET request: Return recipe image.

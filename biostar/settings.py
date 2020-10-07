@@ -171,6 +171,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Key used to set ratelimitter.
+# https://django-ratelimit.readthedocs.io/en/stable/security.html
+# another option: 'ip'
+RATELIMIT_KEY = "header:x-real-ip"
+
+
 # Configure language detection
 LANGUAGE_DETECTION = ['en']
 
