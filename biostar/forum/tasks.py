@@ -3,7 +3,7 @@ from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 import time
 from biostar.utils.decorators import spool, timer
-from biostar.accounts.models import User
+
 
 from django.db.models import Q
 #
@@ -38,6 +38,8 @@ def notify_watched_tags(post):
     """
     Send emails to users watching this tags
     """
+    from biostar.accounts.models import User
+
     if not post.is_toplevel:
         return
 
