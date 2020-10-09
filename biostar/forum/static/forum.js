@@ -44,7 +44,7 @@ function apply_vote(vote_elem) {
 
         },
         error: function (xhr, status, text) {
-            icon.toggleClass("on");
+            //icon.toggleClass("on");
             error_message(vote_elem, xhr, status, text)
         }
     });
@@ -398,11 +398,9 @@ $(document).ready(function () {
         if (data_state === "1") {
             elem.find('.icon').addClass("on")
         }
-        // Actions taken on vote click.
 
     });
-    $('.voting .button').click(function () {
-
+    $('.voting .button').unbind( "click" ).click(function () {
         apply_vote($(this));
     });
 

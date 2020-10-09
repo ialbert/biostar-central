@@ -69,7 +69,7 @@ def tabular_list():
 
 
 @api_error_wrapper(['GET'])
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def api_list(request):
     payload = tabular_list()
     return HttpResponse(content=payload, content_type="text/plain")
@@ -77,7 +77,7 @@ def api_list(request):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Project)
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def project_info(request, uid):
     """
     GET request : return project info as json data
@@ -101,7 +101,7 @@ def project_info(request, uid):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Project)
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def project_image(request, uid):
     """
     GET request : return project image
@@ -141,7 +141,7 @@ def recipe_image(request, uid):
 
 
 @api_error_wrapper(['GET'])
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def recipe_api_list(request, uid):
 
     api_key = request.GET.get("k", "")
@@ -163,7 +163,7 @@ def recipe_api_list(request, uid):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def recipe_json(request, uid):
     """
     GET request: Returns recipe json
@@ -191,7 +191,7 @@ def recipe_json(request, uid):
 
 @api_error_wrapper(['GET', 'PUT'])
 @require_api_key(type=Analysis)
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def recipe_template(request, uid):
     """
     GET request: Returns recipe template

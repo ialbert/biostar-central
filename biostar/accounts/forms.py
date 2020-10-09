@@ -21,8 +21,6 @@ IMG_EXTENTIONS = ['jpg',
                   ]
 
 
-
-
 def check_size(fobj, maxsize=0.3, field=None):
     # maxsize in megabytes!
     error_msg = ''
@@ -133,7 +131,7 @@ class EditProfile(forms.Form):
                               help_text="""
                               Add a tag by typing a word then adding a comma or press ENTER or SPACE.
                               """, widget=forms.HiddenInput())
-    watched_tags = forms.CharField(label="Watched tags", max_length=50, required=False,
+    watched_tags = forms.CharField(label="Watched tags", max_length=500, required=False,
                                    help_text="""
                               Add a tag by typing a word then adding a comma or press ENTER or SPACE.
                               """, widget=forms.HiddenInput())

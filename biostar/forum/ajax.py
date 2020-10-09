@@ -35,6 +35,8 @@ ajax_error = partial(ajax_msg, status='error')
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
 
+RATELIMIT_KEY = settings.RATELIMIT_KEY
+
 
 class ajax_error_wrapper:
     """
@@ -81,8 +83,8 @@ def user_image(request, username):
     return redirect(gravatar_url)
 
 
-@ratelimit(key='ip', rate='500/h')
-@ratelimit(key='ip', rate='25/m')
+@ratelimit(key=RATELIMIT_KEY, rate='500/h')
+@ratelimit(key=RATELIMIT_KEY, rate='25/m')
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
     was_limited = getattr(request, 'limited', False)
@@ -156,8 +158,8 @@ def validate_drop(request):
     return True, "Valid drop"
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate='50/h')
+@ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
 
@@ -189,8 +191,8 @@ def drag_and_drop(request):
     return ajax_success(msg="success", redir=redir)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate='50/h')
+@ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST")
 def ajax_subs(request):
     was_limited = getattr(request, 'limited', False)
@@ -215,8 +217,8 @@ def ajax_subs(request):
     return ajax_success(msg="Changed subscription.")
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate='50/h')
+@ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST")
 def ajax_digest(request):
     was_limited = getattr(request, 'limited', False)
@@ -386,8 +388,8 @@ def get_fields(request, post=None):
     return fields
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate='50/h')
+@ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_edit(request, uid):
     """
@@ -439,8 +441,8 @@ def ajax_edit(request, uid):
     return ajax_success(msg='success', html=post.html, title=new_title, user_line=user_line, tag_html=tag_html)
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate='50/h')
+@ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST")
 def ajax_comment_create(request):
     was_limited = getattr(request, 'limited', False)
@@ -469,8 +471,8 @@ def ajax_comment_create(request):
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
-@ratelimit(key='ip', rate='50/h')
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate='50/h')
+@ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="GET")
 def inplace_form(request):
     """

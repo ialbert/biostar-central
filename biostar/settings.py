@@ -26,7 +26,7 @@ INTERNAL_IPS = ['127.0.0.1']
 
 # Admin users will be created automatically with DEFAULT_ADMIN_PASSWORD.
 ADMINS = [
-    ("Admin User", "admin@localhost")
+    ("Admin User", "admin@localhost"),
 ]
 
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"

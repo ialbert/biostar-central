@@ -71,18 +71,18 @@ LOGGING = {
     'loggers': {
 
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'mail_admins'],
             'level': DJANGO_LOG_LEVEL,
 
         },
 
         'engine': {
-            'handlers': ['console'],
+            'handlers': ['console', 'mail_admins'],
             'level': LOG_LEVEL,
         },
 
         'biostar': {
-            'handlers': ['console'],
+            'handlers': ['console', 'mail_admins'],
             'level': LOG_LEVEL,
         },
 

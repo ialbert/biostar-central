@@ -34,6 +34,7 @@ from biostar.recipes.models import Project, Data, Analysis, Job, Access
 __CURRENT_DIR = os.path.dirname(__file__)
 logger = logging.getLogger('engine')
 
+RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -353,7 +354,7 @@ def project_edit(request, uid):
 
 
 @login_required
-@ratelimit(key='ip', rate='5/h', block=True, method=ratelimit.UNSAFE)
+@ratelimit(key=RATELIMIT_KEY, rate='5/h', block=True, method=ratelimit.UNSAFE)
 def project_create(request):
     """
     View used create an empty project belonging to request.user.
@@ -467,7 +468,7 @@ def recipe_code_download(request, uid):
 
 
 @read_access(type=Analysis)
-@ratelimit(key='ip', rate='10/h', block=True, method=ratelimit.UNSAFE)
+@ratelimit(key=RATELIMIT_KEY, rate='10/h', block=True, method=ratelimit.UNSAFE)
 def recipe_run(request, uid):
     """
     View used to execute recipes and start a 'Queued' job.

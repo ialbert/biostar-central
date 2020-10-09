@@ -36,26 +36,23 @@ def spam_scoring(post):
 @spool(pass_arguments=True)
 def notify_watched_tags(post):
     """
-    Send emails to users watching this tags
+    Create a subscription to a post when
     """
     from biostar.accounts.models import User
 
+    # Skip non top level posts.
     if not post.is_toplevel:
         return
 
-    # Get all users that have watched tags with this post
-    tags = post.tags.all()
     # Iterate over tags and get users that are watching them
-    users = [User.objects.filter(profile__watched_tags__contains=tag) for tag in tags]
+    users = [User.objects.filter(profile__watched_tags__contains=tag) for tag in post.tags.all()]
 
-    # Get the emails to send notifications to.
-    emails = [u.email for qs in users for u in qs if u.id != post.author.id]
-    emails = set(emails)
+    # Flatten nested iterable.
+    users = set(u for qs in users for u in qs)
 
-    context = dict(post=post)
-    template = 'messages/watched_tags.html'
-    # Make the emailing system works.
-    send_email(template_name=template, extra_context=context, recipient_list=emails)
+    # Subscribe users to this post and send them emails accordingly.
+
+
 
     return
 

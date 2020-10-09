@@ -13,7 +13,7 @@ from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
-
+from ratelimit.decorators import ratelimit
 from taggit.models import Tag
 
 from biostar.accounts.models import Profile
@@ -25,6 +25,8 @@ from biostar.forum.models import Post, Vote, Badge
 User = get_user_model()
 
 logger = logging.getLogger('engine')
+
+RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 # Valid post values as they correspond to database post types.
 POST_TYPE_MAPPER = dict(
@@ -215,6 +217,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
     return render(request, template_name="post_list.html", context=context)
 
 
+@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def latest(request):
     """
     Show latest post listing.
@@ -223,7 +226,7 @@ def latest(request):
     tag = request.GET.get("tag", "")
     topic = request.GET.get("type", "")
     limit = request.GET.get("limit", "")
-    
+
     # Only cache unfiltered posts.
     cache_off = (order or limit or tag or topic)
     cache_key = None if cache_off else LATEST_CACHE_KEY

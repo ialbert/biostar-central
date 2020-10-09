@@ -34,6 +34,7 @@ from .util import now, get_uuid
 
 logger = logging.getLogger('engine')
 
+RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 def edit_profile(request):
     if request.user.is_anonymous:
@@ -181,7 +182,7 @@ def toggle_notify(request):
     return redirect(reverse('user_profile', kwargs=dict(uid=user.profile.uid)))
 
 
-@ratelimit(key='ip', rate='10/m', block=True, method=ratelimit.UNSAFE)
+@ratelimit(key=RATELIMIT_KEY, rate='10/m', block=True, method=ratelimit.UNSAFE)
 def user_signup(request):
 
     if request.method == 'POST':
@@ -355,8 +356,8 @@ def external_login(request):
     return redirect("/")
 
 
-@ratelimit(key='ip', rate='500/h')
-@ratelimit(key='ip', rate='25/m')
+@ratelimit(key=RATELIMIT_KEY, rate='500/h')
+@ratelimit(key=RATELIMIT_KEY, rate='25/m')
 def password_reset(request):
 
     # if request.method == "POST":
@@ -383,8 +384,8 @@ def password_reset(request):
                                      )(request=request)
 
 
-@ratelimit(key='ip', rate='500/h')
-@ratelimit(key='ip', rate='25/m')
+@ratelimit(key=RATELIMIT_KEY, rate='500/h')
+@ratelimit(key=RATELIMIT_KEY, rate='25/m')
 def password_reset_done(request):
     context = dict()
 
@@ -392,8 +393,8 @@ def password_reset_done(request):
                                          template_name="accounts/password_reset_done.html")(request=request)
 
 
-@ratelimit(key='ip', rate='500/h')
-@ratelimit(key='ip', rate='25/m')
+@ratelimit(key=RATELIMIT_KEY, rate='500/h')
+@ratelimit(key=RATELIMIT_KEY, rate='25/m')
 def pass_reset_confirm(request, uidb64, token):
     context = dict()
 
