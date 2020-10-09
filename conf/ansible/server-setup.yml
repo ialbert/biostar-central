@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  user: "{{ username | default(root) }}"
+  user: "{{ username | default('root') }}"
 
   tasks:
     - include_vars: variables.yml

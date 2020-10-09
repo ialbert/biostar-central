@@ -374,13 +374,13 @@ def apply_vote(post, user, vote_type):
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
 
     if vote:
-        msg = "%s removed" % vote.get_type_display()
+        msg = f"{vote.get_type_display()} removed"
         change = -1
         vote.delete()
     else:
         change = +1
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
-        msg = "%s added" % vote.get_type_display()
+        msg = f"{vote.get_type_display()} added"
 
     if post.author == user:
         # Author making the change

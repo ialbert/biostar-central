@@ -8,9 +8,9 @@ from biostar.settings import *
 
 # from biostar.recipes.settings import *
 
-from themes.bioconductor.settings import *
+#from themes.bioconductor.settings import *
 
-# from biostar.forum.settings import *
+from biostar.forum.settings import *
 
 
 logger = logging.getLogger("biostar")
@@ -58,7 +58,6 @@ DATABASES = {
 }
 
 WSGI_APPLICATION = 'conf.run.site_wsgi.application'
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 

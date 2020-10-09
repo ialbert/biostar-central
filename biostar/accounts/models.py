@@ -171,9 +171,6 @@ class Profile(models.Model):
             return self.max_upload_size * 100
         return self.max_upload_size
 
-    def validate_token(self, tok=''):
-        return self.token == tok
-
     def set_upload_size(self):
         """
         Used to set the inital value
