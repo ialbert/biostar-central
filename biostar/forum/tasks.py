@@ -39,6 +39,7 @@ def notify_watched_tags(post):
     Create a subscription to a post when
     """
     from biostar.accounts.models import User
+    from biostar.forum import auth
 
     # Skip non top level posts.
     if not post.is_toplevel:
@@ -50,9 +51,9 @@ def notify_watched_tags(post):
     # Flatten nested iterable.
     users = set(u for qs in users for u in qs)
 
-    # Subscribe users to this post and send them emails accordingly.
-
-
+    # Subscribe users to this post and send them emails.
+    for user in users:
+        auth.create_subscription(post=post.root, user=user)
 
     return
 

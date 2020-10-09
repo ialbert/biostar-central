@@ -310,7 +310,7 @@ def inplace_type_field(post=None, field_id='type'):
     return mark_safe(post_type)
 
 
-def read_tags(exclude=[], limit=500):
+def read_tags(exclude=[], limit=5000):
     """Read tags from a file. Each line is considered a tag. """
     # Get tags from a file
     tags_file = get_tags_file() or ''
