@@ -45,7 +45,7 @@ recipes:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.recipes.settings)
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
-	$(eval UWSGI_INI := site/test/recipes_uwsgi.ini)
+	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TARGET:=recipes)
 
 
@@ -54,7 +54,7 @@ bioconductor:
 	$(eval DJANGO_SETTINGS_MODULE := themes.bioconductor.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
-	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
+	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TARGET:=supportupgrade)
 
 forum:
@@ -62,7 +62,7 @@ forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
-	$(eval UWSGI_INI := site/test/forum_uwsgi.ini)
+	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 
 echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}

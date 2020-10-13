@@ -14,13 +14,13 @@ from taggit.models import Tag
 from django import template, forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
-from biostar.forum import markdown
+from django.core.paginator import Paginator
 
+from biostar.forum import markdown
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const, auth
 from biostar.forum.models import Post, Vote, Award, Subscription
@@ -310,9 +310,11 @@ def inplace_type_field(post=None, field_id='type'):
     return mark_safe(post_type)
 
 
-def read_tags(filepath, exclude=[], limit=500):
+def read_tags(exclude=[], limit=5000):
     """Read tags from a file. Each line is considered a tag. """
-    stream = open(filepath, 'r') if os.path.exists(filepath) else []
+    # Get tags from a file
+    tags_file = get_tags_file() or ''
+    stream = open(tags_file, 'r') if os.path.exists(tags_file) else []
     stream = islice(zip(count(1), stream), limit)
     tags_opts = set()
 
@@ -336,33 +338,37 @@ def get_tags_file():
 
 
 def get_dropdown_options(selected_list):
+    """
+    Present tags tags in a multi-select dropdown format.
+    """
+    limit = 50
 
-    tags_file = get_tags_file()
+    # Gather already selected tags
+    selected = {(val, True) for val in selected_list}
 
-    # Read tags file from a file if it is set
-    selected_tags = {(val, True) for val in selected_list}
+    # Read tags from file.
+    opts = read_tags(exclude=selected_list)
 
-    if tags_file:
-        tags_opts = read_tags(filepath=tags_file, exclude=selected_list)
-    else:
-        tags_query = Tag.objects.exclude(name__in=selected_list)[:50].values_list("name", flat=True)
-        tags_opts = {(name.strip(), False) for name in tags_query}
+    # Read tags from database if none found in file.
+    if not opts:
+        query = Tag.objects.exclude(name__in=selected_list)[:limit].values_list("name", flat=True)
+        opts = {(name.strip(), False) for name in query}
 
     # Chain the selected and rest of the options
-    tags_opts = itertools.chain(selected_tags, tags_opts)
+    opts = itertools.chain(selected, opts)
 
-    return tags_opts
+    return opts
 
 
 @register.inclusion_tag('forms/field_tags.html', takes_context=True)
 def tags_field(context, form_field, initial=''):
-    """Render multiple select dropdown options for tags. """
+    """Render multi-select dropdown options for tags. """
 
     # Get currently selected tags from the post or request
-    selected_list = initial.split(",") if initial else []
-    dropdown_options = get_dropdown_options(selected_list=selected_list)
+    selected = initial.split(",") if initial else []
+    options = get_dropdown_options(selected_list=selected)
 
-    context = dict(initial=initial, form_field=form_field, dropdown_options=dropdown_options)
+    context = dict(initial=initial, form_field=form_field, dropdown_options=options)
 
     return context
 
@@ -446,8 +452,11 @@ def search_bar(context, tags=False, users=False):
 
 @register.simple_tag
 def get_post_list(target, request, show=None):
+    """
+    Return post list belonging to a user
+    """
     user = request.user
-
+    page = request.GET.get("page", 1)
     posts = Post.objects.valid_posts(u=user, author=target)
 
     # Show a specific post listing.
@@ -455,13 +464,15 @@ def get_post_list(target, request, show=None):
                     blogs=Post.BLOG, tutorials=Post.TUTORIAL, answers=Post.ANSWER,
                     comments=Post.COMMENT)
 
-    if show_map.get(show) is not None:
-        show_filter = show_map.get(show)
-        posts = posts.filter(type=show_filter)
+    type_filter = show_map.get(show)
+    posts = posts.filter(type=type_filter) if type_filter is not None else posts
 
-    posts = posts.select_related("root").prefetch_related("author__profile", "lastedit_user__profile")
+    posts = posts.select_related("root").select_related( "author__profile", "lastedit_user__profile")
     posts = posts.order_by("-rank")
-    posts = posts[:100]
+
+    # Cache the users posts add pagination to posts.
+    paginator = Paginator(object_list=posts, per_page=settings.POSTS_PER_PAGE)
+    posts = paginator.get_page(page)
 
     return posts
 
@@ -525,7 +536,7 @@ def list_awards(context, target):
                                                               'badge').order_by("-date")
     page = request.GET.get('page', 1)
     # Create the paginator
-    paginator = Paginator(awards, 20)
+    paginator = Paginator(object_list=awards, per_page=20)
 
     # Apply the votes paging.
     awards = paginator.get_page(page)

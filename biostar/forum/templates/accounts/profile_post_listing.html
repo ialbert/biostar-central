@@ -49,6 +49,7 @@
 
 <div class="ui divided items">
     {% get_post_list request=request target=target show=show as post_list %}
+
     {% for post in post_list %}
         {% post_details post=post user=request.user %}
     {% empty %}
@@ -56,4 +57,8 @@
             No posts found.
         </div>
     {% endfor %}
+    <div class="ui page-bar segment">
+        {% pages objs=post_list %}
+    </div>
+
 </div>

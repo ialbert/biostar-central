@@ -2,6 +2,7 @@ import logging
 
 import toml as hjson
 import mistune
+import base64
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -206,15 +207,13 @@ class Project(models.Model):
             settings=dict(
                 uid=self.uid,
                 name=self.name,
-                image=f"{'_'.join(self.name.split())}-{self.pk}.png",
+                image=base64.b64encode(self.image),
                 privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
                 help=self.text,
                 url=settings.BASE_URL,
                 project_uid=self.uid,
                 id=self.pk,
-
-            ),
-            recipes=[recipe.uid for recipe in self.analysis_set.all()])
+            ))
 
         return payload
 
@@ -515,6 +514,11 @@ class Analysis(models.Model):
         return self.name
 
     @property
+    def api_data(self):
+
+        return
+
+    @property
     def json_data(self):
         """
         Returns the json_text as parsed json_data
@@ -759,6 +763,7 @@ class Job(models.Model):
         except Exception as exc:
             logger.error(f"{exc}; text={self.json_text}")
             data_dict = {}
+
         return data_dict
 
     def elapsed(self):

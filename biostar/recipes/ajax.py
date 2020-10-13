@@ -26,6 +26,7 @@ JOB_COLORS = {Job.SPOOLED: "spooled",
               Job.RUNNING: "running", Job.COMPLETED: "completed"
               }
 
+RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
@@ -250,7 +251,7 @@ def toggle_delete(request):
     return ajax_error("Invalid action")
 
 
-@ratelimit(key='ip', rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
 def manage_access(request):
     access_map = dict(none=Access.NO_ACCESS, read=Access.READ_ACCESS,

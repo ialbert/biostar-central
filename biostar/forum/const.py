@@ -20,8 +20,7 @@ ORDER_MAPPER = {
     ACTIVITY: '-profile__date_joined'
 }
 
-
-DEFAULT_CACHE_KEY = "CACHE-KEY"
+LATEST_CACHE_KEY = "LATEST"
 
 TAGS_CACHE_KEY = "TAGS"
 
@@ -36,19 +35,9 @@ REDIRECT_FIELD_NAME = 'next'
 
 MYVOTES, MYPOSTS, MYTAGS, OPEN, FOLLOWING, SHOW_SPAM = ["myvotes", "myposts", "mytags", "open", "following", "spam"]
 
-BOOKMARKS, MESSAGE = ["bookmarks", "message"]
-
-MENTIONED, COMMUNITY, LATEST = ["mentioned", "community", "latest"]
-
 # Post type names for filtering in the UI.
 JOBS, TOOLS, TUTORIALS, FORUM, PLANET = ["jobs", "tools", "tutorials", "forum", "planet"]
 
-# Topics that have a default tabs
-TOPICS_WITH_TABS = [
-    MYPOSTS, MYTAGS, FOLLOWING,
-    BOOKMARKS, MYVOTES, MESSAGE, COMMUNITY, LATEST
-]
+BOOKMARKS, MESSAGE = ["bookmarks", "message"]
 
-PRIVATE_TOPICS = [MYPOSTS, MYTAGS, MESSAGE, MENTIONED,
-                  BOOKMARKS, FOLLOWING, MYVOTES
-                  ]
+MENTIONED, COMMUNITY, LATEST = ["mentioned", "community", "latest"]

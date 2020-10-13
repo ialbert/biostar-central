@@ -15,9 +15,10 @@ from biostar.recipes.decorators import token_access, require_api_key
 
 logger = logging.getLogger("engine")
 
+RATELIMIT_KEY = settings.RATELIMIT_KEY
+
 # Maximum file size to be sent and received via api.
 MAX_FILE_SIZE = 100
-
 
 class api_error_wrapper:
     """
@@ -63,10 +64,116 @@ def tabular_list():
 
 
 @api_error_wrapper(['GET'])
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def api_list(request):
     payload = tabular_list()
     return HttpResponse(content=payload, content_type="text/plain")
+
+
+@api_error_wrapper(['GET', 'POST'])
+@token_access(klass=Project)
+@ratelimit(key='ip', rate='20/m')
+def project_api(request, uid):
+
+    """
+    GET request : return project name, text, and image as a TOML string.
+    POST request : change project name, text, and image given a TOML string.
+    """
+
+    project = Project.objects.filter(uid=uid).first()
+
+    # Get the json data with project info
+    target = project.json_data
+
+    # Replace source with target with valid POST request.
+    if request.method == "POST":
+        stream = request.FILES.get("file")
+        source = hjson.load(stream.read())
+        if stream:
+            # Get new fields from the POST request and set them.
+            target['text'] = project.text = source.get('text', project.text)
+            target['name'] = project.name = source.get('name', project.name)
+            target['image'] = project.image = source.get('image', project.image)
+
+    payload = json.dumps(target, indent=4)
+
+    return HttpResponse(content=payload, content_type="text/plain")
+
+
+@api_error_wrapper(['GET', 'POST'])
+@token_access(klass=Analysis)
+@ratelimit(key='ip', rate='20/m')
+def recipe_api(request, uid):
+    """
+    GET request : return recipe json, template and image as a TOML string.
+    POST request : change recipe json, template, and image given a TOML string.
+    """
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+    target = {"json": hjson.dumps(recipe.json_data),
+              "template": recipe.template,
+              'image': base64.b64encode(recipe.image)}
+
+    stream = request.FILES.get("file")
+    source = hjson.load(stream.read())
+
+    # Replace source with target with valid POST request.
+    if request.method == "POST":
+        # Get the toml object from the POST request
+        target['json'] = recipe.json_text = source.get('json', recipe.json_text)
+        target['template'] = recipe.template = source.get('template', recipe.template)
+        target['name'] = recipe.name = source.get('name', recipe.name)
+        target['text'] = recipe.text = source.get('name', recipe.text)
+        target['image'] = recipe.image = source.get('image', recipe.image)
+        recipe.save()
+
+    # Get the payload as a toml file.
+    payload = hjson.dumps(target)
+
+    return HttpResponse(content=payload, content_type="text/plain")
+
+
+@api_error_wrapper(['GET', 'POST'])
+@token_access(klass=Data)
+@csrf_exempt
+@ratelimit(key='ip', rate='20/m')
+def data_api(request, uid):
+    """
+    GET request: Returns data
+    PUT request: Updates file in data with given file.
+    """
+
+    data = Data.objects.filter(uid=uid).first()
+
+    # Get the source that will replace target
+    source = request.data.get("file", "")
+
+    # Target first file in data directory.
+    target = data.get_files()[0]
+
+    if not target:
+        msg = f"File does not exist."
+        return HttpResponse(content=msg, content_type="text/plain")
+
+    # Write source into target
+    if request.method == "POST":
+        # Validate source and target files before upload.
+        valid, msg = auth.validate_file(source=source)
+        if not valid:
+            return HttpResponse(content=msg, content_type="text/plain")
+
+        # Write source to target file.
+        target = util.write_stream(stream=source, dest=target)
+
+    # Return file contents in payload
+    payload = open(target, 'r').read()
+
+    return HttpResponse(content=payload, content_type="text/plain")
+
+
+def job_api(request, uid):
+    return
+
 
 #
 # @api_error_wrapper(['GET', 'PUT'])
@@ -92,71 +199,6 @@ def api_list(request):
 #
 #     return HttpResponse(content=payload, content_type="text/plain")
 #
-
-@api_error_wrapper(['GET', 'POST'])
-@token_access(klass=Project)
-@ratelimit(key='ip', rate='20/m')
-def project_api(request, uid):
-    """
-    GET request : return project name, text, and image as a TOML string.
-    POST request : change project name, text, and image given a TOML string.
-    """
-
-    project = Project.objects.filter(uid=uid).first()
-    target = {"name": project.name, 'text': project.text, 'image': base64.b64encode(project.image)}
-    stream = request.FILES.get("file")
-    source = hjson.load(stream.read())
-
-    # Replace source with target with valid POST request.
-    if request.method == "POST":
-        # Get new fields from the POST request and set them.
-        target['text'] = project.text = source.get('text', project.text)
-        target['name'] = project.name = source.get('name', project.name)
-        target['image'] = project.image = source.get('image', project.image)
-
-        # Save the project change
-        project.save()
-
-    # Get the payload as a toml file.
-    payload = hjson.dumps(target)
-
-    return HttpResponse(content=payload, content_type="text/plain")
-
-
-@api_error_wrapper(['GET', 'POST'])
-@token_access(klass=Project)
-@ratelimit(key='ip', rate='20/m')
-def recipe_api(request, uid):
-    """
-    GET request : return recipe json, template and image as a TOML string.
-    POST request : change recipe json, template, and image given a TOML string.
-    """
-
-    recipe = Analysis.objects.filter(uid=uid).first()
-    target = {"json": hjson.dumps(recipe.json_data),
-              "template": recipe.template,
-              'image': base64.b64encode(recipe.image)}
-
-    stream = request.FILES.get("file")
-    source = hjson.load(stream.read())
-
-    # Replace source with target with valid POST request.
-    if request.method == "POST":
-        # Get the toml object from the POST request
-        target['json'] = recipe.json_text = source.get('json', recipe.json_text)
-        target['template'] = recipe.template = source.get('template', recipe.template)
-        target['name'] = recipe.name = source.get('name', recipe.name)
-        target['text'] = recipe.text = source.get('name', recipe.text)
-        target['image'] = recipe.image = source.get('image', recipe.image)
-
-        #
-        recipe.save()
-
-    # Get the payload as a toml file.
-    payload = hjson.dumps(target)
-
-    return HttpResponse(content=payload, content_type="text/plain")
-
 
 # @api_error_wrapper(['GET', 'PUT'])
 # @token_access(klass=Project)
@@ -197,27 +239,6 @@ def recipe_api(request, uid):
 #     data = open(imgpath, "rb").read()
 #
 #     return HttpResponse(content=data, content_type="image/jpeg")
-
-
-@api_error_wrapper(['GET'])
-@token_access(klass=Project)
-@ratelimit(key='ip', rate='20/m')
-def recipe_api_list(request, uid):
-    api_key = request.GET.get("k", "")
-
-    recipes = Analysis.objects.filter(project__uid=uid)
-    # Only show public recipes when api key is not correct or provided.
-    if settings.API_KEY != api_key:
-        recipes = recipes.filter(project__privacy=Project.PUBLIC)
-
-    payload = []
-    for recipe in recipes:
-        info = f"{recipe.uid}\t{recipe.name}\n"
-        payload.append(info)
-
-    payload = "".join(payload) if payload else "No recipes found."
-
-    return HttpResponse(content=payload, content_type="text/plain")
 
 #
 # @api_error_wrapper(['GET', 'PUT'])
@@ -270,40 +291,3 @@ def recipe_api_list(request, uid):
 #
 #     return HttpResponse(content=payload, content_type="text/plain")
 #
-
-@api_error_wrapper(['GET', 'POST'])
-@token_access(klass=Data)
-@csrf_exempt
-@ratelimit(key='ip', rate='20/m')
-def data_api(request, uid):
-    """
-    GET request: Returns data
-    PUT request: Updates file in data with given file.
-    """
-
-    data = Data.objects.filter(uid=uid).first()
-
-    # Get the source that will replace target
-    source = request.data.get("file", "")
-
-    # Target first file in data directory.
-    target = data.get_files()[0]
-
-    if not target:
-        msg = f"File does not exist."
-        return HttpResponse(content=msg, content_type="text/plain")
-
-    # Write source into target
-    if request.method == "POST":
-        # Validate source and target files before upload.
-        valid, msg = auth.validate_file(source=source)
-        if not valid:
-            return HttpResponse(content=msg, content_type="text/plain")
-
-        # Write source to target file.
-        target = util.write_stream(stream=source, dest=target)
-
-    # Return file contents in payload
-    payload = open(target, 'r').read()
-
-    return HttpResponse(content=payload, content_type="text/plain")

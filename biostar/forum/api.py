@@ -45,6 +45,25 @@ def stat_file(date, data=None, load=False, dump=False):
         return dump_into_file()
 
 
+def get_counts(end):
+    questions = Post.objects.filter(type=Post.QUESTION, creation_date__lt=end).count()
+    answers = Post.objects.filter(type=Post.ANSWER, creation_date__lt=end).count()
+    toplevel = Post.objects.filter(type__in=Post.TOP_LEVEL, creation_date__lt=end).exclude(type=Post.BLOG).count()
+    comments = Post.objects.filter(type=Post.COMMENT, creation_date__lt=end).count()
+    votes = Vote.objects.filter(date__lt=end).count()
+    users = User.objects.filter(profile__date_joined__lt=end).count()
+
+    data = {
+        'questions': questions,
+        'answers': answers,
+        'toplevel': toplevel,
+        'comments': comments,
+        'votes': votes,
+        'users': users,
+    }
+    return data
+
+
 def compute_stats(date):
     """
     Statistics about this website for the given date.
@@ -62,40 +81,26 @@ def compute_stats(date):
     except Exception as exc:  # This will be FileNotFoundError in Python3.
         logger.info('No stats file for {}.'.format(start))
 
-    query = Post.objects.filter
-
-    questions = query(type=Post.QUESTION, creation_date__lt=end).count()
-    answers = query(type=Post.ANSWER, creation_date__lt=end).count()
-    toplevel = query(type__in=Post.TOP_LEVEL, creation_date__lt=end).exclude(type=Post.BLOG).count()
-    comments = query(type=Post.COMMENT, creation_date__lt=end).count()
-    votes = Vote.objects.filter(date__lt=end).count()
-    users = User.objects.filter(profile__date_joined__lt=end).count()
-
-    new_users = User.objects.filter(profile__date_joined__gte=start, profile__date_joined__lt=end)
-    new_users_ids = [user.id for user in new_users]
-
-    new_posts = Post.objects.filter(creation_date__gte=start, creation_date__lt=end)
-    new_posts_ids = [post.id for post in new_posts]
-
-    new_votes = Vote.objects.filter(date__gte=start, date__lt=end)
-    new_votes_ids = [vote.id for vote in new_votes]
+    new_users = Profile.objects.filter(date_joined__gte=start,
+                                       date_joined__lt=end).values_list("uid", flat=True)
+    new_posts = Post.objects.filter(creation_date__gte=start,
+                                    creation_date__lt=end).values_list("uid", flat=True)
+    new_votes = Vote.objects.filter(date__gte=start,
+                                    date__lt=end).values_list("uid", flat=True)
 
     data = {
         'date': util.datetime_to_iso(start),
         'timestamp': util.datetime_to_unix(start),
-        'questions': questions,
-        'answers': answers,
-        'toplevel': toplevel,
-        'comments': comments,
-        'votes': votes,
-        'users': users,
-        'new_users': new_users_ids,
-        'new_posts': new_posts_ids,
-        'new_votes': new_votes_ids,
+        'new_users': list(new_users),
+        'new_posts': list(new_posts),
+        'new_votes': list(new_votes),
     }
+
+    data.update(get_counts(end=end))
 
     if not settings.DEBUG:
         stat_file(dump=True, date=start, data=data)
+
     return data
 
 
@@ -147,6 +152,7 @@ def daily_stats_on_day(request, day):
     # We don't provide stats for today or the future.
     if not date or date.date() >= datetime.today().date():
         return {}
+
     return compute_stats(date)
 
 
@@ -164,6 +170,7 @@ def daily_stats_on_date(request, year, month, day):
     # We don't provide stats for today or the future.
     if date.date() >= datetime.today().date():
         return {}
+
     return compute_stats(date)
 
 
@@ -187,24 +194,24 @@ def traffic(request):
 
 @json_response
 def user_email(request, email):
-    try:
-        user = User.objects.get(email__iexact=email.lower())
+    user = User.objects.filter(email__iexact=email.lower())
+    if user.exists():
         return True
-    except User.DoesNotExist:
-        return False
+
+    return False
 
 
 @json_response
-def user_details(request, id):
+def user_details(request, uid):
     """
     Details for a user.
 
     Parameters:
-    id -- the id of the `User`.
+    id -- the uid of the `User`.
     """
-    try:
-        user = User.objects.get(pk=id)
-    except User.DoesNotExist:
+
+    user = User.objects.filter(profile__uid=uid).first()
+    if not user:
         return {}
 
     days_ago = (datetime.now().date() - user.profile.date_joined.date()).days
@@ -221,18 +228,43 @@ def user_details(request, id):
 
 
 @json_response
-def post_details(request, id):
+def post_details(request, uid):
     """
     Details for a post.
 
     Parameters:
     id -- the id of the `Post`.
     """
-    try:
-        post = Post.objects.get(pk=id)
-    except Post.DoesNotExist:
+
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
         return {}
     return post.json_data()
+
+
+@json_response
+def watched_tags(request, uid):
+    """
+    Show watched tags for a user, given API key.
+
+    Parameters:
+    id -- the id of the `User`.
+
+    """
+
+    # Get the API token.
+    user = User.objects.filter(profile__uid=uid).first()
+    if user:
+        data = {
+            'id': user.id,
+            'uid': user.profile.uid,
+            'name': user.name,
+            'watched_tags': user.profile.watched_tags
+        }
+    else:
+        data = {}
+
+    return data
 
 
 @json_response
@@ -243,9 +275,8 @@ def vote_details(request, id):
     Parameters:
     id -- the id of the `Vote`.
     """
-    try:
-        vote = Vote.objects.get(pk=id)
-    except Vote.DoesNotExist:
+    vote = Vote.objects.filter(uid=id)
+    if not vote:
         return {}
 
     data = {
