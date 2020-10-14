@@ -46,7 +46,7 @@ def notify_watched_tags(post):
         return
 
     # Iterate over tags and get users that are watching them
-    users = [User.objects.filter(profile__watched_tags__contains=tag) for tag in post.tags.all()]
+    users = [User.objects.filter(profile__watched_tags__contains=tag).distinct() for tag in post.tags.all()]
 
     # Flatten nested iterable.
     users = set(u for qs in users for u in qs)

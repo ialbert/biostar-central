@@ -160,6 +160,15 @@ def img_to_str(path):
     return img
 
 
+def str_to_img(decoded_str):
+
+    # Encode the string
+    encoded = decoded_str.encode()
+    # Convert string to png and return a stream.
+
+    return
+
+
 def authorize_run(user, recipe):
     """
     Returns runnable.

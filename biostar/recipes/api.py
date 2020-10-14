@@ -1,4 +1,4 @@
-import hjson
+import toml as hjson
 import json
 import logging
 import os
@@ -63,10 +63,6 @@ def tabular_list():
     return "\n".join(output)
 
 
-def swap_image():
-
-    return
-
 
 @api_error_wrapper(['GET'])
 @ratelimit(key=RATELIMIT_KEY, rate='20/m')
@@ -99,7 +95,9 @@ def project_api(request, uid):
             target['text'] = project.text = source.get('text', project.text)
             target['name'] = project.name = source.get('name', project.name)
             target['help'] = project.help = source.get('help', project.help)
-            target['image'] = project.image = source.get('image', project.image)
+
+            #target['image'] = project.image = source.get('image', project.image)
+
             project.save()
 
     payload = hjson.dumps(target)
@@ -117,12 +115,13 @@ def recipe_api(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
-    img = recipe.image.path if recipe.image else os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
-    img = ""
-    
+
+    # Convert image to string
+    img = auth.img_to_str(recipe.image) if recipe.image else auth.img_to_str(get_thumbnail())
+
     target = {"json": hjson.dumps(recipe.json_data),
               "template": recipe.template,
-              'image': img}
+              "image": img}
 
     stream = request.FILES.get("file")
     source = hjson.load(stream.read())
@@ -130,12 +129,15 @@ def recipe_api(request, uid):
     # Replace source with target with valid POST request.
     if request.method == "POST":
         # Get the toml object from the POST request
-        target['json'] = recipe.json_text = source.get('json', recipe.json_text)
-        target['template'] = recipe.template = source.get('template', recipe.template)
-        target['name'] = recipe.name = source.get('name', recipe.name)
-        target['text'] = recipe.text = source.get('text', recipe.text)
+        interface = source.get('json', recipe.json_text)
+        template = source.get('template', recipe.template)
+
+        target['json'] = recipe.json_text = interface
+        target['template'] = recipe.template = template
+
+
         # Swap the binary image
-        target['image'] = recipe.image = source.get('image', recipe.image)
+        #target['image'] = recipe.image = source.get('image', recipe.image)
         recipe.save()
 
     # Get the payload as a toml file.

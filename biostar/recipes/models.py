@@ -213,7 +213,7 @@ class Project(models.Model):
         # Decode from bytes to string, to enable JSON serialization.
         img = img.decode()
 
-        payload = dict(
+        json_data = dict(
                 uid=self.uid,
                 name=self.name,
                 privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
@@ -224,7 +224,7 @@ class Project(models.Model):
                 image=img,
             )
 
-        return payload
+        return json_data
 
     @property
     def summary(self):
