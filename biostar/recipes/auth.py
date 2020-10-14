@@ -1,6 +1,6 @@
 import difflib
 import logging
-import uuid, copy
+import uuid, copy, base64
 import os
 import subprocess
 import random
@@ -130,6 +130,8 @@ def get_token(request):
     if token:
         token = token.readline()
 
+    token = token or request.GET.get("token") or request.POST.get("token")
+
     return token
 
 
@@ -147,6 +149,15 @@ def validate_file(source, maxsize=50):
         return False, error_msg
 
     return True, ""
+
+
+def img_to_str(path):
+
+    img = open(path, 'rb').read()
+    img = base64.b64encode(img)
+    img = img.decode()
+
+    return img
 
 
 def authorize_run(user, recipe):

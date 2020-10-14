@@ -63,6 +63,11 @@ def tabular_list():
     return "\n".join(output)
 
 
+def swap_image():
+
+    return
+
+
 @api_error_wrapper(['GET'])
 @ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def api_list(request):
@@ -93,9 +98,11 @@ def project_api(request, uid):
             # Get new fields from the POST request and set them.
             target['text'] = project.text = source.get('text', project.text)
             target['name'] = project.name = source.get('name', project.name)
+            target['help'] = project.help = source.get('help', project.help)
             target['image'] = project.image = source.get('image', project.image)
+            project.save()
 
-    payload = json.dumps(target, indent=4)
+    payload = hjson.dumps(target)
 
     return HttpResponse(content=payload, content_type="text/plain")
 
@@ -110,9 +117,12 @@ def recipe_api(request, uid):
     """
 
     recipe = Analysis.objects.filter(uid=uid).first()
+    img = recipe.image.path if recipe.image else os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+    img = ""
+    
     target = {"json": hjson.dumps(recipe.json_data),
               "template": recipe.template,
-              'image': base64.b64encode(recipe.image)}
+              'image': img}
 
     stream = request.FILES.get("file")
     source = hjson.load(stream.read())
@@ -123,7 +133,8 @@ def recipe_api(request, uid):
         target['json'] = recipe.json_text = source.get('json', recipe.json_text)
         target['template'] = recipe.template = source.get('template', recipe.template)
         target['name'] = recipe.name = source.get('name', recipe.name)
-        target['text'] = recipe.text = source.get('name', recipe.text)
+        target['text'] = recipe.text = source.get('text', recipe.text)
+        # Swap the binary image
         target['image'] = recipe.image = source.get('image', recipe.image)
         recipe.save()
 

@@ -2,6 +2,7 @@ import logging
 
 import toml as hjson
 import mistune
+import urllib.parse
 import base64
 from django.db import models
 from django.db.models.signals import post_save
@@ -203,17 +204,25 @@ class Project(models.Model):
 
     @property
     def json_data(self):
+        img = self.image
+
+        img = img.path if img else os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+        img = open(img, 'rb').read()
+        # Convert image to base64 string
+        img = base64.b64encode(img)
+        # Decode from bytes to string, to enable JSON serialization.
+        img = img.decode()
+
         payload = dict(
-            settings=dict(
                 uid=self.uid,
                 name=self.name,
-                image=base64.b64encode(self.image),
                 privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
                 help=self.text,
                 url=settings.BASE_URL,
                 project_uid=self.uid,
                 id=self.pk,
-            ))
+                image=img,
+            )
 
         return payload
 
