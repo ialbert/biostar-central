@@ -272,14 +272,16 @@ def tags_list(request):
     count = Count('post', filter=Q(post__is_toplevel=True))
     if query:
         db_query = Q(name__in=query) | Q(name__contains=query)
+        cache_key = None
     else:
         db_query = Q()
+        cache_key = TAGS_CACHE_KEY
 
     tags = Tag.objects.annotate(nitems=count).filter(db_query)
     tags = tags.order_by('-nitems')
 
     # Create the paginator
-    paginator = CachedPaginator(cache_key=TAGS_CACHE_KEY, object_list=tags,
+    paginator = CachedPaginator(cache_key=cache_key, object_list=tags,
                                 per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
