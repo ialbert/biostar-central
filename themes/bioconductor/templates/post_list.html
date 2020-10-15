@@ -21,7 +21,7 @@
 
     {% if tag %}
         <div class="ui blue filter message">
-            Showing : <code>{{ tag }}</code> &bull; <a href="{% url 'post_list' %}">reset <i
+            Showing : <code>{{ tag }}</code> &bull; <a href="{% url 'tags_list' %}">reset <i
                 class="undo small icon"></i></a>
         </div>
     {% endif %}
@@ -41,8 +41,6 @@
             {% pages objs=posts %}
         </div>
     </div>
-
-
 
 {% endblock %}
 

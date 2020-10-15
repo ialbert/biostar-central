@@ -205,7 +205,8 @@ def bulk_copy_posts(limit):
     def add_tags():
         logger.info("Transferring tags")
         for post in Post.objects.iterator():
-            tags = [Tag.objects.get_or_create(name=name)[0] for name in post.parse_tags()]
+            tags = [t.strip() for t in post.parse_tags()]
+            tags = [Tag.objects.get_or_create(name=name)[0] for name in tags]
             post.tags.remove(*tags)
             post.tags.add(*tags)
 
