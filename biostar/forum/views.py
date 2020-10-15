@@ -334,15 +334,15 @@ def community_list(request):
         users = users.filter(profile__last_login__gt=delta)
 
     if query and len(query) > 2:
-        db_query = Q(email__in=query) | Q(profile__name__contains=query) | \
-                   Q(profile__uid__contains=query) | Q(username__contains=query) | \
+        db_query = Q(email__in=query) | Q(profile__name__icontains=query) | \
+                   Q(profile__uid__icontains=query) | Q(username__icontains=query) | \
                    Q(profile__name__in=query) | Q(email=query) | \
-                   Q(email__contains=query) |\
-                   Q(profile__uid__contains=query)
+                   Q(email__icontains=query) |\
+                   Q(profile__uid__icontains=query)
         users = users.filter(db_query)
 
     # Remove the cache when filters are given.
-    cache_key = None if days or (query and len(query) > 2) or ordering else "USERS"
+    cache_key = None if days or (query and len(query) > 2) or ordering else USERS_LIST_KEY
 
     order = ORDER_MAPPER.get(ordering, "visit")
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
