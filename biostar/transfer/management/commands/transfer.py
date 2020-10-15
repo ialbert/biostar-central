@@ -420,7 +420,8 @@ class Command(BaseCommand):
 
         if load_tags:
             add_tags(delete=True)
-
+            return
+            
         # Copy everything
         bulk_copy_users(limit=limit)
 
