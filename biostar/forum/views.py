@@ -120,6 +120,7 @@ def get_posts(user, topic="", tag="", order="", limit=None):
         query = query.exclude(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
     # Filter by tags if specified.
     if tag:
+        tag = tag.strip()
         query = query.filter(tags__name=tag.lower())
 
     # Apply post ordering.
@@ -340,12 +341,15 @@ def community_list(request):
                    Q(profile__uid__contains=query)
         users = users.filter(db_query)
 
+    # Remove the cache when filters are given.
+    cache_key = None if days or (query and len(query) > 2) or ordering else "USERS"
+
     order = ORDER_MAPPER.get(ordering, "visit")
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
     users = users.order_by(order)
 
     # Create the paginator
-    paginator = CachedPaginator(cache_key="USERS", object_list=users,
+    paginator = CachedPaginator(cache_key=cache_key, object_list=users,
                                 per_page=settings.POSTS_PER_PAGE)
     users = paginator.get_page(page)
     context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)
