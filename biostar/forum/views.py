@@ -324,11 +324,15 @@ def mytags(request):
 
 
 def community_list(request):
+
     users = User.objects.select_related("profile")
+
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
     query = request.GET.get('query', '')
+    query = query.replace("'", "").replace('"', '').strip()
+
     days = LIMIT_MAP.get(limit_to, 0)
 
     if days:
@@ -336,11 +340,9 @@ def community_list(request):
         users = users.filter(profile__last_login__gt=delta)
 
     if query and len(query) > 2:
-        db_query = Q(email__in=query) | Q(profile__name__icontains=query) | \
-                   Q(profile__uid__icontains=query) | Q(username__icontains=query) | \
-                   Q(profile__name__in=query) | Q(email=query) | \
-                   Q(email__icontains=query) |\
-                   Q(profile__uid__icontains=query)
+        db_query = Q(profile__name__icontains=query) | Q(profile__uid__icontains=query) | \
+                   Q(username__icontains=query) | Q(email=query) | \
+                   Q(email__icontains=query)
         users = users.filter(db_query)
 
     # Remove the cache when filters are given.
