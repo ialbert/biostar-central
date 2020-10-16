@@ -88,8 +88,8 @@ def api_list(request):
 def project_api(request, uid):
 
     """
-    GET request : return project name, text, and image as a TOML string.
-    POST request : change project name, text, and image given a TOML string.
+    GET request : return project name, text, and image as a TOML file.
+    POST request : change project name, text, and image given a TOML file.
     """
 
     project = Project.objects.filter(uid=uid).first()

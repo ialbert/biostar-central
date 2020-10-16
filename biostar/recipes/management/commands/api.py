@@ -20,12 +20,12 @@ def api_response(base, endpoint, data={}, method="GET", conf=None):
     extra = {"token": auth.get_token()}
     data.update(extra)
 
-    # Push conf as a file if it exists.
+    # Push conf as a file to remote host.
     if method == "POST":
         # Pass conf as a file.
         files = {"conf": open(conf, 'r')}
         response = requests.post(url, data=data, files=files)
-    # Pull data from remote host with any other requests.
+    # Pull data from remote host.
     else:
         response = requests.get(url, data=data)
 
