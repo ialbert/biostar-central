@@ -341,8 +341,7 @@ def community_list(request):
 
     if query and len(query) > 2:
         db_query = Q(profile__name__icontains=query) | Q(profile__uid__icontains=query) | \
-                   Q(username__icontains=query) | Q(email=query) | \
-                   Q(email__icontains=query)
+                   Q(username__icontains=query) | Q(email__icontains=query)
         users = users.filter(db_query)
 
     # Remove the cache when filters are given.
