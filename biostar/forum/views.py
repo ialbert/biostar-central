@@ -269,16 +269,15 @@ def tags_list(request):
     query = request.GET.get('query', '')
 
     count = Count('post', filter=Q(post__is_toplevel=True))
-    if query:
-        db_query = Q(name__in=query) | Q(name__contains=query)
-    else:
-        db_query = Q()
+
+    db_query = Q(name__icontains=query) if query else Q()
+    cache_key = None if query else TAGS_CACHE_KEY
 
     tags = Tag.objects.annotate(nitems=count).filter(db_query)
     tags = tags.order_by('-nitems')
 
     # Create the paginator
-    paginator = CachedPaginator(cache_key=TAGS_CACHE_KEY, object_list=tags,
+    paginator = CachedPaginator(cache_key=cache_key, object_list=tags,
                                 per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
@@ -321,11 +320,15 @@ def mytags(request):
 
 
 def community_list(request):
+
     users = User.objects.select_related("profile")
+
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
     query = request.GET.get('query', '')
+    query = query.replace("'", "").replace('"', '').strip()
+
     days = LIMIT_MAP.get(limit_to, 0)
 
     if days:
@@ -333,19 +336,20 @@ def community_list(request):
         users = users.filter(profile__last_login__gt=delta)
 
     if query and len(query) > 2:
-        db_query = Q(email__in=query) | Q(profile__name__contains=query) | \
-                   Q(profile__uid__contains=query) | Q(username__contains=query) | \
-                   Q(profile__name__in=query) | Q(email=query) | \
-                   Q(email__contains=query) |\
-                   Q(profile__uid__contains=query)
+        db_query = Q(profile__name__icontains=query) | Q(profile__uid__icontains=query) | \
+                   Q(username__icontains=query) | Q(email__icontains=query)
         users = users.filter(db_query)
+
+    # Remove the cache when filters are given.
+    no_cache = days or (query and len(query) > 2) or ordering
+    cache_key = None if no_cache else USERS_LIST_KEY
 
     order = ORDER_MAPPER.get(ordering, "visit")
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
     users = users.order_by(order)
 
     # Create the paginator
-    paginator = CachedPaginator(cache_key="USERS", object_list=users,
+    paginator = CachedPaginator(cache_key=cache_key, object_list=users,
                                 per_page=settings.POSTS_PER_PAGE)
     users = paginator.get_page(page)
     context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)
