@@ -106,6 +106,17 @@ class Snippet(models.Model):
         super(Snippet, self).save(*args, **kwargs)
 
 
+def img_to_str(img, decode=True):
+    img = img.path if img else os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+    img = open(img, 'rb').read()
+    # Convert image to base64 string
+    strimg = base64.b64encode(img)
+    if decode:
+        # Decode from bytes to string, enables JSON serialization.
+        strimg = strimg.decode()
+    return strimg
+
+
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shared"), (PUBLIC, "Public")]
@@ -203,26 +214,20 @@ class Project(models.Model):
         return hjson.dumps(self.json_data)
 
     @property
-    def json_data(self):
+    def api_data(self):
         img = self.image
-
-        img = img.path if img else os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
-        img = open(img, 'rb').read()
-        # Convert image to base64 string
-        img = base64.b64encode(img)
-        # Decode from bytes to string, to enable JSON serialization.
-        img = img.decode()
+        strimg = img_to_str(img=img)
 
         json_data = dict(
-                uid=self.uid,
-                name=self.name,
-                privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
-                help=self.text,
-                url=settings.BASE_URL,
-                project_uid=self.uid,
-                id=self.pk,
-                image=img,
-            )
+            uid=self.uid,
+            name=self.name,
+            privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
+            text=self.text,
+            url=settings.BASE_URL,
+            project_uid=self.uid,
+            id=self.pk,
+            image=strimg,
+        )
 
         return json_data
 
@@ -523,11 +528,6 @@ class Analysis(models.Model):
         return self.name
 
     @property
-    def api_data(self):
-
-        return
-
-    @property
     def json_data(self):
         """
         Returns the json_text as parsed json_data
@@ -577,6 +577,16 @@ class Analysis(models.Model):
 
         self.project.set_counts(save=True)
         super(Analysis, self).save(*args, **kwargs)
+
+    @property
+    def api_data(self):
+        img = self.image
+        strimg = img_to_str(img=img)
+        payload = {"json": hjson.dumps(self.json_data),
+                   "template": self.template,
+                   "image": strimg}
+
+        return payload
 
     def get_project_dir(self):
         return self.project.get_project_dir()

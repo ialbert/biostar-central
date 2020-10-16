@@ -82,6 +82,10 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
+# Location of token file in local machine.
+TOKEN_FILE = "~/.bio/token"
+TOKEN_FILE = os.path.expanduser(TOKEN_FILE)
+
 ACCOUNTS_APPS = [
 
     # Accounts configuration.

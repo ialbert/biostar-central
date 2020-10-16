@@ -1,4 +1,4 @@
-import toml as hjson
+import toml
 import json
 import logging
 import os
@@ -52,9 +52,9 @@ def change_image(obj, file_object=None):
     return obj.image.path
 
 
-def tabular_list():
+def tabular_list(qs=None):
     output = []
-    projects = Project.objects.all()
+    projects = qs or Project.objects.all()
     for project in projects:
         for recipe in project.analysis_set.all():
             line = f"{project.uid}\t{project.name}\t{recipe.uid}\t{recipe.name}\t{project.get_privacy_display()}"
@@ -63,16 +63,27 @@ def tabular_list():
     return "\n".join(output)
 
 
-
 @api_error_wrapper(['GET'])
 @ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def api_list(request):
-    payload = tabular_list()
+
+    # Get the token and user
+    token = auth.get_token(request=request)
+    user = User.objects.filter(profile__token=token).first()
+
+    # Get the project list corresponding to this user
+    # returns public projects if user is None.
+    projects = auth.get_project_list(user=user)
+
+    # Format the payload.
+    payload = tabular_list(qs=projects)
+
     return HttpResponse(content=payload, content_type="text/plain")
 
 
 @api_error_wrapper(['GET', 'POST'])
 @token_access(klass=Project)
+@csrf_exempt
 @ratelimit(key='ip', rate='20/m')
 def project_api(request, uid):
 
@@ -84,29 +95,25 @@ def project_api(request, uid):
     project = Project.objects.filter(uid=uid).first()
 
     # Get the json data with project info
-    target = project.json_data
+    target = project.api_data
 
     # Replace source with target with valid POST request.
     if request.method == "POST":
-        stream = request.FILES.get("file")
-        source = hjson.load(stream.read())
+        stream = request.FILES.get("conf")
         if stream:
+            data_str = stream.read().decode()
+            source = toml.loads(data_str)
             # Get new fields from the POST request and set them.
-            target['text'] = project.text = source.get('text', project.text)
-            target['name'] = project.name = source.get('name', project.name)
-            target['help'] = project.help = source.get('help', project.help)
+            target = auth.update_project(project=project, data=source, save=True)
 
-            #target['image'] = project.image = source.get('image', project.image)
-
-            project.save()
-
-    payload = hjson.dumps(target)
+    payload = toml.dumps(target)
 
     return HttpResponse(content=payload, content_type="text/plain")
 
 
 @api_error_wrapper(['GET', 'POST'])
 @token_access(klass=Analysis)
+@csrf_exempt
 @ratelimit(key='ip', rate='20/m')
 def recipe_api(request, uid):
     """
@@ -116,32 +123,19 @@ def recipe_api(request, uid):
 
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    # Convert image to string
-    img = auth.img_to_str(recipe.image) if recipe.image else auth.img_to_str(get_thumbnail())
-
-    target = {"json": hjson.dumps(recipe.json_data),
-              "template": recipe.template,
-              "image": img}
-
-    stream = request.FILES.get("file")
-    source = hjson.load(stream.read())
+    target = recipe.api_data
 
     # Replace source with target with valid POST request.
     if request.method == "POST":
-        # Get the toml object from the POST request
-        interface = source.get('json', recipe.json_text)
-        template = source.get('template', recipe.template)
-
-        target['json'] = recipe.json_text = interface
-        target['template'] = recipe.template = template
-
-
-        # Swap the binary image
-        #target['image'] = recipe.image = source.get('image', recipe.image)
-        recipe.save()
+        # Fetch the toml file with all of the files.
+        stream = request.FILES.get("conf")
+        if stream:
+            source = toml.load(stream.read())
+            # Get the toml object from the POST request
+            target = auth.update_recipe(recipe=recipe, data=source, save=True)
 
     # Get the payload as a toml file.
-    payload = hjson.dumps(target)
+    payload = toml.dumps(target)
 
     return HttpResponse(content=payload, content_type="text/plain")
 
@@ -187,120 +181,3 @@ def data_api(request, uid):
 def job_api(request, uid):
     return
 
-
-#
-# @api_error_wrapper(['GET', 'PUT'])
-# @token_access(klass=Project)
-# @ratelimit(key='ip', rate='20/m')
-# def project_info(request, uid):
-#     """
-#     GET request : return project info as json data
-#     PUT request : change project info using json data
-#     """
-#
-#     project = Project.objects.filter(uid=uid).first()
-#
-#     if request.method == "PUT":
-#         file_object = request.data.get("file", "")
-#         conf = hjson.load(file_object)
-#         if file_object:
-#             project.name = conf.get("settings", {}).get("name") or project.name
-#             project.text = conf.get("settings", {}).get("help") or project.text
-#             project.save()
-#
-#     payload = json.dumps(project.json_data, indent=4)
-#
-#     return HttpResponse(content=payload, content_type="text/plain")
-#
-
-# @api_error_wrapper(['GET', 'PUT'])
-# @token_access(klass=Project)
-# @ratelimit(key='ip', rate='20/m')
-# def project_image(request, uid):
-#     """
-#     GET request : return project image
-#     PUT request : change project image
-#     """
-#     project = Project.objects.filter(uid=uid).first()
-#     imgpath = project.image.path if project.image else get_thumbnail()
-#
-#     if request.method == "PUT":
-#         file_object = request.data.get("file")
-#         imgpath = change_image(obj=project, file_object=file_object)
-#
-#     data = open(imgpath, "rb").read()
-#
-#     return HttpResponse(content=data, content_type="image/jpeg")
-
-
-# @api_error_wrapper(['GET', 'PUT'])
-# @token_access(klass=Analysis)
-# @ratelimit(key='ip', rate='20/m')
-# def recipe_image(request, uid):
-#     """
-#     GET request: Return recipe image.
-#     PUT request: Updates recipe image with given file.
-#     """
-#
-#     recipe = Analysis.objects.filter(uid=uid).first()
-#     imgpath = recipe.image.path if recipe.image else get_thumbnail()
-#
-#     if request.method == "PUT":
-#         file_object = request.data.get("file")
-#         imgpath = change_image(obj=recipe, file_object=file_object)
-#
-#     data = open(imgpath, "rb").read()
-#
-#     return HttpResponse(content=data, content_type="image/jpeg")
-
-#
-# @api_error_wrapper(['GET', 'PUT'])
-# @token_access(klass=Analysis)
-# @ratelimit(key='ip', rate='20/m')
-# def recipe_json(request, uid):
-#     """
-#     GET request: Returns recipe json
-#     PUT request: Updates recipe json with given file.
-#     """
-#     recipe = Analysis.objects.filter(uid=uid).first()
-#
-#     if request.method == "PUT":
-#         # Get the new json that will replace the current one
-#         file_object = request.data.get("file", "")
-#         updated_json = hjson.load(file_object)
-#         recipe.json_text = hjson.dumps(updated_json) if file_object else recipe.json_text
-#
-#         # Update help and name in recipe from json.
-#         if updated_json.get("settings"):
-#             recipe.name = updated_json["settings"].get("name", recipe.name)
-#             recipe.text = updated_json["settings"].get("help", recipe.text)
-#
-#         recipe.save()
-#
-#     payload = json.dumps(recipe.json_data, indent=4)
-#
-#     return HttpResponse(content=payload, content_type="text/plain")
-
-
-# @api_error_wrapper(['GET', 'PUT'])
-# @token_access(klass=Analysis)
-# @ratelimit(key='ip', rate='20/m')
-# def recipe_template(request, uid):
-#     """
-#     GET request: Returns recipe template
-#     PUT request: Updates recipe template with given file.
-#     """
-#
-#     recipe = Analysis.objects.filter(uid=uid).first()
-#
-#     # API key is always checked by @require_api_key decorator.
-#     if request.method == "PUT":
-#         # Get the new template that will replace the current one
-#         file_object = request.data.get("file", "")
-#         stream = file_object.read().decode("utf-8")
-#         recipe.template = stream if file_object else recipe.template
-#         recipe.save()
-#     payload = recipe.template
-#
-#     return HttpResponse(content=payload, content_type="text/plain")
-#

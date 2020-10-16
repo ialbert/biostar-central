@@ -12,7 +12,6 @@ except Exception as exc:
     # With no uwsgi module the tasks will be spooled.
     # Creating threaded versions of the decorators from uwsgi.
     #
-
     logger.warning("uwsgi module not found, tasks will run in threads")
 
     # Create a threaded version of the spooler

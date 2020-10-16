@@ -2,6 +2,7 @@ import difflib
 import logging
 import uuid, copy, base64
 import os
+import io
 import subprocess
 import random
 from mimetypes import guess_type
@@ -121,15 +122,31 @@ def copy_uid(request, uid, board):
     return board_items
 
 
-def get_token(request):
+def local_token():
+
+    if os.path.isfile(settings.TOKEN_FILE):
+        return open(settings.TOKEN_FILE, "r").readline().strip()
+    else:
+        logger.error(f"Did not find token in :{settings.TOKEN_FILE}")
+
+    return ""
+
+
+def get_token(request=None):
     """
     Fetch user token from request.
     """
 
+    # Read token from local file when no request is provided.
+    if request is None:
+        return local_token()
+
+    # Try and retrive from a file
     token = request.FILES.get("token")
     if token:
         token = token.readline()
 
+    # If none found in file, search in GET and POST requests.
     token = token or request.GET.get("token") or request.POST.get("token")
 
     return token
@@ -149,24 +166,6 @@ def validate_file(source, maxsize=50):
         return False, error_msg
 
     return True, ""
-
-
-def img_to_str(path):
-
-    img = open(path, 'rb').read()
-    img = base64.b64encode(img)
-    img = img.decode()
-
-    return img
-
-
-def str_to_img(decoded_str):
-
-    # Encode the string
-    encoded = decoded_str.encode()
-    # Convert string to png and return a stream.
-
-    return
 
 
 def authorize_run(user, recipe):
@@ -291,15 +290,16 @@ def get_project_list(user, include_public=True, include_deleted=False):
     if include_public:
         privacy = Project.PUBLIC
 
-    if user.is_anonymous:
+    if user is None or user.is_anonymous:
         # Unauthenticated users see public projects.
         cond = Q(privacy=Project.PUBLIC)
     else:
         # Authenticated users see public projects and private projects with access rights.
-        cond = Q(owner=user, privacy=Project.PRIVATE) | Q(privacy=privacy) | Q(access__user=user,
-                                                                               access__access__in=[Access.READ_ACCESS,
-                                                                                                   Access.WRITE_ACCESS,
-                                                                                                   Access.SHARE_ACCESS])
+        cond = Q(owner=user, privacy=Project.PRIVATE) | \
+               Q(privacy=privacy) | \
+               Q(access__user=user, access__access__in=[Access.READ_ACCESS,
+                                                        Access.WRITE_ACCESS,
+                                                        Access.SHARE_ACCESS])
     # Generate the query.
     if include_deleted:
         query = Project.objects.filter(cond).distinct()
@@ -342,6 +342,53 @@ def compute_rank(source, top=None, bottom=None, maxrank=5000, klass=None):
     rank = (trank + brank) / 2
 
     return rank
+
+
+def update_recipe(recipe, data={}, save=True):
+    """
+    Update an existing recipe using data found in data dict.
+    """
+
+    target = recipe.api_data
+    interface = data.get('json', recipe.json_text)
+    template = data.get('template', recipe.template)
+
+    target['json'] = recipe.json_text = interface
+    target['template'] = recipe.template = template
+
+    # Swap the binary image
+    # target['image'] = recipe.image = source.get('image', recipe.image)
+    if save:
+        recipe.save()
+
+    return target
+
+
+def update_project(project, data={}, save=True):
+    """
+    Update an existing project using data found in data dict.
+    """
+    project.text = data.get('text', project.text)
+    project.name = data.get('name', project.name)
+
+    strimg = data.get('image')
+
+    if strimg:
+        strimg = strimg.encode()
+        print(strimg)
+        1/0
+        stream = io.BytesIO(initial_bytes=strimg)
+        # Over write the image with
+        project.image.save(project.image.name, stream, save=True)
+
+    # target['image'] = project.image = source.get('image', project.image)
+    if save:
+        project.save()
+
+    # Refetch target data from the database.
+    target = project.api_data
+
+    return target
 
 
 def create_project(user, name="", uid=None, summary='', text='', stream=None, label=None,
