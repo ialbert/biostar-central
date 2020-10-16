@@ -150,6 +150,20 @@ def decode(s):
     return s.replace('\x00', '').replace('\0', '').replace('\000', '')
 
 
+def add_tags(delete=False):
+    logger.info("Transferring tags")
+
+    if delete:
+        # Delete tags before going forward.
+        Tag.objects.all().delete()
+
+    for post in Post.objects.iterator():
+        tags = [t.strip() for t in post.parse_tags()]
+        tags = [Tag.objects.get_or_create(name=name)[0] for name in tags]
+        post.tags.remove(*tags)
+        post.tags.add(*tags)
+
+
 def bulk_copy_posts(limit):
     relations = {}
     all_users = User.objects.order_by("id")
@@ -201,13 +215,6 @@ def bulk_copy_posts(limit):
             # Store parent and root for every post.
             relations[str(new_post.uid)] = [str(post.root_id), str(post.parent_id)]
             yield new_post
-
-    def add_tags():
-        logger.info("Transferring tags")
-        for post in Post.objects.iterator():
-            tags = [Tag.objects.get_or_create(name=name)[0] for name in post.parse_tags()]
-            post.tags.remove(*tags)
-            post.tags.add(*tags)
 
     def set_counts():
         logger.info("Setting post counts")
@@ -381,6 +388,7 @@ class Command(BaseCommand):
         parser.add_argument('--votes', action="store_true", help="Transfer votes from source database to target.")
         parser.add_argument('--subs', action="store_true", help="Transfer subs from source database to target.")
         parser.add_argument('--limit', '-n', type=int, help="Transfer subs from source database to target.")
+        parser.add_argument('--tags', action="store_true", help="Add the tags to database ")
 
     def handle(self, *args, **options):
 
@@ -388,6 +396,7 @@ class Command(BaseCommand):
         load_users = options["users"]
         load_votes = options["votes"]
         load_subs = options["subs"]
+        load_tags = options['tags']
         limit = options.get("limit") or LIMIT
 
         print(f"OLD_DATABASE (source): {settings.OLD_DATABASE}")
@@ -407,6 +416,10 @@ class Command(BaseCommand):
             return
         if load_subs:
             bulk_copy_subs(limit=limit)
+            return
+
+        if load_tags:
+            add_tags(delete=True)
             return
 
         # Copy everything
