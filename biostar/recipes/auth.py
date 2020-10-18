@@ -2,6 +2,7 @@ import difflib
 import logging
 import uuid, copy, base64
 import os
+import base64
 import io
 import subprocess
 import random
@@ -344,51 +345,75 @@ def compute_rank(source, top=None, bottom=None, maxrank=5000, klass=None):
     return rank
 
 
-def update_recipe(recipe, data={}, save=True):
+def overwrite_image(obj, strimg):
+    strimg = strimg.encode()
+    strimg = base64.decodebytes(strimg)
+    stream = io.BytesIO(initial_bytes=strimg)
+    # Over write the image
+    obj.image.save(obj.image.name, stream, save=True)
+
+    return
+
+
+def update_recipe(obj, data={}, save=True):
     """
     Update an existing recipe using data found in data dict.
     """
 
-    target = recipe.api_data
-    interface = data.get('json', recipe.json_text)
-    template = data.get('template', recipe.template)
+    if not obj:
+        return
 
-    target['json'] = recipe.json_text = interface
-    target['template'] = recipe.template = template
+    obj.json_text = data.get('json', obj.json_text)
+    obj.template = data.get('template', obj.template)
+    obj.name = data.get('name', obj.name)
+    obj.text = data.get('text', obj.text)
+
+    # Fetch the base64 image string and write to file.
+    strimg = data.get('image')
+
+    if strimg:
+        overwrite_image(obj=obj, strimg=strimg)
 
     # Swap the binary image
     # target['image'] = recipe.image = source.get('image', recipe.image)
     if save:
-        recipe.save()
+        obj.save()
 
-    return target
+    result = obj.api_data
+
+    return result
 
 
-def update_project(project, data={}, save=True):
+def update_project(obj, data={}, save=True):
     """
     Update an existing project using data found in data dict.
     """
-    project.text = data.get('text', project.text)
-    project.name = data.get('name', project.name)
 
+    # Set the project text and name.
+    obj.text = data.get('text', obj.text)
+    obj.name = data.get('name', obj.name)
+
+    # Fetch the base64 image string and write to file.
     strimg = data.get('image')
 
+    # Get the list of recipes
+    recipes = data.get('recipes', [])
+
     if strimg:
-        strimg = strimg.encode()
-        print(strimg)
-        1/0
-        stream = io.BytesIO(initial_bytes=strimg)
-        # Over write the image with
-        project.image.save(project.image.name, stream, save=True)
+        overwrite_image(obj=obj, strimg=strimg)
 
-    # target['image'] = project.image = source.get('image', project.image)
     if save:
-        project.save()
+        obj.save()
 
-    # Refetch target data from the database.
-    target = project.api_data
+    # Iterate over and update recipes.
+    for rec in recipes:
+        recipe = Analysis.objects.filter(uid=rec['uid'], project=obj).first()
+        update_recipe(obj=recipe, data=rec, save=True)
 
-    return target
+    # Re-fetch updated data from the database.
+    result = obj.api_data
+
+    return result
 
 
 def create_project(user, name="", uid=None, summary='', text='', stream=None, label=None,

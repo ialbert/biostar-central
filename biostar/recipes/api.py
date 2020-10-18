@@ -93,20 +93,18 @@ def project_api(request, uid):
     """
 
     project = Project.objects.filter(uid=uid).first()
-
     # Get the json data with project info
     target = project.api_data
 
     # Replace source with target with valid POST request.
     if request.method == "POST":
-        stream = request.FILES.get("conf")
+        stream = request.FILES.get("data")
         if stream:
-            data_str = stream.read().decode()
-            source = toml.loads(data_str)
+            source = json.load(stream)
             # Get new fields from the POST request and set them.
-            target = auth.update_project(project=project, data=source, save=True)
+            target = auth.update_project(obj=project, data=source, save=True)
 
-    payload = toml.dumps(target)
+    payload = json.dumps(target)
 
     return HttpResponse(content=payload, content_type="text/plain")
 
@@ -128,14 +126,14 @@ def recipe_api(request, uid):
     # Replace source with target with valid POST request.
     if request.method == "POST":
         # Fetch the toml file with all of the files.
-        stream = request.FILES.get("conf")
+        stream = request.FILES.get("data")
         if stream:
-            source = toml.load(stream.read())
+            source = json.load(stream)
             # Get the toml object from the POST request
-            target = auth.update_recipe(recipe=recipe, data=source, save=True)
+            target = auth.update_recipe(obj=recipe, data=source, save=True)
 
     # Get the payload as a toml file.
-    payload = toml.dumps(target)
+    payload = json.dumps(target)
 
     return HttpResponse(content=payload, content_type="text/plain")
 

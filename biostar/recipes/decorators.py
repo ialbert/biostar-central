@@ -199,18 +199,22 @@ def token_access(klass):
         @wraps(func)
         def __wrapper__(request, *args, **kwargs):
 
-            # Get the object user is trying to access
-            uid = kwargs.get('uid')
-            obj = klass.objects.filter(uid=uid).first()
-            project = obj.project
-
             # Get the token from the request data
             token = auth.get_token(request=request)
             # Find the target user.
             user = User.objects.filter(profile__token=token).first()
 
+            # Get the object user is trying to access
+            uid = kwargs.get('uid')
+            obj = klass.objects.filter(uid=uid).first()
+
             if not user:
                 return HttpResponse(content="Token does not belong to any user.")
+
+            if not obj:
+                return HttpResponse(content="Object does not exist.")
+
+            project = obj.project
 
             # GET requests require read access
             if request.method == "GET":

@@ -107,10 +107,12 @@ class Snippet(models.Model):
 
 
 def img_to_str(img, decode=True):
-    img = img.path if img else os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
-    img = open(img, 'rb').read()
+    exists = img and os.path.exists(img.path)
+
+    img = img.path if exists else os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+    stream = open(img, 'rb').read()
     # Convert image to base64 string
-    strimg = base64.b64encode(img)
+    strimg = base64.b64encode(stream)
     if decode:
         # Decode from bytes to string, enables JSON serialization.
         strimg = strimg.decode()
@@ -227,6 +229,10 @@ class Project(models.Model):
             project_uid=self.uid,
             id=self.pk,
             image=strimg,
+            # Insert recipes API data in there as well.
+            recipes=[
+                r.api_data for r in self.analysis_set.all()
+            ]
         )
 
         return json_data
@@ -582,7 +588,10 @@ class Analysis(models.Model):
     def api_data(self):
         img = self.image
         strimg = img_to_str(img=img)
-        payload = {"json": hjson.dumps(self.json_data),
+        payload = {"uid": self.uid,
+                   "name": self.name,
+                   "text": self.text,
+                   "json": hjson.dumps(self.json_data),
                    "template": self.template,
                    "image": strimg}
 
