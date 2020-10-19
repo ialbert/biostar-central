@@ -19,26 +19,28 @@
 
     {% endblock %}
 
-
-    {% if tag %}
-        <div class="ui blue filter message">
-            Showing : <code>{{ tag }}</code> &bull;
-            <a href="{% url 'post_list' %}">
-                reset <i class="undo small icon"></i>
-            </a>
-        </div>
-    {% endif %}
-
-
-    <div class="ui divided items">
-        {% for post in posts %}
-            {% post_details post=post user=request.user avatar=avatar %}
-        {% empty %}
-            <div class="ui warn message">
-                No posts found.
+    {% block listing %}
+        {% if tag %}
+            <div class="ui blue filter message">
+                Showing : <code>{{ tag }}</code> &bull;
+                <a href="{% url 'post_list' %}">
+                    reset <i class="undo small icon"></i>
+                </a>
             </div>
-        {% endfor %}
-    </div>
+        {% endif %}
+
+
+        <div class="ui divided items">
+            {% for post in posts %}
+                {% post_details post=post user=request.user avatar=avatar %}
+            {% empty %}
+                <div class="ui warn message">
+                    No posts found.
+                </div>
+            {% endfor %}
+        </div>
+    {% endblock %}
+
 
 
     <div class="ui page-bar segment">
