@@ -1,0 +1,74 @@
+{% load forum_tags %}
+
+<div class="ui first segment">
+    <div class="ui small compact menu no-shadow">
+        <div class="ui simple dropdown item">
+            <i class="{% get_icon string=active default='all' %}"></i>
+
+            <span class="tablet">{% get_wording prefix="Limit to:" filtered=active default="all" %}</span>
+            <i class="dropdown icon"></i>
+
+            <div class="menu">
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'all' 'limit' params %}">
+                    <i class="{% get_icon 'all' %}"></i>all time
+                </a>
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'today' 'limit' params %}">
+                    <i class="{% get_icon 'today' %}"></i>today
+                </a>
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'week' 'limit' params %}">
+                    <i class="{% get_icon 'week' %}"></i>this week
+                </a>
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'month' 'limit' params %}">
+                    <i class="{% get_icon 'month' %}"></i>this month
+                </a>
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'year' 'limit' params %}">
+                    <i class="{% get_icon 'year' %}"></i>this year
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block top_pagebar %}
+    <div class="ui page-bar center aligned segment">
+        {% pages objs=users %}
+    </div>
+{% endblock %}
+
+<div class="ui third segment">
+    <div class="ui small compact menu no-shadow float-right">
+        <div class="ui simple dropdown item">
+            <i class="{% get_icon string=order default='visit' %}"></i>
+            <span class="tablet">{% get_wording prefix="Sort by:" filtered=order default="visit" %}</span>
+
+            <i class="dropdown icon"></i>
+
+            <div class="menu">
+
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'visit' 'order' params %}">
+                    <i class="{% get_icon 'visit' %}"></i>recent visit
+                </a>
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'reputation' 'order' params %}">
+                    <i class="{% get_icon 'reputation' %}"></i>reputation
+                </a>
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'joined' 'order' params %}">
+                    <i class="{% get_icon 'joined' %}"></i>date joined
+                </a>
+                <a class="item"
+                   href="{% url 'community_list' %}{% relative_url 'activity' 'order' params %}">
+                    <i class="{% get_icon 'activity' %}"></i>activity level
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
