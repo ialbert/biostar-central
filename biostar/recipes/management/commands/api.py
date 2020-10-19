@@ -1,6 +1,7 @@
 import hjson
 import logging
 import sys
+import os
 from urllib.parse import urljoin
 import requests
 from django.core.management.base import BaseCommand
@@ -42,7 +43,7 @@ def update(obj, data):
 
     callback = auth.update_project if isinstance(obj, Project) else auth.update_recipe
 
-    return callback(uid=obj.uid, data=data, save=True)
+    return callback(obj=obj, data=data, save=True)
 
 
 def push_pull(uid, klass, fname="", url=None, action=PULL):

@@ -346,6 +346,7 @@ def compute_rank(source, top=None, bottom=None, maxrank=5000, klass=None):
 
 
 def overwrite_image(obj, strimg):
+
     strimg = strimg.encode()
     strimg = base64.decodebytes(strimg)
     stream = io.BytesIO(initial_bytes=strimg)
