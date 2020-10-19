@@ -11,9 +11,7 @@
         <a href="{% url 'badge_list' %}">Badges</a>
 
     </div>
-
     <div class="left aligned column" style="padding-right: 12%">
-
         <b>Help</b>
         <a href="{% url 'pages' 'about' %}">About</a><br>
         <a href="{% url 'pages' 'faq' %}">FAQ</a><br>
@@ -22,7 +20,7 @@
     <div class=" left aligned column">
 
         <b>Access</b>
-        <a href="#">RSS</a><br>
+        <a href="{% url 'rss' %}">RSS</a><br>
         <a href="{% url 'pages' 'api' %}">API</a><br>
         <a href="#">Stats</a>
 
