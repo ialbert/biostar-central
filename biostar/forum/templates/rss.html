@@ -1,4 +1,4 @@
-{% extends "forum_base.html" %}
+{% extends "forum_list.html" %}
 {% load forum_tags %}
 {% load humanize %}
 
@@ -6,15 +6,14 @@
     RSS Feeds
 {% endblock %}
 
-{% block content %}
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+{% block body %}
+    <div class="ui basic segment">
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">RSS Feeds</h3>
+                <div class="ui vertical segment">
+                    <h3>RSS Feeds</h3>
                 </div>
-                <div class="panel-body">
+
+                <div class="ui vertical segment">
 
                     <p>
                         Standard feeds:
@@ -49,7 +48,59 @@
                     </ul>
 
                 </div>
+    </div>
+{% endblock %}
+
+{% block sidebar %}
+
+
+
+    <div class="ui  basic segment">
+
+    <div class="event">
+        <div class="ui container">
+            <b>Site Admins</b>
+            <div class="ui relaxed list">
+
+                {% for admin in admins %}
+                    <div class="item spaced">
+                        <span>
+                        <a class="ui mini avatar thread-users list-avatar image"
+                           href="{% url "user_profile" admin.profile.uid %}">
+                            <img src="{% gravatar user=admin size=90 %}">
+                        </a>
+                        </span>
+                        {{ admin.profile.name }} <b>{% user_icon user=admin %}</b>
+                    </div>
+                {% endfor %}
             </div>
         </div>
     </div>
+
+    <div class="ui divider"></div>
+
+    <div class="event">
+        <div class="ui container">
+            <b>Site Moderators</b>
+
+            <div class="ui relaxed list">
+
+                {% for mod in mods %}
+                    <div class="item spaced">
+                        <span>
+                        <a class="ui mini avatar thread-users list-avatar image"
+                           href="{% url "user_profile" mod.profile.uid %}">
+                            <img src="{% gravatar user=mod size=90 %}">
+                        </a>
+                        </span>
+
+                        {{ mod.profile.name }} <b>{% user_icon user=mod %}</b>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    </div>
+
 {% endblock %}

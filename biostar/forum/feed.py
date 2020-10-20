@@ -6,6 +6,8 @@ from biostar.forum.util import now, split
 
 from datetime import timedelta
 from django.contrib.sites.models import Site
+
+from biostar.forum.models import User,Profile
 from django.conf import settings
 import bleach
 
@@ -25,9 +27,15 @@ def reduce_html(text):
 
 
 def info(request):
+    """
+    The RSS info,
+    """
+    admins = User.objects.filter(is_superuser=True)
+    mods = User.objects.filter(profile__role=Profile.MODERATOR).exclude(id__in=admins)
+    admins = admins.prefetch_related("profile").order_by("-profile__score")
+    mods = mods.prefetch_related("profile").order_by("-profile__score")
+    context = dict(admins=admins, mods=mods)
 
-    # Let me know
-    context = dict()
     return render(request, template_name="rss.html", context=context)
 
 
