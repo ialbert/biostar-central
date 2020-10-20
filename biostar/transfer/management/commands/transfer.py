@@ -358,14 +358,14 @@ def test():
         subs = PostsSubscription.objects.filter(post_id=p)
         print(len(subs), p)
         for sub in subs:
-            print(sub.post.author.profile.digest_prefs)
-            print(sub.id,
-                  sub.user.id,
-                  sub.user.email,
-                  sub.user.profile.digest_prefs,
-                  sub.post.author.email,
-                  sub.post.title,
-                  sub.user.profile.message_prefs, sub.type)
+            # print(sub.post.author.profile.digest_prefs)
+            # print(sub.id,
+            #       sub.user.id,
+            #       sub.user.email,
+            #       sub.user.profile.digest_prefs,
+            #       sub.post.author.email,
+            #       sub.post.title,
+            #       sub.user.profile.message_prefs, sub.type)
 
             if sub.user.id in seen:
                 print(f"Already subbed to post={p}, {sub.user.email}")
