@@ -2,17 +2,20 @@
 Markdown parser to render the Biostar style markdown.
 """
 import re
-
+from functools import partial
 import mistune
 import requests
 from xml.sax.saxutils import unescape
 from django.shortcuts import reverse
 from django.db.models import F
 import bleach
+from bleach.linkifier import Linker
+from bleach.linkifier import LinkifyFilter
+import html2text
 from django.conf import settings
 from mistune import Renderer, InlineLexer, InlineGrammar
 from mistune import escape as escape_text
-
+from bleach.sanitizer import Cleaner
 from biostar.forum import auth
 from biostar.forum.models import Post, Subscription
 from biostar.accounts.models import Profile, User
@@ -279,7 +282,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_youtube_link1(self, m):
         uid = m.group("uid")
-        return YOUTUBE_HTML % uid
+        return m.group()
 
     def enable_youtube_link2(self):
         self.rules.youtube_link2 = YOUTUBE_PATTERN2
@@ -287,7 +290,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_youtube_link2(self, m):
         uid = m.group("uid")
-        return YOUTUBE_HTML % uid
+        return m.group()
 
     def enable_youtube_link3(self):
         self.rules.youtube_link3 = YOUTUBE_PATTERN3
@@ -295,7 +298,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_youtube_link3(self, m):
         uid = m.group("uid")
-        return YOUTUBE_HTML % uid
+        return m.group()
 
     def enable_twitter_link(self):
         self.rules.twitter_link = TWITTER_PATTERN
@@ -303,7 +306,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_twitter_link(self, m):
         uid = m.group("uid")
-        return get_tweet(uid)
+        return m.group()
 
     def enable_gist_link(self):
         self.rules.gist_link = GIST_PATTERN
@@ -311,7 +314,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_gist_link(self, m):
         uid = m.group("uid")
-        return GIST_HTML % uid
+        return m.group()
 
     def enable_ftp_link(self):
         self.rules.ftp_link = FTP_PATTERN
@@ -320,6 +323,59 @@ class BiostarInlineLexer(MonkeyPatch):
     def output_ftp_link(self, m):
         link = m.group(0)
         return f'<a href="{link}">{link}</a>'
+
+
+def embedder(attrs, new, embed=[]):
+
+    # Existing <a> tag, leave as is.
+    if not new:
+        return attrs
+
+    href = attrs['_text']
+    linkable = href[:4] in ('http', 'ftp:', 'https')
+
+    # Don't linkify non http links
+    if not linkable:
+        return None
+
+    # Try the gist embedding patterns
+    targets = [
+        (GIST_PATTERN, lambda x: GIST_HTML % x),
+        (YOUTUBE_PATTERN1, lambda x: YOUTUBE_HTML % x),
+        (YOUTUBE_PATTERN2, lambda x: YOUTUBE_HTML % x),
+        (YOUTUBE_PATTERN3, lambda x: YOUTUBE_HTML % x),
+        (TWITTER_PATTERN, get_tweet),
+    ]
+
+    for regex, get_text in targets:
+        patt = regex.search(href)
+        if patt:
+            uid = patt.group("uid")
+            obj = get_text(uid)
+            embed.append((patt.group(), obj))
+            attrs['_text'] = patt.group()
+            if 'rel' in attrs:
+                del attrs['rel']
+
+    return attrs
+
+
+def linkify(html):
+
+    # List of links to embed
+    embed = []
+
+    linker = Linker(callbacks=[partial(embedder, embed=embed)], skip_tags=['pre', 'code'])
+    html = linker.linkify(html)
+
+    # Embed links into html.
+    for em in embed:
+        source, target = em
+        # Remove <p> tags from
+        emb = f'<a href="{source}">{source}</a>'
+        html = html.replace(emb, target)
+
+    return html
 
 
 def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
@@ -337,24 +393,23 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     # Resolve the root if exists.
     root = post.parent.root if (post and post.parent) else None
 
-    # Bleach clean the text before handing it over to mistune.
-    # Only clean for non moderators.
-    non_mod = not post.lastedit_user.profile.is_moderator if post else True
-    if clean and non_mod:
-        # Add a bleach clean with the same
-        text = bleach.clean(text, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES, attributes=ALLOWED_ATTRIBUTES)
-
     # Initialize the renderer
-    # parse_block_html=True ensures '>','<', etc are dealt with without being escaped.
-    renderer = BiostarRenderer(escape=escape, parse_block_html=True)
+    renderer = BiostarRenderer(escape=escape)
 
-    # Initialize the lexer 
+    # Initialize the lexer
     inline = BiostarInlineLexer(renderer=renderer, root=root, allow_rewrite=allow_rewrite)
 
     markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
 
     # Create final html.
     html = markdown(text)
+
+    # Bleach clean the html.
+    if clean:
+        html = bleach.clean(html, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES, attributes=ALLOWED_ATTRIBUTES)
+
+    # Embed sensitive links into html
+    html = linkify(html=html)
 
     return html
 
