@@ -282,6 +282,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_youtube_link1(self, m):
         uid = m.group("uid")
+        # Isolate links to be later dealt with
         return m.group()
 
     def enable_youtube_link2(self):
@@ -290,6 +291,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_youtube_link2(self, m):
         uid = m.group("uid")
+        # Isolate links to be later dealt with
         return m.group()
 
     def enable_youtube_link3(self):
@@ -298,6 +300,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_youtube_link3(self, m):
         uid = m.group("uid")
+        # Isolate links to be later dealt with
         return m.group()
 
     def enable_twitter_link(self):
@@ -306,6 +309,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_twitter_link(self, m):
         uid = m.group("uid")
+        # Isolate links to be later dealt with
         return m.group()
 
     def enable_gist_link(self):
@@ -314,6 +318,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_gist_link(self, m):
         uid = m.group("uid")
+        # Isolate links to be later dealt with
         return m.group()
 
     def enable_ftp_link(self):
