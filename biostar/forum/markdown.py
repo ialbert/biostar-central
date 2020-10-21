@@ -2,6 +2,7 @@
 Markdown parser to render the Biostar style markdown.
 """
 import re
+import inspect
 from functools import partial
 import mistune
 import requests
@@ -330,7 +331,9 @@ class BiostarInlineLexer(MonkeyPatch):
         return f'<a href="{link}">{link}</a>'
 
 
-def embedder(attrs, new, embed=[]):
+def embedder(attrs, new, embed=None):
+
+    embed = [] if embed is None else embed
 
     # Existing <a> tag, leave as is.
     if not new:
@@ -365,13 +368,11 @@ def embedder(attrs, new, embed=[]):
     return attrs
 
 
-def linkify(html):
+def linkify(text):
 
     # List of links to embed
     embed = []
-
-    linker = Linker(callbacks=[partial(embedder, embed=embed)], skip_tags=['pre', 'code'])
-    html = linker.linkify(html)
+    html = bleach.linkify(text=text, callbacks=[partial(embedder, embed=embed)], skip_tags=['pre', 'code'])
 
     # Embed links into html.
     for em in embed:
@@ -380,6 +381,22 @@ def linkify(html):
         html = html.replace(emb, target)
 
     return html
+
+
+def safe(callable, *args, **kwargs):
+    """
+    Safely call an object without causing
+    """
+    text = kwargs.get('text')
+    try:
+
+        return callable(*args, **kwargs)
+    except Exception as exc:
+
+        prefix = callable.__name__ if inspect.isfunction(callable) else type(callable).__name__
+
+        errmsg = f'<p>{prefix.upper()} ERROR = {exc}</p><p>{text}</p>'
+        return errmsg
 
 
 def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
@@ -405,15 +422,15 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
 
     markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
 
-    # Create final html.
-    html = markdown(text)
+    html = safe(markdown, text=text)
 
     # Bleach clean the html.
     if clean:
-        html = bleach.clean(html, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES, attributes=ALLOWED_ATTRIBUTES)
+        html = safe(bleach.clean, text=html, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES,
+                    attributes=ALLOWED_ATTRIBUTES)
 
     # Embed sensitive links into html
-    html = linkify(html=html)
+    html = safe(linkify, text=html)
 
     return html
 
