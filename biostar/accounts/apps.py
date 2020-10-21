@@ -40,7 +40,7 @@ def init_social():
 
         name, client_id, client_secret = client
 
-        # Check the app for existance.
+        # Check the app for existence.
         app = SocialApp.objects.filter(name=name)
 
         # Update the id and secrets to apply any changes that might have been made.

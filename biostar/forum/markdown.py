@@ -84,8 +84,8 @@ ALLOWED_STYLES = ['color', 'font-weight', 'background-color', 'width height']
 # Youtube patterns
 # https://www.youtube.com/watch?v=G7RDn8Xtf_Y
 YOUTUBE_PATTERN1 = rec(r"^http(s)?://www.youtube.com/watch\?v=(?P<uid>([\w-]+))(/)?")
-YOUTUBE_PATTERN2 = rec(r"https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
-YOUTUBE_PATTERN3 = rec(r"https://youtu.be/(?P<uid>([\w-]+))(/)?")
+YOUTUBE_PATTERN2 = rec(r"^https://www.youtube.com/embed/(?P<uid>([\w-]+))(/)?")
+YOUTUBE_PATTERN3 = rec(r"^https://youtu.be/(?P<uid>([\w-]+))(/)?")
 YOUTUBE_HTML = '<iframe width="420" height="315" src="//www.youtube.com/embed/%s" frameborder="0" allowfullscreen></iframe>'
 
 # Ftp link pattern.
@@ -343,7 +343,7 @@ def embedder(attrs, new, embed=[]):
     if not linkable:
         return None
 
-    # Try the gist embedding patterns
+    # Try embedding patterns
     targets = [
         (GIST_PATTERN, lambda x: GIST_HTML % x),
         (YOUTUBE_PATTERN1, lambda x: YOUTUBE_HTML % x),
@@ -376,7 +376,6 @@ def linkify(html):
     # Embed links into html.
     for em in embed:
         source, target = em
-        # Remove <p> tags from
         emb = f'<a href="{source}">{source}</a>'
         html = html.replace(emb, target)
 
@@ -415,7 +414,7 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
 
     # Embed sensitive links into html
     html = linkify(html=html)
-
+    
     return html
 
 
