@@ -414,7 +414,7 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
 
     # Embed sensitive links into html
     html = linkify(html=html)
-    
+
     return html
 
 

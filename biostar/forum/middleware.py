@@ -107,7 +107,7 @@ def ban_ip(get_response):
                     fp = open(settings.BANNED_IPS, "a")
                     fp.write(message)
                     fp.close()
-                return redirect('/static/message.txt')
+                    return redirect('/static/message.txt')
             else:
                 cache.incr(ip)
 
