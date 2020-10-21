@@ -1,109 +1,20 @@
-{% load static %}
-{% load compress %}
-{% load recaptcha2 %}
+{% extends 'forum_base.html' %}
 {% load forum_tags %}
-{% load accounts_tags %}
+{% load static %}
 
-<html lang="en">
-<head>
-
-    <title>
-        {% block title %}{{ site_name }}{% endblock %}
-    </title>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    {# Set the favicon #}
+{% block favicon %}
     <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon"/>
-    {# Load JQuery. #}
+{% endblock %}
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+{% block cssfile %}
+    <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
+{% endblock %}
 
-    <script>
-        MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
-            },
-            svg: {
-                fontCache: 'global'
-            }
-        };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>
+{% block jsfile %}
+     <script src="{% static 'theme.js' %}{% randparam %}"></script>
+{% endblock %}
 
-    {# Load recaptcha #}
-    {% recaptcha_init %}
-
-    {#  CSS compression. #}
-    {% compress css %}
-        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
-        <link href="{% static 'prism.css' %}" rel="stylesheet">
-        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
-        <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
-    {% endcompress %}
-
-    {# Javascript compression. #}
-    {% compress js %}
-        <script src="{% static 'semantic.min.js' %}"></script>
-        <script src="{% static 'prism.js' %}"></script>
-        <script src="{% static 'forum.js' %}{% randparam %}"></script>
-        <script src="{% static 'theme.js' %}{% randparam %}"></script>
-        <script src="{% static 'setup.js' %}{% randparam %}"></script>
-    {% endcompress %}
-
-    {# Optional block header content. #}
-    {% block head %}
-
-    {% endblock %}
-
-    {# Optional css header content. #}
-    {% block css %}
-    {% endblock %}
-
-    {# Optional javascaript header content. #}
-    {% block js %}
-
-    {% endblock %}
-
-</head>
-<body>
-
-<div class="ui inverted container widen">
-
-    {% include 'banners/top-banner.html' %}
-
-    <span class="menus">
+{% block topmenu %}
         {% include "banners/menu-topics.html" %}
         {% include "banners/menu-header.html" %}
-
-    </span>
-
-    <span class="phone-menus">
-        {% include "banners/menu-phone.html" %}
-    </span>
-
-    {% block container %}
-        <div class="ui bottom attached segment">
-
-            {% show_messages messages %}
-
-            {% block content %}
-                MAIN CONTENT
-            {% endblock %}
-
-        </div>
-    {% endblock %}
-
-
-    {% block footer %}
-        {% include 'widgets/footer.html' %}
-    {% endblock %}
-</div>
-
-</body>
-</html>
-
+{% endblock %}

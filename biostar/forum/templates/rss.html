@@ -1,0 +1,106 @@
+{% extends "forum_list.html" %}
+{% load forum_tags %}
+{% load humanize %}
+
+{% block headtitle %}
+    RSS Feeds
+{% endblock %}
+
+{% block body %}
+    <div class="ui basic segment">
+
+                <div class="ui vertical segment">
+                    <h3>RSS Feeds</h3>
+                </div>
+
+                <div class="ui vertical segment">
+
+                    <p>
+                        Standard feeds:
+                    </p>
+
+                    <ul>
+                        <li><a href="{% url "latest_feed" %}">Latest Posts</a> - latest posts (all posts)</li>
+                        <li><a href="{% url "post_type" "question" %}">New Questions</a> - latest questions</li>
+                        <li><a href="{% url "post_type" "job" %}">New Job postings</a> - latest jobs</li>
+{#                        <li><a href="{% url "planet_feed" %}">Planet Feed</a> - latest blog entries</li> #}
+                    </ul>
+
+                    <p>
+                        Advanced usage, multiple sources can be added to a feed.
+
+                    <p>
+
+                    <ul>
+                        <li><a href="{% url "post_type" "blog+job" %}">Follow posts of different types</a>, posts of certain types:
+                            <code>/feeds/type/job+blog</code>
+                        </li>
+                        <li><a href="{% url "post_feed" "2+4+6" %}">Follow multiple posts</a>, answers and comments attached to the
+                            specified posts: <code>/feeds/post/2+8+10</code>
+                        </li>
+                        <li><a href="{% url "tag_feed" 'galaxy+bwa+tutorial' %}">Follow multiple tags</a>, posts that are tagged with one or more
+                            tags:
+                            <code>/feeds/tag/galaxy+bwa+tutorial</code>
+                        </li>
+                        <li><a href="{% url "user_feed" "2+4+6" %}">Follow multiple users</a> a feed to posts by these users:
+                            <code>/feeds/user/2+8+10</code>
+                        </li>
+                    </ul>
+
+                </div>
+    </div>
+{% endblock %}
+
+{% block sidebar %}
+
+
+
+    <div class="ui  basic segment">
+
+    <div class="event">
+        <div class="ui container">
+            <b>Site Admins</b>
+            <div class="ui relaxed list">
+
+                {% for admin in admins %}
+                    <div class="item spaced">
+                        <span>
+                        <a class="ui mini avatar thread-users list-avatar image"
+                           href="{% url "user_profile" admin.profile.uid %}">
+                            <img src="{% gravatar user=admin size=90 %}">
+                        </a>
+                        </span>
+                        {{ admin.profile.name }} <b>{% user_icon user=admin %}</b>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="ui divider"></div>
+
+    <div class="event">
+        <div class="ui container">
+            <b>Site Moderators</b>
+
+            <div class="ui relaxed list">
+
+                {% for mod in mods %}
+                    <div class="item spaced">
+                        <span>
+                        <a class="ui mini avatar thread-users list-avatar image"
+                           href="{% url "user_profile" mod.profile.uid %}">
+                            <img src="{% gravatar user=mod size=90 %}">
+                        </a>
+                        </span>
+
+                        {{ mod.profile.name }} <b>{% user_icon user=mod %}</b>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+{% endblock %}

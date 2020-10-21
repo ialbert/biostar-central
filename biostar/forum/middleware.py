@@ -1,6 +1,7 @@
 import logging
 import time
 
+from socket import gethostbyaddr, gethostbyname
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
@@ -65,6 +66,14 @@ def update_status(user):
     return user.profile.trusted
 
 
+def domain_is_whitelisted(ip):
+    try:
+        host = gethostbyaddr(ip)[0]
+        return host.endswith(settings.WHITE_LIST_DOMAIN) and (ip == gethostbyname(host))
+    except:
+        return False
+
+
 def ban_ip(get_response):
     """
 
@@ -89,13 +98,16 @@ def ban_ip(get_response):
             value = cache.get(ip)
             if value >= settings.MAX_VISITS:
                 # Raise redirect exception
-                now = util.now()
-                message = f"{now}\tbanned\t{ip}\t{oip}\n"
-                logger.error(message)
-                fp = open(settings.BANNED_IPS, "a")
-                fp.write(message)
-                fp.close()
-                return redirect('/static/message.txt')
+                if domain_is_whitelisted(oip):
+                    cache.set(ip, 0)
+                else:
+                    now = util.now()
+                    message = f"{now}\tbanned\t{ip}\t{oip}\n"
+                    logger.error(message)
+                    fp = open(settings.BANNED_IPS, "a")
+                    fp.write(message)
+                    fp.close()
+                    return redirect('/static/message.txt')
             else:
                 cache.incr(ip)
 

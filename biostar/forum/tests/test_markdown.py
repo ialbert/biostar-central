@@ -57,10 +57,10 @@ TEST_CASES = [
     ("(http://www.psu.edu)", '<p>(<a href="http://www.psu.edu">http://www.psu.edu</a>)</p>'),
 
     # Test unclosed tags
-    ("<b> foo", '<p><b> foo</b></p>'),
+    ("<b> foo", '<p><b> foo</b></p><b></b>'),
 
     # Test nested unclosed tags
-    ("<b><b><b><b>foo  ", '<p><b><b><b><b>foo  </b></b></b></b></p>'),
+    ("<b><b><b><b>foo  ", '<p><b><b><b><b>foo</b></b></b></b></p><b><b><b></b></b></b>'),
 
 ]
 

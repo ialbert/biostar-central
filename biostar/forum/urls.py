@@ -5,7 +5,7 @@ from django.urls import include, path  # For django versions from 2.0 and up
 import debug_toolbar
 from biostar.forum import views
 from biostar.accounts.views import image_upload_view
-from biostar.forum import ajax, api
+from biostar.forum import ajax, api, feed
 from biostar.accounts.urls import account_patterns
 from biostar.planet.urls import planet_patterns
 
@@ -56,13 +56,25 @@ forum_patterns = [
 
     # Api calls
     path(r'api/traffic/', api.traffic, name='api_traffic'),
-    path(r'api/user/<int:id>/', api.user_details, name='api_user'),
-    path(r'api/post/<int:id>/', api.post_details, name='api_post'),
-    path(r'api/vote/<int:id>/', api.vote_details, name='api_vote'),
+    path(r'api/user/<int:uid>/', api.user_details, name='api_user'),
+    path(r'api/post/<int:uid>/', api.post_details, name='api_post'),
+    path(r'api/vote/<int:uid>/', api.vote_details, name='api_vote'),
     path(r'api/post/id/range/<int:start>/<int:end>/', api.vote_details, name='api_vote'),
-    #path(r'api/stats/day/<int:day>/$', api.daily_stats_on_day, name='api_stats_on_day'),
-    #path(r'api/stats/date/(?P<year>\d{4})/(?P<month>\d{2})/(?P<day>\d{2})/$', api.daily_stats_on_date,
-    #     name='api_stats_on_date'),
+    path(r'api/stats/day/<int:day>/', api.daily_stats_on_day, name='api_stats_on_day'),
+    path(r'api/stats/date/<int:year>/<int:month>/<int:day>/', api.daily_stats_on_date,
+         name='api_stats_on_date'),
+
+
+    # RSS info page.
+    path(r'info/rss/', feed.info, name='rss'),
+
+    # RSS feeds
+    path(r'feeds/latest/', feed.LatestFeed(), name='latest_feed'),
+    path(r'feeds/tag/<str:text>/', feed.TagFeed(), name='tag_feed'),
+    path(r'feeds/user/<str:text>/', feed.UserFeed(), name='user_feed'),
+    path(r'feeds/post/<str:text>/', feed.PostFeed(), name='post_feed' ),
+    path(r'feeds/type/<str:text>/', feed.PostTypeFeed(), name='post_type'),
+    #path(r'^feeds/planet/$', feed.PlanetFeed(), name='planet-feed'),
 
 ]
 

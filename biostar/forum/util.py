@@ -17,6 +17,12 @@ def now():
     return datetime.utcnow().replace(tzinfo=utc)
 
 
+def split(text):
+    text = ''.join(text.split())
+    rows = text.split('+')
+    return rows
+
+
 def get_uuid(limit=32):
     return str(uuid.uuid4())[:limit]
 

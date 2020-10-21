@@ -6,12 +6,22 @@ DEBUG = True
 
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
+# Additional social login apps for bioconductor.
+LOGIN_APPS = [
+
+    #'allauth.socialaccount.providers.twitter',
+    #'allauth.socialaccount.providers.persona',
+    #'allauth.socialaccount.providers.facebook',
+    #'allauth.socialaccount.providers.stackexchange',
+]
+
+INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PAGEDOWN_APP + PLANET_APPS + ACCOUNTS_APPS + LOGIN_APPS + EMAILER_APP
+
 HTTP_PROTOCOL = "http"
 
 # Full file path to tags.
 # Each line is a list of comma separated tags.
 TAGS_OPTIONS_FILE = os.path.join(CUSTOM_THEME, 'tags', 'tags.txt')
-
 
 # Ensure at least one tag in file is included.
 REQUIRED_TAGS = os.path.join(CUSTOM_THEME, 'tags', 'packageList.txt')
@@ -38,13 +48,12 @@ else:
         'django.template.loaders.app_directories.Loader',
     )
 
-
 # Template specific settings.
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(CUSTOM_THEME, 'templates')],
-        'APP_DIRS':True,
+        'APP_DIRS': True,
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
@@ -106,6 +115,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Tries to load up secret settings from a predetermined module
 try:
     from themes.bioconductor.conf.secrets import *
+
     print(f"Loaded secrets from: themes.bioconductor.conf.run.secrets")
 except Exception as exc:
     print(f"Secrets module not imported: {exc}")
