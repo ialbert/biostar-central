@@ -285,6 +285,7 @@ def create_subscription(post, user, sub_type=None, update=False):
 
 
 def is_suspended(user):
+
     if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED, Profile.SPAMMER):
         return True
 

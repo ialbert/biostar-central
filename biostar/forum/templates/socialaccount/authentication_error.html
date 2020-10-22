@@ -1,0 +1,26 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load socialaccount %}
+{% block headtitle %}Login{% endblock %}
+
+{% block content %}
+       <div class="ui center aligned basic segment">
+
+    <div class="error message"> Authentication error occurred with that social login.</div>
+    <div class="error message"> Please try another method of logging in.</div>
+       </div>
+
+        <div class="ui center aligned basic segment">
+        <a href="{% url 'login' %}"><i class="signup icon"></i>Login</a>
+    </div>
+
+    <div class="ui center aligned basic segment">
+
+        <a href="{% url 'password_reset' %}"><i class="question circle icon"></i>Forgot your password?</a>
+        &bull; <a class="" href="{% url 'signup' %}"><i class="add user icon"></i>Sign up with email</a>
+    </div>
+
+
+
+
+{% endblock %}
