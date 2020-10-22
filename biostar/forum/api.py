@@ -216,9 +216,8 @@ def user_details(request, uid):
 
     days_ago = (datetime.now().date() - user.profile.date_joined.date()).days
     data = {
-        'id': user.id,
         'uid': user.profile.uid,
-        'name': user.name,
+        'name': user.profile.name,
         'date_joined': util.datetime_to_iso(user.profile.date_joined),
         'last_login': util.datetime_to_iso(user.profile.last_login),
         'joined_days_ago': days_ago,
@@ -256,9 +255,8 @@ def watched_tags(request, uid):
     user = User.objects.filter(profile__uid=uid).first()
     if user:
         data = {
-            'id': user.id,
             'uid': user.profile.uid,
-            'name': user.name,
+            'name': user.profile.name,
             'watched_tags': user.profile.watched_tags
         }
     else:
@@ -273,17 +271,17 @@ def vote_details(request, id):
     Details for a vote.
 
     Parameters:
-    id -- the id of the `Vote`.
+    uid -- the id of the `Vote`.
     """
     vote = Vote.objects.filter(uid=id)
     if not vote:
         return {}
 
     data = {
-        'id': vote.id,
+        'uid': vote.uid,
         'author_id': vote.author.id,
-        'author': vote.author.name,
-        'post_id': vote.post.id,
+        'author': vote.author.profile.name,
+        'post_uid': vote.post.uid,
         'type': vote.get_type_display(),
         'type_id': vote.type,
         'date': util.datetime_to_iso(vote.date),
