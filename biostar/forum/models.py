@@ -408,7 +408,7 @@ class Vote(models.Model):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
     def save(self, *args, **kwargs):
-        self.uid = self.uid or util.get_uuid(limit=16)
+        self.uid = self.uid or f"v{util.get_uuid(limit=5)}"
 
         super(Vote, self).save(*args, **kwargs)
 

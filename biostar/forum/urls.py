@@ -56,10 +56,10 @@ forum_patterns = [
 
     # Api calls
     path(r'api/traffic/', api.traffic, name='api_traffic'),
-    path(r'api/user/<int:uid>/', api.user_details, name='api_user'),
-    path(r'api/post/<int:uid>/', api.post_details, name='api_post'),
-    path(r'api/vote/<int:uid>/', api.vote_details, name='api_vote'),
-    path(r'api/post/id/range/<int:start>/<int:end>/', api.vote_details, name='api_vote'),
+    path(r'api/user/<str:uid>/', api.user_details, name='api_user'),
+    path(r'api/post/<str:uid>/', api.post_details, name='api_post'),
+    path(r'api/vote/<str:uid>/', api.vote_details, name='api_vote'),
+    path(r'api/watched/tags/<str:uid>/', api.watched_tags, name='api_tags'),
     path(r'api/stats/day/<int:day>/', api.daily_stats_on_day, name='api_stats_on_day'),
     path(r'api/stats/date/<int:year>/<int:month>/<int:day>/', api.daily_stats_on_date,
          name='api_stats_on_date'),

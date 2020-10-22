@@ -136,8 +136,8 @@ def daily_stats_on_day(request, day):
     Parameters:
     day -- a day, given as a number of days from day-0 (the day of the first post).
     """
-    store = cache.get('default')
     day_zero = cache.get('day_zero')
+
     first_post = Post.objects.order_by('creation_date').only('creation_date')
 
     if day_zero is None and not first_post:
@@ -145,7 +145,7 @@ def daily_stats_on_day(request, day):
 
     if day_zero is None:
         day_zero = first_post[0].creation_date
-        store.set('day_zero', day_zero, 60 * 60 * 24 * 7)  # Cache valid for a week.
+        cache.set('day_zero', day_zero, 60 * 60 * 24 * 7)  # Cache valid for a week.
 
     date = day_zero + timedelta(days=int(day))
 
@@ -247,7 +247,7 @@ def watched_tags(request, uid):
     Show watched tags for a user, given API key.
 
     Parameters:
-    id -- the id of the `User`.
+    uid -- the id of the `User`.
 
     """
 
@@ -257,8 +257,7 @@ def watched_tags(request, uid):
         data = {
             'uid': user.profile.uid,
             'name': user.profile.name,
-            'watched_tags': user.profile.watched_tags
-        }
+            'watched_tags': user.profile.watched_tags}
     else:
         data = {}
 
@@ -266,20 +265,21 @@ def watched_tags(request, uid):
 
 
 @json_response
-def vote_details(request, id):
+def vote_details(request, uid):
     """
     Details for a vote.
 
     Parameters:
     uid -- the id of the `Vote`.
     """
-    vote = Vote.objects.filter(uid=id)
+    vote = Vote.objects.filter(uid=uid).first()
+
     if not vote:
         return {}
 
     data = {
         'uid': vote.uid,
-        'author_id': vote.author.id,
+        'author_uid': vote.author.profile.uid,
         'author': vote.author.profile.name,
         'post_uid': vote.post.uid,
         'type': vote.get_type_display(),
