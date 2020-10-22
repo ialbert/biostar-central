@@ -341,7 +341,8 @@ $(document).ready(function () {
 
     });
     $('#subscribe').dropdown();
-    $(this).on('click', '#subscribe .item', function (event) {
+
+    $(this).unbind( "click" ).on('click', '#subscribe .item', function (event) {
         var elem = $(this).closest('#subscribe');
         var value = $(this).data('value');
         change_subs(elem, value);

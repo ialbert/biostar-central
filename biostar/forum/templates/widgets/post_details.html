@@ -18,10 +18,11 @@
             <div>{{ post.root.view_count|bignum }}</div>
             <div>View{{ post.root.view_count|pluralize }}</div>
         </div>
-
-        {% if post.subs_count > 4 %}
-            {% subscription_label post.subs_count %}
-        {% endif %}
+        {% block counts %}
+            {% if post.subs_count > 4 %}
+                {% subscription_label post.subs_count %}
+            {% endif %}
+        {% endblock %}
 
     </div>
 
