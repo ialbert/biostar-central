@@ -19,7 +19,7 @@ from taggit.models import Tag
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge
+from biostar.forum.models import Post, Vote, Badge, Subscription
 
 
 User = get_user_model()
@@ -107,7 +107,7 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     elif topic == BOOKMARKS and user.is_authenticated:
         query = query.filter(votes__author=user, votes__type=Vote.BOOKMARK)
     elif topic == FOLLOWING and user.is_authenticated:
-        query = query.filter(subs__user=user)
+        query = query.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
     elif topic == MYPOSTS and user.is_authenticated:
         query = query.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
