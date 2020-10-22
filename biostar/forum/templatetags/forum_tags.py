@@ -310,6 +310,16 @@ def inplace_type_field(post=None, field_id='type'):
     return mark_safe(post_type)
 
 
+def get_tags_file():
+    """
+    Get a list of files to render from a file
+    """
+    # Get the tags op
+    tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
+
+    return tags_file
+
+
 def read_tags(exclude=[], limit=5000):
     """Read tags from a file. Each line is considered a tag. """
     # Get tags from a file
@@ -327,16 +337,6 @@ def read_tags(exclude=[], limit=5000):
     return tags_opts
 
 
-def get_tags_file():
-    """
-    Get a list of files to render from a file
-    """
-    # Get the tags op
-    tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
-
-    return tags_file
-
-
 def get_dropdown_options(selected_list):
     """
     Present tags tags in a multi-select dropdown format.
@@ -350,9 +350,9 @@ def get_dropdown_options(selected_list):
     try:
         opts = read_tags(exclude=selected_list)
     except Exception as exc:
-        logger.error("Error reading tags from file.")
+        logger.error(f"Error reading tags from file.:{exc}")
         opts = []
-        
+
     # Read tags from database if none found in file.
     if not opts:
         query = Tag.objects.exclude(name__in=selected_list)[:limit].values_list("name", flat=True)
