@@ -347,8 +347,12 @@ def get_dropdown_options(selected_list):
     selected = {(val, True) for val in selected_list}
 
     # Read tags from file.
-    opts = read_tags(exclude=selected_list)
-
+    try:
+        opts = read_tags(exclude=selected_list)
+    except Exception as exc:
+        logger.error("Error reading tags from file.")
+        opts = []
+        
     # Read tags from database if none found in file.
     if not opts:
         query = Tag.objects.exclude(name__in=selected_list)[:limit].values_list("name", flat=True)
