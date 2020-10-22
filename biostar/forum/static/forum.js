@@ -262,24 +262,27 @@ function tags_dropdown() {
             tag_field.val(value);
         }
     });
+    $('.tags > input.search').keydown(function (event) {
 
-    $('.tags > input.search').keyup(function (event) {
         // Prevent submitting form when adding tag by pressing ENTER.
-
-        if (event.keyCode === 13) {
+        var ek = event.keyCode || event.which;
+         var value = $(this).val().trim();
+        if (ek === 13 || ek === 10) {
             event.preventDefault();
-        }
-
-        // Set value with SPACE bar
-        if (event.keyCode === 32) {
-            event.preventDefault();
-            //alert( $(this).val().trim());
-            var value = $(this).val().trim();
             //alert($(this).closest('.tags').html());
             $(this).closest('.tags').dropdown('set selected', value);
             $(this).val('');
+            return value
         }
 
+        // // Set value with SPACE bar
+        // if (ek === 32) {
+        //     event.preventDefault();
+        //     //alert( $(this).val().trim());
+        //     //alert($(this).closest('.tags').html());
+        //     $(this).closest('.tags').dropdown('set selected', value);
+        //     $(this).val('');
+        // }
     });
 }
 
@@ -342,7 +345,7 @@ $(document).ready(function () {
     });
     $('#subscribe').dropdown();
 
-    $(this).unbind( "click" ).on('click', '#subscribe .item', function (event) {
+    $(this).unbind("click").on('click', '#subscribe .item', function (event) {
         var elem = $(this).closest('#subscribe');
         var value = $(this).data('value');
         change_subs(elem, value);
@@ -401,7 +404,7 @@ $(document).ready(function () {
         }
 
     });
-    $('.voting .button').unbind( "click" ).click(function () {
+    $('.voting .button').unbind("click").click(function () {
         apply_vote($(this));
     });
 

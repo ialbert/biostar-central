@@ -704,7 +704,7 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
     else:
         style = "question"
 
-    if isinstance(answer_count, int) and int(answer_count) > 1:
+    if isinstance(answer_count, int) and int(answer_count) >= 1:
         style += " has_answers"
 
     if root_has_accepted == True:
