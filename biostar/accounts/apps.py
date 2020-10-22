@@ -22,6 +22,10 @@ def init_app(sender, **kwargs):
     init_users()
     init_social()
 
+def update_key(name, key):
+    from allauth.socialaccount.models import SocialApp
+    if key:
+        SocialApp.objects.filter(name=name).update(key=key)
 
 def init_social():
     """Initialize social account providers."""
@@ -38,7 +42,12 @@ def init_social():
     # Create social apps as needed.
     for client in settings.SOCIAL_CLIENTS:
 
-        name, client_id, client_secret = client
+        if len(client) == 3:
+            name, client_id, client_secret = client
+            key = None
+        else:
+            # Extract the key as well
+            name, client_id, client_secret, key = client
 
         # Check the app for existence.
         app = SocialApp.objects.filter(name=name)
@@ -46,6 +55,7 @@ def init_social():
         # Update the id and secrets to apply any changes that might have been made.
         if app.exists():
             SocialApp.objects.filter(name=name).update(client_id=client_id, secret=client_secret)
+            update_key(name=name, key=key)
             continue
 
         # Create a new social app.
@@ -63,6 +73,8 @@ def init_social():
 
         app = SocialApp.objects.create(provider=provider.id, client_id=client_id, name=name,
                                        secret=client_secret)
+        update_key(name=name, key=key)
+
         app.sites.add(site)
         app.save()
 
