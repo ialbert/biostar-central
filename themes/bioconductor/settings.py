@@ -8,11 +8,8 @@ CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
 # Additional social login apps for bioconductor.
 LOGIN_APPS = [
-
     'allauth.socialaccount.providers.twitter',
-    'allauth.socialaccount.providers.persona',
     'allauth.socialaccount.providers.facebook',
-    'allauth.socialaccount.providers.stackexchange',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PAGEDOWN_APP + PLANET_APPS + ACCOUNTS_APPS + LOGIN_APPS + EMAILER_APP
