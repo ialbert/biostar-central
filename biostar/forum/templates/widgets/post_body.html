@@ -33,6 +33,8 @@
                 <button class="ui icon button" data-value="accept"
                         data-state="{{ post.accept_count }}"><i class="check circle icon"></i>
                 </button>
+            {% elif post.accept_count and post.is_answer %}
+                    <div class="ui icon" ><i class="check green circle icon"></i> </div>
             {% endif %}
         </div>
 

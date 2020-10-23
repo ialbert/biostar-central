@@ -1,0 +1,44 @@
+{% load accounts_tags %}
+{%  block subject %}
+
+    [Biostar] {{ post.title|truncatechars:60 }}
+
+{% endblock %}
+
+{% block html %}
+
+    There is activity on a post you are following on <a href="{{ protocol }}://{{ domain }}{{ http_port }}">Biostar</a>
+    <p>
+        User <a href="{{ protocol }}://{{ domain }}{{ http_port }}{{ post.author.profile.get_absolute_url }}">
+        {{ post.author.profile.name }}</a> wrote
+
+        <a href="{{ protocol }}://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>:
+    </p>
+    <p>
+        {{ post.html|safe }}
+    </p>
+
+    <hr>
+    <p class="muted" >
+        You may visit {{ protocol }}://{{ domain }}{{ post.get_absolute_url }}
+    </p>
+
+    <p>The Biostar Team</p>
+
+{% endblock %}
+
+{% block text %}
+
+    There is activity on a post you are following on {{ domain }}
+
+    User {{ user.profile.name }} wrote {{ post.title }}:
+
+    {{ post.content }}
+
+    You may visit {{ protocol }}://{{ domain }}{{ post.get_absolute_url }}
+
+    The Biostar Team
+
+
+{% endblock %}
+

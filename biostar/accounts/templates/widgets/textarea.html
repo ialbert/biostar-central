@@ -1,6 +1,7 @@
 <div class="wmd-wrapper image-upload-enabled ">
     <div id="wmd-button-bar"></div>
-    <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete" rows="{% if rows %}{{ rows }}{% else %}17{% endif%}">{% if content %}{{ content }}{% endif %}{% if boilerplate %}{% include 'markdown_template.md' %}{% endif %}</textarea>
+    <textarea id="wmd-input" name="{{ form.content.name }}" class="wmd-input autocomplete"
+              rows="{% if rows %}{{ rows }}{% else %}17{% endif%}">{% if content %}{{ content }}{% elif boilerplate %}{% include 'markdown_template.md' %}{% endif %}</textarea>
     <div class="pagedown-image-upload">
         <h2>Insert Image</h2>
         <div class="form-row">

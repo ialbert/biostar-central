@@ -72,7 +72,7 @@ class Profile(models.Model):
                       (ALL_MESSAGES, "Email for every new thread (mailing list mode)")
                       ]
     # Subscription to daily and weekly digests.
-    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=WEEKLY_DIGEST)
+    digest_prefs = models.IntegerField(choices=DIGEST_CHOICES, default=NO_DIGEST)
 
     LOCAL_MESSAGE, EMAIL_MESSAGE, NO_MESSAGES, DEFAULT_MESSAGES = range(4)
     MESSAGING_TYPE_CHOICES = [
@@ -190,6 +190,14 @@ class Profile(models.Model):
         """Check to see if this user requires reCAPTCHA"""
         is_required = not (self.trusted or self.score > settings.RECAPTCHA_THRESHOLD_USER_SCORE)
         return is_required
+
+
+    @property
+    def mailing_list(self):
+        """
+        User has mailing list mode turned on.
+        """
+        return self.digest_prefs == self.ALL_MESSAGES
 
     def get_score(self):
         """
