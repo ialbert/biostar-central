@@ -35,9 +35,6 @@ body > .widen.container {
     background-color: var(--active-item-hover);
 }
 
-#menu-header .dropdown{
-    border-radius: 0px !important;
-}
 .post .bug.icon {
     opacity: .25;
 }
@@ -793,7 +790,7 @@ img {
 
 .ui.stat.label {
     width: 50px;
-    margin-left: -1.5px;
+    margin: -1.5px;
     border-radius: 5px;
 }
 
