@@ -793,7 +793,9 @@ img {
     margin: -1.5px;
     border-radius: 5px;
 }
-
+#menu-header .dropdown{
+    border-radius: 0px !important;
+}
 .number-stat {
     font-size: 2.0em;
     padding-bottom: .2em;

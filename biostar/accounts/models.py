@@ -191,7 +191,6 @@ class Profile(models.Model):
         is_required = not (self.trusted or self.score > settings.RECAPTCHA_THRESHOLD_USER_SCORE)
         return is_required
 
-
     @property
     def mailing_list(self):
         """
