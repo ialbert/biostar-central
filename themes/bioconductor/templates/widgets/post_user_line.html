@@ -1,0 +1,10 @@
+{% extends 'widgets/post_user_line.html' %}
+{% load forum_tags %}
+
+{% block date %}
+    {% if post.creation_date|time_ago !=  post.lastedit_date|time_ago %}
+        {{ post.creation_date|time_ago }} &bull; updated {{ post.lastedit_date|time_ago }}
+    {% else %}
+        {{ post.lastedit_date|time_ago }}
+    {% endif %}
+{% endblock %}

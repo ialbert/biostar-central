@@ -352,6 +352,13 @@ def bulk_copy_subs(limit):
 
 
 def test():
+
+
+    user = UsersUser.objects.filter(id=1542).first()
+    user2 = User.objects.filter(profile__uid='1542').first()
+    print(user.name, user.score * 10)
+    print(user2.profile.score)
+    #1/0
     post_ids = [123258, 123260]
     seen = []
     for p in post_ids:

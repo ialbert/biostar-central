@@ -43,8 +43,9 @@
 {% elif post %}
 
     <span>
-    {{ post.lastedit_date|time_ago }}
-
+    {% block date %}
+        {{ post.lastedit_date|time_ago }}
+    {% endblock %}
     <a href="{% url "user_profile" post.lastedit_user.profile.uid %}">
         {% if avatar %}
             <div class="ui avatar image">
@@ -55,7 +56,8 @@
     </a>
 
     {% user_icon user=post.lastedit_user %}
-</span>
+    </span>
+
 {% endif %}
 
 
