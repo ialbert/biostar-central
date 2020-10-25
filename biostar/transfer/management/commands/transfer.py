@@ -361,7 +361,7 @@ def update_scores():
     for idx, u in stream:
         # Get current user
         progress(idx, msg="users", step=100)
-        current = User.objects.filter(profile__uid=u.id).first()
+        current = User.objects.filter(profile__uid=f"{u.id}").first()
 
         if current and current.profile.score < u.score:
             Profile.objects.filter(pk=current.profile.pk).update(score=u.score)
