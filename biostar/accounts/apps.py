@@ -46,7 +46,6 @@ def init_social():
         # Update the id and secrets to apply any changes that might have been made.
         if app.exists():
             SocialApp.objects.filter(name=name).update(client_id=client_id, secret=client_secret)
-
             continue
 
         # Create a new social app.

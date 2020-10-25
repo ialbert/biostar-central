@@ -400,7 +400,7 @@ class Vote(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY, db_index=True)
-    date = models.DateTimeField(auto_now_add=True, db_index=True)
+    date = models.DateTimeField(db_index=True)
 
     uid = models.CharField(max_length=32, unique=True)
 
@@ -409,7 +409,7 @@ class Vote(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or f"v{util.get_uuid(limit=5)}"
-
+        self.date = self.date or util.now()
         super(Vote, self).save(*args, **kwargs)
 
 

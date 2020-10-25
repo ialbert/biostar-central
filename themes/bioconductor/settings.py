@@ -103,7 +103,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Tries to load up secret settings from a predetermined module
 try:
-    from themes.bioconductor.conf.secrets import *
+    from conf.run.site_secrets import *
 
     print(f"Loaded secrets from: themes.bioconductor.conf.run.secrets")
 except Exception as exc:
