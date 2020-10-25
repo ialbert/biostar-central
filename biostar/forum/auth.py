@@ -278,13 +278,14 @@ def create_subscription(post, user, sub_type=None, update=False):
         Subscription.objects.create(post=post.root, user=user, type=sub_type)
 
     # Recompute post subscription.
-    subs_count = Subscription.objects.filter(post=post.root).exclude(type=Profile.NO_MESSAGES).count()
+    subs_count = Subscription.objects.filter(post=post.root).exclude(type=Subscription.NO_MESSAGES).count()
 
     # Update root subscription counts.
     Post.objects.filter(pk=post.root.pk).update(subs_count=subs_count)
 
 
 def is_suspended(user):
+
     if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED, Profile.SPAMMER):
         return True
 
@@ -387,10 +388,8 @@ def apply_vote(post, user, vote_type):
         change = 0
         return msg, vote, change
 
-    # Fetch user score
-    score = len(Vote.objects.filter(post__author=post.author).exclude(author=post.author))
-    # Update the user score.
-    Profile.objects.filter(user=post.author).update(score=score)
+    # Fetch update the user score.
+    Profile.objects.filter(user=post.author).update(score=F('score') + change)
 
     # Calculate counts for the current post
     votes = list(Vote.objects.filter(post=post).exclude(author=post.author))

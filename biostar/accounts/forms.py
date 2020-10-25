@@ -127,6 +127,10 @@ class EditProfile(forms.Form):
     message_prefs = forms.ChoiceField(required=True, label="Notifications", choices=Profile.MESSAGING_TYPE_CHOICES,
                                       widget=forms.Select(attrs={'class': "ui dropdown"}),
                                       help_text="""Default mode sends notifications using local messages.""")
+    digest_prefs = forms.ChoiceField(required=True, label="Digest options", choices=Profile.DIGEST_CHOICES,
+                                      widget=forms.Select(attrs={'class': "ui dropdown"}),
+                                      help_text="""Digest are sent through the email provided.""")
+
     my_tags = forms.CharField(label="My tags", max_length=500, required=False,
                               help_text="""
                               Add a tag by typing a word then adding a comma or press ENTER or SPACE.

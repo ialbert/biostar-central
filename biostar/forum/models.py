@@ -248,11 +248,9 @@ class Post(models.Model):
             'type_id': self.type,
             'creation_date': util.datetime_to_iso(self.creation_date),
             'lastedit_date': util.datetime_to_iso(self.lastedit_date),
-            'lastedit_user_id': self.lastedit_user.id,
-            'author_id': self.author.id,
             'author_uid': self.author.profile.uid,
             'lastedit_user_uid': self.lastedit_user.profile.uid,
-            'author': self.author.name,
+            'author': self.author.profile.name,
             'status': self.get_status_display(),
             'status_id': self.status,
             'thread_score': self.thread_votecount,
@@ -402,7 +400,7 @@ class Vote(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name='votes', on_delete=models.CASCADE)
     type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY, db_index=True)
-    date = models.DateTimeField(auto_now_add=True, db_index=True)
+    date = models.DateTimeField(db_index=True)
 
     uid = models.CharField(max_length=32, unique=True)
 
@@ -410,8 +408,8 @@ class Vote(models.Model):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
     def save(self, *args, **kwargs):
-        self.uid = self.uid or util.get_uuid(limit=16)
-
+        self.uid = self.uid or f"v{util.get_uuid(limit=5)}"
+        self.date = self.date or util.now()
         super(Vote, self).save(*args, **kwargs)
 
 

@@ -15,7 +15,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {# Set the favicon #}
-    <link rel="icon" href="{% static 'forum_favicon.ico' %}" type="image/x-icon"/>
+    {% block favicon %}
+        <link rel="icon" href="{% static 'forum_favicon.ico' %}" type="image/x-icon"/>
+    {% endblock %}
     {# Load JQuery. #}
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -43,6 +45,9 @@
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         <link href="{% static 'prism.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
+        {% block cssfile %}
+        {% endblock %}
+
     {% endcompress %}
 
     {# Javascript compression. #}
@@ -51,6 +56,8 @@
         <script src="{% static 'prism.js' %}"></script>
         <script src="{% static 'forum.js' %}{% randparam %}"></script>
         <script src="{% static 'setup.js' %}{% randparam %}"></script>
+         {% block jsfile %}
+        {% endblock %}
     {% endcompress %}
 
     {# Optional block header content. #}
@@ -75,11 +82,10 @@
     {% include 'banners/top-banner.html' %}
 
     <span class="menus">
-
+        {% block topmenu %}
         {% include "banners/menu-header.html" %}
-
         {% include "banners/menu-topics.html" %}
-
+        {% endblock %}
     </span>
 
     <span class="phone-menus">

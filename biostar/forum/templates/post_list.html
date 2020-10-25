@@ -13,39 +13,34 @@
 
         {% search_bar %}
 
-    {% endblock %}
-    <div class="ui horizontal basic top-menu segments">
-        {% filter_dropdown %}
-    </div>
-
-
-    {% if tag %}
-        <div class="ui blue filter message">
-            Showing : <code>{{ tag }}</code> &bull;
-            <a href="{% url 'post_list' %}">
-                reset <i class="undo small icon"></i>
-            </a>
+        <div class="ui horizontal basic top-menu segments">
+            {% filter_dropdown %}
         </div>
-    {% endif %}
 
+    {% endblock %}
 
-    <div class="ui divided items">
-        {% for post in posts %}
-            {% if post.maybe_spam %}
-                {% if post.author == request.user or request.user.profile.is_moderator %}
-                    {% post_details post=post user=request.user %}
-                {% endif %}
-
-            {% else %}
-                {% post_details post=post user=request.user avatar=avatar %}
-            {% endif %}
-
-        {% empty %}
-            <div class="ui warn message">
-                No posts found.
+    {% block listing %}
+        {% if tag %}
+            <div class="ui blue filter message">
+                Showing : <code>{{ tag }}</code> &bull;
+                <a href="{% url 'post_list' %}">
+                    reset <i class="undo small icon"></i>
+                </a>
             </div>
-        {% endfor %}
-    </div>
+        {% endif %}
+
+
+        <div class="ui divided items">
+            {% for post in posts %}
+                {% post_details post=post user=request.user avatar=avatar %}
+            {% empty %}
+                <div class="ui warn message">
+                    No posts found.
+                </div>
+            {% endfor %}
+        </div>
+    {% endblock %}
+
 
 
     <div class="ui page-bar segment">

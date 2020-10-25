@@ -45,8 +45,8 @@ def notify_watched_tags(post):
     if not post.is_toplevel:
         return
 
-    # Iterate over tags and get users that are watching them
-    users = [User.objects.filter(profile__watched_tags__contains=tag).distinct() for tag in post.tags.all()]
+    # Exclude mailing-list mode users.
+    users = [User.objects.filter(profile__watched_tags__contains=tag) for tag in post.tags.all()]
 
     # Flatten nested iterable.
     users = set(u for qs in users for u in qs)
@@ -154,6 +154,18 @@ def create_user_awards(user_id):
 
 
 @spool(pass_arguments=True)
+def mailing_list(users, extra_context={}):
+    """
+    Generate notification for mailing list users.
+    """
+
+    # Prepare the templates and emails
+    email_template = "messages/mailing_list.html"
+    emails = [user.email for user in users]
+    send_email(template_name=email_template, extra_context=extra_context, recipient_list=emails)
+
+
+@spool(pass_arguments=True)
 def notify_followers(subs, author, extra_context={}):
     """
     Generate notification to users subscribed to a post, excluding author, a message/email.
@@ -171,7 +183,8 @@ def notify_followers(subs, author, extra_context={}):
         return
 
     # Select users that should be notified.
-    users = [sub.user for sub in subs]
+    # Exclude mailing list users to avoid duplicate emails.
+    users = [sub.user for sub in subs if not sub.user.profile.mailing_list]
 
     # Every subscribed user gets local messages with any subscription type.
     create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)

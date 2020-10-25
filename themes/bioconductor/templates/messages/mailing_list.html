@@ -1,0 +1,46 @@
+
+{%  block subject %}
+
+    [bioc] {{ post.title|truncatechars:60 }}
+
+{% endblock %}
+
+{% block html %}
+
+    <p>You are getting this message as part of a mailing list.</p>
+
+    Activity on a post you are following on <a href="http://{{ domain }}">Bioconductor support</a>
+    <p>
+        User <a href="http://{{ domain }}{{ post.author.profile.get_absolute_url }}">{{ post.author.profile.name }}</a> wrote
+        <a href="http://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>:
+    </p>
+    <p>
+        {{ post.html|safe }}
+    </p>
+
+    <hr>
+    <p style="color:#666666">
+        You may visit http://{{ domain }}{{ post.get_absolute_url }}
+    </p>
+
+    <p>The Biconductor Team</p>
+
+{% endblock %}
+
+{% block text %}
+
+    You are getting this message as part of a mailing list.
+
+    Activity on a post you are following on {{ domain }}
+
+    User {{ post.author.profile.name }} wrote {{ post.title }}:
+
+    {{ post.content }}
+
+    You may visit http://{{ domain }}{{ post.get_absolute_url }}
+
+    The Biconductor Team
+
+
+{% endblock %}
+

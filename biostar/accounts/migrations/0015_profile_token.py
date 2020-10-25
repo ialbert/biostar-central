@@ -22,7 +22,7 @@ def add_token(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0013_date_joined'),
+        ('accounts', '0014_digest_prefs'),
     ]
 
     operations = [

@@ -310,6 +310,16 @@ def inplace_type_field(post=None, field_id='type'):
     return mark_safe(post_type)
 
 
+def get_tags_file():
+    """
+    Get a list of files to render from a file
+    """
+    # Get the tags op
+    tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
+
+    return tags_file
+
+
 def read_tags(exclude=[], limit=5000):
     """Read tags from a file. Each line is considered a tag. """
     # Get tags from a file
@@ -327,16 +337,6 @@ def read_tags(exclude=[], limit=5000):
     return tags_opts
 
 
-def get_tags_file():
-    """
-    Get a list of files to render from a file
-    """
-    # Get the tags op
-    tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
-
-    return tags_file
-
-
 def get_dropdown_options(selected_list):
     """
     Present tags tags in a multi-select dropdown format.
@@ -347,7 +347,11 @@ def get_dropdown_options(selected_list):
     selected = {(val, True) for val in selected_list}
 
     # Read tags from file.
-    opts = read_tags(exclude=selected_list)
+    try:
+        opts = read_tags(exclude=selected_list)
+    except Exception as exc:
+        logger.error(f"Error reading tags from file.:{exc}")
+        opts = []
 
     # Read tags from database if none found in file.
     if not opts:
@@ -700,7 +704,7 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
     else:
         style = "question"
 
-    if isinstance(answer_count, int) and int(answer_count) > 1:
+    if isinstance(answer_count, int) and int(answer_count) >= 1:
         style += " has_answers"
 
     if root_has_accepted == True:
