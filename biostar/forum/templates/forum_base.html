@@ -23,7 +23,23 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
+
     <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+    {# Google tracker injected if it exists in the context. Set in the django settings. #}
+    {% if google_tracker %}
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_tracker }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+
+            function gtag() {dataLayer.push(arguments);}
+
+            gtag('js', new Date());
+
+            gtag('config', "{{ google_tracker }}");
+        </script>
+
+    {% endif %}
 
     <script>
         MathJax = {
@@ -56,7 +72,7 @@
         <script src="{% static 'prism.js' %}"></script>
         <script src="{% static 'forum.js' %}{% randparam %}"></script>
         <script src="{% static 'setup.js' %}{% randparam %}"></script>
-         {% block jsfile %}
+        {% block jsfile %}
         {% endblock %}
     {% endcompress %}
 
@@ -83,8 +99,8 @@
 
     <span class="menus">
         {% block topmenu %}
-        {% include "banners/menu-header.html" %}
-        {% include "banners/menu-topics.html" %}
+            {% include "banners/menu-header.html" %}
+            {% include "banners/menu-topics.html" %}
         {% endblock %}
     </span>
 
@@ -94,7 +110,6 @@
 
     {% block container %}
         <div class="ui bottom attached segment">
-
             {% show_messages messages %}
 
             {% block content %}
