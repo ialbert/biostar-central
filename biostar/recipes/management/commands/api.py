@@ -127,6 +127,11 @@ class Command(BaseCommand):
     help = 'Interact with API end points.'
 
     def add_arguments(self, parser):
+
+        # Give one file or a list of file.
+        parser.add_argument('files', metavar='F', default="", nargs='+',
+                            help="List of files to push or pull.")
+
         parser.add_argument('--url', default="",
                             help="URL to get API endpoints from.")
 
@@ -136,8 +141,8 @@ class Command(BaseCommand):
         parser.add_argument("--recipe", type=str, default="",
                             help="Recipe uid to push or pull.")
 
-        parser.add_argument("-d", "--data", type=str, default="",
-                            help="File with the corresponding project/recipe data to push.")
+        parser.add_argument("--data", type=str, default="",
+                            help="Data uid to push or pull.")
 
         parser.add_argument("-l", "--list", action="store_true", default=False,
                             help="Show tabular list of projects and recipes..")
@@ -151,6 +156,7 @@ class Command(BaseCommand):
         rid = options.get('recipe')
         fname = options.get('data')
         push = options.get('push')
+        files = options.get('push', [])
         listing = options.get('list')
 
         # List objects

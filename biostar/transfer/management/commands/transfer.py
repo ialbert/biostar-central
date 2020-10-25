@@ -442,8 +442,8 @@ class Command(BaseCommand):
         print(f"OLD_DATABASE (source): {settings.OLD_DATABASE}")
         print(f"NEW_DATABASE (target): {settings.NEW_DATABASE}")
 
-        #test()
-        #return
+        test()
+        return
 
         if load_posts:
             bulk_copy_posts(limit=limit)
