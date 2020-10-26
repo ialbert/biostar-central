@@ -315,6 +315,7 @@ def get_tags_file():
     Get a list of files to render from a file
     """
     # Get the tags op
+    
     tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
 
     return tags_file

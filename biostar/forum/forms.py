@@ -1,5 +1,6 @@
 
 from pagedown.widgets import PagedownWidget
+import os
 from django import forms
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
@@ -80,6 +81,9 @@ def required_tags(lst):
     if not settings.REQUIRED_TAGS:
         return
 
+    if not os.path.isfile(settings.REQUIRED_TAGS):
+        return
+    
     # Get the tags file.
     tags = open(settings.REQUIRED_TAGS, 'r').readlines()
     tags = set([x.strip() for x in tags])
