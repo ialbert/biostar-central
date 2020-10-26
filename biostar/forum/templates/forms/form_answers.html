@@ -1,4 +1,6 @@
-{% load forum_tags %}
+<div style="padding: 5px; font-size: small">
+    See <a href="{% url 'post_view' '41949' %}" target="_blank">Posting Guide</a> for guidance on creating a post.<br>
+</div>{% load forum_tags %}
 
 {% include 'forms/form_answers_msg.html' %}
 
@@ -14,11 +16,7 @@
         <div class="ui form-wrap segment">
 
             <div class="required input field">
-                <div class="guide">
-                    See <a href="{% url 'post_view' '41949' %}" target="_blank">Posting Guide</a> for guidance
-                    on creating a post.<br>
-                </div>
-
+                {% include 'widgets/post_message.html' %}
                 {% include 'widgets/textarea.html' %}
 
             </div>
