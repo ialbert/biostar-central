@@ -78,7 +78,7 @@ def required_tags(lst):
     Ensure at least one tag is present in the
     """
 
-    if os.path.isfile(settings.REQUIRED_TAGS):
+    if not os.path.isfile(settings.REQUIRED_TAGS):
         return
 
     # Get the tags file.
