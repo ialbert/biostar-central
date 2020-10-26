@@ -78,12 +78,9 @@ def required_tags(lst):
     Ensure at least one tag is present in the
     """
 
-    if not settings.REQUIRED_TAGS:
+    if os.path.isfile(settings.REQUIRED_TAGS):
         return
 
-    if not os.path.isfile(settings.REQUIRED_TAGS):
-        return
-    
     # Get the tags file.
     tags = open(settings.REQUIRED_TAGS, 'r').readlines()
     tags = set([x.strip() for x in tags])
