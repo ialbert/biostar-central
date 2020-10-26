@@ -3,14 +3,20 @@ MOD_ACTIONS = list(range(9))
 BUMP_POST, OPEN_POST, TOGGLE_ACCEPT, MOVE_ANSWER, DUPLICATE, OFFTOPIC, DELETE, CLOSE, REPORT_SPAM = MOD_ACTIONS
 
 # Filter actions
-RANK, VIEWS, REPLIES, TAGGED, VOTES, VISIT, REPUTATION, JOINED, ACTIVITY = ("rank", "views", "replies",
-                                                          "tagged", "votes", "visit", "reputation",
-                                                          "joined", "activity")
+RANK, VIEWS, REPLIES, TAGGED, \
+VOTES, VISIT, REPUTATION, JOINED, \
+ACTIVITY, UPDATE, ANSWERS, BOOKED, CREATION = ("rank", "views", "replies",
+                    "tagged", "votes", "visit", "reputation",
+                    "joined", "activity", "update", "answers", "bookmark", "creation")
 
 # Map filter actions to respective database filters.
 ORDER_MAPPER = {
     RANK: "-rank",
+    UPDATE: "-lastedit_date",
+    ANSWERS: "-answer_count",
+    CREATION:"-creation_date",
     TAGGED: '-tagged',
+    BOOKED: "-book_count",
     VIEWS: "-view_count",
     REPLIES: "-reply_count",
     VOTES: "-thread_votecount",

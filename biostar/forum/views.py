@@ -19,7 +19,7 @@ from taggit.models import Tag
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge
+from biostar.forum.models import Post, Vote, Badge, Subscription
 
 
 User = get_user_model()
@@ -107,7 +107,7 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     elif topic == BOOKMARKS and user.is_authenticated:
         query = query.filter(votes__author=user, votes__type=Vote.BOOKMARK)
     elif topic == FOLLOWING and user.is_authenticated:
-        query = query.filter(subs__user=user)
+        query = query.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
     elif topic == MYPOSTS and user.is_authenticated:
         query = query.filter(author=user)
     elif topic == MYVOTES and user.is_authenticated:
@@ -249,13 +249,14 @@ def myvotes(request):
     Show posts by user that received votes
     """
     page = request.GET.get('page', 1)
+
     votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
                                                                             'author__profile').order_by("-date")
     # Create the paginator
     paginator = CachedPaginator(object_list=votes, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
-    votes = paginator.get_page(votes)
+    votes = paginator.get_page(page)
 
     context = dict(votes=votes, page=page, tab='myvotes')
     return render(request, template_name="votes_list.html", context=context)

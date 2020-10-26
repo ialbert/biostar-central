@@ -122,3 +122,5 @@ SOCIAL_CLIENTS = [
     # ("Google", "A", "B"),
     # ("GitHub", "A", "B")
 ]
+
+GOOGLE_TRACKER = ""

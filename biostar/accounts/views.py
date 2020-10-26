@@ -44,7 +44,8 @@ def edit_profile(request):
     initial = dict(username=user.username, email=user.email, name=user.profile.name,location=user.profile.location,
                    website=user.profile.website, twitter=user.profile.twitter, scholar=user.profile.scholar,
                    text=user.profile.text, my_tags=user.profile.my_tags, message_prefs=user.profile.message_prefs,
-                   email_verified=user.profile.email_verified, watched_tags=user.profile.watched_tags)
+                   email_verified=user.profile.email_verified, watched_tags=user.profile.watched_tags,
+                   digest_prefs=user.profile.digest_prefs)
 
     form = forms.EditProfile(user=user, initial=initial)
 
@@ -66,7 +67,8 @@ def edit_profile(request):
                                                      text=form.cleaned_data["text"],
                                                      my_tags=form.cleaned_data['my_tags'],
                                                      message_prefs=form.cleaned_data["message_prefs"],
-                                                     html=markdown(form.cleaned_data["text"]))
+                                                     html=markdown(form.cleaned_data["text"]),
+                                                     digest_prefs=form.cleaned_data['digest_prefs'])
 
             return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 

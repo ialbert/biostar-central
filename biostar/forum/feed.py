@@ -11,7 +11,6 @@ from biostar.forum.models import User,Profile
 from django.conf import settings
 import bleach
 
-SITE = Site.objects.filter(id=settings.SITE_ID).first()
 SITE_NAME = settings.SITE_NAME
 
 FEED_COUNT = 25

@@ -389,7 +389,6 @@ def safe(callable, *args, **kwargs):
     """
     text = kwargs.get('text')
     try:
-
         return callable(*args, **kwargs)
     except Exception as exc:
 

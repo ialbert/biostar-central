@@ -1,5 +1,6 @@
 
 from pagedown.widgets import PagedownWidget
+import os
 from django import forms
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
@@ -77,7 +78,7 @@ def required_tags(lst):
     Ensure at least one tag is present in the
     """
 
-    if not settings.REQUIRED_TAGS:
+    if os.path.isfile(settings.REQUIRED_TAGS):
         return
 
     # Get the tags file.

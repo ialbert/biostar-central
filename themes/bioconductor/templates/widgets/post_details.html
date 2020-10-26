@@ -1,0 +1,9 @@
+{% extends 'widgets/post_details.html' %}
+{% load forum_tags %}
+
+{% block counts %}
+    {% if post.subs_count > 4 %}
+        {#% subscription_label post.subs_count %#}
+    {% endif %}
+
+{% endblock %}

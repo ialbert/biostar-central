@@ -6,17 +6,6 @@ DEBUG = True
 
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
-# Additional social login apps for bioconductor.
-LOGIN_APPS = [
-
-    #'allauth.socialaccount.providers.twitter',
-    #'allauth.socialaccount.providers.persona',
-    #'allauth.socialaccount.providers.facebook',
-    #'allauth.socialaccount.providers.stackexchange',
-]
-
-INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PAGEDOWN_APP + PLANET_APPS + ACCOUNTS_APPS + LOGIN_APPS + EMAILER_APP
-
 HTTP_PROTOCOL = "http"
 
 # Full file path to tags.
@@ -114,7 +103,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Tries to load up secret settings from a predetermined module
 try:
-    from themes.bioconductor.conf.secrets import *
+    from conf.run.site_secrets import *
 
     print(f"Loaded secrets from: themes.bioconductor.conf.run.secrets")
 except Exception as exc:

@@ -69,7 +69,7 @@ def finalize_post(sender, instance, created, **kwargs):
 
     # Get newly created subscriptions since the last edit date.
     subs = Subscription.objects.filter(date__gte=instance.lastedit_date, post=instance.root)
-
+    extra_context = dict(post=instance)
     if created:
         # Make the Uid user friendly
         instance.uid = instance.uid or f"p{instance.pk}"
@@ -124,6 +124,11 @@ def finalize_post(sender, instance, created, **kwargs):
         # Give it a spam score.
         tasks.spam_scoring.spool(post=instance)
 
+        mailing_list = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES)
+
+        # Send out mailing list when post is created.
+        tasks.mailing_list.spool(users=mailing_list, extra_context=extra_context)
+
     # Add this post to the spam index if it's spam.
     tasks.update_spam_index.spool(post=instance)
 
@@ -132,5 +137,6 @@ def finalize_post(sender, instance, created, **kwargs):
 
     # Exclude current authors from receiving messages from themselves
     subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))
-    extra_context = dict(post=instance)
+
+    # Notify subscribers
     tasks.notify_followers.spool(subs=subs, author=instance.author, extra_context=extra_context)
