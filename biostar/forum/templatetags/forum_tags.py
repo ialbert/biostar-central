@@ -19,6 +19,7 @@ from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 from django.core.paginator import Paginator
+from django.core.cache import cache
 
 from biostar.forum import markdown
 from biostar.accounts.models import Profile, Message
@@ -315,7 +316,7 @@ def get_tags_file():
     Get a list of files to render from a file
     """
     # Get the tags op
-    
+
     tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
 
     return tags_file

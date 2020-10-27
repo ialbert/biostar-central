@@ -25,10 +25,13 @@ MAX_TAGS = 5
 
 
 def english_only(text):
+    #print(str(text))
+    #return
     try:
-        text.encode('ascii')
-    except Exception:
-        raise ValidationError('Text may only contain plain text (ASCII) characters')
+        text.encode('utf-8')
+        #text.encode('ascii')
+    except Exception as exc:
+        raise ValidationError('Text may only contain plain text ( UNICODE ) characters')
 
 
 def valid_title(text):
