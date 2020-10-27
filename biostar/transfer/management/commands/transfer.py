@@ -189,20 +189,8 @@ def bulk_copy_posts(limit):
             is_toplevel = post.type in Post.TOP_LEVEL
 
             rank = post.lastedit_date.timestamp()
-            # Convert the content to markdown if its html
-
-            force_text = post.content.strip().startswith("<")
-            if force_text:
-                try:
-                    content = html2text.html2text(post.content, bodywidth=0)
-                except Exception as exc:
-                    content = post.content
-                    logger.error(f"Failed parsing post={post.id}.")
-
-                html = markdown.parse(content, clean=False, escape=False)
-            else:
-                content = post.content
-                html = post.html
+            content = post.content
+            html = post.html
 
             new_post = Post(uid=post.id, html=decode(html), type=post.type, is_toplevel=is_toplevel,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
@@ -381,12 +369,28 @@ def update_votes():
     return
 
 
+def update_old_posts():
+
+    posts = PostsPost.objects.all()
+    elapsed, progress = timer_func()
+
+    stream = zip(count(1), posts)
+    stream = islice(stream, None)
+
+    for idx, post in stream:
+        progress(idx, msg="posts", step=300)
+        forced = post.content.strip().startswith("<")
+        p = Post.objects.filter(uid=f"{post.id}").first()
+        if forced and p:
+            Post.objects.filter(uid=f"{post.id}").update(content=post.content,
+                                                         html=post.html)
+    return
+
+
 def test():
 
-    user = UsersUser.objects.filter(id=1542).first()
-    user2 = User.objects.filter(profile__uid='1542').first()
-    print(user.name, user.score * 10)
-    print(user2.profile.score)
+    #print(msg.items(), dir(msg), msg.get_payload(), msg.get_unixfrom())
+
     #1/0
     post_ids = [123258, 123260]
     seen = []
@@ -427,6 +431,7 @@ class Command(BaseCommand):
         parser.add_argument('--tags', action="store_true", help="Add the tags to database ")
         parser.add_argument('--scores', action="store_true", help="Update user scores. ")
         parser.add_argument('--update_votes', action="store_true", help="Update votes in the database ")
+        parser.add_argument('--old_posts', action="store_true", help="Update older posts with correct content.")
 
     def handle(self, *args, **options):
 
@@ -438,6 +443,7 @@ class Command(BaseCommand):
         limit = options.get("limit") or LIMIT
         scores = options['scores']
         update_v = options['update_votes']
+        old_posts = options['old_posts']
 
         print(f"OLD_DATABASE (source): {settings.OLD_DATABASE}")
         print(f"NEW_DATABASE (target): {settings.NEW_DATABASE}")
@@ -470,6 +476,9 @@ class Command(BaseCommand):
             update_scores()
             return
 
+        if old_posts:
+            update_old_posts()
+            return
 
         # Copy everything
         bulk_copy_users(limit=limit)

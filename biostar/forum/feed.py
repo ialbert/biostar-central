@@ -45,8 +45,7 @@ class PostBase(Feed):
     description = "description"
 
     def item_title(self, item):
-        title = item.title if item.is_question else f"{item.get_type_display()}: {item.title}"
-        return title
+        return item.title
 
     def item_description(self, item):
         return reduce_html(item.content)

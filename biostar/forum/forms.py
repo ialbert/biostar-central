@@ -1,5 +1,6 @@
 
 from pagedown.widgets import PagedownWidget
+import os
 from django import forms
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
@@ -24,10 +25,13 @@ MAX_TAGS = 5
 
 
 def english_only(text):
+    #print(str(text))
+    #return
     try:
+        #text.encode('utf-8')
         text.encode('ascii')
-    except Exception:
-        raise ValidationError('Text may only contain plain text (ASCII) characters')
+    except Exception as exc:
+        raise ValidationError('Text may only contain plain text ( UNICODE ) characters')
 
 
 def valid_title(text):
@@ -77,7 +81,7 @@ def required_tags(lst):
     Ensure at least one tag is present in the
     """
 
-    if not settings.REQUIRED_TAGS:
+    if not os.path.isfile(settings.REQUIRED_TAGS):
         return
 
     # Get the tags file.

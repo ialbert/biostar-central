@@ -12,5 +12,6 @@ def forum(request):
     width, height = res.split('x')
 
     params = dict(user=request.user, width=width, height=height,
-                  VERSION=VERSION, request=request, site_name=settings.SITE_NAME, )
+                  VERSION=VERSION, request=request, site_name=settings.SITE_NAME,
+                  site_domain=settings.SITE_DOMAIN, google_tracker=settings.GOOGLE_TRACKER)
     return params
