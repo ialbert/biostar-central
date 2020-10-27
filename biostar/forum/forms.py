@@ -28,8 +28,8 @@ def english_only(text):
     #print(str(text))
     #return
     try:
-        text.encode('utf-8')
-        #text.encode('ascii')
+        #text.encode('utf-8')
+        text.encode('ascii')
     except Exception as exc:
         raise ValidationError('Text may only contain plain text ( UNICODE ) characters')
 
