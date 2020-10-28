@@ -356,12 +356,14 @@ def overwrite_image(obj, strimg):
     return
 
 
-def update_recipe(obj, data={}, save=True):
+def update_recipe(obj, user, data={}, project=None, create=False, save=True):
     """
     Update an existing recipe using data found in data dict.
     """
 
-    if not obj:
+    if not obj and create:
+        obj = create_analysis(project=project, user=user)
+    elif not obj:
         return
 
     obj.json_text = data.get('json', obj.json_text)
@@ -385,10 +387,15 @@ def update_recipe(obj, data={}, save=True):
     return result
 
 
-def update_project(obj, data={}, save=True):
+def update_project(obj, user, data={}, create=False, save=True):
     """
     Update an existing project using data found in data dict.
     """
+    # Create a project when one does not exist.
+    if not obj and create:
+        obj = create_project(user=user)
+    elif not obj:
+        return
 
     # Set the project text and name.
     obj.text = data.get('text', obj.text)
@@ -408,8 +415,10 @@ def update_project(obj, data={}, save=True):
 
     # Iterate over and update recipes.
     for rec in recipes:
-        recipe = Analysis.objects.filter(uid=rec['uid'], project=obj).first()
-        update_recipe(obj=recipe, data=rec, save=True)
+        recipe = Analysis.objects.filter(uid=rec['uid']).first()
+        if recipe:
+            pass
+        update_recipe(obj=recipe, data=rec, save=True, project=obj, create=True)
 
     # Re-fetch updated data from the database.
     result = obj.api_data

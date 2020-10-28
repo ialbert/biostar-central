@@ -82,7 +82,7 @@ def api_list(request):
 
 
 @api_error_wrapper(['GET', 'POST'])
-@token_access(klass=Project)
+@token_access(klass=Project, allow_create=True)
 @csrf_exempt
 @ratelimit(key='ip', rate='20/m')
 def project_api(request, uid):
@@ -93,24 +93,28 @@ def project_api(request, uid):
     """
 
     project = Project.objects.filter(uid=uid).first()
+    token = auth.get_token(request=request)
+    # Find the target user.
+    user = User.objects.filter(profile__token=token).first()
+
     # Get the json data with project info
-    target = project.api_data
+    target = project.api_data if project else {}
 
     # Replace source with target with valid POST request.
     if request.method == "POST":
         stream = request.FILES.get("data")
+
         if stream:
             source = json.load(stream)
             # Get new fields from the POST request and set them.
-            target = auth.update_project(obj=project, data=source, save=True)
+            target = auth.update_project(obj=project, data=source, user=user, save=True)
 
     payload = json.dumps(target)
 
     return HttpResponse(content=payload, content_type="text/plain")
 
-
 @api_error_wrapper(['GET', 'POST'])
-@token_access(klass=Analysis)
+@token_access(klass=Analysis, allow_create=True)
 @csrf_exempt
 @ratelimit(key='ip', rate='20/m')
 def recipe_api(request, uid):
@@ -122,6 +126,9 @@ def recipe_api(request, uid):
     recipe = Analysis.objects.filter(uid=uid).first()
 
     target = recipe.api_data
+    token = auth.get_token(request=request)
+    # Find the target user.
+    user = User.objects.filter(profile__token=token).first()
 
     # Replace source with target with valid POST request.
     if request.method == "POST":

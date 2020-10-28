@@ -189,7 +189,7 @@ class require_api_key:
         return _api_view
 
 
-def token_access(klass):
+def token_access(klass, allow_create=False):
     """
     Check users access to an object using their token.
     """
@@ -212,6 +212,9 @@ def token_access(klass):
                 return HttpResponse(content="Token does not belong to any user.")
 
             if not obj:
+                # Allow users to create.
+                if allow_create:
+                    return func(request, *args, **kwargs)
                 return HttpResponse(content="Object does not exist.")
 
             project = obj.project
