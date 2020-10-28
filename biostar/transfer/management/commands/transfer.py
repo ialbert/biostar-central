@@ -189,20 +189,8 @@ def bulk_copy_posts(limit):
             is_toplevel = post.type in Post.TOP_LEVEL
 
             rank = post.lastedit_date.timestamp()
-            # Convert the content to markdown if its html
-
-            force_text = post.content.strip().startswith("<")
-            if force_text:
-                try:
-                    content = html2text.html2text(post.content, bodywidth=0)
-                except Exception as exc:
-                    content = post.content
-                    logger.error(f"Failed parsing post={post.id}.")
-
-                html = markdown.parse(content, clean=False, escape=False)
-            else:
-                content = post.content
-                html = post.html
+            content = post.content
+            html = post.html
 
             new_post = Post(uid=post.id, html=decode(html), type=post.type, is_toplevel=is_toplevel,
                             lastedit_user=lastedit_user, thread_votecount=post.thread_score,
@@ -350,43 +338,10 @@ def bulk_copy_subs(limit):
 
     return
 
-
-def update_scores():
-
-    users = UsersUser.objects.all()
-    elapsed, progress = timer_func()
-
-    stream = zip(count(1), users)
-    stream = islice(stream, None)
-    for idx, u in stream:
-        # Get current user
-        progress(idx, msg="users", step=100)
-        current = User.objects.filter(profile__uid=f"{u.id}").first()
-
-        if current and current.profile.score < u.score:
-            Profile.objects.filter(pk=current.profile.pk).update(score=u.score)
-    return
-
-
-def update_votes():
-    votes = PostsVote.objects.all()
-    elapsed, progress = timer_func()
-    stream = zip(count(1), votes)
-    stream = islice(stream, None)
-    for idx, v in stream:
-        progress(idx, msg="votes", step=100)
-        current = Vote.objects.filter(uid=f"{v.id}").first()
-        if current:
-            Vote.objects.filter(pk=current.pk).update(date=v.date)
-    return
-
-
 def test():
 
-    user = UsersUser.objects.filter(id=1542).first()
-    user2 = User.objects.filter(profile__uid='1542').first()
-    print(user.name, user.score * 10)
-    print(user2.profile.score)
+    #print(msg.items(), dir(msg), msg.get_payload(), msg.get_unixfrom())
+
     #1/0
     post_ids = [123258, 123260]
     seen = []
@@ -425,8 +380,6 @@ class Command(BaseCommand):
         parser.add_argument('--subs', action="store_true", help="Transfer subs from source database to target.")
         parser.add_argument('--limit', '-n', type=int, help="Transfer subs from source database to target.")
         parser.add_argument('--tags', action="store_true", help="Add the tags to database ")
-        parser.add_argument('--scores', action="store_true", help="Update user scores. ")
-        parser.add_argument('--update_votes', action="store_true", help="Update votes in the database ")
 
     def handle(self, *args, **options):
 
@@ -436,8 +389,6 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         load_tags = options['tags']
         limit = options.get("limit") or LIMIT
-        scores = options['scores']
-        update_v = options['update_votes']
 
         print(f"OLD_DATABASE (source): {settings.OLD_DATABASE}")
         print(f"NEW_DATABASE (target): {settings.NEW_DATABASE}")
@@ -460,14 +411,6 @@ class Command(BaseCommand):
 
         if load_tags:
             add_tags(delete=True)
-            return
-
-        if update_v:
-            update_votes()
-            return
-
-        if scores:
-            update_scores()
             return
 
 
