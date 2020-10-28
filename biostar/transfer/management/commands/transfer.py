@@ -389,9 +389,6 @@ class Command(BaseCommand):
         load_subs = options["subs"]
         load_tags = options['tags']
         limit = options.get("limit") or LIMIT
-        scores = options['scores']
-        update_v = options['update_votes']
-        old_posts = options['old_posts']
 
         print(f"OLD_DATABASE (source): {settings.OLD_DATABASE}")
         print(f"NEW_DATABASE (target): {settings.NEW_DATABASE}")
