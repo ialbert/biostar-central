@@ -14,6 +14,7 @@ from django.contrib import messages
 from django.contrib.messages.storage import fallback
 from django.db.models import Q
 from django.template import Template, Context
+from django.template.base import VariableNode, TextNode
 from django.template import loader
 from django.shortcuts import reverse
 from django.test import RequestFactory
@@ -346,6 +347,21 @@ def compute_rank(source, top=None, bottom=None, maxrank=5000, klass=None):
 
 def get_thumbnail():
     return os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+
+
+def render_script(recipe, tmpl=None):
+    try:
+        # Fill in the script with json data.
+        json_data = fill_data_by_name(project=recipe.project, json_data=recipe.json_data)
+        context = Context(json_data)
+        tmpl = tmpl or recipe.template
+        script_template = Template(tmpl)
+        script = script_template.render(context)
+    except Exception as exc:
+        logger.error(exc)
+        script = recipe.template
+
+    return script
 
 
 def overwrite_image(obj, strimg):

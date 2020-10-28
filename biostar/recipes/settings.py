@@ -93,6 +93,8 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'biostar.recipes.context.engine'
 ]
 
+TEMPLATES[0]['OPTIONS']['string_if_invalid'] = "%s"
+
 
 # Directory where files are extracted to
 EXTRACT_TO = join(BASE_DIR, "export", "extracted")
