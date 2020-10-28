@@ -142,7 +142,7 @@ def get_token(request=None):
     if request is None:
         return local_token()
 
-    # Try and retrive from a file
+    # Try and retrieve from a file
     token = request.FILES.get("token")
     if token:
         token = token.readline()
@@ -344,6 +344,9 @@ def compute_rank(source, top=None, bottom=None, maxrank=5000, klass=None):
 
     return rank
 
+def get_thumbnail():
+    return os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+
 
 def overwrite_image(obj, strimg):
 
@@ -351,6 +354,8 @@ def overwrite_image(obj, strimg):
     strimg = base64.decodebytes(strimg)
     stream = io.BytesIO(initial_bytes=strimg)
     # Over write the image
+    #img = obj.image.name or f"{}"
+
     obj.image.save(obj.image.name, stream, save=True)
 
     return
@@ -415,10 +420,8 @@ def update_project(obj, user, data={}, create=False, save=True):
 
     # Iterate over and update recipes.
     for rec in recipes:
-        recipe = Analysis.objects.filter(uid=rec['uid']).first()
-        if recipe:
-            pass
-        update_recipe(obj=recipe, data=rec, save=True, project=obj, create=True)
+        recipe = Analysis.objects.filter(uid=rec['uid'], project=obj).first()
+        update_recipe(obj=recipe, data=rec, save=True, project=obj, create=create, user=user)
 
     # Re-fetch updated data from the database.
     result = obj.api_data
