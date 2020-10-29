@@ -31,7 +31,7 @@ def english_only(text):
         #text.encode('utf-8')
         text.encode('ascii')
     except Exception as exc:
-        raise ValidationError('Text may only contain plain text ( UNICODE ) characters')
+        raise ValidationError('Text may only contain plain text ( ASCII ) characters')
 
 
 def valid_title(text):
