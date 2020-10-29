@@ -107,11 +107,13 @@ def project_api(request, uid):
         if stream:
             source = json.load(stream)
             # Get new fields from the POST request and set them.
-            target = auth.update_project(obj=project, data=source, user=user, create=True, save=True)
+            target = auth.update_project(obj=project, data=source, user=user, uid=uid,
+                                         create=True, save=True)
 
     payload = json.dumps(target)
 
     return HttpResponse(content=payload, content_type="text/plain")
+
 
 @api_error_wrapper(['GET', 'POST'])
 @token_access(klass=Analysis, allow_create=True)
@@ -137,7 +139,8 @@ def recipe_api(request, uid):
         if stream:
             source = json.load(stream)
             # Get the toml object from the POST request
-            target = auth.update_recipe(obj=recipe, data=source, save=True, user=user)
+            target = auth.update_recipe(obj=recipe, data=source, save=True, create=True,
+                                        user=user, uid=uid)
 
     # Get the payload as a toml file.
     payload = json.dumps(target)

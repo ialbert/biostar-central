@@ -370,20 +370,20 @@ def overwrite_image(obj, strimg):
     strimg = base64.decodebytes(strimg)
     stream = io.BytesIO(initial_bytes=strimg)
     # Over write the image
-    #img = obj.image.name or f"{}"
+    name = obj.image.name or f"{obj.uid}"
 
-    obj.image.save(obj.image.name, stream, save=True)
+    obj.image.save(name, stream, save=True)
 
     return
 
 
-def update_recipe(obj, user, data={}, project=None, create=False, save=True):
+def update_recipe(obj, user, data={}, uid="", project=None, create=False, save=True):
     """
     Update an existing recipe using data found in data dict.
     """
 
     if not obj and create:
-        obj = create_analysis(project=project, user=user)
+        obj = create_analysis(project=project, user=user, uid=uid)
     elif not obj:
         return
 
@@ -399,7 +399,6 @@ def update_recipe(obj, user, data={}, project=None, create=False, save=True):
         overwrite_image(obj=obj, strimg=strimg)
 
     # Swap the binary image
-    # target['image'] = recipe.image = source.get('image', recipe.image)
     if save:
         obj.save()
 
@@ -408,13 +407,13 @@ def update_recipe(obj, user, data={}, project=None, create=False, save=True):
     return result
 
 
-def update_project(obj, user, data={}, create=False, save=True):
+def update_project(obj, user, data={}, uid="", create=False, save=True):
     """
     Update an existing project using data found in data dict.
     """
     # Create a project when one does not exist.
     if not obj and create:
-        obj = create_project(user=user)
+        obj = create_project(user=user, uid=uid)
     elif not obj:
         return
 
