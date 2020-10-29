@@ -44,6 +44,8 @@ ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 # The default sender name on emails.
 DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
 
+FROM_EMAIL_PATTERN = "%s <%s>"
+
 # Show debug toolbar
 DEBUG_TOOLBAR = False
 

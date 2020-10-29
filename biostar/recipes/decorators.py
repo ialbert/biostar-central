@@ -6,6 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.http import QueryDict
 
+from biostar.accounts.models import User
 from . import models, auth
 
 # Share the logger with models
@@ -187,3 +188,50 @@ class require_api_key:
 
         return _api_view
 
+
+def token_access(klass, allow_create=False):
+    """
+    Check users access to an object using their token.
+    """
+
+    def __outer__(func):
+
+        @wraps(func)
+        def __wrapper__(request, *args, **kwargs):
+
+            # Get the token from the request data
+            token = auth.get_token(request=request)
+            # Find the target user.
+            user = User.objects.filter(profile__token=token).first()
+
+            # Get the object user is trying to access
+            uid = kwargs.get('uid')
+            obj = klass.objects.filter(uid=uid).first()
+
+            if not user:
+                return HttpResponse(content="Token does not belong to any user.")
+
+            if not obj:
+                # Allow users to create.
+                if allow_create:
+                    return func(request, *args, **kwargs)
+                return HttpResponse(content="Object does not exist.")
+
+            project = obj.project
+
+            # GET requests require read access
+            if request.method == "GET":
+                acc = auth.is_readable(user=user, obj=obj, strict=True)
+            # PUT and POST requests require write access
+            else:
+                acc = auth.is_writable(user=user, project=project)
+
+            # User passes test.
+            if acc:
+                return func(request, *args, **kwargs)
+
+            return HttpResponse(content="User does not have access to preform that action.")
+
+        return __wrapper__
+
+    return __outer__

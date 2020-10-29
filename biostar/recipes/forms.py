@@ -359,7 +359,7 @@ class RecipeForm(forms.ModelForm):
         """
         initial = super(RecipeForm, self).get_initial()
         for field in self.Meta.fields:
-            initial['field'] = getattr(self.instance, field)
+            initial[field] = getattr(self.instance, field)
 
         return initial
 

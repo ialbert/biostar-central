@@ -1,7 +1,9 @@
 import difflib
 import logging
-import uuid, copy
+import uuid, copy, base64
 import os
+import base64
+import io
 import subprocess
 import random
 from mimetypes import guess_type
@@ -12,6 +14,7 @@ from django.contrib import messages
 from django.contrib.messages.storage import fallback
 from django.db.models import Q
 from django.template import Template, Context
+from django.template.base import VariableNode, TextNode
 from django.template import loader
 from django.shortcuts import reverse
 from django.test import RequestFactory
@@ -119,6 +122,52 @@ def copy_uid(request, uid, board):
     request.session.update({settings.CLIPBOARD_NAME: clipboard})
 
     return board_items
+
+
+def local_token():
+
+    if os.path.isfile(settings.TOKEN_FILE):
+        return open(settings.TOKEN_FILE, "r").readline().strip()
+    else:
+        logger.error(f"Did not find token in :{settings.TOKEN_FILE}")
+
+    return ""
+
+
+def get_token(request=None):
+    """
+    Fetch user token from request.
+    """
+
+    # Read token from local file when no request is provided.
+    if request is None:
+        return local_token()
+
+    # Try and retrieve from a file
+    token = request.FILES.get("token")
+    if token:
+        token = token.readline()
+
+    # If none found in file, search in GET and POST requests.
+    token = token or request.GET.get("token") or request.POST.get("token")
+
+    return token
+
+
+def validate_file(source, maxsize=50):
+    # Maximum size for a data to be updated via api.
+
+    try:
+        if source and source.size > maxsize * 1024 * 1024.0:
+            curr_size = source.size / 1024 / 1024.0
+            error_msg = f"File too large, {curr_size:0.1f}MB should be < {maxsize:0.1f}MB"
+            return False, error_msg
+
+    except Exception as exc:
+        error_msg = f"File size validation error: {exc}"
+        return False, error_msg
+
+    return True, ""
 
 
 def authorize_run(user, recipe):
@@ -243,15 +292,16 @@ def get_project_list(user, include_public=True, include_deleted=False):
     if include_public:
         privacy = Project.PUBLIC
 
-    if user.is_anonymous:
+    if user is None or user.is_anonymous:
         # Unauthenticated users see public projects.
         cond = Q(privacy=Project.PUBLIC)
     else:
         # Authenticated users see public projects and private projects with access rights.
-        cond = Q(owner=user, privacy=Project.PRIVATE) | Q(privacy=privacy) | Q(access__user=user,
-                                                                               access__access__in=[Access.READ_ACCESS,
-                                                                                                   Access.WRITE_ACCESS,
-                                                                                                   Access.SHARE_ACCESS])
+        cond = Q(owner=user, privacy=Project.PRIVATE) | \
+               Q(privacy=privacy) | \
+               Q(access__user=user, access__access__in=[Access.READ_ACCESS,
+                                                        Access.WRITE_ACCESS,
+                                                        Access.SHARE_ACCESS])
     # Generate the query.
     if include_deleted:
         query = Project.objects.filter(cond).distinct()
@@ -294,6 +344,104 @@ def compute_rank(source, top=None, bottom=None, maxrank=5000, klass=None):
     rank = (trank + brank) / 2
 
     return rank
+
+def get_thumbnail():
+    return os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+
+
+def render_script(recipe, tmpl=None):
+    try:
+        # Fill in the script with json data.
+        json_data = fill_data_by_name(project=recipe.project, json_data=recipe.json_data)
+        context = Context(json_data)
+        tmpl = tmpl or recipe.template
+        script_template = Template(tmpl)
+        script = script_template.render(context)
+    except Exception as exc:
+        logger.error(exc)
+        script = recipe.template
+
+    return script
+
+
+def overwrite_image(obj, strimg):
+
+    strimg = strimg.encode()
+    strimg = base64.decodebytes(strimg)
+    stream = io.BytesIO(initial_bytes=strimg)
+    # Over write the image
+    name = obj.image.name or f"{obj.uid}"
+
+    obj.image.save(name, stream, save=True)
+
+    return
+
+
+def update_recipe(obj, user, data={}, uid="", project=None, create=False, save=True):
+    """
+    Update an existing recipe using data found in data dict.
+    """
+
+    if not obj and create:
+        obj = create_analysis(project=project, user=user, uid=uid)
+    elif not obj:
+        return
+
+    obj.json_text = data.get('json', obj.json_text)
+    obj.template = data.get('template', obj.template)
+    obj.name = data.get('name', obj.name)
+    obj.text = data.get('text', obj.text)
+
+    # Fetch the base64 image string and write to file.
+    strimg = data.get('image')
+
+    if strimg:
+        overwrite_image(obj=obj, strimg=strimg)
+
+    # Swap the binary image
+    if save:
+        obj.save()
+
+    result = obj.api_data
+
+    return result
+
+
+def update_project(obj, user, data={}, uid="", create=False, save=True):
+    """
+    Update an existing project using data found in data dict.
+    """
+    # Create a project when one does not exist.
+    if not obj and create:
+        obj = create_project(user=user, uid=uid)
+    elif not obj:
+        return
+
+    # Set the project text and name.
+    obj.text = data.get('text', obj.text)
+    obj.name = data.get('name', obj.name)
+
+    # Fetch the base64 image string and write to file.
+    strimg = data.get('image')
+
+    # Get the list of recipes
+    recipes = data.get('recipes', [])
+
+    if strimg:
+        overwrite_image(obj=obj, strimg=strimg)
+
+    if save:
+        obj.save()
+
+    # Iterate over and update recipes.
+    for rec in recipes:
+        recipe = Analysis.objects.filter(uid=rec['uid'], project=obj).first()
+        update_recipe(obj=recipe, data=rec, save=True, project=obj, create=create, user=user)
+
+    # Re-fetch updated data from the database.
+    result = obj.api_data
+
+    return result
 
 
 def create_project(user, name="", uid=None, summary='', text='', stream=None, label=None,

@@ -93,6 +93,8 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'biostar.recipes.context.engine'
 ]
 
+TEMPLATES[0]['OPTIONS']['string_if_invalid'] = "%s"
+
 
 # Directory where files are extracted to
 EXTRACT_TO = join(BASE_DIR, "export", "extracted")
@@ -132,9 +134,10 @@ STATICFILES_FINDERS += [
 
 try:
     from conf.run.secrets import *
-    print(f"Loaded secrets from: conf.run.secrets")
+    #print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
-    print(f"Secrets module not imported: {exc}", file=sys.stderr)
+    #print(f"Secrets module not imported: {exc}", file=sys.stderr)
+    pass
 
 
 # Enable debug toolbar specific functions

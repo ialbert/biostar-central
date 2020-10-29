@@ -94,6 +94,16 @@ def is_job(obj):
     return isinstance(obj, Job)
 
 
+@register.simple_tag
+def render_script(recipe, tmpl, user):
+
+    # Render the script when the
+    if user.is_anonymous:
+        return auth.render_script(recipe=recipe, tmpl=tmpl)
+
+    return tmpl
+
+
 @register.inclusion_tag('widgets/pages.html', takes_context=True)
 def pages(context, objs, show_step=True):
     request = context["request"]

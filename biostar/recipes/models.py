@@ -2,6 +2,8 @@ import logging
 
 import toml as hjson
 import mistune
+import urllib.parse
+import base64
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -104,6 +106,19 @@ class Snippet(models.Model):
         super(Snippet, self).save(*args, **kwargs)
 
 
+def img_to_str(img, decode=True):
+    exists = img and os.path.exists(img.path)
+
+    img = img.path if exists else os.path.join(settings.STATIC_ROOT, "images", "placeholder.png")
+    stream = open(img, 'rb').read()
+    # Convert image to base64 string
+    strimg = base64.b64encode(stream)
+    if decode:
+        # Decode from bytes to string, enables JSON serialization.
+        strimg = strimg.decode()
+    return strimg
+
+
 class Project(models.Model):
     PUBLIC, SHAREABLE, PRIVATE = 1, 2, 3
     PRIVACY_CHOICES = [(PRIVATE, "Private"), (SHAREABLE, "Shared"), (PUBLIC, "Public")]
@@ -201,22 +216,26 @@ class Project(models.Model):
         return hjson.dumps(self.json_data)
 
     @property
-    def json_data(self):
-        payload = dict(
-            settings=dict(
-                uid=self.uid,
-                name=self.name,
-                image=f"{'_'.join(self.name.split())}-{self.pk}.png",
-                privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
-                help=self.text,
-                url=settings.BASE_URL,
-                project_uid=self.uid,
-                id=self.pk,
+    def api_data(self):
+        img = self.image
+        strimg = img_to_str(img=img)
 
-            ),
-            recipes=[recipe.uid for recipe in self.analysis_set.all()])
+        json_data = dict(
+            uid=self.uid,
+            name=self.name,
+            privacy=dict(self.PRIVACY_CHOICES)[self.privacy],
+            text=self.text,
+            url=settings.BASE_URL,
+            project_uid=self.uid,
+            id=self.pk,
+            image=strimg,
+            # Insert recipes API data in there as well.
+            recipes=[
+                r.api_data for r in self.analysis_set.all()
+            ]
+        )
 
-        return payload
+        return json_data
 
     @property
     def summary(self):
@@ -565,6 +584,19 @@ class Analysis(models.Model):
         self.project.set_counts(save=True)
         super(Analysis, self).save(*args, **kwargs)
 
+    @property
+    def api_data(self):
+        img = self.image
+        strimg = img_to_str(img=img)
+        payload = {"uid": self.uid,
+                   "name": self.name,
+                   "text": self.text,
+                   "json": hjson.dumps(self.json_data),
+                   "template": self.template,
+                   "image": strimg}
+
+        return payload
+
     def get_project_dir(self):
         return self.project.get_project_dir()
 
@@ -759,6 +791,7 @@ class Job(models.Model):
         except Exception as exc:
             logger.error(f"{exc}; text={self.json_text}")
             data_dict = {}
+
         return data_dict
 
     def elapsed(self):

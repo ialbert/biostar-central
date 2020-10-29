@@ -127,7 +127,7 @@ def finalize_post(sender, instance, created, **kwargs):
         mailing_list = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES)
 
         # Send out mailing list when post is created.
-        tasks.mailing_list.spool(users=mailing_list, extra_context=extra_context)
+        tasks.mailing_list.spool(users=mailing_list, extra_context=extra_context, post=instance)
 
     # Add this post to the spam index if it's spam.
     tasks.update_spam_index.spool(post=instance)

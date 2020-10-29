@@ -87,11 +87,9 @@ recipes_patterns = [
 
     # Api calls
     path(r'api/list/', api.api_list, name='api_list'),
-    path(r'api/recipe/json/<str:uid>/', api.recipe_json, name='recipe_api_json'),
-    path(r'api/recipe/template/<str:uid>/', api.recipe_template, name='recipe_api_template'),
-    path(r'api/recipe/image/<str:uid>/', api.recipe_image, name='recipe_api_image'),
-    path(r'api/project/<str:uid>/', api.project_info, name='project_api_info'),
-    path(r'api/project/image/<str:uid>/', api.project_image, name='project_api_image'),
+    path(r'api/project/<str:uid>/', api.project_api, name='project_api'),
+    path(r'api/recipe/<str:uid>/', api.recipe_api, name='recipe_api'),
+    path(r'api/data/<str:uid>/', api.data_api, name='data_api'),
 
     # Plugins
     path(r'render/plugin/', ajax.render_plugins, name='render_plugins'),
