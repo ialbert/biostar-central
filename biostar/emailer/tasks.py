@@ -27,12 +27,16 @@ def send_all():
             logger.error(f"send_all() error: {exc}")
 
 
-def send_email(template_name, recipient_list, extra_context={}, from_email=None, subject="Subject"):
+def send_email(template_name, recipient_list, extra_context={}, name="", from_email=None, subject="Subject"):
     """
     Sends an email using a template.
     """
-    # The senders email.
+    # The sender pattern email.
+    patt = settings.FROM_EMAIL_PATTERN
+
+    # Final sender email
     from_email = from_email or settings.DEFAULT_FROM_EMAIL
+    from_email = patt % (name, from_email)
 
     # Test the templates exists
     if os.path.isfile(template_name):

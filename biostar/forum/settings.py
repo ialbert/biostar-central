@@ -150,7 +150,6 @@ FORUM_DOCS = os.path.join(DOCS_ROOT, "forum")
 # Add docs to static files directory
 STATICFILES_DIRS += [DOCS_ROOT]
 
-
 # Directory for the planets app.
 #PLANET_DIR = ''
 

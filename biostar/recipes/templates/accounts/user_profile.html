@@ -68,6 +68,13 @@
                     </tr>
                 {% endif %}
 
+                {% if target == request.user %}
+                    <tr>
+                        <td>API Token <b>( Keep private )</b>:</td>
+                        <td>{{ target.profile.token }}</td>
+                    </tr>
+                {% endif %}
+
                 <tr>
                     <td>Status:</td>
                     <td>{{ target.profile.get_state_display }}</td>

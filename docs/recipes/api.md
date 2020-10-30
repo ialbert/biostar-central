@@ -269,3 +269,11 @@ Image in response:
 ![](images/starter.jpeg)
 
 
+
+### Data Update
+
+Adding data api docs.
+
+` curl  --form “token=/Users/natay/.bio/token” \
+        --form “file=/Users/natay/Desktop/apps/biostar-central/SimpleWorkflowMNIST.ipynb”  
+        http://localhost:8000/api/data/data-1/`

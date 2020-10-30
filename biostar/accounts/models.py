@@ -100,6 +100,9 @@ class Profile(models.Model):
     # The role of the user.
     role = models.IntegerField(default=READER, choices=ROLE_CHOICES)
 
+    # User token used to
+    token = models.CharField(default="", max_length=255, blank=True)
+
     # The date the user last logged in.
     last_login = models.DateTimeField(null=True, max_length=255, db_index=True)
 
@@ -157,6 +160,8 @@ class Profile(models.Model):
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or now()
         self.last_login = self.last_login or now() #- timedelta(days=1)
+        self.token = self.token or util.get_uuid(16)
+
         super(Profile, self).save(*args, **kwargs)
 
     @property

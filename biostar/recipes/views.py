@@ -448,15 +448,7 @@ def recipe_code_download(request, uid):
 
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    try:
-        # Fill in the script with json data.
-        json_data = auth.fill_data_by_name(project=recipe.project, json_data=recipe.json_data)
-        context = Context(json_data)
-        script_template = Template(recipe.template)
-        script = script_template.render(context)
-    except Exception as exc:
-        logger.error(exc)
-        script = recipe.template
+    script = auth.render_script(recipe=recipe)
 
     # Trigger file download with name of the recipe
     filename = "_".join(recipe.name.split()) + ".sh"
@@ -556,6 +548,7 @@ def get_part(request, name, id):
     else:
         # Initial form loading via a GET request.
         form = forms.RecipeForm(instance=recipe, user=request.user, project=project)
+
 
     remap = dict(
         info="parts/recipe_info.html",

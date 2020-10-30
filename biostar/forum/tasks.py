@@ -12,6 +12,7 @@ from django.db.models import Q
 # https://github.com/unbit/uwsgi/issues/1369
 
 
+
 def message(msg, level=0):
     print(f"{msg}")
 
@@ -45,7 +46,6 @@ def notify_watched_tags(post):
     if not post.is_toplevel:
         return
 
-    # Iterate over tags and get users that are watching them
     # Exclude mailing-list mode users.
     users = [User.objects.filter(profile__watched_tags__contains=tag) for tag in post.tags.all()]
 
@@ -155,7 +155,7 @@ def create_user_awards(user_id):
 
 
 @spool(pass_arguments=True)
-def mailing_list(users, extra_context={}):
+def mailing_list(users, post, extra_context={}):
     """
     Generate notification for mailing list users.
     """
@@ -163,7 +163,8 @@ def mailing_list(users, extra_context={}):
     # Prepare the templates and emails
     email_template = "messages/mailing_list.html"
     emails = [user.email for user in users]
-    send_email(template_name=email_template, extra_context=extra_context, recipient_list=emails)
+    author = post.author.profile.name
+    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=emails)
 
 
 @spool(pass_arguments=True)
@@ -172,7 +173,7 @@ def notify_followers(subs, author, extra_context={}):
     Generate notification to users subscribed to a post, excluding author, a message/email.
     """
     from biostar.forum.models import Subscription
-
+    from biostar.accounts.models import Profile
     # Template used to send local messages
     local_template = "messages/subscription_message.md"
 
@@ -183,15 +184,14 @@ def notify_followers(subs, author, extra_context={}):
     if not subs:
         return
 
-    # Select users that should be notified.
-    # Exclude mailing list users to avoid duplicate emails.
-    users = [sub.user for sub in subs if not sub.user.profile.mailing_list]
-
+    users = [sub.user for sub in subs]
     # Every subscribed user gets local messages with any subscription type.
     create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)
 
     # Select users with email subscriptions.
+    # Exclude mailing list users to avoid duplicate emails.
     email_subs = subs.filter(type=Subscription.EMAIL_MESSAGE)
+    email_subs = email_subs.exclude(user__profile__digest_prefs=Profile.ALL_MESSAGES)
 
     # No email subscriptions
     if not email_subs:
@@ -199,4 +199,4 @@ def notify_followers(subs, author, extra_context={}):
 
     recipient_list = [sub.user.email for sub in email_subs]
 
-    send_email(template_name=email_template, extra_context=extra_context, recipient_list=recipient_list)
+    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=recipient_list)

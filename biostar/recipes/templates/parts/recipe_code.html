@@ -3,7 +3,7 @@
 <form method="post" class="ui form" action="#">
 
     <div class="field" id="template_field">
-        <textarea class="code" rows="80" cols="55" name="template" id="code_editor">{{ form.template.value }}</textarea>
+        <textarea class="code" rows="80" cols="55" name="template" id="code_editor">{% render_script tmpl=form.template.value recipe=recipe user=user %}</textarea>
     </div>
 
     {% if editable %}

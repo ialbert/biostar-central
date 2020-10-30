@@ -13,14 +13,23 @@
 
     <div class="muted">
 
-        <div>{{ target_user.profile.last_login|time_ago }}</div>
+
         <div><a href="{% url "user_profile" target_user.profile.uid %}">{{ target_user.profile.name|truncatechars:40 }}</a>
         {% user_icon user=target_user %}</div>
+        @{{ target_user.username }}
+        <div>Last seen {{ target_user.profile.last_login|time_ago }}</div>
         <div>{{ target_user.profile.location|truncatechars:40 }}</div>
 
     </div>
 
 </div>
+
+
+
+
+
+
+
 
 
 
