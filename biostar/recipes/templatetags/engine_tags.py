@@ -97,7 +97,7 @@ def is_job(obj):
 @register.simple_tag
 def render_script(recipe, tmpl, user):
 
-    # Render the script when the
+    # Render the script with anon users.
     if user.is_anonymous:
         return auth.render_script(recipe=recipe, tmpl=tmpl)
 
