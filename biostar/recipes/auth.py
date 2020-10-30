@@ -436,8 +436,7 @@ def update_project(obj, user, data={}, uid="", create=False, save=True):
     # Iterate over and update recipes.
     for rec in recipes:
         recipe = Analysis.objects.filter(uid=rec['uid'], project=obj).first()
-        if recipe:
-            update_recipe(obj=recipe, data=rec, save=True, project=obj, create=create, user=user)
+        update_recipe(obj=recipe, data=rec, save=True, project=obj, create=create, user=user)
 
     # Re-fetch updated data from the database.
     result = obj.api_data
