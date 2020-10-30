@@ -205,7 +205,7 @@ def token_access(klass, allow_create=False):
             user = User.objects.filter(profile__token=token).first()
 
             # Get the object user is trying to access
-            uid = kwargs.get('uid')
+            uid = request.GET.get('uid', request.POST.get('uid', ''))
             obj = klass.objects.filter(uid=uid).first()
 
             if not user:

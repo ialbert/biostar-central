@@ -93,7 +93,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'biostar.recipes.context.engine'
 ]
 
-TEMPLATES[0]['OPTIONS']['string_if_invalid'] = "%s"
+TEMPLATES[0]['OPTIONS']['string_if_invalid'] = "## TEMPLATE ERROR MISSING VARIABLE: %s ##"
 
 
 # Directory where files are extracted to

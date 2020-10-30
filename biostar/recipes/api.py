@@ -85,14 +85,17 @@ def api_list(request):
 @token_access(klass=Project, allow_create=True)
 @csrf_exempt
 @ratelimit(key='ip', rate='20/m')
-def project_api(request, uid):
+def project_api(request):
 
     """
     GET request : return project name, text, and image as a TOML file.
     POST request : change project name, text, and image given a TOML file.
     """
+    # Get the object uid
+    uid = request.GET.get('uid', request.POST.get('uid', ''))
 
     project = Project.objects.filter(uid=uid).first()
+
     token = auth.get_token(request=request)
     # Find the target user.
     user = User.objects.filter(profile__token=token).first()
@@ -119,12 +122,14 @@ def project_api(request, uid):
 @token_access(klass=Analysis, allow_create=True)
 @csrf_exempt
 @ratelimit(key='ip', rate='20/m')
-def recipe_api(request, uid):
+def recipe_api(request):
     """
     GET request : return recipe json, template and image as a TOML string.
     POST request : change recipe json, template, and image given a TOML string.
     """
 
+    # Get the object uid
+    uid = request.GET.get('uid', request.POST.get('uid', ''))
     recipe = Analysis.objects.filter(uid=uid).first()
 
     target = recipe.api_data
