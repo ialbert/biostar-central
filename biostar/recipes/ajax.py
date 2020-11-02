@@ -446,7 +446,7 @@ def render_plugins(request):
     if plugin == 'jupyter':
         html = open(fname, 'r').read()
 
-    return ajax_success(msg="Process successfully", html=html)
+    return ajax_success(msg="Processed successfully", html=html)
 
 
 @ensure_csrf_cookie
