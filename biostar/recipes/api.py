@@ -86,7 +86,6 @@ def api_list(request):
 @csrf_exempt
 @ratelimit(key='ip', rate='20/m')
 def project_api(request):
-
     """
     GET request : return project name, text, and image as a TOML file.
     POST request : change project name, text, and image given a TOML file.

@@ -208,20 +208,21 @@ def token_access(klass, allow_create=False):
             uid = request.GET.get('uid', request.POST.get('uid', ''))
             obj = klass.objects.filter(uid=uid).first()
 
-            if not user:
-                return HttpResponse(content="Token does not belong to any user.")
-
             if not obj:
                 # Allow users to create.
-                if allow_create:
+                if allow_create and user:
                     return func(request, *args, **kwargs)
                 return HttpResponse(content="Object does not exist.")
 
             project = obj.project
 
+            # User token required for private projects.
+            if not user and project.is_private:
+                return HttpResponse(content="Token does not belong to any user.")
+
             # GET requests require read access
             if request.method == "GET":
-                acc = auth.is_readable(user=user, obj=obj, strict=True)
+                acc = auth.is_readable(user=user, obj=obj, strict=False)
             # PUT and POST requests require write access
             else:
                 acc = auth.is_writable(user=user, project=project)
