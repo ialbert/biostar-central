@@ -73,7 +73,7 @@
 
                 <div class="ui divider"></div>
 
-                <a class="item" href="{% url 'recipe_download' recipe.uid %}">
+                <a class="item" href="{{ recipe.download_url }}">
                     <i class="download violet icon"></i> Download
                 </a>
 

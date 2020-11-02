@@ -441,7 +441,7 @@ def data_upload(request, uid):
 
 
 @read_access(type=Analysis)
-def recipe_code_download(request, uid):
+def recipe_code_download(request, uid, fname):
     """
     Download the raw recipe template as a file
     """
@@ -450,11 +450,9 @@ def recipe_code_download(request, uid):
 
     script = auth.render_script(recipe=recipe)
 
-    # Trigger file download with name of the recipe
-    filename = "_".join(recipe.name.split()) + ".sh"
-
+    # Trigger file download with given filename.
     response = HttpResponse(script, content_type='text/plain')
-    response['Content-Disposition'] = f'attachment; filename={filename}'
+    response['Content-Disposition'] = f'attachment; filename={fname}'
 
     return response
 

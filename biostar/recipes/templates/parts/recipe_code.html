@@ -12,7 +12,7 @@
                 <i class="save icon"></i> Save Code
             </button>
 
-             <a class="ui gray button" href="{% url 'recipe_download' recipe.uid %}">
+             <a class="ui gray button" href="{{ recipe.download_url }}">
                 <i class="download icon"></i> Download
              </a>
 

@@ -670,6 +670,10 @@ class Analysis(models.Model):
         first = lines[0]
         return first
 
+    def download_url(self):
+        fname = "_".join(self.name.split()) + ".sh"
+        return reverse('recipe_download', kwargs=dict(uid=self.uid, fname=fname))
+
     def get_name(self):
         if self.deleted:
             return f'Deleted Recipe: {self.name}'
