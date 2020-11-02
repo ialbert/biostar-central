@@ -71,7 +71,6 @@ recipes_patterns = [
     path(r'recipe/create/<str:uid>/', views.recipe_create, name='recipe_create'),
 
     # File listings
-
     re_path(r'^file/list/(?P<path>.+)$', views.import_files, name='file_list'),
     path(r'root/list/', views.import_files, name='root_list'),
     # Actions
@@ -89,7 +88,7 @@ recipes_patterns = [
     path(r'api/list/', api.api_list, name='api_list'),
     path(r'api/project/', api.project_api, name='project_api'),
     path(r'api/recipe/', api.recipe_api, name='recipe_api'),
-    #path(r'api/data/<str:uid>/', api.data_api, name='data_api'),
+    path(r'api/data/<str:uid>/', api.data_api, name='data_api'),
 
     # Plugins
     path(r'render/plugin/', ajax.render_plugins, name='render_plugins'),

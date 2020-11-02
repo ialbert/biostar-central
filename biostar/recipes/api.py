@@ -103,14 +103,14 @@ def project_api(request):
     # Get the json data with project info
     target = project.api_data if project else {}
 
-    # Replace source with target with valid POST request.
     if request.method == "POST":
+        # Fetch data from the
         stream = request.FILES.get("data")
 
         if stream:
-            source = json.load(stream)
-            # Get new fields from the POST request and set them.
-            target = auth.update_project(obj=project, data=source, user=user, uid=uid,
+            # Update or create a project using data.
+            target = auth.update_project(obj=project, stream=stream,
+                                         user=user, uid=uid,
                                          create=True, save=True)
 
     payload = json.dumps(target)
@@ -130,23 +130,34 @@ def recipe_api(request):
 
     # Get the object uid
     uid = request.GET.get('uid', request.POST.get('uid', ''))
+    # Get the project uid in case of creation.
+    pid = request.GET.get('pid', request.POST.get('pid', ''))
+
     recipe = Analysis.objects.filter(uid=uid).first()
 
-    target = recipe.api_data
+    # Resolve the project from recipe or 'pid'
+    project = recipe.project if recipe else None
+    project = project or Project.objects.filter(uid=pid).first()
+
+    target = recipe.api_data if recipe else {}
+
+    if not project:
+        return HttpResponse(content="Project does not exist.", content_type="text/plain")
+
     token = auth.get_token(request=request)
     # Find the target user.
     user = User.objects.filter(profile__token=token).first()
 
     # Replace source with target with valid POST request.
     if request.method == "POST":
-        # Fetch the toml file with all of the files.
+        # Fetch data
         stream = request.FILES.get("data")
         if stream:
-            source = json.load(stream)
-            # Get the toml object from the POST request
-            target = auth.update_recipe(obj=recipe, data=source, save=True, create=True,
-                                        user=user, uid=uid)
-
+            # Update or create a recipe using data.
+            target = auth.update_recipe(obj=recipe, stream=stream,
+                                        save=True, create=True,
+                                        user=user, uid=uid,
+                                        project=project)
     # Get the payload as a toml file.
     payload = json.dumps(target)
 
@@ -157,16 +168,17 @@ def recipe_api(request):
 @token_access(klass=Data)
 @csrf_exempt
 @ratelimit(key='ip', rate='20/m')
-def data_api(request, uid):
+def data_api(request):
     """
     GET request: Returns data
     PUT request: Updates file in data with given file.
     """
 
+    uid = request.GET.get('uid', request.POST.get('uid'))
     data = Data.objects.filter(uid=uid).first()
 
     # Get the source that will replace target
-    source = request.data.get("file", "")
+    source = request.data.get("data", "")
 
     # Target first file in data directory.
     target = data.get_files()[0]

@@ -1,7 +1,7 @@
 import difflib
 import logging
 import uuid, copy, base64
-import os
+import json
 import base64
 import io
 import subprocess
@@ -14,10 +14,8 @@ from django.contrib import messages
 from django.contrib.messages.storage import fallback
 from django.db.models import Q
 from django.template import Template, Context
-from django.template.base import VariableNode, TextNode
 from django.template import loader
 from django.shortcuts import reverse
-from django.test import RequestFactory
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
@@ -377,7 +375,7 @@ def overwrite_image(obj, strimg):
     return
 
 
-def update_recipe(obj, user, data={}, uid="", project=None, create=False, save=True):
+def update_recipe(obj, user, stream=None, data={}, uid="", project=None, create=False, save=True):
     """
     Update an existing recipe using data found in data dict.
     """
@@ -386,6 +384,11 @@ def update_recipe(obj, user, data={}, uid="", project=None, create=False, save=T
         obj = create_analysis(project=project, user=user, uid=uid)
     elif not obj:
         return
+
+    try:
+        data = data or json.load(stream)
+    except Exception as exc:
+        return {'error': f"Error loading json: {exc}"}
 
     obj.json_text = data.get('json', obj.json_text)
     obj.template = data.get('template', obj.template)
@@ -407,7 +410,7 @@ def update_recipe(obj, user, data={}, uid="", project=None, create=False, save=T
     return result
 
 
-def update_project(obj, user, data={}, uid="", create=False, save=True):
+def update_project(obj, user, data={}, stream=None, uid="", create=False, save=True):
     """
     Update an existing project using data found in data dict.
     """
@@ -416,6 +419,11 @@ def update_project(obj, user, data={}, uid="", create=False, save=True):
         obj = create_project(user=user, uid=uid)
     elif not obj:
         return
+
+    try:
+        data = data or json.load(stream)
+    except Exception as exc:
+        return {'error': f"Error loading json: {exc}"}
 
     # Set the project text and name.
     obj.text = data.get('text', obj.text)
