@@ -51,7 +51,7 @@
                 <div class="wrap magnify">
 
                     {# Display post author. #}
-                    {% post_user_box target_user=post.author %}
+                    {% post_user_box target_user=post.author post=post %}
 
                     {# Display post content. #}
                     {% if post.is_editable %}
