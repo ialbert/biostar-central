@@ -177,7 +177,7 @@ def data_api(request):
     data = Data.objects.filter(uid=uid).first()
 
     # Get the source that will replace target
-    source = request.data.get("data", "")
+    source = request.FILES.get("data", "")
 
     # Target first file in data directory.
     target = data.get_files()[0]

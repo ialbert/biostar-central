@@ -28,6 +28,9 @@ class ForumNavigation(TestCase):
         # Create a tested post
         self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test",
                                      type=models.Post.QUESTION)
+        self.vote = models.Vote.objects.create(author=self.owner, post=self.post, type=models.Vote.BOOKMARK,
+                                               )
+
         management.call_command('populate')
 
         self.owner.save()
@@ -55,6 +58,13 @@ class ForumNavigation(TestCase):
             reverse("following"),
             reverse("myposts"),
             reverse("myvotes"),
+            reverse('api_traffic'),
+            reverse('api_user', kwargs=dict(uid=self.owner.profile.uid)),
+            reverse('api_post', kwargs=dict(uid=self.post.uid)),
+            reverse('api_vote', kwargs=dict(uid=self.vote.uid)),
+            reverse('api_tags', kwargs=dict(email=self.owner.email)),
+            reverse('user_email', kwargs=dict(email=self.owner.email)),
+
             reverse('post_create'),
             #reverse('pages', kwargs=dict(fname="faq")),
             reverse('tags_list'),

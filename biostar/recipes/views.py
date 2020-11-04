@@ -540,7 +540,6 @@ def get_part(request, name, id):
 
     if name == "run":
         initial = dict(name=f"Results for: {recipe.name}")
-
         form = forms.RecipeInterface(request=request, analysis=recipe,
                                      json_data=recipe.json_data, initial=initial)
     else:

@@ -242,7 +242,7 @@ def post_details(request, uid):
 
 
 @json_response
-def watched_tags(request, uid):
+def watched_tags(request, email):
     """
     Show watched tags for a user, given API key.
 
@@ -251,13 +251,9 @@ def watched_tags(request, uid):
 
     """
 
-    # Get the API token.
-    user = User.objects.filter(profile__uid=uid).first()
+    user = User.objects.filter(email=email).first()
     if user:
-        data = {
-            'uid': user.profile.uid,
-            'name': user.profile.name,
-            'watched_tags': user.profile.watched_tags}
+        data = {'watched_tags': user.profile.watched_tags}
     else:
         data = {}
 
