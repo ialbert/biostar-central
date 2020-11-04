@@ -389,14 +389,8 @@ i.icon {
     margin: 0;
 }
 
-.statbox {
-    white-space: nowrap;
-    width: fit-content;
-    padding-right: 10px;
-}
 
-
-.post .stats {
+.post .stats,.statbox {
     white-space: nowrap;
     width: fit-content;
     padding-right: 10px;
