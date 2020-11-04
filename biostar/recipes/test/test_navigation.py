@@ -35,12 +35,12 @@ class SiteNavigation(TestCase):
         self.project = auth.create_project(user=self.owner, name="Test project",
                                            privacy=models.Project.PUBLIC, uid="tested")
         data = auth.create_data(project=self.project, path=__file__)
-        analysis = auth.create_analysis(project=self.project, json_text='', template="# Add code here.")
-        self.job = auth.create_job(analysis=analysis)
+        self.analysis = auth.create_analysis(project=self.project, json_text='', template="# Add code here.")
+        self.job = auth.create_job(analysis=self.analysis)
 
         self.proj_params = dict(uid=self.project.uid)
-        self.analysis_params = dict(uid=analysis.uid)
-        self.recipes_id_param = dict(id=analysis.id)
+        self.analysis_params = dict(uid=self.analysis.uid)
+        self.recipes_id_param = dict(id=self.analysis.id)
         self.data_params = dict(uid=data.uid)
         self.job_params = dict(uid=self.job.uid)
 
@@ -93,6 +93,8 @@ class SiteNavigation(TestCase):
             reverse('login'),
             reverse('search'),
             reverse('project_list'),
+            reverse('latest_recipes'),
+            reverse('get_part', kwargs=dict(name='info', id=self.analysis.id)),
             reverse('data_list', kwargs=self.proj_params),
             reverse('data_view', kwargs=self.data_params),
             reverse('data_upload', kwargs=self.proj_params),
@@ -109,7 +111,7 @@ class SiteNavigation(TestCase):
 
             reverse('job_list', kwargs=self.proj_params),
 
-            #reverse('job_view', kwargs=self.job_params),
+            reverse('job_view', kwargs=self.job_params),
             #reverse('job_edit', kwargs=self.job_params),
 
         ]

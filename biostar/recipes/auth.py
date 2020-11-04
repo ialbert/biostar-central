@@ -1023,7 +1023,7 @@ def is_writable(user, project, owner=None):
     """
 
     # Anonymous user may not have write access.
-    if user.is_anonymous:
+    if not user or user.is_anonymous:
         return False
 
     # Users that may access a project.

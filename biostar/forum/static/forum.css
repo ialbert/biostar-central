@@ -1,12 +1,13 @@
 :root {
     --active-item: #fbfdef;
     --active-item-hover: #fbfdef;
+    --root-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 body {
     background-color: #f8f8f9 !important;
     padding-top: 1rem;
-    font-family: sans-serif;
+    font-family: var(--root-font);
     color: #333;
     line-height: 1.428571429;
     font-size: 13px;
@@ -28,10 +29,11 @@ body > .widen.container {
 #logo {
     padding: 10px;
     width: 220px;
+    background: white;
 }
 
 
-#menu-header .item:hover {
+#menu-header .item:hover:not(#logo) {
     background-color: var(--active-item-hover);
 }
 
@@ -387,17 +389,11 @@ i.icon {
     margin: 0;
 }
 
-.statbox {
+
+.post .stats,.statbox {
     white-space: nowrap;
     width: fit-content;
-    padding-right: 5px;
-}
-
-
-.post .stats {
-    white-space: nowrap;
-    width: fit-content;
-    padding-right: 5px;
+    padding-right: 10px;
 }
 
 

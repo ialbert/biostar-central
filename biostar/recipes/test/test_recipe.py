@@ -121,9 +121,9 @@ class RecipeViewTest(TestCase):
     def test_recipe_code_download(self):
         "Test recipe code download "
 
-        url = reverse("recipe_download", kwargs=dict(uid=self.recipe.uid))
+        url = self.recipe.download_url()
         request = fake_request(url=url, data={}, user=self.owner)
-        response = views.recipe_code_download(request=request, uid=self.recipe.uid)
+        response = views.recipe_code_download(request=request, uid=self.recipe.uid, fname="recipe.sh")
 
         self.assertTrue(response.content.decode() == self.recipe.template,
                         f"Error downloading code. Expected: {self.recipe.template} "

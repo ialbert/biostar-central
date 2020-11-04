@@ -3,6 +3,7 @@
 {% load forum_tags %}
 
 
+
 <div class="user_box tablet right">
 
     <div>
@@ -13,14 +14,15 @@
 
     <div class="muted">
 
-        <div>{{ target_user.profile.last_login|time_ago }}</div>
+        <div>{{ post.lastedit_date|time_ago }}</div>
+
         <div><a href="{% url "user_profile" target_user.profile.uid %}">{{ target_user.profile.name|truncatechars:40 }}</a>
         {% user_icon user=target_user %}</div>
-        <div>{{ target_user.profile.location|truncatechars:40 }}</div>
-
+        <div>@{{ target_user.username }}</div>
     </div>
 
 </div>
+
 
 
 

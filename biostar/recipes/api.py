@@ -86,7 +86,6 @@ def api_list(request):
 @csrf_exempt
 @ratelimit(key='ip', rate='20/m')
 def project_api(request):
-
     """
     GET request : return project name, text, and image as a TOML file.
     POST request : change project name, text, and image given a TOML file.
@@ -178,7 +177,7 @@ def data_api(request):
     data = Data.objects.filter(uid=uid).first()
 
     # Get the source that will replace target
-    source = request.data.get("data", "")
+    source = request.FILES.get("data", "")
 
     # Target first file in data directory.
     target = data.get_files()[0]

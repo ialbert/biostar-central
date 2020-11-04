@@ -188,9 +188,9 @@ def user_card(context, target):
 
 
 @register.inclusion_tag('widgets/post_user_box.html', takes_context=True)
-def post_user_box(context, target_user):
+def post_user_box(context, target_user, post):
 
-    context.update(dict(target_user=target_user))
+    context.update(dict(target_user=target_user, post=post))
     return context
 
 

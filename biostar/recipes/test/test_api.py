@@ -36,6 +36,8 @@ class APITest(TestCase):
 
         self.project = auth.create_project(user=self.owner, name="tested", text="Text", summary="summary",
                                            uid="tested")
+        # Set up generic data for editing
+        self.data = auth.create_data(project=self.project, path=__file__, name="tested")
 
     @patch('biostar.recipes.models.Project.save', MagicMock(name="save"))
     def test_project_api(self):
@@ -70,16 +72,20 @@ class APITest(TestCase):
         request = fake_request(url=view, data=data, user=self.owner, method="POST")
 
         response = api.recipe_api(request=request)
-        data = json.loads(response.content.decode())
+        #data = json.loads(response.content.decode())
         self.assertEqual(response.status_code, 200)
 
         return
 
-    def Xtest_data_api(self):
+    def test_data_api(self):
         """
-        Test replace project info using PUT request
+        Test data api
         """
-        url = reverse('project_api_info', kwargs=dict(uid=self.project.uid))
+        url = reverse('data_api')
+        data = dict(uid=self.data.uid, token=self.owner.profile.token)
+        request = fake_request(url=url, data=data, user=self.owner, method="GET")
+        response = api.data_api(request=request)
+        self.assertEqual(response.status_code, 200)
 
         return
 
