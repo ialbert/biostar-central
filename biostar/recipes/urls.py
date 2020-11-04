@@ -67,7 +67,7 @@ recipes_patterns = [
     path(r'ajax/move/', ajax.ajax_move, name='ajax_move'),
 
     path(r'recipe/delete/<str:uid>/', views.recipe_delete, name='recipe_delete'),
-    path(r'recipe/code/download/<str:uid>/<str:fname>/', views.recipe_code_download, name='recipe_download'),
+    path(r'recipe/code/download/<str:uid>/<str:fname>', views.recipe_code_download, name='recipe_download'),
     path(r'recipe/create/<str:uid>/', views.recipe_create, name='recipe_create'),
 
     # File listings
