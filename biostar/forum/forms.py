@@ -25,11 +25,12 @@ MAX_TAGS = 5
 
 
 def english_only(text):
-    #print(str(text))
-    #return
+
     try:
-        #text.encode('utf-8')
-        text.encode('ascii')
+        if settings.ENFORCE_ASCII:
+            text.encode('ascii')
+        else:
+            text.encode('utf-8')
     except Exception as exc:
         raise ValidationError('Text may only contain plain text ( ASCII ) characters')
 

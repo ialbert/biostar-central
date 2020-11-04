@@ -141,7 +141,7 @@ body {
 
 
 #menu-header .add-question:hover {
-    background-color: #87B13F;
+    background-color: #87B13F !important;
     color: white;
 }
 
