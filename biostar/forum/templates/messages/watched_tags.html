@@ -7,7 +7,7 @@
 
 {% block html %}
 
-    There is activity on a post you are following on <a href="{{ protocol }}://{{ domain }}{{ http_port }}">Biostar</a>
+    There is activity on a tag you are watching on <a href="{{ protocol }}://{{ domain }}{{ http_port }}">Biostar</a>
     <p>
         User <a href="{{ protocol }}://{{ domain }}{{ http_port }}{{ post.author.profile.get_absolute_url }}">
         {{ post.author.profile.name }}</a> wrote
@@ -29,7 +29,7 @@
 
 {% block text %}
 
-    There is activity on a post you are following on {{ domain }}
+    There is activity on a tag you are watching on {{ domain }}
 
     User {{ post.author.profile.name }} wrote {{ post.title }}:
 
@@ -41,4 +41,3 @@
 
 
 {% endblock %}
-

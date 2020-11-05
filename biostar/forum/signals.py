@@ -119,7 +119,7 @@ def finalize_post(sender, instance, created, **kwargs):
         subs = Subscription.objects.filter(post=instance.root)
 
         # Notify users who are watching tags in this post
-        tasks.notify_watched_tags.spool(post=instance)
+        tasks.notify_watched_tags.spool(post=instance, extra_context=extra_context)
 
         # Give it a spam score.
         tasks.spam_scoring.spool(post=instance)
