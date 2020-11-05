@@ -3,7 +3,7 @@ import re
 import textwrap
 
 from django.core.mail import EmailMultiAlternatives
-from django.core.mail import send_mail
+from django.core.mail import send_mail, send_mass_mail, get_connection
 from django.template import Context, Template
 from django.template.loader import get_template
 from django.conf import settings
@@ -97,6 +97,45 @@ class EmailTemplate(object):
                 message=text,
                 from_email=from_email,
                 recipient_list=recipient_list)
+
+    def send_mass(self, context, from_email, recipient_list):
+        """
+        Send mass individual mail to list of recipients
+        """
+        subject, text, html = self.render(context)
+
+        # Text may be indented in template.
+        text = textwrap.dedent(text)
+
+        # Send mass html email
+        if len(html) > 10:
+            # Format mass mail
+            datatuple = ((subject, text, from_email, [rec]) for rec in recipient_list)
+            send_mass_mail(datatuple=datatuple, fail_silently=False)
+        else:
+            send_mass_html_mail(subject=subject,
+                                message=text,
+                                message_html=html,
+                                from_email=from_email,
+                                recipient_list=recipient_list)
+
+
+def send_mass_html_mail(subject, message, message_html, from_email, recipient_list):
+    """
+
+    """
+    connection = get_connection(fail_silently=False)
+
+    # Format mass mail
+    messages = [
+        EmailMultiAlternatives(subject=subject, body=message,
+                               from_email=from_email, to=rec,
+                               connection=connection).attach_alternative(message_html,
+                                                                         "text/html")
+        for rec in recipient_list
+    ]
+
+    return connection.send_messages(messages)
 
 
 def send_html_mail(subject, message, message_html, from_email, recipient_list):

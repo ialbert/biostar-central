@@ -164,7 +164,8 @@ def mailing_list(users, post, extra_context={}):
     email_template = "messages/mailing_list.html"
     emails = [user.email for user in users]
     author = post.author.profile.name
-    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=emails)
+    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=emails,
+               mass=True)
 
 
 @spool(pass_arguments=True)
@@ -199,4 +200,5 @@ def notify_followers(subs, author, extra_context={}):
 
     recipient_list = [sub.user.email for sub in email_subs]
 
-    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=recipient_list)
+    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=recipient_list,
+               mass=True)
