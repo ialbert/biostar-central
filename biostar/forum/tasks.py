@@ -169,7 +169,10 @@ def mailing_list(users, post, extra_context={}):
     email_template = "messages/mailing_list.html"
     emails = [user.email for user in users]
     author = post.author.profile.name
-    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=emails,
+    send_email(template_name=email_template,
+               extra_context=extra_context,
+               name=author,
+               recipient_list=emails,
                mass=True)
 
 
@@ -192,7 +195,10 @@ def notify_followers(subs, author, extra_context={}):
 
     users = [sub.user for sub in subs]
     # Every subscribed user gets local messages with any subscription type.
-    create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)
+    create_messages(template=local_template,
+                    extra_context=extra_context,
+                    rec_list=users,
+                    sender=author)
 
     # Select users with email subscriptions.
     # Exclude mailing list users to avoid duplicate emails.
@@ -205,6 +211,8 @@ def notify_followers(subs, author, extra_context={}):
 
     recipient_list = [sub.user.email for sub in email_subs]
 
-    send_email(template_name=email_template, extra_context=extra_context, name=author.profile.name,
+    send_email(template_name=email_template,
+               extra_context=extra_context,
+               name=author.profile.name,
                recipient_list=recipient_list,
                mass=True)
