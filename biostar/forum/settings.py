@@ -58,6 +58,9 @@ SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
 
 SPAM_INDEX_DIR = 'spammers'
 
+# Ensure posts only have ascii characters.
+ENFORCE_ASCII = True
+
 # Absolute path to spam index directory in export/
 SPAM_INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', SPAM_INDEX_DIR))
 

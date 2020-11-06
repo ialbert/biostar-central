@@ -1,6 +1,7 @@
 
 from pagedown.widgets import PagedownWidget
 import os
+import langdetect
 from django import forms
 from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
@@ -24,18 +25,28 @@ MAX_TITLE = 400
 MAX_TAGS = 5
 
 
-def english_only(text):
-    #print(str(text))
-    #return
+def valid_ascii(text):
+
     try:
-        #text.encode('utf-8')
-        text.encode('ascii')
+        if settings.ENFORCE_ASCII:
+            text.encode('ascii')
+        else:
+            text.encode('utf-8')
     except Exception as exc:
-        raise ValidationError('Text may only contain plain text ( ASCII ) characters')
+        raise ValidationError(f'Title contains invalid characters: {exc}')
+
+
+def valid_language(text):
+
+    supported_languages = settings.LANGUAGE_DETECTION
+    if supported_languages:
+        lang = langdetect.detect(text)
+        if lang not in supported_languages:
+            raise ValidationError(f'Language "{lang}" is not one of the supported languages {supported_languages}!')
 
 
 def valid_title(text):
-    "Validates form input for tags"
+    "Validates form input for titles."
     text = text.strip()
     if not text:
         raise ValidationError('Please enter a title')
@@ -45,6 +56,14 @@ def valid_title(text):
         raise ValidationError(f'Too short, please add more than {MIN_CHARS} characters.')
     if len(text) > MAX_TITLE:
         raise ValidationError(f'Too Long, please add less than {MAX_TITLE} characters.')
+
+    try:
+        if settings.ENFORCE_ASCII:
+            text.encode('ascii')
+        else:
+            text.encode('utf-8')
+    except Exception as exc:
+        raise ValidationError(f'Title contains invalid characters: {exc}')
 
 
 def valid_tag(text):
@@ -114,7 +133,7 @@ class PostLongForm(forms.Form):
                                    widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type.")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
-                            validators=[valid_title, english_only],
+                            validators=[valid_title, valid_language],
                             help_text="Enter a descriptive title to promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=50, required=True, validators=[valid_tag],
                               help_text="""
@@ -123,7 +142,7 @@ class PostLongForm(forms.Form):
                               widget=forms.HiddenInput())
 
     content = forms.CharField(widget=forms.Textarea,
-                              validators=[english_only],
+                              validators=[valid_language],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
     def __init__(self, post=None, user=None, *args, **kwargs):

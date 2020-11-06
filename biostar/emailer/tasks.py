@@ -27,7 +27,8 @@ def send_all():
             logger.error(f"send_all() error: {exc}")
 
 
-def send_email(template_name, recipient_list, extra_context={}, name="", from_email=None, subject="Subject"):
+def send_email(template_name, recipient_list, extra_context={}, name="", from_email=None, subject="Subject",
+               mass=False):
     """
     Sends an email using a template.
     """
@@ -59,7 +60,10 @@ def send_email(template_name, recipient_list, extra_context={}, name="", from_em
         context.update(extra_context)
 
         # Generate and send the email.
-        email.send(context=context, from_email=from_email, recipient_list=recipient_list)
+        if mass:
+            email.send_mass(context=context, from_email=from_email, recipient_list=recipient_list)
+        else:
+            email.send(context=context, from_email=from_email, recipient_list=recipient_list)
 
         logging.info(f"email sent to recipient_list={recipient_list} ")
 

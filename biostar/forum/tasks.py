@@ -35,7 +35,7 @@ def spam_scoring(post):
 
 
 @spool(pass_arguments=True)
-def notify_watched_tags(post):
+def notify_watched_tags(post, extra_context):
     """
     Create a subscription to a post when
     """
@@ -43,18 +43,23 @@ def notify_watched_tags(post):
     from biostar.forum import auth
 
     # Skip non top level posts.
-    if not post.is_toplevel:
-        return
+    #if not post.is_toplevel:
+    #    return
 
     # Exclude mailing-list mode users.
-    users = [User.objects.filter(profile__watched_tags__contains=tag) for tag in post.tags.all()]
+    users = [User.objects.filter(profile__watched_tags__icontains=tag) for tag in post.root.tags.all()]
 
     # Flatten nested iterable.
-    users = set(u for qs in users for u in qs)
+    emails = set(u.email for qs in users for u in qs)
 
-    # Subscribe users to this post and send them emails.
-    for user in users:
-        auth.create_subscription(post=post.root, user=user)
+    # Add current post into extra context.
+    extra_context['post'] = post
+
+    send_email(template_name='messages/watched_tags.html',
+               extra_context=extra_context,
+               name=post.author.profile.name,
+               recipient_list=emails,
+               mass=True)
 
     return
 
@@ -164,7 +169,11 @@ def mailing_list(users, post, extra_context={}):
     email_template = "messages/mailing_list.html"
     emails = [user.email for user in users]
     author = post.author.profile.name
-    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=emails)
+    send_email(template_name=email_template,
+               extra_context=extra_context,
+               name=author,
+               recipient_list=emails,
+               mass=True)
 
 
 @spool(pass_arguments=True)
@@ -186,7 +195,10 @@ def notify_followers(subs, author, extra_context={}):
 
     users = [sub.user for sub in subs]
     # Every subscribed user gets local messages with any subscription type.
-    create_messages(template=local_template, extra_context=extra_context, rec_list=users, sender=author)
+    create_messages(template=local_template,
+                    extra_context=extra_context,
+                    rec_list=users,
+                    sender=author)
 
     # Select users with email subscriptions.
     # Exclude mailing list users to avoid duplicate emails.
@@ -199,4 +211,8 @@ def notify_followers(subs, author, extra_context={}):
 
     recipient_list = [sub.user.email for sub in email_subs]
 
-    send_email(template_name=email_template, extra_context=extra_context, name=author, recipient_list=recipient_list)
+    send_email(template_name=email_template,
+               extra_context=extra_context,
+               name=author.profile.name,
+               recipient_list=recipient_list,
+               mass=True)

@@ -32,8 +32,9 @@ class Command(BaseCommand):
         logger.info(f"settings.EMAIL_BACKEND={settings.EMAIL_BACKEND}")
         logger.info(f"sending test email from {from_email} to {recipient_list}")
 
+        mass = len(recipient_list) > 1
         tasks.send_email(template_name="test_email.html", recipient_list=recipient_list,
-                         from_email=from_email, subject=subject, name="Testing")
+                         from_email=from_email, subject=subject, name="Testing", mass=mass)
 
         # Triggers send if the backend is queued.
         tasks.send_all()
