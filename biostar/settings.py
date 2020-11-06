@@ -21,6 +21,19 @@ DISABLE_TASKS = False
 # Pagedown
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
 
+
+LANGUAGE_DETECTION = ["af", "ar", "bg",
+                      "bn", "ca", "cs", "cy",
+                      "da", "de", "el", "en",
+                      "es", "et", "fa", "fi", "fr",
+                      "gu", "he", "hi", "hr", "hu", "id",
+                      "it", "ja", "kn", "ko", "lt", "lv",
+                      "mk", "ml", "mr", "ne", "nl", "no", "pa",
+                      "pl", "pt", "ro", "ru", "sk", "sl", "so", "sq",
+                      "sv", "sw", "ta", "te", "th", "tl", "tr",
+                      "uk", "ur", "vi", "zh-cn", "zh-tw"]
+
+
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
 
