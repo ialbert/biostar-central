@@ -29,7 +29,7 @@
                     {% if request.user.profile.is_moderator %}
                          <div class="ui divider"></div>
                          <a class="item" href="{% url 'post_list' %}{% relative_url 'spam' 'type' params %}">
-                            <i class="bug icon"></i>Show spam
+                            <i class="bug icon"></i> Spam
                         </a>
                     {% endif %}
 

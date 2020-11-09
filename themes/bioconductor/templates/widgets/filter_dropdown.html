@@ -29,9 +29,17 @@
                         <a class="item" href="{% url 'post_list' %}{% relative_url 'open' 'type' params %}">
                             <i class="{% activate_check_mark type 'open' %}"></i>Unanswered
                         </a>
+
                         <a class="item" href="{% url 'post_list' %}{% relative_url 'latest' 'type' params %}">
                             <i class="{% activate_check_mark type 'latest' %}"></i>All posts
                         </a>
+                        {%  if  request.user.profile.is_moderator %}
+
+                         <a class="item" href="{% url 'post_list' %}{% relative_url 'spam' 'type' params %}">
+                            <i class="{% activate_check_mark type 'spam' %}"></i>Spam posts
+                        </a>
+                        {% endif %}
+
 
                     </div>
                 </div>
