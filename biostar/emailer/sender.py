@@ -127,7 +127,7 @@ def send_mass_html_mail(subject, message, message_html, from_email, recipient_li
     connection = get_connection(fail_silently=False)
 
     def make_email(rec):
-        msg = EmailMultiAlternatives(subject, message, from_email, [rec]).attach_alternative(message_html,
+        msg = EmailMultiAlternatives(subject, message, from_email, rec).attach_alternative(message_html,
                                                                          "html/text")
         return msg
 
