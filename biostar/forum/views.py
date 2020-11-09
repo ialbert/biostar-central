@@ -113,7 +113,7 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     elif topic == MYVOTES and user.is_authenticated:
         query = query.filter(votes__post__author=user)
     elif topic == MYTAGS and user.is_authenticated:
-        tags = user.profile.my_tags.split(",")
+        tags = [t.lower() for t in user.profile.my_tags.split(",")]
         query = query.filter(tags__name__in=tags)
 
     if user.is_anonymous or not user.profile.is_moderator:

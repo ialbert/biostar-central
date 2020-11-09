@@ -441,6 +441,13 @@ def ajax_edit(request, uid):
     return ajax_success(msg='success', html=post.html, title=new_title, user_line=user_line, tag_html=tag_html)
 
 
+def ajax_tags_render(request):
+    """
+    Render the
+    """
+    return
+
+
 @ratelimit(key=RATELIMIT_KEY, rate='50/h')
 @ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST")
