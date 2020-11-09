@@ -2,9 +2,11 @@ import datetime
 import logging
 import json
 import hashlib
-import html2text
+import itertools
+import os
 import urllib.parse as urlparse
 from urllib import request
+from taggit.models import Tag
 from django.template import loader
 from django.conf import settings
 from django.contrib import messages

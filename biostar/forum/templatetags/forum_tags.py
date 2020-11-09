@@ -378,6 +378,24 @@ def tags_field(context, form_field, initial=''):
 
     return context
 
+# @register.inclusion_tag('forms/field_tags.html', takes_context=True)
+# def tags_field(context, form_field, initial=''):
+#     """Render multi-select dropdown options for tags. """
+#
+#     # Get currently selected tags from the post or request
+#     selected = initial.split(",") if initial else []
+#     limit = 5
+#     query = Tag.objects.exclude(name__in=selected)[:limit].values_list("name", flat=True)
+#     options = {(name.strip(), False) for name in query}
+#
+#     # Chain the selected and rest of the options
+#     selected = map(lambda s: (s, True), selected)
+#     options = itertools.chain(selected, options)
+#
+#     context = dict(initial=initial, form_field=form_field, dropdown_options=options)
+#
+#     return context
+
 
 @register.inclusion_tag('forms/form_errors.html')
 def form_errors(form, wmd_prefix='', override_content=False):

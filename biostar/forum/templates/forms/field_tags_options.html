@@ -1,0 +1,9 @@
+
+
+    {% for value, is_selected in dropdown_options %}
+
+        <option value="{{ value }}" {% if is_selected %}selected="selected"{% endif %}>
+        {{ value }}
+        </option>
+
+    {% endfor %}
