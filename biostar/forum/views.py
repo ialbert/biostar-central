@@ -105,7 +105,6 @@ def get_posts(user, topic="", tag="", order="", limit=None):
 
     elif topic == SHOW_SPAM:
         query = query.filter(Q(spam=Post.SPAM) | Q(spam=Post.SUSPECT))
-
     elif topic == OPEN:
         query = query.filter(type=Post.QUESTION, answer_count=0)
     elif topic == BOOKMARKS and user.is_authenticated:
