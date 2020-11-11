@@ -102,6 +102,9 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     # Determines how to start the preform_search.
     if post_type:
         query = query.filter(type=post_type)
+
+    elif topic == SHOW_SPAM:
+        query = query.filter(Q(spam=Post.SPAM) | Q(spam=Post.SUSPECT))
     elif topic == OPEN:
         query = query.filter(type=Post.QUESTION, answer_count=0)
     elif topic == BOOKMARKS and user.is_authenticated:
@@ -113,11 +116,12 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     elif topic == MYVOTES and user.is_authenticated:
         query = query.filter(votes__post__author=user)
     elif topic == MYTAGS and user.is_authenticated:
-        tags = user.profile.my_tags.split(",")
-        query = query.filter(tags__name__in=tags)
+        tags = map(lambda t: t.lower(), user.profile.my_tags.split(","))
+        query = query.filter(tags__name__in=tags).distinct()
+    else:
+        # Exclude spam posts unless specifically on the tab.
+        query = query.exclude(Q(spam=Post.SPAM) | Q(status=Post.SUSPECT))
 
-    if user.is_anonymous or not user.profile.is_moderator:
-        query = query.exclude(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
     # Filter by tags if specified.
     if tag:
         query = query.filter(tags__name=tag.lower())

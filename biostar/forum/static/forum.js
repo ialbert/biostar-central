@@ -260,13 +260,14 @@ function tags_dropdown() {
             var tag_field = $('#{0}'.f(field));
             // Add selected tag to field
             tag_field.val(value);
+
         }
     });
     $('.tags > input.search').keydown(function (event) {
 
         // Prevent submitting form when adding tag by pressing ENTER.
         var ek = event.keyCode || event.which;
-         var value = $(this).val().trim();
+        var value = $(this).val().trim();
         if (ek === 13 || ek === 10) {
             event.preventDefault();
             //alert($(this).closest('.tags').html());
@@ -274,7 +275,6 @@ function tags_dropdown() {
             $(this).val('');
             return value
         }
-
         // // Set value with SPACE bar
         // if (ek === 32) {
         //     event.preventDefault();
@@ -283,7 +283,8 @@ function tags_dropdown() {
         //     $(this).closest('.tags').dropdown('set selected', value);
         //     $(this).val('');
         // }
-    });
+    })
+
 }
 
 function highligh_preview(form, text) {
@@ -328,13 +329,17 @@ $(document).ready(function () {
     $('form .preview').each(function () {
         var text = $(this).closest('form').find('.wmd-input').val();
         var form = $(this).closest('form');
-        highligh_preview(form, text);
+        setTimeout(function () {
+            highligh_preview(form, text);
+        }, 150)
     });
 
     $(this).on('keyup', 'textarea', function (event) {
         var text = $(this).val();
         var form = $(this).closest('form');
-        highligh_preview(form, text);
+        setTimeout(function () {
+            highligh_preview(form, text);
+        }, 150)
     });
 
     $(this).on('click', '#wmd-button-bar', function (event) {

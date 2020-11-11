@@ -35,7 +35,7 @@
 
     User {{ post.author.profile.name }} wrote {{ post.title }}:
 
-    {{ post.content }}
+    {{ post.content|safe }}
 
     You may visit http://{{ domain }}{{ post.get_absolute_url }}
 
