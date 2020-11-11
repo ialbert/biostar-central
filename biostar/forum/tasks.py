@@ -37,28 +37,29 @@ def spam_scoring(post):
 def tpatt(tag):
     """
     Return pattern matching a tag found in comma separated string.
-    ^{tag}\\s*,      : matches the beginning
-    ,\\s*{tag}\\s*,  : matches the middle
-    ,\\s*{tag}$      : matches the end
+    (?i)             : case-insensitive flag
+    ^{tag}\\s*,      : matches beginning
+    ,\\s*{tag}\\s*,  : matches middle
+    ,\\s*{tag}$      : matches end
+    ^{tag}[^\\w+]    : matches single entry ( no commas )
     """
-    patt = fr"(^{tag}\s*,|,\s*{tag}\s*,|,\s*{tag}$|^{tag})"
+    patt = fr"(?i)(^{tag}\s*,|,\s*{tag}\s*,|,\s*{tag}$|^{tag}[^\w+])"
     return patt
 
 
 @spool(pass_arguments=True)
 def notify_watched_tags(post, extra_context):
     """
-    Create a subscription to a post when
+    Notify users watching a given tag found in post.
     """
     from biostar.accounts.models import User
-    from biostar.forum import auth
 
     users = [User.objects.filter(profile__watched_tags__iregex=tpatt(tag.name)).distinct()
              for tag in post.root.tags.all()]
 
+    # Flatten nested users queryset and get email.
     emails = set(u.email for o in users for u in o)
 
-    # Flatten nested iterable.
     # Add current post into extra context.
     extra_context['post'] = post
 
