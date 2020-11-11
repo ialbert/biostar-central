@@ -116,12 +116,11 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     elif topic == MYVOTES and user.is_authenticated:
         query = query.filter(votes__post__author=user)
     elif topic == MYTAGS and user.is_authenticated:
-        tags = [t.lower() for t in user.profile.my_tags.split(",")]
-        query = query.filter(tags__name__in=tags)
-
-    # Exclude spam posts unless specifically on the tab.
-    if topic != SHOW_SPAM:
-        query = query.exclude(Q(spam=Post.SPAM) | Q(status=Post.DELETED))
+        tags = map(lambda t: t.lower(), user.profile.my_tags.split(","))
+        query = query.filter(tags__name__in=tags).distinct()
+    else:
+        # Exclude spam posts unless specifically on the tab.
+        query = query.exclude(Q(spam=Post.SPAM) | Q(status=Post.SUSPECT))
 
     # Filter by tags if specified.
     if tag:
