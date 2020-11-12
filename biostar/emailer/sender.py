@@ -96,7 +96,8 @@ class EmailTemplate(object):
                 subject=subject,
                 message=text,
                 from_email=from_email,
-                recipient_list=recipient_list)
+                recipient_list=recipient_list,
+                html_message=html)
 
     def send_mass(self, context, from_email, recipient_list):
         """
@@ -132,7 +133,7 @@ def send_mass_html_mail(subject, message, message_html, from_email, recipient_li
                                      from_email=from_email,
                                      to=rec,
                                      connection=connection).attach_alternative(message_html,
-                                                                         "html/text")
+                                                                         "text/html")
         return msg
 
     # Format mass mail

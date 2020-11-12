@@ -43,7 +43,7 @@ def tpatt(tag):
     ,\\s*{tag}$      : matches end
     ^{tag}[^\\w+]    : matches single entry ( no commas )
     """
-    patt = fr"(?i)(^{tag}\s*,|,\s*{tag}\s*,|,\s*{tag}$|^{tag}[^\w+])"
+    patt = fr"(?i)(^{tag}\s*,|,\s*{tag}\s*,|,\s*{tag}$|^{tag}$)"
     return patt
 
 
@@ -59,9 +59,6 @@ def notify_watched_tags(post, extra_context):
 
     # Flatten nested users queryset and get email.
     emails = set(u.email for o in users for u in o)
-
-    # Add current post into extra context.
-    extra_context['post'] = post
 
     send_email(template_name='messages/watched_tags.html',
                extra_context=extra_context,
