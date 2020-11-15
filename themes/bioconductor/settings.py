@@ -90,6 +90,9 @@ EMAIL_FROM_PATTERN = u'''"%s [bioc]" <%s>'''
 # The subject of the reply goes here
 EMAIL_REPLY_SUBJECT = u"[bioc] %s"
 
+# The default no reply email.
+DEFAULT_NOREPLY_EMAIL = "noreply@bioconductor.org"
+
 SEARCH_LIMIT = 60
 
 # On deployed servers the following must be set.

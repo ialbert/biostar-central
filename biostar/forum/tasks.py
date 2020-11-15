@@ -53,6 +53,9 @@ def notify_watched_tags(post, extra_context):
     Notify users watching a given tag found in post.
     """
     from biostar.accounts.models import User
+    from django.conf import settings
+
+    from_email = settings.DEFAULT_NOREPLY_EMAIL
 
     users = [User.objects.filter(profile__watched_tags__iregex=tpatt(tag.name)).distinct()
              for tag in post.root.tags.all()]
@@ -64,6 +67,7 @@ def notify_watched_tags(post, extra_context):
                extra_context=extra_context,
                name=post.author.profile.name,
                recipient_list=emails,
+               from_email=from_email,
                mass=True)
 
     return
@@ -169,14 +173,18 @@ def mailing_list(users, post, extra_context={}):
     """
     Generate notification for mailing list users.
     """
+    from django.conf import settings
 
     # Prepare the templates and emails
     email_template = "messages/mailing_list.html"
     emails = [user.email for user in users]
     author = post.author.profile.name
+    from_email = settings.DEFAULT_NOREPLY_EMAIL
+
     send_email(template_name=email_template,
                extra_context=extra_context,
                name=author,
+               from_email=from_email,
                recipient_list=emails,
                mass=True)
 
@@ -188,6 +196,8 @@ def notify_followers(subs, author, extra_context={}):
     """
     from biostar.forum.models import Subscription
     from biostar.accounts.models import Profile
+    from django.conf import settings
+
     # Template used to send local messages
     local_template = "messages/subscription_message.md"
 
@@ -215,9 +225,10 @@ def notify_followers(subs, author, extra_context={}):
         return
 
     recipient_list = [sub.user.email for sub in email_subs]
-
+    from_email = settings.DEFAULT_NOREPLY_EMAIL
     send_email(template_name=email_template,
                extra_context=extra_context,
                name=author.profile.name,
+               from_email=from_email,
                recipient_list=recipient_list,
                mass=True)
