@@ -84,7 +84,7 @@ def api_list(request):
 @api_error_wrapper(['GET', 'POST'])
 @token_access(klass=Project, allow_create=True)
 @csrf_exempt
-@ratelimit(key='ip', rate='20/m')
+@ratelimit(key='ip', rate='30/m')
 def project_api(request):
     """
     GET request : return project name, text, and image as a TOML file.

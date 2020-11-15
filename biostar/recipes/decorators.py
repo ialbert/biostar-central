@@ -212,13 +212,13 @@ def token_access(klass, allow_create=False):
                 # Allow users to create.
                 if allow_create and user:
                     return func(request, *args, **kwargs)
-                return HttpResponse(content="Object does not exist.")
+                return HttpResponse(content="Object does not exist.", status=404)
 
             project = obj.project
 
             # User token required for private projects.
             if not user and project.is_private:
-                return HttpResponse(content="Token does not belong to any user.")
+                return HttpResponse(content="Token does not belong to any user.", status=404)
 
             # GET requests require read access
             if request.method == "GET":
@@ -231,7 +231,7 @@ def token_access(klass, allow_create=False):
             if acc:
                 return func(request, *args, **kwargs)
 
-            return HttpResponse(content="User does not have access to preform that action.")
+            return HttpResponse(content="User does not have access to preform that action.", status=404)
 
         return __wrapper__
 
