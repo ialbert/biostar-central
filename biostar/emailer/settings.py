@@ -14,3 +14,5 @@ ROOT_URLCONF = 'biostar.emailer.urls'
 # This flag is used flag situation where a data migration is in progress.
 # Allows us to turn off certain type of actions (for example sending emails).
 DATA_MIGRATION = False
+
+SEND_MAIL = True

@@ -62,6 +62,8 @@ DEFAULT_NOREPLY_EMAIL = ADMIN_EMAIL
 
 FROM_EMAIL_PATTERN = "%s <%s>"
 
+SEND_MAIL = True
+
 # Show debug toolbar
 DEBUG_TOOLBAR = False
 

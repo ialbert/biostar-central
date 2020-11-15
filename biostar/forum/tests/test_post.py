@@ -19,7 +19,6 @@ TEST_INDEX_DIR = TEST_ROOT
 TEST_INDEX_NAME = "index"
 
 
-
 class PostTest(TestCase):
 
     def setUp(self):
@@ -34,6 +33,7 @@ class PostTest(TestCase):
         self.owner.save()
         pass
 
+    @override_settings(SEND_MAIL=True)
     def test_post_create(self):
         """Test post creation with POST request"""
 
@@ -97,6 +97,7 @@ class PostTest(TestCase):
         longform_response = views.edit_post(request=longform_request, uid=self.post.uid)
         #self.process_response(longform_response)
 
+    @override_settings(SEND_MAIL=True)
     def test_post_answer(self):
         """
         Test submitting answer through the post view

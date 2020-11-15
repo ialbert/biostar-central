@@ -44,12 +44,12 @@ class PostAPITest(TestCase):
 
         response = api.daily_stats_on_day(request=request, day=0)
 
-        print(response, response.content)
+        #print(response, response.content)
         self.assertEqual(response.status_code, 404)
 
         date = datetime.datetime.now() - datetime.timedelta(days=1)
         stats = api.compute_stats(date)
-        print(date, stats)
+        #print(date, stats)
 
         url = reverse("api_stats_on_date", kwargs=dict(year=2020, month=10, day=1))
 
