@@ -55,13 +55,13 @@ def notify_watched_tags(post, extra_context):
     from biostar.accounts.models import User
     from django.conf import settings
 
-    from_email = settings.DEFAULT_NOREPLY_EMAIL
-
     users = [User.objects.filter(profile__watched_tags__iregex=tpatt(tag.name)).distinct()
              for tag in post.root.tags.all()]
 
     # Flatten nested users queryset and get email.
     emails = set(u.email for o in users for u in o)
+
+    from_email = settings.DEFAULT_NOREPLY_EMAIL
 
     send_email(template_name='messages/watched_tags.html',
                extra_context=extra_context,
@@ -226,6 +226,7 @@ def notify_followers(subs, author, extra_context={}):
 
     recipient_list = [sub.user.email for sub in email_subs]
     from_email = settings.DEFAULT_NOREPLY_EMAIL
+
     send_email(template_name=email_template,
                extra_context=extra_context,
                name=author.profile.name,
