@@ -438,7 +438,7 @@ pre.toml_code {
 }
 
 .write_access {
-    border-left: 20px solid #f1f8e9 !important;
+    //border-right: 20px solid #f1f8e9 !important;
 / / background-color: #f1f8e9 !important;
 }
 
