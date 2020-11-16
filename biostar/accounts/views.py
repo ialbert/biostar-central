@@ -411,3 +411,4 @@ def password_reset_complete(request):
 
     return PasswordResetCompleteView.as_view(extra_context=context,
                                              template_name="accounts/password_reset_complete.html")(request=request)
+

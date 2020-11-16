@@ -7,6 +7,7 @@ from biostar.forum import views
 from biostar.accounts.views import image_upload_view
 from biostar.forum import ajax, api, feed
 from biostar.accounts.urls import account_patterns
+
 from biostar.planet.urls import planet_patterns
 
 

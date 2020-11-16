@@ -55,9 +55,14 @@ POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
 ADMIN_NAME, ADMIN_EMAIL = ADMINS[0]
 
 # The default sender name on emails.
-DEFAULT_FROM_EMAIL = f"{ADMIN_NAME} <{ADMIN_EMAIL}>"
+DEFAULT_FROM_EMAIL = ADMIN_EMAIL
+
+# The default no reply email.
+DEFAULT_NOREPLY_EMAIL = ADMIN_EMAIL
 
 FROM_EMAIL_PATTERN = "%s <%s>"
+
+SEND_MAIL = True
 
 # Show debug toolbar
 DEBUG_TOOLBAR = False

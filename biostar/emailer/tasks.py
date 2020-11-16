@@ -32,6 +32,10 @@ def send_email(template_name, recipient_list, extra_context={}, name="", from_em
     """
     Sends an email using a template.
     """
+
+    if not settings.SEND_MAIL:
+        return
+
     # The sender pattern email.
     patt = settings.FROM_EMAIL_PATTERN
 
