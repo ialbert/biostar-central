@@ -14,23 +14,7 @@
 <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
 <link href="{% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
 <link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
-{% comment %}
-<script>$.getScript("{% static 'pagedown/Markdown.Converter.js' %}");</script>
-<script>
-    $.getScript("{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}");
-</script>
-<script>
-    $.getScript("{% static 'pagedown/Markdown.Sanitizer.js' %}");
-</script>
-<script>
-    $.getScript("{% static 'pagedown/Markdown.Editor.js' %}");
-</script>
-<script>
-    $.getScript("{% static 'pagedown-extra/Markdown.Extra.js' %}");
-</script>
-<script>
-    $.getScript("{% static 'inplace_pagedown.js' %}");
-</script>{% endcomment %}
+
 
 <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
 <script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
@@ -93,8 +77,7 @@
             </div>
         {% endif %}
 
-        <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Double-click to edit post. Markdown
-            accepted.</p>
+        <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Markdown accepted.</p>
 
         {# Preview segment #}
         <div class="ui preview segment">{{ html |safe }}</div>
@@ -138,6 +121,14 @@
                 cancel_inplace()
             }
         });
+        $('#inplace #wmd-input').keyup(function (event) {
+
+        // Submit form with CTRL-ENTER
+        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+            var save = $('#inplace').find('.save, .create');
+            save.click();
+        }
+    });
 
     })
 </script>

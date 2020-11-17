@@ -1,7 +1,7 @@
 
 {%  block subject %}
 
-    [bioc] {{ post.title|truncatechars:60 }}
+    [bioc] {{ post.title|safe|truncatechars_html:60 }}
 
 {% endblock %}
 

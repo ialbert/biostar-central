@@ -19,6 +19,7 @@
 
             </div>
         </div>
+        <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Markdown accepted.</p>
 
         <div class="ui preview segment"></div>
 
@@ -28,10 +29,46 @@
             </div>
         {% endif %}
 
-        <button type="submit" class="ui submit green button">
-            <i class="check icon"></i>Submit
-        </button>
+            <button type="submit" class="ui submit green button">
+                <i class="check icon"></i>Save
+            </button>
+
+            <a class="ui button cancel">
+                <i class="undo icon"></i>Cancel
+            </a>
 
     </form>
 
 </div>
+
+<script>
+    $(document).ready(function () {
+
+        function cancel_answers() {
+            $('.answer-text').hide();
+            $('.answer-text textarea').val('')
+        }
+
+        $('.answer-text #wmd-input').keyup(function (event) {
+
+            var save = $('.answer-text').find('.submit');
+            // Submit form with CTRL-ENTER
+            if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+                save.click();
+            }
+
+        });
+        $('body').keyup(function (event) {
+            if (event.keyCode === 27) {
+                // Cancel answer text area.
+                cancel_answers()
+            }
+        });
+
+        $(this).on('click', '.answer-text .cancel', function () {
+            // Cancel answer text area.
+            cancel_answers()
+        });
+    })
+</script>
+
