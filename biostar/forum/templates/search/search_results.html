@@ -15,13 +15,36 @@
     <div class="ui page-bar segment">
         {% pages_search results %}
     </div>
+
+    {% with params=request.GET.urlencode %}
+        <div class="ui small compact menu sorting no-box-shadow">
+            <div class="ui simple dropdown item">
+                Sort
+                <i class="dropdown icon"></i>
+                <div class="menu">
+                    <a class="item" href="{% url 'post_search' %}{% relative_url 'edit' 'sort' params %}">
+                        <i class="{% activate_check_mark sort 'eidt' %}"></i>Rank
+                    </a>
+
+                    <a class="item" href="{% url 'post_search' %}{% relative_url 'creation' 'sort' params %}">
+                        <i class="{% activate_check_mark sort 'creation' %}"></i>Creation
+                    </a>
+                    <a class="item" href="{% url 'post_search' %}{% relative_url 'type' 'sort' params %}">
+                        <i class="{% activate_check_mark sort 'type' %}"></i>Post type
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endwith %}
+
+
     <div class="ui message"><i class="search icon"></i>Searching for posts containing: <b>{{ query }}</b></div>
 
     <div class="ui divided items" id="search-results" data-query="{{ query }}" data-stop="{{ stop_words }}">
         {% for result in results %}
 
             <div class="post item  top-padding">
-                <div class="statbox">
+                {% comment %}                <div class="statbox">
                     <div class="ui left stat label mini">
                         <div class="number-stat">
                             {{ result.vote_count|bignum }}
@@ -43,7 +66,7 @@
                         </div>
                         <div class="detail-stat">View{{ result.view_count|pluralize }}</div>
                     </div>
-                </div>
+                </div>{% endcomment %}
                 <div class="content">
                     <div class="post-title header">
 
@@ -51,6 +74,8 @@
                             <span class="ui title header">{{ result.type_display }}:</span>
                         {% endif %}
                         <a href="
+
+
 
                                 {% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
                            class="ui mini blue title header trigger-highlight">{{ result.title|truncatechars:150 }}
@@ -67,31 +92,31 @@
                         </div>
                         <div class="right floated muted">
 
-                               {% if result.author_uid != result.lastedit_user_id %}
+                            {% if result.author_uid != result.lastedit_user_uid %}
 
-                                        {{ result.creation_date|time_ago }}
-                                            <a href="{% url "user_profile"  result.author_uid %}">
-                                                {{ result.author|truncatechars:40 }}
-                                            </a>
-                                            {% user_icon is_moderator=result.author_is_moderator user='' score=result.author_score %}
+                                {{ result.creation_date|time_ago }}
+                                <a href="{% url "user_profile"  result.author_uid %}">
+                                    {{ result.author|truncatechars:40 }}
+                                </a>
+                                {% user_icon is_moderator=result.author_is_moderator user='' score=result.author_score %}
 
-                                         &bull;
-                                    updated
-                                    {{ result.lastedit_date|time_ago }}
-                                    <a   href="{% url "user_profile"  result.lastedit_user_uid %}">
-                                        {{ result.lastedit_user|truncatechars:50 }}
-                                    </a>
-                                    {% user_icon is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
+                                &bull;
+                                updated
+                                {{ result.lastedit_date|time_ago }}
+                                <a href="{% url "user_profile"  result.lastedit_user_uid %}">
+                                    {{ result.lastedit_user|truncatechars:50 }}
+                                </a>
+                                {% user_icon is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
 
-                                {% else %}
+                            {% else %}
 
-                                        {{ result.lastedit_date|time_ago }}
-                                        <a href="{% url "user_profile"  result.lastedit_user_uid %}">
-                                            {{ result.lastedit_user }}
-                                        </a>
-                                        {% user_icon user='' is_moderator=result.lastedit_user_is_moderator score=post.lastedit_user_score %}
+                                {{ result.lastedit_date|time_ago }}
+                                <a href="{% url "user_profile"  result.lastedit_user_uid %}">
+                                    {{ result.lastedit_user }}
+                                </a>
+                                {% user_icon user='' is_moderator=result.lastedit_user_is_moderator score=post.lastedit_user_score %}
 
-                                {% endif %}
+                            {% endif %}
 
                         </div>
                     </div>

@@ -269,14 +269,15 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None, sortedby=[], **kwargs):
+def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None, sortedby=[], reverse=True,
+                          **kwargs):
     """
         Query the indexed, looking for a match in the specified fields.
         Results a tuple of results and an open searcher object.
         """
 
     per_page = per_page or settings.SEARCH_RESULTS_PER_PAGE
-    fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
+    fields = fields or ['tags', 'title', 'author', 'author_uid', 'content', 'author_handle']
     ix = ix or init_index()
     searcher = ix.searcher()
 
@@ -289,13 +290,13 @@ def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None,
         # Return a pagenated version of the results.
         results = searcher.search_page(parser,
                                        pagenum=page, pagelen=per_page, sortedby=sortedby,
-                                       reverse=True,
+                                       reverse=reverse,
                                        terms=True, **kwargs)
         results.results.fragmenter.maxchars = 100
         # Show more context before and after
         results.results.fragmenter.surround = 100
     else:
-        results = searcher.search(parser, limit=settings.SEARCH_LIMIT, sortedby=sortedby, reverse=True,
+        results = searcher.search(parser, limit=settings.SEARCH_LIMIT, sortedby=sortedby, reverse=reverse,
                                   terms=True, **kwargs)
         # Allow larger fragments
         results.fragmenter.maxchars = 100

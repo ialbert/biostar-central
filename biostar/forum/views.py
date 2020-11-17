@@ -150,19 +150,28 @@ def post_search(request):
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
     page = int(request.GET.get('page', 1))
+    sortmap = dict(edit="lastedit_date", creation="creation_date", type='type')
+    sorting = request.GET.get('sort')
+    sortedby = [sortmap.get(sorting, "lastedit_date")]
 
     if length < settings.SEARCH_CHAR_MIN:
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    results = search.preform_whoosh_search(query=query, page=page, sortedby=["lastedit_date"])
+    sortedby += ["lastedit_date"]
+    sortedby = set(sortedby)
+    reversed = sorting != 'type'
+
+    results = search.preform_whoosh_search(query=query, page=page, sortedby=sortedby,
+                                           reverse=reversed)
 
     total = results.total
     template_name = "search/search_results.html"
 
     question_flag = Post.QUESTION
     context = dict(results=results, query=query, total=total, template_name=template_name,
-                   question_flag=question_flag, stop_words=','.join(search.STOP))
+                   question_flag=question_flag, stop_words=','.join(search.STOP),
+                   sort=sorting)
 
     return render(request, template_name=template_name, context=context)
 
