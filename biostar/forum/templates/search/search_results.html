@@ -50,11 +50,7 @@
                         {% if result.type != question_flag %}
                             <span class="ui title header">{{ result.type_display }}:</span>
                         {% endif %}
-                        <a href="
-
-
-
-                                {% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
+                        <a href="{% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
                            class="ui mini blue title header trigger-highlight">{{ result.title|truncatechars:150 }}
                         </a>
                     </div>
@@ -77,14 +73,7 @@
                                 </a>
                                 {% user_icon is_moderator=result.author_is_moderator user='' score=result.author_score %}
 
-                                &bull;
-                                updated
-                                {{ result.lastedit_date|time_ago }}
-                                <a href="{% url "user_profile"  result.lastedit_user_uid %}">
-                                    {{ result.lastedit_user|truncatechars:50 }}
-                                </a>
-                                {% user_icon is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
-
+                  
                             {% else %}
 
                                 {{ result.lastedit_date|time_ago }}
