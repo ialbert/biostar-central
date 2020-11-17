@@ -160,10 +160,8 @@ def post_search(request):
 
     sortedby += ["lastedit_date"]
     sortedby = set(sortedby)
-    reversed = sorting != 'type'
-
     results = search.preform_whoosh_search(query=query, page=page, sortedby=sortedby,
-                                           reverse=reversed)
+                                           reverse=True)
 
     total = results.total
     template_name = "search/search_results.html"

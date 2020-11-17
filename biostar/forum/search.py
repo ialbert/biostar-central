@@ -291,13 +291,13 @@ def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None,
         results = searcher.search_page(parser,
                                        pagenum=page, pagelen=per_page, sortedby=sortedby,
                                        reverse=reverse,
-                                       terms=True, **kwargs)
+                                       terms=True)
         results.results.fragmenter.maxchars = 100
         # Show more context before and after
         results.results.fragmenter.surround = 100
     else:
         results = searcher.search(parser, limit=settings.SEARCH_LIMIT, sortedby=sortedby, reverse=reverse,
-                                  terms=True, **kwargs)
+                                  terms=True)
         # Allow larger fragments
         results.fragmenter.maxchars = 100
         results.fragmenter.surround = 100

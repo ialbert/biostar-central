@@ -1,7 +1,5 @@
-
-
-
 $(document).ready(function () {
+
     function cancel_answers() {
         $('.answer-text').hide();
         $('.answer-text textarea').val('')
@@ -13,15 +11,15 @@ $(document).ready(function () {
 
     remove_trigger();
 
-        $('body').keyup(function (event) {
-            if (event.keyCode === 27) {
-                // Cancel answer text area.
-                cancel_answers()
-            }
-        });
-
-        $('.answer-text .cancel').click(function () {
+    $('body').keyup(function (event) {
+        if (event.keyCode === 27) {
+            // Cancel answer text area.
             cancel_answers()
-        });
+        }
+    });
+
+    $('.answer-text .cancel').click(function () {
+        cancel_answers()
+    });
 
 });
