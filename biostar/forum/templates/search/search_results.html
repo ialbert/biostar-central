@@ -65,7 +65,7 @@
                         </div>
                         <div class="right floated muted">
 
-                            {% if result.author_uid != result.lastedit_user_uid %}
+{% comment %}                            {% if result.author_uid != result.lastedit_user_uid %}
 
                                 {{ result.creation_date|time_ago }}
                                 <a href="{% url "user_profile"  result.author_uid %}">
@@ -73,7 +73,14 @@
                                 </a>
                                 {% user_icon is_moderator=result.author_is_moderator user='' score=result.author_score %}
 
-                  
+                                &bull;
+                                updated
+                                {{ result.lastedit_date|time_ago }}
+                                <a href="{% url "user_profile"  result.lastedit_user_uid %}">
+                                    {{ result.lastedit_user|truncatechars:50 }}
+                                </a>
+                                {% user_icon is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
+
                             {% else %}
 
                                 {{ result.lastedit_date|time_ago }}
@@ -82,7 +89,7 @@
                                 </a>
                                 {% user_icon user='' is_moderator=result.lastedit_user_is_moderator score=post.lastedit_user_score %}
 
-                            {% endif %}
+                            {% endif %}{% endcomment %}
 
                         </div>
                     </div>
