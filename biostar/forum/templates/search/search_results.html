@@ -44,29 +44,7 @@
         {% for result in results %}
 
             <div class="post item  top-padding">
-                {% comment %}                <div class="statbox">
-                    <div class="ui left stat label mini">
-                        <div class="number-stat">
-                            {{ result.vote_count|bignum }}
-                        </div>
-                        <div class="detail-stat">Vote{{ result.vote_count|pluralize }}</div>
-                    </div>
-                    <div class="ui label stat mini bookmark
-                  {% search_boxclass root_type=result.type answer_count=result.answer_count root_has_accepted=result.root_has_accepted %}
-                   ">
-                        <div class="number-stat">
-                            {{ result.reply_count|bignum }}
-                        </div>
-                        <div class="detail-stat">Repl{{ result.reply_count|pluralize:"y,ies" }}</div>
-                    </div>
 
-                    <div class="ui label basic transparent stat mini">
-                        <div class="number-stat">
-                            {{ result.view_count|bignum }}
-                        </div>
-                        <div class="detail-stat">View{{ result.view_count|pluralize }}</div>
-                    </div>
-                </div>{% endcomment %}
                 <div class="content">
                     <div class="post-title header">
 
