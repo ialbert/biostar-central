@@ -74,7 +74,7 @@ def listing(endpoint, token=''):
     return uids
 
 
-def get_data(endpoint, *uids, outdir='', token='', sleep=0):
+def get_data(endpoint, *uids, outdir='', token='', sleep=3):
 
     outputs = []
     for uid in uids:
