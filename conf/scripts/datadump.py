@@ -108,7 +108,7 @@ def get_data(endpoint, *uids, outdir='', token='', sleep=0):
 
 def get_projects(token='', outdir=''):
     """
-    Get all projects a user has access to using the
+    Get all projects a user has access to.
     """
     # Get project uids
     uids = listing(endpoint=LISTING_URL, token=token)
@@ -120,7 +120,7 @@ def get_projects(token='', outdir=''):
 
 # def get_recipes(token='', outdir=''):
 #     """
-#     Get all projects a user has access to using the
+#     Get all recipes a user has access to.
 #     """
 #     # Get project uids
 #     uids = listing(endpoint=LISTING_URL, token=token)
@@ -133,9 +133,12 @@ def get_projects(token='', outdir=''):
 def main():
 
     parser = argparse.ArgumentParser(description='Get all your projects')
-    parser.add_argument('-t', '--token', type=str, help='Profile token used to access API.')
-    parser.add_argument('-v', '--verbose', action='store_true', help='Print progress.')
-    parser.add_argument('--outdir', type=str, help='Output directory of the dump file', default='')
+    parser.add_argument('-t', '--token', type=str,
+                        help='Profile token used to access API.')
+    parser.add_argument('-v', '--verbose', action='store_true',
+                        help='Print progress.')
+    parser.add_argument('-o', '--outdir', type=str,
+                        help='Output directory of the dump file', default='')
 
     args = parser.parse_args()
 
