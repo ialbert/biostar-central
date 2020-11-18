@@ -253,13 +253,4 @@ $(document).on(function () {
         cancel_inplace(post);
     });
 
-    $('#inplace #wmd-input').keyup(function (event) {
-
-        // Submit form with CTRL-ENTER
-        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            var save = $('#inplace').find('.save, .create');
-            save.click();
-        }
-    });
-
 });

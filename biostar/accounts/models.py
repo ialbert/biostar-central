@@ -7,16 +7,11 @@ from django.conf import settings
 from django.shortcuts import reverse
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.timezone import utc
 from biostar.accounts import util
 
 
 def fixcase(name):
     return name.upper() if len(name) == 1 else name.lower()
-
-
-def now():
-    return datetime.utcnow().replace(tzinfo=utc)
 
 
 MAX_UID_LEN = 255
@@ -158,8 +153,8 @@ class Profile(models.Model):
         self.html = self.html or mistune.markdown(self.text)
         self.max_upload_size = self.max_upload_size or self.set_upload_size()
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
-        self.date_joined = self.date_joined or now()
-        self.last_login = self.last_login or now() #- timedelta(days=1)
+        self.date_joined = self.date_joined or util.now()
+        self.last_login = self.last_login or util.now() #- timedelta(days=1)
         self.token = self.token or util.get_uuid(16)
 
         super(Profile, self).save(*args, **kwargs)
