@@ -1,7 +1,15 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+"""
 
+user cases:
+1. Migrating a whole project based on project ID, info and all the recipes.
+
+input: project id
+output: a file 
+
+"""
 import requests
 import os
 import time
@@ -22,6 +30,11 @@ RECIPES_URL = urljoin(ROOT_URL, "/api/recipe/")
 LISTING_URL = urljoin(ROOT_URL, "/api/list/")
 
 
+def get_access_point(url, listing=False):
+
+    return
+
+
 def show_progress():
     verbose = os.getenv('VERBOSE', False)
 
@@ -33,6 +46,7 @@ def compress(datatuple, outname=None):
     Compress a list of files
     datatuple has the structure : [(fname, stream) , .... ]
     """
+    #TODO: change to gzip,
 
     stream = ZipFile(outname, 'w')
     for fname, data in datatuple:
@@ -100,21 +114,24 @@ def get_data(endpoint, *uids, outdir='', token='', sleep=3):
     outname = f'{now.year}-{now.month}-{now.day}.zip'
     outname = os.path.abspath(os.path.join(outdir, outname))
 
-    # Compress .json files into one zip.
+    # Compress .json files into a zip archive.
     compress(datatuple=outputs, outname=outname)
 
     return outname
 
 
-def get_projects(token='', outdir=''):
+def get_projects(token='', outdir='', url=None):
     """
     Get all projects a user has access to.
     """
+
+    #url = url or
     # Get project uids
+    # Internally bi
     uids = listing(endpoint=LISTING_URL, token=token)
 
     # Dump data
-    zf = get_data(PROJECT_URL, *uids, token=token, outdir=outdir)
+    zf = get_data(url, *uids, token=token, outdir=outdir)
     return zf
 
 
@@ -135,6 +152,8 @@ def main():
     parser = argparse.ArgumentParser(description='Get all your projects')
     parser.add_argument('-t', '--token', type=str,
                         help='Profile token used to access API.')
+    parser.add_argument('-u', '--url', type=str,
+                        help='API endpoint.')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Print progress.')
     parser.add_argument('-o', '--outdir', type=str,
@@ -145,8 +164,9 @@ def main():
     # Get it from your profile
     token = args.token
     outdir = args.outdir
+    url = args.url
 
-    zf = get_projects(token=token, outdir=outdir)
+    zf = get_projects(token=token, outdir=outdir, url=url)
 
     print(f'*** Created: {zf}')
 
