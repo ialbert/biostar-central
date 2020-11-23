@@ -7,7 +7,7 @@ user cases:
 1. Migrating a whole project based on project ID, info and all the recipes.
 
 input: project id
-output: a file 
+output: a file
 
 """
 import requests
@@ -154,6 +154,10 @@ def main():
                         help='Profile token used to access API.')
     parser.add_argument('-u', '--url', type=str,
                         help='API endpoint.')
+    parser.add_argument('--pid', type=str,
+                        help='Project uid to dump.')
+    parser.add_argument('--rid', type=str,
+                        help='Recipe uid to dump.')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Print progress.')
     parser.add_argument('-o', '--outdir', type=str,

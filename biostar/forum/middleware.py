@@ -162,7 +162,7 @@ def user_tasks(get_response):
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts
 
-            tasks.create_user_awards.spool(user_id=user.id)
+            #tasks.create_user_awards.spool(user_id=user.id)
             # Can process response here after its been handled by the view
 
         # Can process response here after its been handled by the view
