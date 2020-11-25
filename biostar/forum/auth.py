@@ -249,6 +249,8 @@ def create_post(author, title, content, root=None, parent=None, ptype=Post.QUEST
 
     post = Post.objects.create(title=title, content=content, root=root, parent=parent,
                                type=ptype, tag_val=tag_val, author=author)
+
+    print(post.tags)
     return post
 
 

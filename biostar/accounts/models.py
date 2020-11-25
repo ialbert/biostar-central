@@ -1,8 +1,9 @@
 import uuid
 import os
 from datetime import datetime, timedelta
-
+from taggit.managers import TaggableManager
 import mistune
+from taggit.models import Tag
 from django.conf import settings
 from django.shortcuts import reverse
 from django.contrib.auth.models import User
@@ -128,6 +129,9 @@ class Profile(models.Model):
     # The tag value is the canonical form of the post's tags
     watched_tags = models.CharField(max_length=MAX_TEXT_LEN, default="", blank=True)
 
+    # Tag objects
+    watched = TaggableManager()
+
     # Description provided by the user html.
     text = models.TextField(default="No profile information", null=True, max_length=MAX_TEXT_LEN, blank=True)
 
@@ -170,6 +174,14 @@ class Profile(models.Model):
         if self.user.is_staff or self.user.is_superuser:
             return self.max_upload_size * 100
         return self.max_upload_size
+
+    def parse_tags(self):
+        return [tag.lower() for tag in self.watched_tags.split(",") if tag]
+
+    def add_watched(self):
+        tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
+        self.watched.remove()
+        self.watched.add(*tags)
 
     def set_upload_size(self):
         """

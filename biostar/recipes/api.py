@@ -141,7 +141,9 @@ def recipe_api(request):
     target = recipe.api_data if recipe else {}
 
     if not project:
-        return HttpResponse(content="Project does not exist.", content_type="text/plain")
+        return HttpResponse(content="Project does not exist.",
+                            content_type="text/plain",
+                            status=404)
 
     token = auth.get_token(request=request)
     # Find the target user.
