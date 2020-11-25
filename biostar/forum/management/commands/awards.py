@@ -39,16 +39,14 @@ def create_user_awards(clear=False):
     if clear:
         Award.objects.all().delete()
 
-    # Get the pas days stuff
+    # GGet users active within the last day.
     past_day = timezone.now() - timedelta(days=1)
 
     users = User.objects.filter(profile__last_login__gte=past_day)
+    logger.info(f"Checking awards for {users.count()} users.")
 
     for user in users:
         give_award(user)
-        print(user)
-
-    1/0
 
     return
 

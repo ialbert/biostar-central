@@ -13,45 +13,25 @@ output: a file
 import requests
 import os
 import time
-from urllib.request import urljoin
-from datetime import datetime
-from zipfile import ZipFile
-from io import StringIO
 import argparse
-
-
-# Api endpoints
-#ROOT_URL = "https://www.bioinformatics.recipes"
-
-ROOT_URL = "http://localhost:8000"
-
-PROJECT_URL = urljoin(ROOT_URL, "/api/project/")
-RECIPES_URL = urljoin(ROOT_URL, "/api/recipe/")
-LISTING_URL = urljoin(ROOT_URL, "/api/list/")
-
-
-def get_access_point(url, listing=False):
-
-    return
+from urllib.parse import urlsplit, urljoin
 
 
 def show_progress():
     verbose = os.getenv('VERBOSE', False)
-
     return verbose
 
 
-def compress(datatuple, outname=None):
-    """
-    Compress a list of files
-    datatuple has the structure : [(fname, stream) , .... ]
-    """
-    #TODO: change to gzip,
+def resolve_url(base, view):
 
-    stream = ZipFile(outname, 'w')
-    for fname, data in datatuple:
-        stream.writestr(fname, data.getvalue())
-    return
+    mapper = dict(projects='api/project/',
+                  recipes='api/recipe/',
+                  listing='api/list/')
+
+    endpoint = mapper.get(view, 'api/project/')
+    api_url = urljoin(base, endpoint)
+
+    return api_url
 
 
 def send_request(url, method='GET', params={}, data={}):
@@ -68,17 +48,39 @@ def send_request(url, method='GET', params={}, data={}):
     if response.status_code == 200:
         return data
     else:
-        print(f'Error:Status_Code={response.status_code},Content:{data}')
+        print(f'*** {response.status_code} Error: {data}')
 
     return
 
 
-def listing(endpoint, token=''):
+def get_data(url, uid, outdir='', token=''):
+    """
+    Send a GET request to 'url' with 'uid' and 'token'.
+    Saves returned data into 'outdir'
+    """
+    if show_progress():
+        print(f'*** Fetching: {uid} from {url}')
+
+    # Prepare data
+    params = {'token': token, 'uid': uid}
+    filename = os.path.abspath(os.path.join(outdir, f'{uid}.json'))
+
+    # Process request and return payload
+    data = send_request(url=url, params=params)
+    if data:
+        # TODO: Store into gzip
+        open(filename, 'w').write(data)
+        print(f'*** Created: {filename}')
+
+    return filename
+
+
+def listing(url, token=''):
     """
     Send GET request to listing endpoint and return a unique set of ids.
     """
     params = {'token': token}
-    data = send_request(url=endpoint, params=params)
+    data = send_request(url=url, params=params)
     data = data.split('\n')
     uids = set()
     for line in data:
@@ -88,63 +90,27 @@ def listing(endpoint, token=''):
     return uids
 
 
-def get_data(endpoint, *uids, outdir='', token='', sleep=3):
+def fetch_all(url, token, outdir=''):
+    """
+    Get all projects found in remote host
+    """
 
-    outputs = []
+    # Get the base url
+
+    # Construct the listing url
+    list_api = resolve_url(base=url, view='listing')
+    prj_api = resolve_url(base=url, view='projects')
+
+    uids = listing(url=list_api, token=token)
+
+    # Iterate over list of project ids and save file
     for uid in uids:
-        if show_progress():
-            print(f'*** Fetching: {uid}')
+        get_data(url=prj_api, uid=uid, token=token, outdir=outdir)
 
-        # Prepare data
-        params = {'token': token, 'uid': uid}
-        filename = f'{uid}.json'
+        # Grace period between requests
+        time.sleep(3)
 
-        # Process request and return payload
-        data = send_request(url=endpoint, params=params)
-        if data:
-            # Store payload
-            stream = StringIO(data)
-            outputs.append((filename, stream))
-
-        # Grace period before sending the next request.
-        time.sleep(sleep)
-
-    # Construct final filename.
-    now = datetime.now()
-    outname = f'{now.year}-{now.month}-{now.day}.zip'
-    outname = os.path.abspath(os.path.join(outdir, outname))
-
-    # Compress .json files into a zip archive.
-    compress(datatuple=outputs, outname=outname)
-
-    return outname
-
-
-def get_projects(token='', outdir='', url=None):
-    """
-    Get all projects a user has access to.
-    """
-
-    #url = url or
-    # Get project uids
-    # Internally bi
-    uids = listing(endpoint=LISTING_URL, token=token)
-
-    # Dump data
-    zf = get_data(url, *uids, token=token, outdir=outdir)
-    return zf
-
-
-# def get_recipes(token='', outdir=''):
-#     """
-#     Get all recipes a user has access to.
-#     """
-#     # Get project uids
-#     uids = listing(endpoint=LISTING_URL, token=token)
-#
-#     # Dump data
-#     zf = get_data(RECIPES_URL, *uids, token=token, outdir=outdir)
-#     return zf
+    return
 
 
 def main():
@@ -152,10 +118,12 @@ def main():
     parser = argparse.ArgumentParser(description='Get all your projects')
     parser.add_argument('-t', '--token', type=str,
                         help='Profile token used to access API.')
-    parser.add_argument('-u', '--url', type=str,
+    parser.add_argument('-u', '--url', type=str, required=True,
                         help='API endpoint.')
     parser.add_argument('--pid', type=str,
                         help='Project uid to dump.')
+    parser.add_argument('--all', action='store_true',default=False,
+                        help='Dump all projects in remote host.')
     parser.add_argument('--rid', type=str,
                         help='Recipe uid to dump.')
     parser.add_argument('-v', '--verbose', action='store_true',
@@ -169,10 +137,23 @@ def main():
     token = args.token
     outdir = args.outdir
     url = args.url
+    get_all = args.all
 
-    zf = get_projects(token=token, outdir=outdir, url=url)
+    # Resolve the uid, projects always wins.
+    uid = args.pid or args.rid
 
-    print(f'*** Created: {zf}')
+    # Fetch all projects from a remote host.
+    if get_all:
+        fetch_all(url=url, token=token, outdir=outdir)
+        return
+
+    if args.rid:
+        url = resolve_url(url, 'recipes')
+    else:
+        url = resolve_url(url, 'projects')
+
+    # Get a specific project or recipe.
+    get_data(url=url, uid=uid, outdir=outdir, token=token)
 
 
 if __name__ == '__main__':

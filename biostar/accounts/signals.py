@@ -20,6 +20,9 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         Profile.objects.using(using).create(user=instance, uid=username, name=instance.first_name, role=role)
         tasks.create_messages.spool(rec_list=[instance], template="messages/welcome.md")
 
+    # Recompute watched tags
+    instance.profile.add_watched()
+
 
 @receiver(pre_save, sender=User)
 def create_uuid(sender, instance, *args, **kwargs):
