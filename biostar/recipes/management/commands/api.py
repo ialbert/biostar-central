@@ -156,7 +156,6 @@ class Command(BaseCommand):
         rid = options.get('recipe')
         fname = options.get('data')
         push = options.get('push')
-        files = options.get('push', [])
         listing = options.get('list')
 
         # List objects

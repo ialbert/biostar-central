@@ -13,13 +13,9 @@ output: a file
 import requests
 import os
 import time
+import sys
 import argparse
 from urllib.parse import urlsplit, urljoin
-
-
-def show_progress():
-    verbose = os.getenv('VERBOSE', False)
-    return verbose
 
 
 def resolve_url(base, view):
@@ -34,7 +30,7 @@ def resolve_url(base, view):
     return api_url
 
 
-def send_request(url, method='GET', params={}, data={}):
+def send_request(url, method='GET', params={}, data={}, files={}):
     """
     Send a request with given method and data
     """
@@ -42,7 +38,7 @@ def send_request(url, method='GET', params={}, data={}):
     if method == 'GET':
         response = requests.get(url, params=params)
     else:
-        response = requests.post(url, params=params, data=data)
+        response = requests.post(url, params=params, data=data, files=files)
 
     data = response.content.decode()
     if response.status_code == 200:
@@ -53,12 +49,12 @@ def send_request(url, method='GET', params={}, data={}):
     return
 
 
-def get_data(url, uid, outdir='', token=''):
+def get_data(url, uid, outdir='', token='', verbose=False):
     """
     Send a GET request to 'url' with 'uid' and 'token'.
     Saves returned data into 'outdir'
     """
-    if show_progress():
+    if verbose:
         print(f'*** Fetching: {uid} from {url}')
 
     # Prepare data
@@ -70,7 +66,8 @@ def get_data(url, uid, outdir='', token=''):
     if data:
         # TODO: Store into gzip
         open(filename, 'w').write(data)
-        print(f'*** Created: {filename}')
+        if verbose:
+            print(f'*** Created: {filename}')
 
     return filename
 
@@ -90,7 +87,7 @@ def listing(url, token=''):
     return uids
 
 
-def fetch_all(url, token, outdir=''):
+def fetch_all(url, token, outdir='', verbose=False):
     """
     Get all projects found in remote host
     """
@@ -103,12 +100,32 @@ def fetch_all(url, token, outdir=''):
 
     uids = listing(url=list_api, token=token)
 
-    # Iterate over list of project ids and save file
+    # Iterate over list of project ids and save to file
     for uid in uids:
-        get_data(url=prj_api, uid=uid, token=token, outdir=outdir)
+        get_data(url=prj_api, uid=uid, token=token, outdir=outdir, verbose=verbose)
 
         # Grace period between requests
         time.sleep(3)
+
+    return
+
+
+def push_data(url, fname, uid, token=''):
+    """
+    Push data in --fname to object with --uid on remote host --url.
+    If the --uid does not exist in remote host, a new object is created.
+    """
+
+    stream = open(fname, "r")
+    files = {"data": stream}
+    params = {'token': token, 'uid': uid}
+
+    response = send_request(url=url, params=params, files=files)
+
+    if response:
+        print(f"*** Pushed {fname} to {url}")
+
+    stream.close()
 
     return
 
@@ -122,12 +139,16 @@ def main():
                         help='API endpoint.')
     parser.add_argument('--pid', type=str,
                         help='Project uid to dump.')
-    parser.add_argument('--all', action='store_true',default=False,
+    parser.add_argument('--all', action='store_true', default=False,
                         help='Dump all projects in remote host.')
     parser.add_argument('--rid', type=str,
                         help='Recipe uid to dump.')
     parser.add_argument('-v', '--verbose', action='store_true',
                         help='Print progress.')
+    parser.add_argument('-p', '--push', action='store_true',
+                        help='Push --file to the given uid.')
+    parser.add_argument('-d', '--data', type=str,
+                        help='File to push to remote host.')
     parser.add_argument('-o', '--outdir', type=str,
                         help='Output directory of the dump file', default='')
 
@@ -138,22 +159,35 @@ def main():
     outdir = args.outdir
     url = args.url
     get_all = args.all
+    verbose = args.verbose
+    push = args.push
+    data = args.data
 
     # Resolve the uid, projects always wins.
     uid = args.pid or args.rid
 
     # Fetch all projects from a remote host.
     if get_all:
-        fetch_all(url=url, token=token, outdir=outdir)
+        fetch_all(url=url, token=token, outdir=outdir, verbose=verbose)
         return
 
-    if args.rid:
-        url = resolve_url(url, 'recipes')
-    else:
-        url = resolve_url(url, 'projects')
+    # Resolve the endpoint using uid.
+    rec_url = resolve_url(url, 'recipes')
+    prj_url = resolve_url(url, 'projects')
+    url = rec_url if args.rid else prj_url
+
+    # Push argument requires --fname
+    if push and not data:
+        print("--data required with --push flag.")
+        sys.exit()
+
+    # Push given data to specific project/recipe  --url
+    if push:
+        push_data(url=url, fname=data, uid=uid, token=token)
+        return
 
     # Get a specific project or recipe.
-    get_data(url=url, uid=uid, outdir=outdir, token=token)
+    get_data(url=url, uid=uid, outdir=outdir, token=token, verbose=verbose)
 
 
 if __name__ == '__main__':
