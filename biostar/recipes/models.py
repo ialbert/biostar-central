@@ -213,7 +213,7 @@ class Project(models.Model):
 
     @property
     def json_text(self):
-        return hjson.dumps(self.json_data)
+        return hjson.dumps(self.api_data)
 
     @property
     def api_data(self):

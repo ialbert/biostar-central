@@ -21,6 +21,7 @@ def init_app(sender, **kwargs):
     init_site()
     init_users()
     init_social()
+    init_tags()
 
 
 def init_social():
@@ -117,3 +118,20 @@ def init_site():
     # Get the current site
     site = Site.objects.get(id=settings.SITE_ID)
     logger.info("site.name={}, site.domain={}".format(site.name, site.domain))
+
+
+def init_tags():
+    """
+    Initialize watched tags.
+
+    Not possible to do in migrations:
+    https://github.com/jazzband/django-taggit/issues/454
+    """
+    from .models import Profile
+
+    profiles = Profile.objects.all()
+    for pro in profiles:
+        pro.add_watched()
+        pro.save()
+
+    logger.info("Added watched tags to profiles")

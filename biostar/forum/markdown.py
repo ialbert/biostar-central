@@ -425,7 +425,9 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
 
     # Bleach clean the html.
     if clean:
-        html = safe(bleach.clean, text=html, tags=ALLOWED_TAGS, styles=ALLOWED_STYLES,
+        html = safe(bleach.clean, text=html,
+                    tags=ALLOWED_TAGS,
+                    styles=ALLOWED_STYLES,
                     attributes=ALLOWED_ATTRIBUTES)
 
     # Embed sensitive links into html

@@ -283,3 +283,26 @@ def vote_details(request, uid):
         'date': util.datetime_to_iso(vote.date),
     }
     return data
+
+
+# @json_response
+# def tags_list(request):
+#     """
+#     Given a file of tags, return the post count for each.
+#     """
+#     # Get a large file with all the tags.
+#
+#     tags = request.FILES.get('tags')
+#     time_range = request.GET.get('trange')
+#
+#     # Iterate over tags and collect counts.
+#
+#     lines = tags.readlines()
+#
+#     data = {}
+#     for line in lines:
+#         count = Post.objects.filter()
+#         pass
+#
+#
+#     return
