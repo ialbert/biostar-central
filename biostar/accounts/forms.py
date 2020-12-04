@@ -238,6 +238,10 @@ class ImageUploadForm(forms.Form):
 
         img = self.cleaned_data['image']
 
+        # TODO: filename needs to be changed!!
+        print(img.name)
+        img.name = util.get_uuid(10)
+
         # Get all images this user has uploaded so far.
         userimg = UserImage.objects.filter(user=self.user)
 
