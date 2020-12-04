@@ -86,7 +86,7 @@ recipes_patterns = [
 
     # Api calls
     path(r'api/list/', api.api_list, name='api_list'),
-    path(r'api/project/', api.project_api, name='project_api'),
+    path(r'api/project/<str:uid>/', api.project_api, name='project_api'),
     path(r'api/recipe/', api.recipe_api, name='recipe_api'),
     path(r'api/data/', api.data_api, name='data_api'),
 
