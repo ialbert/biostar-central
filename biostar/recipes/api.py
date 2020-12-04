@@ -1,7 +1,7 @@
 import toml
 import json
 import logging
-import os
+import os, urllib
 import base64
 from functools import wraps
 from django.conf import settings
@@ -19,6 +19,7 @@ RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 # Maximum file size to be sent and received via api.
 MAX_FILE_SIZE = 100
+
 
 class api_error_wrapper:
     """
@@ -52,69 +53,118 @@ def change_image(obj, file_object=None):
     return obj.image.path
 
 
-def tabular_list(qs=None):
-    output = []
+def encode_image(img):
+    """
+    Base 64 encoding of an image field that may be missing.
+    """
+
+    # The image is not filled in.
+    if not img:
+        return ''
+
+    # The path is incorrect.
+    if not os.path.isfile(img.path):
+        return ''
+
+    # The binary representation of the data.
+    data = open(img.path, 'rb').read()
+
+    # Convert image to base64 ASCII string
+    text = base64.b64encode(data).decode("ascii")
+
+    # Skip the placeholder images.
+    #if text.startswith("iVBORw0KGgoAAAANSUhEUgAAAc8AAAHKCAIAAADq11fPAAAAAXNSR0IAr"):
+    #    return ""
+
+    return text
+
+def encode_project(project, show_image=False):
+    recipes = dict()
+    store = dict(
+        uid=project.uid,
+        name=project.name,
+        text=project.text,
+        date=str(project.date),
+        privacy=project.privacy,
+        image=encode_image(project.image) if show_image else '',
+        recipes=recipes,
+    )
+    return store
+
+
+def encode_recipe(recipe, show_image=False):
+    store = dict(
+        uid=recipe.uid,
+        name=recipe.name,
+        text=recipe.text,
+        date=str(recipe.date),
+        json=recipe.json_data,
+        code=recipe.template,
+        image=encode_image(recipe.image) if show_image else ''
+    )
+    return store
+
+
+def json_list(qs=None, show_image=False):
+    output = {}
     projects = qs or Project.objects.all()
     for project in projects:
+        proj_dict = encode_project(project, show_image=show_image)
         for recipe in project.analysis_set.all():
-            line = f"{project.uid}\t{project.name}\t{recipe.uid}\t{recipe.name}\t{project.get_privacy_display()}"
-            output.append(line)
+            proj_dict['recipes'][recipe.uid] = encode_recipe(recipe, show_image=show_image)
+        output[project.uid] = proj_dict
 
-    return "\n".join(output)
-
+    text = json.dumps(output, indent=4)
+    return text
 
 @api_error_wrapper(['GET'])
 @ratelimit(key=RATELIMIT_KEY, rate='20/m')
 def api_list(request):
-
     # Get the token and user
     token = auth.get_token(request=request)
+
     user = User.objects.filter(profile__token=token).first()
 
-    # Get the project list corresponding to this user
-    # returns public projects if user is None.
+    # Get the project list corresponding to this user returns public projects if user is None.
     projects = auth.get_project_list(user=user)
 
     # Format the payload.
-    payload = tabular_list(qs=projects)
+    payload = json_list(qs=projects)
 
-    return HttpResponse(content=payload, content_type="text/plain")
+    return HttpResponse(content=payload, content_type="text/json")
 
 
 @api_error_wrapper(['GET', 'POST'])
-@token_access(klass=Project, allow_create=True)
+#@token_access(klass=Project, allow_create=True)
 @csrf_exempt
 @ratelimit(key='ip', rate='30/m')
-def project_api(request):
+def project_api(request, uid):
     """
     GET request : return project name, text, and image as a TOML file.
     POST request : change project name, text, and image given a TOML file.
     """
-    # Get the object uid
-    uid = request.GET.get('uid', request.POST.get('uid', ''))
 
-    project = Project.objects.filter(uid=uid).first()
+    qs = Project.objects.filter(uid=uid)
 
     token = auth.get_token(request=request)
+
     # Find the target user.
     user = User.objects.filter(profile__token=token).first()
 
     # Get the json data with project info
-    target = project.api_data if project else {}
+    payload = json_list(qs, show_image=True)
 
-    if request.method == "POST":
-        # Fetch data from the
-        stream = request.FILES.get("data")
+    #if request.method == "POST":
+    #    # Fetch data from the
+    #    stream = request.FILES.get("data")
 
-        if stream:
-            # Update or create a project using data.
-            target = auth.update_project(obj=project, stream=stream,
-                                         user=user, uid=uid,
-                                         create=True, save=True)
+    #    if stream:
+    #        # Update or create a project using data.
+    #        target = auth.update_project(obj=project, stream=stream,
+    #                                     user=user, uid=uid,
+    #                                     create=True, save=True)
 
-    payload = json.dumps(target)
-
-    return HttpResponse(content=payload, content_type="text/plain")
+    return HttpResponse(content=payload, content_type="text/json")
 
 
 @api_error_wrapper(['GET', 'POST'])
@@ -206,4 +256,3 @@ def data_api(request):
 
 def job_api(request, uid):
     return
-
