@@ -285,24 +285,25 @@ def vote_details(request, uid):
     return data
 
 
-# @json_response
-# def tags_list(request):
-#     """
-#     Given a file of tags, return the post count for each.
-#     """
-#     # Get a large file with all the tags.
-#
-#     tags = request.FILES.get('tags')
-#     time_range = request.GET.get('trange')
-#
-#     # Iterate over tags and collect counts.
-#
-#     lines = tags.readlines()
-#
-#     data = {}
-#     for line in lines:
-#         count = Post.objects.filter()
-#         pass
-#
-#
-#     return
+@json_response
+def tags_list(request):
+    """
+    Given a file of tags, return the post count for each.
+    """
+    # Get a large file with all the tags.
+    tags = request.FILES.get('tags')
+
+    # options : today, month, week, year, all
+    time_range = request.GET.get('trange')
+
+    # Iterate over tags and collect counts.
+    lines = tags.readlines()
+
+    data = {}
+
+    for line in lines:
+        count = Post.objects.filter()
+        answer_count = ''
+        comment_count = ''
+
+    return data

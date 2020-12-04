@@ -117,7 +117,7 @@ class SiteNavigation(TestCase):
         ]
 
         self.visit_urls(urls=urls, codes=[200])
-        self.visit_urls(urls=api_urls, codes=[200])
+        #self.visit_urls(urls=api_urls, codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
         self.visit_urls(anon_urls=anon_urls, urls=[], codes=[200])
 

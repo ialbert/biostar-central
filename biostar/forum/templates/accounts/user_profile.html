@@ -72,11 +72,12 @@
                         <td>Reputation:</td>
                         <td>{{ target.profile.get_score }}</td>
                     </tr>
-
-                    <tr>
-                        <td>Email:</td>
-                        <td>{{ target|show_email:request.user }}</td>
-                    </tr>
+                    {% if target == request.user or request.user.profile.is_moderator %}
+                        <tr>
+                            <td>Email:</td>
+                            <td>{{ target.email }}</td>
+                        </tr>
+                    {% endif %}
 
                     <tr>
                         <td>Joined:</td>
