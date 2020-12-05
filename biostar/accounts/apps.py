@@ -21,7 +21,7 @@ def init_app(sender, **kwargs):
     init_site()
     init_users()
     init_social()
-    init_tags()
+    #init_tags()
 
 
 def init_social():
