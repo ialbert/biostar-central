@@ -26,13 +26,6 @@
                         <i class="{% get_icon 'year' %}"></i>this year
                     </a>
 
-                    {% if request.user.profile.is_moderator %}
-                         <div class="ui divider"></div>
-                         <a class="item" href="{% url 'post_list' %}{% relative_url 'spam' 'type' params %}">
-                            <i class="bug icon"></i> Spam
-                        </a>
-                    {% endif %}
-
                 </div>
             </div>
         </div>
