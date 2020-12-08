@@ -130,6 +130,7 @@ def init_tags():
     from .models import Profile
 
     profiles = Profile.objects.all()
+    # TODO: add a progress to this.
     for pro in profiles:
         pro.add_watched()
         pro.save()

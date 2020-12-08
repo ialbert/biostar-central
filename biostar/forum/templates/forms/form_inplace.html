@@ -87,9 +87,16 @@
             <a class="ui green button {% if new %}create{% else %}save{% endif %}">
                 <i class="check icon"></i>Save
             </a>
+
             <a class="ui button cancel">
                 <i class="undo icon"></i>Cancel
             </a>
+
+          {% if post %}
+           <a class="ui pink button delete">
+                <i class="check icon"></i>Delete
+            </a>
+        {% endif %}
         </div>
 
     </form>
@@ -115,6 +122,10 @@
 
         $(this).on('click', '#inplace .cancel', function () {
             cancel_inplace()
+        });
+        $(this).on('click', '#inplace .delete', function () {
+            var post = $(this).closest('.post');
+            delete_post(post)
         });
         $(this).on('keyup', 'body', function (event) {
             if (event.keyCode === 27) {

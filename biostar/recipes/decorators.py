@@ -189,7 +189,7 @@ class require_api_key:
         return _api_view
 
 
-def token_access(klass, allow_create=False):
+def token_access(klass):
     """
     Check users access to an object using their token.
     """
@@ -205,13 +205,11 @@ def token_access(klass, allow_create=False):
             user = User.objects.filter(profile__token=token).first()
 
             # Get the object user is trying to access
-            uid = request.GET.get('uid', request.POST.get('uid', ''))
+            uid = kwargs.get('uid')
             obj = klass.objects.filter(uid=uid).first()
 
             if not obj:
                 # Allow users to create.
-                if allow_create and user:
-                    return func(request, *args, **kwargs)
                 return HttpResponse(content="Object does not exist.", status=404)
 
             project = obj.project

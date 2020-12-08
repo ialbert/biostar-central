@@ -441,6 +441,24 @@ def ajax_edit(request, uid):
     return ajax_success(msg='success', html=post.html, title=new_title, user_line=user_line, tag_html=tag_html)
 
 
+@ajax_error_wrapper(method="POST", login_required=True)
+def ajax_delete(request):
+
+    uid = request.POST.get('uid')
+    user = request.user
+    post = Post.objects.filter(uid=uid).first()
+
+    if not post:
+        return ajax_error(msg="Post does not exist")
+
+    if not (user.profile.is_moderator or post.author == user):
+        return ajax_error(msg="Only moderators and post authors can delete.")
+
+    url, msg = auth.delete_post(post=post, user=user)
+
+    return ajax_success(msg=msg, url=url)
+
+
 @ratelimit(key=RATELIMIT_KEY, rate='50/h')
 @ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST")

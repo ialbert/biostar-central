@@ -121,7 +121,6 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     else:
         # Exclude spam posts unless specifically on the tab.
         query = query.exclude(Q(spam=Post.SPAM))
-        print('GGGG')
 
     # Filter by tags if specified.
     if tag:

@@ -38,6 +38,7 @@ forum_patterns = [
     path('ajax/vote/', ajax.ajax_vote, name='vote'),
     path('ajax/test/', ajax.ajax_test, name='ajax_test'),
     path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
+    path('ajax/delete/', ajax.ajax_delete, name='ajax_delete'),
     path('drag/and/drop/', ajax.drag_and_drop, name='drag_and_drop'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
     path('ajax/digest/<str:uid>/', ajax.ajax_digest, name='ajax_digest'),
