@@ -81,7 +81,6 @@ function cancel_inplace() {
 
 function delete_post(post){
         var uid = post.data('value');
-        alert(uid);
 
         $.ajax('/ajax/delete/',
         {
@@ -97,6 +96,7 @@ function delete_post(post){
                 }
                 // Reload the page
                 window.location.replace(data.url);
+                popup_message(post, data.msg, data.status, 3000);
 
 
             },
