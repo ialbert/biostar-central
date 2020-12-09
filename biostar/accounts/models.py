@@ -35,8 +35,13 @@ class ProfileManager(models.Manager):
 
 
 def image_path(instance, filename):
+
+    # Assign personal uid our own file name.
+
+    fname = util.get_uuid(32)
+
     # Name the data by the filename.
-    imgpath = os.path.join(settings.PAGEDOWN_IMAGE_UPLOAD_PATH, filename)
+    imgpath = os.path.join(settings.PAGEDOWN_IMAGE_UPLOAD_PATH, fname)
 
     return imgpath
 

@@ -233,10 +233,12 @@ class Post(models.Model):
     def recompute_scores(self):
         # Recompute answers count
         if self.type == Post.ANSWER:
-            answer_count = Post.objects.filter(root=self.root, type=Post.ANSWER).count()
+            answer_count = Post.objects.valid_posts(root=self.root, type=Post.ANSWER).count()
             Post.objects.filter(pk=self.parent_id).update(answer_count=answer_count)
 
-        reply_count = Post.objects.filter(root=self.root).count()
+        reply_count = Post.objects.valid_posts(root=self.root).exclude(pk=self.root.pk).count()
+        print(reply_count)
+
         Post.objects.filter(pk=self.root.id).update(reply_count=reply_count)
 
     def json_data(self):

@@ -79,6 +79,34 @@ function cancel_inplace() {
 
 }
 
+function delete_post(post){
+        var uid = post.data('value');
+
+        $.ajax('/ajax/delete/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {'uid': uid },
+            success: function (data) {
+
+                if (data.status === 'error') {
+                    popup_message(post, data.msg, data.status, 3000);
+                    return
+                }
+                // Reload the page
+                window.location.replace(data.url);
+                popup_message(post, data.msg, data.status, 3000);
+
+
+            },
+            error: function (xhr, status, text) {
+                error_message(post, xhr, status, text)
+            }
+        })
+
+}
+
 
 function prepare_inplace(content) {
 
@@ -251,6 +279,11 @@ $(document).on(function () {
     $(this).on('click', '#inplace .cancel', function () {
         var post = $(this).closest('.post');
         cancel_inplace(post);
+    });
+
+    $(this).on('click', '#inplace .delete', function () {
+        var post = $(this).closest('.post');
+        delete_post(post);
     });
 
 });

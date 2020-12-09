@@ -21,7 +21,7 @@ def init_app(sender, **kwargs):
     init_site()
     init_users()
     init_social()
-    init_tags()
+    #init_tags()
 
 
 def init_social():
@@ -130,6 +130,7 @@ def init_tags():
     from .models import Profile
 
     profiles = Profile.objects.all()
+    # TODO: add a progress to this.
     for pro in profiles:
         pro.add_watched()
         pro.save()

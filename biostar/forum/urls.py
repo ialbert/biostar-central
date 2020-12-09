@@ -38,6 +38,7 @@ forum_patterns = [
     path('ajax/vote/', ajax.ajax_vote, name='vote'),
     path('ajax/test/', ajax.ajax_test, name='ajax_test'),
     path('ajax/subscribe/', ajax.ajax_subs, name='ajax_sub'),
+    path('ajax/delete/', ajax.ajax_delete, name='ajax_delete'),
     path('drag/and/drop/', ajax.drag_and_drop, name='drag_and_drop'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
     path('ajax/digest/<str:uid>/', ajax.ajax_digest, name='ajax_digest'),
@@ -58,6 +59,7 @@ forum_patterns = [
     # Api calls
     path(r'api/traffic/', api.traffic, name='api_traffic'),
     path(r'api/user/<str:uid>/', api.user_details, name='api_user'),
+    path(r'api/tags/list/', api.tags_list, name='tags_list'),
     path(r'api/post/<str:uid>/', api.post_details, name='api_post'),
     path(r'api/vote/<str:uid>/', api.vote_details, name='api_vote'),
     path(r'api/watched/tags/<str:email>/', api.watched_tags, name='api_tags'),

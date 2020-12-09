@@ -436,6 +436,46 @@ def mod_rationale(post, user, template, ptype=Post.ANSWER, extra_context=dict())
     return post
 
 
+def only_delete(post, user):
+    """
+    Return if this post should get a 'Delete' flag instead of being removed from database.
+    """
+    children = Post.objects.filter(parent_id=post.id).exclude(pk=post.id)
+    # The conditions where post can only be deleted.
+    cond1 = children or post.age_in_days > 7
+    cond2 = post.vote_count > 1 or (post.author != user)
+
+    only_del = cond1 or cond2
+
+    return only_del
+
+
+def delete_post(post, user):
+
+    if only_delete(post, user):
+        # Deleted posts can be un=deleted by re-opening them.
+        Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
+        Post.objects.filter(parent=post).update(status=Post.DELETED)
+        url = post.root.get_absolute_url()
+        msg = f"Deleted post: {post.title}"
+        post.recompute_scores()
+        post.root.recompute_scores()
+        return url, msg
+
+    # Redirect depends on the level of the post.
+    if post.is_toplevel:
+        url = "/"
+    else:
+        url = post.root.get_absolute_url()
+        post.root.recompute_scores()
+
+    # Remove post from the database with no trace.
+    msg = f"Removed post: {post.title}"
+    post.delete()
+
+    return url, msg
+
+
 class Moderate(object):
 
     def __init__(self, user, post, action, comment=""):
@@ -472,6 +512,8 @@ class Moderate(object):
             self.post.author.profile.bump_over_threshold()
 
         Post.objects.filter(uid=self.post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
+        self.post.recompute_scores()
+        self.post.root.recompute_scores()
         self.msg = f"Opened post: {self.post.title}"
 
     def bump(self):
@@ -520,34 +562,6 @@ class Moderate(object):
         """
         Delete this post or complete remove it from the database.
         """
-        if self.__delete_only:
-            # Deleted posts can be un=deleted by re-opening them.
-            Post.objects.filter(uid=self.post.uid).update(status=Post.DELETED)
-            self.url = self.post.root.get_absolute_url()
-            self.msg = f"Deleted post: {self.post.title}"
-            self.post.recompute_scores()
-            return
-
-        # Redirect depends on the level of the post.
-        if self.post.is_toplevel:
-            self.url = "/"
-        else:
-            self.url = self.post.root.get_absolute_url()
-            self.post.root.recompute_scores()
-
-        # Remove post from the database with no trace.
-        self.msg = f"Removed post: {self.post.title}"
-        self.post.delete()
-
-    @property
-    def __delete_only(self):
-        # Posts with children or older than some value can only be deleted not removed
-        # The children of a post.
-        children = Post.objects.filter(parent_id=self.post.id).exclude(pk=self.post.id)
-        # The conditions where post can only be deleted.
-        cond1 = children or self.post.age_in_days > 7
-        cond2 = self.post.vote_count > 1 or (self.post.author != self.user)
-
-        delete_only = cond1 or cond2
-
-        return delete_only
+        url, msg = delete_post(post=self.post, user=self.user)
+        self.msg = msg
+        self.url = url

@@ -34,6 +34,11 @@
                 <i class="file icon"></i> Forum
             </a>
 
+            {% if request.user.profile.is_moderator %}
+                <a class="item {% activate tab 'spam' %} " href="{% url 'post_list' %}?type=spam">
+                    <i class="bug icon"></i> Spam
+                </a>
+            {% endif %}
         </div>
     </div>
 
@@ -44,7 +49,7 @@
         <i class="world icon"></i> Community
     </a>
 
-    <a class="item {% activate tab "new" %}" href="{% url 'post_create' %}" >
+    <a class="item {% activate tab "new" %}" href="{% url 'post_create' %}">
         <i class="edit icon"></i> New Post
     </a>
 
