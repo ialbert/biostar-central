@@ -252,7 +252,9 @@ def api_upload(request):
     json_obj = json.load(fstream)
 
     for key, item in json_obj.items():
+        # Filter for uid if exists.
         data = parse_json(item)
+
         if data.is_project:
             upload_project(data, create=create)
         else:
