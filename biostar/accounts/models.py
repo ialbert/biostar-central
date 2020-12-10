@@ -117,7 +117,7 @@ class Profile(models.Model):
     location = models.CharField(default="", max_length=255, blank=True, db_index=True)
 
     # User provided website.
-    website = models.URLField(default="", max_length=255, blank=True)
+    website = models.URLField(default="", max_length=256, blank=True)
 
     # Google scholar ID
     scholar = models.CharField(default="", max_length=255, blank=True)
@@ -143,7 +143,7 @@ class Profile(models.Model):
     # The html version of the user information.
     html = models.TextField(null=True, max_length=MAX_TEXT_LEN, blank=True)
 
-    # The state of the user email verfication.
+    # The state of the user email verification.
     email_verified = models.BooleanField(default=False)
 
     # Automatic notification

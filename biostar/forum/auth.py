@@ -80,8 +80,8 @@ def get_users_str():
     Return comma separated string of username used for autocomplete.
     """
 
-    cache_days = 5
-    cache_secs = 60 * 60 * 24 * cache_days
+    cache_hours = 1
+    cache_secs = 60 * 60 * cache_hours
 
     users_str = cache.get(USERS_CACHE_KEY)
     if users_str is None:
