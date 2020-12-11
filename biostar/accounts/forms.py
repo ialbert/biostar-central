@@ -153,6 +153,8 @@ class EditProfile(forms.Form):
 
         if len(data.split()) > 1:
             raise forms.ValidationError("No spaces allowed in username/handlers.")
+        if '.' in data:
+            raise forms.ValidationError("Invalid character '.' in handle.")
         if username.exists():
             raise forms.ValidationError("This handler is already being used.")
 

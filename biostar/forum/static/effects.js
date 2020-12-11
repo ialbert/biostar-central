@@ -46,7 +46,7 @@ function autocomplete_users(users_list) {
 
     function img_url(username) {
         let url = '/ajax/user/image/{0}/'.format(username);
-        return "<li>[<img class='ui circular image' style='display:inline' src='{0}'  height='20' width='20' />]".format(url)+ "<b>{0}</b></li>".format(username);
+        return "<li><img class='ui circular image' style='display:inline' src='{0}'  height='20' width='20' /><b>{1}</b></li>".format(url, username);
 
     }
 

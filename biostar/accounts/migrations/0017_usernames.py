@@ -4,13 +4,12 @@ from django.db import migrations, models
 
 
 def change_usernames(apps, schema_editor):
-    # https://github.com/jazzband/django-taggit/issues/454
 
     User = apps.get_model('auth', 'User')
     users = User.objects.all()
     for user in users:
         # Remove spaces from usernames
-        user.username = user.username.replace(' ', '_')
+        user.username = user.username.replace(' ', '_').replace('.', '-')
         user.save()
 
 

@@ -13,7 +13,6 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         if User.objects.filter(username=username).exclude(id=instance.pk).exists():
             username = util.get_uuid(6)
 
-        username = username.replace(" ", "_")
         User.objects.filter(pk=instance.pk).update(username=username)
 
         # Make sure staff users are also moderators.
@@ -29,5 +28,3 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
 def create_uuid(sender, instance, *args, **kwargs):
 
     instance.username = instance.username or util.get_uuid(8)
-    instance.username = instance.username.replace(" ", "_")
-
