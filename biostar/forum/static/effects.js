@@ -1,4 +1,3 @@
-
 function move_post(parent_elem, source_elem) {
 
     var parent = parent_elem.data("value");
@@ -31,6 +30,31 @@ function move_post(parent_elem, source_elem) {
 
 }
 
+function remote_search(text, cb) {
+
+    $.ajax('/drag/and/drop/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'query': text,
+            },
+            success: function (data) {
+
+                if (data.status === 'error') {
+                    cb(data);
+                } else {
+                    //alert(data.status);
+                    cb([])
+
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(parent_elem, xhr, status, text);
+            }
+        });
+}
 
 function autocomplete_users(users_list) {
     // Add autocomplete to any text area element with autocomplete tag.
@@ -43,24 +67,38 @@ function autocomplete_users(users_list) {
             name: value
         };
     });
+    var tribute = new Tribute({
+        values: vals,
+        menuItemLimit: 5,
+        selectTemplate: function (item) {
+            return '@' + item.original.name;
 
-    function img_url(username) {
-        let url = '/ajax/user/image/{0}/'.format(username);
-        return "<li><img class='ui circular image' style='display:inline' src='{0}'  height='20' width='20' /><b>{1}</b></li>".format(url, username);
+        },
+        menuItemTemplate: function (item) {
+            let url = '/ajax/user/image/{0}/'.format(item.original.name);
+            return "<img class='ui circular image' style='display:inline' src='{0}'  height='20' width='20' /><b>{1}</b>".format(url, item.original.name)
+        },
 
-    }
+    });
 
-    // Autocomplete settings
-    var AutocompleteSettings = {
-        // Gets triggered at @
-        at: "@",
-        data: vals,
-        displayTpl: img_url('${key}'),
-        insertTpl: '@${key}',
-        delay: 40
-    };
-
-    autocomplete.atwho(AutocompleteSettings);
+    // function img_url(username) {
+    //     let url = '/ajax/user/image/{0}/'.format(username);
+    //     // The image url is being passed down when matched on a '.'
+    //     return "<li><img class='ui circular image' style='display:inline' src='{0}'  height='20' width='20' /><b>{1}</b></li>".format(url, username);
+    //
+    // }
+    //
+    // // Autocomplete settings
+    // var AutocompleteSettings = {
+    //     // Gets triggered at @
+    //     at: "@",
+    //     data: vals,
+    //     displayTpl: img_url('${key}'),
+    //     insertTpl: '@${key}',
+    //     delay: 40
+    // };
+    tribute.attach(autocomplete);
+    //autocomplete.atwho(AutocompleteSettings);
 
 }
 
@@ -76,7 +114,7 @@ function drag_and_drop() {
 
                 // Parent post to drop into.
                 var parent = $(this).closest(".post");
-                if (!parent.length){
+                if (!parent.length) {
                     parent = $(this)
                 }
 
@@ -92,20 +130,19 @@ function drag_and_drop() {
         var post = $(this).closest('.post');
 
         post.draggable(
-        {
-            addClasses: false,
-            scroll: false,
-            helper: 'clone',
-            iframeFix: true,
-            opacity: .7,
-            containment: $('body'),
-            revert:true,
-            zIndex: 100,
-            cursor:'grabbing'
+            {
+                addClasses: false,
+                scroll: false,
+                helper: 'clone',
+                iframeFix: true,
+                opacity: .7,
+                containment: $('body'),
+                revert: true,
+                zIndex: 100,
+                cursor: 'grabbing'
 
-        });
+            });
     });
-
 
 
 }
