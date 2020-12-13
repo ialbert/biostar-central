@@ -46,7 +46,6 @@ function remoteSearch(text, cb) {
                         name: value,
                     };
                 });
-                alert(data.users);
                 cb(vals);
 
             } else if (xhr.status === 403) {
