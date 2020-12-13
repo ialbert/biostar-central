@@ -492,6 +492,24 @@ def ajax_comment_create(request):
 @ratelimit(key=RATELIMIT_KEY, rate='50/h')
 @ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="GET")
+def handle_search(request):
+    """
+    Handle searching the user handles.
+    """
+
+    query = request.GET.get('query')
+
+    if query:
+        users = list(User.objects.filter(username__icontains=query).values_list('username', flat=True)[:20])
+    else:
+        users = []
+    # Return list of users matching username
+    return ajax_success(users=users, msg="Username searched")
+
+
+@ratelimit(key=RATELIMIT_KEY, rate='50/h')
+@ratelimit(key=RATELIMIT_KEY, rate='10/m')
+@ajax_error_wrapper(method="GET")
 def inplace_form(request):
     """
     Used to render inplace forms for editing posts.
@@ -514,14 +532,13 @@ def inplace_form(request):
     # Load the content and form template
     template = "forms/form_inplace.html"
     tmpl = loader.get_template(template_name=template)
-    users_str = auth.get_users_str()
 
     nlines = post.num_lines(offset=3)
     rows = nlines if nlines >= MIN_LINES else MIN_LINES
     form = forms.PostLongForm(user=request.user)
 
     content = '' if add_comment else post.content
-    context = dict(user=user, post=post, new=add_comment,  html=html, users_str=users_str,
+    context = dict(user=user, post=post, new=add_comment,  html=html,
                    captcha_key=settings.RECAPTCHA_PUBLIC_KEY, rows=rows, form=form,
                    content=content)
 

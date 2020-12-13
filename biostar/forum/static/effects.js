@@ -30,45 +30,44 @@ function move_post(parent_elem, source_elem) {
 
 }
 
-function remote_search(text, cb) {
+function remoteSearch(text, cb) {
+    if (text.length === 0) {
+        return
+    }
+    var URL = "/ajax/handle/search/";
+    xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                var vals = $.map(data.users, function (value) {
+                    return {
+                        key: value,
+                        name: value,
+                    };
+                });
+                alert(data.users);
+                cb(vals);
 
-    $.ajax('/drag/and/drop/',
-        {
-            type: 'POST',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {
-                'query': text,
-            },
-            success: function (data) {
-
-                if (data.status === 'error') {
-                    cb(data);
-                } else {
-                    //alert(data.status);
-                    cb([])
-
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message(parent_elem, xhr, status, text);
+            } else if (xhr.status === 403) {
+                cb([]);
             }
-        });
+        }
+    };
+    xhr.open("GET", URL + "?query=" + text, true);
+    xhr.send();
 }
 
-function autocomplete_users(users_list) {
+
+function autocomplete_users() {
     // Add autocomplete to any text area element with autocomplete tag.
     var autocomplete = $('.autocomplete');
 
-    // Map values in list to a list of dict [{key:'chosen', name:'displayed name'}....]
-    var vals = $.map(users_list, function (value) {
-        return {
-            key: value,
-            name: value
-        };
-    });
     var tribute = new Tribute({
-        values: vals,
+        values: function (text, cb) {
+            remoteSearch(text, cb);
+        },
+
         menuItemLimit: 5,
         selectTemplate: function (item) {
             return '@' + item.original.name;
@@ -81,24 +80,8 @@ function autocomplete_users(users_list) {
 
     });
 
-    // function img_url(username) {
-    //     let url = '/ajax/user/image/{0}/'.format(username);
-    //     // The image url is being passed down when matched on a '.'
-    //     return "<li><img class='ui circular image' style='display:inline' src='{0}'  height='20' width='20' /><b>{1}</b></li>".format(url, username);
-    //
-    // }
-    //
-    // // Autocomplete settings
-    // var AutocompleteSettings = {
-    //     // Gets triggered at @
-    //     at: "@",
-    //     data: vals,
-    //     displayTpl: img_url('${key}'),
-    //     insertTpl: '@${key}',
-    //     delay: 40
-    // };
     tribute.attach(autocomplete);
-    //autocomplete.atwho(AutocompleteSettings);
+
 
 }
 

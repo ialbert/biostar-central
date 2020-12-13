@@ -55,6 +55,7 @@ forum_patterns = [
 
     # Community urls
     path('community/', views.community_list, name='community_list'),
+    path('ajax/handle/search/', ajax.handle_search, name='handle_search'),
 
     # Api calls
     path(r'api/traffic/', api.traffic, name='api_traffic'),

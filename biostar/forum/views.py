@@ -422,9 +422,8 @@ def post_view(request, uid):
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
     # user string
-    users_str = auth.get_users_str()
 
-    context = dict(post=root, tree=comment_tree, form=form, answers=answers, users_str=users_str)
+    context = dict(post=root, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
 
@@ -457,9 +456,8 @@ def new_post(request):
 
     # Action url for the form is the current view
     action_url = reverse("post_create")
-    users_str = auth.get_users_str()
     context = dict(form=form, tab="new", tag_val=tag_val, action_url=action_url,
-                   content=content, users_str=users_str)
+                   content=content)
 
     return render(request, "new_post.html", context=context)
 

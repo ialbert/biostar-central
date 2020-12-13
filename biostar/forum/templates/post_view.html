@@ -73,8 +73,8 @@
             $('#subscribe').dropdown();
             drag_and_drop();
             $('.ui.dropdown').dropdown();
-            var users = "{{ users_str }}".split(',');
-            autocomplete_users(users);
+            //var users = "{{ users_str }}".split(',');
+            autocomplete_users();
             //init_pagedown();
 
             $(this).on('click', '#inplace .save', function () {
