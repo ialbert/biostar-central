@@ -109,8 +109,9 @@ def finalize_post(sender, instance, created, **kwargs):
         instance.save()
         instance.update_parent_counts()
 
-        # Bump the root rank when a new descendant is added.
-        Post.objects.filter(uid=instance.root.uid).update(rank=util.now().timestamp())
+        # Bump the root rank when a new answer is added.
+        if instance.is_answer:
+            Post.objects.filter(uid=instance.root.uid).update(rank=util.now().timestamp())
 
         # Create subscription to the root.
         auth.create_subscription(post=instance.root, user=instance.author)

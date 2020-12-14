@@ -1,4 +1,3 @@
-
 function move_post(parent_elem, source_elem) {
 
     var parent = parent_elem.data("value");
@@ -31,36 +30,63 @@ function move_post(parent_elem, source_elem) {
 
 }
 
+function remote_search(text, cb, elem) {
 
-function autocomplete_users(users_list) {
+    $.ajax("/ajax/handle/search/",
+        {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'query': text,
+            },
+            success: function (data) {
+
+                if (data.status === 'error') {
+                    cb([])
+                } else {
+                    //alert(data.status);
+                    var vals = $.map(data.users, function (value) {
+                        return {
+                            key: value,
+                            name: value,
+                        };
+                    });
+                    cb(vals);
+
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text);
+            }
+        });
+
+
+}
+
+function autocomplete_users() {
     // Add autocomplete to any text area element with autocomplete tag.
     var autocomplete = $('.autocomplete');
 
-    // Map values in list to a list of dict [{key:'chosen', name:'displayed name'}....]
-    var vals = $.map(users_list, function (value) {
-        return {
-            key: value,
-            name: value
-        };
+    var tribute = new Tribute({
+        values: function (text, cb) {
+            remote_search(text, cb, autocomplete);
+        },
+
+        menuItemLimit: 5,
+        selectTemplate: function (item) {
+            return '@' + item.original.name;
+
+        },
+        menuItemTemplate: function (item) {
+            let url = '/ajax/user/image/{0}/'.format(item.original.name);
+            return "<img class='ui circular image' style='display:inline' src='{0}'  height='20' width='20' /><b>{1}</b>".format(url, item.original.name)
+        },
+
     });
 
-    function img_url(username) {
-        let url = '/ajax/user/image/{0}/'.format(username);
-        return "<li> <img class='ui circular image' style='display: inline' src={0} height='20' width='20' /> <b>{1}</b></li>".format(url, username);
+    tribute.attach(autocomplete);
 
-    }
-
-    // Autocomplete settings
-    var AutocompleteSettings = {
-        // Gets triggered at @
-        at: "@",
-        data: vals,
-        displayTpl: img_url('${key}'),
-        insertTpl: '@${key}',
-        delay: 40
-    };
-
-    autocomplete.atwho(AutocompleteSettings);
 
 }
 
@@ -76,7 +102,7 @@ function drag_and_drop() {
 
                 // Parent post to drop into.
                 var parent = $(this).closest(".post");
-                if (!parent.length){
+                if (!parent.length) {
                     parent = $(this)
                 }
 
@@ -92,20 +118,19 @@ function drag_and_drop() {
         var post = $(this).closest('.post');
 
         post.draggable(
-        {
-            addClasses: false,
-            scroll: false,
-            helper: 'clone',
-            iframeFix: true,
-            opacity: .7,
-            containment: $('body'),
-            revert:true,
-            zIndex: 100,
-            cursor:'grabbing'
+            {
+                addClasses: false,
+                scroll: false,
+                helper: 'clone',
+                iframeFix: true,
+                opacity: .7,
+                containment: $('body'),
+                revert: true,
+                zIndex: 100,
+                cursor: 'grabbing'
 
-        });
+            });
     });
-
 
 
 }

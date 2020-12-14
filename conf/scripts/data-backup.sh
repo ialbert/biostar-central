@@ -2,7 +2,7 @@ PATT=`date  +"%Y-%m-%d"`
 
 SITE=http://localhost:8000
 
-# Secure API token, match
+# Secure API token, match user profile token
 TOKEN='change-me'
 LIST=$SITE/api/list/
 PROJ=$SITE/api/project/

@@ -302,6 +302,7 @@ def tags_list(request):
     tags = request.FILES.get('tags')
 
     # options : today, month, week, year, all
+    # TODO: change to months.
     time_range = request.GET.get('trange', 'year')
     days = LIMIT_MAP.get(time_range, 0)
 

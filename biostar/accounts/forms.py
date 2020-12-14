@@ -3,6 +3,7 @@ import logging
 from django import forms
 from django.core.validators import FileExtensionValidator
 from django.contrib import messages
+from django.template.defaultfilters import slugify
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
@@ -149,6 +150,7 @@ class EditProfile(forms.Form):
     def clean_username(self):
 
         data = self.cleaned_data['username']
+        data = slugify(data)
         username = User.objects.exclude(pk=self.user.pk).filter(username=data)
 
         if len(data.split()) > 1:

@@ -26,5 +26,5 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
 
 @receiver(pre_save, sender=User)
 def create_uuid(sender, instance, *args, **kwargs):
-    instance.username = instance.username or util.get_uuid(8)
 
+    instance.username = instance.username or util.get_uuid(8)

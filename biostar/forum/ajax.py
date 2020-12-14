@@ -162,7 +162,6 @@ def validate_drop(request):
 @ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
-
     was_limited = getattr(request, 'limited', False)
     if was_limited:
         return ajax_error(msg="Too many request from same IP address. Temporary ban.")
@@ -383,7 +382,7 @@ def get_fields(request, post=None):
     tag_val = ','.join(tag_list) or post.tag_val
 
     fields = dict(content=content, title=title, post_type=post_type, tag_list=tag_list, tag_val=tag_val,
-                  user=user, recaptcha_token=recaptcha_token,)
+                  user=user, recaptcha_token=recaptcha_token, )
 
     return fields
 
@@ -443,7 +442,6 @@ def ajax_edit(request, uid):
 
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_delete(request):
-
     uid = request.POST.get('uid')
     user = request.user
     post = Post.objects.filter(uid=uid).first()
@@ -490,6 +488,24 @@ def ajax_comment_create(request):
 
 
 @ratelimit(key=RATELIMIT_KEY, rate='50/h')
+@ratelimit(key=RATELIMIT_KEY, rate='20/m')
+@ajax_error_wrapper(method="GET")
+def handle_search(request):
+    """
+    Used to search by the user handle.
+    """
+
+    query = request.GET.get('query')
+    if query:
+        users = list(User.objects.filter(username__icontains=query).values_list('username', flat=True)[:20])
+    else:
+        users = list(User.objects.order_by('profile__score').values_list('username', flat=True)[:20])
+
+    # Return list of users matching username
+    return ajax_success(users=users, msg="Username searched")
+
+
+@ratelimit(key=RATELIMIT_KEY, rate='50/h')
 @ratelimit(key=RATELIMIT_KEY, rate='10/m')
 @ajax_error_wrapper(method="GET")
 def inplace_form(request):
@@ -514,14 +530,13 @@ def inplace_form(request):
     # Load the content and form template
     template = "forms/form_inplace.html"
     tmpl = loader.get_template(template_name=template)
-    users_str = auth.get_users_str()
 
     nlines = post.num_lines(offset=3)
     rows = nlines if nlines >= MIN_LINES else MIN_LINES
     form = forms.PostLongForm(user=request.user)
 
     content = '' if add_comment else post.content
-    context = dict(user=user, post=post, new=add_comment,  html=html, users_str=users_str,
+    context = dict(user=user, post=post, new=add_comment, html=html,
                    captcha_key=settings.RECAPTCHA_PUBLIC_KEY, rows=rows, form=form,
                    content=content)
 
@@ -556,4 +571,3 @@ def similar_posts(request, uid):
     results_html = tmpl.render(context)
 
     return ajax_success(html=results_html, msg="success")
-
