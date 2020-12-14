@@ -75,21 +75,6 @@ def decode_email(email):
     return
 
 
-def get_users_str():
-    """
-    Return comma separated string of username used for autocomplete.
-    """
-
-    cache_hours = 1
-    cache_secs = 60 * 60 * cache_hours
-
-    users_str = cache.get(USERS_CACHE_KEY)
-    if users_str is None:
-        users_str = ','.join(User.objects.all().values_list('username', flat=True))
-        cache.set(USERS_CACHE_KEY, users_str, cache_secs)
-
-    return users_str
-
 
 def gravatar(user, size=80):
     if not user or user.is_anonymous:
