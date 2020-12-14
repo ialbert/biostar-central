@@ -499,10 +499,7 @@ def handle_search(request):
     if query:
         users = list(User.objects.filter(username__icontains=query).values_list('username', flat=True)[:20])
     else:
-        users = list(User.objects.filter(Q(is_superuser=True) |
-                                         Q(is_staff=True) |
-                                         Q(profile__role=Profile.MODERATOR)).values_list('username',
-                                                                                         flat=True)[:20])
+        users = list(User.objects.order_by('profile__score').values_list('username', flat=True)[:20])
 
     # Return list of users matching username
     return ajax_success(users=users, msg="Username searched")
