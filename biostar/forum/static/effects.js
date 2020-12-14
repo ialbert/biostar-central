@@ -31,9 +31,7 @@ function move_post(parent_elem, source_elem) {
 }
 
 function remoteSearch(text, cb) {
-    if (text.length === 0) {
-        return
-    }
+
     var URL = "/ajax/handle/search/";
     xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
