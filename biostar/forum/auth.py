@@ -75,7 +75,6 @@ def decode_email(email):
     return
 
 
-
 def gravatar(user, size=80):
     if not user or user.is_anonymous:
         email = 'anon@biostars.org'.encode('utf8')
