@@ -30,31 +30,39 @@ function move_post(parent_elem, source_elem) {
 
 }
 
-function remoteSearch(text, cb) {
+function remote_search(text, cb, elem) {
 
-    var URL = "/ajax/handle/search/";
-    xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                var data = JSON.parse(xhr.responseText);
-                var vals = $.map(data.users, function (value) {
-                    return {
-                        key: value,
-                        name: value,
-                    };
-                });
-                cb(vals);
+    $.ajax("/ajax/handle/search/",
+        {
+            type: 'GET',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {
+                'query': text,
+            },
+            success: function (data) {
 
-            } else if (xhr.status === 403) {
-                cb([]);
+                if (data.status === 'error') {
+                    cb([])
+                } else {
+                    //alert(data.status);
+                    var vals = $.map(data.users, function (value) {
+                        return {
+                            key: value,
+                            name: value,
+                        };
+                    });
+                    cb(vals);
+
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text);
             }
-        }
-    };
-    xhr.open("GET", URL + "?query=" + text, true);
-    xhr.send();
-}
+        });
 
+
+}
 
 function autocomplete_users() {
     // Add autocomplete to any text area element with autocomplete tag.
@@ -62,7 +70,7 @@ function autocomplete_users() {
 
     var tribute = new Tribute({
         values: function (text, cb) {
-            remoteSearch(text, cb);
+            remote_search(text, cb, autocomplete);
         },
 
         menuItemLimit: 5,
