@@ -304,7 +304,7 @@ def tags_list(request):
 
     # Convert months to weeks
     weeks = months * 4
-    
+
     delta = util.now() - timedelta(weeks=weeks)
     query = Post.objects.filter(lastedit_date__gt=delta)
 
