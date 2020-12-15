@@ -295,7 +295,7 @@ def tags_list(request):
     tags = request.FILES.get('tags')
 
     # How many months prior to look back
-    months = request.GET.get('months', '6')
+    months = request.POST.get('months', '6')
     try:
         months = int(months) if months.isalmun() else float(months)
     except Exception as exc:
