@@ -20,13 +20,6 @@ logger = logging.getLogger("engine")
 def api_error(msg="Api Error"):
     return {'error': msg}
 
-LIMIT_MAP = dict(
-    all=0,
-    today=1,
-    week=7,
-    month=30,
-    year=365
-)
 
 def stat_file(date, data=None, load=False, dump=False):
 
@@ -301,12 +294,18 @@ def tags_list(request):
     # Get a file with all the tags.
     tags = request.FILES.get('tags')
 
-    # options : today, month, week, year, all
-    # TODO: change to months.
-    time_range = request.GET.get('trange', 'year')
-    days = LIMIT_MAP.get(time_range, 0)
+    # How many months prior to look back
+    months = request.POST.get('months', '6')
+    try:
+        months = int(months) if months.isalmun() else float(months)
+    except Exception as exc:
+        logger.error(exc)
+        months = 6
 
-    delta = util.now() - timedelta(days=days)
+    # Convert months to weeks
+    weeks = months * 4
+
+    delta = util.now() - timedelta(weeks=weeks)
     query = Post.objects.filter(lastedit_date__gt=delta)
 
     # Iterate over tags and collect counts.

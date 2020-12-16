@@ -9,12 +9,14 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 {% block css %}
     <link href="{% static 'autocomplete/at.who.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'autocomplete/tribute.css' %}" />
     <link href=" {% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
     <link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
 {% endblock %}
 
 {% block js %}
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
+    <script src="{% static 'autocomplete/tribute.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
