@@ -5,7 +5,7 @@ import os
 from itertools import count, islice
 import html2text
 
-
+from django.template.defaultfilters import slugify
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
@@ -69,7 +69,9 @@ def bulk_copy_users(limit):
         for index, user in stream:
             progress(index=index,  msg="users")
 
-            username = f"{user.name.replace(' ', '-')}-{user.id}"
+            #TODO: slugify
+            username = f"{slugify(user.name)}-{user.id}"
+
             # Create user
             new_user = User(username=username, email=user.email, password=user.password,
                             is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
@@ -393,8 +395,8 @@ class Command(BaseCommand):
         print(f"OLD_DATABASE (source): {settings.OLD_DATABASE}")
         print(f"NEW_DATABASE (target): {settings.NEW_DATABASE}")
 
-        test()
-        return
+        #test()
+        #return
 
         if load_posts:
             bulk_copy_posts(limit=limit)
