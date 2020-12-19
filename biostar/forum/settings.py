@@ -172,7 +172,7 @@ DATA_MIGRATION = False
 # Tries to load up secret settings from a predetermined module
 # This is for convenience only!
 try:
-    from conf.run.secrets import *
+    from conf.run.site_secrets import *
     #print(f"Loaded secrets from: conf.run.secrets")
 except Exception as exc:
     print(f"Secrets module not imported: {exc}", file=sys.stderr)
