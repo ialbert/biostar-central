@@ -278,14 +278,14 @@ def bulk_copy_posts(limit):
 
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"],
                              batch_size=1000)
-    update_threadusers()
-    add_tags()
-
-    elapsed(f"Updated {pcount} post threads and added tags.")
 
     Post.objects.bulk_update(objs=set_counts(), fields=["reply_count", "comment_count", "answer_count"],
                              batch_size=1000)
     elapsed(f"Set {pcount} post counts.")
+    #update_threadusers()
+    add_tags()
+
+    elapsed(f"Updated {pcount} post threads and added tags.")
 
     Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
     acount = Award.objects.all().count()

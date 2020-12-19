@@ -95,6 +95,7 @@
         - server-reset.sh
         - server-backup.sh
         - data-migration.sh
+        - search-index.sh
 
     - name: Copy settings file to runtime directories
       copy:

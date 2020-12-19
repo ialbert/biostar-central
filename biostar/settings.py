@@ -198,7 +198,7 @@ RATELIMIT_KEY = "header:x-real-ip"
 
 
 # Configure language detection
-LANGUAGE_DETECTION = ['en']
+#LANGUAGE_DETECTION = ['en']
 
 # The static URL start.
 STATIC_URL = '/static/'
