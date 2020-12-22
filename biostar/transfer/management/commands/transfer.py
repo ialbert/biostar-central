@@ -93,7 +93,7 @@ def bulk_copy_users(limit):
 
             # The incoming users have weekly digest prefs as a default.
             profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
-                              message_prefs=user.profile.message_prefs,
+                              message_prefs=user.profile.message_prefs, state=user.status,
                               role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
                               website=user.profile.website, scholar=user.profile.scholar, text=text,
