@@ -150,6 +150,26 @@ def project_api(request, uid):
     return HttpResponse(content=payload, content_type="text/json")
 
 
+@api_error_wrapper(['GET', 'POST'])
+#@token_access(klass=Project)
+@csrf_exempt
+@ratelimit(key='ip', rate='30/m')
+def recipe_api(request, uid):
+    """
+    GET request : return project name, text, and image as a JSON file.
+    POST request : change project name, text, and image given a JSON file.
+    """
+
+    recipe = Analysis.objects.filter(uid=uid).first()
+    if not recipe:
+        return HttpResponse(content="Recipe does not exist", status=404)
+
+    # Get the json data with project info
+    payload = encode_recipe(recipe, show_image=True)
+
+    return HttpResponse(content=payload, content_type="text/json")
+
+
 class Bunch(object):
     uid = ""
     name = ""
