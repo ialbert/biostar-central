@@ -86,7 +86,7 @@ def init_users():
             user.save()
 
             text = "Admin user created automatically on startup."
-            Profile.objects.filter(user=user).update(location="Server Farm", name=name, text=text, html=text)
+            Profile.objects.filter(user=user).update(name=name, text=text, html=text)
             logger.info(f"Creating admin user: {user.email}")
         else:
             # You might want to reapply the default ADMIN password on migration.
