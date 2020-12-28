@@ -5,7 +5,7 @@ import os
 from itertools import count, islice
 import html2text
 
-
+from django.template.defaultfilters import slugify
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
@@ -69,7 +69,9 @@ def bulk_copy_users(limit):
         for index, user in stream:
             progress(index=index,  msg="users")
 
-            username = f"{user.name.replace(' ', '-')}-{user.id}"
+            #TODO: slugify
+            username = f"{slugify(user.name)}-{user.id}"
+
             # Create user
             new_user = User(username=username, email=user.email, password=user.password,
                             is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
@@ -91,7 +93,7 @@ def bulk_copy_users(limit):
 
             # The incoming users have weekly digest prefs as a default.
             profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
-                              message_prefs=user.profile.message_prefs,
+                              message_prefs=user.profile.message_prefs, state=user.status,
                               role=user.type, last_login=user.last_login, html=user.profile.info,
                               date_joined=user.profile.date_joined, location=user.profile.location,
                               website=user.profile.website, scholar=user.profile.scholar, text=text,
@@ -276,14 +278,14 @@ def bulk_copy_posts(limit):
 
     Post.objects.bulk_update(objs=gen_updates(), fields=["root", "parent"],
                              batch_size=1000)
-    update_threadusers()
-    add_tags()
-
-    elapsed(f"Updated {pcount} post threads and added tags.")
 
     Post.objects.bulk_update(objs=set_counts(), fields=["reply_count", "comment_count", "answer_count"],
                              batch_size=1000)
     elapsed(f"Set {pcount} post counts.")
+    #update_threadusers()
+    add_tags()
+
+    elapsed(f"Updated {pcount} post threads and added tags.")
 
     Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
     acount = Award.objects.all().count()
@@ -393,8 +395,8 @@ class Command(BaseCommand):
         print(f"OLD_DATABASE (source): {settings.OLD_DATABASE}")
         print(f"NEW_DATABASE (target): {settings.NEW_DATABASE}")
 
-        test()
-        return
+        #test()
+        #return
 
         if load_posts:
             bulk_copy_posts(limit=limit)

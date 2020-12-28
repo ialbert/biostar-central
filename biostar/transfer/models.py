@@ -37,6 +37,9 @@ class UsersProfile(models.Model):
 
 
 class UsersUser(models.Model):
+    NEW_USER, TRUSTED, SUSPENDED, BANNED = range(4)
+    STATUS_CHOICES = ((NEW_USER, 'New User'), (TRUSTED, 'Trusted'), (SUSPENDED, 'Suspended'), (BANNED, 'Banned'))
+
     status = models.IntegerField()
     is_staff = models.BooleanField()
     name = models.CharField(max_length=255)

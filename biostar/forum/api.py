@@ -309,7 +309,7 @@ def tags_list(request):
     query = Post.objects.filter(lastedit_date__gt=delta)
 
     # Iterate over tags and collect counts.
-    lines = tags.readlines()
+    lines = tags.readlines() if tags else []
 
     data = {}
 
