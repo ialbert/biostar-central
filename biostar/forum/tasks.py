@@ -3,6 +3,7 @@ from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 import time
 from biostar.utils.decorators import spool, timer
+from biostar.celery import app
 
 
 from django.db.models import Q
@@ -137,6 +138,8 @@ def created_post(pid):
 #     return
 
 @spool(pass_arguments=True)
+# Do this with celery.
+#@app.task
 def create_user_awards(user_id):
 
     from biostar.accounts.models import User
@@ -165,7 +168,7 @@ def create_user_awards(user_id):
             # Create an award for each target.
             Award.objects.create(user=user, badge=badge, date=date, post=post)
 
-            message("award %s created for %s" % (badge.name, user.email))
+            message(f"award {badge.name} created for {user.email}")
 
 
 @spool(pass_arguments=True)

@@ -422,7 +422,6 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
 
     html = safe(markdown, text=text)
-
     # Bleach clean the html.
     if clean:
         html = safe(bleach.clean, text=html,

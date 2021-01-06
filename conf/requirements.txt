@@ -27,3 +27,4 @@ toml
 whitenoise
 hjson
 langdetect
+html2markdown
