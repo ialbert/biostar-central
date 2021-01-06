@@ -429,11 +429,8 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
                     styles=ALLOWED_STYLES,
                     attributes=ALLOWED_ATTRIBUTES)
 
-    print("ONE", html)
     # Embed sensitive links into html
     html = safe(linkify, text=html)
-
-    print(html)
 
     return html
 
