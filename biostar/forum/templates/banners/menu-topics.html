@@ -19,13 +19,11 @@
             {% if counts.messages.count %}
 
                 <div class="ui green large label">
-                    <i class="envelope icon"></i>New Messages ({{ counts.messages.count }})
+                    <i class="envelope icon"></i>Messages ({{ counts.messages.count }})
                    </div>
             {%  else %}
                  <i class="envelope icon"></i> Messages
             {% endif %}
-
-
 
         </a>
         <a class="item {% activate tab "myvotes" %}"

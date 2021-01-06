@@ -12,6 +12,7 @@ from whoosh.analysis import StemmingAnalyzer
 from whoosh.writing import AsyncWriter
 from whoosh.searching import Results
 
+import html2markdown
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
@@ -106,9 +107,11 @@ def index_exists(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME):
 
 
 def add_index(post, writer):
+    # user html2markdown to clean text.
+    content = html2markdown.convert(post.content)
     writer.update_document(title=post.title, url=post.get_absolute_url(),
                            type_display=post.get_type_display(),
-                           content_length=len(post.content),
+                           content_length=len(content),
                            type=post.type,
                            creation_date=post.creation_date,
                            lastedit_date=post.lastedit_date,
@@ -117,7 +120,7 @@ def add_index(post, writer):
                            lastedit_user_score=post.author.profile.score,
                            lastedit_user_uid=post.author.profile.uid,
                            lastedit_user_url=post.lastedit_user.profile.get_absolute_url(),
-                           content=post.content,
+                           content=content,
                            tags=post.tag_val,
                            is_toplevel=post.is_toplevel,
                            rank=post.rank, uid=post.uid,

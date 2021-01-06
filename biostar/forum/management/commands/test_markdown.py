@@ -72,6 +72,8 @@ test6 = "<p><p>foo</p></p>"
 
 gist_test = "https://gist.github.com/afrendeiro/6732a46b949e864d6803"
 
+twitter_test = "https://twitter.com/Linux/status/2311234267"
+
 
 class Command(BaseCommand):
     help = 'Used to test markdown rendering'
@@ -90,6 +92,6 @@ class Command(BaseCommand):
         # print('MISTUNE', '-'*50)
 
         # escape = False to allow html in the markdown.
-        html = markdown.parse(test5, escape=False, clean=True, allow_rewrite=False)
+        html = markdown.parse(twitter_test, escape=False, clean=True, allow_rewrite=False)
         print()
         print(html)

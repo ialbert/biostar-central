@@ -37,7 +37,6 @@ export NEW_DATABASE=biostar-database
 # Set the configuration module.
 TRANSFER_SETTINGS_MODULE=biostar.transfer.settings
 
-
 #------------------------------------------------------------------------------------------
 
 # Drop the old biostar database if exists.

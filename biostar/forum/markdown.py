@@ -422,7 +422,6 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
 
     html = safe(markdown, text=text)
-
     # Bleach clean the html.
     if clean:
         html = safe(bleach.clean, text=html,
@@ -430,8 +429,11 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
                     styles=ALLOWED_STYLES,
                     attributes=ALLOWED_ATTRIBUTES)
 
+    print("ONE", html)
     # Embed sensitive links into html
     html = safe(linkify, text=html)
+
+    print(html)
 
     return html
 
