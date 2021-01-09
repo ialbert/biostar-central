@@ -29,3 +29,4 @@ hjson
 langdetect
 html2markdown
 celery
+django-celery-results

@@ -59,3 +59,30 @@ except Exception as exc:
             return inner
         # Gains an attribute called timer that will run the function periodically.
         return outer
+
+try:
+    from celery import shared_task
+    import redis
+
+except Exception as exc:
+
+    def shared_task():
+        def outer(func):
+            @functools.wraps(func)
+            def inner(*args, **kwargs):
+                if settings.DISABLE_TASKS:
+                    return
+                if settings.MULTI_THREAD:
+                    # Run process in separate thread.
+                    logger.info(f"new thread for function f{func} {args} {kwargs}")
+                    t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
+                    t.start()
+                # Redis is not started, multithread.
+                else:
+                    func(*args, **kwargs)
+
+            inner.delay = inner
+            return inner
+        # Gains an attribute called spool that runs the function in the background.
+        return outer
+    pass

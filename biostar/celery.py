@@ -10,6 +10,9 @@ logger = get_task_logger(__name__)
 
 from celery import Celery
 
+# Django settings module
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'biostar.forum.settings')
+
 app = Celery('biostar')
 
 # Read the configuration from the config file.
@@ -29,4 +32,4 @@ def call_command(name, *args, **kwargs):
 
 @app.task
 def test(*args, **kwds):
-    logger.info("*** executing task %s %s, %s" % (__name__, args, kwds))
+    logger.info(f"*** executing task {__name__} {args}, {kwds}")

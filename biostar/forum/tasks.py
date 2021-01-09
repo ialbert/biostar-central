@@ -4,6 +4,7 @@ from biostar.emailer.tasks import send_email
 import time
 from biostar.utils.decorators import spool, timer
 from biostar.celery import app
+from celery import shared_task
 
 
 from django.db.models import Q
@@ -11,7 +12,6 @@ from django.db.models import Q
 # Do not use logging in tasks! Deadlocking may occur!
 #
 # https://github.com/unbit/uwsgi/issues/1369
-
 
 
 def message(msg, level=0):
@@ -137,9 +137,10 @@ def created_post(pid):
 #
 #     return
 
-@spool(pass_arguments=True)
+#@spool(pass_arguments=True)
 # Do this with celery.
-#@app.task
+#@shared_task
+@app.task
 def create_user_awards(user_id):
 
     from biostar.accounts.models import User
@@ -147,6 +148,7 @@ def create_user_awards(user_id):
     from biostar.forum.awards import ALL_AWARDS
 
     user = User.objects.filter(id=user_id).first()
+    print("HERE"*100)
 
     # debugging
     # Award.objects.all().delete()
