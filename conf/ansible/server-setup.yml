@@ -105,3 +105,8 @@
         name: biostar-database
         owner: www
       no_log: true
+
+
+    - name: Ensure Redis is started
+      become: yes
+      service: name=redis-server state=started enabled=yes
