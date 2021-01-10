@@ -11,7 +11,7 @@ logger = get_task_logger(__name__)
 from celery import Celery
 
 # Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'biostar.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'conf.run.site_settings')
 
 app = Celery('biostar')
 
