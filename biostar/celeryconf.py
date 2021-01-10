@@ -5,7 +5,7 @@ from celery.schedules import crontab
 #CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
 CELERY_RESULT_BACKEND = 'django-db'
 
-BROKER_URL = 'redis://127.0.0.1:7777'
+BROKER_URL = 'redis://127.0.0.1:6379'
 
 CELERY_TASK_SERIALIZER = 'pickle'
 

@@ -148,7 +148,6 @@ def create_user_awards(user_id):
     from biostar.forum.awards import ALL_AWARDS
 
     user = User.objects.filter(id=user_id).first()
-    print("HERE"*100)
 
     # debugging
     # Award.objects.all().delete()
