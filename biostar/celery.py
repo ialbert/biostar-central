@@ -16,7 +16,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'conf.run.site_settings')
 app = Celery('biostar')
 
 # Read the configuration from the config file.
-app.config_from_object(settings.CELERY_CONFIG)
+app.config_from_object('biostar.celeryconf')
 
 # Discover tasks in applications.
 app.autodiscover_tasks(

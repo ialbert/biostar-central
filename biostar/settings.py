@@ -158,8 +158,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 ]
 
-CELERY_CONFIG = 'biostar.celeryconf'
-
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DATABASE_DIR = os.path.join(BASE_DIR, 'export', 'db')
