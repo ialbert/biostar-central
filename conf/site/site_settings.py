@@ -8,9 +8,9 @@ from biostar.settings import *
 
 #from biostar.recipes.settings import *
 
-from themes.bioconductor.settings import *
+#from themes.bioconductor.settings import *
 
-#from biostar.forum.settings import *
+from biostar.forum.settings import *
 
 
 logger = logging.getLogger("biostar")

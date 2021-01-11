@@ -1,7 +1,49 @@
 import logging, functools
+from functools import partial
 from django.conf import settings
 logger = logging.getLogger('biostar')
 import threading
+
+
+def thread(*args, **kwargs):
+    def outer(func, **kwargs):
+        if settings.DISABLE_TASKS:
+            return
+
+        @functools.wraps(func)
+        def inner(*args, **kwargs):
+            if settings.MULTI_THREAD:
+                # Run process in separate thread.
+                logger.info(f"new thread for function f{func} {args} {kwargs}")
+                t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
+                t.start()
+            else:
+                func(*args, **kwargs)
+
+        @functools.wraps(func)
+        def timed(secs, **kwargs):
+            # The loop repeats the timer.
+            def loop():
+                ticker = threading.Event()
+                while not ticker.wait(secs):
+                    func(*args, **kwargs)
+
+            if settings.MULTI_THREAD:
+                # Run process in separate thread, once.
+                logger.info(f"new time thread for function f{func} {args} {kwargs}")
+                t = threading.Thread(target=loop, daemon=True)
+                t.start()
+            else:
+                func(*args, **kwargs)
+
+        # Gains an attribute called spool that runs the function in the background.
+        inner.spool = inner
+        inner.delay = inner
+        inner.timer = timed
+        return inner
+
+    return outer
+
 
 try:
     # When run with uwsgi the tasks will be spooled via uwsgi.
@@ -15,47 +57,17 @@ except Exception as exc:
     logger.warning("uwsgi module not found, tasks will run in threads")
 
     # Create a threaded version of the spooler
-    def spool(pass_arguments=True):
-        def outer(func):
-            @functools.wraps(func)
-            def inner(*args, **kwargs):
-                if settings.DISABLE_TASKS:
-                    return
-                if settings.MULTI_THREAD:
-                    # Run process in separate thread.
-                    logger.info(f"new thread for function f{func} {args} {kwargs}")
-                    t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
-                    t.start()
-                else:
-                    func(*args, **kwargs)
-            inner.spool = inner
-            return inner
-        # Gains an attribute called spool that runs the function in the background.
-        return outer
+    spool = thread
+    timer = thread
 
-    # Create a threaded version of the timer
-    def timer(secs, **kwargs):
-        def outer(func):
-            @functools.wraps(func)
-            def inner(*args, **kwargs):
-                if settings.DISABLE_TASKS:
-                    return
 
-                # The loop repeats the timer.
-                def loop():
-                    ticker = threading.Event()
-                    while not ticker.wait(secs):
-                        func(*args, **kwargs)
+def spooler(f):
+    worker = spool(pass_arguments=True)(f)
+    worker.delay = worker.spool
+    return worker
 
-                if settings.MULTI_THREAD:
-                    # Run process in separate thread, once.
-                    logger.info(f"new time thread for function f{func} {args} {kwargs}")
-                    t = threading.Thread(target=loop, daemon=True)
-                    t.start()
-                else:
-                    func(*args, **kwargs)
 
-            inner.timer = inner
-            return inner
-        # Gains an attribute called timer that will run the function periodically.
-        return outer
+def threaded(f):
+    worker = thread()(f)
+    return worker
+

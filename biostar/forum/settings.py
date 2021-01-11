@@ -83,6 +83,10 @@ SEARCH_LIMIT = 20
 
 INIT_PLANET = False
 
+
+TASKS_CELERY = False
+TASKS_UWSGI = True
+
 # Minimum amount of characters to preform searches
 SEARCH_CHAR_MIN = 1
 
