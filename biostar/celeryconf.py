@@ -22,7 +22,7 @@ CELERYBEAT_SCHEDULE = {
     },
     'hourly_feed': {
         'task': 'biostar.celery.call_command',
-        'schedule': crontab(minute='*/2'),
+        'schedule': crontab(minute=10),
         'args': ["planet"],
         'kwargs': {"update": 1}
     },
