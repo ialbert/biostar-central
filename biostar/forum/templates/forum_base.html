@@ -110,8 +110,8 @@
     </span>
 
     {% block container %}
+        {% show_messages messages %}
         <div class="ui bottom attached segment">
-            {% show_messages messages %}
 
             {% block content %}
                 MAIN CONTENT

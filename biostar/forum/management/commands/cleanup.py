@@ -15,24 +15,30 @@ MAX_MSG = 100
 
 def prune_data(weeks=10, days=1):
 
-    # Delete spam
+    # Remove spam and deleted posts
+    past_days = now() - timedelta(days=days)
+
     spam_posts = Post.objects.filter(spam=Post.SPAM)
     logger.info(f"Deleting {spam_posts.count()} spam posts")
     spam_posts.delete()
 
-    past_days = now() - timedelta(days=days)
+    # Change posts that have been quarantined more than a day to spam.
+    quart_posts = Post.objects.filter(spam=Post.SUSPECT, creation_date__lt=past_days)
+    quart_posts.update(spam=Post.SPAM)
+
+    # Change the quarantined posts
     post_views = PostView.objects.filter(date__lt=past_days)
     logger.info(f"Deleting {post_views.count()} post views")
     post_views.delete()
 
     # Reduce overall messages.
     weeks_since = now() - timedelta(weeks=weeks)
-    messages = Message.objects.filter(sent_at__lt=weeks_since)
+    messages = Message.objects.filter(sent_date__lt=weeks_since)
     logger.info(f"Deleting {messages.count()} messages")
     messages.delete()
 
     # Get rid of too many messages
-    users = User.objects.annotate(total=Count("recipients")).filter(total__gt=MAX_MSG)[:100]
+    users = User.objects.annotate(total=Count("message__recipient")).filter(total__gt=MAX_MSG)[:100]
     for user in users:
         since = now() - timedelta(days=1)
         Message.objects.filter(user=user, sent_at__lt=since).delete()

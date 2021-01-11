@@ -90,6 +90,8 @@ DEFAULT_APPS = [
     'compressor',
     'taggit',
     'snowpenguin.django.recaptcha2',
+    'django_celery_results',
+    'django_celery_beat'
 ]
 
 # Enabled apps.
@@ -156,8 +158,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 
 ]
-
-CELERY_CONFIG = {}
 
 # Database settings.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
