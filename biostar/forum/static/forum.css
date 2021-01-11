@@ -59,6 +59,10 @@ body > .widen.container {
     opacity: .6;
 }
 
+.similar .dimmer{
+    height: 3% !important;
+}
+
 
 #menu-header .item .icon {
     font-size: 14px !important;
