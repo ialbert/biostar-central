@@ -50,7 +50,7 @@ class Blog(models.Model):
 
     def download(self):
         try:
-            text = request.urlopen(self.feed).read()
+            text = request.urlopen(self.feed).read().decode()
             stream = open(self.fname, 'wt')
             stream.write(text)
             stream.close()

@@ -11,7 +11,7 @@ logger = get_task_logger(__name__)
 from celery import Celery
 
 # Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'conf.run.site_settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'biostar.forum.settings')
 
 app = Celery('biostar')
 
@@ -22,6 +22,13 @@ app.config_from_object('biostar.celeryconf')
 app.autodiscover_tasks(
     lambda: ["biostar.forum.tasks"]
 )
+
+@app.task
+def call_command(name, *args, **kwargs):
+    "Calls a django command in a delayed fashion"
+    logger.info(f"calling django command {name} with {args} and {kwargs}")
+    from django.core.management import call_command
+    call_command(name, *args, **kwargs)
 
 @app.task
 def test(*args, **kwds):

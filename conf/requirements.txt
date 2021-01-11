@@ -29,5 +29,6 @@ hjson
 langdetect
 html2markdown
 celery
-django-celery-results
 redis
+django-celery-results
+django-celery-beat

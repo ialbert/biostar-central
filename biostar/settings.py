@@ -90,7 +90,8 @@ DEFAULT_APPS = [
     'compressor',
     'taggit',
     'snowpenguin.django.recaptcha2',
-    'django_celery_results'
+    'django_celery_results',
+    'django_celery_beat'
 ]
 
 # Enabled apps.
