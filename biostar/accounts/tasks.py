@@ -1,13 +1,14 @@
 import logging
+import inspect
+import functools
 from urllib.request import urlopen, Request
-
+from functools import partial
 import toml as hjson
 import mistune
 from django.conf import settings
 from django.template import loader
-
-from biostar.utils.decorators import spool
-
+from biostar.utils.decorators import spooler, threaded
+from biostar.celery import celery_task
 
 #
 # Do not use logging in tasks! Deadlocking may occur!
@@ -19,7 +20,15 @@ def message(msg, level=0):
     print(f"{msg}")
 
 
-@spool(pass_arguments=True)
+if settings.TASKS_CELERY:
+    task = celery_task
+elif settings.TASKS_UWSGI:
+    task = spooler
+else:
+    task = threaded
+
+
+@task
 def detect_location(ip, user_id):
     """
     Fills the user location based on url.
@@ -27,7 +36,6 @@ def detect_location(ip, user_id):
     from biostar.accounts.models import Profile
 
     msg = f"location check for \tid={user_id}\tip={ip}"
-
     # The lookup needs to be turned on.
     if not settings.LOCATION_LOOKUP:
         message(f"skip {msg}")
@@ -68,7 +76,7 @@ def detect_location(ip, user_id):
             message(exc)
 
 
-@spool(pass_arguments=True)
+@task
 def verification_email(user):
     from biostar.accounts import auth
 
@@ -76,7 +84,7 @@ def verification_email(user):
     return
 
 
-@spool(pass_arguments=True)
+@task
 def create_messages(template, rec_list, sender=None, extra_context={}):
     """
     Create batch message from sender to a given recipient_list

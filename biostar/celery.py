@@ -11,7 +11,7 @@ logger = get_task_logger(__name__)
 from celery import Celery
 
 # Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'conf.run.site_settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'biostar.forum.settings')
 
 app = Celery('biostar')
 
@@ -33,3 +33,10 @@ def call_command(name, *args, **kwargs):
 @app.task
 def test(*args, **kwds):
     logger.info(f"*** executing task {__name__} {args}, {kwds}")
+
+
+def celery_task(func):
+    worker = app.task(func)
+    # Compatible with uwsgi interface.
+    worker.spool = worker.delay
+    return worker

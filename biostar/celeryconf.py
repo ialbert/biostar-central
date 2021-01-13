@@ -2,18 +2,24 @@ from __future__ import absolute_import
 from datetime import timedelta
 from celery.schedules import crontab
 
-#CELERY_RESULT_BACKEND = 'djcelery.backends.database:DatabaseBackend'
-CELERY_RESULT_BACKEND = 'django-db'
+
+RESULT_BACKEND = 'django-db'
 
 BROKER_URL = 'redis://127.0.0.1:6379'
 
-CELERY_TASK_SERIALIZER = 'pickle'
+# Mitigate deprecation error:
+#     The 'BROKER_URL' setting is deprecated and scheduled for removal in
+#     version 6.0.0. Use the broker_url instead
 
-CELERY_ACCEPT_CONTENT = ['pickle']
+broker_url = BROKER_URL
 
-CELERYBEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+TASK_SERIALIZER = 'json'
 
-CELERYBEAT_SCHEDULE = {
+ACCEPT_CONTENT = ['json']
+
+BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+BEAT_SCHEDULE = {
 
     'cleanup': {
         'task': 'biostar.celery.call_command',
@@ -35,4 +41,4 @@ CELERYBEAT_SCHEDULE = {
     },
 
 }
-CELERY_TIMEZONE = 'UTC'
+TIMEZONE = 'UTC'
