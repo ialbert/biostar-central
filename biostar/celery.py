@@ -37,5 +37,6 @@ def test(*args, **kwds):
 
 def celery_task(func):
     worker = app.task(func)
+    # Compatible with uwsgi interface.
     worker.spool = worker.delay
     return worker

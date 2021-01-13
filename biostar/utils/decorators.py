@@ -63,6 +63,7 @@ except Exception as exc:
 
 def spooler(f):
     worker = spool(pass_arguments=True)(f)
+    # Compatible with celery interface.
     worker.delay = worker.spool
     return worker
 
