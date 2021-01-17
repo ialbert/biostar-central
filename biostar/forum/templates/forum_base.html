@@ -20,11 +20,12 @@
     {% endblock %}
     {# Load JQuery. #}
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
+    <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script defer src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link disabled rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
 
-    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+    <script defer src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+
     {# Google tracker injected if it exists in the context. Set in the django settings. #}
     {% if google_tracker %}
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -32,7 +33,9 @@
         <script>
             window.dataLayer = window.dataLayer || [];
 
-            function gtag() {dataLayer.push(arguments);}
+            function gtag() {
+                dataLayer.push(arguments);
+            }
 
             gtag('js', new Date());
 
@@ -51,7 +54,9 @@
             }
         };
     </script>
+{% comment %}
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>
+{% endcomment %}
 
     {# Load recaptcha #}
     {% recaptcha_init %}
@@ -59,7 +64,19 @@
     {#  CSS compression. #}
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
-        <link href="{% static 'prism.css' %}" rel="stylesheet">
+        {#  Preload key requests #}
+        <link rel="preload" as="font" type="font/woff" href="{% static 'themes/default/assets/fonts/icons.woff' %}"
+              crossorigin="anonymous">
+        <link rel="preload" as="font" type="font/woff" href="{% static 'themes/default/assets/fonts/icons.woff2' %}"
+              crossorigin="anonymous">
+        <link rel="preload" as="font" type="font/woff"
+              href="{% static 'themes/default/assets/fonts/outline-icons.woff2' %}"
+              crossorigin="anonymous">
+        <link rel="preload" as="font" type="font/woff"
+              href="{% static 'themes/default/assets/fonts/outline-icons.woff' %}"
+              crossorigin="anonymous">
+
+        <link href="{% static 'prism.css' %}" rel="stylesheet" media="print">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
         {% block cssfile %}
         {% endblock %}
@@ -69,7 +86,7 @@
     {# Javascript compression. #}
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
-        <script src="{% static 'prism.js' %}"></script>
+        <script defer src="{% static 'prism.js' %}"></script>
         <script src="{% static 'forum.js' %}{% randparam %}"></script>
         <script src="{% static 'setup.js' %}{% randparam %}"></script>
 

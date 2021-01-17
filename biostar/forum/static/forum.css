@@ -49,7 +49,6 @@ body > .widen.container {
 
 #menu-header .item {
     color: #333333;
-/ / text-transform: uppercase;
 
 }
 
@@ -241,7 +240,6 @@ i.icon {
     position: absolute;
     color: #3c763d;
     padding: 15px;
-/ / margin-top: 4 ex;
 
     border-radius: .28571429rem;
     z-index: 100;
@@ -367,7 +365,6 @@ i.icon {
 }
 
 .post #modpanel {
-/ / width: 60 %;
     margin-right: 20%;
     padding-top: 10px;
     padding-bottom: 10px;
@@ -485,13 +482,11 @@ figure {
     background-color: #ffd2cf !important;
     opacity: .6;
     border: none !important;
-/ / border-radius: 12 px !important;
 }
 
 .post.quarantine {
     background-color: #f6f8ce !important;
     border: none !important;
-/ / border-radius: 8 px !important;
 }
 
 #dim-similar {
@@ -687,7 +682,6 @@ img {
 
 .preformatted {
   font-family: monospace;
-  //white-space: pre;
   white-space: pre-wrap; /* css-3 */
   white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
   white-space: -pre-wrap; /* Opera 4-6 */

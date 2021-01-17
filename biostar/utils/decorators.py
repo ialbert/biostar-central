@@ -62,6 +62,20 @@ except Exception as exc:
 
 
 def spooler(f):
+    """
+    Alias to call .delay when calling .spool
+
+    @spooler
+    def job(foo):
+       pass
+
+    # Uwsgi type of launch
+    job.spool(foo='')
+
+    # Celery type of launch
+    job.delay(foo='')
+
+    """
     worker = spool(pass_arguments=True)(f)
     # Compatible with celery interface.
     worker.delay = worker.spool
