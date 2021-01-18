@@ -216,7 +216,7 @@ def notify_followers(subs, author, extra_context={}):
     from biostar.forum.models import Subscription
     from biostar.accounts.models import Profile
     from django.conf import settings
-    message('Notifying users')
+
     # Template used to send local messages
     local_template = "messages/subscription_message.md"
 
