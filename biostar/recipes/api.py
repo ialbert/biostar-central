@@ -134,11 +134,12 @@ def json_list(qs=None, show_image=False, user=None):
 def api_list(request):
     # Get the token and user
     token = auth.get_token(request=request)
+    show_all = bool(request.GET.get('show', 0))
 
     user = User.objects.filter(profile__token=token).first()
 
-    # Admins get all projects
-    if user.is_admin:
+    # Admins can get all projects
+    if user.is_admin and show_all:
         projects = Project.objects.filter(deleted=False).all()
     else:
         # Get the project list corresponding to this user returns public projects if user is None.
