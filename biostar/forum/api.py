@@ -313,8 +313,7 @@ def tags_list(request):
     lines = tags.readlines() if tags else []
 
     data = {}
-    print(tags)
-    
+
     for line in lines:
         tag = line.decode().lower().strip()
         if not tag:
@@ -327,6 +326,5 @@ def tags_list(request):
 
         val = dict(total=total, answer_count=answer_count, comment_count=comment_count)
         data.setdefault(tag, {}).update(val)
-    print(data)
-    1/0
+
     return data
