@@ -18,8 +18,8 @@
     {% block favicon %}
         <link rel="icon" href="{% static 'forum_favicon.ico' %}" type="image/x-icon"/>
     {% endblock %}
-    {# Load JQuery. #}
-    {% block external %}
+    {# Optional block header content. #}
+    {% block head %}
     {% endblock %}
 
     {# Google tracker injected if it exists in the context. Set in the django settings. #}
@@ -39,7 +39,7 @@
         </script>
 
     {% endif %}
-  {# <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>#}
+    {# <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>#}
 
     <script>
         MathJax = {
@@ -59,16 +59,16 @@
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         {#  Preload key requests #}
-    <link rel="preload" as="font" type="font/woff" href="{% static 'themes/default/assets/fonts/icons.woff' %}"
-          crossorigin="anonymous">
-    <link rel="preload" as="font" type="font/woff" href="{% static 'themes/default/assets/fonts/icons.woff2' %}"
-          crossorigin="anonymous">
-    <link rel="preload" as="font" type="font/woff"
-          href="{% static 'themes/default/assets/fonts/outline-icons.woff2' %}"
-          crossorigin="anonymous">
-    <link rel="preload" as="font" type="font/woff"
-          href="{% static 'themes/default/assets/fonts/outline-icons.woff' %}"
-          crossorigin="anonymous">
+        <link rel="preload" as="font" type="font/woff" href="{% static 'themes/default/assets/fonts/icons.woff' %}"
+              crossorigin="anonymous">
+        <link rel="preload" as="font" type="font/woff" href="{% static 'themes/default/assets/fonts/icons.woff2' %}"
+              crossorigin="anonymous">
+        <link rel="preload" as="font" type="font/woff"
+              href="{% static 'themes/default/assets/fonts/outline-icons.woff2' %}"
+              crossorigin="anonymous">
+        <link rel="preload" as="font" type="font/woff"
+              href="{% static 'themes/default/assets/fonts/outline-icons.woff' %}"
+              crossorigin="anonymous">
 
         <link href="{% static 'prism.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
@@ -84,10 +84,6 @@
         {% endblock %}
     {% endcompress %}
 
-    {# Optional block header content. #}
-    {% block head %}
-
-    {% endblock %}
 
     {# Optional css header content. #}
     {% block css %}
