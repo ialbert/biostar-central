@@ -10,7 +10,7 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
-{% block cssfile %}
+{% block cs %}
     <link rel="stylesheet" href="{% static 'autocomplete/tribute.css' %}" />
     <link rel="stylesheet" href="{% static 'autocomplete/at.who.css' %}" />
     <link href="{% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
@@ -18,7 +18,7 @@
 {% endblock %}
 
 
-{% block jsfile %}
+{% block js %}
     <script src="{% static 'autocomplete/tribute.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
