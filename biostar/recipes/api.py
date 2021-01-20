@@ -112,6 +112,8 @@ def encode_recipe(recipe, show_image=False, user=None):
 
     if user and user.is_admin:
         store['owner_email'] = recipe.owner.email
+        store['owner_first_name'] = project.owner.first_name
+        store['owner_text'] = project.owner.profile.text
 
     return store
 
