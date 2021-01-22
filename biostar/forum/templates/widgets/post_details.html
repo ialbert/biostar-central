@@ -47,10 +47,10 @@
                 <div class="ui simple dropdown spam">
                     <i class="bug orange icon"></i>
                     <div class="menu">
-                        <div class="mark item">Mark as Spam</div>
+                        <a href="{% url 'mark_spam' post.uid %}" class="mark item">Mark as Spam</a>
 
                         {% if post.suspect_spam %}
-                            <div class="release item">Release</div>
+                            <a href="{% url 'release_spam' post.uid %}" class="release item">Release</a>
                         {% endif %}
 
                     </div>

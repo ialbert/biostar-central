@@ -1,8 +1,22 @@
 import logging, functools
 from functools import partial
 from django.conf import settings
+from django.shortcuts import redirect
+from django.contrib import messages
 logger = logging.getLogger('biostar')
 import threading
+
+
+def is_moderator(f):
+
+    def inner(request, **kwargs):
+        user = request.user
+        if user.is_authenticated and user.profile.is_moderator:
+            return f(request, **kwargs)
+        messages.warning(request, "You need to be a moderator to perform this action.")
+        return redirect('/')
+
+    return inner
 
 
 def thread(*args, **kwargs):

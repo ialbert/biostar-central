@@ -105,58 +105,6 @@ function highlight(text) {
 }
 
 
-function mark_spam(post) {
-    var uid = post.data("value");
-    $.ajax('/ajax/report/spam/' + uid + "/",
-        {
-            type: 'GET',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {},
-            success: function (data) {
-
-                if (data.status === 'error') {
-                    popup_message(post, data.msg, data.status);
-
-                } else {
-                    popup_message(post, data.msg, data.status);
-                    post.removeClass('open').removeClass('quarantine').addClass('spam');
-                }
-
-            },
-            error: function (xhr, status, text) {
-                error_message(post, xhr, status, text)
-            }
-        });
-}
-
-
-function release_suspect(post) {
-
-    var uid = post.data("value");
-    $.ajax('/release/' + uid + "/",
-        {
-            type: 'GET',
-            dataType: 'json',
-            ContentType: 'application/json',
-            data: {},
-            success: function (data) {
-
-                if (data.status === 'error') {
-                    popup_message(post, data.msg, data.status);
-                } else {
-                    popup_message(post, data.msg, data.status);
-                    post.removeClass('quarantine').addClass('open');
-                }
-
-            },
-            error: function (xhr, status, text) {
-                error_message(post, xhr, status, text)
-            }
-        });
-}
-
-
 function moderate(uid, container, url) {
 
     //event.preventDefault();
@@ -306,18 +254,6 @@ function highligh_preview(form, text) {
 }
 
 $(document).ready(function () {
-
-    $('.spam').dropdown({on: 'hover'});
-    $('.spam .mark.item').click(function (event) {
-        var post = $(this).closest('.post');
-        mark_spam(post);
-    });
-
-    $('.spam .release.item').click(function (event) {
-        var post = $(this).closest('.post');
-        release_suspect(post);
-
-    });
 
     $('#similar-feed').each(function () {
         var elem = $(this);
