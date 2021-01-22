@@ -50,7 +50,7 @@
                         <a href="{% url 'mark_spam' post.uid %}" class="mark item">Mark as Spam</a>
 
                         {% if post.suspect_spam %}
-                            <a href="{% url 'release_spam' post.uid %}" class="release item">Release</a>
+                            <a href="{% url 'release_quar' post.uid %}" class="release item">Release</a>
                         {% endif %}
 
                     </div>

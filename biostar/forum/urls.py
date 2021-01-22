@@ -54,7 +54,7 @@ forum_patterns = [
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 
     path(r'mark/spam/<str:uid>/', views.mark_spam, name='mark_spam'),
-    path(r'mark/spam/<str:uid>/', views.release_quar, name='api_user'),
+    path(r'mark/spam/<str:uid>/', views.release_quar, name='release_quar'),
 
     # Community urls
     path('community/', views.community_list, name='community_list'),
