@@ -1,4 +1,4 @@
-{% extends "forum_list.html" %}
+{% extends "base_view.html" %}
 {% load forum_tags %}
 {% load static %}
 
@@ -27,6 +27,9 @@
     <script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
     <script type="text/javascript" src="{% static 'pagedown_init.js' %}{% randparam %}"></script>
 
+    <script src="{% static 'semantic.min.js' %}"></script>
+    <script src="{% static 'prism.js' %}"></script>
+    <script src="{% static 'setup.js' %}{% randparam %}"></script>
 
     <script src="{% static 'markdown-it.js' %}"></script>
     <script src="{% static 'autocomplete/at.who.js' %}"></script>

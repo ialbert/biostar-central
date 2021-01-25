@@ -1,0 +1,7 @@
+{% extends 'base_view.html' %}
+{% load static %}
+{% load forum_tags %}
+
+{% block jsfile %}
+     <script src="{% static 'theme.js' %}{% randparam %}"></script>
+{% endblock %}

@@ -13,7 +13,6 @@
     <div id="clipboard">{% clipboard project.uid %}</div>
     <div class="ui large secondary pointing  menu">
 
-
         <a class="{% activate 'info' active %} item" href="{% url 'project_view' project.uid %}">
             <i class="info circle icon"></i><span class="phone">Project</span>
         </a>
@@ -36,8 +35,6 @@
                 <i class="angle double down icon"></i> <span class="tablet">{{ activate }}</span>
             </div>
         {% endif %}
-
-
 
     </div>
 

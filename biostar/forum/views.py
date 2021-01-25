@@ -20,7 +20,7 @@ from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription
-
+from biostar.utils.decorators import is_moderator
 
 User = get_user_model()
 
@@ -192,6 +192,41 @@ def pages(request, fname):
     context = dict(file_path=doc, tab=fname, admins=admins, mods=mods)
 
     return render(request, 'pages.html', context=context)
+
+
+@is_moderator
+def mark_spam(request, uid):
+    """
+    Mark post as a
+    """
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
+        messages.error(request, "Post does noe exist.")
+        return redirect('/')
+
+    auth.Moderate(post=post, action=REPORT_SPAM, user=request.user)
+
+    return redirect('/')
+
+
+@is_moderator
+def release_quar(request, uid):
+    """
+    Release quarantined post to the public.
+    """
+    post = Post.objects.filter(uid=uid).first()
+    if not post:
+        messages.error(request, "Post does noe exist.")
+        return redirect('/')
+
+    # Bump the score by one is the user does not get quarantined again.
+    # Tells the system user has gained antibodies!
+    if post.author.profile.low_rep:
+        post.author.profile.bump_over_threshold()
+
+    Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
+
+    return redirect('/')
 
 
 @ensure_csrf_cookie

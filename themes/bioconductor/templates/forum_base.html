@@ -10,10 +10,6 @@
     <link href="{% static 'theme.css' %}{% randparam %}" rel="stylesheet">
 {% endblock %}
 
-{% block jsfile %}
-     <script src="{% static 'theme.js' %}{% randparam %}"></script>
-{% endblock %}
-
 {% block topmenu %}
         {% include "banners/menu-topics.html" %}
         {% include "banners/menu-header.html" %}

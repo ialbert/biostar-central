@@ -296,6 +296,7 @@ def tags_list(request):
 
     # How many months prior to look back
     months = request.POST.get('months', '6')
+
     try:
         months = int(months) if months.isalmun() else float(months)
     except Exception as exc:
@@ -319,8 +320,8 @@ def tags_list(request):
             continue
 
         posts = query.filter(tags__name=tag)
-        answer_count = posts.filter(type=Post.ANSWER).count()
-        comment_count = posts.filter(type=Post.COMMENT).count()
+        answer_count = Post.objects.filter(root__in=posts, type=Post.ANSWER).count()
+        comment_count = Post.objects.filter(root__in=posts, type=Post.COMMENT).count()
         total = posts.count()
 
         val = dict(total=total, answer_count=answer_count, comment_count=comment_count)
