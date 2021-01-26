@@ -59,7 +59,7 @@
     {% compress css %}
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet" >
         {#  Preload key requests #}
-        <link href="{% static 'forum.css' %}{% randparam %}">
+        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet" >
         {% block cssfile %}
         {% endblock %}
 
