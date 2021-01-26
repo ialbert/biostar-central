@@ -54,12 +54,15 @@
 
     {# Load recaptcha #}
     {#% recaptcha_init %#}
+{% compress css inline %}
+    <link href="{% static 'critical.css' %}" rel="stylesheet" >
+{% endcompress %}
 
     {#  CSS compression. #}
     {% compress css %}
-        <link href="{% static 'semantic.min.css' %}" rel="stylesheet" >
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet" media="print" onload="this.media='all'">
         {#  Preload key requests #}
-        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet" >
+        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet" media="print" onload="this.media='all'">
         {% block cssfile %}
         {% endblock %}
 
