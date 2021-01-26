@@ -63,8 +63,8 @@
     {% compress css %}
         <link href="{% static 'uncritical.css' %}" rel="stylesheet" media="print" onload="this.media='all'" >
        {% comment %} <link href="{% static 'semantic.min.css' %}" rel="stylesheet" media="print" onload="this.media='all'">
-        {#  Preload key requests #}
-        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet" media="print" onload="this.media='all'">{% endcomment %}
+        {#  Preload key requests #}{% endcomment %}
+        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet" media="print" onload="this.media='all'">
         {% block cssfile %}
         {% endblock %}
 
