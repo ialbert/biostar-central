@@ -19,9 +19,9 @@
             <div>View{{ post.root.view_count|pluralize }}</div>
         </div>
         {% block counts %}
-            {% if post.subs_count > 4 %}
-                {% subscription_label post.subs_count %}
-            {% endif %}
+            {#% if post.subs_count > 4 %#}
+                {% subscription_label 5 %}
+            {#% endif %#}
         {% endblock %}
 
     </div>
