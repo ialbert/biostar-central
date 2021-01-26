@@ -56,18 +56,17 @@
     {#% recaptcha_init %#}
 
     {#  CSS compression. #}
-    {% compress css inline %}
-        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
+    {% compress css %}
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet" >
         {#  Preload key requests #}
-        <link href="{% static 'prism.css' %}" rel="stylesheet">
-        <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
+        <link href="{% static 'forum.css' %}{% randparam %}">
         {% block cssfile %}
         {% endblock %}
 
     {% endcompress %}
 
     {# Javascript compression. #}
-    {% compress js inline %}
+    {% compress js  %}
 
         {% block jsfile %}
         {% endblock %}
