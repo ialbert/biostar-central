@@ -193,6 +193,17 @@ def traffic(request):
 
 
 @json_response
+def api_tag(request, tag):
+    """
+    Return list of post uids that have a tag.
+    """
+    posts = Post.objects.filter(tags__name=tag.lower()).values_list('uid', flat=True)
+    posts = list(posts)
+
+    return posts
+
+
+@json_response
 def user_email(request, email):
     user = User.objects.filter(email__iexact=email.lower())
     if user.exists():
