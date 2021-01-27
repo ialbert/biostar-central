@@ -61,6 +61,9 @@
 
     {#  CSS compression. #}
     {% compress css %}
+{% comment %}<link href="{% static 'semantic.min.css' %}" rel="stylesheet">{% endcomment %}
+<link rel="preload" href="{% static 'semantic.min.css' %}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{% static 'semantic.min.css' %}"></noscript>
 
         {#  Preload key requests #}
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
@@ -88,7 +91,6 @@
 
 </head>
 
-<link href="{% static 'semantic.min.css' %}" rel="stylesheet">
 
 <body>
 
