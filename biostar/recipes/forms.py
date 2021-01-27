@@ -244,8 +244,9 @@ class DataUploadForm(forms.ModelForm):
             if not cleaned_data.get("data_name"):
                 raise forms.ValidationError("Name is required with text inputs.")
 
-        total_count = Data.objects.filter(owner=self.user).count()
-        if total_count >= settings.MAX_DATA:
+        total_count = Data.objects.filter(owner=self.user, deleted=False).count()
+
+        if total_count >= settings.MAX_DATA and not self.user.profile.is_moderator:
             raise forms.ValidationError(f"Exceeded maximum amount of data:{settings.MAX_DATA}.")
         return cleaned_data
 
