@@ -112,7 +112,10 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     elif topic == FOLLOWING and user.is_authenticated:
         query = query.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
     elif topic == MYPOSTS and user.is_authenticated:
-        query = query.filter(author=user)
+        # Show users all of there posts ( deleted, spam, or quarantined )
+        query = Post.objects.filter(author=user)
+        #query = query.filter(author=user)
+
     elif topic == MYVOTES and user.is_authenticated:
         query = query.filter(votes__post__author=user)
     elif topic == MYTAGS and user.is_authenticated:

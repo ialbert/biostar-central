@@ -26,8 +26,7 @@
             {% endif %}
 
         </a>
-        <a class="item {% activate tab "myvotes" %}"
-           href="{% url 'myvotes' %}">
+        <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
 
             {% if counts.votes.count %}
                 <div class="ui pink label"><i class="heart icon"></i> Votes ({{ counts.votes.count }})</div>
