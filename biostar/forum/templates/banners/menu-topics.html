@@ -18,7 +18,7 @@
 
             {% if counts.messages.count %}
 
-                <div class="ui green large label">
+                <div class="ui green label">
                     <i class="envelope icon"></i>Messages ({{ counts.messages.count }})
                    </div>
             {%  else %}
@@ -30,7 +30,7 @@
            href="{% url 'myvotes' %}">
 
             {% if counts.votes.count %}
-                <div class="ui pink label"><i class="heart icon"></i> New Votes ({{ counts.votes.count }})</div>
+                <div class="ui pink label"><i class="heart icon"></i> Votes ({{ counts.votes.count }})</div>
             {%  else %}
                 <i class="heart icon"></i> Votes
             {% endif %}
