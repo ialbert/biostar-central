@@ -55,19 +55,10 @@
     {# Load recaptcha #}
     {#% recaptcha_init %#}
 
-    {% compress css inline %}
-        <link href="{% static 'critical.css' %}" rel="stylesheet">
-    {% endcompress %}
-
     {#  CSS compression. #}
     {% compress css %}
 
-        <link rel="preload" href="{% static 'semantic.min.css' %}" as="style"
-              onload="this.onload=null;this.rel='stylesheet'">
-        <noscript>
-            <link rel="stylesheet" href="{% static 'semantic.min.css' %}">
-        </noscript>
-
+        <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         {#  Preload key requests #}
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
         {% block cssfile %}

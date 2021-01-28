@@ -37,8 +37,7 @@ body {
 }
 
 .ui-droppable-hover {
-    border: #10ee0a dotted 5px !important;
-    height: 50% !important;
+    border-bottom: #10ee0a solid 5px !important;
 }
 
 .draggable {
