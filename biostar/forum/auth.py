@@ -287,9 +287,10 @@ def post_tree(user, root):
 
     # Get all posts that belong to post root.
     query = Post.objects.valid_posts(u=user, root=root).exclude(pk=root.id)
+
     # Filter quarantined and deleted comments or answers.
     if user.is_anonymous or not user.profile.is_moderator:
-        query = query.exclude(Q(spam=Post.SUSPECT) | Q(status=Post.DELETED))
+        query = query.exclude(Q(spam=Post.SUSPECT) | Q(status=Post.DELETED) | Q(spam=Post.SPAM))
 
     query = query.select_related("lastedit_user__profile", "author__profile", "root__author__profile")
 

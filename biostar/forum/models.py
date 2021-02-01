@@ -35,8 +35,11 @@ class PostManager(models.Manager):
         if u and u.is_authenticated and u.profile.is_moderator:
             return query
 
+        # Users get to see their own quarantined posts.
+
         # Filter for open posts that are not spam.
         query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
+
         query = query.filter(models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT) |
                              models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT))
 

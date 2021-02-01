@@ -42,19 +42,6 @@ def spam_scoring(post):
         message(exc)
 
 
-def tpatt(tag):
-    """
-    Return pattern matching a tag found in comma separated string.
-    (?i)             : case-insensitive flag
-    ^{tag}\\s*,      : matches beginning
-    ,\\s*{tag}\\s*,  : matches middle
-    ,\\s*{tag}$      : matches end
-    ^{tag}[^\\w+]    : matches single entry ( no commas )
-    """
-    patt = fr"(?i)(^{tag}\s*,|,\s*{tag}\s*,|,\s*{tag}$|^{tag}$)"
-    return patt
-
-
 @task
 def notify_watched_tags(post, extra_context):
     """
@@ -63,7 +50,7 @@ def notify_watched_tags(post, extra_context):
     from biostar.accounts.models import User
     from django.conf import settings
 
-    users = [User.objects.filter(profile__watched_tags__iregex=tpatt(tag.name)).distinct()
+    users = [User.objects.filter(profile__watched__name=tag.name).distinct()
              for tag in post.root.tags.all()]
 
     # Flatten nested users queryset and get email.

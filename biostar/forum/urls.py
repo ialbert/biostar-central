@@ -63,6 +63,7 @@ forum_patterns = [
     # Api calls
     path(r'api/traffic/', api.traffic, name='api_traffic'),
     path(r'api/user/<str:uid>/', api.user_details, name='api_user'),
+    path(r'api/tag/<str:tag>/', api.api_tag, name='api_tag'),
     path(r'api/tags/list/', api.tags_list, name='api_tags_list'),
     path(r'api/post/<str:uid>/', api.post_details, name='api_post'),
     path(r'api/vote/<str:uid>/', api.vote_details, name='api_vote'),

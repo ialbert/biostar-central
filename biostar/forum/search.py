@@ -13,6 +13,7 @@ from whoosh.writing import AsyncWriter
 from whoosh.searching import Results
 
 import html2markdown
+import bleach
 from whoosh.qparser import MultifieldParser, OrGroup
 from whoosh.analysis import STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
@@ -107,8 +108,9 @@ def index_exists(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME):
 
 
 def add_index(post, writer):
-    # user html2markdown to clean text.
-    content = html2markdown.convert(post.content)
+
+    # Ensure the content is stripped of any html.
+    content = bleach.clean(post.content, styles=[], attributes={}, tags=[], strip=True)
     writer.update_document(title=post.title, url=post.get_absolute_url(),
                            type_display=post.get_type_display(),
                            content_length=len(content),

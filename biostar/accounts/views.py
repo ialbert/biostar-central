@@ -36,6 +36,7 @@ logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
+
 def edit_profile(request):
     if request.user.is_anonymous:
         messages.error(request, "Must be logged in to edit profile")
@@ -57,7 +58,6 @@ def edit_profile(request):
             username = form.cleaned_data["username"]
             email = form.cleaned_data['email']
             User.objects.filter(pk=user.pk).update(username=username, email=email)
-            # Update user information in Profile object.
             Profile.objects.filter(user=user).update(name=form.cleaned_data['name'],
                                                      watched_tags=form.cleaned_data['watched_tags'],
                                                      location=form.cleaned_data['location'],
@@ -69,6 +69,8 @@ def edit_profile(request):
                                                      message_prefs=form.cleaned_data["message_prefs"],
                                                      html=markdown(form.cleaned_data["text"]),
                                                      digest_prefs=form.cleaned_data['digest_prefs'])
+            # Recompute watched tags
+            Profile.objects.filter(user=user).first().add_watched()
 
             return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 

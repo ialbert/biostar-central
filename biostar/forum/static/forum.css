@@ -52,6 +52,10 @@ body > .widen.container {
 
 }
 
+.ui.form .form-wrap .field>.selection.dropdown {
+    min-width: 0 !important;
+}
+
 .voting .ui.button {
     background: none;
     padding: 5px;

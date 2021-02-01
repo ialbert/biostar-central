@@ -56,10 +56,10 @@
     {#% recaptcha_init %#}
 
     {#  CSS compression. #}
-    {% compress css inline %}
+    {% compress css %}
+
         <link href="{% static 'semantic.min.css' %}" rel="stylesheet">
         {#  Preload key requests #}
-        <link href="{% static 'prism.css' %}" rel="stylesheet">
         <link href="{% static 'forum.css' %}{% randparam %}" rel="stylesheet">
         {% block cssfile %}
         {% endblock %}
@@ -67,14 +67,12 @@
     {% endcompress %}
 
     {# Javascript compression. #}
-    {% compress js inline %}
+    {% compress js %}
 
         {% block jsfile %}
         {% endblock %}
 
     {% endcompress %}
-
-
 
     {# Optional css header content. #}
     {% block css %}
@@ -86,6 +84,8 @@
     {% endblock %}
 
 </head>
+
+
 <body>
 
 <div class="ui inverted container widen">
@@ -120,6 +120,8 @@
     {% endblock %}
 </div>
 
+
 </body>
+
 </html>
 
