@@ -196,11 +196,7 @@ def user_signup(request):
             user = form.save()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             Profile.objects.filter(user=user).update(last_login=now())
-            messages.success(request, "Login successful!")
-            msg = mark_safe("Signup successful!")
             tasks.verification_email.spool(user=user)
-            messages.info(request, msg)
-
             return redirect("/")
 
     else:
@@ -290,7 +286,6 @@ def user_login(request):
 
             if valid_user:
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-                messages.success(request, "Login successful!")
                 return redirect(next_url)
             else:
                 messages.error(request, mark_safe(message))

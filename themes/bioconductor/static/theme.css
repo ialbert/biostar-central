@@ -3,7 +3,7 @@
     --active-item-hover: #fbfdef;
 }
 
-body > .widen.container {
+body > .main.container {
     width: 97%;
 }
 

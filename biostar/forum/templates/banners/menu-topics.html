@@ -18,7 +18,7 @@
 
             {% if counts.messages.count %}
 
-                <div class="ui green label">
+                <div class="ui green button">
                     <i class="envelope icon"></i>Messages ({{ counts.messages.count }})
                    </div>
             {%  else %}
@@ -29,7 +29,7 @@
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
 
             {% if counts.votes.count %}
-                <div class="ui pink label"><i class="heart icon"></i> Votes ({{ counts.votes.count }})</div>
+                <div class="ui pink button"><i class="heart icon"></i> Votes ({{ counts.votes.count }})</div>
             {%  else %}
                 <i class="heart icon"></i> Votes
             {% endif %}
