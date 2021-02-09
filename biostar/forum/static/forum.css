@@ -1,7 +1,6 @@
 :root {
-    --active-item-color: blue;
-    --active-item-hover: #f1f4e9;
-    --active-item-bg-color: #f1f4e9;
+    --active-item-color: #9f3b17;
+    --active-item-bg-color: white;
     --root-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
     --page-width: 1200px;
     --page-bg-color: #f8f8f9;
@@ -112,7 +111,7 @@ body > .main.container {
 }
 
 #menu-header .item:hover:not(#logo) {
-    background-color: var(--active-item-hover);
+   color: var(--active-item-color);
 }
 
 #menu-header .item {
@@ -122,7 +121,7 @@ body > .main.container {
 
 #menu-header .item.active {
     font-weight: bold;
-    background-color: var(--active-item-bg-color);
+    color: var(--active-item-color);
 }
 
 .ui.pointing.menu .active.item:after {
@@ -139,7 +138,7 @@ body > .main.container {
 }
 
 #menu-topics .item:hover {
-    background-color: var(--active-item-hover);
+    color: var(--active-item-color);
 }
 
 #menu-topics .item:before {
@@ -148,6 +147,7 @@ body > .main.container {
 
 #menu-topics .item.active {
     font-weight: bold;
+    color: var(--active-item-color);
     background-color: var(--active-item-bg-color);
 }
 
