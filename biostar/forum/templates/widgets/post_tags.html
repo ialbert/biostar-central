@@ -1,11 +1,8 @@
 {% load forum_tags %}
 
-
-
-<span class="tags {% if spaced %}spaced-tags{% else %}{% endif %}" style="">
     {% for tag in tags %}
         {% if tag %}
-        <a class="ui small label tags-list trigger-highlight" href="{% url 'post_list' %}?tag={{ tag }}">
+        <a class="ptag" href="{% url 'post_list' %}?tag={{ tag }}">
             {{ tag }}
         </a>
         {% endif %}
@@ -14,4 +11,4 @@
     {% if show_views %}
         &bull; {{ post.root.view_count|bignum }} views
     {% endif %}
-</span>
+

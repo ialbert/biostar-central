@@ -1,5 +1,5 @@
 :root {
-    --active-item-color: #9f3b17;
+    --active-item-color: #663b72;
     --active-item-bg-color: white;
     --root-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
     --page-width: 1200px;
@@ -122,6 +122,7 @@ body > .main.container {
 #menu-header .item.active {
     font-weight: bold;
     color: var(--active-item-color);
+    background-color: var(--active-item-bg-color);
 }
 
 .ui.pointing.menu .active.item:after {
@@ -169,32 +170,18 @@ body > .main.container {
     width: max-content;
 }
 
-.ui.small.label.tags-list {
-    font-weight: inherit;
-    font-size: small;
-    padding: .4em .4em .4em .4em;
-
-}
-
-.ui.grid.tags-list {
-    margin: 0px;
-}
-
-.ui.grid.tags-list > .column {
-    padding: 3px;
-}
-
-.ui.small.label.tags-list.listing {
-    padding: 5px;
-}
-
-.ui.tags-list.icon {
-    margin: 0px;
-}
-
-.spaced-tags {
-    padding-bottom: 10px;
-    padding-top: 10px;
+.ptag {
+    float: left;
+    margin-right: 5px;
+    padding: 1px 4px 1px 4px;
+    text-decoration: none;
+    background-color: #ececec;
+    border-bottom: 1px solid #bbbbbb;
+    border-right: 1px solid #bbbbbb;
+    color: #6b3e4a;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
 
 .ui.segment, .ui.segments .segment {
@@ -784,7 +771,8 @@ img {
 }
 
 .ui.divided.items > .post.item {
-    border: none;
+    //border: none;
+    padding: .5em 0;
 }
 
 .ui.divided.items > .item {
