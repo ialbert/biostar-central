@@ -1,20 +1,13 @@
 {% load forum_tags %}
 {% load static %}
 
-<div width="200px">
-    PNG: <a href="/"><img class="ui image"  src="{% static "images/logox.png" %}"></a>
-    <hr>
-    SVG: <a href="/"><img class="ui image" width="200px"  src="{% static "images/logox.svg" %}"></a>
-    <hr>
-
-</div>
 
 <div class="ui labeled icon top attached evenly divided menu" id="menu-header" user-id="{{ request.user.id }}">
 
 
     {% block headimg %}
         <div class="header item" id="logo">
-            <!-- <a href="/"><img class="ui image"  src="{% static "images/logox.png" %}"></a> -->
+            <a href="/"><img width="200px"  src="{% static "images/logo4.svg" %}"></a>
         </div>
     {% endblock %}
 
