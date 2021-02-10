@@ -1,8 +1,13 @@
-#!/bin/bash
-set -ue
+# Load the conda commands.
+source ~/miniconda3/etc/profile.d/conda.sh
 
-# This is required so that the default configuration file works.
-source /home/www/sites/biostar-central/live/deploy.env
+export POSTGRES_HOST=/var/run/postgresql
+
+# Activate the conda environemnt.
+conda activate engine
+
+# Set the configuration module.
+export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
 # Location of the log file
 LOGFILE=/home/www/sites/biostar-central/live/logs/celery-beat.log
