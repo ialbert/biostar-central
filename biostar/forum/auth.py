@@ -440,7 +440,6 @@ def delete_post(post, user):
     if only_delete(post, user):
         # Deleted posts can be un=deleted by re-opening them.
         Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
-        Post.objects.filter(parent=post).update(status=Post.DELETED)
         url = post.root.get_absolute_url()
         msg = f"Deleted post: {post.title}"
         post.recompute_scores()
@@ -461,92 +460,107 @@ def delete_post(post, user):
     return url, msg
 
 
-class Moderate(object):
+def move(post, **kwargs):
+    Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
+    msg = f"Moved post={post.uid} to answer. "
+    url = post.get_absolute_url()
+    return url, msg
 
-    def __init__(self, user, post, action, comment=""):
-        self.user = user
-        self.post = post
-        self.now = datetime.datetime.utcnow().replace(tzinfo=utc)
-        self.url = post.get_absolute_url()
-        self.comment = comment
-        self.msg = f"Preformed moderation action:{action}"
 
-        # Bind an action to a function.
-        action_map = {REPORT_SPAM: self.spam,
-                      DUPLICATE: self.duplicated,
-                      MOVE_ANSWER: self.move,
-                      BUMP_POST: self.bump,
-                      OPEN_POST: self.open,
-                      DELETE: self.delete,
-                      CLOSE: self.close}
+def open(post, **kwargs):
 
-        # Handle remaining moderation actions.
-        if action in action_map:
-            mod_func = action_map[action]
-            mod_func()
-        else:
-            logger.error("Unknown moderation action given.")
+    if post.suspect_spam and post.author.profile.low_rep:
+        post.author.profile.bump_over_threshold()
 
-    def move(self):
-        Post.objects.filter(uid=self.post.uid).update(type=Post.ANSWER)
-        self.msg = f"Moved post={self.post.uid} to answer. "
+    Post.objects.filter(uid=post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
+    post.recompute_scores()
+    post.root.recompute_scores()
+    msg = f"Opened post: {post.title}"
+    url = post.get_absolute_url()
+    return url, msg
 
-    def open(self):
 
-        if self.post.suspect_spam and self.post.author.profile.low_rep:
-            self.post.author.profile.bump_over_threshold()
+def bump(post, **kwargs):
+    now = util.now()
+    Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp())
+    msg = "Post bumped"
+    url = post.get_absolute_url()
+    return url, msg
 
-        Post.objects.filter(uid=self.post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
-        self.post.recompute_scores()
-        self.post.root.recompute_scores()
-        self.msg = f"Opened post: {self.post.title}"
 
-    def bump(self):
-        self.msg = "Post bumped"
-        Post.objects.filter(uid=self.post.uid).update(lastedit_date=self.now, rank=self.now.timestamp())
+def spam(post, **kwargs):
+    """
+    Suspend the user.
+    """
+    if not post.author.profile.is_moderator:
+        post.author.profile.state = Profile.SUSPENDED
+        post.author.profile.save()
 
-    def spam(self):
-        """
-        Suspend the user.
-        """
-        if not self.post.author.profile.is_moderator:
-            self.post.author.profile.state = Profile.SUSPENDED
-            self.post.author.profile.save()
+    post.spam = Post.SPAM
+    post.save()
+    msg = "Reported Spam"
+    url = post.get_absolute_url()
+    return url, msg
 
-        self.post.spam = Post.SPAM
-        self.post.save()
 
-    def close(self):
-        """
-        Close this post and provide a rationale for closing as well.
-        """
+def close(post, user, comment, **kwargs):
+    """
+    Close this post and provide a rationale for closing as well.
+    """
 
-        Post.objects.filter(uid=self.post.uid).update(status=Post.CLOSED)
-        # Generate a rationale post on why this post is closed.
-        context = dict(comment=self.comment)
-        rationale = mod_rationale(post=self.post, user=self.user,
-                                  template="messages/closed.md",
-                                  extra_context=context)
-        self.msg = f"Closed {self.post.title}. "
-        self.url = rationale.get_absolute_url()
+    Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
+    # Generate a rationale post on why this post is closed.
+    context = dict(comment=comment)
+    rationale = mod_rationale(post=post, user=user,
+                              template="messages/closed.md",
+                              extra_context=context)
+    msg = f"Closed {post.title}. "
+    url = rationale.get_absolute_url()
+    return url, msg
 
-    def duplicated(self):
 
-        # Generate a rationale post on why this post is a duplicate.
+def duplicated(post, user, comment, **kwargs):
 
-        dupes = self.comment.split("\n")[:5]
-        dupes = list(filter(lambda d: len(d), dupes))
-        context = dict(dupes=dupes, comment=self.comment)
-        rationale = mod_rationale(post=self.post, user=self.user,
-                                  template="messages/duplicate_posts.md",
-                                  extra_context=context)
-        self.url = rationale.get_absolute_url()
-        self.msg = "Marked duplicated post as off topic."
+    # Generate a rationale post on why this post is a duplicate.
 
-    def delete(self):
-        """
-        Delete this post or complete remove it from the database.
-        """
-        url, msg = delete_post(post=self.post, user=self.user)
-        self.msg = msg
-        self.url = url
+    dupes = comment.split("\n")[:5]
+    dupes = list(filter(lambda d: len(d), dupes))
+    context = dict(dupes=dupes, comment=comment)
+    rationale = mod_rationale(post=post, user=user,
+                              template="messages/duplicate_posts.md",
+                              extra_context=context)
+    url = rationale.get_absolute_url()
+    msg = "Marked duplicated post as off topic."
+    return url, msg
+
+
+def delete(post, user, **kwargs):
+    """
+    Delete this post or complete remove it from the database.
+    """
+    url, msg = delete_post(post=post, user=user)
+    return url, msg
+
+
+def moderate(user, post, action, comment=""):
+
+    # Bind an action to a function.
+    action_map = {REPORT_SPAM: spam,
+                  DUPLICATE: duplicated,
+                  MOVE_ANSWER: move,
+                  BUMP_POST: bump,
+                  OPEN_POST: open,
+                  DELETE: delete,
+                  CLOSE: close}
+
+    if action in action_map:
+        mod_func = action_map[action]
+        url, msg = mod_func(user=user, post=post, comment=comment)
+
+        log_action(user=user, log_text=f"{msg} ; post.uid={post.uid}.")
+    else:
+        url = post.get_absolute_url()
+        msg = "Unknown moderation action given."
+        logger.error(msg)
+
+    return url, msg
