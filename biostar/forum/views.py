@@ -209,7 +209,7 @@ def mark_spam(request, uid):
         messages.error(request, "Post does noe exist.")
         return redirect('/')
 
-    auth.Moderate(post=post, action=REPORT_SPAM, user=request.user)
+    auth.moderate(post=post, action=REPORT_SPAM, user=request.user)
 
     return redirect('/')
 
@@ -516,10 +516,10 @@ def post_moderate(request, uid):
         if form.is_valid():
             action = form.cleaned_data.get('action')
             comment = form.cleaned_data.get('comment')
-            mod = auth.Moderate(user=user, post=post, action=action, comment=comment)
-            messages.success(request=request, message=mod.msg)
-            auth.db_logger(user=user, text=f"{mod.msg} ; post.uid={post.uid}.")
-            return redirect(mod.url)
+            url, msg = auth.moderate(user=user, post=post, action=action, comment=comment)
+            messages.success(request=request, message=msg)
+            auth.db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
+            return redirect(url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])
             messages.error(request, errors)

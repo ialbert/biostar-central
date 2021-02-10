@@ -39,6 +39,7 @@ def validate_login(email, password):
 
     return "Invalid fallthrough", False
 
+
 def db_logger(user=None, action=Log.MODERATE, text='', ipaddr=None):
     """
     Creates a database log.
@@ -46,6 +47,7 @@ def db_logger(user=None, action=Log.MODERATE, text='', ipaddr=None):
     Log.objects.create(user=user, action=action, text=text, ipaddr=ipaddr)
     logger.info(text)
     return
+
 
 def send_verification_email(user):
 
