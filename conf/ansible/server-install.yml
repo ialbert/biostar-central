@@ -142,3 +142,6 @@
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"
+
+    - name: Ensure Redis is started
+      service: name=redis-server state=started enabled=yes

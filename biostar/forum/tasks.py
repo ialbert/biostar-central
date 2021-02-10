@@ -2,7 +2,7 @@ import functools
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from django.conf import settings
-import time
+import time, random
 from biostar.utils.decorators import spooler, threaded
 from biostar.celery import celery_task
 
@@ -15,10 +15,10 @@ from django.db.models import Q
 
 if settings.TASKS_CELERY:
     task = celery_task
-elif settings.TASKS_UWSGI:
-    task = spooler
-else:
+elif settings.MULTI_THREAD:
     task = threaded
+else:
+    task = spooler
 
 
 def message(msg, level=0):
@@ -26,11 +26,14 @@ def message(msg, level=0):
 
 
 @task
-def spam_scoring(post):
+def spam_scoring(uid):
     """
     Score the spam with a slight delay.
     """
     from biostar.forum import spam
+    from biostar.forum.models import Post
+
+    post = Post.objects.filter(uid=uid).first()
 
     # Give spammers the illusion of success with a slight delay
     time.sleep(1)
@@ -43,14 +46,20 @@ def spam_scoring(post):
 
 
 @task
-def notify_watched_tags(post, extra_context):
+def notify_watched_tags(uid, extra_context):
     """
     Notify users watching a given tag found in post.
     """
     from biostar.accounts.models import User
+    from biostar.forum.models import Post
     from django.conf import settings
 
-    users = [User.objects.filter(profile__watched__name=tag.name).distinct()
+    post = Post.objects.filter(uid=uid).first()
+
+    # Update template context with post
+    extra_context.update(dict(post=post))
+
+    users = [User.objects.filter(profile__watched__name__iexact=tag.name).distinct()
              for tag in post.root.tags.all()]
 
     # Flatten nested users queryset and get email.
@@ -65,21 +74,21 @@ def notify_watched_tags(post, extra_context):
                from_email=from_email,
                mass=True)
 
-    return
-
 
 @task
-def update_spam_index(post):
+def update_spam_index(uid):
     """
     Update spam index with this post.
     """
-    from biostar.forum import spam
+    from biostar.forum import spam, models
+
+    post = models.Post.objects.filter(uid=uid).first()
 
     # Index posts explicitly marked as SPAM or NOT_SPAM
     # indexing SPAM increases true positives.
     # indexing NOT_SPAM decreases false positives.
     if not (post.is_spam or post.not_spam):
-        return
+        return {}
 
     # Update the spam index with most recent spam posts
     try:
@@ -153,12 +162,18 @@ def create_user_awards(user_id):
     user = User.objects.filter(id=user_id).first()
     # debugging
     # Award.objects.all().delete()
+    nawards = 0
 
     for award in ALL_AWARDS:
+
         # Valid award targets the user has earned
         targets = award.validate(user)
 
         for target in targets:
+
+            if nawards >= settings.MAX_AWARDS:
+                break
+
             date = user.profile.last_login
             post = target if isinstance(target, Post) else None
             badge = Badge.objects.filter(name=award.name).first()
@@ -170,20 +185,25 @@ def create_user_awards(user_id):
 
             # Create an award for each target.
             Award.objects.create(user=user, badge=badge, date=date, post=post)
-
+            nawards += 1
             message(f"award {badge.name} created for {user.email}")
 
 
 @task
-def mailing_list(users, post, extra_context={}):
+def mailing_list(emails, uid, extra_context={}):
     """
     Generate notification for mailing list users.
     """
     from django.conf import settings
+    from biostar.forum.models import Post
+
+    post = Post.objects.filter(uid=uid).first()
+
+    # Update template context with post
+    extra_context.update(dict(post=post))
 
     # Prepare the templates and emails
     email_template = "messages/mailing_list.html"
-    emails = [user.email for user in users]
     author = post.author.profile.name
     from_email = settings.DEFAULT_NOREPLY_EMAIL
 
@@ -196,12 +216,13 @@ def mailing_list(users, post, extra_context={}):
 
 
 @task
-def notify_followers(subs, author, extra_context={}):
+def notify_followers(sub_ids, author_id, uid, extra_context={}):
     """
     Generate notification to users subscribed to a post, excluding author, a message/email.
     """
     from biostar.forum.models import Subscription
-    from biostar.accounts.models import Profile
+    from biostar.accounts.models import Profile, User
+    from biostar.forum.models import Post
     from django.conf import settings
 
     # Template used to send local messages
@@ -211,14 +232,23 @@ def notify_followers(subs, author, extra_context={}):
     email_template = "messages/subscription_email.html"
 
     # Does not have subscriptions.
-    if not subs:
+    if not sub_ids:
         return
 
+    post = Post.objects.filter(uid=uid).first()
+    author = User.objects.filter(id=author_id).first()
+    subs = Subscription.objects.filter(uid__in=sub_ids)
+
     users = [sub.user for sub in subs]
+    user_ids = [u.pk for u in users]
+
+    # Update template context with post
+    extra_context.update(dict(post=post))
+
     # Every subscribed user gets local messages with any subscription type.
     create_messages(template=local_template,
                     extra_context=extra_context,
-                    rec_list=users,
+                    user_ids=user_ids,
                     sender=author)
 
     # Select users with email subscriptions.

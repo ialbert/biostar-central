@@ -287,9 +287,9 @@ def bulk_copy_posts(limit):
 
     elapsed(f"Updated {pcount} post threads and added tags.")
 
-    Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
-    acount = Award.objects.all().count()
-    elapsed(f"transferred {acount} awards")
+    #Award.objects.bulk_create(objs=gen_awards(), batch_size=10000)
+    #acount = Award.objects.all().count()
+    #elapsed(f"transferred {acount} awards")
 
 
 def bulk_copy_subs(limit):

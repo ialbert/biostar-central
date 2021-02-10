@@ -83,9 +83,8 @@ SEARCH_LIMIT = 20
 
 INIT_PLANET = False
 
-
+# Run tasks using celery
 TASKS_CELERY = False
-TASKS_UWSGI = True
 
 # Minimum amount of characters to preform searches
 SEARCH_CHAR_MIN = 1
@@ -94,6 +93,7 @@ SEARCH_CHAR_MIN = 1
 SEARCH_RESULTS_PER_PAGE = 50
 
 BATCH_INDEXING_SIZE = 1000
+
 
 # Add another context processor to first template.
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
@@ -109,9 +109,13 @@ SIMILAR_FEED_COUNT = 30
 
 SESSION_UPDATE_SECONDS = 40
 
+# Maximum number of awards every SESSION_UPDATE_SECONDS.
+MAX_AWARDS = 2
+
 # Search index name
 INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
 # Relative index directory
+
 INDEX_DIR = os.environ.setdefault("INDEX_DIR", "search")
 # Absolute path to index directory in export/
 INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', INDEX_DIR))

@@ -19,7 +19,7 @@ from taggit.models import Tag
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription
+from biostar.forum.models import Post, Vote, Badge, Subscription, Award
 from biostar.utils.decorators import is_moderator
 
 User = get_user_model()
@@ -420,8 +420,8 @@ def badge_view(request, uid):
         messages.error(request, f"Badge with id={uid} does not exist.")
         return redirect(reverse("badge_list"))
 
-    awards = badge.award_set.valid_awards().order_by("-pk")[:100]
-
+    awards = badge.award_set.valid_awards().order_by("-pk")
+    awards = awards.filter(badge=badge)[:100]
     awards = awards.prefetch_related("user", "user__profile", "post", "post__root")
     context = dict(awards=awards, badge=badge)
 
