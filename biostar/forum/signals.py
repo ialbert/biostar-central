@@ -20,7 +20,7 @@ def send_award_message(sender, instance, created, **kwargs):
         template = "messages/awards_created.md"
         context = dict(award=instance)
         # Send local message
-        tasks.create_messages(template=template, extra_context=context, rec_list=[instance.user])
+        tasks.create_messages(template=template, extra_context=context, user_ids=[instance.user.pk])
 
     return
 
@@ -69,7 +69,8 @@ def finalize_post(sender, instance, created, **kwargs):
 
     # Get newly created subscriptions since the last edit date.
     subs = Subscription.objects.filter(date__gte=instance.lastedit_date, post=instance.root)
-    extra_context = dict(post=instance)
+    extra_context = dict()
+
     if created:
         # Make the Uid user friendly
         instance.uid = instance.uid or f"p{instance.pk}"
@@ -120,18 +121,20 @@ def finalize_post(sender, instance, created, **kwargs):
         subs = Subscription.objects.filter(post=instance.root)
 
         # Notify users who are watching tags in this post
-        tasks.notify_watched_tags.spool(post=instance, extra_context=extra_context)
+        tasks.notify_watched_tags.spool(uid=instance.uid, extra_context=extra_context)
 
         # Give it a spam score.
-        tasks.spam_scoring.spool(post=instance)
+        tasks.spam_scoring.spool(uid=instance.uid)
 
         mailing_list = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES)
 
+        emails = [user.email for user in mailing_list]
+
         # Send out mailing list when post is created.
-        tasks.mailing_list.spool(users=mailing_list, extra_context=extra_context, post=instance)
+        tasks.mailing_list.spool(emails=emails, uid=instance.uid, extra_context=extra_context)
 
     # Add this post to the spam index if it's spam.
-    tasks.update_spam_index.spool(post=instance)
+    tasks.update_spam_index.spool(uid=instance.uid)
 
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)
@@ -139,5 +142,9 @@ def finalize_post(sender, instance, created, **kwargs):
     # Exclude current authors from receiving messages from themselves
     subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))
 
+    sub_ids = list(subs.values_list('uid', flat=True))
+
     # Notify subscribers
-    tasks.notify_followers.spool(subs=subs, author=instance.author, extra_context=extra_context)
+    tasks.notify_followers.spool(sub_ids=sub_ids, author_id=instance.author.pk,
+                                 uid=instance.uid,
+                                 extra_context=extra_context)

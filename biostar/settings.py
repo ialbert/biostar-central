@@ -235,7 +235,6 @@ LOGGER_NAME = "biostar"
 
 
 TASKS_CELERY = False
-TASKS_UWSGI = False
 
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
