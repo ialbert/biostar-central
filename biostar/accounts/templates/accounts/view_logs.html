@@ -1,0 +1,8 @@
+<h3>Log view</h3>
+
+<ul>
+    {% for log in logs %}
+    <li> {{ log.user }} {{ log.text }} {{ log.date }}</li>
+    {%  endfor %}
+</ul>
+

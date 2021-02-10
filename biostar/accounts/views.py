@@ -25,11 +25,11 @@ from ratelimit.decorators import ratelimit
 
 
 from . import forms, tasks
-from .auth import validate_login, send_verification_email
+from .auth import validate_login, send_verification_email, db_logger
 from .const import *
-from .models import User, Profile, Message, Logger
+from .models import User, Profile, Message, Log
 from .tokens import account_verification_token
-from .util import now, get_uuid
+from .util import now, get_uuid, get_ip
 
 
 logger = logging.getLogger('engine')
@@ -104,8 +104,9 @@ def user_moderate(request, uid):
             profile.state = state
             profile.save()
             # Log the moderation action
-            log_text = f"Moderated user={target.pk}; state={target.profile.state} ( {target.profile.get_state_display()} )"
-            Logger.objects.create(user=request.user, log_text=log_text, action=Logger.MODERATING)
+            text = f"user={target.pk} state set to {target.profile.get_state_display()}"
+
+            db_logger(user=request.user, text=text, action=Log.MODERATE)
 
             messages.success(request, "User moderation complete.")
         else:
@@ -286,6 +287,10 @@ def user_login(request):
 
             if valid_user:
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+                ipaddr = get_ip(request)
+                text = f"user {user.id} ({user.email}) logged in from {ipaddr}"
+                db_logger(user=request.user, text=text, action=Log.LOGIN, ipaddr=ipaddr)
+
                 return redirect(next_url)
             else:
                 messages.error(request, mark_safe(message))
@@ -295,6 +300,22 @@ def user_login(request):
     context = dict(form=form, tab="login", social_login=SocialApp.objects.all())
     return render(request, "accounts/login.html", context=context)
 
+
+
+@login_required
+def view_logs(request):
+    LIMIT = 300
+
+    if 0 and request.user.is_superuser:
+        logs = Log.objects.all().order_by("-id")[:LIMIT]
+    elif request.user.profile.is_moderator:
+        logs = Log.objects.all().filter(action=Log.MODERATE).order_by("-id")[:LIMIT]
+    else:
+        logs = []
+
+    context = dict(logs=logs)
+
+    return render(request, "accounts/view_logs.html", context=context)
 
 @login_required
 def send_email_verify(request):

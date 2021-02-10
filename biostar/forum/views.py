@@ -22,6 +22,8 @@ from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription, Award
 from biostar.utils.decorators import is_moderator
 
+from biostar.accounts.auth import db_logger
+
 User = get_user_model()
 
 logger = logging.getLogger('engine')
@@ -516,6 +518,7 @@ def post_moderate(request, uid):
             comment = form.cleaned_data.get('comment')
             url, msg = auth.moderate(user=user, post=post, action=action, comment=comment)
             messages.success(request=request, message=msg)
+            auth.db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
             return redirect(url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])

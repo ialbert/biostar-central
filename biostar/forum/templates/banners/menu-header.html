@@ -1,20 +1,13 @@
 {% load forum_tags %}
 {% load static %}
 
-<div width="200px">
-    PNG: <a href="/"><img class="ui image"  src="{% static "images/logox.png" %}"></a>
-    <hr>
-    SVG: <a href="/"><img class="ui image" width="200px"  src="{% static "images/logox.svg" %}"></a>
-    <hr>
-
-</div>
 
 <div class="ui labeled icon top attached evenly divided menu" id="menu-header" user-id="{{ request.user.id }}">
 
 
     {% block headimg %}
         <div class="header item" id="logo">
-            <!-- <a href="/"><img class="ui image"  src="{% static "images/logox.png" %}"></a> -->
+            <a href="/"><img width="200px"  src="{% static "images/logo5.svg" %}"></a>
         </div>
     {% endblock %}
 
@@ -65,9 +58,9 @@
     <div class="right menu">
 
         {% if user.is_authenticated %}
+
             <a class="item  {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
                 <i class="{% user_icon_css user %}"></i> {{ user.profile.name }}
-                &bull; {{ user.profile.get_score|bignum }}
             </a>
 
             <a class="item  {% activate tab "logout" %}" href="{% url 'logout' %}" id="new-post">

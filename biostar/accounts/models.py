@@ -35,7 +35,6 @@ class ProfileManager(models.Manager):
 
 
 def image_path(instance, filename):
-
     # Assign personal uid our own file name.
 
     fname = util.get_uuid(32)
@@ -47,7 +46,6 @@ def image_path(instance, filename):
 
 
 class UserImage(models.Model):
-
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     # Image file path, relative to MEDIA_ROOT
@@ -163,7 +161,7 @@ class Profile(models.Model):
         self.max_upload_size = self.max_upload_size or self.set_upload_size()
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or util.now()
-        self.last_login = self.last_login or util.now() #- timedelta(days=1)
+        self.last_login = self.last_login or util.now()  # - timedelta(days=1)
         self.token = self.token or util.get_uuid(16)
 
         super(Profile, self).save(*args, **kwargs)
@@ -282,28 +280,39 @@ class Profile(models.Model):
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
 
 
-class Logger(models.Model):
-    # Put in delte
-    MODERATING, CREATION, EDIT, LOGIN, LOGOUT, BROWSING = range(6)
+class Log(models.Model):
+    """
+    Represents moderation actions
+    """
+    MODERATE, CREATE, EDIT, LOGIN, LOGOUT, DEFAULT = range(6)
 
-    ACTIONS_CHOICES = [(MODERATING, "Preformed a moderation action."),
-                       (CREATION, "Created an object."),
-                       (EDIT, "Edited an object."),
-                       (LOGIN, "Logged in to the site."),
-                       (LOGOUT, "Logged out of the site."),
-                       (BROWSING, "Browsing the site.")]
+    ACTIONS_CHOICES = [
+        (MODERATE, "Moderate"),
+        (CREATE, "Create"),
+        (EDIT, "Edit"),
+        (LOGIN, "Login"),
+        (LOGOUT, "Logout"),
+        (DEFAULT, "Default")
+    ]
 
-    # User that preformed this action
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    # User that is logged.
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, db_index=True)
 
-    # Action this user is took.
-    action = models.IntegerField(choices=ACTIONS_CHOICES, default=BROWSING)
+    # The IP address associated with the log.
+    ipaddr = models.GenericIPAddressField(null=True, blank=True)
 
-    # Stores the specific log text
-    log_text = models.TextField(default='')
+    # Actions that the user took.
+    action = models.IntegerField(choices=ACTIONS_CHOICES, default=DEFAULT, db_index=True)
 
-    # Date this log was created
-    date = models.DateTimeField(auto_now_add=True)
+    # The logging information.
+    text = models.TextField()
+
+    # Date this log was created.
+    date = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        self.date = self.date or util.now()
+        super(Log, self).save(*args, **kwargs)
 
 
 # Connects user to message bodies
