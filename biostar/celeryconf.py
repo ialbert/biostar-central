@@ -52,25 +52,25 @@ BEAT_SCHEDULE = {
         'kwargs': {"index": 5000}
     },
 
-    'awards': {
-        'task': 'biostar.celery.call_command',
-        'schedule': timedelta(hours=3),
-        'args': ["user_crawl"],
-        'kwargs': {"award": True}
-    },
-
-    'hourly_dump': {
-        'task': 'biostar.celery.call_command',
-        'schedule': crontab(minute=10),
-        'args': ["biostar_pg_dump"],
-        'kwargs': {"hourly": True}
-    },
-
-    'daily_dump': {
-        'task': 'biostar.celery.call_command',
-        'schedule': crontab(hour=22),
-        'args': ["biostar_pg_dump"],
-    },
+    # 'awards': {
+    #     'task': 'biostar.celery.call_command',
+    #     'schedule': timedelta(hours=3),
+    #     'args': ["user_crawl"],
+    #     'kwargs': {"award": True}
+    # },
+    #
+    # 'hourly_dump': {
+    #     'task': 'biostar.celery.call_command',
+    #     'schedule': crontab(minute=10),
+    #     'args': ["biostar_pg_dump"],
+    #     'kwargs': {"hourly": True}
+    # },
+    #
+    # 'daily_dump': {
+    #     'task': 'biostar.celery.call_command',
+    #     'schedule': crontab(hour=22),
+    #     'args': ["biostar_pg_dump"],
+    # },
 
 
 }
