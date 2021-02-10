@@ -367,4 +367,4 @@ def score(post, threshold=None):
     # If the score exceeds threshold it gets quarantined.
     if post_score >= threshold:
         Post.objects.filter(id=post.id).update(spam=Post.SUSPECT)
-        auth.log_action(log_text=f"Quarantined post={post.uid}; spam score={post_score}")
+        auth.db_logger(text=f"Quarantined post={post.uid}; spam score={post_score}")

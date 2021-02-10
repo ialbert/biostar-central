@@ -6,7 +6,7 @@ from functools import partial
 from django.conf import settings
 from django.db.models import Q
 from biostar.forum.models import Post, Vote, Sync, Subscription
-from biostar.accounts.models import Profile, User, Logger
+from biostar.accounts.models import Profile, User, Log
 from biostar.forum import util, auth
 from django.core.cache import cache
 

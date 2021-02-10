@@ -16,10 +16,14 @@ from django.utils.timezone import utc
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.shortcuts import reverse
-from biostar.accounts.models import Profile, Logger
+from biostar.accounts.models import Profile
 from . import util
 from .const import *
 from .models import Post, Vote, PostView, Subscription
+
+
+# Needed for historical reasons.
+from biostar.accounts.auth import db_logger
 
 User = get_user_model()
 
@@ -401,12 +405,6 @@ def apply_vote(post, user, vote_type):
 
     return msg, vote, change
 
-
-def log_action(user=None, action=Logger.MODERATING, log_text=''):
-    # Create a logger object in database.
-    Logger.objects.create(user=user, action=action, log_text=log_text)
-    logger.info(log_text)
-    return
 
 
 def mod_rationale(post, user, template, ptype=Post.ANSWER, extra_context=dict()):

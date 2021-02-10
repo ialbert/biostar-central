@@ -33,6 +33,10 @@ account_patterns = [
     # Message urls
     path(r'inbox/', views.message_list, name='inbox'),
 
+    # Loggin view
+    path(r'view/logs/', views.view_logs, name='view_logs'),
+
+
     # External url login
     path(r'external/', views.external_login, name="external"),
 

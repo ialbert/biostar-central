@@ -58,9 +58,9 @@
     <div class="right menu">
 
         {% if user.is_authenticated %}
+
             <a class="item  {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
                 <i class="{% user_icon_css user %}"></i> {{ user.profile.name }}
-                &bull; {{ user.profile.get_score|bignum }}
             </a>
 
             <a class="item  {% activate tab "logout" %}" href="{% url 'logout' %}" id="new-post">
