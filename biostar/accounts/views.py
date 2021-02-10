@@ -196,7 +196,7 @@ def user_signup(request):
             user = form.save()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             Profile.objects.filter(user=user).update(last_login=now())
-            tasks.verification_email.spool(user=user)
+            tasks.verification_email.spool(user_id=user.pk)
             return redirect("/")
 
     else:

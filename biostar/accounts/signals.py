@@ -18,7 +18,8 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         # Make sure staff users are also moderators.
         role = Profile.MANAGER if instance.is_staff else Profile.READER
         Profile.objects.using(using).create(user=instance, uid=username, name=instance.first_name, role=role)
-        tasks.create_messages.spool(rec_list=[instance], template="messages/welcome.md")
+        user_ids = [instance.pk]
+        tasks.create_messages.spool(user_ids=user_ids, template="messages/welcome.md")
 
     # Recompute watched tags
     instance.profile.add_watched()

@@ -22,10 +22,10 @@ def message(msg, level=0):
 
 if settings.TASKS_CELERY:
     task = celery_task
-elif settings.TASKS_UWSGI:
-    task = spooler
-else:
+elif settings.MULTI_THREAD:
     task = threaded
+else:
+    task = spooler
 
 
 @task
@@ -77,20 +77,23 @@ def detect_location(ip, user_id):
 
 
 @task
-def verification_email(user):
-    from biostar.accounts import auth
+def verification_email(user_id):
+    from biostar.accounts import auth, models
+
+    user = models.User.objects.filter(id=user_id).first()
 
     auth.send_verification_email(user=user)
     return
 
 
 @task
-def create_messages(template, rec_list, sender=None, extra_context={}):
+def create_messages(template, user_ids, sender=None, extra_context={}):
     """
     Create batch message from sender to a given recipient_list
     """
     from biostar.accounts.models import User, Message, MessageBody
 
+    rec_list = User.objects.filter(id__in=user_ids)
     # Get the sender
     name, email = settings.ADMINS[0]
     sender = sender or User.objects.filter(email=email).first() or User.objects.filter(is_superuser=True).first()
@@ -102,10 +105,7 @@ def create_messages(template, rec_list, sender=None, extra_context={}):
     body = tmpl.render(context)
     html = mistune.markdown(body, escape=False)
 
-    msgs = []
     for rec in rec_list:
         body = MessageBody.objects.create(body=body, html=html)
-        msg = Message.objects.create(sender=sender, recipient=rec, body=body)
-        msgs.append(msg)
+        Message.objects.create(sender=sender, recipient=rec, body=body)
 
-    return msgs
