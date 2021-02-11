@@ -99,6 +99,7 @@ class Post(models.Model):
     # Possile spam states.
     SPAM, NOT_SPAM, DEFAULT, SUSPECT = range(4)
     SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (SUSPECT, "Quarantine"), (DEFAULT, "Default")]
+
     # Spam labeling.
     spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
 

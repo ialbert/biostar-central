@@ -20,9 +20,10 @@
     {% endblock %}
 
     {% block listing %}
+
         {% if tag %}
             <div class="ui blue filter message">
-                Showing : <code>{{ tag }}</code> &bull;
+                Filtering for tag: <b>{{ tag }}</b> &bull;
                 <a href="{% url 'post_list' %}">
                     reset <i class="undo small icon"></i>
                 </a>

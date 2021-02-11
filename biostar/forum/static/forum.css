@@ -59,7 +59,6 @@
     --a-hover-background:#fbfdef;
     --muted-color:#808080;
     --pre-background:#EEEEEE;
-
 }
 
 body {
@@ -79,7 +78,10 @@ body > .main.container {
     display: inline;
 }
 
-
+.padded {
+    padding-top: 1ex;
+    padding-bottom: 1ex;
+}
 
 
 #logo {

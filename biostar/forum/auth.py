@@ -20,6 +20,7 @@ from biostar.accounts.models import Profile
 from . import util
 from .const import *
 from .models import Post, Vote, PostView, Subscription
+from django.utils.safestring import mark_safe
 
 
 # Needed for historical reasons.
@@ -484,6 +485,51 @@ def bump(post, **kwargs):
     msg = "Post bumped"
     url = post.get_absolute_url()
     return url, msg
+
+
+def post_link(post):
+    url = post.get_absolute_url()
+    link = f'<a href="{url}">{post.title} ({post.uid})</a>'
+    return link
+
+def user_link(user):
+    url = user.get_absolute_url()
+    link = f'<a href="{url}">{user.name} ({user.uid})</a>'
+    return link
+
+def toggle_spam(request, post, state=True):
+    """
+    Toggles a post based on a status
+    """
+
+    # The user performing the action.
+    user = request.user
+
+    # The spam status set by the toggle.
+    spam = Post.SPAM if state else Post.NOT_SPAM
+
+    # Update the object bypassing the signals.
+    Post.objects.filter(id=post.id).update(spam=spam)
+
+    # Moderators may only be suspended by admins (TODO).
+    if post.author.profile.is_moderator:
+        messages.warning(request, "cannot toggle spam on a post created by a moderator")
+        return
+
+    # Set the state for the user.
+    post.author.profile.state = Profile.SUSPENDED if state else Profile.NEW
+    post.author.profile.save()
+
+    # Generate logging messages.
+    if state:
+        text = f'marked post {post_link(post)} as spam'
+    else:
+        text = f'restored post {post_link(post)} from spam'
+
+    # Submit the log into the database.
+    db_logger(user=user, text=text)
+    messages.info(request, mark_safe(text))
+
 
 
 def spam(post, **kwargs):

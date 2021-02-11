@@ -309,7 +309,7 @@ def view_logs(request):
     if 0 and request.user.is_superuser:
         logs = Log.objects.all().order_by("-id")[:LIMIT]
     elif request.user.profile.is_moderator:
-        logs = Log.objects.all().filter(action=Log.MODERATE).order_by("-id")[:LIMIT]
+        logs = Log.objects.all().filter(action=Log.MODERATE).select_related("user", "user__profile").order_by("-id")[:LIMIT]
     else:
         logs = []
 

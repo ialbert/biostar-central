@@ -73,7 +73,7 @@ def finalize_post(sender, instance, created, **kwargs):
 
     if created:
         # Make the Uid user friendly
-        instance.uid = instance.uid or f"p{instance.pk}"
+        instance.uid = instance.uid or f"0{instance.pk}"
 
         if instance.parent:
             # When the parent is set the root must follow the parent root.

@@ -1,17 +1,12 @@
 {% if messages %}
-    <div class="padded remove" id="site-messages">
 
+    <div class="padded remove" id="site-messages">
         {% for message in messages %}
-            <div class="ui icon {{ message.tags }} message">
-                <i class="info circle icon"></i>
-                <div class="content">
-                    <div class="header">
-                        Site Message
-                    </div>
-                    <p> {{ message }}</p>
-                </div>
+            <div class="ui floating {{ message.tags }} message">
+                <i class="info circle icon"></i> {{ message }}
             </div>
         {% endfor %}
     </div>
+
 {% endif %}
 
