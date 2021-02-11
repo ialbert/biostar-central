@@ -59,7 +59,6 @@
     --a-hover-background:#fbfdef;
     --muted-color:#808080;
     --pre-background:#EEEEEE;
-
 }
 
 body {
@@ -80,9 +79,14 @@ body > .main.container {
 }
 
 
+.padded {
+    padding-top: 1ex;
+    padding-bottom: 1ex;
+}
+
 #logo {
-    padding: 10px;
-    width: 220px;
+    padding: 5px 0 0 5px;
+    //width: 220px;
     background-color: var(--logo-background);
 }
 
@@ -472,7 +476,7 @@ i.icon {
 }
 
 .post .stats .label div:first-child {
-    font-size: 2.0em;
+    font-size: 1.8em;
     padding-bottom: .2em;
 }
 
@@ -714,12 +718,6 @@ img {
     display: contents;
 }
 
-.ui.items > .item.post > .content > .title {
-    font-family: arial, verdana, helvetica, sans-serif;
-    font-weight: bold;
-    font-size: larger;
-}
-
 
 .post-form {
     box-shadow: none;
@@ -845,9 +843,9 @@ img {
 }
 
 .ui.stat.label {
-    width: 50px;
-    margin: -1.5px;
-    border-radius: 5px;
+    width: 5.5em;
+    margin: -1px;
+    border-radius: 3px;
 }
 #menu-header .dropdown{
     border-radius: 0px !important;
@@ -858,6 +856,7 @@ img {
     text-align: center;
     font-weight: 900;
 }
+
 
 .ui.forum.container {
     width: 1230px;

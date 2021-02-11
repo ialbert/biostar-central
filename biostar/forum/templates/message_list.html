@@ -19,8 +19,8 @@
                     <td class="{{ message.css }}">
                       <div class="item">
                         <div class="content">
-                            {{ message.sent_date|timesince }} ago <a href="{{message.sender.profile.get_absolute_url}}">{{message.sender.profile.name }}</a> wrote
-                            :{{ message.body.html|safe }}
+                            <i><i class="angle double right icon"></i> {{ message.sent_date|timesince }} ago <a href="{{message.sender.profile.get_absolute_url}}">{{message.sender.profile.name }}</a> wrote:</i>
+                            <p>{{ message.body.html|safe }}</p>
                         </div>
                       </div>
                     </td>

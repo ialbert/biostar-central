@@ -1,8 +1,8 @@
-<h3>Log view</h3>
+<h3>Moderator activity</h3>
 
 <ul>
     {% for log in logs %}
-    <li> {{ log.user }} {{ log.text }} {{ log.date }}</li>
+        <li>  {{ log.date }} <b>{{ log.user.profile.uid }}</b> {{ log.text|safe}}</li>
     {%  endfor %}
 </ul>
 

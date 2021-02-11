@@ -202,16 +202,25 @@ def pages(request, fname):
 @is_moderator
 def mark_spam(request, uid):
     """
-    Mark post as a
+    Mark post as spam.
     """
+
+    # Trigger post
     post = Post.objects.filter(uid=uid).first()
-    if not post:
-        messages.error(request, "Post does noe exist.")
+
+    # A restore parameter sent toggles spam off.
+    state = False if request.GET.get("restore") else True
+
+    # Apply the toggle.
+    if post:
+        auth.toggle_spam(request, post, state=state)
+    else:
+        messages.error(request, "Post does not seem to exist")
+
+    if state:
         return redirect('/')
-
-    auth.moderate(post=post, action=REPORT_SPAM, user=request.user)
-
-    return redirect('/')
+    else:
+        return redirect('/?type=spam')
 
 
 @is_moderator

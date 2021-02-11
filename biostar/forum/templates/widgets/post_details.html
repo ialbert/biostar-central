@@ -28,9 +28,9 @@
 
     <div class="content">
 
-        <div class="title ">
+        <div class="title header ">
             {{ post.title_prefix }}
-            <a href="{% url 'post_view' post.uid %}" class="ui mini blue title ">
+            <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header">
                 {{ post.title|truncatechars:150 }}
             </a>
         </div>
@@ -44,17 +44,11 @@
             </div>
 
             {% if post.high_spam_score and user.profile.is_moderator %}
-                <div class="ui simple dropdown spam">
-                    <i class="bug orange icon"></i>
-                    <div class="menu">
-                        <a href="{% url 'mark_spam' post.uid %}" class="mark item">Mark as Spam</a>
-
-                        {% if post.suspect_spam %}
-                            <a href="{% url 'release_quar' post.uid %}" class="release item">Release</a>
-                        {% endif %}
-
-                    </div>
-                </div>
+                {% if post.is_spam %}
+                    <a href="{% url 'mark_spam' post.uid %}?restore=1"><i class="bug green icon"></i></a>
+                {% else %}
+                    <a href="{% url 'mark_spam' post.uid %}"><i class="bug orange icon"></i></a>
+                {% endif %}
             {% endif %}
 
             <div class="right floated muted">

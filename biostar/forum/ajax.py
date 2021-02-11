@@ -61,7 +61,10 @@ class ajax_error_wrapper:
             if request.user.is_authenticated and request.user.profile.is_spammer:
                 return ajax_error('You must be logged in.')
 
-            return func(request, *args, **kwargs)
+            try:
+                return func(request, *args, **kwargs)
+            except Exception as exc:
+                return ajax_error(f'Error: {exc}')
 
         return _ajax_view
 
@@ -83,7 +86,7 @@ def user_image(request, username):
     return redirect(gravatar_url)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='500/h')
+@ratelimit(key=RATELIMIT_KEY, rate='100/h')
 @ratelimit(key=RATELIMIT_KEY, rate='25/m')
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
