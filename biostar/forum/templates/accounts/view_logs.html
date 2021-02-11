@@ -8,7 +8,7 @@
 {% block content %}
 <ul>
     {% for log in logs %}
-        <li>  {{ log.date }} <b>{{ log.user.profile.uid }}</b> {{ log.text|safe}}</li>
+        <li>  {{ log.date }} <b>{{ log.user.profile.name }}</b> {{ log.text|safe}}</li>
     {%  endfor %}
 </ul>
 

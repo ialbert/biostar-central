@@ -499,7 +499,7 @@ def user_link(user):
 
 def toggle_spam(request, post, state=True):
     """
-    Toggles a post based on a status
+    Toggles spam status on post based on a status
     """
 
     # The user performing the action.

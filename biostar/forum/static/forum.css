@@ -478,7 +478,7 @@ i.icon {
 }
 
 .post .stats .label div:first-child {
-    font-size: 2.0em;
+    font-size: 1.8em;
     padding-bottom: .2em;
 }
 
@@ -849,9 +849,9 @@ img {
 }
 
 .ui.stat.label {
-    width: 50px;
-    margin: -1.5px;
-    border-radius: 5px;
+    width: 5.5em;
+    margin: -1px;
+    border-radius: 3px;
 }
 #menu-header .dropdown{
     border-radius: 0px !important;
@@ -862,6 +862,7 @@ img {
     text-align: center;
     font-weight: 900;
 }
+
 
 .ui.forum.container {
     width: 1230px;
