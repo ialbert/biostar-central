@@ -85,8 +85,8 @@ body > .main.container {
 
 
 #logo {
-    padding: 10px;
-    width: 220px;
+    padding: 5px 0 0 5px;
+    //width: 220px;
     background-color: var(--logo-background);
 }
 
