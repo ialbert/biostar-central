@@ -38,7 +38,6 @@ def classify_spam(uid):
     # Give spammers the illusion of success with a slight delay
     time.sleep(1)
 
-    print(post.is_spam, "HERE"*100)
     # Non spam posts are left alone.
     if post.not_spam:
         return
