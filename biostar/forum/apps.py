@@ -2,6 +2,7 @@ import logging
 from django.db.models.signals import post_migrate
 from django.conf import settings
 from django.apps import AppConfig
+from django.template.defaultfilters import slugify
 
 logger = logging.getLogger('engine')
 
@@ -25,7 +26,8 @@ def init_awards(sender, **kwargs):
         badge = Badge.objects.filter(name=obj.name)
         if badge:
             continue
-        badge = Badge.objects.create(name=obj.name)
+        name = slugify(obj.name)
+        badge = Badge.objects.create(name=obj.name, uid=name)
 
         # Badge descriptions may change.
         if badge.desc != obj.desc:

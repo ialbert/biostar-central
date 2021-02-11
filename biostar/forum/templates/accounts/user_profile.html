@@ -184,9 +184,7 @@
         </div>
         <div class="ui bottom attached profile segment">
             {% if active == 'posts' %}
-
                 {% include 'accounts/profile_post_listing.html' %}
-
             {% else %}
                 {% list_awards target=target %}
             {% endif %}

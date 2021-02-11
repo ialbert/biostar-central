@@ -8,7 +8,7 @@ import os
 import datetime
 from itertools import count, islice
 from datetime import timedelta
-
+from django.db.models import Count
 import bleach
 from taggit.models import Tag
 from django import template, forms
@@ -24,7 +24,7 @@ from django.core.cache import cache
 from biostar.forum import markdown
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const, auth
-from biostar.forum.models import Post, Vote, Award, Subscription
+from biostar.forum.models import Post, Vote, Award, Subscription, Badge
 
 User = get_user_model()
 
@@ -535,19 +535,14 @@ def get_digest_icon(user):
     return icon
 
 
-@register.inclusion_tag('widgets/list_awards.html', takes_context=True)
+@register.inclusion_tag('widgets/list_badges.html', takes_context=True)
 def list_awards(context, target):
     request = context['request']
-    awards = Award.objects.filter(user=target).select_related('post', 'post__root', 'user', 'user__profile',
-                                                              'badge').order_by("-date")
-    page = request.GET.get('page', 1)
-    # Create the paginator
-    paginator = Paginator(object_list=awards, per_page=20)
+    # Show list of all awards here.
 
-    # Apply the votes paging.
-    awards = paginator.get_page(page)
+    badges = Badge.objects.filter(award__user=target).annotate(count=Count("award"))
 
-    context = dict(awards=awards, request=request)
+    context = dict(badges=badges, request=request)
     return context
 
 

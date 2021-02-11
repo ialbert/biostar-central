@@ -406,7 +406,6 @@ def apply_vote(post, user, vote_type):
     return msg, vote, change
 
 
-
 def mod_rationale(post, user, template, ptype=Post.ANSWER, extra_context=dict()):
     tmpl = loader.get_template(template)
     context = dict(user=post.author)

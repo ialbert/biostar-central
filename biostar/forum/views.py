@@ -19,7 +19,7 @@ from taggit.models import Tag
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Award
+from biostar.forum.models import Post, Vote, Badge, Subscription
 from biostar.utils.decorators import is_moderator
 
 from biostar.accounts.auth import db_logger
@@ -410,7 +410,7 @@ def community_list(request):
 
 
 def badge_list(request):
-    badges = Badge.objects.annotate(count=Count("award"))
+    badges = Badge.objects.annotate(count=Count("award")).order_by('-count')
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
@@ -423,7 +423,6 @@ def badge_view(request, uid):
         return redirect(reverse("badge_list"))
 
     awards = badge.award_set.valid_awards().order_by("-pk")
-    awards = awards.filter(badge=badge)[:100]
     awards = awards.prefetch_related("user", "user__profile", "post", "post__root")
     context = dict(awards=awards, badge=badge)
 
@@ -518,7 +517,6 @@ def post_moderate(request, uid):
             comment = form.cleaned_data.get('comment')
             url, msg = auth.moderate(user=user, post=post, action=action, comment=comment)
             messages.success(request=request, message=msg)
-            auth.db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
             return redirect(url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])
