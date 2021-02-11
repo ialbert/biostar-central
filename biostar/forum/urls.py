@@ -47,9 +47,6 @@ forum_patterns = [
     path('inplace/form/', ajax.inplace_form, name='inplace_form'),
     path('ajax/user/image/<str:username>/', ajax.user_image, name='user_image'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
-    path('ajax/report/spam/<str:post_uid>/', ajax.report_spam, name='report_spam'),
-    path('release/<str:uid>/', ajax.release_suspect, name='release_suspect'),
-    #path('most/recent/users/', ajax.most_recent_users, name='most_recent_users'),
 
     path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
 

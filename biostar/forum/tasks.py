@@ -26,7 +26,7 @@ def message(msg, level=0):
 
 
 @task
-def spam_scoring(uid):
+def classify_spam(uid):
     """
     Score the spam with a slight delay.
     """
@@ -38,9 +38,18 @@ def spam_scoring(uid):
     # Give spammers the illusion of success with a slight delay
     time.sleep(1)
 
+    print(post.is_spam, "HERE"*100)
+    # Non spam posts are left alone.
+    if post.not_spam:
+        return
+
     try:
         # Give this post a spam score and quarantine it if necessary.
-        spam.score(post=post)
+        spam.score(uid=uid)
+
+        # Add this post to the spam index.
+        spam.add_spam(uid=uid)
+
     except Exception as exc:
         message(exc)
 
@@ -87,8 +96,8 @@ def update_spam_index(uid):
     # Index posts explicitly marked as SPAM or NOT_SPAM
     # indexing SPAM increases true positives.
     # indexing NOT_SPAM decreases false positives.
-    if not (post.is_spam or post.not_spam):
-        return {}
+    if post.spam == models.Post.DEFAULT:
+        return
 
     # Update the spam index with most recent spam posts
     try:

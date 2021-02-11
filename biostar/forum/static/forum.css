@@ -552,11 +552,6 @@ figure {
     border: none !important;
 }
 
-.post.quarantine {
-    background-color: var(--quar-background) !important;
-    border: none !important;
-}
-
 #dim-similar {
     height: 90px;
     padding: 0;

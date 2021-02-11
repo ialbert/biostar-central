@@ -106,7 +106,7 @@ def get_posts(user, topic="", tag="", order="", limit=None):
         query = query.filter(type=post_type)
 
     elif topic == SHOW_SPAM:
-        query = query.filter(Q(spam=Post.SPAM) | Q(spam=Post.SUSPECT))
+        query = query.filter(Q(spam=Post.SPAM))
     elif topic == OPEN:
         query = query.filter(type=Post.QUESTION, answer_count=0)
     elif topic == BOOKMARKS and user.is_authenticated:
@@ -221,7 +221,7 @@ def release_quar(request, uid):
     """
     post = Post.objects.filter(uid=uid).first()
     if not post:
-        messages.error(request, "Post does noe exist.")
+        messages.error(request, "Post does not exist.")
         return redirect('/')
 
     # Bump the score by one is the user does not get quarantined again.

@@ -22,10 +22,6 @@ def prune_data(weeks=10, days=1):
     logger.info(f"Deleting {spam_posts.count()} spam posts")
     spam_posts.delete()
 
-    # Change posts that have been quarantined more than a day to spam.
-    quart_posts = Post.objects.filter(spam=Post.SUSPECT, creation_date__lt=past_days)
-    quart_posts.update(spam=Post.SPAM)
-
     # Remove post views.
     post_views = PostView.objects.filter(date__lt=past_days)
     logger.info(f"Deleting {post_views.count()} post views")
