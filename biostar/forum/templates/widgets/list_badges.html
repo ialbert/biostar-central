@@ -14,7 +14,7 @@
                 {% for badge in badges %}
                     <tr>
                         <td>
-                            <a href="{% url 'badge_view' badge.uid %}" style="opacity: unset;">
+                            <a href="{% url 'badge_view' badge.uid %}?user={{ target.profile.uid }}" style="opacity: unset;">
                                 <i class="{{ badge.icon }}"></i>
                                 {{ badge.name }}
                             </a>
@@ -26,11 +26,6 @@
                 </tbody>
             </table>
         </div>
-
-
-
-
-
 
 {% else %}
     <div class="ui warn message">

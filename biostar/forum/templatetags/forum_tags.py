@@ -495,7 +495,7 @@ def default_feed(user):
     recent_locations = recent_locations.order_by('-last_login')[:settings.LOCATION_FEED_COUNT]
 
     # Get valid results
-    recent_awards = Award.objects.valid_awards().select_related("badge", "user", "user__profile")
+    recent_awards = Award.objects.all().select_related("badge", "user", "user__profile")
     recent_awards = recent_awards.order_by("-pk")[:settings.AWARDS_FEED_COUNT]
 
     # Get valid posts
@@ -539,10 +539,9 @@ def get_digest_icon(user):
 def list_awards(context, target):
     request = context['request']
     # Show list of all awards here.
-
     badges = Badge.objects.filter(award__user=target).annotate(count=Count("award"))
-
-    context = dict(badges=badges, request=request)
+    badges = badges.order_by('-count')
+    context = dict(badges=badges, request=request, target=target)
     return context
 
 

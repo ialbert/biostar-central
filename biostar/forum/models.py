@@ -53,22 +53,6 @@ class PostManager(models.Manager):
         return query
 
 
-class AwardManager(models.Manager):
-
-    def valid_awards(self):
-        """
-        Returns queryset with valid posts.
-        """
-        query = super().get_queryset()
-        # Filter for valid users
-        query = query.filter(user__profile__state__in=[Profile.NEW, Profile.TRUSTED])
-
-        # Filter for valid posts
-        query = query.filter(models.Q(post__status=Post.OPEN) | models.Q(post__root__status=Post.OPEN))
-
-        return query
-
-
 class Sync(models.Model):
 
     last_synced = models.DateTimeField(null=True)
@@ -501,8 +485,6 @@ class Award(models.Model):
     date = models.DateTimeField()
     # context = models.CharField(max_length=1000, default='')
     uid = models.CharField(max_length=32, unique=True)
-
-    objects = AwardManager()
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.

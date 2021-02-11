@@ -3,6 +3,7 @@ from django.dispatch import receiver
 
 from biostar.accounts.models import Profile, User
 from biostar.accounts import util, tasks
+from django.template.defaultfilters import slugify
 
 
 @receiver(post_save, sender=User)
@@ -10,6 +11,7 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
     if created:
         # Set the username to a simpler form.
         username = f"{instance.first_name}-{instance.pk}" if instance.first_name else f'user-{instance.pk}'
+        username = slugify(username)
         if User.objects.filter(username=username).exclude(id=instance.pk).exists():
             username = util.get_uuid(6)
 

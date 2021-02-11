@@ -19,7 +19,7 @@ from taggit.models import Tag
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription
+from biostar.forum.models import Post, Vote, Badge, Subscription, Award
 from biostar.utils.decorators import is_moderator
 
 from biostar.accounts.auth import db_logger
@@ -417,12 +417,18 @@ def badge_list(request):
 
 def badge_view(request, uid):
     badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
+    target = request.GET.get('user')
+
+    user = User.objects.filter(profile__uid=target).first()
 
     if not badge:
         messages.error(request, f"Badge with id={uid} does not exist.")
         return redirect(reverse("badge_list"))
 
-    awards = badge.award_set.valid_awards().order_by("-pk")
+    awards = badge.award_set.all().order_by("-pk")
+    if user:
+        awards = awards.filter(user=user)
+
     awards = awards.prefetch_related("user", "user__profile", "post", "post__root")
     context = dict(awards=awards, badge=badge)
 
