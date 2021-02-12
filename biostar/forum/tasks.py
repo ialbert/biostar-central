@@ -1,4 +1,5 @@
 import functools
+import random
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from django.conf import settings
@@ -26,7 +27,7 @@ def message(msg, level=0):
 
 
 @task
-def spam_scoring(uid):
+def classify_spam(uid):
     """
     Score the spam with a slight delay.
     """
@@ -38,9 +39,17 @@ def spam_scoring(uid):
     # Give spammers the illusion of success with a slight delay
     time.sleep(1)
 
+    # Non spam posts are left alone.
+    if post.not_spam:
+        return
+
     try:
         # Give this post a spam score and quarantine it if necessary.
-        spam.score(post=post)
+        spam.score(uid=uid)
+
+        # Add this post to the spam index.
+        spam.add_spam(uid=uid)
+
     except Exception as exc:
         message(exc)
 
@@ -87,8 +96,8 @@ def update_spam_index(uid):
     # Index posts explicitly marked as SPAM or NOT_SPAM
     # indexing SPAM increases true positives.
     # indexing NOT_SPAM decreases false positives.
-    if not (post.is_spam or post.not_spam):
-        return {}
+    if post.spam == models.Post.DEFAULT:
+        return
 
     # Update the spam index with most recent spam posts
     try:
@@ -158,23 +167,22 @@ def create_user_awards(user_id):
     from biostar.accounts.models import User
     from biostar.forum.models import Award, Badge, Post
     from biostar.forum.awards import ALL_AWARDS
+    from biostar.forum import util
 
     user = User.objects.filter(id=user_id).first()
     # debugging
     # Award.objects.all().delete()
-    nawards = 0
+
+    # Collect valid targets
+    valid = []
 
     for award in ALL_AWARDS:
 
         # Valid award targets the user has earned
         targets = award.validate(user)
-
         for target in targets:
 
-            if nawards >= settings.MAX_AWARDS:
-                break
-
-            date = user.profile.last_login
+            date = util.now()
             post = target if isinstance(target, Post) else None
             badge = Badge.objects.filter(name=award.name).first()
 
@@ -183,10 +191,19 @@ def create_user_awards(user_id):
             if post and already_awarded:
                 continue
 
-            # Create an award for each target.
-            Award.objects.create(user=user, badge=badge, date=date, post=post)
-            nawards += 1
-            message(f"award {badge.name} created for {user.email}")
+            valid.append((user, badge, date, post))
+
+    # Pick random awards to give to user
+    random.shuffle(valid)
+
+    valid = valid[:settings.MAX_AWARDS]
+
+    for target in valid:
+        user, badge, date, post = target
+
+        # Create an award for each target.
+        Award.objects.create(user=user, badge=badge, date=date, post=post)
+        message(f"award {badge.name} created for {user.email}")
 
 
 @task

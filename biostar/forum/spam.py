@@ -12,6 +12,7 @@ from whoosh import classify
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, NUMERIC, BOOLEAN
 from biostar.forum.models import Post
+from biostar.accounts.models import Log
 from biostar.forum import search, auth, util
 
 logger = logging.getLogger("engine")
@@ -80,7 +81,11 @@ def add_post_to_index(post, writer, is_spam=None):
                  uid=f"{post.uid}")
 
 
-def add_spam(post):
+def add_spam(uid):
+
+    post = Post.objects.filter(uid=uid).first()
+    if post.spam == Post.DEFAULT:
+        return
 
     ix = init_spam_index()
     writer = AsyncWriter(ix)
@@ -94,7 +99,7 @@ def add_spam(post):
 def build_spam_index(overwrite=False, add_ham=False, limit=500):
     # Get all un-indexed spam posts.
 
-    spam = Post.objects.filter(spam=Post.SPAM).exclude(spam=Post.SUSPECT)
+    spam = Post.objects.filter(spam=Post.SPAM)
     spam = spam.order_by("pk")[:limit]
     spam = list(spam.values_list("id", flat=True))
     # Set indexed flag here so it does not get added to main index.
@@ -344,7 +349,7 @@ def test_classify(threshold=None, niter=100, limitmb=1024, size=100, verbosity=0
     return
 
 
-def score(post, threshold=None):
+def score(uid, threshold=None):
     """
     """
 
@@ -353,6 +358,8 @@ def score(post, threshold=None):
 
     if threshold is None:
         threshold = settings.SPAM_THRESHOLD
+
+    post = Post.objects.filter(uid=uid).first()
 
     # User's with high enough score automatically given green light.
     # if not post.author.profile.low_rep:
@@ -364,7 +371,7 @@ def score(post, threshold=None):
     # Update the spam score.
     Post.objects.filter(id=post.id).update(spam_score=post_score)
 
-    # If the score exceeds threshold it gets quarantined.
+    # If the score exceeds threshold it gets labeled spam.
     if post_score >= threshold:
-        Post.objects.filter(id=post.id).update(spam=Post.SUSPECT)
-        auth.db_logger(text=f"Quarantined post={post.uid}; spam score={post_score}")
+        Post.objects.filter(id=post.id).update(spam=Post.SPAM)
+        auth.db_logger(text=f" post={post.uid}; spam score={post_score}")

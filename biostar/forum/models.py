@@ -29,21 +29,19 @@ class PostManager(models.Manager):
         Returns posts that are not closed or marked as spam.
         """
         query = super().get_queryset().filter(**kwargs)
+
+        # Exclude posts with no root or parents
         query = query.exclude(Q(root=None) | Q(parent=None))
 
         # Moderators get to see all posts by default.
         if u and u.is_authenticated and u.profile.is_moderator:
             return query
 
-        # Users get to see their own quarantined posts.
-
-        # Filter for open posts that are not spam.
+        # Filter for open posts.
         query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
 
         query = query.filter(models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT) |
                              models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT))
-
-        query = query.exclude(root=None)
 
         return query
 
@@ -52,22 +50,6 @@ class PostManager(models.Manager):
         Return posts that were transferred over from an older verion of biostars
         """
         query = super().get_queryset().exclude(uid__contains='p').filter(**kwargs)
-        return query
-
-
-class AwardManager(models.Manager):
-
-    def valid_awards(self):
-        """
-        Returns queryset with valid posts.
-        """
-        query = super().get_queryset()
-        # Filter for valid users
-        query = query.filter(user__profile__state__in=[Profile.NEW, Profile.TRUSTED])
-
-        # Filter for valid posts
-        query = query.filter(models.Q(post__status=Post.OPEN) | models.Q(post__root__status=Post.OPEN))
-
         return query
 
 
@@ -96,12 +78,13 @@ class Post(models.Model):
     ]
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
-    # Possile spam states.
-    SPAM, NOT_SPAM, DEFAULT, SUSPECT = range(4)
-    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (SUSPECT, "Quarantine"), (DEFAULT, "Default")]
+    # Possible spam states.
+    SPAM, NOT_SPAM, DEFAULT = range(3)
 
+    # SPAM, NOT_SPAM, DEFAULT, SUSPECT = range(4)
+    SPAM_CHOICES = [(SPAM, "Spam"), (NOT_SPAM, "Not spam"), (DEFAULT, "Default")]
     # Spam labeling.
-    spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT)
+    spam = models.IntegerField(choices=SPAM_CHOICES, default=DEFAULT, db_index=True)
 
     # Spam score stores relative likely hood this post is spam.
     spam_score = models.FloatField(default=0)
@@ -218,21 +201,14 @@ class Post(models.Model):
         prefix = ""
         if self.is_spam:
             prefix = "Spam:"
-        elif self.suspect_spam:
-            prefix = "Quarantined: "
         elif not self.is_open or not self.is_question:
             prefix = f"{self.get_type_display()}:" if self.is_open else f"{self.get_status_display()}:"
 
         return prefix
 
     @property
-    def suspect_spam(self):
-        return self.spam == self.SUSPECT
-
-
-    @property
     def is_open(self):
-        return self.status == Post.OPEN and not self.is_spam and not self.suspect_spam
+        return self.status == Post.OPEN and not self.is_spam
 
     def recompute_scores(self):
         # Recompute answers count
@@ -376,8 +352,6 @@ class Post(models.Model):
         status = self.get_status_display()
         if self.is_spam:
             return "spam"
-        if self.suspect_spam:
-            return "quarantine"
 
         return f"{status}".lower()
 
@@ -387,6 +361,7 @@ class Post(models.Model):
             return "deleted"
         if self.has_accepted and not self.is_toplevel:
             return "accepted"
+
         return ""
 
     @property
@@ -511,9 +486,8 @@ class Award(models.Model):
     # context = models.CharField(max_length=1000, default='')
     uid = models.CharField(max_length=32, unique=True)
 
-    objects = AwardManager()
-
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
         self.uid = self.uid or util.get_uuid(limit=16)
+        self.date = self.date or util.now()
         super(Award, self).save(*args, **kwargs)

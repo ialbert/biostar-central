@@ -275,7 +275,7 @@ $(document).ready(function () {
         var form = $(this).closest('form');
         setTimeout(function () {
             highligh_preview(form, text);
-        }, 150)
+        }, 50)
     });
 
     $(this).on('click', '#wmd-button-bar', function (event) {

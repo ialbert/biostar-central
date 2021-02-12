@@ -62,7 +62,7 @@
 }
 
 body {
-    background-color: var(--page-bg-color) !important;
+    //background-color: var(--page-bg-color) !important;
     padding-top: 1rem;
     font-family: var(--root-font);
     color: #333;
@@ -78,11 +78,11 @@ body > .main.container {
     display: inline;
 }
 
+
 .padded {
     padding-top: 1ex;
     padding-bottom: 1ex;
 }
-
 
 #logo {
     padding: 5px 0 0 5px;
@@ -163,6 +163,7 @@ body > .main.container {
 
 #menu-header {
     background: none;
+    border: none;
     background-color: var(--menu-bg-color);
 }
 
@@ -190,7 +191,7 @@ body > .main.container {
 }
 
 #menu-topics {
-    border-top: 1px solid #ECECEC;
+    border: none;
     background-color: var(--menu-topics-bg-color);
 }
 
@@ -274,10 +275,6 @@ i.icon {
     padding-top: 0.1em;
 }
 
-.profile tbody td {
-    padding: 1ex !important;
-    width: 50%;
-}
 
 .ui.header .icon:only-child {
     margin-right: 0rem;
@@ -295,11 +292,12 @@ i.icon {
 
 .post > .title {
     text-shadow: 1px 2px 2px var(--post-title-shadow);
-    font-size: 1.3rem;
+    font-size: 140%;
     font-weight: bold;
-    padding: 0.5rem 0em 0.2rem 0em;
-    margin: 0em 0em 1em 0em;
-    border-bottom: 1px solid var(--post-title-border);
+    padding: 0.5em 0em 0.2em 0em;
+    margin-bottom: 10px;
+    color: #333;
+    border-bottom: 1px solid #d3d3d3;
 }
 
 .on {
@@ -555,11 +553,6 @@ figure {
 .post.deleted, .post.spam {
     background-color: var(--spam-background) !important;
     opacity: .6;
-    border: none !important;
-}
-
-.post.quarantine {
-    background-color: var(--quar-background) !important;
     border: none !important;
 }
 
@@ -827,7 +820,8 @@ img {
 }
 
 .ui.attached.segment {
-    border: 1px solid var(--segment-border-color);
+    border: none ;
+    /*border: 1px solid var(--segment-border-color);*/
 }
 
 .ui.attached.profile.segment {

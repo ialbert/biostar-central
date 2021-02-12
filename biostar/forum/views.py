@@ -106,7 +106,7 @@ def get_posts(user, topic="", tag="", order="", limit=None):
         query = query.filter(type=post_type)
 
     elif topic == SHOW_SPAM:
-        query = query.filter(Q(spam=Post.SPAM) | Q(spam=Post.SUSPECT))
+        query = query.filter(Q(spam=Post.SPAM))
     elif topic == OPEN:
         query = query.filter(type=Post.QUESTION, answer_count=0)
     elif topic == BOOKMARKS and user.is_authenticated:
@@ -230,7 +230,7 @@ def release_quar(request, uid):
     """
     post = Post.objects.filter(uid=uid).first()
     if not post:
-        messages.error(request, "Post does noe exist.")
+        messages.error(request, "Post does not exist.")
         return redirect('/')
 
     # Bump the score by one is the user does not get quarantined again.
@@ -419,20 +419,25 @@ def community_list(request):
 
 
 def badge_list(request):
-    badges = Badge.objects.annotate(count=Count("award"))
+    badges = Badge.objects.annotate(count=Count("award")).order_by('-count')
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
 
 def badge_view(request, uid):
     badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
+    target = request.GET.get('user')
+
+    user = User.objects.filter(profile__uid=target).first()
 
     if not badge:
         messages.error(request, f"Badge with id={uid} does not exist.")
         return redirect(reverse("badge_list"))
 
-    awards = badge.award_set.valid_awards().order_by("-pk")
-    awards = awards.filter(badge=badge)[:100]
+    awards = badge.award_set.all().order_by("-pk")
+    if user:
+        awards = awards.filter(user=user)
+
     awards = awards.prefetch_related("user", "user__profile", "post", "post__root")
     context = dict(awards=awards, badge=badge)
 
@@ -527,7 +532,6 @@ def post_moderate(request, uid):
             comment = form.cleaned_data.get('comment')
             url, msg = auth.moderate(user=user, post=post, action=action, comment=comment)
             messages.success(request=request, message=msg)
-            auth.db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
             return redirect(url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])

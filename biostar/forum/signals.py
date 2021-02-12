@@ -123,9 +123,6 @@ def finalize_post(sender, instance, created, **kwargs):
         # Notify users who are watching tags in this post
         tasks.notify_watched_tags.spool(uid=instance.uid, extra_context=extra_context)
 
-        # Give it a spam score.
-        tasks.spam_scoring.spool(uid=instance.uid)
-
         mailing_list = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES)
 
         emails = [user.email for user in mailing_list]
@@ -133,8 +130,8 @@ def finalize_post(sender, instance, created, **kwargs):
         # Send out mailing list when post is created.
         tasks.mailing_list.spool(emails=emails, uid=instance.uid, extra_context=extra_context)
 
-    # Add this post to the spam index if it's spam.
-    tasks.update_spam_index.spool(uid=instance.uid)
+    # Classify post as spam/ham.
+    tasks.classify_spam.spool(uid=instance.uid)
 
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)

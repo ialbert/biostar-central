@@ -1,12 +1,6 @@
-{% extends "forum_base.html" %}
 {% load forum_tags %}
 
-{% block headtitle %}
-    Badge List
-{% endblock %}
-
-{% block content %}
-
+{% if badges %}
         <div class="ui segment  no-shadow" style="padding-left: 14%;padding-right: 14%">
             <table class="ui  very basic table">
                 <thead>
@@ -20,7 +14,7 @@
                 {% for badge in badges %}
                     <tr>
                         <td>
-                            <a href="{% url 'badge_view' badge.uid %}" style="opacity: unset;">
+                            <a href="{% url 'badge_view' badge.uid %}?user={{ target.profile.uid }}" style="opacity: unset;">
                                 <i class="{{ badge.icon }}"></i>
                                 {{ badge.name }}
                             </a>
@@ -33,5 +27,8 @@
             </table>
         </div>
 
-
-{% endblock %}
+{% else %}
+    <div class="ui warn message">
+        No awards found.
+    </div>
+{% endif %}

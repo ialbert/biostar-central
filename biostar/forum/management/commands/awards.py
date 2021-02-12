@@ -13,12 +13,13 @@ logger = logging.getLogger('engine')
 
 def give_award(user):
 
+    # Get all valid awards.
+
     for award in ALL_AWARDS:
         # Valid award targets the user has earned
         targets = award.validate(user)
 
         for target in targets:
-            date = user.profile.last_login
             post = target if isinstance(target, Post) else None
             badge = Badge.objects.filter(name=award.name).first()
 
@@ -28,9 +29,10 @@ def give_award(user):
                 continue
 
             # Create an award for each target.
-            Award.objects.create(user=user, badge=badge, date=date, post=post)
+            Award.objects.create(user=user, badge=badge, post=post)
 
             logger.info(f"award {badge.name} created for {user.email}" )
+
 
 
 def create_user_awards(clear=False):
