@@ -483,6 +483,22 @@ def get_post_list(target, request, show=None):
     return posts
 
 
+def awards_feed():
+    awards = Award.objects.order_by('-pk').select_related("badge", "user", "user__profile")
+    # Store already seen users
+    seen = set()
+    # Aggregate list of shown awards
+    recent = []
+    for award in awards:
+        if award.user not in seen:
+            recent.append(award)
+
+        seen.update([award.user])
+    recent = recent[:settings.AWARDS_FEED_COUNT]
+
+    return recent
+
+
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
 
@@ -494,15 +510,14 @@ def default_feed(user):
     recent_locations = Profile.objects.valid_users().exclude(location="").prefetch_related("user")
     recent_locations = recent_locations.order_by('-last_login')[:settings.LOCATION_FEED_COUNT]
 
-    # Get valid results
-    recent_awards = Award.objects.all().select_related("badge", "user", "user__profile")
-    recent_awards = recent_awards.order_by("-pk")[:settings.AWARDS_FEED_COUNT]
+    # Adding the awards amount
+    recent_awards = awards_feed()
 
     # Get valid posts
     recent_replies = Post.objects.valid_posts(is_toplevel=False).select_related("author__profile", "author")
     recent_replies = recent_replies.order_by("-pk")[:settings.REPLIES_FEED_COUNT]
 
-    context = dict(recent_votes=recent_votes, recent_awards=recent_awards, users=[],
+    context = dict(recent_votes=recent_votes, recent_awards=recent_awards,
                    recent_locations=recent_locations, recent_replies=recent_replies,
                    user=user)
 

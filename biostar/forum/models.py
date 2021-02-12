@@ -489,4 +489,5 @@ class Award(models.Model):
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
         self.uid = self.uid or util.get_uuid(limit=16)
+        self.date = self.date or util.now()
         super(Award, self).save(*args, **kwargs)
