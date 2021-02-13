@@ -53,11 +53,6 @@ class PostManager(models.Manager):
         return query
 
 
-class Sync(models.Model):
-
-    last_synced = models.DateTimeField(null=True)
-
-
 class Post(models.Model):
     "Represents a post in a forum"
 
@@ -117,9 +112,6 @@ class Post(models.Model):
 
     # This post has been indexed by the search engine.
     indexed = models.BooleanField(default=False)
-
-    # Used for efficiency
-    #is_public_toplevel = models.BooleanField(default=False)
 
     # Show that post is top level
     is_toplevel = models.BooleanField(default=False, db_index=True)
@@ -217,7 +209,6 @@ class Post(models.Model):
             Post.objects.filter(pk=self.parent_id).update(answer_count=answer_count)
 
         reply_count = Post.objects.valid_posts(root=self.root).exclude(pk=self.root.pk).count()
-        print(reply_count)
 
         Post.objects.filter(pk=self.root.id).update(reply_count=reply_count)
 

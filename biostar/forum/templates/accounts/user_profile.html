@@ -170,19 +170,19 @@
     </div>
 
     <div class="ui vertical segment">
-
+        <div id="p-anchor"></div>
         <div class="ui top attached tabular  menu">
 
-            <a class="{% activate 'posts' active %} item" href="{{ target.profile.get_absolute_url }}?active=posts">
+            <a class="{% activate 'posts' active %} item" href="{{ target.profile.get_absolute_url }}?active=posts#p-anchor">
                 <i class="list alternate outline icon"></i><span class="phone"> Posts</span>
             </a>
 
-            <a class="{% activate 'awards' active %}  item" href="{{ target.profile.get_absolute_url }}?active=awards">
+            <a class="{% activate 'awards' active %}  item" href="{{ target.profile.get_absolute_url }}?active=awards#p-anchor">
                 <i class="star outline icon"></i><span class="phone">Awards</span>
             </a>
 
         </div>
-        <div class="ui bottom attached profile segment">
+        <div class="ui bottom attached profile segment" >
             {% if active == 'posts' %}
                 {% include 'accounts/profile_post_listing.html' %}
             {% else %}

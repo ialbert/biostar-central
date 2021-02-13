@@ -14,6 +14,9 @@
     --menu-topics-bg-hover:#fbfdef;
     --menu-topics-hover:  #2a2b2b;
     --menu-header-color:#337ab7;
+    --job-background:#AAAAAA;
+    --news-background: #555555;
+    --accepted-answer-background: #1881C2;
 
 }
 
@@ -37,7 +40,7 @@ body {
     width: 100%;
 }
 
-.add-comment.ui.label {
+.comment-button.label {
     cursor: pointer;
     color: white;
     font-weight: bolder;
@@ -115,20 +118,4 @@ body {
 #menu-header .add-question:hover {
     background-color: #87B13F !important;
     color: white;
-}
-
-
-.ui.stat.label.job {
-    background-color: #AAAAAA;
-
-}
-
-.ui.stat.label.news {
-    background-color: #555555;
-
-}
-
-.accepted.answer.label {
-    background-color: #1881C2 !important;;
-    color: #FFFC20 !important;;
 }

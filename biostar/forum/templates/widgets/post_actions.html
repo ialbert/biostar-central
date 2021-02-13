@@ -5,7 +5,7 @@
 
 <div class="actions {% if post.is_toplevel %}top-level{% endif %}">
 
-    <a class="add-comment ui tiny label">{{ label }}</a>
+    <a class="ui tiny label comment-button">{{ label }}</a>
 
     &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
 
