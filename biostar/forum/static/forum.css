@@ -59,6 +59,11 @@
     --a-hover-background:#fbfdef;
     --muted-color:#808080;
     --pre-background:#EEEEEE;
+    --menu-topics-hover:#663b72;
+    --menu-header-hover:#663b72;
+    --menu-header-bg-hover: inherit;
+    --menu-topics-bg-hover: inherit;
+    --menu-header-color:#333333;
 }
 
 body {
@@ -86,7 +91,6 @@ body > .main.container {
 
 #logo {
     padding: 5px 0 0 5px;
-    //width: 220px;
     background-color: var(--logo-background);
 }
 
@@ -168,11 +172,12 @@ body > .main.container {
 }
 
 #menu-header .item:hover:not(#logo) {
-   color: var(--active-item-color);
+   color: var(--menu-header-hover);
+   background: var(--menu-header-bg-hover);
 }
 
 #menu-header .item {
-    color: #333333;
+    color:  var(--menu-header-color);
 }
 
 
@@ -196,7 +201,8 @@ body > .main.container {
 }
 
 #menu-topics .item:hover {
-    color: var(--active-item-color);
+    color: var(--menu-topics-hover);
+    background: var(--menu-topics-bg-hover);
 }
 
 #menu-topics .item:before {
@@ -578,6 +584,12 @@ figure {
     margin: 0;
 }
 
+
+.tags.grid{
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
 .user_box.muted {
     font-size: small;
 }
@@ -643,6 +655,7 @@ img {
 .center-text {
     text-align: center;
 }
+
 
 .inline-message p:first-child {
     display: inline;

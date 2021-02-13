@@ -5,6 +5,16 @@
     --tag-background:#ececec;
     --quetion-background:#87B13F;
     --menu-bg-color:#eff0ef;
+    --has-answers-background: #1881C2;
+    --tutorial-background:#87B13F;
+    --menu-topics-bg-color:#1881c2;
+    --menu-header-hover: #337ab7;
+    --menu-topic-hover: white;
+    --menu-header-bg-hover:#fbfdef;
+    --menu-topics-bg-hover:#fbfdef;
+    --menu-topics-hover:  #2a2b2b;
+    --menu-header-color:#337ab7;
+
 }
 
 body > .main.container {
@@ -26,6 +36,7 @@ body {
 .ui.search > .ui.input{
     width: 100%;
 }
+
 .add-comment.ui.label {
     cursor: pointer;
     color: white;
@@ -44,17 +55,9 @@ body {
     display: none;
 }
 
-#menu-topics .item:hover{
-    color: black;
-    border-radius: 90px;
-}
-
-
 #menu-topics {
-    background-color: #1881c2;
     color: white;
     font-size: small;
-/ / min-height: 0;
 }
 
 .no-box-shadow {
@@ -71,36 +74,31 @@ body {
     color: white;
 }
 
+#menu-topics .item:hover {
+    border-radius: 90px
+}
+
 #menu-topics .item.active {
     color: #2a2b2b;
     border-radius: 90px
 }
 
-#menu-header .item.format {
+#menu-header .item {
     padding: 28px 20px 0px 20px;
     text-align: center;
-    color: #337ab7;
     text-transform: uppercase;
 }
-
-#menu-header .item:hover {
-    background-color: #dbdbdb;
-}
-
 
 .hidden-answer {
     display: none;
 }
 
 #logo {
-    padding: 0px;
+    padding: 0px !important;
     margin: 3px;
     background-color: transparent;
+    width: 220px;
 
-}
-
-#menu-header.narrow{
-    background-color: #1881c2;
 }
 
 
@@ -108,47 +106,15 @@ body {
     display: inline;
 }
 
-#login-opts .item > i.icon {
-    // color: white;
-}
 
 .match {
     width: max-content;
 }
 
 
-.ui.question.has_answers.label {
-    background-color: #1881C2 !important;
-}
-
-.ui.tutorial.has_answers.label {
-    background-color: #1881C2 !important;
-}
-
-.ui.stat.label.tutorial {
-    background-color: #87B13F;
-
-}
-
-.ui.small.label.tags:hover {
-    background-color: #bfbfbf;
-}
-
-
 #menu-header .add-question:hover {
     background-color: #87B13F !important;
     color: white;
-}
-
-.ui.small.label.tags {
-    background-color: #F5F5F5;
-    border: none;
-    border-bottom: 1px solid #E5E5E5;
-    border-right: 1px solid #E5E5E5;
-    color: #1881C2;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
 }
 
 

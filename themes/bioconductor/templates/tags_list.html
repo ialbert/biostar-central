@@ -1,25 +1,6 @@
-{% extends "forum_base.html" %}
+{% extends "tags_list.html" %}
 {% load forum_tags %}
 
-{% block content %}
 
-    {% search_bar tags=True %}
-
-    <div class="ui four column grid" style="margin: 0px">
-        {% for tag in tags %}
-            <div class="column" style="padding: 3px">
-                <div class="item">
-                    <a class="ui small label tags-list" href="{% url 'post_list' %}?tag={{ tag }}">
-                        {{ tag }}
-                    </a>
-                    <i class="ui small tags icon" style="margin: 0"></i> {{ tag.nitems }}
-                </div>
-            </div>
-        {% endfor %}
-    </div>
-
-    <div class="ui basic center aligned segment">
-        {% pages objs=tags %}
-    </div>
-
+{% block top-page %}
 {% endblock %}

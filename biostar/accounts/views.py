@@ -234,7 +234,7 @@ def debug_user(request):
     Allows superusers to log in as a regular user to troubleshoot problems.
     """
 
-    if not settings.DEBUG:
+    if not settings.DEBUG_USERS:
         messages.error(request, "Can only use when in debug mode.")
         redirect("/")
 
