@@ -83,7 +83,7 @@ SEARCH_LIMIT = 20
 
 INIT_PLANET = False
 
-# Run tasks using celery
+
 TASKS_CELERY = False
 
 # Minimum amount of characters to preform searches
