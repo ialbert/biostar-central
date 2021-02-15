@@ -40,7 +40,7 @@ body {
     width: 100%;
 }
 
-.comment-button.label {
+.add-comment.label {
     cursor: pointer;
     color: white;
     font-weight: bolder;

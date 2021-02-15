@@ -101,7 +101,7 @@ COMMENTATOR = AwardDef(
     desc="created a comment with at least 3 up-votes",
     func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.COMMENT),
     max=1,
-    icon="comment icon"
+    icon="mycomment icon"
 )
 
 CENTURION = AwardDef(

@@ -229,6 +229,10 @@ body > .main.container {
     padding: 3px;
 }
 
+i.icon.mycomment:before {
+    content: "\f075";
+}
+
 .ui.items > .post.item > .image:not(.ui) {
     width: max-content;
 }
