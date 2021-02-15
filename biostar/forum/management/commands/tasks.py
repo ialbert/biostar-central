@@ -37,7 +37,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        uids = options['uids']
+        uids = options['uids'].split(',')
         action = options['action']
 
         opts = {BUMP: bump, UNBUMP: unbump}

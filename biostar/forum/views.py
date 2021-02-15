@@ -427,6 +427,7 @@ def badge_list(request):
 def badge_view(request, uid):
     badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
     target = request.GET.get('user')
+    page = request.GET.get('page', 1)
 
     user = User.objects.filter(profile__uid=target).first()
 
@@ -439,6 +440,9 @@ def badge_view(request, uid):
         awards = awards.filter(user=user)
 
     awards = awards.prefetch_related("user", "user__profile", "post", "post__root")
+    paginator = Paginator(object_list=awards, per_page=settings.POSTS_PER_PAGE)
+
+    awards = paginator.get_page(page)
     context = dict(awards=awards, badge=badge)
 
     return render(request, "badge_view.html", context=context)

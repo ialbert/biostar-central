@@ -49,7 +49,7 @@
                     </div>
                 {% endif %}
 
-                {% if request.user.is_superuser and debugging %}
+                {% if allow_debug %}
                     <a class="ui mini red button" href="{% url 'debug_user' %}?uid={{ target.profile.uid }}">
                         <i class="sign in icon"></i> Log in
                     </a>
