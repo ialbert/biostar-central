@@ -15,6 +15,7 @@ POSTS_PER_PAGE = 50
 USERS_PER_PAGE = 100
 MESSAGES_PER_PAGE = 100
 TAGS_PER_PAGE = 50
+AWARDS_PER_PAGE = 50
 
 STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
 
@@ -83,7 +84,7 @@ SEARCH_LIMIT = 20
 
 INIT_PLANET = False
 
-# Run tasks using celery
+
 TASKS_CELERY = False
 
 # Minimum amount of characters to preform searches

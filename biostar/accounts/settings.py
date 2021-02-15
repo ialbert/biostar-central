@@ -20,6 +20,9 @@ PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 
+
+DEBUG_USERS = False
+
 # Maximum size per image uploaded, in mb.
 MAX_IMAGE_SIZE_MB = 2
 

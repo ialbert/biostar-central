@@ -13,10 +13,11 @@ logger = logging.getLogger('engine')
 MAX_MSG = 100
 
 
-def prune_data(weeks=10, days=1):
+def prune_data(weeks=10, days=1, delall=False):
 
     # Remove spam and deleted posts
     past_days = now() - timedelta(days=days)
+    weeks_since = now() - timedelta(weeks=weeks)
 
     spam_posts = Post.objects.filter(spam=Post.SPAM)
     logger.info(f"Deleting {spam_posts.count()} spam posts")
@@ -28,8 +29,11 @@ def prune_data(weeks=10, days=1):
     post_views.delete()
 
     # Reduce overall messages.
-    weeks_since = now() - timedelta(weeks=weeks)
-    messages = Message.objects.filter(sent_date__lt=weeks_since)
+    if delall:
+        messages = Message.objects.all()
+    else:
+        messages = Message.objects.filter(sent_date__lt=weeks_since)
+
     logger.info(f"Deleting {messages.count()} messages")
     messages.delete()
 
@@ -50,5 +54,11 @@ class Command(BaseCommand):
               - too many messages in a users inbox
            """
 
+    def add_arguments(self, parser):
+        parser.add_argument('--all', action='store_true', default=False, help="Delete all messages.")
+
     def handle(self, *args, **options):
-        prune_data()
+
+        delete_all = options['all']
+
+        prune_data(delall=delete_all)

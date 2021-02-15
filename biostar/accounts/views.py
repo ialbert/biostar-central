@@ -163,7 +163,9 @@ def user_profile(request, uid):
     can_moderate = is_mod and request.user != profile.user
     show_info = is_mod or (profile.is_valid and not profile.low_rep)
 
-    context = dict(target=profile.user, active=active, debugging=settings.DEBUG, show_info=show_info,
+    allow_debug = request.user.is_superuser and settings.DEBUG_USERS
+
+    context = dict(target=profile.user, active=active, allow_debug=allow_debug, show_info=show_info,
                    const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, show=show,
                    tab="profile")
 
@@ -234,9 +236,9 @@ def debug_user(request):
     Allows superusers to log in as a regular user to troubleshoot problems.
     """
 
-    if not settings.DEBUG:
+    if not settings.DEBUG_USERS:
         messages.error(request, "Can only use when in debug mode.")
-        redirect("/")
+        return redirect("/")
 
     target = request.GET.get("uid", "")
     profile = Profile.objects.filter(uid=target).first()
@@ -247,7 +249,6 @@ def debug_user(request):
 
     user = profile.user
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-    messages.success(request, "Login successful!")
 
     logger.info(f"""uid={request.user.profile.uid} impersonated 
                     uid={profile.uid}.""")

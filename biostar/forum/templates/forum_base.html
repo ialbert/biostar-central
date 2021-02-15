@@ -46,7 +46,7 @@
     <script>
         MathJax = {
             tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']]
+                inlineMath: [['\$', '\$'], ['\\(', '\\)']]
             },
             svg: {
                 fontCache: 'global'
@@ -75,6 +75,9 @@
         {% endblock %}
 
     {% endcompress %}
+
+    {% block extrajs %}
+    {% endblock %}
 
     {# Optional css header content. #}
     {% block css %}
@@ -128,4 +131,3 @@
 
 
 </html>
-
