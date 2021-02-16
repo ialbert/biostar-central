@@ -23,7 +23,8 @@
     <div class="ui grid">
 
           {%  for award in awards %}
-            <div class="four wide column">
+
+       <div class="four wide column">
                 <div class="center aligned author">
                     <a href="{% url "user_profile" award.user.profile.uid %}">
                       <div class="ui circular image">

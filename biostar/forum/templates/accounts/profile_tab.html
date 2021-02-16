@@ -1,0 +1,146 @@
+{% load forum_tags %}
+
+<div class="ui stackable three column grid profile" data-value="{{ target.profile.id }}">
+
+    <div class="column">
+        <div class="ui center aligned  basic segment">
+            <img class="ui centered circular image" src="{% gravatar user=target size=150 %}">
+            <div class="ui centered header">
+                {{ target.profile.name }}
+                {% user_icon score=target.profile.score %}
+            </div>
+        </div>
+
+        <div class="ui center aligned basic segment">
+
+            {% if target == request.user %}
+                <a class="ui mini button" href="{% url 'edit_profile' %}">
+                    <i class="write icon"></i>Edit profile
+                </a>
+            {% endif %}
+
+            {% if can_moderate %}
+                <div class="ui mini button orange moderate">
+                    <i class="hand paper icon"></i>
+                    Moderate
+                </div>
+            {% endif %}
+
+            {% if allow_debug %}
+                <a class="ui mini red button" href="{% url 'debug_user' %}?uid={{ target.profile.uid }}">
+                    <i class="sign in icon"></i> Log in
+                </a>
+            {% endif %}
+
+        </div>
+
+        <div id="mod"></div>
+    </div>
+
+    <div class="column">
+
+
+        <div class="ui center aligned basic segment">
+
+
+            <table class="ui very basic table profile">
+                <tbody>
+
+                {% if target.profile.is_moderator %}
+                    <tr>
+                        <td>Role:</td>
+                        <td>{{ target.profile.get_role_display }}</td>
+                    </tr>
+                {% endif %}
+
+                <tr>
+                    <td>Status:</td>
+                    <td>{{ target.profile.get_state_display }}</td>
+                </tr>
+
+                <tr>
+                    <td>Handle:</td>
+                    <td><code>@{{ target.username }}</code></td>
+                </tr>
+
+                <tr>
+                    <td>Reputation:</td>
+                    <td>{{ target.profile.get_score }}</td>
+                </tr>
+                {% if target == request.user or request.user.profile.is_moderator %}
+                    <tr>
+                        <td>Email:</td>
+                        <td>{{ target.email }}</td>
+                    </tr>
+                {% endif %}
+
+                <tr>
+                    <td>Joined:</td>
+                    <td>{{ target.profile.date_joined|time_ago }}</td>
+                </tr>
+
+                {% if target.profile.twitter %}
+                    <tr>
+                        <td>Twitter:</td>
+                        <td>
+                            <a href="https://twitter.com/{{ target.profile.twitter }}"><i
+                                    class="twitter icon"></i>{{ target.profile.twitter }}</a>
+                        </td>
+                    </tr>
+                {% endif %}
+
+                {% if target.profile.scholar %}
+                    <tr>
+                        <td>Google Scholar:</td>
+                        <td>
+                            <a href="https://scholar.google.com/citations?user={{ target.profile.scholar }}"><i
+                                    class="book icon"></i>{{ target.profile.scholar }}</a>
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if target == request.user %}
+                    <tr>
+                        <td>Notifications:</td>
+                        <td>{{ target.profile.get_message_prefs_display }}</td>
+                    </tr>
+                {% endif %}
+
+                <tr>
+                    <td>Last seen:</td>
+                    <td>{{ target.profile.last_login |time_ago }}</td>
+                </tr>
+                {% if show_info %}
+                    <tr>
+                        <td>Location:</td>
+                        <td>{{ target.profile.location }}</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+        </div>
+
+
+    </div>
+    <div class="column">
+        <div class="profile ui relaxed divided list profile">
+
+            <div class="item">
+                <div class="content">
+
+                    {% if show_info %}
+                        <p>{{ target.profile.html |safe }}</p>
+                    {% else %}
+                        <p>
+                            Profile information, website and location are not shown for new users.
+                        </p>
+                        <p>
+                            This helps us discourage the inappropriate use of our site.
+                        </p>
+
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
