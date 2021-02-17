@@ -53,7 +53,7 @@
 
 {% block sidebar %}
 
-    {% cache 60 sidebar %}
+    {% cache 60 sidebar sidebar_key %}
 
         {% if tab == 'following' %}
             {% custom_feed feed_type=tab objs=posts title='People you are following' %}

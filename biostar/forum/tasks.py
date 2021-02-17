@@ -162,7 +162,7 @@ def created_post(pid):
 #@shared_task
 #@task
 @task
-def create_user_awards(user_id):
+def create_user_awards(user_id, limit=settings.MAX_AWARDS):
 
     from biostar.accounts.models import User
     from biostar.forum.models import Award, Badge, Post
@@ -196,15 +196,26 @@ def create_user_awards(user_id):
     # Pick random awards to give to user
     random.shuffle(valid)
 
-    valid = valid[:settings.MAX_AWARDS]
+    valid = valid[:limit]
 
     for target in valid:
         user, badge, date, post = target
 
         # Create an award for each target.
         Award.objects.create(user=user, badge=badge, date=date, post=post)
+
         message(f"award {badge.name} created for {user.email}")
 
+
+# @task
+# def batch_create_awards(user_id, limit=settings.MAX_AWARDS):
+#
+#     # Awards set amount per user,
+#
+#     # Batch awards, give a 'report' message for all awards at the end.
+#
+#     # calls
+#     return
 
 @task
 def mailing_list(emails, uid, extra_context={}):

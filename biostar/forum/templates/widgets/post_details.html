@@ -44,11 +44,17 @@
             </div>
 
             {% if post.high_spam_score and user.profile.is_moderator %}
-                {% if post.is_spam %}
-                    <a href="{% url 'mark_spam' post.uid %}?restore=1"><i class="bug green icon"></i></a>
-                {% else %}
-                    <a href="{% url 'mark_spam' post.uid %}"><i class="bug orange icon"></i></a>
-                {% endif %}
+
+                    <a href="{% url 'mark_spam' post.uid %}">
+
+                        {% if post.is_spam %}
+                        <i class="bug green icon"></i>
+                        {% else %}
+                        <i class="bug orange icon"></i>
+                        {% endif %}
+
+                    </a>
+
             {% endif %}
 
             <div class="right floated muted">

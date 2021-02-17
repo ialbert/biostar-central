@@ -213,7 +213,7 @@ def mark_spam(request, uid):
 
     # Apply the toggle.
     if post:
-        auth.toggle_spam(request, post, state=state)
+        auth.toggle_spam(request, post)
     else:
         messages.error(request, "Post does not seem to exist")
 
@@ -271,7 +271,8 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
     tab = tag or topic or LATEST
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=topic, limit=limit, avatar=True)
+    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=topic, limit=limit, avatar=True,
+                   sidebar_key=SIDEBAR_CACHE_KEY)
     context.update(extra_context)
     # Render the page.
     return render(request, template_name="post_list.html", context=context)
@@ -363,7 +364,12 @@ def following(request):
     """
     Show posts followed by user
     """
-    return post_list(request, topic=FOLLOWING)
+    user = request.user
+    cache_key = FOLLOWING_CACHE_KEY % user.id
+    print(cache_key)
+
+    context = dict(sidebar_key=cache_key)
+    return post_list(request, topic=FOLLOWING, extra_context=context)
 
 
 @authenticated
@@ -371,7 +377,11 @@ def bookmarks(request):
     """
     Show posts bookmarked by user
     """
-    return post_list(request, topic=BOOKMARKS)
+    user = request.user
+    cache_key = BOOKMARKS_CACHE_KEY % user.id
+    print(cache_key)
+    context = dict(sidebar_key=BOOKMARKS_CACHE_KEY)
+    return post_list(request, topic=BOOKMARKS, extra_context=context)
 
 
 @authenticated
@@ -534,8 +544,7 @@ def post_moderate(request, uid):
         if form.is_valid():
             action = form.cleaned_data.get('action')
             comment = form.cleaned_data.get('comment')
-            url, msg = auth.moderate(user=user, post=post, action=action, comment=comment)
-            messages.success(request=request, message=msg)
+            url = auth.moderate(request=request, post=post, action=action, comment=comment)
             return redirect(url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])

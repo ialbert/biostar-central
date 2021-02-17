@@ -152,7 +152,7 @@ def user_profile(request, uid):
         return redirect("/")
 
     # Get the active tab, defaults to project
-    active = request.GET.get("active", "posts")
+    active = request.GET.get("active", "profile")
 
     # Apply filter to what is shown.
     show = request.GET.get('show', '')
@@ -225,6 +225,7 @@ def image_upload_view(request):
     form = forms.ImageUploadForm(data=request.POST, files=request.FILES, user=user)
     if form.is_valid():
         url = form.save()
+        db_logger(user=user, action=Log.CREATE, text=f'uploaded an image: {url}')
         return JsonResponse({'success': True, 'url': url})
 
     return JsonResponse({'success': False, 'error': form.errors})
