@@ -364,7 +364,11 @@ def following(request):
     """
     Show posts followed by user
     """
-    context = dict(sidebar_key=FOLLOWING_CACHE_KEY)
+    user = request.user
+    cache_key = FOLLOWING_CACHE_KEY % user.id
+    print(cache_key)
+
+    context = dict(sidebar_key=cache_key)
     return post_list(request, topic=FOLLOWING, extra_context=context)
 
 
@@ -373,6 +377,9 @@ def bookmarks(request):
     """
     Show posts bookmarked by user
     """
+    user = request.user
+    cache_key = BOOKMARKS_CACHE_KEY % user.id
+    print(cache_key)
     context = dict(sidebar_key=BOOKMARKS_CACHE_KEY)
     return post_list(request, topic=BOOKMARKS, extra_context=context)
 
