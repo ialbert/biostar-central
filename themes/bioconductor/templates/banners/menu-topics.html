@@ -19,12 +19,12 @@
         </a>
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
-             <i class="comments icon"></i>   My Posts
+            <i class="comments icon"></i> My Posts
 
         </a>
 
         <a class="item {% activate tab "mytags" %}" href="{% url 'mytags' %}">
-           <i class="tags icon"></i>  My Tags
+            <i class="tags icon"></i> My Tags
 
         </a>
         <span class="menu-tablet_med_xsmall"></span>
@@ -38,6 +38,12 @@
         </a>
 
     {% endif %}
+    {% if request.user.profile.is_moderator %}
+        <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
+            <i class="info circle icon"></i> Activity
+        </a>
+    {% endif %}
+
 
     <div class="right menu" id="login-opts">
 
@@ -49,16 +55,16 @@
             </a>
 
             <a class="item {{ user.profile.css }} {% activate tab "logout" %}" href="{% url 'logout' %}">
-            <i class="sign-out icon"></i>
+                <i class="sign-out icon"></i>
                 Logout
             </a>
 
         {% else %}
             <a class="item {% activate tab "login" %}" href="{% url 'login' %}">
-                 <i class="sign-in icon"></i>Log In</a>
+                <i class="sign-in icon"></i>Log In</a>
 
             <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}">
-                 <i class="user icon"></i> Sign Up</a>
+                <i class="user icon"></i> Sign Up</a>
         {% endif %}
 
         <a class="item {% activate tab "about" %}" href="{% url 'pages' 'about' %}"> <i

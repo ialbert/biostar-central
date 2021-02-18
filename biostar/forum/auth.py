@@ -17,9 +17,9 @@ from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from biostar.accounts.models import Profile
-from . import util
+from . import util, awards
 from .const import *
-from .models import Post, Vote, PostView, Subscription
+from .models import Post, Vote, PostView, Subscription, Award, Badge
 from django.utils.safestring import mark_safe
 
 
@@ -124,58 +124,6 @@ def walk_down_thread(parent, collect=set()):
         walk_down_thread(parent=child, collect=collect)
 
     return collect
-
-
-def old_to_new_sync(base_url, count=1):
-    """
-    Sync the old biostars with the current new version one post at a time.
-    count - Number of posts to sync. Equal to the number of requests sent to the server.
-    """
-
-    # Get the most recent post without a 'p' in the uid.
-    # This is most up to date we need to start syncing.
-
-    most_recent = Post.objects.exclude(uid__contains="p").order_by('-pk').only('id')
-
-    # Get end point url for the next post
-
-    next = most_recent.id + 1
-
-    relative_url = reverse('api_post', kwargs=dict(id=next))
-    endpoint = urlparse.urljoin(base_url, relative_url)
-    # Send get
-    response = request.urlopen(endpoint)
-    print(response)
-    1/0
-
-    json_data = json.dumps(response.data)
-
-    # Load the response into dict then batch create the posts.
-
-    return
-
-
-def batch_old_to_new_sync(base_url, batch_size=10):
-    """
-    Batch sync the old biostars with the current new version.
-    """
-
-    # Get the most recent post without a 'p' in the uid.
-    # This is most up to date we need to start syncing.
-
-    most_recent = Post.objects.exclude(uid__contains="p").order_by('-lastedit_date').only('lastedit_date')
-
-    # Get end point url  and construct url
-    params = {'start_date': most_recent.lastedit_date.iso, 'batch_size': batch_size}
-    params = urlparse.urlencode(params)
-    endpoint = urlparse.urljoin(base_url, reverse('api_batch'))
-    endpoint = f"{endpoint}?{params}"
-
-    response = ''
-
-    # Load the response into dict then batch create the posts.
-
-    return
 
 
 def create_post_from_json(**json_data):
@@ -338,6 +286,32 @@ def post_tree(user, root):
     answers = [p for p in thread if p.type == Post.ANSWER]
 
     return root, comment_tree, answers, thread
+
+
+def valid_awards(user):
+    """
+    Return list of valid awards for a given user
+    """
+
+    valid = []
+    for award in awards.ALL_AWARDS:
+
+        # Valid award targets the user has earned
+        targets = award.validate(user)
+        for target in targets:
+
+            date = util.now()
+            post = target if isinstance(target, Post) else None
+            badge = Badge.objects.filter(name=award.name).first()
+
+            # Do not award a post multiple times.
+            already_awarded = Award.objects.filter(user=user, badge=badge, post=post).exists()
+            if post and already_awarded:
+                continue
+
+            valid.append((user, badge, date, post))
+
+    return valid
 
 
 def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
