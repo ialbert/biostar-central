@@ -1,10 +1,13 @@
 from datetime import timedelta
+import logging
 from django.template import loader
 from django.core.management.base import BaseCommand
 from taggit.models import Tag
 from biostar.forum.models import Post
 from biostar.emailer.tasks import send_email
 from biostar.accounts import util, models
+
+logger = logging.getLogger('biostar')
 
 
 def send_digests(days=1, subject=""):
@@ -19,19 +22,21 @@ def send_digests(days=1, subject=""):
     # Get posts made within the given time range.
     trange = util.now() - timedelta(days=days)
 
-    posts = Post.objects.filter(lastedit_date__gt=trange)
+    posts = Post.objects.filter(lastedit_date__gt=trange, is_toplevel=True).order_by('-lastedit_date')
+
+    if not posts:
+        logger.info(f'No new posts found in the last {days} days.')
+        return
 
     # Get users with the appropriate digest preference.
     pref = mapper.get(days, models.Profile.DAILY_DIGEST)
     users = models.User.objects.filter(profile__digest_prefs=pref)
 
     # Prepare the email
-    email_template = loader.get_template("messages/digest.html")
     context = dict(subject=subject, posts=posts)
-
     # Queue and send digest emails.
     emails = users.values_list('email', flat=True)
-    send_email(template_name=email_template, extra_context=context, recipient_list=emails)
+    send_email(template_name="messages/digest.html", extra_context=context, recipient_list=emails)
 
     return
 

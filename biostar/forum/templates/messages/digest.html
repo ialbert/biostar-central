@@ -9,8 +9,12 @@
 
     The posts included in your digest are:
     {% for post in posts %}
-        <a href="{{ post.get_absolute_url }}">{{ post.title }}</a>
+       &bull; <a href="{{ protocol }}://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>
     {% endfor %}
+
+   <p class="muted" >
+        You may visit {{ protocol }}://{{ domain }}
+    </p>
 
 {% endblock %}
 
@@ -18,8 +22,10 @@
 
     The posts included in your digest are:
     {% for post in posts %}
-        {{ post.title }}
+        &bull; {{ post.title }}
     {% endfor %}
+
+    You may visit {{ protocol }}://{{ domain }}
 
 {% endblock %}
 
