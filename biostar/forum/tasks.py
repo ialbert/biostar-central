@@ -7,8 +7,8 @@ import time, random
 from biostar.utils.decorators import spooler, threaded
 from biostar.celery import celery_task
 
-
 from django.db.models import Q
+
 #
 # Do not use logging in tasks! Deadlocking may occur!
 #
@@ -101,7 +101,7 @@ def update_spam_index(uid):
 
     # Update the spam index with most recent spam posts
     try:
-        spam.add_spam(post=post)
+        spam.add_spam(uid=post.uid)
     except Exception as exc:
         message(exc)
 
@@ -157,41 +157,23 @@ def created_post(pid):
 # else:
 #     task = threaded
 #
-#@spool(pass_arguments=True)
+# @spool(pass_arguments=True)
 # Do this with celery.
-#@shared_task
-#@task
+# @shared_task
+# @task
 @task
 def create_user_awards(user_id, limit=settings.MAX_AWARDS):
-
     from biostar.accounts.models import User
     from biostar.forum.models import Award, Badge, Post
     from biostar.forum.awards import ALL_AWARDS
-    from biostar.forum import util
+    from biostar.forum import util, auth
 
     user = User.objects.filter(id=user_id).first()
     # debugging
     # Award.objects.all().delete()
 
     # Collect valid targets
-    valid = []
-
-    for award in ALL_AWARDS:
-
-        # Valid award targets the user has earned
-        targets = award.validate(user)
-        for target in targets:
-
-            date = util.now()
-            post = target if isinstance(target, Post) else None
-            badge = Badge.objects.filter(name=award.name).first()
-
-            # Do not award a post multiple times.
-            already_awarded = Award.objects.filter(user=user, badge=badge, post=post).exists()
-            if post and already_awarded:
-                continue
-
-            valid.append((user, badge, date, post))
+    valid = auth.valid_awards(user=user)
 
     # Pick random awards to give to user
     random.shuffle(valid)
@@ -207,15 +189,30 @@ def create_user_awards(user_id, limit=settings.MAX_AWARDS):
         message(f"award {badge.name} created for {user.email}")
 
 
-# @task
-# def batch_create_awards(user_id, limit=settings.MAX_AWARDS):
-#
-#     # Awards set amount per user,
-#
-#     # Batch awards, give a 'report' message for all awards at the end.
-#
-#     # calls
-#     return
+def batch_create_awards(limit=10):
+    from biostar.accounts.models import User
+    from biostar.forum import auth, models, util
+
+    # Awards set amount per user.
+    users = User.objects.order_by('-profile__last_login')[:limit]
+
+    # Aggregate target awards into flat list
+    targets = []
+    for u in users:
+        targets.extend(auth.valid_awards(user=u))
+
+    def batch():
+        for target in targets:
+            if not target:
+                continue
+            user, badge, date, post = target
+            uid = f'9{util.get_uuid(5)}'
+            award = models.Award(user=user, badge=badge, date=date, post=post, uid=uid)
+            yield award
+
+    models.Award.objects.bulk_create(objs=batch(), batch_size=limit)
+
+
 
 @task
 def mailing_list(emails, uid, extra_context={}):
