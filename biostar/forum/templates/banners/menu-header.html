@@ -23,16 +23,16 @@
                 <i class="tag icon"></i> Tags
             </a>
 
-            <a class="item {% activate tab "news" %} " href="{% url 'post_list' %}?type=news">
+            <a class="item {% activate tab "news" %} " href="{% url 'post_topic' 'news' %}">
                 <i class="newspaper icon"></i> News
             </a>
-            <a class="item {% activate tab "job" %} " href="{% url 'post_list' %}?type=job">
+            <a class="item {% activate tab "job" %} " href="{% url 'post_topic' 'jobs' %}">
                 <i class="briefcase icon"></i> Jobs
             </a>
-            <a class="item {% activate tab "tutorial" %} " href="{% url 'post_list' %}?type=tutorial">
+            <a class="item {% activate tab "tutorial" %} " href="{% url 'post_topic' 'tutorials' %}">
                 <i class="help circle icon"></i> Tutorials
             </a>
-            <a class="item {% activate tab "forum" %} " href="{% url 'post_list' %}?type=forum">
+            <a class="item {% activate tab "forum" %} " href="{% url 'post_topic' 'forum' %}">
                 <i class="file icon"></i> Forum
             </a>
 
@@ -45,7 +45,7 @@
     </div>
 
     {% if request.user.profile.is_moderator %}
-        <a class="item {% activate tab 'spam' %} " href="{% url 'post_list' %}?type=spam">
+        <a class="item {% activate tab 'spam' %} " href="{% url 'post_topic' 'spam' %}">
             <i class="bug icon"></i> Spam
         </a>
     {% endif %}

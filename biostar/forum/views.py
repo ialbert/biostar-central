@@ -31,14 +31,15 @@ logger = logging.getLogger('engine')
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 # Valid post values as they correspond to database post types.
-POST_TYPE_MAPPER = dict(
+POST_TYPE = dict(
     question=Post.QUESTION,
-    job=Post.JOB,
+    jobs=Post.JOB,
     tutorial=Post.TUTORIAL,
     forum=Post.FORUM,
-    blog=Post.BLOG,
-    tool=Post.TOOL,
-    news=Post.NEWS
+    planet=Post.BLOG,
+    tools=Post.TOOL,
+    news=Post.NEWS,
+    pages=Post.PAGE
 )
 
 LIMIT_MAP = dict(
@@ -89,7 +90,7 @@ class CachedPaginator(Paginator):
         return value
 
 
-def get_posts(user, topic="", tag="", order="", limit=None):
+def get_posts(user, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
     """
@@ -98,7 +99,7 @@ def get_posts(user, topic="", tag="", order="", limit=None):
     topic = topic.lower()
 
     # Detect known post types.
-    post_type = POST_TYPE_MAPPER.get(topic)
+    post_type = POST_TYPE.get(topic)
     query = Post.objects.valid_posts(u=user, is_toplevel=True)
 
     # Determines how to start the preform_search.
@@ -107,29 +108,33 @@ def get_posts(user, topic="", tag="", order="", limit=None):
 
     elif topic == SHOW_SPAM:
         query = query.filter(Q(spam=Post.SPAM))
+
     elif topic == OPEN:
         query = query.filter(type=Post.QUESTION, answer_count=0)
+
     elif topic == BOOKMARKS and user.is_authenticated:
         query = Post.objects.valid_posts(u=user, votes__author=user, votes__type=Vote.BOOKMARK)
+
     elif topic == FOLLOWING and user.is_authenticated:
         query = query.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
+
     elif topic == MYPOSTS and user.is_authenticated:
         # Show users all of there posts ( deleted, spam, or quarantined )
         query = Post.objects.filter(author=user)
-        #query = query.filter(author=user)
 
     elif topic == MYVOTES and user.is_authenticated:
         query = query.filter(votes__post__author=user)
+
     elif topic == MYTAGS and user.is_authenticated:
         tags = map(lambda t: t.lower(), user.profile.my_tags.split(","))
         query = query.filter(tags__name__in=tags).distinct()
+
+    # Search for tags
+    elif topic != LATEST and (topic not in POST_TYPE):
+        query = query.filter(tags__name=topic.lower())
     else:
         # Exclude spam posts unless specifically on the tab.
         query = query.exclude(Q(spam=Post.SPAM))
-
-    # Filter by tags if specified.
-    if tag:
-        query = query.filter(tags__name=tag.lower())
 
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
@@ -254,12 +259,11 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
     order = request.GET.get("order", "")
-    tag = request.GET.get("tag", "")
     topic = topic or request.GET.get("type", "")
     limit = request.GET.get("limit", "")
 
     # Get posts available to users.
-    posts = get_posts(user=user, topic=topic, tag=tag, order=order, limit=limit)
+    posts = get_posts(user=user, topic=topic, order=order, limit=limit)
 
     # Create the paginator.
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
@@ -268,10 +272,10 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
     posts = paginator.get_page(page)
 
     # Set the active tab.
-    tab = tag or topic or LATEST
+    tab = topic or LATEST
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, tag=tag, order=order, type=topic, limit=limit, avatar=True,
+    context = dict(posts=posts, tab=tab, order=order, type=topic, limit=limit, avatar=True,
                    sidebar_key=SIDEBAR_CACHE_KEY)
     context.update(extra_context)
     # Render the page.
@@ -357,6 +361,13 @@ def myposts(request):
     """
 
     return post_list(request, topic=MYPOSTS)
+
+
+def post_topic(request, topic):
+    """
+    Show list of posts of a given type
+    """
+    return post_list(request, topic=topic)
 
 
 @authenticated

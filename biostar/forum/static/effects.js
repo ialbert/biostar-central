@@ -32,7 +32,7 @@ function move_post(parent_elem, source_elem) {
 
 function remote_search(text, cb, elem) {
 
-    $.ajax("/ajax/handle/search/",
+    $.ajax("/ajax/search/",
         {
             type: 'GET',
             dataType: 'json',
