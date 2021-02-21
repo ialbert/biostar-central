@@ -1,15 +1,7 @@
 {% load forum_tags %}
 {% load static %}
 
-{% if user.profile.require_recaptcha %}
 
-    <script src='https://www.google.com/recaptcha/api.js?onload=captchaWidgetId&render=explicit' async defer></script>
-
-    {#  Include the recaptacha key #}
-    <input id="recaptcha_key" type="hidden" value="{{ captcha_key }}">
-
-
-{% endif %}
 
 <link href="{% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
 <link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
@@ -66,12 +58,6 @@
 
         {% endif %}
 
-        {# Include recaptcha fields #}
-        {% if user.profile.require_recaptcha %}
-            <div class="required field">
-                <div id="captcha"></div>
-            </div>
-        {% endif %}
 
         <p class="muted">Tips: CTRL+ENTER to submit the form. ESC to cancel. Markdown accepted.</p>
 

@@ -303,7 +303,6 @@ def user_login(request):
     return render(request, "accounts/login.html", context=context)
 
 
-
 @login_required
 def view_logs(request):
     LIMIT = 300
@@ -318,6 +317,7 @@ def view_logs(request):
     context = dict(logs=logs)
 
     return render(request, "accounts/view_logs.html", context=context)
+
 
 @login_required
 def send_email_verify(request):

@@ -150,11 +150,11 @@ class PostLongForm(forms.Form):
         self.user = user
         super(PostLongForm, self).__init__(*args, **kwargs)
 
-        not_trusted = self.user.is_authenticated and (not self.user.profile.trusted)
+        #not_trusted = self.user.is_authenticated and (not self.user.profile.trusted)
 
         # Untrusted users get a recaptcha field
-        if settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
-            self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
+        #if settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
+        #    self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
 
     def edit(self):
         """
@@ -204,11 +204,11 @@ class PostShortForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['content'].strip = False
 
-        not_trusted = self.user.is_authenticated and (not self.user.profile.trusted)
+        #not_trusted = self.user.is_authenticated and (not self.user.profile.trusted)
 
         # Untrusted users get a recaptcha field
-        if recaptcha and settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
-            self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
+        #if recaptcha and settings.RECAPTCHA_PRIVATE_KEY and not_trusted:
+        #    self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
 
     def clean_content(self):
         content = self.cleaned_data["content"]
