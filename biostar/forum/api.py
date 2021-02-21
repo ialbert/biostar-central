@@ -86,7 +86,7 @@ def compute_stats(date):
     new_posts = Post.objects.filter(creation_date__gte=start,
                                     creation_date__lt=end).values_list("uid", flat=True)
     new_votes = Vote.objects.filter(date__gte=start,
-                                    date__lt=end).values_list("uid", flat=True)
+                                    date__lt=end).values_list("id", flat=True)
 
     data = {
         'date': util.datetime_to_iso(start),
@@ -279,13 +279,13 @@ def vote_details(request, uid):
     Parameters:
     uid -- the id of the `Vote`.
     """
-    vote = Vote.objects.filter(uid=uid).first()
+    vote = Vote.objects.filter(id=uid).first()
 
     if not vote:
         return {}
 
     data = {
-        'uid': vote.uid,
+        'id': vote.id,
         'author_uid': vote.author.profile.uid,
         'author': vote.author.profile.name,
         'post_uid': vote.post.uid,
@@ -309,7 +309,7 @@ def tags_list(request):
     months = request.POST.get('months', '6')
 
     try:
-        months = int(months) if months.isalmun() else float(months)
+        months = int(months) if months.isalnum() else float(months)
     except Exception as exc:
         logger.error(exc)
         months = 6
@@ -330,11 +330,14 @@ def tags_list(request):
         if not tag:
             continue
 
-        posts = query.filter(tags__name=tag)
+        # Get posts with this tag, that have been answered
+        posts = query.filter(tags__name=tag.lower(), is_toplevel=True)
+        uids = posts.values_list('uid', flat=True)
 
-        answer_count = Post.objects.filter(uid__in=posts, answer_count__gt=1).count()
-        comment_count = Post.objects.filter(uid__in=posts, comment_count__gt=1).count()
-        total = posts.count()
+        # Filter so the count is only 1 answer per questions
+        answer_count = Post.objects.filter(uid__in=uids, answer_count__gte=1).count()
+        comment_count = Post.objects.filter(uid__in=uids, comment_count__gte=1).count()
+        total = len(uids)
 
         val = dict(total=total, answer_count=answer_count, comment_count=comment_count)
         data.setdefault(tag, {}).update(val)

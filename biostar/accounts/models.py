@@ -338,7 +338,7 @@ class Message(models.Model):
     SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
     spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
 
-    uid = models.CharField(max_length=32, unique=True)
+    #uid = models.CharField(max_length=32, unique=True)
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.CASCADE)
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -349,7 +349,6 @@ class Message(models.Model):
     sent_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
-        self.uid = self.uid or util.get_uuid(10)
         self.sent_date = self.sent_date or util.now()
         super(Message, self).save(**kwargs)
 
@@ -358,3 +357,7 @@ class Message(models.Model):
 
     def css(self):
         return 'new' if self.unread else ''
+
+    @property
+    def uid(self):
+        return self.pk

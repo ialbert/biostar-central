@@ -216,7 +216,7 @@ def create_subscription(post, user, sub_type=None, update=False):
         subs.delete()
         Subscription.objects.create(post=post.root, user=user, type=sub_type)
 
-    # Recompute post subscription.
+    # Recompute subscription count
     subs_count = Subscription.objects.filter(post=post.root).exclude(type=Subscription.NO_MESSAGES).count()
 
     # Update root subscription counts.

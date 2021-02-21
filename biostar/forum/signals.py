@@ -139,7 +139,7 @@ def finalize_post(sender, instance, created, **kwargs):
     # Exclude current authors from receiving messages from themselves
     subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))
 
-    sub_ids = list(subs.values_list('uid', flat=True))
+    sub_ids = list(subs.values_list('id', flat=True))
 
     # Notify subscribers
     tasks.notify_followers.spool(sub_ids=sub_ids, author_id=instance.author.pk,
