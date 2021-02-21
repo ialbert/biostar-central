@@ -61,7 +61,7 @@ class ForumNavigation(TestCase):
             reverse('api_traffic'),
             reverse('api_user', kwargs=dict(uid=self.owner.profile.uid)),
             reverse('api_post', kwargs=dict(uid=self.post.uid)),
-            reverse('api_vote', kwargs=dict(uid=self.vote.uid)),
+            reverse('api_vote', kwargs=dict(uid=self.vote.pk)),
             reverse('api_tags', kwargs=dict(email=self.owner.email)),
             reverse('user_email', kwargs=dict(email=self.owner.email)),
 
