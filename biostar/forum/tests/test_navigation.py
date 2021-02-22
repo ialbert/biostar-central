@@ -61,21 +61,17 @@ class ForumNavigation(TestCase):
             reverse('api_traffic'),
             reverse('api_user', kwargs=dict(uid=self.owner.profile.uid)),
             reverse('api_post', kwargs=dict(uid=self.post.uid)),
-            reverse('api_vote', kwargs=dict(uid=self.vote.uid)),
+            reverse('api_vote', kwargs=dict(uid=self.vote.pk)),
             reverse('api_tags', kwargs=dict(email=self.owner.email)),
             reverse('user_email', kwargs=dict(email=self.owner.email)),
 
             reverse('post_create'),
-            #reverse('pages', kwargs=dict(fname="faq")),
             reverse('tags_list'),
             reverse("community_list"),
             reverse('badge_list'),
             reverse('badge_view', kwargs=dict(uid=self.badge.uid)),
-
             reverse('post_view', kwargs=dict(uid=self.post.uid)),
-            #reverse('post_edit', kwargs=dict(uid=self.post.uid)),
             reverse('post_create'),
-
 
         ]
 

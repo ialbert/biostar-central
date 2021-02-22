@@ -298,15 +298,6 @@ def validate_post_fields(fields={}, is_toplevel=False):
     """
     content = fields.get('content', '')
     content_length = len(content.replace(' ', ''))
-    user = fields.get("user")
-    recaptcha_token = fields.get('recaptcha_token')
-    # reCAPTCHA field required when an untrusted user creates any post.
-    check_captcha = user.profile.require_recaptcha() and settings.RECAPTCHA_PRIVATE_KEY != ''
-
-    if check_captcha:
-        valid_captcha, msg = validate_recaptcha(recaptcha_token)
-        if not valid_captcha:
-            return False, msg
 
     # Validate fields common to all posts.
     if content_length <= forms.MIN_CHARS:
@@ -426,14 +417,14 @@ def ajax_comment_create(request):
     # Fields common to all posts
     user = request.user
     content = request.POST.get("content", "")
-    recaptcha_token = request.POST.get("recaptcha_response")
 
     parent_uid = request.POST.get('parent', '')
     parent = Post.objects.filter(uid=parent_uid).first()
     if not parent:
         return ajax_error(msg='Parent post does not exist.')
 
-    fields = dict(content=content, user=user, parent=parent, recaptcha_token=recaptcha_token)
+    fields = dict(content=content, user=user, parent=parent)
+
     # Validate the fields
     valid, msg = validate_post_fields(fields=fields, is_toplevel=False)
     if not valid:

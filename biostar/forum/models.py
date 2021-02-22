@@ -374,15 +374,17 @@ class Vote(models.Model):
     type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY, db_index=True)
     date = models.DateTimeField(db_index=True)
 
-    uid = models.CharField(max_length=32, unique=True)
-
     def __str__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
     def save(self, *args, **kwargs):
-        self.uid = self.uid or f"v{util.get_uuid(limit=5)}"
+        #self.uid = self.uid or f"v{util.get_uuid(limit=5)}"
         self.date = self.date or util.now()
         super(Vote, self).save(*args, **kwargs)
+
+    @property
+    def uid(self):
+        return
 
 
 class PostView(models.Model):
@@ -406,7 +408,6 @@ class Subscription(models.Model):
     class Meta:
         unique_together = (("user", "post"))
 
-    uid = models.CharField(max_length=32, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs", on_delete=models.CASCADE)
     type = models.IntegerField(choices=SUB_CHOICES, null=True, default=LOCAL_MESSAGE)
@@ -418,7 +419,7 @@ class Subscription(models.Model):
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
         self.date = self.date or util.now()
-        self.uid = self.uid or util.get_uuid(limit=16)
+        #self.uid = self.uid or util.get_uuid(limit=16)
 
         if self.type is None:
             self.type = self.TYPE_MAP.get(self.user.profile.message_prefs, self.NO_MESSAGES)
@@ -436,6 +437,10 @@ class Subscription(models.Model):
     def get_sub(post, user):
         sub = Subscription.objects.filter(post=post, user=user).first()
         return None if user.is_anonymous else sub
+
+    @property
+    def uid(self):
+        return self.pk
 
 
 class Badge(models.Model):
@@ -475,10 +480,12 @@ class Award(models.Model):
     post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField()
     # context = models.CharField(max_length=1000, default='')
-    uid = models.CharField(max_length=32, unique=True)
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
-        self.uid = self.uid or util.get_uuid(limit=16)
         self.date = self.date or util.now()
         super(Award, self).save(*args, **kwargs)
+
+    @property
+    def uid(self):
+        return self.pk

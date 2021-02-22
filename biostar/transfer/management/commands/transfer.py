@@ -135,8 +135,7 @@ def bulk_copy_votes(limit):
             if not (post and author) or not post.root:
                 continue
 
-            vote = Vote(post=post, author=author, type=vote.type, uid=vote.id,
-                        date=vote.date)
+            vote = Vote(post=post, author=author, type=vote.type, date=vote.date)
             yield vote
     # Bulk create the users, then profile.
     elapsed, progress = timer_func()
@@ -267,7 +266,7 @@ def bulk_copy_posts(limit):
             # Bail when a user or post do not exist
             if not user or (post_uid and not post):
                 continue
-            award = Award(date=award.date, post=post, badge=badge, user=user, uid=award.id)
+            award = Award(date=award.date, post=post, badge=badge, user=user)
 
             yield award
 
@@ -313,7 +312,7 @@ def bulk_copy_subs(limit):
             if not (user and post):
                 continue
 
-            sub = Subscription(uid=sub.id, type=sub.type, user=user, post=post, date=sub.date)
+            sub = Subscription(type=sub.type, user=user, post=post, date=sub.date)
 
             yield sub
 

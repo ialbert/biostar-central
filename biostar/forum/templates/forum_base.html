@@ -1,6 +1,5 @@
 {% load static %}
 {% load compress %}
-{% load recaptcha2 %}
 {% load forum_tags %}
 {% load accounts_tags %}
 
@@ -54,9 +53,6 @@
             }
         };
     </script>
-
-    {# Load recaptcha #}
-    {#% recaptcha_init %#}
 
     {#  CSS compression. #}
     {% compress css %}

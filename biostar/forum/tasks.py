@@ -206,8 +206,7 @@ def batch_create_awards(limit=10):
             if not target:
                 continue
             user, badge, date, post = target
-            uid = f'9{util.get_uuid(5)}'
-            award = models.Award(user=user, badge=badge, date=date, post=post, uid=uid)
+            award = models.Award(user=user, badge=badge, date=date, post=post)
             yield award
 
     models.Award.objects.bulk_create(objs=batch(), batch_size=limit)
@@ -262,7 +261,7 @@ def notify_followers(sub_ids, author_id, uid, extra_context={}):
 
     post = Post.objects.filter(uid=uid).first()
     author = User.objects.filter(id=author_id).first()
-    subs = Subscription.objects.filter(uid__in=sub_ids)
+    subs = Subscription.objects.filter(id__in=sub_ids)
 
     users = [sub.user for sub in subs]
     user_ids = [u.pk for u in users]

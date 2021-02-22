@@ -2,8 +2,17 @@
 {% load forum_tags %}
 {% load accounts_tags %}
 {% load socialaccount %}
+{% load recaptcha2 %}
 {% block headtitle %}Welcome{% endblock %}
 
+
+
+{% block head %}
+
+    {# Load recaptcha #}
+    {% recaptcha_init %}
+
+{% endblock %}
 
 {% block content %}
 

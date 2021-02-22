@@ -21,9 +21,9 @@
 
     {% block listing %}
 
-        {% if tag %}
+        {% if topic %}
             <div class="ui blue filter message">
-                Filtering for tag: <b>{{ tag }}</b> &bull;
+                Filtering for: <b>{{ topic }}</b> &bull;
                 <a href="{% url 'post_list' %}">
                     reset <i class="undo small icon"></i>
                 </a>

@@ -24,6 +24,7 @@ account_patterns = [
     path(r'signup/', views.user_signup, name="signup"),
     path(r'profile/<str:uid>/', views.user_profile, name="user_profile"),
 
+
     path(r'edit/profile/', views.edit_profile, name='edit_profile'),
     path(r'toggle/notify/', views.toggle_notify, name='toggle_notify'),
     path(r'logout/', views.user_logout, name="logout"),
