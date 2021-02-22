@@ -374,8 +374,6 @@ class Vote(models.Model):
     type = models.IntegerField(choices=TYPE_CHOICES, default=EMPTY, db_index=True)
     date = models.DateTimeField(db_index=True)
 
-    #uid = models.CharField(max_length=32, unique=True)
-
     def __str__(self):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
@@ -410,7 +408,6 @@ class Subscription(models.Model):
     class Meta:
         unique_together = (("user", "post"))
 
-    #uid = models.CharField(max_length=32, unique=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name="subs", on_delete=models.CASCADE)
     type = models.IntegerField(choices=SUB_CHOICES, null=True, default=LOCAL_MESSAGE)
@@ -483,11 +480,9 @@ class Award(models.Model):
     post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField()
     # context = models.CharField(max_length=1000, default='')
-    #uid = models.CharField(max_length=32, unique=True)
 
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
-        #self.uid = self.uid or util.get_uuid(limit=16)
         self.date = self.date or util.now()
         super(Award, self).save(*args, **kwargs)
 
