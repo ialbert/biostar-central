@@ -17,7 +17,7 @@ forum_patterns = [
     # Main entry. Post listing.
     path('', views.latest, name='post_list'),
 
-    path(r'pages/<str:fname>/', views.pages, name='pages'),
+    path(r'info/<str:fname>/', views.pages, name='pages'),
 
     path('votes/', views.myvotes, name='myvotes'),
     path('bookmarks/', views.bookmarks, name='bookmarks'),
