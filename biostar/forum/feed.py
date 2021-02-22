@@ -25,19 +25,6 @@ def reduce_html(text):
     return text
 
 
-def info(request):
-    """
-    The RSS info,
-    """
-    admins = User.objects.filter(is_superuser=True)
-    mods = User.objects.filter(profile__role=Profile.MODERATOR).exclude(id__in=admins)
-    admins = admins.prefetch_related("profile").order_by("-profile__score")
-    mods = mods.prefetch_related("profile").order_by("-profile__score")
-    context = dict(admins=admins, mods=mods)
-
-    return render(request, template_name="rss.html", context=context)
-
-
 class PostBase(Feed):
     "Forms the base class to any feed producing posts"
     link = "/"

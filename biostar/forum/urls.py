@@ -75,7 +75,7 @@ forum_patterns = [
 
 
     # RSS info page.
-    path(r'info/rss/', feed.info, name='rss'),
+    #path(r'info/rss/', feed.info, name='rss'),
 
     # RSS feeds
     path(r'feeds/latest/', feed.LatestFeed(), name='latest_feed'),
