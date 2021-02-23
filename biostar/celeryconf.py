@@ -14,7 +14,7 @@ broker_url = 'redis://127.0.0.1:6379'
 TASK_SERIALIZER = 'json'
 
 ACCEPT_CONTENT = ['json']
-
+property()
 BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 BEAT_SCHEDULE = {

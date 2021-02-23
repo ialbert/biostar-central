@@ -74,9 +74,6 @@ forum_patterns = [
          name='api_stats_on_date'),
 
 
-    # RSS info page.
-    #path(r'info/rss/', feed.info, name='rss'),
-
     # RSS feeds
     path(r'feeds/latest/', feed.LatestFeed(), name='latest_feed'),
     path(r'feeds/tag/<str:text>/', feed.TagFeed(), name='tag_feed'),
