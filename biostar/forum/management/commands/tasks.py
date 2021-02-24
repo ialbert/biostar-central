@@ -20,10 +20,6 @@ def pg_dump(prog, pg_user, outdir, hourly=False,  **kwargs):
     linux - /usr/bin/pg_dump
     """
 
-    pg_user = 'www'
-    outdir = '~/data'
-    prog = '/usr/local/bin/pg_dump'
-
     outdir = os.path.expanduser(outdir)
     if not os.path.isdir(outdir):
         os.mkdir(outdir)
