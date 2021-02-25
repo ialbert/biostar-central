@@ -68,7 +68,7 @@
 
 body {
 / / background-color: var(--page-bg-color) !important;
-    padding-top: 1rem;
+    //padding-top: 1rem;
     font-family: var(--root-font);
     color: #333;
     line-height: 1.428571429;
