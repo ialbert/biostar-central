@@ -68,6 +68,17 @@ def activate(context, state, target):
 
     return label
 
+@register.simple_tag()
+def vote_icon(vote):
+    if vote.type == Vote.ACCEPT:
+        return "check circle"
+    elif vote.type == Vote.UP:
+        return "thumbs up"
+    elif vote.type == Vote.BOOKMARK:
+        return "bookmark"
+
+    return "help"
+
 
 @register.filter
 def bignum(number):
