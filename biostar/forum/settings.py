@@ -169,8 +169,8 @@ ROOT_URLCONF = 'biostar.forum.urls'
 
 WSGI_APPLICATION = 'biostar.wsgi.application'
 
-# Time between two accesses from the same IP to qualify as a different view.
-POST_VIEW_MINUTES = 7
+# Time between two accesses from the same IP to qualify as a different view (seconds)
+POST_VIEW_TIMEOUT = 300
 
 COUNT_INTERVAL_WEEKS = 10000
 
