@@ -40,7 +40,8 @@ def benchmark(get_response):
         if delta > 1000:
             logger.warning(f"\n***\n*** SLOW: {msg}\n***\a")
         else:
-            logger.info(f'{msg}')
+            if settings.DEBUG:
+                logger.info(f'{msg}')
 
         return response
 

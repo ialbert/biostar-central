@@ -7,13 +7,13 @@ from django.db import NotSupportedError
 
 from . import util
 
-def get_traffic(key='traffic', timeout=60):
+def get_traffic(key='traffic', timeout=300, minutes=60):
     """
     Obtains the number of distinct IP numbers.
     """
     traffic = cache.get(key)
     if not traffic:
-        recent = util.now() - timedelta(minutes=timeout)
+        recent = util.now() - timedelta(minutes=minutes)
         try:
             traffic = PostView.objects.filter(date__gt=recent).distinct('ip').count()
         except NotSupportedError as exc:
