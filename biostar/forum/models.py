@@ -9,6 +9,10 @@ from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
 from biostar.accounts.models import Profile
+
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
+
 from . import util
 
 User = get_user_model()
@@ -52,6 +56,14 @@ class PostManager(models.Manager):
         query = super().get_queryset().exclude(uid__contains='p').filter(**kwargs)
         return query
 
+
+def drop_cache(key, *params):
+    """
+    Drops the fragment cache.
+    :return:
+    """
+    key = make_template_fragment_key(key, params)
+    cache.delete(key)
 
 class Post(models.Model):
     "Represents a post in a forum"
@@ -310,8 +322,12 @@ class Post(models.Model):
         # Set the top level state of the post.
         self.is_toplevel = self.type in Post.TOP_LEVEL
 
+        # Drop the cached fragment
+        drop_cache("post", self.uid)
+
         # This will trigger the signals
         super(Post, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)

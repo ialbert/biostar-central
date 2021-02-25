@@ -178,6 +178,15 @@ COUNT_INTERVAL_WEEKS = 10000
 # Allows us to turn off certain type of actions (for example sending emails).
 DATA_MIGRATION = False
 
+# Default cache
+CACHES = {
+    'default': {
+        #'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
 # Tries to load up secret settings from a predetermined module
 # This is for convenience only!
 try:
