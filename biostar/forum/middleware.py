@@ -9,7 +9,8 @@ from django.core.cache import cache
 from django.shortcuts import redirect
 from biostar.accounts.models import Profile, Message
 from biostar.accounts.tasks import detect_location
-
+from biostar.accounts.const import MESSAGE_COUNT
+from biostar.forum.const import VOTES_COUNT
 from . import auth, tasks, const, util
 from .models import Vote
 from .util import now
@@ -59,9 +60,9 @@ def benchmark(get_response):
 def update_status(user):
     # Update a new user into trusted after a threshold score is reached.
     if (user.profile.state == Profile.NEW) and (user.profile.score > 50):
-            user.profile.state = Profile.TRUSTED
-            user.save()
-            return True
+        user.profile.state = Profile.TRUSTED
+        user.save()
+        return True
 
     return user.profile.trusted
 
@@ -78,6 +79,7 @@ def ban_ip(get_response):
     """
 
     """
+
     def middleware(request):
         user = request.user
 
@@ -135,7 +137,7 @@ def user_tasks(get_response):
             logout(request)
 
         update_status(user=user)
-        
+
         # Parses the ip of the request.
         ip = get_ip(request)
 
@@ -144,7 +146,6 @@ def user_tasks(get_response):
 
         # Update information since the last visit.
         if elapsed > settings.SESSION_UPDATE_SECONDS:
-
             # Detect user location if not set in the profile.
             detect_location.spool(ip=ip, user_id=user.id)
 
@@ -155,16 +156,17 @@ def user_tasks(get_response):
             message_count = Message.objects.filter(recipient=user, unread=True).count()
 
             # The number of new votes since last visit.
-            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(author=user).count()
+            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(
+                author=user).count()
 
             # Store the counts into the session.
-            counts = dict(message_count=message_count, vote_count=vote_count)
+            counts = {MESSAGE_COUNT: message_count, VOTES_COUNT: vote_count}
 
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts
 
             # Trigger award generation.
-            #tasks.create_user_awards.spool(user_id=user.id)
+            tasks.create_user_awards.spool(user_id=user.id)
 
         # Can process response here after its been handled by the view
         response = get_response(request)

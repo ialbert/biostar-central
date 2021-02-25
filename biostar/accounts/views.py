@@ -137,7 +137,7 @@ def message_list(request):
 
     counts = request.session.get(COUNT_DATA_KEY, {})
     # Set message count back to 0
-    counts["message_count"] = 0
+    counts[MESSAGE_COUNT] = 0
     request.session.update(dict(counts=counts))
 
     context = dict(tab="messages", all_messages=msgs)

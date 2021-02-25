@@ -323,6 +323,12 @@ def myvotes(request):
     # Apply the votes paging.
     votes = paginator.get_page(page)
 
+    # Clear the votes count.
+    counts = request.session.get(COUNT_DATA_KEY, {})
+    # Set votes count back to 0
+    counts[VOTES_COUNT] = 0
+    request.session.update(dict(counts=counts))
+
     context = dict(votes=votes, page=page, tab='myvotes')
     return render(request, template_name="votes_list.html", context=context)
 
