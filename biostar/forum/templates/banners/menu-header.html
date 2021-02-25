@@ -2,7 +2,7 @@
 {% load static %}
 
 
-<div class="ui fluid borderless menu" id="topicbar">
+<div class="ui small borderless menu" id="topicbar">
 
     <a class="item {% activate tab "latest" %} " href="{% url 'post_list' %}">
         <i class="list icon"></i> Latest
@@ -32,7 +32,7 @@
 </div>
 
 
-<div class="ui labeled icon top attached evenly divided menu" id="menu-header" user-id="{{ request.user.id }}">
+<div class="ui small labeled icon top attached evenly divided menu" id="menu-header" user-id="{{ request.user.id }}">
 
 
     {% block headimg %}
