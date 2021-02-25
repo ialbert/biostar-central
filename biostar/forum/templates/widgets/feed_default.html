@@ -38,7 +38,8 @@
             <div class="ui relaxed list">
                 {% for vote in recent_votes %}
                     <div class="item spaced">
-                        <a href="{% url 'post_view' vote.post.uid %}">{{ vote.post.title }}</a>
+                         <a href="{% url 'post_view' vote.post.uid %}">
+                             <i class="{%  vote_icon vote %} icon"></i> {{ vote.post.title }}</a>
                     </div>
                 {% endfor %}
             </div>

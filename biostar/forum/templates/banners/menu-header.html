@@ -2,60 +2,62 @@
 {% load static %}
 
 
-<div class="ui labeled icon top attached evenly divided menu" id="menu-header" user-id="{{ request.user.id }}">
-
-
-    {% block headimg %}
-        <div class="header item" id="logo">
-            <a href="/"><img width="200px" src="{% static "images/logo6.svg" %}"></a>
-        </div>
-    {% endblock %}
+<div class="ui small borderless menu" id="topicbar">
 
     <a class="item {% activate tab "latest" %} " href="{% url 'post_list' %}">
         <i class="list icon"></i> Latest
     </a>
 
-    <div class="ui simple dropdown item {#% activate tab "tags,news,job,tutorial,forum" %#}">
-        <i class="arrow alternate circle down icon"></i>
-        Topics
-        <div class="menu">
-            <a class="item {% activate tab "tags" %} " href="{% url 'tags_list' %}">
-                <i class="tag icon"></i> Tags
-            </a>
+    <a class="item {% activate tab "news" %} " href="{% url 'post_topic' 'news' %}">
+        <i class="newspaper icon"></i> News
+    </a>
+    <a class="item {% activate tab "job" %} " href="{% url 'post_topic' 'jobs' %}">
+        <i class="briefcase icon"></i> Jobs
+    </a>
+    <a class="item {% activate tab "tutorial" %} " href="{% url 'post_topic' 'tutorials' %}">
+        <i class="help circle icon"></i> Tutorials
+    </a>
+    <a class="item {% activate tab "forum" %} " href="{% url 'post_topic' 'forum' %}">
+        <i class="file icon"></i> Forum
+    </a>
 
-            <a class="item {% activate tab "news" %} " href="{% url 'post_topic' 'news' %}">
-                <i class="newspaper icon"></i> News
-            </a>
-            <a class="item {% activate tab "job" %} " href="{% url 'post_topic' 'jobs' %}">
-                <i class="briefcase icon"></i> Jobs
-            </a>
-            <a class="item {% activate tab "tutorial" %} " href="{% url 'post_topic' 'tutorials' %}">
-                <i class="help circle icon"></i> Tutorials
-            </a>
-            <a class="item {% activate tab "forum" %} " href="{% url 'post_topic' 'forum' %}">
-                <i class="file icon"></i> Forum
-            </a>
+    <a class="item {% activate tab "tags" %} " href="{% url 'tags_list' %}">
+        <i class="tag icon"></i> Tags
+    </a>
 
-            {% if request.user.profile.is_moderator %}
-                <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
-                    <i class="info circle icon"></i> Activity
-                </a>
-            {% endif %}
+    <a class="item  {% activate tab "about" %}" href="{% url 'pages' 'about' %}">
+        <i class="info circle icon"></i>About
+    </a>
+
+</div>
+
+
+<div class="ui labeled icon top attached evenly divided menu" id="menu-header" user-id="{{ request.user.id }}">
+
+
+    {% block headimg %}
+        <div class="header item" id="logo">
+            <a href="/"><img width="250px" src="{% static "images/logo6.svg" %}"></a>
         </div>
-    </div>
+    {% endblock %}
+
+    <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
+        <i class="world icon"></i> Community
+    </a>
+
+    <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
+        <i class="rss icon"></i> Planet
+    </a>
 
     {% if request.user.profile.is_moderator %}
         <a class="item {% activate tab 'spam' %} " href="{% url 'post_topic' 'spam' %}">
             <i class="bug icon"></i> Spam
         </a>
+        <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
+            <i class="arrow alternate circle down icon"></i> Mods
+        </a>
     {% endif %}
 
-    <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
-        <i class="rss icon"></i> Planet
-    </a>
-    <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
-        <i class="world icon"></i> Community
-    </a>
 
     <a class="item {% activate tab "new" %}" href="{% url 'post_create' %}">
         <i class="edit icon"></i> New Post
@@ -78,10 +80,6 @@
             </a>
 
         {% endif %}
-
-        <a class="item  {% activate tab "about" %}" href="{% url 'pages' 'about' %}">
-            <i class="info circle icon"></i>About
-        </a>
 
     </div>
 </div>

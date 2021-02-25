@@ -1,74 +1,74 @@
 :root {
     --active-item-color: #663b72;
     --active-item-bg-color: white;
-    --root-font: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --root-font: Helvetica, Arial, sans-serif;
     --page-width: 1200px;
     --page-bg-color: #f8f8f9;
     --menu-bg-color: white;
-    --menu-topics-bg-color: #fcfcf7;
+    --menu-topics-bg-color: #F8F8F9;
     --tag-color: #6b3e4a;
-    --tag-background:#ececec;
-    --tag-border:#bbbbbb;
+    --tag-background: #ececec;
+    --tag-border: #bbbbbb;
     --quetion-background: #8f2c47;
-    --subs-color:#762C90;
-    --search-input-background:#f8f8f9;
+    --subs-color: #762C90;
+    --search-input-background: #f8f8f9;
     --logo-background: white;
-    --msg-color:green;
-    --msg-background:#F0FFE9;
-    --vote-color:orange;
+    --msg-color: green;
+    --msg-background: #F0FFE9;
+    --vote-color: orange;
     --user-box-backgound: #f8f8f9;
     --user-box-border: #d3d3d3;
-    --post-title-shadow:rgba(0, 0, 0, 0.1);
-    --post-title-border:#ececec;
-    --popover-color:#3c763d;
+    --post-title-shadow: rgba(0, 0, 0, 0.1);
+    --post-title-border: #ececec;
+    --popover-color: #3c763d;
     --on-color: green;
     --disabled: red;
-    --popover-error-background:#f2dede;
+    --popover-error-background: #f2dede;
     --popover-error-border: #ebccd1;
-    --popover-error-color:#a94442;
-    --popover-success-background:#fcfff5;
-    --popover-success-color:#2c662d;
-    --popover-success-box:#a3c293;
-    --popover-success-border:#ebccd1;
-    --droppable-border-hover:#10ee0a;
-    --avatar-hover:#888888;
-    --voteicon-color:#2F5B14;
-    --search-highlight:yellow;
-    --comment-color:#666666;
-    --comment-background:#efefef;
-    --link-header-color:#4183c4;
-    --shadow-color:rgba(0, 0, 0, .2);
-    --spam-background:#ffd2cf;
-    --quar-background:#f6f8ce;
-    --deleted-item-background:#f7e4de;
-    --tutorial-background:#2C7990;
+    --popover-error-color: #a94442;
+    --popover-success-background: #fcfff5;
+    --popover-success-color: #2c662d;
+    --popover-success-box: #a3c293;
+    --popover-success-border: #ebccd1;
+    --droppable-border-hover: #10ee0a;
+    --avatar-hover: #888888;
+    --voteicon-color: #2F5B14;
+    --search-highlight: yellow;
+    --comment-color: #666666;
+    --comment-background: #efefef;
+    --link-header-color: #4183c4;
+    --shadow-color: rgba(0, 0, 0, .2);
+    --spam-background: #ffd2cf;
+    --quar-background: #f6f8ce;
+    --deleted-item-background: #f7e4de;
+    --tutorial-background: #2C7990;
     --job-background: #e9530f;
-    --tool-background:#265040;
+    --tool-background: #265040;
     --label-color: #fff;
-    --news-background:#762C90;
-    --accepted-answer-color:#E1E818;
-    --accepted-answer-background:#436c27;
-    --forum-background:#b79538;
-    --has-answers-background:#5b8c3e;
-    --form-background:#f9f6f4;
-    --form-wrap-background:#f9f6f4;
-    --preview-background:#fcfcfc;
-    --item-border-top-color:#ECECEC;
-    --segment-border-color:#ECECEC;
-    --input-color:#fff8db;
-    --a-hover-background:#fbfdef;
-    --muted-color:#808080;
-    --pre-background:#EEEEEE;
-    --menu-topics-hover:#663b72;
-    --menu-header-hover:#663b72;
+    --news-background: #762C90;
+    --accepted-answer-color: #E1E818;
+    --accepted-answer-background: #436c27;
+    --forum-background: #b79538;
+    --has-answers-background: #5b8c3e;
+    --form-background: #f9f6f4;
+    --form-wrap-background: #f9f6f4;
+    --preview-background: #fcfcfc;
+    --item-border-top-color: #ECECEC;
+    --segment-border-color: #ECECEC;
+    --input-color: #fff8db;
+    --a-hover-background: #fbfdef;
+    --muted-color: #808080;
+    --pre-background: #EEEEEE;
+    --menu-topics-hover: #663b72;
+    --menu-header-hover: #663b72;
     --menu-header-bg-hover: inherit;
     --menu-topics-bg-hover: inherit;
-    --menu-header-color:#333333;
+    --menu-header-color: #1678c2;
 }
 
 body {
-    //background-color: var(--page-bg-color) !important;
-    padding-top: 1rem;
+/ / background-color: var(--page-bg-color) !important;
+    //padding-top: 1rem;
     font-family: var(--root-font);
     color: #333;
     line-height: 1.428571429;
@@ -77,6 +77,15 @@ body {
 
 body > .main.container {
     max-width: var(--page-width);
+}
+
+#topicbar {
+    border: none;
+    //background-color: var(--menu-topics-bg-color);
+}
+
+.ui.mini.label {
+    color: rgba(0, 0, 0, .87);
 }
 
 .deletelink-box {
@@ -90,8 +99,9 @@ body > .main.container {
 }
 
 #logo {
-    padding: 5px 0 0 5px;
-    background-color: var(--logo-background);
+    padding: 0px 5px 5px 5px;
+    margin: -8px;
+    //background-color: var(--logo-background);
 }
 
 
@@ -106,8 +116,7 @@ body > .main.container {
 }
 
 
-
-.ui.form .form-wrap .field>.selection.dropdown {
+.ui.form .form-wrap .field > .selection.dropdown {
     min-width: 0 !important;
 }
 
@@ -117,10 +126,9 @@ body > .main.container {
     opacity: .6;
 }
 
-.similar .dimmer{
+.similar .dimmer {
     height: 3% !important;
 }
-
 
 
 .ui.basic.search-bar.segment {
@@ -172,12 +180,12 @@ body > .main.container {
 }
 
 #menu-header .item:hover:not(#logo) {
-   color: var(--menu-header-hover);
-   background: var(--menu-header-bg-hover);
+    color: var(--menu-header-hover);
+    background: var(--menu-header-bg-hover);
 }
 
 #menu-header .item {
-    color:  var(--menu-header-color);
+    color: var(--menu-header-color) !important;
 }
 
 
@@ -191,8 +199,8 @@ body > .main.container {
     background-color: var(--active-item-bg-color);
 }
 
-.menu-topics *{
-  padding: 1em;
+.menu-topics * {
+    padding: 1em;
 }
 
 #menu-topics {
@@ -266,7 +274,7 @@ i.icon {
     background-color: var(--user-box-backgound);
     font-size: small;
     margin-left: 10px;
-    border-radius: 4px;
+    border-radius: 3px;
     border: 1px solid var(--user-box-border);
     float: right;
     overflow: hidden;
@@ -311,7 +319,8 @@ i.icon {
 }
 
 .on {
-    color: var(--on-color); !important;
+    color: var(--on-color);
+!important;
 }
 
 .disabled {
@@ -336,12 +345,12 @@ i.icon {
 
 .popover.error {
     background-color: var(--popover-error-background);
-    border-color:  var(--popover-error-border);
+    border-color: var(--popover-error-border);
     color: var(--popover-error-color);
 }
 
 .popover.success {
-    background-color:var(--popover-success-background);
+    background-color: var(--popover-success-background);
     color: var(--popover-success-color);
     box-shadow: 0 0 0 1px var(--popover-success-box) inset, 0 0 0 0 transparent;
     border-color: var(--popover-success-border);
@@ -473,7 +482,7 @@ i.icon {
 }
 
 
-.post .stats,.statbox {
+.post .stats, .statbox {
     white-space: nowrap;
     width: fit-content;
     padding-right: 10px;
@@ -491,7 +500,7 @@ i.icon {
 }
 
 .post .stats .label div:nth-child(2) {
-    font-size: 1.15em;
+    font-size: 11px;
     font-weight: 500;
 }
 
@@ -589,7 +598,7 @@ figure {
 }
 
 
-.tags.grid{
+.tags.grid {
     padding-top: 20px;
     padding-bottom: 20px;
 }
@@ -655,7 +664,6 @@ img {
 }
 
 
-
 .center-text {
     text-align: center;
 }
@@ -681,7 +689,7 @@ img {
 }
 
 .accepted.label {
-    color: var(--accepted-answer-color)!important;
+    color: var(--accepted-answer-color) !important;
 
 }
 
@@ -746,12 +754,12 @@ img {
 }
 
 .preformatted {
-  font-family: monospace;
-  white-space: pre-wrap; /* css-3 */
-  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
-  white-space: -pre-wrap; /* Opera 4-6 */
-  white-space: -o-pre-wrap; /* Opera 7 */
-  word-wrap: break-word; /* Internet Explorer 5.5+ */
+    font-family: monospace;
+    white-space: pre-wrap; /* css-3 */
+    white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
 #inplace textarea {
@@ -826,7 +834,7 @@ img {
 }
 
 .ui.divided.items > .post.item {
-    //border: none;
+/ / border: none;
     padding: .5em 0;
 }
 
@@ -837,7 +845,7 @@ img {
 }
 
 .ui.attached.segment {
-    border: none ;
+    border: none;
     /*border: 1px solid var(--segment-border-color);*/
 }
 
@@ -862,11 +870,13 @@ img {
 .ui.stat.label {
     width: 5.5em;
     margin: -1px;
-    border-radius: 3px;
+    border-radius: 1px;
 }
-#menu-header .dropdown{
+
+#menu-header .dropdown {
     border-radius: 0px !important;
 }
+
 .number-stat {
     font-size: 2.0em;
     padding-bottom: .2em;
@@ -915,7 +925,7 @@ a {
 
 a:hover {
     background-color: var(--a-hover-background);
-    border-radius: 3px;
+    border-radius: 1px;
 }
 
 pre > code {
@@ -1067,7 +1077,8 @@ pre {
     .phone {
         display: none !important;
     }
-  body > .main.container {
+
+    body > .main.container {
         width: 100% !important;
         margin: 0 !important;
     }
