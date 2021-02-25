@@ -53,6 +53,8 @@
 
 {% block sidebar %}
 
+    {%  include "banners/insert-sidebar-top.html" %}
+
     {% cache 60 sidebar sidebar_key %}
 
         {% if tab == 'following' %}
@@ -60,6 +62,7 @@
         {% elif tab == 'bookmarks' %}
             {% custom_feed feed_type=tab objs=posts title='People you have bookmarked' %}
         {% else %}
+
             {% default_feed user=request.user %}
         {% endif %}
 

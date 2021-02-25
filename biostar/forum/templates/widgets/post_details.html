@@ -6,17 +6,17 @@
 
         <div class="ui mini stat left label">
             <div>{{ post.get_votecount|bignum }}</div>
-            <div>Vote{{ post.get_votecount|pluralize }}</div>
+            <div>vote{{ post.get_votecount|pluralize }}</div>
         </div>
 
         <div class="ui label stat mini {% boxclass post %} bookmark">
             <div>{{ post.reply_count }}</div>
-            <div>Repl{{ post.reply_count|pluralize:"y,ies" }}</div>
+            <div>repl{{ post.reply_count|pluralize:"y,ies" }}</div>
         </div>
 
         <div class="ui label basic transparent stat mini">
             <div>{{ post.root.view_count|bignum }}</div>
-            <div>View{{ post.root.view_count|pluralize }}</div>
+            <div>view{{ post.root.view_count|pluralize }}</div>
         </div>
         {% block counts %}
             {% if post.subs_count > 4 %}

@@ -12,6 +12,8 @@
 
 {% block body %}
 
+    {%  include "banners/insert-post-top.html" %}
+
     {# The toplevel post #}
     <div class="ui vertical segment">
         {% post_body post=post user=request.user tree=tree %}

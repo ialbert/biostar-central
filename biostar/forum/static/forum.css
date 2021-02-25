@@ -5,7 +5,7 @@
     --page-width: 1200px;
     --page-bg-color: #f8f8f9;
     --menu-bg-color: white;
-    --menu-topics-bg-color: #fcfcf7;
+    --menu-topics-bg-color: #F8F8F9;
     --tag-color: #6b3e4a;
     --tag-background: #ececec;
     --tag-border: #bbbbbb;
@@ -63,7 +63,7 @@
     --menu-header-hover: #663b72;
     --menu-header-bg-hover: inherit;
     --menu-topics-bg-hover: inherit;
-    --menu-header-color: #333333;
+    --menu-header-color: #1678c2;
 }
 
 body {
@@ -77,6 +77,11 @@ body {
 
 body > .main.container {
     max-width: var(--page-width);
+}
+
+#topicbar {
+    border: none;
+    //background-color: var(--menu-topics-bg-color);
 }
 
 .ui.mini.label {
@@ -179,7 +184,7 @@ body > .main.container {
 }
 
 #menu-header .item {
-    color: var(--menu-header-color);
+    color: var(--menu-header-color) !important;
 }
 
 
@@ -248,9 +253,9 @@ i.icon.mycomment:before {
     border-bottom: 1px solid var(--tag-border);
     border-right: 1px solid var(--tag-border);
     color: var(--tag-color);
-    -webkit-border-radius: 1px;
-    -moz-border-radius: 1px;
-    border-radius: 1px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
 
 .ui.segment, .ui.segments .segment {
