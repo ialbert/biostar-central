@@ -323,6 +323,12 @@ def myvotes(request):
     # Apply the votes paging.
     votes = paginator.get_page(page)
 
+    # Clear the votes count.
+    counts = request.session.get(COUNT_DATA_KEY, {})
+    # Set votes count back to 0
+    counts[VOTES_COUNT] = 0
+    request.session.update(dict(counts=counts))
+
     context = dict(votes=votes, page=page, tab='myvotes')
     return render(request, template_name="user_votes.html", context=context)
 
@@ -374,6 +380,7 @@ def following(request):
     """
     Show posts followed by user.
     """
+
     return post_list(request, topic=FOLLOWING, template_name="user_following.html")
 
 
@@ -382,6 +389,7 @@ def bookmarks(request):
     """
     Show posts bookmarked by user.
     """
+
     return post_list(request, topic=BOOKMARKS, template_name="user_bookmarks.html")
 
 
