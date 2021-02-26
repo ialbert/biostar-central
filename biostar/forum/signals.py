@@ -89,12 +89,7 @@ def finalize_post(sender, instance, created, **kwargs):
         # Sanity check.
         assert instance.root and instance.parent
 
-        if instance.is_toplevel:
-            # Add tags for top level posts.
-            tags = [Tag.objects.get_or_create(name=name)[0] for name in instance.parse_tags()]
-            instance.tags.remove()
-            instance.tags.add(*tags)
-        else:
+        if not instance.is_toplevel:
             # Title is inherited from top level.
             instance.title = "%s: %s" % (instance.get_type_display(), instance.root.title[:80])
 
@@ -129,6 +124,12 @@ def finalize_post(sender, instance, created, **kwargs):
 
         # Send out mailing list when post is created.
         tasks.mailing_list.spool(emails=emails, uid=instance.uid, extra_context=extra_context)
+
+    # Set the tags on the instance.
+    if instance.is_toplevel:
+        tags = [Tag.objects.get_or_create(name=name)[0] for name in instance.parse_tags()]
+        instance.tags.remove()
+        instance.tags.add(*tags)
 
     # Classify post as spam/ham.
     tasks.classify_spam.spool(uid=instance.uid)

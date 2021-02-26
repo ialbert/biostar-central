@@ -157,7 +157,6 @@ class PostLongForm(forms.Form):
         """
         tag_val = self.cleaned_data["tag_val"] or 'tag1,tag2'
         tags = set([x for x in tag_val.split(",") if x])
-
         required_tags(tags)
 
         return ",".join(tags)
@@ -206,16 +205,20 @@ class PostModForm(forms.Form):
 
         choices = [
             (OPEN_POST, "Open post"),
-            (DELETE, "Delete post."),
-            (REPORT_SPAM, "Mark as spam."),
-
+            (DELETE, "Delete post"),
+            (OFF_TOPIC, "Off topic"),
+            (REPORT_SPAM, "Spam"),
         ]
 
+        # Top level posts may be bumped.
+        if post.is_toplevel:
+            choices += [(BUMP_POST, "Bump post.")]
+
         # Options for top level posts.
-        if post.is_toplevel and settings.ALLOW_POST_CLOSING:
-            suffix = [(CLOSE, "Close post ( reason required ). "),
+        if settings.ALLOW_POST_CLOSING:
+            extras = [(CLOSE, "Close post ( reason required ). "),
                       (DUPLICATE, "Duplicated post ( links required ).")]
-            choices = [(BUMP_POST, "Bump post.")] + choices + suffix
+            choices += extras
             self.fields['comment'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea,
                                                      strip=True)
 

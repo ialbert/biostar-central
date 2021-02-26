@@ -17,7 +17,7 @@ from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from biostar.accounts.models import Profile
-from . import util, awards
+from . import util, awards, auth
 from .const import *
 from .models import Post, Vote, PostView, Subscription, Award, Badge, delete_post_cache
 from django.utils.safestring import mark_safe
@@ -543,6 +543,26 @@ def delete(request, post, **kwargs):
 
     return url
 
+def off_topic(request, post, **kwargs):
+    """
+    Marks post as off topic. Generate off topic comment.
+    """
+    user = request.user
+    if "offtopic" not in post.tag_val:
+        post.tag_val += ",offtopic "
+        post.save()
+
+        # Generate off comment.
+        content = "This post is off topic."
+        auth.create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
+
+    msg = f"Marked {post_link(post)} as off topic."
+    messages.info(request, mark_safe(msg))
+    db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
+
+    url = post.get_absolute_url()
+    return url
+
 
 def moderate(request, post, action, comment=""):
 
@@ -552,7 +572,8 @@ def moderate(request, post, action, comment=""):
                   BUMP_POST: bump,
                   OPEN_POST: open,
                   DELETE: delete,
-                  CLOSE: close}
+                  CLOSE: close,
+                  OFF_TOPIC: off_topic}
 
     if action in action_map:
         mod_func = action_map[action]
