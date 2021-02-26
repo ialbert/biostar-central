@@ -47,10 +47,7 @@ def valid_title(text):
         raise ValidationError(f'Too Long, please add less than {MAX_TITLE} characters.')
 
     try:
-        if settings.ENFORCE_ASCII:
-            text.encode('ascii')
-        else:
-            text.encode('utf-8')
+        text.encode('utf-8')
     except Exception as exc:
         raise ValidationError(f'Title contains invalid characters: {exc}')
 

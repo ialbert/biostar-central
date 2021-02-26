@@ -4,7 +4,7 @@
 
 {% block sidebar %}
     {# Cache key comes from extra context #}
-    {% cache 500 FOLLOWING_CACHE_KEY request.user.pk %}
+    {% cache 500 "follow" request.user.pk %}
         {% custom_feed feed_type=tab objs=posts title='People you are following' %}
     {% endcache %}
 {% endblock %}
