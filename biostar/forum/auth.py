@@ -19,9 +19,8 @@ from django.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import util, awards
 from .const import *
-from .models import Post, Vote, PostView, Subscription, Award, Badge
+from .models import Post, Vote, PostView, Subscription, Award, Badge, drop_post_cache
 from django.utils.safestring import mark_safe
-
 
 # Needed for historical reasons.
 from biostar.accounts.auth import db_logger
@@ -457,20 +456,21 @@ def toggle_spam(request, post, **kwargs):
     Toggles spam status on post based on a status
     """
 
-    # The user performing the action.
-    user = request.user
-
-    # The spam status set by the toggle.
-    spam = Post.NOT_SPAM if post.is_spam else Post.SPAM
-
-    # Update the object bypassing the signals.
-    post.spam = spam
-    Post.objects.filter(id=post.id).update(spam=spam)
+    url = post.get_absolute_url()
 
     # Moderators may only be suspended by admins (TODO).
     if post.author.profile.is_moderator:
         messages.warning(request, "cannot toggle spam on a post created by a moderator")
-        return
+        return url
+
+    # The user performing the action.
+    user = request.user
+
+    # The spam status set by the toggle.
+    spam_toggle = Post.NOT_SPAM if post.is_spam else Post.SPAM
+
+    # Update the object bypassing the signals.
+    Post.objects.filter(id=post.id).update(spam=spam_toggle)
 
     # Set the state for the user.
     post.author.profile.state = Profile.SUSPENDED if post.is_spam else Profile.NEW
@@ -478,13 +478,19 @@ def toggle_spam(request, post, **kwargs):
 
     # Generate logging messages.
     if post.is_spam:
-        text = f'marked post {post_link(post)} as spam'
+        text = f'Restored {post_link(post)} from spam'
     else:
-        text = f'restored post {post_link(post)} from spam'
+        text = f'Marked {post_link(post)} as spam'
+
+    # Set a logging message.
+    messages.success(request, mark_safe(text))
 
     # Submit the log into the database.
     db_logger(user=user, text=text)
-    messages.info(request, mark_safe(text))
+
+    # Reset post cache.
+    drop_post_cache(post)
+
     url = post.get_absolute_url()
     return url
 
