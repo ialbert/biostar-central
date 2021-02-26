@@ -19,7 +19,7 @@ from django.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import util, awards
 from .const import *
-from .models import Post, Vote, PostView, Subscription, Award, Badge, drop_post_cache
+from .models import Post, Vote, PostView, Subscription, Award, Badge, delete_post_cache
 from django.utils.safestring import mark_safe
 
 # Needed for historical reasons.
@@ -489,7 +489,7 @@ def toggle_spam(request, post, **kwargs):
     db_logger(user=user, text=text)
 
     # Reset post cache.
-    drop_post_cache(post)
+    delete_post_cache(post)
 
     url = post.get_absolute_url()
     return url

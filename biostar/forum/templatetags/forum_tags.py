@@ -119,9 +119,9 @@ def pages_search(context, results):
     return context
 
 
-@register.inclusion_tag('widgets/post_details.html')
-def post_details(post, user, avatar=True):
-    return dict(post=post, user=user, avatar=avatar)
+@register.inclusion_tag('widgets/post_details.html', takes_context=True)
+def post_details(context, post, user, avatar=True):
+    return dict(post=post, user=user, avatar=avatar, context=context)
 
 
 @register.simple_tag

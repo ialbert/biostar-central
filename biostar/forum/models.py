@@ -1,20 +1,17 @@
 import logging
-import datetime
 
-import bleach
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
 from django.db import models
+from django.db.models import F
 from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
+
 from biostar.accounts.models import Profile
-from django.db.models import F
-
-from django.core.cache import cache
-from django.core.cache.utils import make_template_fragment_key
-
 from . import util
 
 User = get_user_model()
@@ -59,7 +56,7 @@ class PostManager(models.Manager):
         return query
 
 
-def drop_cache(key, *params):
+def delete_fragment_cache(key, *params):
     """
     Drops a template fragment cache.
     """
@@ -67,17 +64,12 @@ def drop_cache(key, *params):
     cache.delete(key)
 
 
-def drop_post_cache(post):
+def delete_post_cache(post):
     """
-    Drops a post specific template  fragment cache.
+    Drops both post specific template fragment caches.
     """
-    drop_cache("post", post.uid)
-    drop_cache("postmods", post.uid)
-
-def post_cache_key(post, is_mod):
-    """
-    Posts are need different cache based on user authentication.
-    """
+    delete_fragment_cache("post", True, post.uid)
+    delete_fragment_cache("post", False, post.uid)
 
 
 class Post(models.Model):
@@ -338,11 +330,10 @@ class Post(models.Model):
         self.is_toplevel = self.type in Post.TOP_LEVEL
 
         # Drop the cached fragment
-        drop_post_cache(self)
+        delete_post_cache(self)
 
         # This will trigger the signals
         super(Post, self).save(*args, **kwargs)
-
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
@@ -409,7 +400,7 @@ class Vote(models.Model):
         return u"Vote: %s, %s, %s" % (self.post_id, self.author_id, self.get_type_display())
 
     def save(self, *args, **kwargs):
-        #self.uid = self.uid or f"v{util.get_uuid(limit=5)}"
+        # self.uid = self.uid or f"v{util.get_uuid(limit=5)}"
         self.date = self.date or util.now()
         super(Vote, self).save(*args, **kwargs)
 
@@ -453,9 +444,10 @@ def update_post_views(post, request, timeout=settings.POST_VIEW_TIMEOUT):
 
     # Drop the post related cache for logged in users.
     if request.user.is_authenticated:
-        drop_post_cache(post)
+        delete_post_cache(post)
 
     return post
+
 
 class Subscription(models.Model):
     "Connects a post to a user"
@@ -466,6 +458,7 @@ class Subscription(models.Model):
                 Profile.EMAIL_MESSAGE: EMAIL_MESSAGE,
                 Profile.LOCAL_MESSAGE: LOCAL_MESSAGE,
                 Profile.DEFAULT_MESSAGES: LOCAL_MESSAGE}
+
     class Meta:
         unique_together = (("user", "post"))
 
@@ -480,7 +473,7 @@ class Subscription(models.Model):
     def save(self, *args, **kwargs):
         # Set the date to current time if missing.
         self.date = self.date or util.now()
-        #self.uid = self.uid or util.get_uuid(limit=16)
+        # self.uid = self.uid or util.get_uuid(limit=16)
 
         if self.type is None:
             self.type = self.TYPE_MAP.get(self.user.profile.message_prefs, self.NO_MESSAGES)
@@ -540,6 +533,7 @@ class Award(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
     date = models.DateTimeField()
+
     # context = models.CharField(max_length=1000, default='')
 
     def save(self, *args, **kwargs):

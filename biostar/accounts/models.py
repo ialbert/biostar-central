@@ -280,6 +280,29 @@ class Profile(models.Model):
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
 
 
+def is_moderator(user):
+    """
+    Shortcut to identify moderators from users.
+    """
+
+    # Anonymous users have no moderation rights.
+    if user.is_anonymous:
+        return False
+
+    # User has been inactivated.
+    if not user.is_active:
+        return False
+
+    # Staff or superusers have moderation rights.
+    if user.is_staff or user.is_superuser:
+        return True
+
+    # Local roles that permit moderation.
+    role_check = user.profile.role in (Profile.MODERATOR, Profile.MANAGER)
+
+    return role_check
+
+
 class Log(models.Model):
     """
     Represents moderation actions

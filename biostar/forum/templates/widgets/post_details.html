@@ -2,8 +2,8 @@
 {% load cache %}
 
 
-{#  post  #}
-{% cache 300 post post.uid %}
+{#  IS_MODERATOR set in context.py  #}
+{% cache 600 post context.IS_MODERATOR post.uid %}
 
     <div class="post {{ post.css }} item" data-value="{{ post.uid }}">
 
