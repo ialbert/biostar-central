@@ -20,6 +20,7 @@ from bleach.sanitizer import Cleaner
 from biostar.forum import auth
 from biostar.forum.models import Post, Subscription
 from biostar.accounts.models import Profile, User
+from bleach.callbacks import nofollow
 
 # Test input.
 TEST_INPUT = '''
@@ -379,6 +380,9 @@ def linkify(text):
         source, target = em
         emb = f'<a href="{source}">{source}</a>'
         html = html.replace(emb, target)
+
+    # Add nofollow to each link.
+    html = bleach.linkify(text=html, callbacks=[nofollow], skip_tags=['pre', 'code'])
 
     return html
 

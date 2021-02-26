@@ -13,19 +13,19 @@ SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
 TEST_CASES = [
 
     # Top level Post anchors
-    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/">Test</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/" rel="nofollow">Test</a></p>'),
 
     # Non-toplevel post anchors
-    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/#2", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/#2">Comment: Test</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/#2", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/#2" rel="nofollow">Comment: Test</a></p>'),
 
     # User profile url pattern
-    (f"{settings.PROTOCOL}://{SITE_URL}/accounts/profile/5", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/accounts/profile/5">USER: tested2</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/accounts/profile/5", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/accounts/profile/5" rel="nofollow">USER: tested2</a></p>'),
 
     # Twitter link
-    ("https://twitter.com/Linux/status/2311234267", '<p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">w00t! 10,000 followers!</p>&mdash; Linux (@Linux) <a href="https://twitter.com/Linux/status/2311234267?ref_src=twsrc%5Etfw">June 24, 2009</a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>'),
+    ("https://twitter.com/Linux/status/2311234267", '<p></p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">w00t! 10,000 followers!</p>— Linux (@Linux) <a href="https://twitter.com/Linux/status/2311234267?ref_src=twsrc%5Etfw" rel="nofollow">June 24, 2009</a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script><p></p>'),
 
     # Youtube link
-    ("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '<p><iframe width="420" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></p>'),
+    ("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '<p><iframe width="420" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen=""></iframe></p>'),
 
     # Gist link
     ("https://gist.github.com/afrendeiro/6732a46b949e864d6803", '<p><script src="https://gist.github.com/afrendeiro/6732a46b949e864d6803.js"></script></p>'),
@@ -48,13 +48,13 @@ TEST_CASES = [
     ("```1 > 0    1 < 2    foo & bar```", "<p><code>1 &gt; 0    1 &lt; 2    foo &amp; bar</code></p>"),
 
     # Mentioned user
-    ("@test", '<p><a href="/accounts/profile/5/">tested2</a></p>'),
+    ("@test", '<p><a href="/accounts/profile/5/" rel="nofollow">tested2</a></p>'),
 
     # Url auto-link tests
-    ("http://www.psu.edu", '<p><a href="http://www.psu.edu">http://www.psu.edu</a></p>'),
+    ("http://www.psu.edu", '<p><a href="http://www.psu.edu" rel="nofollow">http://www.psu.edu</a></p>'),
 
     # Auto-link enclosed by parenthesis
-    ("(http://www.psu.edu)", '<p>(<a href="http://www.psu.edu">http://www.psu.edu</a>)</p>'),
+    ("(http://www.psu.edu)", '<p>(<a href="http://www.psu.edu" rel="nofollow">http://www.psu.edu</a>)</p>'),
 
     # Test unclosed tags
     ("<b> foo", '<p><b> foo</b></p><b></b>'),
@@ -86,9 +86,22 @@ class MarkdownTest(TestCase):
 
     def test_markdown(self):
 
+        error_count = 0
         for test in TEST_CASES:
             given, expected = test
 
             html = markdown.parse(given, clean=True, escape=False)
             html = html.replace("\n", "")
-            self.assertEqual(html, expected, f"Error with markdown parsing. input={given}, expected={expected}, html={html}")
+
+            if expected != html:
+                print("\n\n")
+                print("--- Input markdown ---")
+                print (given)
+                print("--- Expected html ---")
+                print(expected)
+                print("--- Observed html ---")
+                print(html)
+                error_count += 1
+
+        # Catch all errors at once.
+        self.assertTrue(error_count == 0)
