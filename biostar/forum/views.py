@@ -3,7 +3,7 @@ from datetime import timedelta
 from functools import wraps, lru_cache
 import os
 
-from django.db import models, connections
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -17,7 +17,7 @@ from ratelimit.decorators import ratelimit
 from taggit.models import Tag
 
 from biostar.accounts.models import Profile
-from biostar.forum import forms, auth, tasks, util, search
+from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription, Award
 from biostar.utils.decorators import is_moderator
@@ -222,11 +222,11 @@ def mark_spam(request, uid):
     else:
         messages.error(request, "Post does not seem to exist")
 
-    if state:
-        return redirect('/')
-    else:
+    # Was spam actually
+    if post.is_spam:
         return redirect('/?type=spam')
-
+    else:
+        return redirect('/')
 
 @is_moderator
 def release_quar(request, uid):
@@ -249,7 +249,7 @@ def release_quar(request, uid):
 
 
 @ensure_csrf_cookie
-def post_list(request, topic=None, cache_key='', extra_context=dict()):
+def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -279,7 +279,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
                    sidebar_key=SIDEBAR_CACHE_KEY)
     context.update(extra_context)
     # Render the page.
-    return render(request, template_name="post_list.html", context=context)
+    return render(request, template_name=template_name, context=context)
 
 
 @ratelimit(key=RATELIMIT_KEY,  rate='100/m')
@@ -324,7 +324,7 @@ def myvotes(request):
     votes = paginator.get_page(page)
 
     context = dict(votes=votes, page=page, tab='myvotes')
-    return render(request, template_name="votes_list.html", context=context)
+    return render(request, template_name="user_votes.html", context=context)
 
 
 def tags_list(request):
@@ -359,8 +359,7 @@ def myposts(request):
     """
     Show posts by user
     """
-
-    return post_list(request, topic=MYPOSTS)
+    return post_list(request, topic=MYPOSTS, template_name="user_myposts.html")
 
 
 def post_topic(request, topic):
@@ -373,32 +372,22 @@ def post_topic(request, topic):
 @authenticated
 def following(request):
     """
-    Show posts followed by user
+    Show posts followed by user.
     """
-    user = request.user
-    cache_key = FOLLOWING_CACHE_KEY % user.id
-    print(cache_key)
-
-    context = dict(sidebar_key=cache_key)
-    return post_list(request, topic=FOLLOWING, extra_context=context)
+    return post_list(request, topic=FOLLOWING, template_name="user_following.html")
 
 
 @authenticated
 def bookmarks(request):
     """
-    Show posts bookmarked by user
+    Show posts bookmarked by user.
     """
-    user = request.user
-    cache_key = BOOKMARKS_CACHE_KEY % user.id
-    print(cache_key)
-    context = dict(sidebar_key=BOOKMARKS_CACHE_KEY)
-    return post_list(request, topic=BOOKMARKS, extra_context=context)
+    return post_list(request, topic=BOOKMARKS, template_name="user_bookmarks.html")
 
 
 @authenticated
 def mytags(request):
-
-    return post_list(request=request, topic=MYTAGS)
+    return post_list(request=request, topic=MYTAGS, template_name="user_mytags.html")
 
 
 def community_list(request):
@@ -480,7 +469,6 @@ def post_view(request, uid):
         messages.error(request, "Post does not exist.")
         return redirect("post_list")
 
-    auth.update_post_views(post=post, request=request)
     if not post.is_toplevel:
         return redirect(post.get_absolute_url())
 
@@ -501,6 +489,9 @@ def post_view(request, uid):
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
     # user string
+
+    # Bump post views.
+    models.update_post_views(post=post, request=request, timeout=settings.POST_VIEW_TIMEOUT)
 
     context = dict(post=root, tree=comment_tree, form=form, answers=answers)
 

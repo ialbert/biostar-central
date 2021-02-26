@@ -3,7 +3,7 @@
 {% if user.is_authenticated %}
     {% counts as counts %}
 
-    <div class="ui small attached six item pointing menu" id="menu-topics">
+    <div class="ui small attached six item menu" id="menu-topics">
 
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">

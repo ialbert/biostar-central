@@ -19,9 +19,8 @@ from django.shortcuts import reverse
 from biostar.accounts.models import Profile
 from . import util, awards
 from .const import *
-from .models import Post, Vote, PostView, Subscription, Award, Badge
+from .models import Post, Vote, PostView, Subscription, Award, Badge, drop_post_cache
 from django.utils.safestring import mark_safe
-
 
 # Needed for historical reasons.
 from biostar.accounts.auth import db_logger
@@ -314,28 +313,6 @@ def valid_awards(user):
     return valid
 
 
-def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
-    "Views are updated per user session"
-
-    # Extract the IP number from the request.
-    ip1 = request.META.get('REMOTE_ADDR', '')
-    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-    # 'localhost' is not a valid ip address.
-    ip1 = '' if ip1.lower() == 'localhost' else ip1
-    ip2 = '' if ip2.lower() == 'localhost' else ip2
-    ip = ip1 or ip2 or '0.0.0.0'
-
-    now = util.now()
-    since = now - datetime.timedelta(minutes=minutes)
-
-    # One view per time interval from each IP address.
-    if not PostView.objects.filter(ip=ip, post=post, date__gt=since).exists():
-        # Update the last time
-        PostView.objects.create(ip=ip, post=post, date=now)
-        Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
-    return post
-
-
 @transaction.atomic
 def apply_vote(post, user, vote_type):
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()
@@ -479,20 +456,21 @@ def toggle_spam(request, post, **kwargs):
     Toggles spam status on post based on a status
     """
 
-    # The user performing the action.
-    user = request.user
-
-    # The spam status set by the toggle.
-    spam = Post.NOT_SPAM if post.is_spam else Post.SPAM
-
-    # Update the object bypassing the signals.
-    post.spam = spam
-    Post.objects.filter(id=post.id).update(spam=spam)
+    url = post.get_absolute_url()
 
     # Moderators may only be suspended by admins (TODO).
     if post.author.profile.is_moderator:
         messages.warning(request, "cannot toggle spam on a post created by a moderator")
-        return
+        return url
+
+    # The user performing the action.
+    user = request.user
+
+    # The spam status set by the toggle.
+    spam_toggle = Post.NOT_SPAM if post.is_spam else Post.SPAM
+
+    # Update the object bypassing the signals.
+    Post.objects.filter(id=post.id).update(spam=spam_toggle)
 
     # Set the state for the user.
     post.author.profile.state = Profile.SUSPENDED if post.is_spam else Profile.NEW
@@ -500,13 +478,19 @@ def toggle_spam(request, post, **kwargs):
 
     # Generate logging messages.
     if post.is_spam:
-        text = f'marked post {post_link(post)} as spam'
+        text = f'Restored {post_link(post)} from spam'
     else:
-        text = f'restored post {post_link(post)} from spam'
+        text = f'Marked {post_link(post)} as spam'
+
+    # Set a logging message.
+    messages.success(request, mark_safe(text))
 
     # Submit the log into the database.
     db_logger(user=user, text=text)
-    messages.info(request, mark_safe(text))
+
+    # Reset post cache.
+    drop_post_cache(post)
+
     url = post.get_absolute_url()
     return url
 

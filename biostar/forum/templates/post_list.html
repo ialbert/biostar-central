@@ -34,7 +34,7 @@
         <div class="ui divided items">
             {% for post in posts %}
                 {% post_details post=post user=request.user avatar=avatar %}
-            {% empty %}
+                {% empty %}
                 <div class="ui warn message">
                     No posts found.
                 </div>
@@ -42,28 +42,16 @@
         </div>
     {% endblock %}
 
-
-
     <div class="ui page-bar segment">
         {% pages objs=posts %}
     </div>
-
 
 {% endblock %}
 
 {% block sidebar %}
 
-    {% cache 60 sidebar sidebar_key %}
+        {% include "banners/insert-sidebar-top.html" %}
 
-        {% if tab == 'following' %}
-            {% custom_feed feed_type=tab objs=posts title='People you are following' %}
-        {% elif tab == 'bookmarks' %}
-            {% custom_feed feed_type=tab objs=posts title='People you have bookmarked' %}
-        {% else %}
-            {% default_feed user=request.user %}
-        {% endif %}
-
-    {% endcache %}
-
+        {% default_feed user=request.user %}
 
 {% endblock %}

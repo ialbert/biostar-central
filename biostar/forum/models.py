@@ -1,4 +1,5 @@
 import logging
+import datetime
 
 import bleach
 from django.conf import settings
@@ -9,6 +10,11 @@ from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
 from biostar.accounts.models import Profile
+from django.db.models import F
+
+from django.core.cache import cache
+from django.core.cache.utils import make_template_fragment_key
+
 from . import util
 
 User = get_user_model()
@@ -51,6 +57,22 @@ class PostManager(models.Manager):
         """
         query = super().get_queryset().exclude(uid__contains='p').filter(**kwargs)
         return query
+
+
+def drop_cache(key, *params):
+    """
+    Drops a template fragment cache.
+    """
+    key = make_template_fragment_key(key, params)
+    cache.delete(key)
+
+
+def drop_post_cache(post):
+    """
+    Drops a post specific template  fragment cache.
+    """
+    drop_cache("post", post.uid)
+
 
 
 class Post(models.Model):
@@ -310,8 +332,12 @@ class Post(models.Model):
         # Set the top level state of the post.
         self.is_toplevel = self.type in Post.TOP_LEVEL
 
+        # Drop the cached fragment
+        drop_post_cache(self)
+
         # This will trigger the signals
         super(Post, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return "%s: %s (pk=%s)" % (self.get_type_display(), self.title, self.pk)
@@ -395,6 +421,36 @@ class PostView(models.Model):
     post = models.ForeignKey(Post, related_name="post_views", on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
 
+
+def update_post_views(post, request, timeout=settings.POST_VIEW_TIMEOUT):
+    """
+    Views are updated per interval.
+    """
+
+    # Get the ip.
+    ip = util.get_ip(request)
+
+    # Keys go by IP and post ip.
+    cache_key = f"{ip}-{post.id}"
+
+    # Found hit no need to increment the views
+    if cache.get(cache_key):
+        return
+
+    # Insert a new view into database.
+    PostView.objects.create(ip=ip, post=post)
+
+    # Separately increment post view.
+    Post.objects.filter(id=post.id).update(view_count=F('view_count') + 1)
+
+    # Set the cache.
+    cache.set(cache_key, 1, timeout)
+
+    # Drop the post related cache for logged in users.
+    if request.user.is_authenticated:
+        drop_post_cache(post)
+
+    return post
 
 class Subscription(models.Model):
     "Connects a post to a user"

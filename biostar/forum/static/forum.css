@@ -5,7 +5,7 @@
     --page-width: 1200px;
     --page-bg-color: #f8f8f9;
     --menu-bg-color: white;
-    --menu-topics-bg-color: #fcfcf7;
+    --menu-topics-bg-color: #F8F8F9;
     --tag-color: #6b3e4a;
     --tag-background: #ececec;
     --tag-border: #bbbbbb;
@@ -63,20 +63,32 @@
     --menu-header-hover: #663b72;
     --menu-header-bg-hover: inherit;
     --menu-topics-bg-hover: inherit;
-    --menu-header-color: #333333;
+    --menu-header-color: #1678c2;
 }
 
 body {
 / / background-color: var(--page-bg-color) !important;
-    padding-top: 1rem;
+    //padding-top: 1rem;
     font-family: var(--root-font);
     color: #333;
     line-height: 1.428571429;
     font-size: 13px;
 }
 
+#sidebar  .title {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
 body > .main.container {
     max-width: var(--page-width);
+}
+
+#topicbar {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #ececec;
 }
 
 .ui.mini.label {
@@ -94,8 +106,9 @@ body > .main.container {
 }
 
 #logo {
-    padding: 5px 0 0 5px;
-    background-color: var(--logo-background);
+    padding: 0px 5px 5px 5px;
+    margin: -8px;
+    //background-color: var(--logo-background);
 }
 
 
@@ -179,7 +192,7 @@ body > .main.container {
 }
 
 #menu-header .item {
-    color: var(--menu-header-color);
+    color: var(--menu-header-color) !important;
 }
 
 
@@ -200,6 +213,8 @@ body > .main.container {
 #menu-topics {
     border: none;
     background-color: var(--menu-topics-bg-color);
+    border-top: 1px solid #ececec;
+    border-bottom: 1px solid #ececec;
 }
 
 #menu-topics .item:hover {
@@ -248,9 +263,9 @@ i.icon.mycomment:before {
     border-bottom: 1px solid var(--tag-border);
     border-right: 1px solid var(--tag-border);
     color: var(--tag-color);
-    -webkit-border-radius: 1px;
-    -moz-border-radius: 1px;
-    border-radius: 1px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
 
 .ui.segment, .ui.segments .segment {
@@ -965,6 +980,18 @@ pre {
 
 }
 
+
+#traffic {
+  position: fixed;
+  font-size: smaller;
+  bottom: 0px;
+  left: 0px;
+  color: #999999;
+  background-color: white;
+  padding: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
 
 @media all and (max-width: 1200px) {
 
