@@ -20,6 +20,8 @@ def get_traffic(key='traffic', timeout=300, minutes=60):
             traffic = PostView.objects.filter(date__gt=recent).values_list('ip')
             traffic = [t[0] for t in traffic]
             traffic = len(set(traffic))
+        # It is possible to not have hit any postview yet.
+        traffic = traffic or 1
         cache.set(key, traffic, timeout)
 
     return traffic
