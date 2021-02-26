@@ -1,0 +1,6 @@
+{% extends "post_list.html" %}
+{% load forum_tags %}
+
+{% block sidebar %}
+    {% custom_feed feed_type=tab objs=posts title='People you are following' %}
+{% endblock %}

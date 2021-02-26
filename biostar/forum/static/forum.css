@@ -75,13 +75,20 @@ body {
     font-size: 13px;
 }
 
+#sidebar  .title {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
 body > .main.container {
     max-width: var(--page-width);
 }
 
 #topicbar {
     border: none;
-    //background-color: var(--menu-topics-bg-color);
+    border-radius: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #ececec;
 }
 
 .ui.mini.label {
@@ -206,6 +213,8 @@ body > .main.container {
 #menu-topics {
     border: none;
     background-color: var(--menu-topics-bg-color);
+    border-top: 1px solid #ececec;
+    border-bottom: 1px solid #ececec;
 }
 
 #menu-topics .item:hover {

@@ -14,15 +14,18 @@
         </div>
 
         <div class="four wide column sidefeed">
-            {% block sidebar %}
-                SIDE BAR
-            {% endblock %}
+
+            <div class="ui large wrap-text" id="sidebar">
+                {% block sidebar %}
+                    SIDE BAR
+                {% endblock %}
+            </div>
         </div>
 
     </div>
 
-{# This information is cached and updated periodically via the context. #}
-<div id="traffic">Traffic: {{ TRAFFIC }} users visited in the last hour</div>
+    {# This information is cached and updated periodically via the context. #}
+    <div id="traffic">Traffic: {{ TRAFFIC }} users visited in the last hour</div>
 
 
 {% endblock %}
