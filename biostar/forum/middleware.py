@@ -90,7 +90,7 @@ def ban_ip(get_response):
             if ip not in cache:
                 cache.set(ip, 0, settings.TIME_PERIOD)
 
-            value = cache.get(ip)
+            value = cache.get(ip, 0)
             if value >= settings.MAX_VISITS:
                 # Raise redirect exception
                 if domain_is_whitelisted(oip):
@@ -149,7 +149,7 @@ def user_tasks(get_response):
             message_count = Message.objects.filter(recipient=user, unread=True).count()
 
             # The number of new votes since last visit.
-            vote_count = Vote.objects.filter(post__author=user, date__gt=user.profile.last_login).exclude(
+            vote_count = Vote.objects.filter(post__author=user, date__gte=user.profile.last_login).exclude(
                 author=user).count()
 
             # Store the counts into the session.
