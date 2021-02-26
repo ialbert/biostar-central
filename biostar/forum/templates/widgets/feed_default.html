@@ -20,9 +20,9 @@
 
 <div class="event">
     <div class="ui container">
-        <div class="title">Recent Locations</div>
-        <a href="{% url "community_list" %}">&bull; All <i class="ui angle small double right icon"></i></a>
-
+        <div class="title">Recent Locations &bull;
+            <a href="{% url "community_list" %}"> All <i class="ui angle small double right icon"></i></a>
+        </div>
         <div class="ui relaxed list">
 
             {% for profile in recent_locations %}
@@ -46,9 +46,9 @@
 
 <div class="event">
     <div class="ui container">
-        <div class="title">Recent Awards</div>
-        <a href="{% url 'badge_list' %}"> &bull; All <i class="ui angle small double right icon"></i></a>
-
+        <div class="title">Recent Awards &bull;
+            <a href="{% url 'badge_list' %}">  All <i class="ui angle small double right icon"></i></a>
+        </div>
         <div class="ui relaxed list">
             {% for award in recent_awards %}
 
