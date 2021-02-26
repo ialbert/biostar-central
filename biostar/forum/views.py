@@ -222,11 +222,11 @@ def mark_spam(request, uid):
     else:
         messages.error(request, "Post does not seem to exist")
 
-    if state:
-        return redirect('/')
-    else:
+    # Was spam actually
+    if post.is_spam:
         return redirect('/?type=spam')
-
+    else:
+        return redirect('/')
 
 @is_moderator
 def release_quar(request, uid):
@@ -249,7 +249,7 @@ def release_quar(request, uid):
 
 
 @ensure_csrf_cookie
-def post_list(request, topic=None, cache_key='', extra_context=dict()):
+def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -279,7 +279,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict()):
                    sidebar_key=SIDEBAR_CACHE_KEY)
     context.update(extra_context)
     # Render the page.
-    return render(request, template_name="post_list.html", context=context)
+    return render(request, template_name=template_name, context=context)
 
 
 @ratelimit(key=RATELIMIT_KEY,  rate='100/m')
@@ -330,7 +330,7 @@ def myvotes(request):
     request.session.update(dict(counts=counts))
 
     context = dict(votes=votes, page=page, tab='myvotes')
-    return render(request, template_name="votes_list.html", context=context)
+    return render(request, template_name="user_votes.html", context=context)
 
 
 def tags_list(request):
@@ -365,8 +365,7 @@ def myposts(request):
     """
     Show posts by user
     """
-
-    return post_list(request, topic=MYPOSTS)
+    return post_list(request, topic=MYPOSTS, template_name="user_myposts.html")
 
 
 def post_topic(request, topic):
@@ -379,31 +378,32 @@ def post_topic(request, topic):
 @authenticated
 def following(request):
     """
-    Show posts followed by user
+    Show posts followed by user.
     """
+
     user = request.user
     cache_key = FOLLOWING_CACHE_KEY % user.id
 
     context = dict(sidebar_key=cache_key)
-    return post_list(request, topic=FOLLOWING, extra_context=context)
+
+    return post_list(request, topic=FOLLOWING, template_name="user_following.html")
 
 
 @authenticated
 def bookmarks(request):
     """
-    Show posts bookmarked by user
+    Show posts bookmarked by user.
     """
     user = request.user
     cache_key = BOOKMARKS_CACHE_KEY % user.id
 
     context = dict(sidebar_key=cache_key)
-    return post_list(request, topic=BOOKMARKS, extra_context=context)
+    return post_list(request, topic=BOOKMARKS, template_name="user_bookmarks.html")
 
 
 @authenticated
 def mytags(request):
-
-    return post_list(request=request, topic=MYTAGS)
+    return post_list(request=request, topic=MYTAGS, template_name="user_mytags.html")
 
 
 def community_list(request):

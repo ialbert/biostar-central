@@ -42,7 +42,6 @@ def classify_spam(uid):
     # Non spam posts are left alone.
     if post.not_spam:
         return
-
     try:
         # Give this post a spam score and quarantine it if necessary.
         spam.score(uid=uid)

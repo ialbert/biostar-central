@@ -90,7 +90,7 @@ def ban_ip(get_response):
             if ip not in cache:
                 cache.set(ip, 0, settings.TIME_PERIOD)
 
-            value = cache.get(ip)
+            value = cache.get(ip, 0)
             if value >= settings.MAX_VISITS:
                 # Raise redirect exception
                 if domain_is_whitelisted(oip):
