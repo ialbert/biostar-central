@@ -478,9 +478,12 @@ def toggle_spam(request, post, **kwargs):
 
     # Generate logging messages.
     if post.is_spam:
-        text = f'marked post {post_link(post)} as spam'
+        text = f'Restored {post_link(post)} from spam'
     else:
-        text = f'restored post {post_link(post)} from spam'
+        text = f'Marked {post_link(post)} as spam'
+
+    # Set a logging message.
+    messages.success(request, mark_safe(text))
 
     # Submit the log into the database.
     db_logger(user=user, text=text)
