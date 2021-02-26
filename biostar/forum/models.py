@@ -72,7 +72,12 @@ def drop_post_cache(post):
     Drops a post specific template  fragment cache.
     """
     drop_cache("post", post.uid)
+    drop_cache("postmods", post.uid)
 
+def post_cache_key(post, is_mod):
+    """
+    Posts are need different cache based on user authentication.
+    """
 
 
 class Post(models.Model):

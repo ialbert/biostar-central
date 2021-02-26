@@ -1,6 +1,10 @@
 {% extends "post_list.html" %}
 {% load forum_tags %}
+{% load cache %}
 
 {% block sidebar %}
-    {% custom_feed feed_type=tab objs=posts title='People you are following' %}
+    {# Cache key comes from extra context #}
+    {% cache 500 FOLLOWING_CACHE_KEY request.user.pk %}
+        {% custom_feed feed_type=tab objs=posts title='People you are following' %}
+    {% endcache %}
 {% endblock %}

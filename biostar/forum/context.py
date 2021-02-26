@@ -5,7 +5,8 @@ from django.core.cache import cache
 from datetime import timedelta
 from django.db import NotSupportedError
 
-from . import util
+from . import util, const
+
 
 def get_traffic(key='traffic', timeout=300, minutes=60):
     """
@@ -30,16 +31,15 @@ def get_traffic(key='traffic', timeout=300, minutes=60):
 def forum(request):
     '''
     Additional context applied to each request.
-    Note: This function is critically important!
-    The site will not load up without it.
     '''
 
-    #print(request.session.get('res'), 'res', request.COOKIES)
-    res = request.COOKIES.get('resolution', 'x')
-    width, height = res.split('x')
-
-    params = dict(user=request.user, width=width, height=height,
+    params = dict(user=request.user,
                   TRAFFIC=get_traffic(),
-                  VERSION=VERSION, request=request, site_name=settings.SITE_NAME,
-                  site_domain=settings.SITE_DOMAIN, google_tracker=settings.GOOGLE_TRACKER)
+                  VERSION=VERSION,
+                  request=request,
+                  site_name=settings.SITE_NAME,
+                  site_domain=settings.SITE_DOMAIN,
+                  google_tracker=settings.GOOGLE_TRACKER,
+                  FOLLOWING_CACHE_KEY=const.FOLLOWING_CACHE_KEY,
+                  )
     return params

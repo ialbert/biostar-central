@@ -25,17 +25,6 @@ MAX_TITLE = 400
 MAX_TAGS = 5
 
 
-def valid_ascii(text):
-
-    try:
-        if settings.ENFORCE_ASCII:
-            text.encode('ascii')
-        else:
-            text.encode('utf-8')
-    except Exception as exc:
-        raise ValidationError(f'Title contains invalid characters: {exc}')
-
-
 def valid_language(text):
 
     supported_languages = settings.LANGUAGE_DETECTION
