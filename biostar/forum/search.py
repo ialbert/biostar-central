@@ -312,6 +312,14 @@ def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None,
     return results
 
 
+def clean_index():
+    """
+    Purge the search index of invalid posts ( deleted, spam, etc)
+    """
+
+    return
+
+
 def preform_search(query, fields=None, top=0, sortedby=[], more_like_this=False):
 
     top = top or settings.SIMILAR_FEED_COUNT
