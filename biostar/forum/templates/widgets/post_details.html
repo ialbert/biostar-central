@@ -1,7 +1,9 @@
 {% load forum_tags %}
 {% load cache %}
 
-{% cache 300 post post.uid %}
+
+{#  post  #}
+{% cache 300 POST_CACHE_KEY post.uid %}
 
     <div class="post {{ post.css }} item" data-value="{{ post.uid }}">
 

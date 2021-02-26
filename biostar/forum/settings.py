@@ -41,13 +41,11 @@ PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 # Upload path for pagedown images, relative to media root.
 PAGEDOWN_IMAGE_UPLOAD_PATH = "images"
 
+# TODO:
 REQUIRED_TAGS_URL = "/"
 
 BANNED_IPS = os.path.join(BASE_DIR, 'export', 'logs', 'banned.txt')
 
-
-# Posts cut off when applying a filtre
-CUTOFF = 1000
 
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = ''
@@ -59,18 +57,13 @@ SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
 
 SPAM_INDEX_DIR = 'spammers'
 
-# Ensure posts only have ascii characters.
-ENFORCE_ASCII = True
-
 # Absolute path to spam index directory in export/
 SPAM_INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', SPAM_INDEX_DIR))
 
 # Classify posts and assign a spam score on creation.
 CLASSIFY_SPAM = True
 
-ENABLE_DIGESTS = False
-
-# Disable all asynchronous tasks
+# Disable all tasks
 DISABLE_TASKS = False
 
 # Log the time for each request
@@ -84,7 +77,7 @@ SEARCH_LIMIT = 20
 
 INIT_PLANET = False
 
-
+# TODO: make all tasks conf in one plave
 TASKS_CELERY = False
 
 # Minimum amount of characters to preform searches
@@ -93,6 +86,7 @@ SEARCH_CHAR_MIN = 1
 # Number of results to display per page.
 SEARCH_RESULTS_PER_PAGE = 50
 
+# How many posts to index in one job.
 BATCH_INDEXING_SIZE = 1000
 
 
@@ -101,6 +95,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'biostar.forum.context.forum'
 ]
 
+# Set the number of items in each feed.
 VOTE_FEED_COUNT = 10
 LOCATION_FEED_COUNT = 5
 AWARDS_FEED_COUNT = 10
