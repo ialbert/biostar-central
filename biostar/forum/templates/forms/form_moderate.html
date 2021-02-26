@@ -12,10 +12,14 @@
 
         <div class="ui segment">
             <div class="field">
-                <label>Select an action</label>
+                <label>Select a moderation choice</label>
                 {{ form.action }}
             </div>
         </div>
+
+        <p>
+            If a post is a duplicate please indicate that as an answer.
+        </p>
 
         {% if form.comment %}
 

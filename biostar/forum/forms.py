@@ -226,7 +226,7 @@ class PostModForm(forms.Form):
         ]
 
         # Options for top level posts.
-        if post.is_toplevel:
+        if post.is_toplevel and settings.ALLOW_POST_CLOSING:
             suffix = [(CLOSE, "Close post ( reason required ). "),
                       (DUPLICATE, "Duplicated post ( links required ).")]
             choices = [(BUMP_POST, "Bump post.")] + choices + suffix

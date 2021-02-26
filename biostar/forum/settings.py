@@ -45,7 +45,6 @@ REQUIRED_TAGS_URL = "/"
 
 BANNED_IPS = os.path.join(BASE_DIR, 'export', 'logs', 'banned.txt')
 
-
 # Posts cut off when applying a filtre
 CUTOFF = 1000
 
@@ -53,6 +52,9 @@ CUTOFF = 1000
 GRAVATAR_ICON = ''
 
 SPAM_THRESHOLD = .5
+
+# Allows post closing.
+ALLOW_POST_CLOSING = False
 
 # Spam index used to classify new posts as spam or ham.
 SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
@@ -95,7 +97,6 @@ SEARCH_RESULTS_PER_PAGE = 50
 
 BATCH_INDEXING_SIZE = 1000
 
-
 # Add another context processor to first template.
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'biostar.forum.context.forum'
@@ -108,7 +109,7 @@ REPLIES_FEED_COUNT = 15
 
 SIMILAR_FEED_COUNT = 30
 
-SESSION_UPDATE_SECONDS = 40
+SESSION_UPDATE_SECONDS = 60
 
 # Maximum number of awards every SESSION_UPDATE_SECONDS.
 MAX_AWARDS = 2
