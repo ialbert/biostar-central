@@ -3,34 +3,6 @@
 
 <div class="ui large wrap-text">
 
-{% comment %}
-    <div class="event">
-        <div class="ui container">
-            <b>Who's here</b>
-            <a href="{% url "community_list" %}">&bull; All <i class="ui angle small double right icon"></i></a>
-            <div class="ui relaxed list">
-                <div id="recent">
-
-                    <div v-for="u in users" :key="u.uid">
-                        <div class="item spaced" id="foo">
-                            <a :href="u.url">
-                                    <div class="ui avatar image">
-                                        <img class="ui tiny centered image" :src="u.gravatar">
-                                    </div>
-                                [[ u.name ]]
-                            </a>
-                            [[ u.score ]]
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-        </div>
-    </div>
-    <div class="ui divider"></div>
-{% endcomment %}
-
 
     <div class="event">
         <div class="ui container">
