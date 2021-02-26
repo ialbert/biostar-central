@@ -972,6 +972,18 @@ pre {
 }
 
 
+#traffic {
+  position: fixed;
+  font-size: smaller;
+  bottom: 0px;
+  left: 0px;
+  color: #999999;
+  background-color: white;
+  padding: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+
 @media all and (max-width: 1200px) {
 
     .menu-tablet {

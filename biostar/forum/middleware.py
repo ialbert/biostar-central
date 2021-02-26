@@ -9,23 +9,15 @@ from django.core.cache import cache
 from django.shortcuts import redirect
 from biostar.accounts.models import Profile, Message
 from biostar.accounts.tasks import detect_location
+
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.forum.const import VOTES_COUNT
+
 from . import auth, tasks, const, util
 from .models import Vote
 from .util import now
 
 logger = logging.getLogger("biostar")
-
-
-def get_ip(request):
-    """
-    Attempts to extract the IP number from the HTTP request headers.
-    """
-    ip1 = request.META.get('REMOTE_ADDR', '')
-    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-    ip = ip1 or ip2 or '0.0.0.0'
-    return ip
 
 
 def benchmark(get_response):
@@ -50,7 +42,8 @@ def benchmark(get_response):
         if delta > 1000:
             logger.warning(f"\n***\n*** SLOW: {msg}\n***\a")
         else:
-            logger.info(f'{msg}')
+            if settings.DEBUG:
+                logger.info(f'{msg}')
 
         return response
 
@@ -87,7 +80,7 @@ def ban_ip(get_response):
             return get_response(request)
 
         if user.is_anonymous:
-            oip = get_ip(request)
+            oip = util.get_ip(request)
             ips = oip.split(".")[:-1]
             ip = ".".join(ips)
 
@@ -139,7 +132,7 @@ def user_tasks(get_response):
         update_status(user=user)
 
         # Parses the ip of the request.
-        ip = get_ip(request)
+        ip = util.get_ip(request)
 
         # Find out the time since the last visit.
         elapsed = (now() - user.profile.last_login).total_seconds()

@@ -314,28 +314,6 @@ def valid_awards(user):
     return valid
 
 
-def update_post_views(post, request, minutes=settings.POST_VIEW_MINUTES):
-    "Views are updated per user session"
-
-    # Extract the IP number from the request.
-    ip1 = request.META.get('REMOTE_ADDR', '')
-    ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
-    # 'localhost' is not a valid ip address.
-    ip1 = '' if ip1.lower() == 'localhost' else ip1
-    ip2 = '' if ip2.lower() == 'localhost' else ip2
-    ip = ip1 or ip2 or '0.0.0.0'
-
-    now = util.now()
-    since = now - datetime.timedelta(minutes=minutes)
-
-    # One view per time interval from each IP address.
-    if not PostView.objects.filter(ip=ip, post=post, date__gt=since).exists():
-        # Update the last time
-        PostView.objects.create(ip=ip, post=post, date=now)
-        Post.objects.filter(pk=post.pk).update(view_count=F('view_count') + 1)
-    return post
-
-
 @transaction.atomic
 def apply_vote(post, user, vote_type):
     vote = Vote.objects.filter(author=user, post=post, type=vote_type).first()

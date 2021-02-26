@@ -3,7 +3,7 @@ from datetime import timedelta
 from functools import wraps, lru_cache
 import os
 
-from django.db import models, connections
+
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -17,7 +17,7 @@ from ratelimit.decorators import ratelimit
 from taggit.models import Tag
 
 from biostar.accounts.models import Profile
-from biostar.forum import forms, auth, tasks, util, search
+from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription, Award
 from biostar.utils.decorators import is_moderator
@@ -486,7 +486,6 @@ def post_view(request, uid):
         messages.error(request, "Post does not exist.")
         return redirect("post_list")
 
-    auth.update_post_views(post=post, request=request)
     if not post.is_toplevel:
         return redirect(post.get_absolute_url())
 
@@ -507,6 +506,9 @@ def post_view(request, uid):
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
     # user string
+
+    # Bump post views.
+    models.update_post_views(post=post, request=request, timeout=settings.POST_VIEW_TIMEOUT)
 
     context = dict(post=root, tree=comment_tree, form=form, answers=answers)
 
