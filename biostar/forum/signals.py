@@ -128,7 +128,7 @@ def finalize_post(sender, instance, created, **kwargs):
     # Set the tags on the instance.
     if instance.is_toplevel:
         tags = [Tag.objects.get_or_create(name=name)[0] for name in instance.parse_tags()]
-        instance.tags.remove()
+        instance.tags.clear()
         instance.tags.add(*tags)
 
     # Classify post as spam/ham.
