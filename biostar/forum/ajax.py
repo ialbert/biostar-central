@@ -367,6 +367,7 @@ def ajax_edit(request, uid):
         post.title = fields.get('title', post.title)
         post.type = fields.get('post_type', post.type)
         post.tag_val = fields.get('tag_val', post.tag_val)
+
     post.lastedit_user = request.user
     post.lastedit_date = util.now()
     post.content = fields.get('content', post.content)

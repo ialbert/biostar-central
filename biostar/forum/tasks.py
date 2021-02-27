@@ -169,7 +169,7 @@ def create_user_awards(user_id, limit=settings.MAX_AWARDS):
 
     user = User.objects.filter(id=user_id).first()
     # debugging
-    # Award.objects.all().delete()
+    #Award.objects.all().delete()
 
     # Collect valid targets
     valid = auth.valid_awards(user=user)

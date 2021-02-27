@@ -8,9 +8,7 @@
 
     {#  Post title. #}
     {% if post.is_toplevel %}
-
         {# Show author message about their quarantied post. #}
-
         <div class="title">{{ post.title_prefix }}{{ post.title }}</div>
     {% endif %}
 
@@ -63,7 +61,7 @@
 
                 {# Show tags #}
                 {% if post.is_toplevel %}
-                    {% post_tags post=post show_views=True %}
+                    <span class="tags">{% post_tags post=post show_views=True %}</span>
                 {% endif %}
 
                 {# Show the post actions #}
