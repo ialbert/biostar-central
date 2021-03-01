@@ -4,8 +4,7 @@ from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from django.conf import settings
 import time, random
-from biostar.utils.decorators import spooler, threaded
-from biostar.celery import celery_task
+from biostar.utils.decorators import task
 
 from django.db.models import Q
 
@@ -13,14 +12,6 @@ from django.db.models import Q
 # Do not use logging in tasks! Deadlocking may occur!
 #
 # https://github.com/unbit/uwsgi/issues/1369
-
-if settings.TASKS_CELERY:
-    task = celery_task
-elif settings.MULTI_THREAD:
-    task = threaded
-else:
-    task = spooler
-
 
 def message(msg, level=0):
     print(f"{msg}")

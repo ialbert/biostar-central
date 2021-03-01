@@ -282,7 +282,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     return render(request, template_name=template_name, context=context)
 
 
-@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
+#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def latest(request):
     """
     Show latest post listing.
@@ -333,6 +333,7 @@ def myvotes(request):
     return render(request, template_name="user_votes.html", context=context)
 
 
+#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def tags_list(request):
     """
     Show posts by user
@@ -368,6 +369,7 @@ def myposts(request):
     return post_list(request, topic=MYPOSTS, template_name="user_myposts.html")
 
 
+#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def post_topic(request, topic):
     """
     Show list of posts of a given type
@@ -398,6 +400,7 @@ def mytags(request):
     return post_list(request=request, topic=MYTAGS, template_name="user_mytags.html")
 
 
+#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def community_list(request):
 
     users = User.objects.select_related("profile")
@@ -436,12 +439,14 @@ def community_list(request):
     return render(request, "community_list.html", context=context)
 
 
+#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def badge_list(request):
     badges = Badge.objects.annotate(count=Count("award")).order_by('-count')
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
 
+#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def badge_view(request, uid):
     badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
     target = request.GET.get('user')
@@ -467,6 +472,7 @@ def badge_view(request, uid):
 
 
 @ensure_csrf_cookie
+#@ratelimit(key=RATELIMIT_KEY,  rate='1/m', block=True)
 def post_view(request, uid):
     "Return a detailed view for specific post"
 

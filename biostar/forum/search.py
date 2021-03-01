@@ -281,7 +281,7 @@ def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None,
         Results a tuple of results and an open searcher object.
         """
 
-    per_page = per_page or settings.SEARCH_RESULTS_PER_PAGE
+    per_page = per_page or settings.SEARCH_LIMIT
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'content', 'author_handle']
     ix = ix or init_index()
     searcher = ix.searcher()

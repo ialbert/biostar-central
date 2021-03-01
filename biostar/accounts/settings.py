@@ -58,6 +58,13 @@ ADMIN_UPLOAD_SIZE = 1000
 
 MESSAGES_PER_PAGE = 5
 
+
+# Additional middleware.
+MIDDLEWARE += [
+    'biostar.accounts.middleware.limiter',
+]
+
+
 # Set RECAPTCH keys here.
 RECAPTCHA_PUBLIC_KEY = ""
 RECAPTCHA_PRIVATE_KEY = ""

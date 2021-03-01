@@ -12,14 +12,8 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-# Run tasks in multi threaded mode when UWSGI is not installed.
-MULTI_THREAD = True
-
-# A setting to disable tasks altoghether.
-DISABLE_TASKS = False
-
 # Pagedown
-PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
+#PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
 
 
 LANGUAGE_DETECTION = ["af", "ar", "bg",
@@ -105,6 +99,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'ratelimit.middleware.RatelimitMiddleware',
 
 ]
 
@@ -199,9 +194,11 @@ USE_TZ = True
 # another option: 'ip'
 RATELIMIT_KEY = "header:x-real-ip"
 
+# Rate to limit
+RATELIMIT_RATE = '50/d'
 
-# Configure language detection
-#LANGUAGE_DETECTION = ['en']
+# Turn on rate limiter
+ENABLE_RATELIMIT = True
 
 # The static URL start.
 STATIC_URL = '/static/'
@@ -234,7 +231,14 @@ STATICFILES_FINDERS = [
 LOGGER_NAME = "biostar"
 
 
-TASKS_CELERY = False
+# Options to run tasks
+SPOOL, CELERY, THREADED, DISABLED = range(4)
+
+# Default tasks
+TASKS = SPOOL
+
+# Enable threading,
+ENABLE_THREADS = True
 
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

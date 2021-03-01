@@ -85,7 +85,6 @@ def required_tags(lst):
     """
     Ensure at least one tag is present in the
     """
-
     if not os.path.isfile(settings.REQUIRED_TAGS):
         return
 
@@ -98,6 +97,7 @@ def required_tags(lst):
     source_set = set(lst)
     target_set = set(tags)
 
+    # If one common element is not found, display the required tasks
     if not common_elem(source_set, target_set):
         url = settings.REQUIRED_TAGS_URL
         msg = mark_safe(f"At least one package from <a href='{url}' target='_blank'>this list</a> is required.")

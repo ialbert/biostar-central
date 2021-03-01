@@ -3,6 +3,8 @@ from functools import partial
 from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib import messages
+
+from biostar.celery import celery_task
 logger = logging.getLogger('biostar')
 import threading
 
@@ -21,12 +23,10 @@ def is_moderator(f):
 
 def thread(*args, **kwargs):
     def outer(func, **kwargs):
-        if settings.DISABLE_TASKS:
-            return
 
         @functools.wraps(func)
         def inner(*args, **kwargs):
-            if settings.MULTI_THREAD:
+            if settings.ENABLE_THREADS:
                 # Run process in separate thread.
                 logger.info(f"new thread for function f{func} {args} {kwargs}")
                 t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
@@ -42,7 +42,7 @@ def thread(*args, **kwargs):
                 while not ticker.wait(secs):
                     func(*args, **kwargs)
 
-            if settings.MULTI_THREAD:
+            if settings.ENABLE_THREADS:
                 # Run process in separate thread, once.
                 logger.info(f"new time thread for function f{func} {args} {kwargs}")
                 t = threading.Thread(target=loop, daemon=True)
@@ -100,3 +100,24 @@ def threaded(f):
     worker = thread()(f)
     return worker
 
+
+def task(f):
+
+    # Run tasks using uwsgi
+    if settings.TASKS == settings.SPOOL:
+        return spooler(f)
+
+    # Run tasks using celery
+    if settings.TASKS == settings.CELERY:
+        return celery_task(f)
+
+    # Run tasks using threads
+    if settings.TASKS == settings.THREADED:
+        return threaded(f)
+
+    # Tasks are disabled altogether
+    if settings.TASKS == settings.DISABLED:
+        return
+
+    # Default to threads
+    return threaded(f)

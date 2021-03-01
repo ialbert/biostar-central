@@ -91,15 +91,16 @@ def gravatar(user, size=80):
         # Removes spammy images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
 
-        style = settings.GRAVATAR_ICON or "monsterid"
+        style = "monsterid"
     elif user.profile.is_moderator:
-        style = settings.GRAVATAR_ICON or "robohash"
+        style = "robohash"
     elif user.profile.score > 100:
-        style = settings.GRAVATAR_ICON or "retro"
+        style = "retro"
     elif user.profile.score > 0:
-        style = settings.GRAVATAR_ICON or "identicon"
+        style = "identicon"
     else:
-        style = settings.GRAVATAR_ICON or "mp"
+        style = "mp"
+    style = settings.GRAVATAR_ICON or style
 
     return gravatar_url(email=email, style=style, size=size)
 
