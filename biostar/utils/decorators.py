@@ -3,8 +3,8 @@ from functools import partial
 from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib import messages
-
 from biostar.celery import celery_task
+
 logger = logging.getLogger('biostar')
 import threading
 

@@ -1,6 +1,7 @@
 {% extends "forum_list.html" %}
 {% load forum_tags %}
 {% load accounts_tags %}
+{% load cache %}
 
 {% block headtitle %}
     Messages
@@ -47,6 +48,10 @@
 
 {% block sidebar %}
     <div class="ui large wrap-text" id="sidebar">
-        {% custom_feed feed_type='messages' objs=all_messages title='Messages by' %}
+
+    {% cache 500 "messages" request.user.pk %}
+        {% custom_feed ftype='messages' objs=all_messages title='Messages by' %}
+    {% endcache %}
     </div>
+
 {% endblock %}

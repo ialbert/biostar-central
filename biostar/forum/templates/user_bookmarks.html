@@ -4,6 +4,6 @@
 
 {% block sidebar %}
      {% cache 500 "bookmark" request.user.pk %}
-        {% custom_feed feed_type=tab objs=posts title='People you have bookmarked' %}
+        {% custom_feed ftype="bookmark" objs=posts title='People you have bookmarked' %}
     {% endcache %}
 {% endblock %}

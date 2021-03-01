@@ -17,6 +17,9 @@ REQUIRED_TAGS = os.path.join(CUSTOM_THEME, 'tags', 'packageList.txt')
 
 REQUIRED_TAGS_URL = 'http://bioconductor.org/packages/devel/BiocViews.html#___Software'
 
+# Rate to limit
+RATELIMIT_RATE = '200/d'
+
 # Post types displayed when creating, empty list displays all types.
 ALLOWED_POST_TYPES = ["Question", "Job", "Tutorial", "News"]
 

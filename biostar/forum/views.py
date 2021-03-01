@@ -275,14 +275,13 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     tab = topic or LATEST
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, order=order, type=topic, limit=limit, avatar=True,
-                   sidebar_key=SIDEBAR_CACHE_KEY)
+    context = dict(posts=posts, tab=tab, order=order, type=topic, limit=limit, avatar=True)
     context.update(extra_context)
+
     # Render the page.
     return render(request, template_name=template_name, context=context)
 
 
-#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def latest(request):
     """
     Show latest post listing.
@@ -315,10 +314,11 @@ def myvotes(request):
     """
     page = request.GET.get('page', 1)
 
-    votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
+    votes = Vote.objects.filter(post__author=request.user).select_related('post', 'post__root',
                                                                             'author__profile').order_by("-date")
     # Create the paginator
-    paginator = CachedPaginator(object_list=votes, per_page=settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(object_list=votes,
+                                per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
     votes = paginator.get_page(page)
@@ -333,7 +333,6 @@ def myvotes(request):
     return render(request, template_name="user_votes.html", context=context)
 
 
-#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def tags_list(request):
     """
     Show posts by user
@@ -350,7 +349,8 @@ def tags_list(request):
     tags = tags.order_by('-nitems')
 
     # Create the paginator
-    paginator = CachedPaginator(cache_key=cache_key, object_list=tags,
+    paginator = CachedPaginator(cache_key=cache_key,
+                                object_list=tags,
                                 per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
@@ -369,7 +369,6 @@ def myposts(request):
     return post_list(request, topic=MYPOSTS, template_name="user_myposts.html")
 
 
-#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def post_topic(request, topic):
     """
     Show list of posts of a given type
@@ -382,7 +381,6 @@ def following(request):
     """
     Show posts followed by user.
     """
-
     return post_list(request, topic=FOLLOWING, template_name="user_following.html")
 
 
@@ -400,7 +398,6 @@ def mytags(request):
     return post_list(request=request, topic=MYTAGS, template_name="user_mytags.html")
 
 
-#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def community_list(request):
 
     users = User.objects.select_related("profile")
@@ -439,14 +436,12 @@ def community_list(request):
     return render(request, "community_list.html", context=context)
 
 
-#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def badge_list(request):
     badges = Badge.objects.annotate(count=Count("award")).order_by('-count')
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
 
-#@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def badge_view(request, uid):
     badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
     target = request.GET.get('user')
@@ -472,7 +467,6 @@ def badge_view(request, uid):
 
 
 @ensure_csrf_cookie
-#@ratelimit(key=RATELIMIT_KEY,  rate='1/m', block=True)
 def post_view(request, uid):
     "Return a detailed view for specific post"
 

@@ -197,8 +197,8 @@ RATELIMIT_KEY = "header:x-real-ip"
 # Rate to limit
 RATELIMIT_RATE = '50/d'
 
-# Turn on rate limiter
-ENABLE_RATELIMIT = True
+# Disable rate limiter
+DISABLE_RATELIMIT = False
 
 # The static URL start.
 STATIC_URL = '/static/'
