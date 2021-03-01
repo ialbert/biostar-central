@@ -2,7 +2,7 @@ import logging
 import json
 from django.test import TestCase
 from django.urls import reverse
-
+from unittest.mock import patch, MagicMock
 from biostar.accounts.models import User, Profile
 
 from biostar.forum import models, views, auth, forms, const, ajax
@@ -90,6 +90,7 @@ class PostTest(TestCase):
         json_response = ajax.ajax_digest(request)
         self.process_response(json_response)
 
+    @patch('biostar.forum.models.Post.save', MagicMock(name="save"))
     def test_inplace_edit(self):
         """
         Test AJAX function for inplace edits
@@ -101,6 +102,10 @@ class PostTest(TestCase):
 
         request = fake_request(url=url, data=data, user=self.owner)
         json_response = ajax.ajax_edit(request, uid=self.post.uid)
+        response_data = json.loads(json_response.content)
+
+        for tag in data['tag_val']:
+            self.assertTrue(tag in response_data['tag_html'], 'Tag not working')
 
         self.process_response(json_response)
 

@@ -346,3 +346,18 @@ def preform_search(query, fields=None, top=0, sortedby=[], more_like_this=False)
     whoosh_results.searcher.close()
 
     return final_results
+
+
+def remove_post(uid, ix=None):
+    """
+    Remove spam from index
+    """
+
+    post = Post.objects.filter(uid=uid).first()
+    ix = ix or init_index()
+
+    # Remove this post from index
+    writer = AsyncWriter(ix)
+    writer.delete_by_term('uid', text=post.uid)
+    writer.commit()
+    return

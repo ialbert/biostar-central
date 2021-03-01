@@ -32,6 +32,8 @@ def classify_spam(uid):
 
     # Non spam posts are left alone.
     if post.not_spam:
+        # Ensure this post is removed from spam index
+        spam.remove_spam(uid=uid)
         return
     try:
         # Give this post a spam score and quarantine it if necessary.
@@ -42,6 +44,18 @@ def classify_spam(uid):
 
     except Exception as exc:
         message(exc)
+
+
+@task
+def remove_index(uid):
+    from biostar.forum import search
+
+    try:
+        # Remove a given post from search index
+        search.remove_post(uid=uid)
+    except Exception as exc:
+        message(exc)
+    return
 
 
 @task

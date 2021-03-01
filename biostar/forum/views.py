@@ -39,7 +39,7 @@ POST_TYPE = dict(
     planet=Post.BLOG,
     tools=Post.TOOL,
     news=Post.NEWS,
-    pages=Post.PAGE
+    pages=Post.PAGE,
 )
 
 LIMIT_MAP = dict(
@@ -119,7 +119,7 @@ def get_posts(user, topic="", order="", limit=None):
         query = query.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
 
     elif topic == MYPOSTS and user.is_authenticated:
-        # Show users all of there posts ( deleted, spam, or quarantined )
+        # Show users all of their posts ( deleted, spam, or quarantined )
         query = Post.objects.filter(author=user)
 
     elif topic == MYVOTES and user.is_authenticated:

@@ -39,7 +39,7 @@ VOTES_COUNT = 'vote_count'
 
 # Tabs to pick from in post listing
 MYVOTES, MYPOSTS, MYTAGS, OPEN, \
-FOLLOWING, BOOKMARKS, SHOW_SPAM = ["myvotes", "myposts", "mytags", "open", "following", "spam", "bookmarks"]
+FOLLOWING, SHOW_SPAM, BOOKMARKS = ["myvotes", "myposts", "mytags", "open", "following", "spam", "bookmarks"]
 
 JOBS, TOOLS, TUTORIALS, FORUM, PLANET, LATEST = ["jobs", "tools", "tutorials", "forum", "planet", "latest"]
 
