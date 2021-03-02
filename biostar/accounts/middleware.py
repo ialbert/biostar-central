@@ -14,10 +14,6 @@ def limiter(get_response):
     def middleware(request):
         user = request.user
 
-        # Rate limiting is disabled in the settings.
-        if settings.DISABLE_RATELIMIT:
-            return get_response(request)
-
         # Only check anonymous users
         if user.is_anonymous:
 

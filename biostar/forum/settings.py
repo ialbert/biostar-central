@@ -1,10 +1,11 @@
 # Inherit from the main settings file.
 import os, sys
+
+
 from biostar.accounts.settings import *
 
 # Inherit from the accounts settings file.
 from biostar.planet.settings import *
-
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -23,12 +24,6 @@ AWARDS_PER_PAGE = 50
 
 STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
 
-
-# Whitelist of Ip addresses to not rate limit.
-IP_WHITELIST = [
-
-]
-
 # Enable image upload
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 
@@ -44,6 +39,9 @@ REQUIRED_TAGS_URL = "/"
 
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = None
+
+# Valid options; block, disabled, threaded, uwsgi, celery.
+TASK_RUNNER = 'celery'
 
 # Threshold to classify spam
 SPAM_THRESHOLD = .5

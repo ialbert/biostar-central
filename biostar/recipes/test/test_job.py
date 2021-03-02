@@ -45,7 +45,7 @@ class JobViewTest(TestCase):
         self.job = auth.create_job(analysis=self.recipe, user=self.owner)
         self.job.state = models.Job.QUEUED
         self.job.save()
-        scheduler.timer([])
+        #scheduler
 
     @patch('biostar.recipes.models.Job.save', MagicMock(name="save"))
     def test_job_edit(self):

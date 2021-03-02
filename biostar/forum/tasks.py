@@ -4,7 +4,7 @@ from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from django.conf import settings
 import time, random
-from biostar.utils.decorators import task
+from biostar.utils.decorators import task, timer
 
 from django.db.models import Q
 
@@ -44,7 +44,6 @@ def classify_spam(uid):
 
     except Exception as exc:
         message(exc)
-
 
 @task
 def remove_index(uid):
@@ -116,6 +115,9 @@ def created_post(pid):
     pass
 
 
+# @timer(2)
+# def inner_timer(*args, **kwargs):
+#     print("TIMERRRRR " *10)
 #
 # This timer leads to problems as described in
 #
@@ -166,11 +168,14 @@ def created_post(pid):
 # @shared_task
 # @task
 @task
-def create_user_awards(user_id, limit=settings.MAX_AWARDS):
+def create_user_awards(user_id, limit=None):
     from biostar.accounts.models import User
     from biostar.forum.models import Award, Badge, Post
     from biostar.forum.awards import ALL_AWARDS
     from biostar.forum import util, auth
+    from django.conf import settings
+
+    limit = limit or settings.MAX_AWARDS
 
     user = User.objects.filter(id=user_id).first()
     # debugging

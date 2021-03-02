@@ -247,7 +247,6 @@ def release_quar(request, uid):
 
     return redirect('/')
 
-
 @ensure_csrf_cookie
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """

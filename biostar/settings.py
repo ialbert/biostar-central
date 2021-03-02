@@ -191,14 +191,13 @@ USE_TZ = True
 
 # Key used to set ratelimitter.
 # https://django-ratelimit.readthedocs.io/en/stable/security.html
-# another option: 'ip'
 RATELIMIT_KEY = "header:x-real-ip"
 
 # Rate to limit
-RATELIMIT_RATE = '50/d'
+RATELIMIT_RATE = '50/h'
 
-# Disable rate limiter
-DISABLE_RATELIMIT = False
+# Set rate limit high to disable.
+#RATELIMIT_RATE = '50000000/d'
 
 # The static URL start.
 STATIC_URL = '/static/'
@@ -230,16 +229,10 @@ STATICFILES_FINDERS = [
 # Apply default logger setting.
 LOGGER_NAME = "biostar"
 
+# Valid options; block, disabled, threaded, uwsgi, celery.
+TASK_RUNNER = 'uwsgi'
 
-# Options to run tasks
-SPOOL, CELERY, THREADED, DISABLED = range(4)
-
-# Default tasks
-TASKS = SPOOL
-
-# Enable threading,
-ENABLE_THREADS = True
-
+BEAT_TASKS = {}
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_BACKEND = 'sparkpost.django.email_backend.SparkPostEmailBackend'

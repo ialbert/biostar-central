@@ -1,12 +1,9 @@
 from .settings import *
 
 # Do not multi-thread tests.
-ENABLE_THREADS = False
-
+TASK_RUNNER = 'block'
 
 INIT_PLANET = False
-
-#TASKS = DISABLED
 
 # Skip hitting the spam indexe when creating test posts
 CLASSIFY_SPAM = False

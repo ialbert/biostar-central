@@ -91,7 +91,6 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     tmpl = loader.get_template(template_name=template)
     context = dict(sender=sender)
     context.update(extra_context)
-
     body = tmpl.render(context)
     html = mistune.markdown(body, escape=False)
 

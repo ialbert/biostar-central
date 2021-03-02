@@ -16,6 +16,12 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+# Whitelist of Ip addresses to not rate limit.
+IP_WHITELIST = [
+
+]
+
+
 PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
