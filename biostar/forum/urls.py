@@ -99,7 +99,11 @@ urlpatterns = [
     # Include the planet urls
     path('planet/', include(planet_patterns)),
 
+    # Add admin urls.
+    path('admin/', admin.site.urls),
+
 ]
+
 
 if settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
 

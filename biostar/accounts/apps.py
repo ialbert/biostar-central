@@ -90,9 +90,10 @@ def init_users():
             logger.info(f"Creating admin user: {user.email}")
         else:
             # You might want to reapply the default ADMIN password on migration.
-            # This will destroy existing admin sessions.
+            # This will log out the user from their current session.
             #user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
             #user.save()
+
             #logger.info(f"Resetting password for admin user: {user.email}, {user.username}")
             logger.info(f"Admin user: {user.email} already exists")
             pass
