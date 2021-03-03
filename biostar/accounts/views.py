@@ -1,5 +1,5 @@
 import logging
-from mistune import markdown
+import mistune
 from allauth.socialaccount.models import SocialApp
 from django.conf import settings
 from django.contrib import messages
@@ -31,10 +31,21 @@ from .models import User, Profile, Message, Log
 from .tokens import account_verification_token
 from .util import now, get_uuid, get_ip
 
+import bleach
+from bleach.callbacks import nofollow
 
 logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
+
+def markdown(text):
+
+    # Add admin urls.
+    html = mistune.markdown(text)
+
+    html = bleach.linkify(text=html, callbacks=[nofollow], skip_tags=['pre', 'code'])
+
+    return html
 
 
 def edit_profile(request):

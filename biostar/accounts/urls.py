@@ -7,7 +7,6 @@ from biostar.accounts import views
 account_patterns = [
     # Get the reset/ urls
     path('', views.listing, name="accounts_index"),
-    path('admin/', admin.site.urls, name='django_admin'),
 
     path(r'password/reset/', views.password_reset, name='password_reset'),
     path(r'password/reset/done/', views.password_reset_done, name='password_reset_done'),

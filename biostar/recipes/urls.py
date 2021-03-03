@@ -104,6 +104,9 @@ urlpatterns = [
     # Include the accounts urls
     path(r'accounts/', include(account_patterns)),
 
+    # Add admin urls.
+    path('admin/', admin.site.urls),
+
 ]
 
 if settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
