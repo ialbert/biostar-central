@@ -1,6 +1,9 @@
 {% extends "post_list.html" %}
+{% load cache %}
 {% load forum_tags %}
 
 {% block sidebar %}
-    {% custom_feed feed_type=tab objs=posts title='People you have bookmarked' %}
+     {% cache 500 "bookmark" request.user.pk %}
+        {% custom_feed ftype="bookmark" objs=posts title='People you have bookmarked' %}
+    {% endcache %}
 {% endblock %}

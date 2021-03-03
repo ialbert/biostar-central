@@ -446,11 +446,11 @@ def highlight(hit, field):
 
 
 @register.inclusion_tag('widgets/feed_custom.html')
-def custom_feed(objs, feed_type='', title=''):
+def custom_feed(objs, ftype='', title=''):
     users = ()
-    if feed_type == 'messages':
+    if ftype == 'messages':
         users = set(m.sender for m in objs)
-    if feed_type in ['following', 'bookmarks', 'votes']:
+    if ftype in ['follow', 'bookmark', 'votes']:
         users = set(o.author for o in objs)
 
     context = dict(users=users, title=title)

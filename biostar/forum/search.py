@@ -281,7 +281,7 @@ def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None,
         Results a tuple of results and an open searcher object.
         """
 
-    per_page = per_page or settings.SEARCH_RESULTS_PER_PAGE
+    per_page = per_page or settings.SEARCH_LIMIT
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'content', 'author_handle']
     ix = ix or init_index()
     searcher = ix.searcher()
@@ -346,3 +346,18 @@ def preform_search(query, fields=None, top=0, sortedby=[], more_like_this=False)
     whoosh_results.searcher.close()
 
     return final_results
+
+
+def remove_post(uid, ix=None):
+    """
+    Remove spam from index
+    """
+
+    post = Post.objects.filter(uid=uid).first()
+    ix = ix or init_index()
+
+    # Remove this post from index
+    writer = AsyncWriter(ix)
+    writer.delete_by_term('uid', text=post.uid)
+    writer.commit()
+    return

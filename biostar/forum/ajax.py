@@ -447,10 +447,13 @@ def handle_search(request):
 
     query = request.GET.get('query')
     if query:
-        users = list(User.objects.filter(username__icontains=query).values_list('username', flat=True)[:20])
+        users = User.objects.filter(username__icontains=query
+                                    ).values_list('username', flat=True
+                                                  ).order_by('profile__score')
     else:
-        users = list(User.objects.order_by('profile__score').values_list('username', flat=True)[:20])
+        users = User.objects.order_by('profile__score').values_list('username', flat=True)
 
+    users = list(users[:20])
     # Return list of users matching username
     return ajax_success(users=users, msg="Username searched")
 

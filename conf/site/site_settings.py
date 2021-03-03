@@ -1,6 +1,5 @@
 import os
 import uuid
-import requests
 import logging
 import platform
 
@@ -31,11 +30,7 @@ DEFAULT_ADMIN_PASSWORD = SECRET_KEY
 
 # Attempts to detect hostname so that automatic deployment works.
 # It is best to set it with known data.
-try:
-    SITE_DOMAIN = requests.get('https://checkip.amazonaws.com').text.strip()
-except Exception as err:
-    SITE_DOMAIN = platform.node()
-
+SITE_DOMAIN = platform.node()
 
 SITE_ID = 1
 HTTP_PORT = ''
@@ -58,6 +53,9 @@ DATABASES = {
 }
 
 WSGI_APPLICATION = 'conf.run.site_wsgi.application'
+
+# Valid options; block, d_worker, threaded, uwsgi, celery.
+TASK_RUNNER = 'uwsgi'
 
 SESSION_COOKIE_SECURE = True
 

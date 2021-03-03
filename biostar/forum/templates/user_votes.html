@@ -1,6 +1,7 @@
 {% extends "forum_list.html" %}
 {% load forum_tags %}
 {% load accounts_tags %}
+{% load cache %}
 
 {% block headtitle %}
     Votes
@@ -41,5 +42,8 @@
 {% endblock %}
 
 {% block sidebar %}
-    {% custom_feed feed_type='votes' objs=votes title='People voting on your posts' %}
+    {% cache 500 "votes" request.user.pk %}
+        {% custom_feed ftype="votes" objs=votes title="People voting on your posts" %}
+    {% endcache %}
+
 {% endblock %}

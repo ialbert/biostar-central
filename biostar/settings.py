@@ -12,12 +12,6 @@ def join(*args):
     return os.path.abspath(os.path.join(*args))
 
 
-# Run tasks in multi threaded mode when UWSGI is not installed.
-MULTI_THREAD = True
-
-# A setting to disable tasks altoghether.
-DISABLE_TASKS = False
-
 # Pagedown
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
 
@@ -90,8 +84,7 @@ DEFAULT_APPS = [
     'compressor',
     'taggit',
     'snowpenguin.django.recaptcha2',
-    'django_celery_results',
-    'django_celery_beat'
+
 ]
 
 # Enabled apps.
@@ -196,12 +189,13 @@ USE_TZ = True
 
 # Key used to set ratelimitter.
 # https://django-ratelimit.readthedocs.io/en/stable/security.html
-# another option: 'ip'
 RATELIMIT_KEY = "header:x-real-ip"
 
+# Rate to limit
+RATELIMIT_RATE = '50/h'
 
-# Configure language detection
-#LANGUAGE_DETECTION = ['en']
+# Set rate limit high to disable.
+#RATELIMIT_RATE = '50000000/d'
 
 # The static URL start.
 STATIC_URL = '/static/'
@@ -233,8 +227,16 @@ STATICFILES_FINDERS = [
 # Apply default logger setting.
 LOGGER_NAME = "biostar"
 
+# Valid options; block, d_worker, threaded, uwsgi, celery.
+TASK_RUNNER = 'uwsgi'
 
-TASKS_CELERY = False
+# Add celery apps to the installed set
+#CELERY_APPS = ['django_celery_results', 'django_celery_beat']
+#INSTALLED_APPS += CELERY_APPS
+
+TASK_MODULES = []
+
+BEAT_TASKS = {}
 
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

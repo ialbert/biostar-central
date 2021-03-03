@@ -50,8 +50,10 @@
 
 {% block sidebar %}
 
-        {% include "banners/insert-sidebar-top.html" %}
+     {% include "banners/insert-sidebar-top.html" %}
 
+     {% cache 500 "default" request.user.pk %}
         {% default_feed user=request.user %}
+     {% endcache %}
 
 {% endblock %}

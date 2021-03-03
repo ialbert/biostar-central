@@ -33,6 +33,7 @@ all: recipes serve
 accounts:
 	@echo "*** Setting variables for accounts app."
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
+	$(eval CELERY_CONF := biostar/celeryconf.py)
 	$(eval DJANGO_APP := biostar.accounts)
 
 emailer:
@@ -46,6 +47,8 @@ recipes:
 	$(eval DJANGO_APP := biostar.recipes)
 	$(eval LOAD_COMMAND := project)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
+	$(eval WSGI_FILE := biostar/recipes/wsgi.py)
+	$(eval TASKS_MODULE := biostar.recipes.tasks)
 	$(eval TARGET:=recipes)
 
 
@@ -55,6 +58,8 @@ bioconductor:
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
+	$(eval WSGI_FILE := themes/bioconductor/wsgi.py)
+	$(eval TASKS_MODULE := biostar.forum.tasks)
 	$(eval TARGET:=supportupgrade)
 
 forum:
@@ -63,6 +68,8 @@ forum:
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
+	$(eval TASKS_MODULE := biostar.forum.tasks)
+	$(eval WSGI_FILE := biostar/forum/wsgi.py)
 
 echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -135,8 +142,8 @@ save:
 
 uwsgi: init
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
-	@echo UWSGI_INI=${UWSGI_INI}
-	uwsgi --ini ${UWSGI_INI}
+	@echo WSGI_FILE=${WSGI_FILE}
+	uwsgi --http :8000 --wsgi-file ${WSGI_FILE} --master --spooler export/spooler/ --pythonpath $(shell pwd) --import ${TASKS_MODULE}
 
 transfer:
 	python manage.py migrate --settings biostar.forum.settings
@@ -151,6 +158,16 @@ config:
 
 install:
 	cd conf/ansible && make install
+
+redis:
+	# Turn on redis
+	redis-server
+
+celery:
+	# Run celery ( including beat )
+	# Requires redis to be ran in a different shell.
+	@echo CELERY_CONF=${CELERY_CONF}
+	celery -A biostar worker -B -l INFO
 
 remote_transfer:
 	cd conf/ansible && make transfer

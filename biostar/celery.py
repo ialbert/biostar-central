@@ -1,6 +1,8 @@
 from __future__ import absolute_import
 from django.conf import settings
+import functools
 from celery.utils.log import get_task_logger
+from celery.schedules import crontab
 import os
 
 #from biostar import const
@@ -20,7 +22,7 @@ app.config_from_object('biostar.celeryconf')
 
 # Discover tasks in applications.
 app.autodiscover_tasks(
-    lambda: ["biostar.forum.tasks"]
+    lambda: settings.TASK_MODULES
 )
 
 @app.task
@@ -34,9 +36,3 @@ def call_command(name, *args, **kwargs):
 def test(*args, **kwds):
     logger.info(f"*** executing task {__name__} {args}, {kwds}")
 
-
-def celery_task(func):
-    worker = app.task(func)
-    # Compatible with uwsgi interface.
-    worker.spool = worker.delay
-    return worker

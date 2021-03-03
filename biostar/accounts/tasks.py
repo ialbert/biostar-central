@@ -7,8 +7,7 @@ import toml as hjson
 import mistune
 from django.conf import settings
 from django.template import loader
-from biostar.utils.decorators import spooler, threaded
-from biostar.celery import celery_task
+from biostar.utils.decorators import task
 
 #
 # Do not use logging in tasks! Deadlocking may occur!
@@ -18,15 +17,6 @@ from biostar.celery import celery_task
 
 def message(msg, level=0):
     print(f"{msg}")
-
-
-if settings.TASKS_CELERY:
-    task = celery_task
-elif settings.MULTI_THREAD:
-    task = threaded
-else:
-    task = spooler
-
 
 @task
 def detect_location(ip, user_id):
@@ -101,7 +91,6 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     tmpl = loader.get_template(template_name=template)
     context = dict(sender=sender)
     context.update(extra_context)
-
     body = tmpl.render(context)
     html = mistune.markdown(body, escape=False)
 

@@ -152,6 +152,16 @@ def search_spam(post, ix,):
     return similar_content
 
 
+def remove_spam(uid):
+    """
+    Remove spam from index
+    """
+    ix = init_spam_index()
+    search.remove_post(uid=uid, ix=ix)
+    logger.info("Removed post from spam index.")
+    return
+
+
 def compute_score(post, ix=None):
 
     ix = ix or init_spam_index()

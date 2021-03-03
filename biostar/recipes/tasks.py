@@ -4,7 +4,7 @@ This is active only when deployed via UWSGI
 
 import logging, time, shutil, subprocess
 from django.core import management
-from biostar.utils.decorators import spool, timer
+from biostar.utils.decorators import task, timer
 
 import time
 
@@ -25,8 +25,14 @@ def send_emails(*args ,**kwargs):
         logger.error(exce)
 
 
+# @timer(2)
+# def test(*args ,**kwargs):
+#     print('TESTING ' *10)
+#     logger.info('TESTING'*10)
+
+
 @timer(30)
-def scheduler(args):
+def scheduler(*args, **kwargs):
     from biostar.recipes.models import Job
 
     # Check for queued jobs.
@@ -62,7 +68,7 @@ def scheduler(args):
 #     logger.info(f"<- JOB END {value}")
 
 
-@spool(pass_arguments=True)
+@task
 def execute_job(job_id):
     """
     Execute job in spooler.

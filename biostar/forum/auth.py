@@ -17,7 +17,7 @@ from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.shortcuts import reverse
 from biostar.accounts.models import Profile
-from . import util, awards, auth
+from . import util, awards, tasks
 from .const import *
 from .models import Post, Vote, PostView, Subscription, Award, Badge, delete_post_cache
 from django.utils.safestring import mark_safe
@@ -91,15 +91,16 @@ def gravatar(user, size=80):
         # Removes spammy images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
 
-        style = settings.GRAVATAR_ICON or "monsterid"
+        style = "monsterid"
     elif user.profile.is_moderator:
-        style = settings.GRAVATAR_ICON or "robohash"
+        style = "robohash"
     elif user.profile.score > 100:
-        style = settings.GRAVATAR_ICON or "retro"
+        style = "retro"
     elif user.profile.score > 0:
-        style = settings.GRAVATAR_ICON or "identicon"
+        style = "identicon"
     else:
-        style = settings.GRAVATAR_ICON or "mp"
+        style = "mp"
+    style = settings.GRAVATAR_ICON or style
 
     return gravatar_url(email=email, style=style, size=size)
 
@@ -479,8 +480,17 @@ def toggle_spam(request, post, **kwargs):
     # Generate logging messages.
     if post.is_spam:
         text = f'Restored {post_link(post)} from spam'
+
+        # Add to search index in the next round
+        Post.objects.filter(id=post.id).update(indexed=False)
     else:
         text = f'Marked {post_link(post)} as spam'
+
+        # Remove spam from search index
+        tasks.remove_index.spool(uid=post.uid)
+
+    # Classify post as spam.
+    tasks.classify_spam.spool(uid=post.uid)
 
     # Set a logging message.
     messages.success(request, mark_safe(text))

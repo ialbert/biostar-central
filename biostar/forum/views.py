@@ -39,7 +39,7 @@ POST_TYPE = dict(
     planet=Post.BLOG,
     tools=Post.TOOL,
     news=Post.NEWS,
-    pages=Post.PAGE
+    pages=Post.PAGE,
 )
 
 LIMIT_MAP = dict(
@@ -119,7 +119,7 @@ def get_posts(user, topic="", order="", limit=None):
         query = query.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
 
     elif topic == MYPOSTS and user.is_authenticated:
-        # Show users all of there posts ( deleted, spam, or quarantined )
+        # Show users all of their posts ( deleted, spam, or quarantined )
         query = Post.objects.filter(author=user)
 
     elif topic == MYVOTES and user.is_authenticated:
@@ -247,7 +247,6 @@ def release_quar(request, uid):
 
     return redirect('/')
 
-
 @ensure_csrf_cookie
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
@@ -275,14 +274,13 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     tab = topic or LATEST
 
     # Fill in context.
-    context = dict(posts=posts, tab=tab, order=order, type=topic, limit=limit, avatar=True,
-                   sidebar_key=SIDEBAR_CACHE_KEY)
+    context = dict(posts=posts, tab=tab, order=order, type=topic, limit=limit, avatar=True)
     context.update(extra_context)
+
     # Render the page.
     return render(request, template_name=template_name, context=context)
 
 
-@ratelimit(key=RATELIMIT_KEY,  rate='100/m')
 def latest(request):
     """
     Show latest post listing.
@@ -315,10 +313,11 @@ def myvotes(request):
     """
     page = request.GET.get('page', 1)
 
-    votes = Vote.objects.filter(post__author=request.user).prefetch_related('post', 'post__root',
+    votes = Vote.objects.filter(post__author=request.user).select_related('post', 'post__root',
                                                                             'author__profile').order_by("-date")
     # Create the paginator
-    paginator = CachedPaginator(object_list=votes, per_page=settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(object_list=votes,
+                                per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
     votes = paginator.get_page(page)
@@ -349,7 +348,8 @@ def tags_list(request):
     tags = tags.order_by('-nitems')
 
     # Create the paginator
-    paginator = CachedPaginator(cache_key=cache_key, object_list=tags,
+    paginator = CachedPaginator(cache_key=cache_key,
+                                object_list=tags,
                                 per_page=settings.POSTS_PER_PAGE)
 
     # Apply the votes paging.
@@ -380,7 +380,6 @@ def following(request):
     """
     Show posts followed by user.
     """
-
     return post_list(request, topic=FOLLOWING, template_name="user_following.html")
 
 

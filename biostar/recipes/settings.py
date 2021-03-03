@@ -23,6 +23,8 @@ MAX_PROJECTS = 20
 # Root directory relative to the job path usd to store logs.
 JOB_LOGDIR = 'runlog'
 
+# Valid options; block, d_worker, threaded, uwsgi, celery.
+TASK_RUNNER = 'threaded'
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 

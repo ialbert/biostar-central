@@ -17,3 +17,12 @@ def get_ip(request):
     ip2 = request.META.get('HTTP_X_FORWARDED_FOR', '').split(",")[0].strip()
     ip = ip1 or ip2 or '0.0.0.0'
     return ip
+
+def ip_triplet(request):
+    """
+    Attempt to extract first three number from ip adress.
+    """
+    oip = get_ip(request=request)
+    ips = oip.split(".")[:-1]
+    ip = ".".join(ips)
+    return ip

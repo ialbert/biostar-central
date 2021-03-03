@@ -4,8 +4,7 @@ from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from django.conf import settings
 import time, random
-from biostar.utils.decorators import spooler, threaded
-from biostar.celery import celery_task
+from biostar.utils.decorators import task, timer
 
 from django.db.models import Q
 
@@ -13,14 +12,6 @@ from django.db.models import Q
 # Do not use logging in tasks! Deadlocking may occur!
 #
 # https://github.com/unbit/uwsgi/issues/1369
-
-if settings.TASKS_CELERY:
-    task = celery_task
-elif settings.MULTI_THREAD:
-    task = threaded
-else:
-    task = spooler
-
 
 def message(msg, level=0):
     print(f"{msg}")
@@ -41,6 +32,8 @@ def classify_spam(uid):
 
     # Non spam posts are left alone.
     if post.not_spam:
+        # Ensure this post is removed from spam index
+        spam.remove_spam(uid=uid)
         return
     try:
         # Give this post a spam score and quarantine it if necessary.
@@ -51,6 +44,17 @@ def classify_spam(uid):
 
     except Exception as exc:
         message(exc)
+
+@task
+def remove_index(uid):
+    from biostar.forum import search
+
+    try:
+        # Remove a given post from search index
+        search.remove_post(uid=uid)
+    except Exception as exc:
+        message(exc)
+    return
 
 
 @task
@@ -111,6 +115,9 @@ def created_post(pid):
     pass
 
 
+# @timer(2)
+# def inner_timer(*args, **kwargs):
+#     print("TIMERRRRR " *10)
 #
 # This timer leads to problems as described in
 #
@@ -161,11 +168,14 @@ def created_post(pid):
 # @shared_task
 # @task
 @task
-def create_user_awards(user_id, limit=settings.MAX_AWARDS):
+def create_user_awards(user_id, limit=None):
     from biostar.accounts.models import User
     from biostar.forum.models import Award, Badge, Post
     from biostar.forum.awards import ALL_AWARDS
     from biostar.forum import util, auth
+    from django.conf import settings
+
+    limit = limit or settings.MAX_AWARDS
 
     user = User.objects.filter(id=user_id).first()
     # debugging
