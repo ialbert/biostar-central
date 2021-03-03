@@ -43,7 +43,7 @@ REQUIRED_TAGS_URL = "/"
 GRAVATAR_ICON = None
 
 # Valid options; block, disabled, threaded, uwsgi, celery.
-TASK_RUNNER = 'celery'
+TASK_RUNNER = 'threaded'
 
 # Threshold to classify spam
 SPAM_THRESHOLD = .5
