@@ -181,7 +181,7 @@ def toggle_notify(request):
     user.profile.notify = not user.profile.notify
     user.profile.save()
 
-    msg = "Emails notifications disabled."
+    msg = "Emails notifications d_worker."
     if user.profile.notify:
         msg = "Emails notifications enabled."
 
@@ -220,7 +220,7 @@ def image_upload_view(request):
         raise PermissionDenied()
 
     if not settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
-        raise ImproperlyConfigured('Image upload is disabled')
+        raise ImproperlyConfigured('Image upload is d_worker')
 
     form = forms.ImageUploadForm(data=request.POST, files=request.FILES, user=user)
     if form.is_valid():

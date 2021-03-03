@@ -20,9 +20,9 @@ def is_moderator(f):
     return inner
 
 
-def dtimer():
+def d_timer():
     """
-    Return a disabled timer.
+    Return d_worker timer.
     """
 
     class inner(object):
@@ -35,9 +35,9 @@ def dtimer():
     return inner
 
 
-def btimer():
+def b_timer():
     """
-    Return blocking timer, runs the function once.
+    Return blocking timer
     """
 
     class inner(object):
@@ -50,7 +50,7 @@ def btimer():
     return inner
 
 
-def ttimer():
+def t_timer():
     """
     Return threaded timer
     """
@@ -74,16 +74,16 @@ def ttimer():
     return inner
 
 
-def utimer():
+def u_timer():
     """
-    Ensure uwsgi is installed and return timer
+    Return uwsgi timer
     """
     from uwsgidecorators import timer
 
     return timer
 
 
-def ctimer():
+def c_timer():
     """
     Ensure celery is installed and construct a callable object to match timer interface.
     Inside the __call__, it dynamically adds the given function to the beat schedule.
@@ -134,7 +134,7 @@ def thread(*args, **kwargs):
     return outer
 
 
-def spooler():
+def u_worker():
     """
     Return a uwsgi spooler compatible with celery interface
     """
@@ -165,7 +165,7 @@ def spooler():
     return inner
 
 
-def cworker():
+def c_worker():
     """
     Return a celery worker compatible with uwsgi interface
     """
@@ -194,7 +194,7 @@ def cworker():
     return inner
 
 
-def block():
+def b_worker():
     """
     Return a blocking decorator that runs the funtion once.
     """
@@ -211,9 +211,9 @@ def block():
     return outer
 
 
-def disabled():
+def d_worker():
     """
-    Return a disabled decorator that does nothing
+    Return a d_worker decorator that does nothing
     """
     def outer(func, *args, **kwargs):
         @functools.wraps(func)
@@ -227,7 +227,7 @@ def disabled():
     return outer
 
 
-def threaded():
+def t_worker():
     """
     Wrap a threaded worker and to match interface.
     """
@@ -238,17 +238,17 @@ def threaded():
     return inner
 
 
-def runner(rtype):
+def select_runner(name):
     """
     Return runner based on rtype ( worker or timer ) and
     settings.TASK_RUNNER
     """
     mapper = {
-        'block': {'worker': block, 'timer': btimer},
-        'uwsgi': {'worker': spooler, 'timer': utimer},
-        'celery': {'worker': cworker, 'timer': ctimer},
-        'threaded': {'worker': threaded, 'timer': ttimer},
-        'disabled': {'worker': disabled, 'timer': dtimer},
+        'block': {'worker': b_worker, 'timer': b_timer},
+        'uwsgi': {'worker': u_worker, 'timer': u_timer},
+        'celery': {'worker': c_worker, 'timer': c_timer},
+        'threaded': {'worker': t_worker, 'timer': t_timer},
+        'd_worker': {'worker': d_worker, 'timer': d_timer},
     }
 
     if settings.TASK_RUNNER not in mapper:
@@ -258,20 +258,21 @@ def runner(rtype):
     logger.info(f'tasks and timers set to {settings.TASK_RUNNER}')
 
     # Call primary function here and return worker decorator.
-    decorator = mapper.get(settings.TASK_RUNNER)[rtype]()
+    decorator = mapper.get(settings.TASK_RUNNER)[name]()
     return decorator
 
 
 try:
     # Initiate the runners
-    WORKER = runner('worker')
-    TIMER = runner('timer')
+    WORKER = select_runner('worker')
+    TIMER = select_runner('timer')
 
 except Exception as exc:
     # Disable tasks when there are errors, raising exceptions breaks migration.
-    WORKER = disabled()
-    TIMER = dtimer()
-    logger.error(f'Error picking task: {settings.TASK_RUNNER}, {exc}. Tasks disabled.')
+    WORKER = d_worker()
+    TIMER = d_timer()
+    logger.error(f'Error initializing task: {settings.TASK_RUNNER}.')
+    logger.error(f'Tasks d_worker: {exc}.')
 
 
 def task(f):

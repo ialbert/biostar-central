@@ -42,7 +42,7 @@ REQUIRED_TAGS_URL = "/"
 # The gravatar image used for users, applied to all users.
 GRAVATAR_ICON = None
 
-# Valid options; block, disabled, threaded, uwsgi, celery.
+# Valid options; block, d_worker, threaded, uwsgi, celery.
 TASK_RUNNER = 'threaded'
 
 # Threshold to classify spam

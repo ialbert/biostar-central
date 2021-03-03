@@ -227,7 +227,7 @@ STATICFILES_FINDERS = [
 # Apply default logger setting.
 LOGGER_NAME = "biostar"
 
-# Valid options; block, disabled, threaded, uwsgi, celery.
+# Valid options; block, d_worker, threaded, uwsgi, celery.
 TASK_RUNNER = 'uwsgi'
 
 # Add celery apps to the installed set
