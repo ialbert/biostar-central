@@ -13,7 +13,7 @@ def join(*args):
 
 
 # Pagedown
-#PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
+PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
 
 
 LANGUAGE_DETECTION = ["af", "ar", "bg",
