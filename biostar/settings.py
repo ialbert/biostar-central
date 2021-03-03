@@ -84,8 +84,7 @@ DEFAULT_APPS = [
     'compressor',
     'taggit',
     'snowpenguin.django.recaptcha2',
-    'django_celery_results',
-    'django_celery_beat'
+
 ]
 
 # Enabled apps.
@@ -232,7 +231,14 @@ LOGGER_NAME = "biostar"
 # Valid options; block, disabled, threaded, uwsgi, celery.
 TASK_RUNNER = 'uwsgi'
 
+# Add celery apps to the installed set
+#CELERY_APPS = ['django_celery_results', 'django_celery_beat']
+#INSTALLED_APPS += CELERY_APPS
+
+TASK_MODULES = []
+
 BEAT_TASKS = {}
+
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_BACKEND = 'sparkpost.django.email_backend.SparkPostEmailBackend'

@@ -2,7 +2,6 @@ from __future__ import absolute_import
 from datetime import timedelta
 from celery.schedules import crontab
 from .celery import app
-
 from django.conf import settings
 
 RESULT_BACKEND = 'django-db'
@@ -25,8 +24,4 @@ TIMEZONE = 'UTC'
 
 app.conf.broker_url = 'redis://127.0.0.1:6379'
 
-#app.conf.beat_schedule = settings.BEAT_TASKS
-
-print(app.conf.beat_schedule , "FFFF"*10)
-
-#imports = ( 'biostar.recipes.tasks')
+app.conf.beat_schedule = settings.BEAT_TASKS

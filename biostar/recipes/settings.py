@@ -24,7 +24,7 @@ MAX_PROJECTS = 20
 JOB_LOGDIR = 'runlog'
 
 # Valid options; block, disabled, threaded, uwsgi, celery.
-TASK_RUNNER = 'celery'
+TASK_RUNNER = 'uwsgi'
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 

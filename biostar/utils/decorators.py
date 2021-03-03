@@ -88,6 +88,7 @@ def ctimer():
 
     from biostar.celery import app
 
+    print("CALLED HERE ONCE")
     class inner(object):
 
         def __init__(self, secs, **kwargs):

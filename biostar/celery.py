@@ -21,9 +21,9 @@ app = Celery('biostar')
 app.config_from_object('biostar.celeryconf')
 
 # Discover tasks in applications.
-# app.autodiscover_tasks(
-#     lambda: [ "biostar.recipes.tasks"]
-# )
+app.autodiscover_tasks(
+    lambda: settings.TASK_MODULES
+)
 
 @app.task
 def call_command(name, *args, **kwargs):

@@ -13,7 +13,3 @@
     - name: Restart nginx
       become: yes
       service: name=nginx state=restarted
-
-    - name: Redis Restart
-      become: yes
-      service: name=redis-server state=restarted enabled=yes

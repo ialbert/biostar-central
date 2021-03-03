@@ -25,9 +25,6 @@ INDEX_DIR := search
 # Recipes database to copy
 export COPY_DATABASE := recipes.db
 
-# conf file for
-export CELERY_CONF := biostar.recipes.celeryconf
-
 # Database name is accessed via an enviroment variable.
 export DATABASE_NAME := database.db
 
@@ -52,7 +49,6 @@ recipes:
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval WSGI_FILE := biostar/recipes/wsgi.py)
 	$(eval TASKS_MODULE := biostar.recipes.tasks)
-	$(eval CELERY_CONF := biostar.recipes.celeryconf)
 	$(eval TARGET:=recipes)
 
 
@@ -63,7 +59,6 @@ bioconductor:
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval WSGI_FILE := themes/bioconductor/wsgi.py)
-	$(eval CELERY_CONF := biostar/forum/celeryconf.py)
 	$(eval TASKS_MODULE := biostar.forum.tasks)
 	$(eval TARGET:=supportupgrade)
 
@@ -74,7 +69,6 @@ forum:
 	$(eval LOAD_COMMAND := populate)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TASKS_MODULE := biostar.forum.tasks)
-	$(eval CELERY_CONF := biostar/forum/celeryconf.py)
 	$(eval WSGI_FILE := biostar/forum/wsgi.py)
 
 echo:
@@ -171,8 +165,9 @@ redis:
 
 celery:
 	# Run celery ( including beat )
+	# Requires redis to be ran in a different shell.
 	@echo CELERY_CONF=${CELERY_CONF}
-	celery --config ${CELERY_CONF} -A biostar worker -B -l INFO
+	celery -A biostar worker -B -l INFO
 
 remote_transfer:
 	cd conf/ansible && make transfer
