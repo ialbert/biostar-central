@@ -24,12 +24,14 @@ def dtimer():
     """
     Return a disabled timer.
     """
+
     class inner(object):
         def __init__(self, secs, **kwargs):
             self.secs = secs
 
         def __call__(self, f, *args, **kwargs):
             pass
+
     return inner
 
 
@@ -37,12 +39,14 @@ def btimer():
     """
     Return blocking timer, runs the function once.
     """
+
     class inner(object):
         def __init__(self, secs, **kwargs):
             self.secs = secs
 
         def __call__(self, func, *args, **kwargs):
             func(*args, **kwargs)
+
     return inner
 
 
@@ -50,6 +54,7 @@ def ttimer():
     """
     Return threaded timer
     """
+
     class inner(object):
         def __init__(self, secs, **kwargs):
             self.secs = secs
@@ -65,6 +70,7 @@ def ttimer():
             logger.info(f"new time thread for function f{func} {args} {kwargs}")
             t = threading.Thread(target=loop, daemon=True)
             t.start()
+
     return inner
 
 
@@ -89,6 +95,7 @@ def ctimer():
     from biostar.celery import app
 
     print("CALLED HERE ONCE")
+
     class inner(object):
 
         def __init__(self, secs, **kwargs):
@@ -107,15 +114,14 @@ def ctimer():
 
 
 def thread(*args, **kwargs):
-
     def outer(func, **kwargs):
-
         @functools.wraps(func)
         def inner(*args, **kwargs):
             # Run process in separate thread.
             logger.info(f"new thread for function f{func} {args} {kwargs}")
             t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
             t.start()
+
         # Gains an attribute called spool that runs the function in the background.
         inner.spool = inner
         inner.delay = inner
@@ -156,7 +162,6 @@ def spooler():
 
 
 def cworker():
-
     # Ensure celery is installed
     from biostar.celery import app
 
@@ -184,7 +189,6 @@ def cworker():
 
 
 def block():
-
     def outer(func, *args, **kwargs):
         @functools.wraps(func)
         def inner(*args, **kwargs):
@@ -199,7 +203,6 @@ def block():
 
 
 def disabled():
-
     def outer(func, *args, **kwargs):
         @functools.wraps(func)
         def inner(*args, **kwargs):
@@ -213,7 +216,6 @@ def disabled():
 
 
 def threaded():
-
     def inner(f):
         worker = thread()(f)
         return worker
@@ -221,50 +223,64 @@ def threaded():
     return inner
 
 
-def pick_task():
-    """
-    Return method used to run tasks, uses settings.TASK_RUNNER.
-    """
-    mapping = {'uwsgi': spooler,
-               'celery': cworker,
-               'threaded': threaded,
-               'disabled': disabled,
-               'block': block}
+def mappings():
+    mapper = {
+        'block': {'worker': block, 'timer': btimer},
+        'uwsgi': {'worker': spooler, 'timer': utimer},
+        'celery': {'worker': cworker, 'timer': ctimer},
+        'threaded': {'worker': threaded, 'timer': ttimer},
+        'disabled': {'worker': disabled, 'timer': dtimer},
+    }
 
-    if settings.TASK_RUNNER not in mapping:
-        logger.error(f"Invalid Task. valid options : {mapping.keys()}")
+    if settings.TASK_RUNNER not in mapper:
+        logger.error(f"Invalid Task. valid options : {mapper.keys()}")
         raise Exception('Invalid task.')
 
-    # Call function here and return worker decorator.
-    picked = mapping.get(settings.TASK_RUNNER)()
-    logger.info(f'task runner set to {settings.TASK_RUNNER}')
+    logger.info(f'tasks and timers set to {settings.TASK_RUNNER}')
+
+    return mapper
+
+
+# def pick_task():
+#     """
+#     Return decorator used to run tasks, uses settings.TASK_RUNNER.
+#     """
+#     # Validate and retrieve map of workers.
+#     opts = mappings()
+#     # Call primary function once here and return worker decorator.
+#     picked = opts.get(settings.TASK_RUNNER)[0]()
+#     return picked
+#
+
+def retrieve(ftype):
+    # Validate and retrieve map of workers.
+    opts = mappings()
+    picked = opts.get(settings.TASK_RUNNER)[ftype]()
     return picked
 
+#
+# def pick_timer():
+#     """
+#
+#     Return decorator used to run timer, uses settings.TASK_RUNNER.
+#     """
+#     # Validate and retrieve map of workers.
+#     opts = mappings()
+#     # Call primary function once here and return worker decorator.
+#     picked = opts.get(settings.TASK_RUNNER)[1]()
+#     return picked
 
-def pick_timer():
-
-    mapping = {'uwsgi': utimer,
-               'celery': ctimer,
-               'threaded': ttimer,
-               'disabled': dtimer,
-               'block': btimer}
-
-    # Call function once it has been picked,
-    # Ensuring all packages are installed dynamically
-    picked = mapping.get(settings.TASK_RUNNER)()
-    logger.info(f'timer set to {settings.TASK_RUNNER}')
-    return picked
 
 try:
     # Pick what task and timer functions to use.
-    SPOOLER = pick_task()
-    TIMER = pick_timer()
+    SPOOLER = retrieve('worker')
+    TIMER = retrieve('timer')
 
 except Exception as exc:
     # Disable tasks when there are errors
     SPOOLER = disabled()
-    TIMER = disabled()
-    logger.error(f'Error picking task:{settings.TASK_RUNNER}, {exc}. Tasks disabled.')
+    TIMER = dtimer()
+    logger.error(f'Error picking task: {settings.TASK_RUNNER}, {exc}. Tasks disabled.')
 
 
 def task(f):
