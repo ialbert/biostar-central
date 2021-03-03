@@ -263,26 +263,26 @@ def runner(rtype):
 
 
 try:
-    # Pick what task and timer functions to use.
-    SPOOLER = runner('worker')
+    # Initiate the runners
+    WORKER = runner('worker')
     TIMER = runner('timer')
 
 except Exception as exc:
-    # Disable tasks when there are errors, exiting breaks on migration.
-    SPOOLER = disabled()
+    # Disable tasks when there are errors, raising exceptions breaks migration.
+    WORKER = disabled()
     TIMER = dtimer()
     logger.error(f'Error picking task: {settings.TASK_RUNNER}, {exc}. Tasks disabled.')
 
 
 def task(f):
     """
-    Select task decorator depending on settings.TASK_RUNNER.
+    Utility function to access worker decorator.
     """
-    return SPOOLER(f)
+    return WORKER(f)
 
 
 def timer(f):
     """
-    Select timer decorator depending on settings.TASK_RUNNER.
+    Utility function to access timer decorator.
     """
     return TIMER(f)
