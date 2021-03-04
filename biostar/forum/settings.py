@@ -32,17 +32,19 @@ PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 # Upload path for pagedown images, relative to media root.
 PAGEDOWN_IMAGE_UPLOAD_PATH = "images"
 
-# File containing list of tags,
-# with atleast one required when making a post.
+# File path listing tags.
+# With one at least being required when making a post.
 REQUIRED_TAGS = ''
 
-# Link to display when showing error msg in forms.
+# Link to display after a post fails to have required tags.
 REQUIRED_TAGS_URL = "/"
 
-# The gravatar image used for users, applied to all users.
+# Gravatar icon to use
 GRAVATAR_ICON = None
 
-# Valid options; block, d_worker, threaded, uwsgi, celery.
+
+# How to run tasks in the background.
+# Valid options; block, disable, threaded, uwsgi, celery.
 TASK_RUNNER = 'threaded'
 
 # Threshold to classify spam
@@ -93,7 +95,7 @@ INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
 
 INDEX_DIR = os.environ.setdefault("INDEX_DIR", "search")
 # Absolute path to index directory in export/
-INDEX_DIR = os.path.abspath(os.path.join(MEDIA_ROOT, '..', INDEX_DIR))
+INDEX_DIR = join(MEDIA_ROOT, '..', INDEX_DIR)
 
 # Spam index used to classify new posts as spam or ham.
 SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
@@ -110,8 +112,6 @@ LOGIN_REDIRECT_URL = "/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
-
-PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
 FORUM_APPS = [
 

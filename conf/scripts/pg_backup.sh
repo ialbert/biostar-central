@@ -3,12 +3,14 @@
 # Default database backup  script.
 
 # Load the conda commands.
-source ~/miniconda3/etc/profile.d/conda.sh
+source ~/anaconda3/etc/profile.d/conda.sh
 
 export POSTGRES_HOST=/var/run/postgresql
 
 # Activate the conda environemnt.
 conda activate engine
+
+USER=natay
 
 # Stop on errors.
 set -ue
@@ -19,13 +21,7 @@ export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 # Backup location
 mkdir -p export/backup
 
-# Generate backup file location.
-TSTAMP=`date +'%Y-%m-%d-%H-%m'`
-BACKUP="export/backup/data-${TSTAMP}.json"
+# pg_dump the database
+python ../../manage.py tasks --action pg_dump --outdir export/backup  --user ${USER}
 
-# Dump the data in the desired format.
-# python manage.py dumpdata --exclude contenttypes > $BACKUP
-
-# Show the backup filename.
-echo "$BACKUP"
 

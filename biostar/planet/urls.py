@@ -1,6 +1,7 @@
 
 from django.urls import path, include
 from biostar.planet import views
+from django.contrib import admin
 
 
 planet_patterns = [
@@ -10,5 +11,7 @@ urlpatterns = [
 
     # Get the reset/ urls
     path(r'', include(planet_patterns)),
+    # Add admin urls.
+    path('admin/', admin.site.urls),
 
 ]

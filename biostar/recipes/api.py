@@ -80,7 +80,7 @@ def encode_project(project, show_image=False, user=None):
     store = dict(
         uid=project.uid,
         name=project.name,
-        owner=project.owner.uid,
+        owner=project.owner.profile.uid,
         owner_name=project.owner.profile.name,
         text=project.text,
         date=str(project.date),
@@ -101,9 +101,10 @@ def encode_recipe(recipe, show_image=False, user=None):
     store = dict(
         uid=recipe.uid,
         name=recipe.name,
-        owner=recipe.owner.uid,
+        owner=recipe.owner.profile.uid,
         owner_name=recipe.owner.profile.name,
         text=recipe.text,
+        project_uid=recipe.project.uid,
         date=str(recipe.date),
         json=toml.dumps(recipe.json_data),
         code=recipe.template,
@@ -112,8 +113,8 @@ def encode_recipe(recipe, show_image=False, user=None):
 
     if user and user.is_admin:
         store['owner_email'] = recipe.owner.email
-        store['owner_first_name'] = project.owner.first_name
-        store['owner_text'] = project.owner.profile.text
+        store['owner_first_name'] = recipe.owner.first_name
+        store['owner_text'] = recipe.project.owner.profile.text
 
     return store
 
@@ -141,7 +142,7 @@ def api_list(request):
     user = User.objects.filter(profile__token=token).first()
 
     # Admins can get all projects
-    if user.is_admin and show_all:
+    if user and user.is_admin and show_all:
         projects = Project.objects.filter(deleted=False).all()
     else:
         # Get the project list corresponding to this user returns public projects if user is None.
@@ -298,7 +299,8 @@ def api_upload(request):
         if data.is_project:
             upload_project(data, create=create)
         else:
-            upload_recipe(data, create=create)
+            pass
+            #upload_recipe(data, create=create)
 
     return
 

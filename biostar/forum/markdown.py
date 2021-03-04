@@ -2,7 +2,7 @@
 Markdown parser to render the Biostar style markdown.
 """
 import re
-import inspect
+import inspect, logging
 from functools import partial
 import mistune
 import requests
@@ -21,6 +21,8 @@ from biostar.forum import auth
 from biostar.forum.models import Post, Subscription
 from biostar.accounts.models import Profile, User
 from bleach.callbacks import nofollow
+
+logger = logging.getLogger('engine')
 
 # Test input.
 TEST_INPUT = '''
@@ -333,7 +335,6 @@ class BiostarInlineLexer(MonkeyPatch):
 
 
 def embedder(attrs, new, embed=None):
-
     embed = [] if embed is None else embed
 
     # Existing <a> tag, leave as is.
@@ -370,7 +371,6 @@ def embedder(attrs, new, embed=None):
 
 
 def linkify(text):
-
     # List of links to embed
     embed = []
     html = bleach.linkify(text=text, callbacks=[partial(embedder, embed=embed)], skip_tags=['pre', 'code'])
@@ -387,21 +387,22 @@ def linkify(text):
     return html
 
 
-def safe(callable, *args, **kwargs):
+def safe(f):
     """
-    Safely call an object without causing
+    Safely call an object without causing errors
     """
-    text = kwargs.get('text')
-    try:
-        return callable(*args, **kwargs)
-    except Exception as exc:
+    def inner(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception as exc:
+            logger.error(f"Error with {f.__name__}: {exc}")
+            text = kwargs.get('text', args[0])
+            return text
 
-        prefix = callable.__name__ if inspect.isfunction(callable) else type(callable).__name__
-
-        errmsg = f'<p>{prefix.upper()} ERROR = {exc}</p><p>{text}</p>'
-        return errmsg
+    return inner
 
 
+@safe
 def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
     """
     Parses markdown into html.
@@ -425,18 +426,18 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
 
     markdown = mistune.Markdown(hard_wrap=True, renderer=renderer, inline=inline)
 
-    html = safe(markdown, text=text)
+    output = markdown(text=text)
     # Bleach clean the html.
     if clean:
-        html = safe(bleach.clean, text=html,
-                    tags=ALLOWED_TAGS,
-                    styles=ALLOWED_STYLES,
-                    attributes=ALLOWED_ATTRIBUTES)
+        output = bleach.clean(text=output,
+                            tags=ALLOWED_TAGS,
+                            styles=ALLOWED_STYLES,
+                            attributes=ALLOWED_ATTRIBUTES)
 
     # Embed sensitive links into html
-    html = safe(linkify, text=html)
+    output = linkify(text=output)
 
-    return html
+    return output
 
 
 def test():
