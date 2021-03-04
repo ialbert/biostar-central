@@ -91,13 +91,12 @@
         dest: "{{ engine_dir }}/{{ item }}"
         mode: u+rwx,g+rx,o+rx
       with_items:
-        - migrate.sh
-        - reset.sh
-        - pg_backup.sh
+        - server-migrate.sh
+        - server-reset.sh
+        - server-backup.sh
         - forum/transfer.sh
         - forum/index.sh
-        - forum/celery_worker.sh
-        - forum/celery_beat.sh
+        - forum/planet.sh
 
     - name: Copy settings file to runtime directories
       copy:
