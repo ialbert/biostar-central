@@ -1,18 +1,12 @@
 # Scripts available to the forum app
 
 
-## celery_beat.sh
+## spam.sh
 
-Start celery beat 
+Clear spam from spam index
 
-    $CELERY -A $APP beat -l info -f $LOGFILE
-
-
-## celery_worker.sh
-
-Start celery worker
-
-    $CELERY -A $APP worker -l info --maxtasksperchild $MAX_TASK --concurrency $NUM_WORKERS -f $LOGFILE
+    # Clear spam from search index.
+    python manage.py index --clear_spam
 
 
 ## index.sh

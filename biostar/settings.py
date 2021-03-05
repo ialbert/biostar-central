@@ -218,8 +218,6 @@ TASK_RUNNER = 'uwsgi'
 TASK_MODULES = []
 
 
-#BEAT_TASKS = {}
-
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_BACKEND = 'sparkpost.django.email_backend.SparkPostEmailBackend'
