@@ -38,50 +38,21 @@ logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
-def markdown(text):
-
-    # Add admin urls.
-    html = mistune.markdown(text)
-
-    html = bleach.linkify(text=html, callbacks=[nofollow], skip_tags=['pre', 'code'])
-
-    return html
-
 
 def edit_profile(request):
     if request.user.is_anonymous:
         messages.error(request, "Must be logged in to edit profile")
         return redirect("/")
-    user = request.user
-    initial = dict(username=user.username, email=user.email, name=user.profile.name,location=user.profile.location,
-                   website=user.profile.website, twitter=user.profile.twitter, scholar=user.profile.scholar,
-                   text=user.profile.text, my_tags=user.profile.my_tags, message_prefs=user.profile.message_prefs,
-                   email_verified=user.profile.email_verified, watched_tags=user.profile.watched_tags,
-                   digest_prefs=user.profile.digest_prefs)
 
-    form = forms.EditProfile(user=user, initial=initial)
+    user = request.user
+    form = forms.EditProfile(user=user)
 
     if request.method == "POST":
-        form = forms.EditProfile(data=request.POST, user=user, initial=initial, files=request.FILES)
+        form = forms.EditProfile(data=request.POST, user=user, files=request.FILES)
 
         if form.is_valid():
             # Update the email and username of User object.
-            username = form.cleaned_data["username"]
-            email = form.cleaned_data['email']
-            User.objects.filter(pk=user.pk).update(username=username, email=email)
-            Profile.objects.filter(user=user).update(name=form.cleaned_data['name'],
-                                                     watched_tags=form.cleaned_data['watched_tags'],
-                                                     location=form.cleaned_data['location'],
-                                                     website=form.cleaned_data['website'],
-                                                     twitter=form.cleaned_data['twitter'],
-                                                     scholar=form.cleaned_data['scholar'],
-                                                     text=form.cleaned_data["text"],
-                                                     my_tags=form.cleaned_data['my_tags'],
-                                                     message_prefs=form.cleaned_data["message_prefs"],
-                                                     html=markdown(form.cleaned_data["text"]),
-                                                     digest_prefs=form.cleaned_data['digest_prefs'])
-            # Recompute watched tags
-            Profile.objects.filter(user=user).first().add_watched()
+            form.save()
 
             return redirect(reverse("user_profile", kwargs=dict(uid=user.profile.uid)))
 

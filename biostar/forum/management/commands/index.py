@@ -5,9 +5,26 @@ from typing import Any
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
 from django.conf import settings
-from biostar.forum import search, spam
+from biostar.forum import search, spam, models
 
 logger = logging.getLogger('engine')
+
+
+def clear_spam():
+    """
+    Clear spam from search index
+    """
+    # Get all of the spam posts
+    posts = models.Post.objects.filter(spam=models.Post.SPAM).values_list('uid', flat=True)
+
+    nposts = len(posts)
+
+    logger.info(f"{nposts} spam found.")
+
+    for uid in posts:
+        spam.remove_spam(uid=uid)
+
+    return
 
 
 class Command(BaseCommand):
@@ -19,6 +36,7 @@ class Command(BaseCommand):
         parser.add_argument('--remove', action='store_true', default=False, help="Removes the existing index.")
         parser.add_argument('--report', action='store_true', default=False, help="Reports on the content of the index.")
         parser.add_argument('--index', type=int, default=0, help="How many posts to index")
+        parser.add_argument('--clear_spam',  action='store_true', default=False, help="Clear search index of spam posts.")
 
     def handle(self, *args, **options):
 
@@ -28,6 +46,7 @@ class Command(BaseCommand):
         remove = options['remove']
         report = options['report']
         index = options['index']
+        clear = options['clear_spam']
 
         # Sets the un-indexed flags to false on all posts.
         if reset:
@@ -61,4 +80,7 @@ class Command(BaseCommand):
         # Report the contents of the index
         if report:
             search.print_info()
+
+        if clear:
+            clear_spam()
 

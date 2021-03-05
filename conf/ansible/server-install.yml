@@ -94,9 +94,19 @@
         - server-migrate.sh
         - server-reset.sh
         - server-backup.sh
-        - data-migration.sh
-        - search-index.sh
 
+    - name: Initialize app specific scripts
+      copy:
+        remote_src: true
+        force: no
+        src: "{{ engine_dir }}/conf/scripts/forum/{{item}}"
+        dest: "{{ engine_dir }}/{{ item }}"
+        mode: u+rwx,g+rx,o+rx
+      with_items:
+        - transfer.sh
+        - index.sh
+        - planet.sh
+        -
     - name: Copy settings file to runtime directories
       copy:
         remote_src: true

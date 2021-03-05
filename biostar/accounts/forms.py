@@ -1,4 +1,3 @@
-
 import logging
 from django import forms
 from django.core.validators import FileExtensionValidator
@@ -9,8 +8,10 @@ from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from django.contrib.auth.models import User
 from django.conf import settings
 from .models import Profile, UserImage
+import mistune
+import bleach
+from bleach.callbacks import nofollow
 from . import auth, util
-
 
 logger = logging.getLogger("engine")
 
@@ -39,8 +40,8 @@ def check_size(fobj, maxsize=0.3, field=None):
 
     return fobj
 
-class SignUpForm(forms.Form):
 
+class SignUpForm(forms.Form):
     password1 = forms.CharField(
         label="Password",
         strip=False,
@@ -113,39 +114,64 @@ def validate_tags(tags):
     return tags
 
 
+def markdown(text):
+    # Add admin urls.
+    html = mistune.markdown(text)
+
+    html = bleach.linkify(text=html, callbacks=[nofollow], skip_tags=['pre', 'code'])
+
+    return html
+
+
 class EditProfile(forms.Form):
-    name = forms.CharField(label='Name', max_length=100, required=True)
-    email = forms.CharField(label='Email', max_length=100, required=True)
-    username = forms.CharField(label="Handler", max_length=100, required=True)
-    location = forms.CharField(label="Location", max_length=100, required=False)
-    website = forms.URLField(label="Website", max_length=225, required=False)
-    twitter = forms.CharField(label="Twitter Id", max_length=100, required=False)
-    scholar = forms.CharField(label="Scholar", max_length=100, required=False)
 
-    text = forms.CharField(widget=forms.Textarea(),min_length=2, max_length=5000, required=False,
-                           help_text="Extra information about you to personalize your profile.")
-
-    message_prefs = forms.ChoiceField(required=True, label="Notifications", choices=Profile.MESSAGING_TYPE_CHOICES,
-                                      widget=forms.Select(attrs={'class': "ui dropdown"}),
-                                      help_text="""Default mode sends notifications using local messages.""")
-    digest_prefs = forms.ChoiceField(required=True, label="Digest options", choices=Profile.DIGEST_CHOICES,
-                                      widget=forms.Select(attrs={'class': "ui dropdown"}),
-                                      help_text="""Digest are sent through the email provided.""")
-
-    my_tags = forms.CharField(label="My tags", max_length=500, required=False,
-                              help_text="""
-                              Add a tag by typing a word then adding a comma or press ENTER or SPACE.
-                              """, widget=forms.HiddenInput())
-    watched_tags = forms.CharField(label="Watched tags", max_length=500, required=False,
-                                   help_text="""
-                              Add a tag by typing a word then adding a comma or press ENTER or SPACE.
-                              """, widget=forms.HiddenInput())
-
-    def __init__(self, user,  *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
 
         self.user = user
 
         super(EditProfile, self).__init__(*args, **kwargs)
+
+        self.fields['name'] = forms.CharField(label='Name', max_length=100, required=True,
+                                              initial=self.user.profile.name)
+        self.fields['email'] = forms.CharField(label='Email', max_length=100, required=True,
+                                               initial=self.user.email)
+        self.fields['username'] = forms.CharField(label="Handler", max_length=100, required=True,
+                                                  initial=self.user.username)
+        self.fields['location'] = forms.CharField(label="Location", max_length=100, required=False,
+                                                  initial=self.user.profile.location)
+        self.fields['website'] = forms.URLField(label="Website", max_length=225, required=False,
+                                                initial=self.user.profile.website)
+        self.fields['twitter'] = forms.CharField(label="Twitter Id", max_length=100, required=False,
+                                                 initial=self.user.profile.twitter)
+        self.fields['scholar'] = forms.CharField(label="Scholar", max_length=100, required=False,
+                                                 initial=self.user.profile.scholar)
+
+        self.fields['text'] = forms.CharField(widget=forms.Textarea(), min_length=2, max_length=5000, required=False,
+                                              help_text="Extra information about you to personalize your profile.",
+                                              initial=self.user.profile.text)
+
+        self.fields['message_prefs'] = forms.ChoiceField(required=True, label="Notifications",
+                                                         choices=Profile.MESSAGING_TYPE_CHOICES,
+                                                         widget=forms.Select(attrs={'class': "ui dropdown"}),
+                                                         initial=self.user.profile.message_prefs,
+                                                         help_text="""Default mode sends notifications using local messages.""")
+
+        self.fields['digest_prefs'] = forms.ChoiceField(required=True, label="Digest options",
+                                                        choices=Profile.DIGEST_CHOICES,
+                                                        widget=forms.Select(attrs={'class': "ui dropdown"}),
+                                                        initial=self.user.profile.digest_prefs,
+                                                        help_text="""Digest are sent through the email provided.""")
+
+        self.fields['my_tags'] = forms.CharField(label="My tags", max_length=500, required=False,
+                                                 initial=self.user.profile.my_tags,
+                                                 help_text="""
+                                  Add a tag by typing a word then adding a comma or press ENTER or SPACE.
+                                  """, widget=forms.HiddenInput())
+        self.fields['watched_tags'] = forms.CharField(label="Watched tags", max_length=500, required=False,
+                                                      help_text="""
+                                  Add a tag by typing a word then adding a comma or press ENTER or SPACE.
+                                  """, widget=forms.HiddenInput(),
+                                                      initial=self.user.profile.watched_tags)
 
     def clean_username(self):
 
@@ -182,16 +208,38 @@ class EditProfile(forms.Form):
         watched_tags = ','.join(list(set(watched_tags.split(","))))
         return validate_tags(tags=watched_tags)
 
+    def save(self):
+        username = self.cleaned_data["username"]
+        email = self.cleaned_data['email']
+        html = markdown(self.cleaned_data["text"])
+
+        # Update usernames and email
+        User.objects.filter(pk=self.user.pk).update(username=username, email=email)
+
+        # Update profile attributes
+        Profile.objects.filter(user=self.user).update(
+            html=html,
+            name=self.cleaned_data['name'],
+            watched_tags=self.cleaned_data['watched_tags'],
+            location=self.cleaned_data['location'],
+            website=self.cleaned_data['website'],
+            twitter=self.cleaned_data['twitter'],
+            scholar=self.cleaned_data['scholar'],
+            text=self.cleaned_data["text"],
+            my_tags=self.cleaned_data['my_tags'],
+            message_prefs=self.cleaned_data["message_prefs"],
+            digest_prefs=self.cleaned_data['digest_prefs'])
+        # Recompute watched tags
+        Profile.objects.filter(user=self.user).first().add_watched()
+
 
 class LoginForm(forms.Form):
-
     email = forms.CharField(label='Email', max_length=100)
     password = forms.CharField(label='Password', max_length=100,
                                widget=forms.PasswordInput)
 
 
 class UserModerate(forms.Form):
-
     CHOICES = [
         (Profile.SPAMMER, 'Report as spammer'),
         (Profile.BANNED, "Ban user"),

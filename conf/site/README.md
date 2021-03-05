@@ -1,4 +1,4 @@
-Example settings for various deployment options.
+#Example settings for various deployment options.
 
 
 ## Changing site domain

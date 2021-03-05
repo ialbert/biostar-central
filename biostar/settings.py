@@ -16,16 +16,7 @@ def join(*args):
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
 
 
-LANGUAGE_DETECTION = ["af", "ar", "bg",
-                      "bn", "ca", "cs", "cy",
-                      "da", "de", "el", "en",
-                      "es", "et", "fa", "fi", "fr",
-                      "gu", "he", "hi", "hr", "hu", "id",
-                      "it", "ja", "kn", "ko", "lt", "lv",
-                      "mk", "ml", "mr", "ne", "nl", "no", "pa",
-                      "pl", "pt", "ro", "ru", "sk", "sl", "so", "sq",
-                      "sv", "sw", "ta", "te", "th", "tl", "tr",
-                      "uk", "ur", "vi", "zh-cn", "zh-tw"]
+LANGUAGE_DETECTION = ["en"]
 
 
 # Set the home page to the engine or forum
@@ -40,7 +31,6 @@ DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
 # Allowed CORS websites
 CORS_ORIGIN_WHITELIST = [
-    'https://view.qiime2.org',
 ]
 
 POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
@@ -187,15 +177,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Key used to set ratelimitter.
-# https://django-ratelimit.readthedocs.io/en/stable/security.html
-RATELIMIT_KEY = "header:x-real-ip"
-
-# Rate to limit
-RATELIMIT_RATE = '50/h'
-
-# Set rate limit high to disable.
-#RATELIMIT_RATE = '50000000/d'
 
 # The static URL start.
 STATIC_URL = '/static/'
@@ -236,7 +217,8 @@ TASK_RUNNER = 'uwsgi'
 
 TASK_MODULES = []
 
-BEAT_TASKS = {}
+
+#BEAT_TASKS = {}
 
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

@@ -20,11 +20,6 @@ app = Celery('biostar')
 # Read the configuration from the config file.
 app.config_from_object('biostar.celeryconf')
 
-# Discover tasks in applications.
-app.autodiscover_tasks(
-    lambda: settings.TASK_MODULES
-)
-
 @app.task
 def call_command(name, *args, **kwargs):
     "Calls a django command in a delayed fashion"
