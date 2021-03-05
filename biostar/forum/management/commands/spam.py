@@ -9,24 +9,6 @@ from biostar.forum import search, spam
 logger = logging.getLogger('engine')
 
 
-def remove_spam():
-
-    """
-    Remove spam from search index.
-    """
-
-    # Get all of the spam posts
-    posts = models.Post.objects.filter(spam=models.Post.SPAM).values_list('uid', flat=True)
-
-    #
-    print(posts)
-
-    # Search for each post
-
-    return
-
-
-
 class Command(BaseCommand):
     help = 'Create search index for the forum app.'
 

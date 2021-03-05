@@ -12,7 +12,7 @@ logger = logging.getLogger('engine')
 
 def clear_spam():
     """
-    Clear spam from
+    Clear spam from search index
     """
     # Get all of the spam posts
     posts = models.Post.objects.filter(spam=models.Post.SPAM).values_list('uid', flat=True)
@@ -23,8 +23,6 @@ def clear_spam():
 
     for uid in posts:
         spam.remove_spam(uid=uid)
-
-    # Search for each post
 
     return
 
