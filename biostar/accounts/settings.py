@@ -80,6 +80,16 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
+# Key used to set ratelimitter.
+# https://django-ratelimit.readthedocs.io/en/stable/security.html
+RATELIMIT_KEY = "header:x-real-ip"
+
+# Rate to limit
+RATELIMIT_RATE = '50/h'
+
+# Set rate limit high to disable.
+#RATELIMIT_RATE = '50000000/d'
+
 
 # Other settings
 ACCOUNT_AUTHENTICATION_METHOD = "email"

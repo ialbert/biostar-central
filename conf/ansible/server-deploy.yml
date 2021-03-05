@@ -21,7 +21,7 @@
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&
       conda activate {{conda_env}} &&
       pip install -r conf/requirements.txt &&
-      pip install -r conf/pip-requirements.txt"
+      pip install -r conf/pip-packages.txt"
       args:
         executable: /bin/bash
         chdir: "{{ engine_dir }}"

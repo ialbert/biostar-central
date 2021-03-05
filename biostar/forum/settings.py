@@ -45,7 +45,7 @@ GRAVATAR_ICON = None
 
 # How to run tasks in the background.
 # Valid options; block, disable, threaded, uwsgi, celery.
-TASK_RUNNER = 'threaded'
+TASK_RUNNER = 'celery'
 
 # Threshold to classify spam
 SPAM_THRESHOLD = .5

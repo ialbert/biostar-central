@@ -39,9 +39,7 @@ def pg_dump(prog, pg_user, outdir, hourly=False,  **kwargs):
     """
     """
 
-    outdir = os.path.abspath(os.path.expanduser(outdir))
-    if not os.path.isdir(outdir):
-        os.mkdir(outdir)
+    os.makedirs(outdir, exist_ok=True)
 
     pg_name = settings.DATABASE_NAME
 
