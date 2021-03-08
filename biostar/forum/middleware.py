@@ -60,15 +60,15 @@ def update_status(user):
 
     return user.profile.trusted
 
-#
+
 # def domain_is_whitelisted(ip):
 #     try:
 #         host = gethostbyaddr(ip)[0]
 #         return host.endswith(settings.WHITE_LIST_DOMAIN) and (ip == gethostbyname(host))
 #     except:
 #         return False
-
-
+#
+#
 # def ban_ip(get_response):
 #     """
 #
@@ -85,25 +85,22 @@ def update_status(user):
 #             ips = oip.split(".")[:-1]
 #             ip = ".".join(ips)
 #
-#             if ip in settings.IP_WHITELIST:
+#             if (ip in settings.IP_WHITELIST) or domain_is_whitelisted(oip):
 #                 return get_response(request)
-#
+
 #             if ip not in cache:
 #                 cache.set(ip, 0, settings.TIME_PERIOD)
 #
 #             value = cache.get(ip, 0)
 #             if value >= settings.MAX_VISITS:
 #                 # Raise redirect exception
-#                 if domain_is_whitelisted(oip):
-#                     cache.set(ip, 0)
-#                 else:
-#                     now = util.now()
-#                     message = f"{now}\tbanned\t{ip}\t{oip}\n"
-#                     logger.error(message)
-#                     fp = open(settings.BANNED_IPS, "a")
-#                     fp.write(message)
-#                     fp.close()
-#                     return redirect('/static/message.txt')
+#                 now = util.now()
+#                 message = f"{now}\tbanned\t{ip}\t{oip}\n"
+#                 logger.error(message)
+#                 fp = open(settings.BANNED_IPS, "a")
+#                 fp.write(message)
+#                 fp.close()
+#                 return redirect('/static/message.txt')
 #             else:
 #                 cache.incr(ip)
 #
