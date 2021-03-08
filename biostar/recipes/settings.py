@@ -38,6 +38,9 @@ JOB_STDERR = os.path.join(JOB_LOGDIR, 'stderr.txt')
 # Maximum amount of data allowed
 MAX_DATA = 100
 
+# Maximum amount of data allowed for admin
+ADMIN_MAX_DATA = MAX_DATA * 10
+
 # Maximum amount of items per clipboard
 MAX_CLIPBOARD = 5
 

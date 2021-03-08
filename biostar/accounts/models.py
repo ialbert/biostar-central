@@ -171,11 +171,16 @@ class Profile(models.Model):
 
     @property
     def upload_size(self):
-
-        # Give staff higher limits.
-        if self.user.is_staff or self.user.is_superuser:
-            return self.max_upload_size * 100
-        return self.max_upload_size
+        """
+        Return max upload for given user.
+        Used to validate in forms
+        """
+        # Get the default upload size.
+        msize = self.max_upload_size
+        # Increase the admin size when checking for validation.
+        admin_msize = msize * 100
+        size = admin_msize if self.user.is_staff or self.user.is_superuser else msize
+        return size
 
     def parse_tags(self):
         return [tag.lower() for tag in self.watched_tags.split(",") if tag]
@@ -204,6 +209,27 @@ class Profile(models.Model):
         """Check to see if this user requires reCAPTCHA"""
         is_required = not (self.trusted or self.score > settings.RECAPTCHA_THRESHOLD_USER_SCORE)
         return is_required
+
+    def data_threshold(self):
+        """
+        Return max data threshold
+        """
+        threshold = settings.ADMIN_MAX_DATA if self.is_moderator else settings.MAX_DATA
+
+        return threshold
+
+    def check_data(self, total):
+        """
+        Check if total is over threashold
+        """
+        threshold = self.data_threshold()
+
+        # Size is smaller than maximum allowed for this user.
+        if total < threshold:
+            return True
+
+        # Failed the size check.
+        return False
 
     @property
     def mailing_list(self):
