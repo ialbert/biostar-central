@@ -214,7 +214,7 @@ class Profile(models.Model):
         """
         Return max data threshold
         """
-        threshold = settings.ADMIN_MAX_DATA if self.is_moderator else settings.MAX_DATA
+        threshold = settings.MAX_DATA_ADMINS if self.is_moderator else settings.MAX_DATA_USERS
 
         return threshold
 

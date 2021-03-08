@@ -7,10 +7,18 @@ from . import util
 
 logger = logging.getLogger("biostar")
 
+def get_hostname(ip):
+    # TODO use cache to store the gethostbyaddr(ip)[0]
+    """
+
+    """
+    return
 
 def domain_is_whitelisted(ip):
+
     try:
         host = gethostbyaddr(ip)[0]
+
         return host.endswith(settings.WHITE_LIST_DOMAIN) and (ip == gethostbyname(host))
     except:
         return False
@@ -27,7 +35,7 @@ def limiter(get_response):
         if user.is_anonymous:
 
             ip = util.ip_triplet(request)
-            if (ip in settings.IP_WHITELIST) or domain_is_whitelisted(ip):
+            if ip in settings.IP_WHITELIST:
                 return get_response(request)
 
             # Check if the user should be rate limited within a given time period.
