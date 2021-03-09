@@ -11,15 +11,16 @@ from biostar.accounts.middleware import limiter
 # Set the rate limit really low for testing
 RATE = '1/d'
 
-# IP request to add to META
+# IP request to add to request META
 REMOTE_ADDR = '127.0.0.1'
 
-# Host to add to META
+# Host to add to request META
 HTTP_HOST = 'localhost'
 
-# White list the IP triplet
+# Whitelist the IP triplet
 WHITELIST_IP = [REMOTE_ADDR[:-2]]
 
+# Whitelist domain in request
 WHITELIST_DOMAIN = [HTTP_HOST]
 
 
@@ -30,51 +31,51 @@ class RateLimiterTest(TestCase):
         # Set the IP address and host name in request META
         rmeta = dict(REMOTE_ADDR=REMOTE_ADDR, HTTP_HOST=HTTP_HOST)
 
-        # Get an anonymous user with the following IP address and HTTP host
+        # View to call
         self.url = reverse('login')
-        self.request = fake_request(url=self.url, data={}, rmeta=rmeta, user=AnonymousUser())
-        # Iterate and call view until
-        # limiting threshold is reached.
 
-        pass
+        # Create the fake request
+        self.request = fake_request(url=self.url, data={}, rmeta=rmeta, user=AnonymousUser())
 
     def run_one(self):
         response = limiter(user_login)(request=self.request)
         return response
 
-    def limiting(self, offset=0):
+    def limiting(self, offset=0, msg=''):
         """
         Encapsulate rate limiting process.
         """
         # Go over the threshold rate
         rate = int(RATE[0]) + offset
-
+        msg = msg or 'User was rate limited before reaching limit'
         # Make repeated requests and reach rate limit
         for r in range(rate):
             # Hit the view
             response = self.run_one()
 
             # Ensure user is not rate limited yet.
-            self.assertTrue(len(response.content), 'User was rate limited BEFORE reaching threshold')
+            self.assertTrue(len(response.content) > 0, msg)
 
     def test_banning(self):
-
+        """
+        Test limiter is functioning
+        """
         # Iterate and call view until
         # limiting threshold is reached.
         self.limiting()
 
         # Call one more time to ensure that rate limiter is working
         response = self.run_one()
-        self.assertTrue(len(response.content) == 0, 'User was not rate limited')
+        self.assertTrue(len(response.content) == 0, 'User was not rate limited at all.')
 
     @override_settings(WHITELIST_DOMAIN=WHITELIST_DOMAIN, WHITELIST_IP=[])
     def test_whitelisting_domain(self):
         """
-        Test domain whit listing
+        Test domain whitelisting
         """
         # Iterate and call view until
         # num requests pass threshold by offset.
-        self.limiting(offset=10)
+        self.limiting(offset=10, msg='User was rate limited and has a whitelisted domain.')
 
     @override_settings(WHITELIST_IP=WHITELIST_IP, WHITELIST_DOMAIN=[])
     def test_whitelisting_ip(self):
@@ -83,4 +84,4 @@ class RateLimiterTest(TestCase):
         """
         # Iterate and call view until
         # num requests pass threshold by offset.
-        self.limiting(offset=10)
+        self.limiting(offset=10, msg='User was rate limited and has a whitelisted ip.')

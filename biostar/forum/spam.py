@@ -313,8 +313,9 @@ def test_classify(threshold=None, niter=100, limitmb=1024, size=100, verbosity=0
         if os.path.exists(TRAIN_DIR):
             shutil.rmtree(TRAIN_DIR)
 
+        idxuid = util.get_uuid(8)
         ix = search.init_index(dirname=TRAIN_DIR,
-                               indexname=f"train_{util.get_uuid(8)}_{settings.SPAM_INDEX_NAME}",
+                               indexname=f"train_{idxuid}_{settings.SPAM_INDEX_NAME}",
                                schema=spam_schema())
         writer = BufferedWriter(ix, limit=int((niter/2) + 1), writerargs=dict(limitmb=limitmb, multisegment=True))
 
@@ -385,3 +386,5 @@ def score(uid, threshold=None):
     if post_score >= threshold:
         Post.objects.filter(id=post.id).update(spam=Post.SPAM)
         auth.db_logger(text=f" post={post.uid}; spam score={post_score}")
+
+    return post_score
