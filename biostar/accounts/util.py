@@ -18,6 +18,22 @@ def get_ip(request):
     ip = ip1 or ip2 or '0.0.0.0'
     return ip
 
+
+def get_hostname(request):
+    """
+    Attempts to extract the hostname from the HTTP request headers.
+    """
+    rmeta = request.META.get
+    host1 = rmeta('HTTP_HOST', '')
+    host2 = rmeta('HOST', '')
+    host3 = rmeta('REMOTE_HOST', '')
+    host4 = rmeta('SERVER_NAME', '')
+
+    hostname = host1 or host2 or host3 or host4
+
+    return hostname
+
+
 def ip_triplet(request):
     """
     Attempt to extract first three number from ip adress.
