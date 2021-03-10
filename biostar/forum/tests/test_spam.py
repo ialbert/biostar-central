@@ -53,4 +53,3 @@ class TestSpam(TestCase):
         self.assertTrue(new_spam.is_spam, "Spam is classifier is not working")
 
         pass
-

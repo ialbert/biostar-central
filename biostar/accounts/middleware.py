@@ -36,10 +36,16 @@ def domain_whitelisted(request):
     """
     Return True if HOST in request is whitelisted.
     """
+
+    # Bail if no domains are whitelisted
+    if not settings.WHITELIST_DOMAIN:
+        return False
+
     try:
 
         # Get hostname from request
         host = util.get_hostname(request)
+
         # Get IP address from request
         ip = util.get_ip(request)
 

@@ -5,7 +5,7 @@ from django.core import management
 from django.urls import reverse
 from django.test import TestCase, override_settings
 from django.conf import settings
-from biostar.forum import models, views, search, tasks
+from biostar.forum import models, views, search, tasks, feed
 from biostar.utils.helpers import fake_request
 from biostar.accounts.models import User
 

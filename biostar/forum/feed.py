@@ -93,7 +93,7 @@ class PostFeed(PostBase):
 
     def items(self, text):
         ids = split(text)
-        posts = Post.objects.filter(root_id__in=ids).order_by('-creation_date')
+        posts = Post.objects.filter(root__uid__in=ids).order_by('-creation_date')
         return posts[:FEED_COUNT]
 
 
@@ -102,7 +102,7 @@ class TagFeed(PostBase):
 
     def get_object(self, request, text):
         elems = split(text)
-        return ",".join(elems)
+        return elems
 
     def description(self, obj):
         return f"Posts that match  {obj}"
@@ -111,7 +111,7 @@ class TagFeed(PostBase):
         return "Post Feed"
 
     def items(self, obj):
-        posts = Post.objects.filter(tags__name=obj)
+        posts = Post.objects.filter(tags__name__in=obj)
         return posts[:FEED_COUNT]
 
 
@@ -128,6 +128,6 @@ class UserFeed(PostBase):
 
     def items(self, text):
         ids = split(text)
-        posts = Post.objects.filter(author__id__in=ids).order_by('-creation_date')
+        posts = Post.objects.filter(author__profile__uid__in=ids).order_by('-creation_date')
         return posts[:FEED_COUNT]
 

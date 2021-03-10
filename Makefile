@@ -17,7 +17,7 @@ LOAD_COMMAND := project
 INDEX_NAME := index
 
 # What test to run, defaults to all tests
-TEST :=
+TEST := biostar
 
 # Search index directory
 INDEX_DIR := search
@@ -95,7 +95,7 @@ test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	coverage run manage.py test ${TEST} --settings biostar.server.test_settings -v 2 --failfast
-	coverage html --skip-covered
+	coverage html --skip-covered --omit="conf/*,biostar/celery.py,biostar/celeryconf.py"
 
 	# Remove files associated with tests
 	rm -rf export/tested
