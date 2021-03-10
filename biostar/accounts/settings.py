@@ -17,13 +17,15 @@ ADMINS = [
 ]
 
 # Whitelist of Ip addresses to not rate limit.
-WHITELIST_IP = (
+WHITELIST_IP = [
 
-)
+]
 
 
 # White list of domains to not rate limit.
-WHITELIST_DOMAIN = [
+WHITELIST_DOMAIN = (
+
+)
 
 
 ]
