@@ -17,9 +17,10 @@ ADMINS = [
 ]
 
 # Whitelist of Ip addresses to not rate limit.
-WHITELIST_IP = [
+WHITELIST_IP = (
 
-]
+)
+
 
 # White list of domains to not rate limit.
 WHITELIST_DOMAIN = [
@@ -87,7 +88,9 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 
 # Key used to set ratelimitter.
 # https://django-ratelimit.readthedocs.io/en/stable/security.html
-RATELIMIT_KEY = "header:x-real-ip"
+# Set this to 'x-real-ip' under nginx
+IP_HEADER_KEY = 'REMOTE_ADDR'
+RATELIMIT_KEY = f"header:{IP_HEADER_KEY}"
 
 # Rate to limit
 RATELIMIT_RATE = '50/h'

@@ -14,14 +14,9 @@ RATE = '1/d'
 # IP request to add to request META
 REMOTE_ADDR = '127.0.0.1'
 
-# Host to add to request META
-HTTP_HOST = 'localhost'
 
 # Whitelist the IP triplet
 WHITELIST_IP = [REMOTE_ADDR[:-2]]
-
-# Whitelist domain in request
-WHITELIST_DOMAIN = [HTTP_HOST]
 
 
 @override_settings(RATELIMIT_RATE=RATE)
@@ -29,7 +24,7 @@ class RateLimiterTest(TestCase):
 
     def setUp(self):
         # Set the IP address and host name in request META
-        rmeta = dict(REMOTE_ADDR=REMOTE_ADDR, HTTP_HOST=HTTP_HOST)
+        rmeta = dict(REMOTE_ADDR=REMOTE_ADDR)
 
         # View to call
         self.url = reverse('login')
@@ -67,15 +62,6 @@ class RateLimiterTest(TestCase):
         # Call one more time to ensure that rate limiter is working
         response = self.run_one()
         self.assertTrue(len(response.content) == 0, 'User was not rate limited at all.')
-
-    @override_settings(WHITELIST_DOMAIN=WHITELIST_DOMAIN, WHITELIST_IP=[])
-    def test_whitelisting_domain(self):
-        """
-        Test domain whitelisting
-        """
-        # Iterate and call view until
-        # num requests pass threshold by offset.
-        self.limiting(offset=10, msg='User was rate limited and has a whitelisted domain.')
 
     @override_settings(WHITELIST_IP=WHITELIST_IP, WHITELIST_DOMAIN=[])
     def test_whitelisting_ip(self):
