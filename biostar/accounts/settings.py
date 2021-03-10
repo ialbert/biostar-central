@@ -17,9 +17,7 @@ ADMINS = [
 ]
 
 # Whitelist of Ip addresses to not rate limit.
-WHITELIST_IP = [
-
-]
+WHITELIST_IP = []
 
 PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
