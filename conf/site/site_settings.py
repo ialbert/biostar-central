@@ -52,6 +52,10 @@ DATABASES = {
     },
 }
 
+# Set this to 'x-real-ip' under nginx
+IP_HEADER_KEY = 'x-real-ip'
+RATELIMIT_KEY = f"header:{IP_HEADER_KEY}"
+
 WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 
 # Valid options; block, d_worker, threaded, uwsgi, celery.
