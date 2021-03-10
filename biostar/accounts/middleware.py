@@ -14,20 +14,17 @@ def lookup_host(name, ip):
     Given host name, return ip address after tyring a DNS reverse lookup
     """
 
-    # Construct unique ID based on presumed ip.
-    key = f'hostname-{ip}'
-
     # Refresh cache every 30 days.
     ttl = 3600 * 30
 
-    if key in cache:
-        value = cache.get(key, '')
+    if ip in cache:
+        value = cache.get(ip, '')
     else:
         # Do reverse DNS lookup using sockets
         value = gethostbyname(name)
         # Set cache
-        cache.set(key, value, ttl)
-        logger.info(f'Set host cache for ip={value} domain={name}')
+        cache.set(ip, value, ttl)
+        logger.info(f'set host cache for ip={value} domain={name}')
 
     return value
 
