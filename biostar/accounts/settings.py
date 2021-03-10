@@ -28,8 +28,6 @@ WHITELIST_DOMAIN = (
 )
 
 
-]
-
 PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
