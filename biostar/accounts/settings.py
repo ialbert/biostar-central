@@ -21,13 +21,6 @@ WHITELIST_IP = [
 
 ]
 
-
-# White list of domains to not rate limit.
-WHITELIST_DOMAIN = (
-
-)
-
-
 PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True

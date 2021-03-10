@@ -63,7 +63,7 @@ class RateLimiterTest(TestCase):
         response = self.run_one()
         self.assertTrue(len(response.content) == 0, 'User was not rate limited at all.')
 
-    @override_settings(WHITELIST_IP=WHITELIST_IP, WHITELIST_DOMAIN=[])
+    @override_settings(WHITELIST_IP=WHITELIST_IP)
     def test_whitelisting_ip(self):
         """
         Test IP whitelisting
