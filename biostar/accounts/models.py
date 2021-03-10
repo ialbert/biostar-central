@@ -218,19 +218,6 @@ class Profile(models.Model):
 
         return threshold
 
-    def check_data(self, total):
-        """
-        Check if total is over threashold
-        """
-        threshold = self.data_threshold()
-
-        # Size is smaller than maximum allowed for this user.
-        if total < threshold:
-            return True
-
-        # Failed the size check.
-        return False
-
     @property
     def mailing_list(self):
         """

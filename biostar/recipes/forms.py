@@ -246,11 +246,13 @@ class DataUploadForm(forms.ModelForm):
 
         total_count = Data.objects.filter(owner=self.user, deleted=False).count()
 
-        valid = self.user.profile.check_data(total_count)
-        if not valid:
-            raise forms.ValidationError(f"Exceeded maximum amount of data.")
+        # Current data count is less than threshold
+        valid = total_count < self.user.profile.data_threshold()
 
-        return cleaned_data
+        if valid:
+            return cleaned_data
+
+        raise forms.ValidationError(f"Exceeded maximum amount of data.")
 
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()

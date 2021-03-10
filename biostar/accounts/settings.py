@@ -90,7 +90,7 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 RATELIMIT_KEY = "header:x-real-ip"
 
 # Rate to limit
-RATELIMIT_RATE = '50/d'
+RATELIMIT_RATE = '50/h'
 
 # Set rate limit high to disable.
 #RATELIMIT_RATE = '50000000/d'
