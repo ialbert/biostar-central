@@ -22,7 +22,7 @@ def is_moderator(f):
 
 def d_timer():
     """
-    Return d_worker timer.
+    Return disabled timer.
     """
 
     class inner(object):

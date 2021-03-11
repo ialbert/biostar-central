@@ -17,10 +17,7 @@ ADMINS = [
 ]
 
 # Whitelist of Ip addresses to not rate limit.
-IP_WHITELIST = [
-
-]
-
+WHITELIST_IP = []
 
 PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
@@ -82,13 +79,12 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 
 # Key used to set ratelimitter.
 # https://django-ratelimit.readthedocs.io/en/stable/security.html
-RATELIMIT_KEY = "header:x-real-ip"
+# Must be set to the correct header
+IP_HEADER_KEY = 'REMOTE_ADDR'
+RATELIMIT_KEY = f"header:{IP_HEADER_KEY}"
 
-# Rate to limit
-RATELIMIT_RATE = '50/h'
-
-# Set rate limit high to disable.
-#RATELIMIT_RATE = '50000000/d'
+# Rate to limit ( set to high value to disable ).
+RATELIMIT_RATE = '5000/h'
 
 
 # Other settings

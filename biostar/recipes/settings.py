@@ -35,8 +35,11 @@ PAGEDOWN_IMAGE_UPLOAD_PATH = "images"
 JOB_STDOUT = os.path.join(JOB_LOGDIR, 'stdout.txt')
 JOB_STDERR = os.path.join(JOB_LOGDIR, 'stderr.txt')
 
-# Maximum amount of data allowed
-MAX_DATA = 100
+# Maximum count of data allowed fo users
+MAX_DATA_USERS = 100
+
+# Maximum count of data allowed for admin
+MAX_DATA_ADMINS = 10000
 
 # Maximum amount of items per clipboard
 MAX_CLIPBOARD = 5

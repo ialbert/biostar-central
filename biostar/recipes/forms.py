@@ -246,9 +246,13 @@ class DataUploadForm(forms.ModelForm):
 
         total_count = Data.objects.filter(owner=self.user, deleted=False).count()
 
-        if total_count >= settings.MAX_DATA and not self.user.profile.is_moderator:
-            raise forms.ValidationError(f"Exceeded maximum amount of data:{settings.MAX_DATA}.")
-        return cleaned_data
+        # Current data count is less than threshold
+        valid = total_count < self.user.profile.data_threshold()
+
+        if valid:
+            return cleaned_data
+
+        raise forms.ValidationError(f"Exceeded maximum amount of data.")
 
     def clean_type(self):
         cleaned_data = super(DataUploadForm, self).clean()

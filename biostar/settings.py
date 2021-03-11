@@ -209,7 +209,7 @@ STATICFILES_FINDERS = [
 LOGGER_NAME = "biostar"
 
 # Valid options; block, d_worker, threaded, uwsgi, celery.
-TASK_RUNNER = 'uwsgi'
+TASK_RUNNER = 'threaded'
 
 # Add celery apps to the installed set
 #CELERY_APPS = ['django_celery_results', 'django_celery_beat']
@@ -217,8 +217,6 @@ TASK_RUNNER = 'uwsgi'
 
 TASK_MODULES = []
 
-
-#BEAT_TASKS = {}
 
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

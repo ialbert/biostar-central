@@ -36,13 +36,13 @@ BEAT_TASKS = {
 
     'hourly_dump': {
         'task': 'biostar.celery.call_command',
-        'schedule': crontab(hour=1),
+        'schedule': timedelta(hours=1),
         'args': ["tasks"],
         'kwargs': {"action": 'pg_dump', 'hourly': True}
     },
     'daily_dump': {
         'task': 'biostar.celery.call_command',
-        'schedule': crontab(hour=22),
+        'schedule': timedelta(hours=22),
         'args': ["tasks"],
         'kwargs': {"action": 'pg_dump'}
     },

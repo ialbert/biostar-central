@@ -59,6 +59,13 @@ class ForumNavigation(TestCase):
             reverse("myposts"),
             reverse("myvotes"),
             reverse('api_traffic'),
+            reverse('latest_feed'),
+            reverse('latest_feed'),
+            reverse('tag_feed', kwargs=dict(text='tage1')),
+            reverse('post_feed', kwargs=dict(text=self.post.uid)),
+            reverse('post_type', kwargs=dict(text="job")),
+
+            reverse('user_feed', kwargs=dict(text=self.owner.username)),
             reverse('api_user', kwargs=dict(uid=self.owner.profile.uid)),
             reverse('api_post', kwargs=dict(uid=self.post.uid)),
             reverse('api_vote', kwargs=dict(uid=self.vote.pk)),
