@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import redirect
 from ratelimit.utils import is_ratelimited
+from biostar.utils import helpers
 from . import util
 
 logger = logging.getLogger("biostar")
@@ -19,7 +20,7 @@ def limiter(get_response):
 
         # Only check anonymous users
         if user.is_anonymous:
-            ip = util.ip_triplet(request)
+            ip = helpers.ip_triplet(request)
 
             if ip in settings.WHITELIST_IP:
                 return get_response(request)

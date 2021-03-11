@@ -14,6 +14,7 @@ from biostar.accounts.const import MESSAGE_COUNT
 from biostar.forum.const import VOTES_COUNT
 from biostar.forum.settings import RATELIMIT_KEY
 from ratelimit.utils import is_ratelimited
+from biostar.utils import helpers
 from . import auth, tasks, const, util
 from .models import Vote
 from .util import now
@@ -61,53 +62,6 @@ def update_status(user):
     return user.profile.trusted
 
 
-# def domain_is_whitelisted(ip):
-#     try:
-#         host = gethostbyaddr(ip)[0]
-#         return host.endswith(settings.WHITE_LIST_DOMAIN) and (ip == gethostbyname(host))
-#     except:
-#         return False
-#
-#
-# def ban_ip(get_response):
-#     """
-#
-#     """
-#
-#     def middleware(request):
-#         user = request.user
-#
-#         if settings.DEBUG:
-#             return get_response(request)
-#
-#         if user.is_anonymous:
-#             oip = util.get_ip(request)
-#             ips = oip.split(".")[:-1]
-#             ip = ".".join(ips)
-#
-#             if (ip in settings.IP_WHITELIST) or domain_is_whitelisted(oip):
-#                 return get_response(request)
-
-#             if ip not in cache:
-#                 cache.set(ip, 0, settings.TIME_PERIOD)
-#
-#             value = cache.get(ip, 0)
-#             if value >= settings.MAX_VISITS:
-#                 # Raise redirect exception
-#                 now = util.now()
-#                 message = f"{now}\tbanned\t{ip}\t{oip}\n"
-#                 logger.error(message)
-#                 fp = open(settings.BANNED_IPS, "a")
-#                 fp.write(message)
-#                 fp.close()
-#                 return redirect('/static/message.txt')
-#             else:
-#                 cache.incr(ip)
-#
-#         return get_response(request)
-#
-#     return middleware
-
 
 def user_tasks(get_response):
     """
@@ -130,7 +84,7 @@ def user_tasks(get_response):
         update_status(user=user)
 
         # Parses the ip of the request.
-        ip = util.get_ip(request)
+        ip = helpers.get_ip(request)
 
         # Find out the time since the last visit.
         elapsed = (now() - user.profile.last_login).total_seconds()

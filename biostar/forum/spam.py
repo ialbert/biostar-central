@@ -385,6 +385,6 @@ def score(uid, threshold=None):
     # If the score exceeds threshold it gets labeled spam.
     if post_score >= threshold:
         Post.objects.filter(id=post.id).update(spam=Post.SPAM)
-        auth.db_logger(text=f" post={post.uid}; spam score={post_score}")
+        auth.db_logger(text=f"auto marked spam :{auth.post_link(post)} spam score={post_score}")
 
     return post_score

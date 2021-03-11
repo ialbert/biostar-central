@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
 
+from biostar.utils import helpers
 from biostar.accounts.models import Profile
 from . import util
 
@@ -424,7 +425,7 @@ def update_post_views(post, request, timeout=settings.POST_VIEW_TIMEOUT):
     """
 
     # Get the ip.
-    ip = util.get_ip(request)
+    ip = helpers.get_ip(request)
 
     # Keys go by IP and post ip.
     cache_key = f"{ip}-{post.id}"

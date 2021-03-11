@@ -24,12 +24,13 @@ from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
 
+from biostar.utils.helpers import get_ip
 from . import forms, tasks
 from .auth import validate_login, send_verification_email, db_logger
 from .const import *
 from .models import User, Profile, Message, Log
 from .tokens import account_verification_token
-from .util import now, get_uuid, get_ip
+from .util import now, get_uuid
 
 import bleach
 from bleach.callbacks import nofollow
