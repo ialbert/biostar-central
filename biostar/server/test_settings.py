@@ -1,7 +1,8 @@
 from .settings import *
 
 # Do not multi-thread tests.
-TASK_RUNNER = 'block'
+
+TASK_RUNNER = os.getenv("TASK_RUNNER",  'block')
 
 INIT_PLANET = False
 
