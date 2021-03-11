@@ -38,7 +38,7 @@ def unbump(uids,  **kwargs):
         p.save()
 
 
-def awards(limit=10, **kwargs):
+def awards(limit=50, **kwargs):
     """
     Give user awards using a batch method.
     """

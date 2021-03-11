@@ -30,8 +30,7 @@ ADMINS = [
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
 # Allowed CORS websites
-CORS_ORIGIN_WHITELIST = [
-]
+CORS_ORIGIN_WHITELIST = []
 
 POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
 

@@ -30,7 +30,7 @@ class AwardDef(object):
         # No limit if left empty.
         self.max = max
 
-    def validate(self, *args, **kwargs):
+    def get_awards(self, *args, **kwargs):
 
         user = args[0]
         try:
@@ -39,7 +39,7 @@ class AwardDef(object):
             logger.error("validator error %s" % exc)
             return []
 
-        # Award user has won at this point.
+        # Existing award user has won at this point.
         awarded = Award.objects.filter(badge__name=self.name, user=user)
 
         # Ensure users does not get over rewarded.

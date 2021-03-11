@@ -297,15 +297,23 @@ def valid_awards(user):
     for award in awards.ALL_AWARDS:
 
         # Valid award targets the user has earned
-        targets = award.validate(user)
+        targets = award.get_awards(user)
+
         for target in targets:
 
-            date = util.now()
-            post = target if isinstance(target, Post) else None
+            #date = util.now()
+            if isinstance(target, Post):
+                post = target
+                date = post.creation_date
+            else:
+                date = util.now()
+                post = None
+
             badge = Badge.objects.filter(name=award.name).first()
 
             # Do not award a post multiple times.
             already_awarded = Award.objects.filter(user=user, badge=badge, post=post).exists()
+
             if post and already_awarded:
                 continue
 

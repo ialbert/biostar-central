@@ -14,7 +14,7 @@ logger = logging.getLogger('engine')
 
 def validate_login(email, password):
     """
-    Used to validate user across apps. Returns a tuple ( login message, False or True )
+    Used to get_awards user across apps. Returns a tuple ( login message, False or True )
     """
 
     user = User.objects.filter(email__iexact=email).order_by('-id').first()
