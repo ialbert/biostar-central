@@ -207,15 +207,14 @@ STATICFILES_FINDERS = [
 # Apply default logger setting.
 LOGGER_NAME = "biostar"
 
-# Valid options; block, d_worker, threaded, uwsgi, celery.
+# Valid options; block, disable, threaded, uwsgi, celery.
 TASK_RUNNER = 'threaded'
+
+TASK_MODULES = []
 
 # Add celery apps to the installed set
 #CELERY_APPS = ['django_celery_results', 'django_celery_beat']
 #INSTALLED_APPS += CELERY_APPS
-
-TASK_MODULES = []
-
 
 # The email delivery engine.
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

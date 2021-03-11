@@ -10,6 +10,6 @@ from biostar.forum.settings import *
 
 INSTALLED_APPS = DEFAULT_APPS + FORUM_APPS + PAGEDOWN_APP + PLANET_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP
 
-TASK_RUNNER = os.getenv("TASK_RUNNER",  'block')
+TASK_RUNNER = 'block'
 
 ROOT_URLCONF = 'biostar.server.urls'

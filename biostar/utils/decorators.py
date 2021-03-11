@@ -30,7 +30,7 @@ def d_timer():
             self.secs = secs
 
         def __call__(self, f, *args, **kwargs):
-            pass
+            return lambda *args, **kwargs: None
 
     return inner
 
