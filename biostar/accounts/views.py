@@ -304,7 +304,7 @@ def view_logs(request):
 
 @login_required
 def send_email_verify(request):
-    "Send one-time valid link to get_awards email"
+    "Send one-time valid link to validate email"
 
     # Sends verification email with a token
     user = request.user

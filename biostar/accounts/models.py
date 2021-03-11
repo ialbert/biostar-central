@@ -173,7 +173,7 @@ class Profile(models.Model):
     def upload_size(self):
         """
         Return max upload for given user.
-        Used to get_awards in forms
+        Used to validate in forms
         """
         # Get the default upload size.
         msize = self.max_upload_size

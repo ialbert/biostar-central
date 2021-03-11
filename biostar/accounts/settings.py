@@ -9,7 +9,7 @@ DEBUG = True
 # Should the site allow signup.
 ALLOW_SIGNUP = False
 
-# Private key used to get_awards external logins. Must be changed in production
+# Private key used to validate external logins. Must be changed in production
 LOGIN_PRIVATE_KEY = "private-key"
 
 ADMINS = [
