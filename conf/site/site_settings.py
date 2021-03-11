@@ -52,7 +52,7 @@ DATABASES = {
     },
 }
 
-# Set this to 'x-real-ip' under nginx
+# Set this to 'X-Real-IP' under nginx
 IP_HEADER_KEY = 'x-real-ip'
 RATELIMIT_KEY = f"header:{IP_HEADER_KEY}"
 

@@ -17,7 +17,15 @@ def get_ip(request):
     """
     Attempts to extract the IP number from the HTTP request headers.
     """
-    ip = request.META.get(settings.IP_HEADER_KEY, '0.0.0.0')
+    # lower the
+    key = settings.IP_HEADER_KEY
+    meta = request.META
+
+    # Lower case versions of keys
+    simple_meta = {k.lower(): v for k, v in request.META.items()}
+
+    ip = meta.get(key, simple_meta.get(key, '0.0.0.0'))
+
     return ip
 
 
