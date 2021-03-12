@@ -224,7 +224,7 @@ def batch_create_awards(limit=100):
             award = models.Award(user=user, badge=badge, date=date, post=post)
             yield award
 
-    message(f"{len(targets)} total awards given to users")
+    message(f"---\n{len(targets)} total awards given to users")
     models.Award.objects.bulk_create(objs=batch(), batch_size=limit)
 
 

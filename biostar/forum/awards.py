@@ -40,7 +40,7 @@ class AwardDef(object):
         except Exception as exc:
             logger.error("validator error %s" % exc)
             return []
-
+        #TODO, makes a query here,
         if isinstance(value.first(), Post):
             # Count awards user has for this post.
             award_count = Count('award', filter=Q(author=user))
