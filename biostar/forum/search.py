@@ -246,7 +246,7 @@ def index_posts(posts, ix=None, overwrite=False, add_func=add_index):
     else:
         writer.commit()
 
-    elapsed(f"Indexed posts={total}")
+    #elapsed(f"Indexed posts={total}")
 
 
 def crawl(reindex=False, overwrite=False, limit=1000):

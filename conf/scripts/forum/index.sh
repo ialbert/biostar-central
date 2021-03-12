@@ -13,5 +13,5 @@ conda activate engine
 # Set the configuration module.
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
-# Add 5000 posts to search index every 3 minutes
-python manage.py index --index ${BATCH_SIZE} --report
+# Add BATCH_SIZE posts to search index
+python manage.py index --size ${BATCH_SIZE} --report
