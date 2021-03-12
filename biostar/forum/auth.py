@@ -6,6 +6,7 @@ import hashlib
 import urllib.parse as urlparse
 from urllib import request
 
+
 from django.template import loader
 from django.conf import settings
 from django.contrib import messages
@@ -16,8 +17,9 @@ from django.utils.timezone import utc
 from django.core.cache import cache
 from django.core.paginator import Paginator
 from django.shortcuts import reverse
-from biostar.accounts.models import Profile
+from biostar.accounts.models import Profile, Message
 from . import util, awards, tasks
+from biostar.accounts.const import MESSAGE_COUNT
 from .const import *
 from .models import Post, Vote, PostView, Subscription, Award, Badge, delete_post_cache
 from django.utils.safestring import mark_safe
@@ -309,6 +311,21 @@ def valid_awards(user):
             valid.append((user, badge, date, post))
 
     return valid
+
+
+def get_counts(user):
+
+    # The number of new messages since last visit.
+    message_count = Message.objects.filter(recipient=user, unread=True).count()
+
+    # The number of new votes since last visit.
+    vote_count = Vote.objects.filter(post__author=user, date__gte=user.profile.last_login).exclude(
+        author=user).count()
+
+    # Store the counts into the session.
+    counts = {MESSAGE_COUNT: message_count, VOTES_COUNT: vote_count}
+
+    return counts
 
 
 @transaction.atomic

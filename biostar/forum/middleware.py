@@ -62,7 +62,6 @@ def update_status(user):
     return user.profile.trusted
 
 
-
 def user_tasks(get_response):
     """
     Tasks run for authenticated users.
@@ -97,15 +96,7 @@ def user_tasks(get_response):
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
 
-            # The number of new messages since last visit.
-            message_count = Message.objects.filter(recipient=user, unread=True).count()
-
-            # The number of new votes since last visit.
-            vote_count = Vote.objects.filter(post__author=user, date__gte=user.profile.last_login).exclude(
-                author=user).count()
-
-            # Store the counts into the session.
-            counts = {MESSAGE_COUNT: message_count, VOTES_COUNT: vote_count}
+            counts = auth.get_counts(user=user)
 
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts
