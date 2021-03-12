@@ -452,7 +452,7 @@ def badge_view(request, uid):
         messages.error(request, f"Badge with id={uid} does not exist.")
         return redirect(reverse("badge_list"))
 
-    awards = badge.award_set.all().order_by("date")
+    awards = badge.award_set.all().order_by("-date")
     if user:
         awards = awards.filter(user=user)
 
