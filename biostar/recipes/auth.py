@@ -122,25 +122,10 @@ def copy_uid(request, uid, board):
     return board_items
 
 
-def local_token():
-
-    if os.path.isfile(settings.TOKEN_FILE):
-        return open(settings.TOKEN_FILE, "r").readline().strip()
-    else:
-        logger.error(f"Did not find token in :{settings.TOKEN_FILE}")
-
-    return ""
-
-
-def get_token(request=None):
+def get_token(request):
     """
     Fetch user token from request.
     """
-
-    # Read token from local file when no request is provided.
-    if request is None:
-        return local_token()
-
     # Try and retrieve from a file
     token = request.FILES.get("token")
     if token:

@@ -1,8 +1,11 @@
 import logging
+from socket import gethostbyaddr, gethostbyname
 from django.conf import settings
+from django.core.cache import cache
 from django.shortcuts import redirect
 from ratelimit.utils import is_ratelimited
-from . import util
+from biostar.utils import helpers
+from . import util, auth
 
 logger = logging.getLogger("biostar")
 
@@ -11,14 +14,16 @@ def limiter(get_response):
     """
     Rate Limiter used to deter anon users
     """
+
     def middleware(request):
         user = request.user
 
         # Only check anonymous users
         if user.is_anonymous:
+            ip = helpers.get_ip(request)
+            triplet = helpers.ip_triplet(request)
 
-            ip = util.ip_triplet(request)
-            if ip in settings.IP_WHITELIST:
+            if triplet in settings.WHITELIST_IP:
                 return get_response(request)
 
             # Check if the user should be rate limited within a given time period.
@@ -28,6 +33,8 @@ def limiter(get_response):
                                      rate=settings.RATELIMIT_RATE,
                                      increment=True)
             # Redirect to static page if limit reached
+            # Might spam the logger view
+            # auth.db_logger(text=f'user banned ip={ip}', ipaddr=ip)
             if limited:
                 return redirect('/static/message.txt')
 

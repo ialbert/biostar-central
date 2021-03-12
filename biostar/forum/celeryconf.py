@@ -3,12 +3,6 @@ from celery.schedules import crontab
 
 
 BEAT_TASKS = {
-    'test': {
-        'task': 'biostar.celery.test',
-        'schedule': 10,
-        'args': ["index"],
-        'kwargs': {"update": 1}
-    },
     'cleanup': {
         'task': 'biostar.celery.call_command',
         'schedule': timedelta(days=1),
@@ -42,15 +36,15 @@ BEAT_TASKS = {
 
     'hourly_dump': {
         'task': 'biostar.celery.call_command',
-        'schedule': crontab(minute=10),
+        'schedule': timedelta(hours=1),
         'args': ["tasks"],
-        'kwargs': {"action": 'dump', 'hourly': True}
+        'kwargs': {"action": 'pg_dump', 'hourly': True}
     },
     'daily_dump': {
         'task': 'biostar.celery.call_command',
-        'schedule': crontab(hour=22),
+        'schedule': timedelta(hours=22),
         'args': ["tasks"],
-        'kwargs': {"action": 'dump'}
+        'kwargs': {"action": 'pg_dump'}
     },
 }
 

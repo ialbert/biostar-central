@@ -7,7 +7,7 @@ import requests
 from django.core.management.base import BaseCommand
 from django.shortcuts import reverse
 
-from biostar.recipes.api import tabular_list
+from biostar.recipes.api import api_list
 from biostar.recipes import auth
 from biostar.recipes.models import Project, Analysis
 
@@ -16,13 +16,12 @@ PUSH, PULL = "push", "pull"
 logger = logging.getLogger("engine")
 
 
-def api_response(url, action=PULL, fname=""):
+def api_response(url, token, action=PULL, fname=""):
     """
     Send
     """
 
-    # Append token from local settings.TOKEN_FILE.
-    params = {"token": auth.get_token()}
+    params = {"token": token}
 
     # Push conf as a file to remote host.
     if action == PUSH:
@@ -46,7 +45,7 @@ def update(obj, data):
     return callback(obj=obj, data=data, save=True)
 
 
-def push_pull(uid, klass, fname="", url=None, action=PULL):
+def push_pull(uid, klass, token, fname="", url=None, action=PULL):
     """
     Push or pull an object from a remote host or database.
     """
@@ -55,7 +54,7 @@ def push_pull(uid, klass, fname="", url=None, action=PULL):
 
     # Send data to remote host
     if url:
-        return api_response(url=url, action=action, fname=fname)
+        return api_response(url=url, action=action, fname=fname, token=token)
 
     # Handle object internally.
     obj = klass.objects.filter(uid=uid).first()
@@ -76,7 +75,7 @@ def push_pull(uid, klass, fname="", url=None, action=PULL):
     return result
 
 
-def project_api(uid, fname="", url=None, action=PULL):
+def project_api(uid, token=None, fname="", url=None, action=PULL):
     """
     Push or pull a given project from a remote host or database.
     """
@@ -86,12 +85,12 @@ def project_api(uid, fname="", url=None, action=PULL):
     url = urljoin(url, endpoint) if url else None
 
     # Push or pull the project
-    response = push_pull(klass=Project, uid=uid, fname=fname, url=url, action=action)
+    response = push_pull(klass=Project, uid=uid, fname=fname, url=url, action=action, token=token)
 
     return response
 
 
-def recipes_api(uid, fname="", url=None, action=PULL):
+def recipes_api(uid, token=None, fname="", url=None, action=PULL):
     """
     Push or pull a given recipe from a remote host or database.
     """
@@ -102,23 +101,23 @@ def recipes_api(uid, fname="", url=None, action=PULL):
     url = urljoin(url, endpoint) if url else None
 
     # Push or pull the
-    response = push_pull(klass=Analysis, uid=uid, fname=fname, url=url, action=action)
+    response = push_pull(klass=Analysis, uid=uid, fname=fname, url=url, action=action, token=token)
 
     return response
 
 
-def list_ids(url=None):
+def list_ids(token, url=None):
     """
     Returns a listing of all project and recipe ids.
     """
     if url:
         endpoint = reverse("api_list")
         url = urljoin(url, endpoint)
-        params = {"token": auth.get_token()}
+        params = {"token": token}
         response = requests.get(url=url, params=params)
         text = response.text
     else:
-        text = tabular_list()
+        text = api_list()
 
     return text
 
@@ -131,6 +130,8 @@ class Command(BaseCommand):
         # Give one file or a list of file.
         parser.add_argument('files', metavar='F', default="", nargs='+',
                             help="List of files to push or pull.")
+        parser.add_argument('token', metavar='F', default="", nargs='+',
+                            help="Token to use in api.")
 
         parser.add_argument('--url', default="",
                             help="URL to get API endpoints from.")
@@ -157,10 +158,11 @@ class Command(BaseCommand):
         fname = options.get('data')
         push = options.get('push')
         listing = options.get('list')
+        token = options.get('token')
 
         # List objects
         if listing:
-            print(list_ids(url=url))
+            print(list_ids(url=url, token=token))
             return
 
         if push and not fname:
@@ -174,8 +176,8 @@ class Command(BaseCommand):
 
         # Call the project API with given pid.
         if pid:
-            print(project_api(uid=pid, fname=fname, url=url, action=action))
+            print(project_api(uid=pid, fname=fname, url=url, action=action, token=token))
 
         # Call the recipe API with given rid.
         if rid:
-            print(recipes_api(uid=rid, fname=fname, url=url, action=action))
+            print(recipes_api(uid=rid, fname=fname, url=url, action=action, token=token))

@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.contrib import messages
 import sys
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 import threading
 
 
@@ -22,7 +22,7 @@ def is_moderator(f):
 
 def d_timer():
     """
-    Return d_worker timer.
+    Return disabled timer.
     """
 
     class inner(object):
@@ -85,7 +85,7 @@ def u_timer():
 
 def c_timer():
     """
-    Ensure celery is installed and construct a callable object to match timer interface.
+    Construct a celery timer decorator.
     Inside the __call__, it dynamically adds the given function to the beat schedule.
 
     Adopted from:
@@ -240,22 +240,19 @@ def t_worker():
 
 def select_runner(name):
     """
-    Return runner based on rtype ( worker or timer ) and
-    settings.TASK_RUNNER
+    Return runner based on name ( worker or timer ) and settings.TASK_RUNNER.
     """
     mapper = {
         'block': {'worker': b_worker, 'timer': b_timer},
         'uwsgi': {'worker': u_worker, 'timer': u_timer},
         'celery': {'worker': c_worker, 'timer': c_timer},
         'threaded': {'worker': t_worker, 'timer': t_timer},
-        'd_worker': {'worker': d_worker, 'timer': d_timer},
+        'disable': {'worker': d_worker, 'timer': d_timer},
     }
 
     if settings.TASK_RUNNER not in mapper:
         logger.error(f"Invalid Task. valid options : {mapper.keys()}")
         raise Exception('Invalid task.')
-
-    logger.info(f'tasks and timers set to {settings.TASK_RUNNER}')
 
     # Call primary function here and return worker decorator.
     decorator = mapper.get(settings.TASK_RUNNER)[name]()
@@ -266,13 +263,14 @@ try:
     # Initiate the runners
     WORKER = select_runner('worker')
     TIMER = select_runner('timer')
+    logger.info(f'workers and timers set to {settings.TASK_RUNNER}')
 
 except Exception as exc:
     # Disable tasks when there are errors, raising exceptions breaks migration.
     WORKER = d_worker()
     TIMER = d_timer()
     logger.error(f'Error initializing task: {settings.TASK_RUNNER}.')
-    logger.error(f'Tasks d_worker: {exc}.')
+    logger.error(f'Tasks disabled: {exc}.')
 
 
 def task(f):

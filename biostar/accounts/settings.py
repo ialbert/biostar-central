@@ -17,10 +17,7 @@ ADMINS = [
 ]
 
 # Whitelist of Ip addresses to not rate limit.
-IP_WHITELIST = [
-
-]
-
+WHITELIST_IP = []
 
 PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
@@ -80,6 +77,15 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True
 
+# Key used to set ratelimitter.
+# https://django-ratelimit.readthedocs.io/en/stable/security.html
+# Must be set to the correct header
+IP_HEADER_KEY = 'REMOTE_ADDR'
+RATELIMIT_KEY = f"header:{IP_HEADER_KEY}"
+
+# Rate to limit ( set to high value to disable ).
+RATELIMIT_RATE = '5000/h'
+
 
 # Other settings
 ACCOUNT_AUTHENTICATION_METHOD = "email"
@@ -96,10 +102,6 @@ LOGIN_REDIRECT_URL = "/"
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
-
-# Location of token file in local machine.
-TOKEN_FILE = "~/.bio/token"
-TOKEN_FILE = os.path.expanduser(TOKEN_FILE)
 
 ACCOUNTS_APPS = [
 

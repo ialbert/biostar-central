@@ -16,6 +16,9 @@ LOAD_COMMAND := project
 # Search index name
 INDEX_NAME := index
 
+# What test to run, defaults to all tests
+TEST := biostar
+
 # Search index directory
 INDEX_DIR := search
 # Some variables need to come from the enviroment.
@@ -35,11 +38,13 @@ accounts:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.accounts.settings)
 	$(eval CELERY_CONF := biostar/celeryconf.py)
 	$(eval DJANGO_APP := biostar.accounts)
+	$(eval TEST:=biostar.accounts)
 
 emailer:
 	@echo "*** Setting variables for emails app."
 	$(eval DJANGO_SETTINGS_MODULE := biostar.emailer.settings)
 	$(eval DJANGO_APP := biostar.emailer)
+	$(eval TEST:=biostar.emailer)
 
 recipes:
 	@echo "*** Setting variables for recipe app."
@@ -50,6 +55,7 @@ recipes:
 	$(eval WSGI_FILE := biostar/recipes/wsgi.py)
 	$(eval TASKS_MODULE := biostar.recipes.tasks)
 	$(eval TARGET:=recipes)
+	$(eval TEST:=biostar.recipes)
 
 
 bioconductor:
@@ -61,6 +67,7 @@ bioconductor:
 	$(eval WSGI_FILE := themes/bioconductor/wsgi.py)
 	$(eval TASKS_MODULE := biostar.forum.tasks)
 	$(eval TARGET:=supportupgrade)
+	$(eval TEST:=biostar.forum)
 
 forum:
 	@echo "*** Setting variables for forum app."
@@ -70,6 +77,7 @@ forum:
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TASKS_MODULE := biostar.forum.tasks)
 	$(eval WSGI_FILE := biostar/forum/wsgi.py)
+	$(eval TEST:=biostar.forum)
 
 echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -86,8 +94,8 @@ init: echo
 test:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
-	coverage run manage.py test ${DJANGO_APP} --settings biostar.server.test_settings -v 2 --failfast
-	coverage html --skip-covered
+	coverage run manage.py test ${TEST} --settings biostar.server.test_settings -v 2 --failfast
+	coverage html --skip-covered --omit="conf/*,biostar/celery.py,biostar/celeryconf.py"
 
 	# Remove files associated with tests
 	rm -rf export/tested

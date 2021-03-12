@@ -8,6 +8,17 @@ CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
 HTTP_PROTOCOL = "http"
 
+LANGUAGE_DETECTION = ["af", "ar", "bg",
+                      "bn", "ca", "cs", "cy",
+                      "da", "de", "el", "en",
+                      "es", "et", "fa", "fi", "fr",
+                      "gu", "he", "hi", "hr", "hu", "id",
+                      "it", "ja", "kn", "ko", "lt", "lv",
+                      "mk", "ml", "mr", "ne", "nl", "no", "pa",
+                      "pl", "pt", "ro", "ru", "sk", "sl", "so", "sq",
+                      "sv", "sw", "ta", "te", "th", "tl", "tr",
+                      "uk", "ur", "vi", "zh-cn", "zh-tw"]
+
 # Full file path to tags.
 # Each line is a list of comma separated tags.
 TAGS_OPTIONS_FILE = os.path.join(CUSTOM_THEME, 'tags', 'tags.txt')

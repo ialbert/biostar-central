@@ -1,7 +1,6 @@
 import os
 import csv
 from django.db.models.signals import post_migrate
-#from django.contrib.redirects.models import Redirect
 from django.core.files import File
 from django.apps import AppConfig
 from django.conf import settings

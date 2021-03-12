@@ -8,9 +8,6 @@ DEBUG = True
 # Private key used to validate external logins
 LOGIN_PRIVATE_KEY = SECRET_KEY
 
-RECAPTCHA_PUBLIC_KEY = ""
-RECAPTCHA_PRIVATE_KEY = ""
-
 SEARCH_CHAR_MIN = 2
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
@@ -23,7 +20,7 @@ MAX_PROJECTS = 20
 # Root directory relative to the job path usd to store logs.
 JOB_LOGDIR = 'runlog'
 
-# Valid options; block, d_worker, threaded, uwsgi, celery.
+# Valid options; block, disable, threaded, uwsgi, celery.
 TASK_RUNNER = 'threaded'
 
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
@@ -38,8 +35,11 @@ PAGEDOWN_IMAGE_UPLOAD_PATH = "images"
 JOB_STDOUT = os.path.join(JOB_LOGDIR, 'stdout.txt')
 JOB_STDERR = os.path.join(JOB_LOGDIR, 'stderr.txt')
 
-# Maximum amount of data allowed
-MAX_DATA = 100
+# Maximum count of data allowed fo users
+MAX_DATA_USERS = 100
+
+# Maximum count of data allowed for admin
+MAX_DATA_ADMINS = 10000
 
 # Maximum amount of items per clipboard
 MAX_CLIPBOARD = 5
@@ -53,20 +53,6 @@ MAX_RUNNING_JOBS = 5
 # Maximum amount of cumulative uploaded files a user is allowed, in mega-bytes.
 MAX_UPLOAD_SIZE = 10
 
-# Deployment specific parameters.
-PROTOCOL = "http"
-HTTP_PORT = '8000'
-BASE_URL = f"{PROTOCOL}://{SITE_DOMAIN}:{HTTP_PORT}"
-
-FTP_HOST = "localhost"
-FTP_PORT = 8021
-
-# Should the site allow signup.
-ALLOW_SIGNUP = False
-
-# Allow users to toggle their status moderator
-ALLOW_SELF_MODERATE = False
-
 # Maximum size of each file upload in MB
 MAX_FILE_SIZE_MB = 300
 
@@ -77,8 +63,6 @@ ENGINE_APPS = [
     'biostar.recipes.apps.EngineConfig',
     'django.contrib.redirects',
 ]
-
-PAGEDOWN_APP = ['pagedown.apps.PagedownConfig']
 
 INSTALLED_APPS = DEFAULT_APPS + ENGINE_APPS + ACCOUNTS_APPS + EMAILER_APP + PAGEDOWN_APP
 
@@ -97,10 +81,6 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 
 TEMPLATES[0]['OPTIONS']['string_if_invalid'] = "## TEMPLATE ERROR MISSING VARIABLE: %s ##"
 
-
-# Directory where files are extracted to
-EXTRACT_TO = join(BASE_DIR, "export", "extracted")
-os.makedirs(EXTRACT_TO, exist_ok=True)
 
 # The location of application specific data.
 LOCAL_ROOT = join(BASE_DIR, 'export', 'local')
