@@ -294,6 +294,7 @@ def valid_awards(user):
     """
 
     valid = []
+    # Randomly go from one badge to the other
     for award in awards.ALL_AWARDS:
 
         # Valid award targets the user has earned
@@ -301,7 +302,6 @@ def valid_awards(user):
 
         for target in targets:
 
-            #date = util.now()
             if isinstance(target, Post):
                 post = target
                 date = post.creation_date
@@ -310,12 +310,6 @@ def valid_awards(user):
                 post = None
 
             badge = Badge.objects.filter(name=award.name).first()
-
-            # Do not award a post multiple times.
-            already_awarded = Award.objects.filter(user=user, badge=badge, post=post).exists()
-
-            if post and already_awarded:
-                continue
 
             valid.append((user, badge, date, post))
 

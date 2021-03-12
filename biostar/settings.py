@@ -43,6 +43,9 @@ DEFAULT_FROM_EMAIL = ADMIN_EMAIL
 # The default no reply email.
 DEFAULT_NOREPLY_EMAIL = ADMIN_EMAIL
 
+# Email used to send errors to ADMINS
+SERVER_EMAIL = ADMIN_EMAIL
+
 FROM_EMAIL_PATTERN = "%s <%s>"
 
 SEND_MAIL = True
