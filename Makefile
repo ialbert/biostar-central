@@ -92,9 +92,10 @@ init: echo
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
 test:
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	@echo DJANGO_SETTINGS_MODULE=biostar.server.test_settings
 	@echo DJANGO_APP=${DJANGO_APP}
-	coverage run manage.py test ${TEST} --settings biostar.server.test_settings -v 2 --failfast
+	$(eval DJANGO_SETTINGS_MODULE=biostar.server.test_settings)
+	coverage run manage.py test ${TEST} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage html --skip-covered --omit="conf/*,biostar/celery.py,biostar/celeryconf.py"
 
 	# Remove files associated with tests

@@ -2,7 +2,8 @@ import logging
 
 from django.utils.timezone import utc
 from datetime import datetime, timedelta
-
+from django.db.models import Count
+from django.db.models import Q
 from biostar.accounts.models import User
 from biostar.forum.models import Post, Vote, Badge, Award
 
@@ -30,16 +31,26 @@ class AwardDef(object):
         # No limit if left empty.
         self.max = max
 
-    def validate(self, *args, **kwargs):
+    def get_awards(self, user):
 
-        user = args[0]
         try:
-            value = self.fun(*args, **kwargs).order_by("pk")
+            value = self.fun(user).order_by("pk")
+
+            # Only return the ones that have one
         except Exception as exc:
             logger.error("validator error %s" % exc)
             return []
 
-        # Award user has won at this point.
+        if isinstance(value.first(), Post):
+            # Count awards user has for this post.
+            award_count = Count('award', filter=Q(author=user))
+
+            # Get posts/user combo that have not been awarded yet
+            value = value.annotate(award_count=award_count).filter(award_count=0)
+
+            return value
+
+        # Existing award user has won at this point.
         awarded = Award.objects.filter(badge__name=self.name, user=user)
 
         # Ensure users does not get over rewarded.

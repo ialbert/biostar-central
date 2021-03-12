@@ -199,26 +199,33 @@ def create_user_awards(user_id, limit=None):
         message(f"award {badge.name} created for {user.email}")
 
 
-def batch_create_awards(limit=10):
+def batch_create_awards(limit=100):
     from biostar.accounts.models import User
     from biostar.forum import auth, models, util
 
-    # Awards set amount per user.
-    users = User.objects.order_by('-profile__last_login')[:limit]
+    # Randomly order awards
+    users = User.objects.order_by('?')[:limit]
 
     # Aggregate target awards into flat list
     targets = []
     for u in users:
-        targets.extend(auth.valid_awards(user=u))
+        valid = auth.valid_awards(user=u)
+        targets.extend(valid)
+        
+    # Shuffle the targets as well
+    random.shuffle(targets)
 
     def batch():
         for target in targets:
             if not target:
                 continue
             user, badge, date, post = target
+            # In batch creation we overwrite date.
+            date = post.lastedit_date if post else date
             award = models.Award(user=user, badge=badge, date=date, post=post)
             yield award
 
+    message(f"{len(targets)} awards given to {len(users)} users")
     models.Award.objects.bulk_create(objs=batch(), batch_size=limit)
 
 

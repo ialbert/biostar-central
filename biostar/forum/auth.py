@@ -287,27 +287,24 @@ def post_tree(user, root):
 
     return root, comment_tree, answers, thread
 
-
 def valid_awards(user):
     """
     Return list of valid awards for a given user
     """
 
     valid = []
+    # Randomly go from one badge to the other
     for award in awards.ALL_AWARDS:
 
         # Valid award targets the user has earned
-        targets = award.validate(user)
+        targets = award.get_awards(user)
+
         for target in targets:
 
-            date = util.now()
             post = target if isinstance(target, Post) else None
-            badge = Badge.objects.filter(name=award.name).first()
+            date = util.now()
 
-            # Do not award a post multiple times.
-            already_awarded = Award.objects.filter(user=user, badge=badge, post=post).exists()
-            if post and already_awarded:
-                continue
+            badge = Badge.objects.filter(name=award.name).first()
 
             valid.append((user, badge, date, post))
 

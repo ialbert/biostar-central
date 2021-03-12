@@ -421,13 +421,6 @@ def post_body(context, post, user, tree):
 
 
 @register.filter
-def get_award_context(award):
-    post = award.post
-    context = f"For : <a href={post.get_absolute_url()}>{post.title}</a>" if post else ""
-    return context
-
-
-@register.filter
 def get_user_location(user):
     return user.profile.location or "location unknown"
 
