@@ -57,7 +57,7 @@ class Command(BaseCommand):
         parser.add_argument('--prog', dest='prog', default="/usr/bin/pg_dump", help='the postgres program default=%default')
         parser.add_argument('--outdir', dest='outdir', default=BACKUP_DIR, help='output directory default=%default')
         parser.add_argument('--hourly', dest='hourly', action='store_true', default=False, help='hourly datadump'),
-        parser.add_argument('--limit', dest='limit', type=int, default=100, help='How many users'),
+        parser.add_argument('--limit', dest='limit', type=int, default=1, help='How many users'),
 
     def handle(self, *args, **options):
         action = options['action']
