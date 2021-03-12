@@ -211,7 +211,7 @@ def batch_create_awards(limit=100):
     for u in users:
         valid = auth.valid_awards(user=u)
         targets.extend(valid)
-        
+
     # Shuffle the targets as well
     random.shuffle(targets)
 
@@ -223,6 +223,8 @@ def batch_create_awards(limit=100):
             # In batch creation we overwrite date.
             date = post.lastedit_date if post else date
             award = models.Award(user=user, badge=badge, date=date, post=post)
+            message(f"awarded {award} to {user}")
+            
             yield award
 
     message(f"{len(targets)} awards given to {len(users)} users")
