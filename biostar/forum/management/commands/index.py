@@ -35,7 +35,7 @@ class Command(BaseCommand):
         parser.add_argument('--reset', action='store_true', default=False, help="Resets the indexed flags.")
         parser.add_argument('--remove', action='store_true', default=False, help="Removes the existing index.")
         parser.add_argument('--report', action='store_true', default=False, help="Reports on the content of the index.")
-        parser.add_argument('--index', type=int, default=0, help="How many posts to index")
+        parser.add_argument('--size', type=int, default=0, help="How many posts to index")
         parser.add_argument('--clear_spam',  action='store_true', default=False, help="Clear search index of spam posts.")
 
     def handle(self, *args, **options):
@@ -45,7 +45,7 @@ class Command(BaseCommand):
         reset = options['reset']
         remove = options['remove']
         report = options['report']
-        index = options['index']
+        size = options['size']
         clear = options['clear_spam']
 
         # Sets the un-indexed flags to false on all posts.
@@ -54,16 +54,10 @@ class Command(BaseCommand):
             Post.objects.valid_posts(indexed=True).exclude(root=None).update(indexed=False)
 
         # Index a limited number yet unindexed posts
-        if index:
+        if size:
 
-            # How many total posts can be indexed
-            start_count = Post.objects.valid_posts(indexed=False).exclude(root=None).count()
-            logger.info(f"Starting with {start_count} unindexed posts")
-
-            posts = Post.objects.valid_posts(indexed=False).exclude(root=None)[:index]
+            posts = Post.objects.valid_posts(indexed=False).exclude(root=None)[:size]
             target_count = len(posts)
-
-            logger.info(f"Indexing {target_count} posts")
 
             # The list of posts to update
             ids = [ post.id for post in posts ]
@@ -75,7 +69,8 @@ class Command(BaseCommand):
             Post.objects.filter(id__in=ids).update(indexed=True)
 
             count = Post.objects.valid_posts(indexed=False).exclude(root=None).count()
-            logger.info(f"Finished with {count} unindexed posts remaining")
+
+            logger.info(f"Indexed {target_count} posts, {count} unindexed posts remaining")
 
         # Report the contents of the index
         if report:
