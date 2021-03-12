@@ -14,4 +14,4 @@ conda activate engine
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
 # Add BATCH_SIZE posts to search index
-python manage.py index --size ${BATCH_SIZE} --report
+python manage.py index --size ${BATCH_SIZE}
