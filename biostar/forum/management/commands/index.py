@@ -7,7 +7,7 @@ from biostar.forum.models import Post
 from django.conf import settings
 from biostar.forum import search, spam, models
 
-logger = logging.getLogger('engine')
+logger = logging.getLogger('biostar')
 
 
 def clear_spam():
