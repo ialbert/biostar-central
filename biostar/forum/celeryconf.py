@@ -31,7 +31,7 @@ BEAT_TASKS = {
         'task': 'biostar.celery.call_command',
         'schedule': timedelta(hours=1),
         'args': ["tasks"],
-        'kwargs': {"action": 'award'}
+        'kwargs': {"action": 'award', "limit": 100}
     },
 
     'hourly_dump': {

@@ -32,7 +32,7 @@ class TestSpam(TestCase):
                                                    content=content, spam=models.Post.SPAM,
                                                    type=models.Post.QUESTION)
 
-        spam.build_spam_index()
+        #spam.build_spam_index()
 
     def test_score(self):
         """

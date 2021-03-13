@@ -47,5 +47,5 @@ class Command(BaseCommand):
             spam.build_spam_index(overwrite=remove, add_ham=True, limit=nsize)
 
         # Run specificity and sensitivity tests on posts.
-        if test:
-            spam.test_classify(niter=niter, size=nsize, limitmb=limitmb, verbosity=verbosity)
+        #if test:
+        #    spam.test_classify(niter=niter, size=nsize, limitmb=limitmb, verbosity=verbosity)

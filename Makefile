@@ -190,3 +190,6 @@ deploy:
 forum_deploy:
 	@echo "Deploying forum on test server."
 	(cd conf/ansible && make forum_deploy TARGET=test)
+
+clear_cache:
+	echo 'flush_all' | nc localhost 11211

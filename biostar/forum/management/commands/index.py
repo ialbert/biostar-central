@@ -17,13 +17,23 @@ def clear_spam():
     # Get all of the spam posts
     posts = models.Post.objects.filter(spam=models.Post.SPAM).values_list('uid', flat=True)
 
-    nposts = len(posts)
+    # Remove spam from search index
+    #tasks.remove_index.spool(uid=post.uid)
 
-    logger.info(f"{nposts} spam found.")
+    # Classify post as spam.
+    #tasks.classify_spam.spool(uid=post.uid)
+
+    #nposts = len(posts)
+
+    #logger.info(f"{nposts} spam found.")
 
     for uid in posts:
         spam.remove_spam(uid=uid)
 
+    return
+
+
+def batch_reset():
     return
 
 
