@@ -7,29 +7,48 @@ from biostar.forum.models import Post
 from django.conf import settings
 from biostar.forum import search, spam, models
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 
-def clear_spam():
+# def clear_spam():
+#     """
+#     Clear spam from search index
+#     """
+#     # Get all of the spam posts
+#     posts = models.Post.objects.filter(spam=models.Post.SPAM).values_list('uid', flat=True)
+#
+#     # Remove spam from search index
+#     #tasks.remove_index.spool(uid=post.uid)
+#
+#     # Classify post as spam.
+#     #tasks.classify_spam.spool(uid=post.uid)
+#
+#     #nposts = len(posts)
+#
+#     #logger.info(f"{nposts} spam found.")
+#
+#     #for uid in posts:
+#     spam.remove_spam(post=post)
+#
+#     return
+
+def reset_indexed(posts):
     """
-    Clear spam from search index
+    Turen index flag to True
     """
-    # Get all of the spam posts
-    posts = models.Post.objects.filter(spam=models.Post.SPAM).values_list('uid', flat=True)
 
-    # Remove spam from search index
-    #tasks.remove_index.spool(uid=post.uid)
+    def generate():
+        for post in posts:
+            post.indexed = False
+            yield post
 
-    # Classify post as spam.
-    #tasks.classify_spam.spool(uid=post.uid)
+    Post.objects.objects.batch_update()
+    Post.objects.bulk_update(objs=generate(), fields=["indexed"], batch_size=1000)
 
-    #nposts = len(posts)
+    return
 
-    #logger.info(f"{nposts} spam found.")
 
-    for uid in posts:
-        spam.remove_spam(uid=uid)
-
+def remove_from_index():
     return
 
 
@@ -46,7 +65,7 @@ class Command(BaseCommand):
         parser.add_argument('--remove', action='store_true', default=False, help="Removes the existing index.")
         parser.add_argument('--report', action='store_true', default=False, help="Reports on the content of the index.")
         parser.add_argument('--size', type=int, default=0, help="How many posts to index")
-        parser.add_argument('--clear_spam',  action='store_true', default=False, help="Clear search index of spam posts.")
+        #parser.add_argument('--clear_spam',  action='store_true', default=False, help="Clear search index of spam posts.")
 
     def handle(self, *args, **options):
 
@@ -56,12 +75,12 @@ class Command(BaseCommand):
         remove = options['remove']
         report = options['report']
         size = options['size']
-        clear = options['clear_spam']
 
         # Sets the un-indexed flags to false on all posts.
         if reset:
             logger.info(f"Setting indexed field to false on all post.")
-            Post.objects.valid_posts(indexed=True).exclude(root=None).update(indexed=False)
+            posts = Post.objects.valid_posts(indexed=True).exclude(root=None)
+            reset_indexed(posts=posts)
 
         # Index a limited number yet unindexed posts
         if size:
@@ -82,10 +101,10 @@ class Command(BaseCommand):
 
             logger.info(f"Indexed {target_count} posts, {count} unindexed posts remaining")
 
+            # Take spam posts that have been indexed.
+            spam = Post.objects.filter(spam=Post.SPAM, indexed=True)[:size]
+
         # Report the contents of the index
         if report:
             search.print_info()
-
-        if clear:
-            clear_spam()
 

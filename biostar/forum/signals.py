@@ -8,7 +8,7 @@ from biostar.forum.models import Post, Award, Subscription
 from biostar.forum import tasks, auth, util, spam
 
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 
 @receiver(post_save, sender=Award)

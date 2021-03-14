@@ -7,7 +7,7 @@ from biostar import VERSION
 import os
 import uuid
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 
 def get_uuid(limit=32):

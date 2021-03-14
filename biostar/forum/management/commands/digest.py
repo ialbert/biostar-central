@@ -7,7 +7,7 @@ from biostar.forum.models import Post
 from biostar.emailer.tasks import send_email
 from biostar.accounts import util, models
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 
 def send_digests(days=1, subject=""):

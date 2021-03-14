@@ -45,6 +45,6 @@ DATABASES = {
 }
 
 try:
-    from .postgres_secrets import *
+    from conf.run.site_secrets import *
 except ImportError as exc:
     print("No postgres_secrets module could be imported")

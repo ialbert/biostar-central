@@ -6,7 +6,7 @@ import feedparser
 from django.utils.timezone import utc
 import uuid
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("engine")
 
 
 def now():

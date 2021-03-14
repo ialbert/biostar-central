@@ -7,7 +7,7 @@ from django.conf import settings
 from biostar.utils.helpers import pg_dump
 import logging
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 
 BACKUP_DIR = os.path.join(settings.BASE_DIR, 'export', 'backup')

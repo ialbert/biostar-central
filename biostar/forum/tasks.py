@@ -30,7 +30,7 @@ def classify_spam(uid):
     # Non spam posts are left alone.
     if post.not_spam:
         # Ensure this post is removed from spam index
-        spam.remove_spam(uid=uid)
+        spam.remove_spam(post=post)
         return
 
     # Give spammers the illusion of success with a slight delay
@@ -38,10 +38,10 @@ def classify_spam(uid):
 
     try:
         # Give this post a spam score and quarantine it if necessary.
-        spam.score(uid=uid)
+        spam.score(post=post)
 
         # Add this post to the spam index.
-        spam.add_spam(uid=uid)
+        spam.add_spam(post=post)
 
     except Exception as exc:
         message(exc)
@@ -49,10 +49,11 @@ def classify_spam(uid):
 @task
 def remove_index(uid):
     from biostar.forum import search
-
+    from biostar.forum.models import Post
     try:
+        post = Post.objects.filter(uid=uid).first()
         # Remove a given post from search index
-        search.remove_post(uid=uid)
+        search.remove_post(post=post)
     except Exception as exc:
         message(exc)
     return
@@ -105,7 +106,7 @@ def update_spam_index(uid):
 
     # Update the spam index with most recent spam posts
     try:
-        spam.add_spam(uid=post.uid)
+        spam.add_spam(post=post)
     except Exception as exc:
         message(exc)
 

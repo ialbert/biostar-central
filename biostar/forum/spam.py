@@ -85,9 +85,8 @@ def add_post_to_index(post, writer, is_spam=None):
                  uid=f"{post.uid}")
 
 
-def add_spam(uid):
+def add_spam(post):
 
-    post = Post.objects.filter(uid=uid).first()
     if post.spam == Post.DEFAULT:
         return
 
@@ -156,12 +155,12 @@ def search_spam(post, ix,):
     return similar_content
 
 
-def remove_spam(uid):
+def remove_spam(post):
     """
     Remove spam from index
     """
     ix = init_spam_index()
-    search.remove_post(uid=uid, ix=ix)
+    search.remove_post(post=post, ix=ix)
     logger.info("Removed post from spam index.")
     return
 
@@ -197,7 +196,7 @@ def compute_score(post, ix=None):
     return value
 
 
-def score(uid, threshold=None):
+def score(post, threshold=None):
     """
     """
 
@@ -206,8 +205,6 @@ def score(uid, threshold=None):
 
     if threshold is None:
         threshold = settings.SPAM_THRESHOLD
-
-    post = Post.objects.filter(uid=uid).first()
 
     # User's with high enough score automatically given green light.
     # if not post.author.profile.low_rep:

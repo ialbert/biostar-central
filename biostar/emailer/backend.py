@@ -4,7 +4,7 @@ import smtplib
 from django.core.mail.backends import smtp
 from django.core.mail.utils import DNS_NAME
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 
 class SSLEmailBackend(smtp.EmailBackend):

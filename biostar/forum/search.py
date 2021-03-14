@@ -21,7 +21,7 @@ from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
 from biostar.forum.models import Post
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 # Stop words ignored where searching.
 STOP = ['there', 'where', 'who', 'that'] + [w for w in STOP_WORDS]
@@ -348,12 +348,11 @@ def preform_search(query, fields=None, top=0, sortedby=[], more_like_this=False)
     return final_results
 
 
-def remove_post(uid, ix=None):
+def remove_post(post, ix=None):
     """
     Remove spam from index
     """
 
-    post = Post.objects.filter(uid=uid).first()
     ix = ix or init_index()
 
     # Remove this post from index

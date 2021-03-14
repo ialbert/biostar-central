@@ -4,7 +4,7 @@ from biostar.emailer import  models, auth
 from django.conf import settings
 
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 logger.setLevel(logging.INFO)
 
 class Command(BaseCommand):

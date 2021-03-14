@@ -7,7 +7,7 @@ from ratelimit.utils import is_ratelimited
 from biostar.utils import helpers
 from . import util, auth
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 
 def limiter(get_response):

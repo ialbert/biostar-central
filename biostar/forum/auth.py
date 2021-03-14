@@ -496,6 +496,7 @@ def toggle_spam(request, post, **kwargs):
         text = f'Restored {post_link(post)} from spam'
     else:
         text = f'Marked {post_link(post)} as spam'
+        # Set indexed flag to true
 
     # Set a logging message.
     messages.success(request, mark_safe(text))
