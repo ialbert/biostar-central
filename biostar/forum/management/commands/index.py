@@ -42,7 +42,6 @@ def reset_indexed(posts):
             post.indexed = False
             yield post
 
-    Post.objects.objects.batch_update()
     Post.objects.bulk_update(objs=generate(), fields=["indexed"], batch_size=1000)
 
     return
