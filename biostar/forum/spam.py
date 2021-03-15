@@ -130,6 +130,8 @@ def search_spam(post, ix,):
     Search spam index for posts similar to this one.
     Returns
     """
+
+    # Add this post to index to perform search.
     writer = AsyncWriter(ix)
     add_post_to_index(post=post, writer=writer, is_spam=post.is_spam)
     writer.commit()

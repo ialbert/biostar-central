@@ -9,7 +9,7 @@ from django.template.defaultfilters import slugify
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, raw, using, **kwargs):
 
-    # Make sure staff users are also moderators.
+    # Make sure staff users are also Biostar Admins.
     role = Profile.MANAGER if (instance.is_staff or instance.is_superuser) else Profile.READER
 
     if created:

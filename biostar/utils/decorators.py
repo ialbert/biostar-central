@@ -45,7 +45,7 @@ def b_timer():
             self.secs = secs
 
         def __call__(self, func, *args, **kwargs):
-            return func(*args, **kwargs)
+            func(*args, **kwargs)
 
     return inner
 

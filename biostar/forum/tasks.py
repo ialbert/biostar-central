@@ -24,6 +24,7 @@ def classify_spam(uid):
     """
     from biostar.forum import spam
     from biostar.forum.models import Post
+
     post = Post.objects.filter(uid=uid).first()
 
     # Give spammers the illusion of success with a slight delay
@@ -62,29 +63,6 @@ def notify_watched_tags(uid, extra_context):
                recipient_list=emails,
                from_email=from_email,
                mass=True)
-
-
-@task
-def update_spam_index(uid):
-    """
-    Update spam index with this post.
-    """
-    from biostar.forum import spam, models
-
-    post = models.Post.objects.filter(uid=uid).first()
-
-    # Index posts explicitly marked as SPAM or NOT_SPAM
-    # indexing SPAM increases true positives.
-    # indexing NOT_SPAM decreases false positives.
-    if post.spam == models.Post.DEFAULT:
-        return
-
-    # Update the spam index with most recent spam posts
-    try:
-        spam.add_spam(post=post)
-    except Exception as exc:
-        message(exc)
-
 
 @task
 def created_post(pid):

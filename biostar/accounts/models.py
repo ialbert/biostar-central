@@ -60,8 +60,6 @@ class Profile(models.Model):
 
     READER, MODERATOR, MANAGER, BLOGGER = range(4)
     ROLE_CHOICES = [(READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"), (BLOGGER, "Blog User")]
-    #USER, MODERATOR, ADMIN, BLOG = range(4)
-    #TYPE_CHOICES = [(USER, "User"), (MODERATOR, "Moderator"), (ADMIN, "Admin"), (BLOG, "Blog")]
 
     NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST, ALL_MESSAGES = range(5)
 
