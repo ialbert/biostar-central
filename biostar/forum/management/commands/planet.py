@@ -8,7 +8,7 @@ import logging
 
 from biostar.planet import auth
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 
 def abspath(*args):

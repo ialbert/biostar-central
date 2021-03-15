@@ -28,7 +28,7 @@ def ajax_msg(msg, status, **kwargs):
     return JsonResponse(payload)
 
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
 

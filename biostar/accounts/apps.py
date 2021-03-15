@@ -89,6 +89,8 @@ def init_users():
             Profile.objects.filter(user=user).update(name=name, text=text, html=text)
             logger.info(f"Creating admin user: {user.email}")
         else:
+
+            User.objects.filter(pk=user.pk).update(is_superuser=True, is_staff=True)
             # You might want to reapply the default ADMIN password on migration.
             # This will log out the user from their current session.
             #user.set_password(settings.DEFAULT_ADMIN_PASSWORD)

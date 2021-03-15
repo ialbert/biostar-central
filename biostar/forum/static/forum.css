@@ -485,7 +485,7 @@ i.icon {
 }
 
 
-.search-highlight {
+.match {
     background-color: var(--search-highlight);
 }
 
