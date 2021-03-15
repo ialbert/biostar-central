@@ -347,7 +347,6 @@ $(document).ready(function () {
         $('.hidden-answer').toggle()
     });
 
-    });
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
