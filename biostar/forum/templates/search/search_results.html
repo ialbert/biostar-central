@@ -17,7 +17,7 @@
     </div>
 
     {% with params=request.GET.urlencode %}
-        <div class="ui small compact menu sorting no-box-shadow">
+        <div class="ui small compact menu sorting no-box-shadow ">
             <div class="ui simple dropdown item">
                 Sort
                 <i class="dropdown icon"></i>
@@ -50,18 +50,21 @@
                         {% if result.type != question_flag %}
                             <span class="ui title header">{{ result.type_display }}:</span>
                         {% endif %}
-                        <a href="{% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
-                           class="ui mini blue title header trigger-highlight">{{ result.title|truncatechars:150 }}
+                        <a href="
+
+                                {% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
+                           class="ui mini blue title header">{{ result|highlight:'title'|truncatechars:150 }}
                         </a>
                     </div>
 
-                    <div class="muted trigger-highlight">
-                        {{ result.content |truncatechars_html:400 }}
+                    <div class="muted ">
+                        {{ result| highlight:'content'|truncatechars_html:400 }}
                     </div>
 
                     <div class=" extra right floated">
                         <div class="left floated">
                             {% post_tags tags_str=result.tags spaced=False %}
+
                         </div>
                         <div class="right floated muted">
 
@@ -77,7 +80,7 @@
                                 updated
                                 {{ result.lastedit_date|time_ago }}
                                 <a href="{% url "user_profile"  result.lastedit_user_uid %}">
-                                    {{ result.lastedit_user|truncatechars:50 }}
+                                    {{ result|highlight:'author'|truncatechars:50 }}
                                 </a>
                                 {% user_icon is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
 
@@ -85,7 +88,7 @@
 
                                 {{ result.lastedit_date|time_ago }}
                                 <a href="{% url "user_profile"  result.lastedit_user_uid %}">
-                                    {{ result.lastedit_user }}
+                                    {{ result|highlight:'lastedit_user' }}
                                 </a>
                                 {% user_icon user='' is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
 

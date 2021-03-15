@@ -5,7 +5,7 @@ from typing import Any
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
 from django.conf import settings
-from biostar.forum import search, spam, models
+from biostar.forum import search
 
 logger = logging.getLogger('engine')
 
@@ -32,22 +32,27 @@ logger = logging.getLogger('engine')
 #
 #     return
 
-def reset_indexed(posts):
+# def reset_indexed(posts):
+#     """
+#     Turen index flag to True
+#     """
+#
+#     def generate():
+#         for post in posts:
+#             post.indexed = False
+#             yield post
+#
+#     Post.objects.bulk_update(objs=generate(), fields=["indexed"], batch_size=10000)
+#
+#     return
+
+
+def remove_from_index(posts):
     """
-    Turen index flag to True
+    Remove list of posts from search index.
     """
-
-    def generate():
-        for post in posts:
-            post.indexed = False
-            yield post
-
-    Post.objects.bulk_update(objs=generate(), fields=["indexed"], batch_size=1000)
-
-    return
-
-
-def remove_from_index():
+    for post in posts:
+        search.remove_post(post=post)
     return
 
 
@@ -78,8 +83,8 @@ class Command(BaseCommand):
         # Sets the un-indexed flags to false on all posts.
         if reset:
             logger.info(f"Setting indexed field to false on all post.")
-            posts = Post.objects.valid_posts(indexed=True).exclude(root=None)
-            reset_indexed(posts=posts)
+            Post.objects.valid_posts(indexed=True).exclude(root=None).update(indexed=False)
+            #reset_indexed(posts=posts)
 
         # Index a limited number yet unindexed posts
         if size:
@@ -102,6 +107,8 @@ class Command(BaseCommand):
 
             # Take spam posts that have been indexed.
             spam = Post.objects.filter(spam=Post.SPAM, indexed=True)[:size]
+            remove_from_index(posts=spam)
+            logger.info(f"Removed {spam.count()} spam posts, from index")
 
         # Report the contents of the index
         if report:
