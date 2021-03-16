@@ -125,34 +125,41 @@ def build_spam_index(overwrite=False, add_ham=False, limit=500):
     return ix
 
 
-def search_spam(post, ix,):
+def search_spam(post, ix):
     """
     Search spam index for posts similar to this one.
     Returns
     """
 
     # Add this post to index to perform search.
-    writer = AsyncWriter(ix)
+    writer = BufferedWriter(ix)
     add_post_to_index(post=post, writer=writer, is_spam=post.is_spam)
     writer.commit()
+    writer.close()
+
+    searcher = ix.searcher()
+    docnum = searcher.document_number(uid=post.uid)
+    #writer.commit()
 
     # Search for this post in the spam index
-    fields = ['uid']
-
-    results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
-
+   # fields = ['uid']
+    #fields = ['uid']
+    # More like this
+    #results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
+    print("P")
+    #time.sleep(1)
     # Preform more_like_this on this posts content
-    similar_content = results[0].more_like_this('content', top=5)
-
-    # Remove this post from the spam index after results are collected.
-    writer = AsyncWriter(ix)
-    writer.delete_by_term('uid', text=post.uid)
-    writer.commit()
+    similar_content = searcher.more_like(docnum, 'content')
+    print("L")
+    #print(similar_content)
+    # # Remove this post from the spam index after results are collected.
+    #writer.delete_document(docnum)
+    #writer.commit()
 
     # Get the results into a list and close the searcher object.
     similar_content = list(map(search.normalize_result, similar_content))
-
-    results.searcher.close()
+    #print(similar_content)
+    searcher.close()
 
     return similar_content
 
