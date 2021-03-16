@@ -1,0 +1,30 @@
+
+SHELL=/bin/bash
+
+# Index posts every 5 minutes
+*/5 * * * * /export/www/apps/biostar-engine/index.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+
+# Batch award users every 30 minutes
+*/30 * * * * /export/www/apps/biostar-engine/index.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+
+# Hourly database backup
+0 * * * * /export/www/apps/biostar-engine/backup-hourly.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+
+# Daily database backup -- midnight
+0 0 * * * /export/www/apps/biostar-engine/backup-daily.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+
+# Daily digest -- midnight
+0 0 * * * /export/www/apps/biostar-engine/daily-digest.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+
+# Weekly digest -- sunday midnight
+0 0 * * 0 /export/www/apps/biostar-engine/weekly-digest.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+
+# Monthly digest
+0 0 1 * * /export/www/apps/biostar-engine/monthly-digest.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+
+# Planet daily update
+0 0 * * * /export/www/apps/biostar-engine/index.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+
+# Planet hourly
+0 * * * * /export/www/apps/biostar-engine/index.sh >> /export/www/apps/biostar-engine/export/logs/crontab.log 2>&1
+

@@ -30,7 +30,7 @@ def check_lock(lock):
         def __wrapper(*args, **kwargs):
 
             if os.path.isdir(lock):
-                logger.error('Lock directory detected, task is already running')
+                logger.warning('Lock directory detected, function is already running')
                 sys.exit()
 
             # Make the lock directory

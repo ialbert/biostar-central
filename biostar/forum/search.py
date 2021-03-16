@@ -330,20 +330,19 @@ def preform_search(query, fields=None, top=0, sortedby=[], more_like_this=False)
     fields = fields or ['tags', 'title', 'author', 'author_uid', 'author_handle']
     results = preform_whoosh_search(query=query, sortedby=sortedby, fields=fields)
 
-    if more_like_this and len(results):
+    if more_like_this:
         results = results[0].more_like_this("content", top=top)
         # Filter results for toplevel posts.
-        results = list(filter(lambda p: p['is_toplevel'] is True, results))
-
-    # Ensure returned results types stay consistent.
-    final_results = list(map(normalize_result, results))
-    if not len(final_results):
-        return []
+        toplevel = list(filter(lambda p: p['is_toplevel'] is True, results))
+        # Ensure returned results types stay consistent.
+        final = list(map(normalize_result, toplevel))
+    else:
+        final = []
 
     # Ensure searcher object gets closed.
     results.searcher.close()
 
-    return final_results
+    return final
 
 
 def remove_post(post, ix=None):
