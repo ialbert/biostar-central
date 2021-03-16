@@ -22,7 +22,7 @@ def is_moderator(f):
 
 def check_lock(lock):
     """
-    Check if lock directory exists before making the
+    Check if lock directory exists before calling function
     """
 
     def __inner(func):

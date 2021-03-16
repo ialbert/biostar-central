@@ -141,25 +141,18 @@ def search_spam(post, ix):
     fields = ['uid']
     results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
 
-    print('dead god')
     # Preform more_like_this on this posts content
     similar_content = results[0].more_like_this('content', top=5)
 
-    # Remove post after finding similar content
-    #similar_content = []
-    print('why')
-    # # Remove this post from the spam index after results are collected.
-    # writer.delete_document(docnum)
-    # writer.commit()
+    # Remove this post from the spam index after results are collected.
     writer = AsyncWriter(ix)
     writer.delete_by_term('uid', text=post.uid)
     writer.commit()
 
     # Get the results into a list and close the searcher object.
     similar_content = list(map(search.normalize_result, similar_content))
-    #print(similar_content)
-    #print(similar_content, results, post.uid)
-    # searcher.close()
+
+    # Close the searcher
     results.searcher.close()
 
     return similar_content
@@ -228,6 +221,7 @@ def score(post, threshold=None):
     # If the score exceeds threshold it gets labeled spam.
     if spam_score >= threshold:
         Post.objects.filter(id=post.id).update(spam=Post.SPAM)
-        auth.db_logger(text=f"auto marked spam :{auth.post_link(post)} spam score={spam_score}")
+        msg = f"auto marked spam :{auth.post_link(post)} spam score={spam_score}"
+        auth.db_logger(text=msg)
 
     return spam_score
