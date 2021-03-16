@@ -42,10 +42,9 @@ REQUIRED_TAGS_URL = "/"
 # Gravatar icon to use
 GRAVATAR_ICON = None
 
-
 # How to run tasks in the background.
 # Valid options; block, disable, threaded, uwsgi, celery.
-TASK_RUNNER = 'celery'
+TASK_RUNNER = 'threaded'
 
 # Threshold to classify spam
 SPAM_THRESHOLD = .5
