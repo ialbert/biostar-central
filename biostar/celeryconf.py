@@ -24,8 +24,6 @@ TIMEZONE = 'UTC'
 
 app.conf.broker_url = 'redis://127.0.0.1:6379'
 
-app.conf.beat_schedule = settings.BEAT_TASKS
-
 # Discover tasks in applications.
 app.autodiscover_tasks(
     lambda: settings.TASK_MODULES

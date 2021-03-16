@@ -3,6 +3,7 @@ import os
 import shutil
 import random
 import time
+from collections import defaultdict
 from math import log, exp
 from itertools import groupby, islice, count, chain
 from django.conf import settings
@@ -131,35 +132,33 @@ def search_spam(post, ix):
     Returns
     """
 
-    # Add this post to index to perform search.
-    writer = BufferedWriter(ix)
+    # Add post to index to more_like_this perform search.
+    writer = AsyncWriter(ix)
     add_post_to_index(post=post, writer=writer, is_spam=post.is_spam)
     writer.commit()
-    writer.close()
-
-    searcher = ix.searcher()
-    docnum = searcher.document_number(uid=post.uid)
-    #writer.commit()
 
     # Search for this post in the spam index
-   # fields = ['uid']
-    #fields = ['uid']
-    # More like this
-    #results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
-    print("P")
-    #time.sleep(1)
+    fields = ['uid']
+    results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
+
     # Preform more_like_this on this posts content
-    similar_content = searcher.more_like(docnum, 'content')
-    print("L")
-    #print(similar_content)
+    similar_content = results[0].more_like_this('content', top=5)
+
+    # Remove post after finding similar content
+    #similar_content = []
     # # Remove this post from the spam index after results are collected.
-    #writer.delete_document(docnum)
-    #writer.commit()
+    # writer.delete_document(docnum)
+    # writer.commit()
+    writer = AsyncWriter(ix)
+    writer.delete_by_term('uid', text=post.uid)
+    writer.commit()
 
     # Get the results into a list and close the searcher object.
     similar_content = list(map(search.normalize_result, similar_content))
     #print(similar_content)
-    searcher.close()
+    #print(similar_content, results, post.uid)
+    # searcher.close()
+    results.searcher.close()
 
     return similar_content
 
@@ -208,7 +207,6 @@ def compute_score(post, ix=None):
 def score(post, threshold=None):
     """
     """
-
     if not settings.CLASSIFY_SPAM:
         return
 

@@ -1,4 +1,4 @@
-import logging, functools, time
+import logging, functools, time, os
 from functools import partial
 from django.conf import settings
 from django.shortcuts import redirect
@@ -18,6 +18,40 @@ def is_moderator(f):
         return redirect('/')
 
     return inner
+
+
+def check_lock(lock):
+    """
+    Check if lock directory exists before making the
+    """
+
+    def __inner(func):
+
+        def __wrapper(*args, **kwargs):
+
+            if os.path.isdir(lock):
+                logger.error('Lock directory detected, task is already running')
+                sys.exit()
+
+            # Make the lock directory
+            os.makedirs(lock, exist_ok=True)
+
+            # Try to run function
+            try:
+                out = func(*args, **kwargs)
+            except Exception as exc:
+                logger.error(exc)
+                out = None
+
+            # Delete the lock directory
+            os.rmdir(lock)
+
+            # Return function output
+            return out
+
+        return __wrapper
+
+    return __inner
 
 
 def d_timer():
@@ -201,6 +235,7 @@ def b_worker():
     def outer(func, *args, **kwargs):
         @functools.wraps(func)
         def inner(*args, **kwargs):
+            #logger.info(f"running f{func} {args} {kwargs}")
             return func(*args, **kwargs)
 
         inner.spool = inner

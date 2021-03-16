@@ -126,6 +126,7 @@ reset: echo
 	# Delete the database, logs and CACHE files.
 	# Keep media and spooler.
 	rm -rf export/logs/*.log
+	#rm -rf export/spammers/
 	# Database is always found in export/db/
 	rm -f export/db/${DATABASE_NAME}
 	rm -rf export/static/CACHE

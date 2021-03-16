@@ -1,10 +1,9 @@
 #!/bin/bash
 
+# Default database backup  script.
 
 # Stop on errors.
 set -ue
-
-# Default database backup  script.
 
 # Load the conda commands.
 source ~/miniconda3/etc/profile.d/conda.sh
@@ -24,5 +23,3 @@ mkdir -p export/backup
 
 # pg_dump the database
 python manage.py tasks --action pg_dump --outdir export/backup  --user ${USER}
-
-
