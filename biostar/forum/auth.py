@@ -494,17 +494,10 @@ def toggle_spam(request, post, **kwargs):
     # Generate logging messages.
     if post.is_spam:
         text = f'Restored {post_link(post)} from spam'
-
-        # Add to search index in the next round
-        Post.objects.filter(id=post.id).update(indexed=False)
     else:
         text = f'Marked {post_link(post)} as spam'
-
-        # Remove spam from search index
-        tasks.remove_index.spool(uid=post.uid)
-
-    # Classify post as spam.
-    tasks.classify_spam.spool(uid=post.uid)
+        # Set indexed flag to True, so it's skipped in the next round.
+        Post.objects.filter(id=post.id).update(indexed=True)
 
     # Set a logging message.
     messages.success(request, mark_safe(text))
@@ -578,7 +571,7 @@ def off_topic(request, post, **kwargs):
 
         # Generate off comment.
         content = "This post is off topic."
-        auth.create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
+        create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
 
     msg = f"Marked {post_link(post)} as off topic."
     messages.info(request, mark_safe(msg))

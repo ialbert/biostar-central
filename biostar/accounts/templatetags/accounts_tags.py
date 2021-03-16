@@ -6,7 +6,7 @@ from django import template
 from django.conf import settings
 
 from biostar.accounts.util import now
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 register = template.Library()
 
 

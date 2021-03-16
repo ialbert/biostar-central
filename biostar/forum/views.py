@@ -195,7 +195,7 @@ def pages(request, fname):
         messages.error(request, "File does not exist.")
         return redirect("post_list")
 
-    admins = User.objects.filter(is_superuser=True)
+    admins = User.objects.filter(profile__role=Profile.MANAGER)
     mods = User.objects.filter(profile__role=Profile.MODERATOR).exclude(id__in=admins)
     admins = admins.prefetch_related("profile").order_by("-profile__score")
     mods = mods.prefetch_related("profile").order_by("-profile__score")

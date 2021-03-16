@@ -81,10 +81,5 @@ LOGGING = {
             'level': LOG_LEVEL,
         },
 
-        'biostar': {
-            'handlers': ['console', 'mail_admins'],
-            'level': LOG_LEVEL,
-        },
-
     },
 }

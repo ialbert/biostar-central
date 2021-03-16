@@ -8,7 +8,7 @@ from django.template import Context, Template
 from django.template.loader import get_template
 from django.conf import settings
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 # Pattern to extract named blocks from a django template.
 block_patt = r'{%\s+block\s+(?P<name>(.+?))\s+%}(?P<value>(.+?)){%\s+endblock\s+%}'

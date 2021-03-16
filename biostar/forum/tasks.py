@@ -27,36 +27,13 @@ def classify_spam(uid):
 
     post = Post.objects.filter(uid=uid).first()
 
-    # Non spam posts are left alone.
-    if post.not_spam:
-        # Ensure this post is removed from spam index
-        spam.remove_spam(uid=uid)
-        return
-
     # Give spammers the illusion of success with a slight delay
-    time.sleep(1)
-
+    #time.sleep(1)
     try:
         # Give this post a spam score and quarantine it if necessary.
-        spam.score(uid=uid)
-
-        # Add this post to the spam index.
-        spam.add_spam(uid=uid)
-
+        spam.score(post=post)
     except Exception as exc:
         message(exc)
-
-@task
-def remove_index(uid):
-    from biostar.forum import search
-
-    try:
-        # Remove a given post from search index
-        search.remove_post(uid=uid)
-    except Exception as exc:
-        message(exc)
-    return
-
 
 @task
 def notify_watched_tags(uid, extra_context):
@@ -86,29 +63,6 @@ def notify_watched_tags(uid, extra_context):
                recipient_list=emails,
                from_email=from_email,
                mass=True)
-
-
-@task
-def update_spam_index(uid):
-    """
-    Update spam index with this post.
-    """
-    from biostar.forum import spam, models
-
-    post = models.Post.objects.filter(uid=uid).first()
-
-    # Index posts explicitly marked as SPAM or NOT_SPAM
-    # indexing SPAM increases true positives.
-    # indexing NOT_SPAM decreases false positives.
-    if post.spam == models.Post.DEFAULT:
-        return
-
-    # Update the spam index with most recent spam posts
-    try:
-        spam.add_spam(uid=post.uid)
-    except Exception as exc:
-        message(exc)
-
 
 @task
 def created_post(pid):

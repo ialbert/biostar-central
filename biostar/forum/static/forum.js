@@ -57,31 +57,6 @@ function remove_trigger() {
     });
 }
 
-function highlight_search(target, content_elem, stop_list) {
-
-    // Find the target in the content.
-
-    var target_list = target.replace(/\s{2,}/g, ' ').split(" ");
-
-    // filter stoplist from target list.
-
-    $.each(target_list, function (index, value) {
-
-        var html = content_elem.html();
-        var insert = "<span class='search-highlight'>" + value + "</span>";
-
-        var new_html = html.replace(new RegExp(value, "ig"), insert);
-
-        // Don't highlight any stop words.
-        if ($.inArray(value, stop_list) === -1 && value.length >= 3) {
-            console.log(value, insert, html);
-            content_elem.html(new_html);
-        }
-
-    });
-}
-
-
 function highlight(text) {
 
     var con = markdownit({
@@ -372,19 +347,6 @@ $(document).ready(function () {
         $('.hidden-answer').toggle()
     });
 
-    $('.trigger-highlight').each(function (event) {
-        var elem = $(this);
-        let container = $('#search-results');
-        let query = container.data('query');
-        let stop_words = container.data('stop');
-
-        if (container.html() === undefined || container.html() === null) {
-        } else {
-            let stop_list = stop_words.split(',');
-            highlight_search(query, elem, stop_list)
-        }
-
-    });
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();

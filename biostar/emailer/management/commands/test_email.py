@@ -7,7 +7,7 @@ from django.core.management.base import BaseCommand
 
 from biostar.emailer import tasks
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 DEFAULT_ADDR = settings.DEFAULT_FROM_EMAIL
 

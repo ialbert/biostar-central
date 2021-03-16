@@ -40,12 +40,12 @@ class Command(BaseCommand):
         # Sets the un-indexed flags to false on all posts.
         if reset:
             logger.info(f"Setting indexed field to false on all post.")
-            Post.objects.filter(Q(spam=Post.SPAM)).update(indexed=False)
+            Post.objects.filter(Q(spam=Post.SPAM))
 
-        # Index a limited number yet unindexed posts
+        # Index a limited number yet un indexed posts.
         if index:
             spam.build_spam_index(overwrite=remove, add_ham=True, limit=nsize)
 
         # Run specificity and sensitivity tests on posts.
-        if test:
-            spam.test_classify(niter=niter, size=nsize, limitmb=limitmb, verbosity=verbosity)
+        #if test:
+        #    spam.test_classify(niter=niter, size=nsize, limitmb=limitmb, verbosity=verbosity)

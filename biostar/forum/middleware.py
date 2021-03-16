@@ -19,7 +19,7 @@ from . import auth, tasks, const, util
 from .models import Vote
 from .util import now
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 
 def benchmark(get_response):

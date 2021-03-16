@@ -5,7 +5,7 @@ from django.conf import settings
 
 from biostar.emailer import sender
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 
 def send_all():

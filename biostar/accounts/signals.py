@@ -8,6 +8,10 @@ from django.template.defaultfilters import slugify
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, raw, using, **kwargs):
+
+    # Make sure staff users are also Biostar Admins.
+    role = Profile.MANAGER if (instance.is_staff or instance.is_superuser) else Profile.READER
+
     if created:
         # Set the username to a simpler form.
         username = f"{instance.first_name}-{instance.pk}" if instance.first_name else f'user-{instance.pk}'
@@ -18,10 +22,12 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         User.objects.filter(pk=instance.pk).update(username=username)
 
         # Make sure staff users are also moderators.
-        role = Profile.MANAGER if instance.is_staff else Profile.READER
         Profile.objects.using(using).create(user=instance, uid=username, name=instance.first_name, role=role)
         user_ids = [instance.pk]
         tasks.create_messages(user_ids=user_ids, template="messages/welcome.md")
+
+    # Update the role of the user
+    Profile.objects.using(using).filter(pk=instance.pk).update(role=role)
 
     # Recompute watched tags
     instance.profile.add_watched()
