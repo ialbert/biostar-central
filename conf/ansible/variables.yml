@@ -12,6 +12,7 @@ engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
 bin_dir: "/export/bin"
 src_dir: "/export/src"
 ref_dir: "/export/refs"
+scripts_dir: "{{engine_dir }}/scripts"
 
 # Default django settings to be used.
 django_settings_module: "conf.run.site_settings"

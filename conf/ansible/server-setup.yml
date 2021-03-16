@@ -76,6 +76,7 @@
         - "{{ bin_dir }}"
         - "{{ ref_dir }}"
         - "{{ engine_dir }}"
+        - "{{ scripts_dir }}"
 
     - name: Allow write access to configuration directories
       become: yes

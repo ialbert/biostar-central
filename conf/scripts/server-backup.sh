@@ -4,6 +4,8 @@
 # Stop on errors.
 set -ue
 
+cd /export/www/biostar-central/
+
 # Default database backup  script.
 
 # Load the conda commands.

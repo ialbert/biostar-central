@@ -5,6 +5,8 @@
 # Stop on errors.
 set -ue
 
+cd /export/www/biostar-central/
+
 # Load the conda commands.
 source ~/miniconda3/etc/profile.d/conda.sh
 

@@ -88,7 +88,7 @@
         remote_src: true
         force: no
         src: "{{ engine_dir }}/conf/scripts/{{item}}"
-        dest: "{{ engine_dir }}/scripts/{{ item }}"
+        dest: "{{ scripts_dir }}{{ item }}"
         mode: u+rwx,g+rx,o+rx
       with_items:
         - forum
@@ -141,7 +141,7 @@
       shell: "./server-migrate.sh"
       args:
         executable: /bin/bash
-        chdir: "{{ engine_dir }}"
+        chdir: "{{ scripts_dir }}"
 
     - name: Ensure Redis is started
       service: name=redis-server state=started enabled=yes
