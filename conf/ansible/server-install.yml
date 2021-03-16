@@ -64,6 +64,17 @@
         dest: "{{ engine_dir }}"
         update: yes
 
+    - name: Create scripts in runtime directories
+      become: yes
+      file:
+        path: "{{item}}"
+        state: directory
+        owner: www
+        group: www
+        mode: 0755
+      with_items:
+        - "{{ scripts_dir }}"
+
     - name: Link directory to the home
       file:
         src: "{{ engine_dir }}"
@@ -83,20 +94,30 @@
         force: no
         mode: 0644
 
+    - name: Initialize scripts
+      copy:
+        remote_src: true
+        force: no
+        src: "{{ engine_dir }}/conf/scripts/{{item}}"
+        dest: "{{ engine_dir }}/{{ item }}"
+        mode: u+rwx,g+rx,o+rx
+      with_items:
+        - server-migrate.sh
+        - server-reset.sh
+        - server-cleanup.sh
+        - server-backup.sh
+
     - name: Initialize app specific scripts
       copy:
         remote_src: true
         force: no
         src: "{{ engine_dir }}/conf/scripts/{{item}}"
-        dest: "{{ scripts_dir }}{{ item }}"
+        dest: "{{ scripts_dir }}/{{ item }}"
         mode: u+rwx,g+rx,o+rx
       with_items:
         - forum
         - recipes
-        - server-migrate.sh
-        - server-reset.sh
-        - server-cleanup.sh
-        - server-backup.sh
+
     - name: Copy settings file to runtime directories
       copy:
         remote_src: true
@@ -141,7 +162,7 @@
       shell: "./server-migrate.sh"
       args:
         executable: /bin/bash
-        chdir: "{{ scripts_dir }}"
+        chdir: "{{ engine_dir }}"
 
     - name: Ensure Redis is started
       service: name=redis-server state=started enabled=yes
