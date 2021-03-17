@@ -40,13 +40,13 @@ def timer_func():
         now = time.time()
         sec = round(now - last, 1)
         last = now
-        return f"{msg} in {sec} seconds"
+        logger.debug(f"{msg} in {sec} seconds")
 
     def progress(index, step=500, total=0, msg=""):
         nonlocal last
         if index % step == 0:
             percent = int((index / total) * 100) if total >= index else index
-            return f"... {percent}% ({index} out of {total}). {step} {msg}"
+            logger.debug(f"... {percent}% ({index} out of {total}). {step} {msg}")
 
     return elapsed, progress
 
@@ -143,12 +143,25 @@ def add_index(post, writer):
                            lastedit_user_is_suspended=post.lastedit_user.profile.is_suspended,
                            lastedit_user_is_moderator=post.lastedit_user.profile.is_moderator)
 
+# def get_schema():
+#     """
+#     This is the issue!!!!
+#
+#     """
+#     analyzer = StemmingAnalyzer(stoplist=STOP)
+#     schema = Schema(title=TEXT(stored=True, analyzer=analyzer, sortable=True),
+#                     content=TEXT(stored=True, analyzer=analyzer, sortable=True),
+#                     tags=KEYWORD(stored=True, commas=True),
+#                     author=TEXT(stored=True),
+#                     uid=ID(stored=True))
+#     return schema
+
 
 def get_schema():
     analyzer = StemmingAnalyzer(stoplist=STOP)
-    schema = Schema(title=TEXT(stored=True, analyzer=analyzer, sortable=True),
+    schema = Schema(title=TEXT(analyzer=analyzer, sortable=True),
                     url=ID(stored=True),
-                    content_length=NUMERIC(stored=True, sortable=True),
+                    content_length=NUMERIC(sortable=True),
                     thread_votecount=NUMERIC(stored=True, sortable=True),
                     vote_count=NUMERIC(stored=True, sortable=True),
                     content=TEXT(stored=True, analyzer=analyzer, sortable=True),
@@ -228,7 +241,7 @@ def index_posts(posts, ix=None, overwrite=False, add_func=add_index):
 
     ix = ix or init_index()
     # The writer is asynchronous by default
-    writer = AsyncWriter(ix)
+    writer = ix.writer()
 
     elapsed, progress = timer_func()
     total = posts.count()
@@ -236,8 +249,7 @@ def index_posts(posts, ix=None, overwrite=False, add_func=add_index):
 
     # Loop through posts and add to index
     for step, post in stream:
-        pr = progress(step, total=total, msg="posts indexed")
-        logger.debug(pr)
+        progress(step, total=total, msg="posts indexed")
         add_func(post=post, writer=writer)
 
     # Commit to index
@@ -248,8 +260,7 @@ def index_posts(posts, ix=None, overwrite=False, add_func=add_index):
         logger.debug("Committing to index")
         writer.commit()
 
-    elapsed = elapsed(f"Committed {total} posts to index.")
-    logger.debug(elapsed)
+    elapsed(f"Committed {total} posts to index.")
 
 
 def crawl(reindex=False, overwrite=False, limit=1000):
@@ -346,7 +357,7 @@ def remove_post(post, ix=None):
     ix = ix or init_index()
 
     # Remove this post from index
-    writer = AsyncWriter(ix)
+    writer = ix.writer()
     writer.delete_by_term('uid', text=post.uid)
     writer.commit()
     return

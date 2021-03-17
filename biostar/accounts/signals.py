@@ -10,7 +10,7 @@ from django.template.defaultfilters import slugify
 def create_profile(sender, instance, created, raw, using, **kwargs):
 
     # Make sure staff users are also Biostar Admins.
-    role = Profile.MANAGER if (instance.is_staff or instance.is_superuser) else Profile.READER
+    role = Profile.MANAGER if (instance.is_staff or instance.is_superuser) else instance.role
 
     if created:
         # Set the username to a simpler form.
