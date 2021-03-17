@@ -41,7 +41,6 @@ def check_lock(lock):
             except Exception as exc:
                 logger.error(exc)
                 out = None
-
             finally:
                 # Clean the locks.
                 os.rmdir(lock)
