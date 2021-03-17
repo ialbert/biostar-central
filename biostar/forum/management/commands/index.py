@@ -13,19 +13,6 @@ logger = logging.getLogger('engine')
 LOCK = os.path.join(settings.INDEX_DIR, 'flag')
 
 
-def handle_spam(posts):
-    """
-    Remove list of spam from search index.
-    Add posts to spam index.
-    """
-
-    for post in posts:
-        # Remove spam from search index.
-        search.remove_post(post=post)
-        # Add spam to its own index
-        spam.add_spam(post=post)
-
-
 @check_lock(LOCK)
 def build(size, remove=False):
     """
@@ -51,8 +38,11 @@ def build(size, remove=False):
     spam_posts = Post.objects.filter(spam=Post.SPAM, indexed=False)[:size]
     sids = [post.id for post in spam_posts]
 
-    # Remove spam post.
-    handle_spam(posts=spam_posts)
+    for post in spam_posts:
+        # Remove spam from search index.
+        search.remove_post(post=post)
+        # Add spam to its own index
+        spam.add_spam(post=post)
 
     # Update the spam indexed flag.
     Post.objects.filter(id__in=sids).update(indexed=True)

@@ -18,4 +18,4 @@ set -ue
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
 # Update latest five entries for each planet blog.
-python manage.py planet --update ${UPDATE_COUNT}
+python manage.py planet --download
