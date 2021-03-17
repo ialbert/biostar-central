@@ -74,7 +74,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         # Index all un-indexed posts that have a root.
-        logger.info(f"Database: {settings.DATABASE_NAME}")
+        logger.debug(f"Database: {settings.DATABASE_NAME}")
         reset = options['reset']
         remove = options['remove']
         report = options['report']
