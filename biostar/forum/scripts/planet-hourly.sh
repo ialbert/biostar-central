@@ -1,8 +1,5 @@
 
 
-# Stop on errors.
-set -ue
-
 UPDATE_COUNT=5
 
 cd /export/www/biostar-central/

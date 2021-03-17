@@ -2,9 +2,6 @@
 
 # Default database backup  script.
 
-# Stop on errors.
-set -ue
-
 cd /export/www/biostar-central/
 
 # Load the conda commands.
@@ -14,6 +11,9 @@ export POSTGRES_HOST=/var/run/postgresql
 
 # Activate the conda environemnt.
 conda activate engine
+
+# Stop on errors.
+set -ue
 
 USER=www
 

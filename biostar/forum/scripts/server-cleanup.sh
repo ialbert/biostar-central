@@ -10,6 +10,9 @@ export POSTGRES_HOST=/var/run/postgresql
 # Activate the conda environemnt.
 conda activate engine
 
+# Stop on errors.
+set -ue
+
 # Set the configuration module.
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
