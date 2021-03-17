@@ -65,7 +65,6 @@
         update: yes
 
     - name: Create scripts in runtime directories
-      become: yes
       file:
         path: "{{item}}"
         state: directory
@@ -112,7 +111,7 @@
         remote_src: true
         force: no
         src: "{{ engine_dir }}/conf/scripts/{{item}}"
-        dest: "{{ scripts_dir }}/{{ item }}"
+        dest: "{{ scripts_dir }}"
         mode: u+rwx,g+rx,o+rx
       with_items:
         - forum
