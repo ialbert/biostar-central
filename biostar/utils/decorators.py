@@ -33,18 +33,18 @@ def check_lock(lock):
                 logger.warning('Lock directory detected, function is already running')
                 sys.exit()
 
-            # Make the lock directory
-            os.makedirs(lock, exist_ok=True)
-
             # Try to run function
             try:
+                # Make the lock directory
+                os.makedirs(lock, exist_ok=True)
                 out = func(*args, **kwargs)
             except Exception as exc:
                 logger.error(exc)
                 out = None
 
-            # Delete the lock directory
-            os.rmdir(lock)
+            finally:
+                # Clean the locks.
+                os.rmdir(lock)
 
             # Return function output
             return out
