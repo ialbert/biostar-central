@@ -11,7 +11,7 @@ LOG_LEVEL = os.getenv('ENGINE_LOG_LEVEL', '').upper() or 'INFO'
 
 assert LOG_LEVEL in VALID_LEVELS, f"level {LOG_LEVEL} not in {VALID_LEVELS}"
 
-DJANGO_LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL').upper() or 'WARNING'
+DJANGO_LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL', '').upper() or 'WARNING'
 
 assert DJANGO_LOG_LEVEL in VALID_LEVELS
 
