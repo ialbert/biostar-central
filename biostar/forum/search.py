@@ -199,7 +199,7 @@ def init_index(dirname=None, indexname=None, schema=None):
     return ix
 
 
-def print_info(dirname=None, indexname=None,):
+def print_info(dirname=None, indexname=None):
     """
     Prints information on the index.
     """
