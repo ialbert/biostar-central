@@ -74,6 +74,7 @@ forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
+	$(eval TARGET := new)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TASKS_MODULE := biostar.forum.tasks)
 	$(eval WSGI_FILE := biostar/forum/wsgi.py)
@@ -126,6 +127,7 @@ reset: echo
 	# Delete the database, logs and CACHE files.
 	# Keep media and spooler.
 	rm -rf export/logs/*.log
+	rm -rf export/spammers/
 	# Database is always found in export/db/
 	rm -f export/db/${DATABASE_NAME}
 	rm -rf export/static/CACHE

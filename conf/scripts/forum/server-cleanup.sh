@@ -15,5 +15,3 @@ export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
 python manage.py cleanup
 
-# Clear site sessions
-python manage.py clearsessions

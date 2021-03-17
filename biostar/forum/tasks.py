@@ -56,13 +56,13 @@ def notify_watched_tags(uid, extra_context):
     emails = set(u.email for o in users for u in o)
 
     from_email = settings.DEFAULT_NOREPLY_EMAIL
-
-    send_email(template_name='messages/watched_tags.html',
-               extra_context=extra_context,
-               name=post.author.profile.name,
-               recipient_list=emails,
-               from_email=from_email,
-               mass=True)
+    if emails:
+        send_email(template_name='messages/watched_tags.html',
+                   extra_context=extra_context,
+                   name=post.author.profile.name,
+                   recipient_list=emails,
+                   from_email=from_email,
+                   mass=True)
 
 @task
 def created_post(pid):
@@ -203,13 +203,13 @@ def mailing_list(emails, uid, extra_context={}):
     email_template = "messages/mailing_list.html"
     author = post.author.profile.name
     from_email = settings.DEFAULT_NOREPLY_EMAIL
-
-    send_email(template_name=email_template,
-               extra_context=extra_context,
-               name=author,
-               from_email=from_email,
-               recipient_list=emails,
-               mass=True)
+    if emails:
+        send_email(template_name=email_template,
+                   extra_context=extra_context,
+                   name=author,
+                   from_email=from_email,
+                   recipient_list=emails,
+                   mass=True)
 
 
 @task

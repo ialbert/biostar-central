@@ -496,8 +496,8 @@ def toggle_spam(request, post, **kwargs):
         text = f'Restored {post_link(post)} from spam'
     else:
         text = f'Marked {post_link(post)} as spam'
-        # Set indexed flag to True, so it's skipped in the next round.
-        Post.objects.filter(id=post.id).update(indexed=True)
+        # Set indexed flag to False, so it's removed from spam index
+        Post.objects.filter(id=post.id).update(indexed=False)
 
     # Set a logging message.
     messages.success(request, mark_safe(text))

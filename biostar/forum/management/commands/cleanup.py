@@ -19,9 +19,9 @@ def prune_data(weeks=10, days=1, delall=False):
     past_days = now() - timedelta(days=days)
     weeks_since = now() - timedelta(weeks=weeks)
 
-    spam_posts = Post.objects.filter(spam=Post.SPAM)
-    logger.info(f"Deleting {spam_posts.count()} spam posts")
-    spam_posts.delete()
+    #spam_posts = Post.objects.filter(spam=Post.SPAM)
+    #logger.info(f"Deleting {spam_posts.count()} spam posts")
+    #spam_posts.delete()
 
     # Remove post views.
     post_views = PostView.objects.filter(date__lt=past_days)
@@ -38,10 +38,10 @@ def prune_data(weeks=10, days=1, delall=False):
     messages.delete()
 
     # Get rid of too many messages
-    users = User.objects.annotate(total=Count("message__recipient")).filter(total__gt=MAX_MSG)[:100]
-    for user in users:
-        since = now() - timedelta(days=1)
-        Message.objects.filter(user=user, sent_at__lt=since).delete()
+    #users = User.objects.annotate(total=Count("message__recipient")).filter(total__gt=MAX_MSG)[:100]
+    #for user in users:
+    #    since = now() - timedelta(days=1)
+    #    Message.objects.filter(user=user, sent_at__lt=since).delete()
 
     return
 

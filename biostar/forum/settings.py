@@ -7,8 +7,6 @@ from biostar.accounts.settings import *
 # Inherit from the accounts settings file.
 from biostar.planet.settings import *
 
-from .celeryconf import *
-
 def join(*args):
     return os.path.abspath(os.path.join(*args))
 
@@ -159,6 +157,8 @@ CACHES = {
         'LOCATION': 'unique-snowflake',
     }
 }
+
+TASK_MODULES = ("biostar.forum.tasks", )
 
 # Tries to load up secret settings from a predetermined module
 # This is for convenience only!

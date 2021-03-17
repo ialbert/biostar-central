@@ -13,6 +13,7 @@ class RateLimitFilter(object):
     """
     Limits the number of error emails when errors get triggered.
     """
+    # Time out in seconds.
     TIMEOUT = 600
     CACHE_KEY = "error-limiter"
 
