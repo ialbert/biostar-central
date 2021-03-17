@@ -9,7 +9,7 @@ from django.conf import settings
 from django.db.models import Q
 from whoosh import writing, classify
 from whoosh.analysis import StemmingAnalyzer
-from whoosh.writing import AsyncWriter
+from whoosh.writing import AsyncWriter, BufferedWriter
 from whoosh.searching import Results
 
 import html2markdown
@@ -40,13 +40,13 @@ def timer_func():
         now = time.time()
         sec = round(now - last, 1)
         last = now
-        print(f"{msg} in {sec} seconds")
+        return f"{msg} in {sec} seconds"
 
     def progress(index, step=500, total=0, msg=""):
         nonlocal last
         if index % step == 0:
             percent = int((index / total) * 100) if total >= index else index
-            elapsed(f"... {percent}% ({index} out of {total}). {step} {msg}")
+            return f"... {percent}% ({index} out of {total}). {step} {msg}"
 
     return elapsed, progress
 
@@ -236,7 +236,8 @@ def index_posts(posts, ix=None, overwrite=False, add_func=add_index):
 
     # Loop through posts and add to index
     for step, post in stream:
-        progress(step, total=total, msg="posts indexed")
+        pr = progress(step, total=total, msg="posts indexed")
+        logger.debug(pr)
         add_func(post=post, writer=writer)
 
     # Commit to index
@@ -244,9 +245,11 @@ def index_posts(posts, ix=None, overwrite=False, add_func=add_index):
         logger.info("Overwriting the old index")
         writer.commit(mergetype=writing.CLEAR)
     else:
+        logger.debug("Committing to index")
         writer.commit()
 
-    #elapsed(f"Indexed posts={total}")
+    elapsed = elapsed(f"Committed {total} posts to index.")
+    logger.debug(elapsed)
 
 
 def crawl(reindex=False, overwrite=False, limit=1000):
@@ -307,17 +310,7 @@ def preform_whoosh_search(query, ix=None, fields=None, page=None, per_page=None,
         results.fragmenter.maxchars = 100
         results.fragmenter.surround = 100
 
-    #logger.info("Preformed index search")
-
     return results
-
-
-def clean_index():
-    """
-    Purge the search index of invalid posts ( deleted, spam, etc)
-    """
-
-    return
 
 
 def preform_search(query, fields=None, top=0, sortedby=[], more_like_this=False):

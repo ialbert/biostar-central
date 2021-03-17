@@ -18,5 +18,8 @@ set -ue
 # Set the configuration module.
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
+# Set the log
+# export ENGINE_LOG_LEVEL=DEBUG
+
 # Add BATCH_SIZE posts to search index
 python manage.py index --size ${BATCH_SIZE}
