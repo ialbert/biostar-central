@@ -1,5 +1,5 @@
 import functools
-import random
+import random, logging
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from django.conf import settings
@@ -7,6 +7,8 @@ import time, random
 from biostar.utils.decorators import task, timer
 
 from django.db.models import Q
+
+logger = logging.getLogger("engine")
 
 #
 # Do not use logging in tasks! Deadlocking may occur!
@@ -177,11 +179,11 @@ def batch_create_awards(limit=100):
             # In batch creation we overwrite date.
             date = post.lastedit_date if post else date
             award = models.Award(user=user, badge=badge, date=date, post=post)
-            message(f"awarded {award} to {user}")
+            logger.debug(f"awarded {award} to {user}")
 
             yield award
 
-    message(f"{len(targets)} awards given to {len(users)} users")
+    logger.info(f"{len(targets)} awards given to {len(users)} users")
     models.Award.objects.bulk_create(objs=batch(), batch_size=limit)
 
 

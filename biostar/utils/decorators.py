@@ -297,7 +297,7 @@ try:
     # Initiate the runners
     WORKER = select_runner('worker')
     TIMER = select_runner('timer')
-    logger.info(f'workers and timers set to {settings.TASK_RUNNER}')
+    logger.debug(f'workers and timers set to {settings.TASK_RUNNER}')
 
 except Exception as exc:
     # Disable tasks when there are errors, raising exceptions breaks migration.
