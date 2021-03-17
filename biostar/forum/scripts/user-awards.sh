@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Stop on errors.
-set -ue
 
 cd /export/www/biostar-central/
 
@@ -12,6 +10,9 @@ export POSTGRES_HOST=/var/run/postgresql
 
 # Activate the conda environemnt.
 conda activate engine
+
+# Stop on errors.
+set -ue
 
 LIMIT=100
 
