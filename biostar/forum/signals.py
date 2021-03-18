@@ -118,12 +118,8 @@ def finalize_post(sender, instance, created, **kwargs):
         # Notify users who are watching tags in this post
         tasks.notify_watched_tags.spool(uid=instance.uid, extra_context=extra_context)
 
-        mailing_list = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES)
-
-        emails = [user.email for user in mailing_list]
-
         # Send out mailing list when post is created.
-        tasks.mailing_list.spool(emails=emails, uid=instance.uid, extra_context=extra_context)
+        tasks.mailing_list.spool(uid=instance.uid, extra_context=extra_context)
 
     # Set the tags on the instance.
     if instance.is_toplevel:
@@ -142,6 +138,7 @@ def finalize_post(sender, instance, created, **kwargs):
     sub_ids = list(subs.values_list('id', flat=True))
 
     # Notify subscribers
-    tasks.notify_followers.spool(sub_ids=sub_ids, author_id=instance.author.pk,
+    tasks.notify_followers.spool(sub_ids=sub_ids,
+                                 author_id=instance.author.pk,
                                  uid=instance.uid,
                                  extra_context=extra_context)

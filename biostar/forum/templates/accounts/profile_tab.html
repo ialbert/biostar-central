@@ -60,7 +60,8 @@
 
                 <tr>
                     <td>Handle:</td>
-                    <td><code>@{{ target.username }}</code></td>
+                    <td><code>@{{ target.username }}</code>
+                    </td>
                 </tr>
 
                 <tr>
@@ -70,7 +71,11 @@
                 {% if target == request.user or request.user.profile.is_moderator %}
                     <tr>
                         <td>Email:</td>
-                        <td>{{ target.email }}</td>
+                        <td>{{ target.email }}
+                            {% if target.profile.email_verified %}
+                                <i class="blue check icon"></i>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endif %}
 
@@ -87,6 +92,12 @@
                                     class="twitter icon"></i>{{ target.profile.twitter }}</a>
                         </td>
                     </tr>
+                {% endif %}
+
+                {% if target == request.user %}
+                    <a class="ui basic button" href="{% url 'send_email_verify' %}">
+                        <i class="mail icon"></i>Verify email
+                    </a>
                 {% endif %}
 
                 {% if target.profile.scholar %}

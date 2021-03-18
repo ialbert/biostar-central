@@ -193,9 +193,6 @@ class EditProfile(forms.Form):
         if email:
             raise forms.ValidationError("Email already exists.")
 
-        if self.user.is_superuser and cleaned_data != self.user.email:
-            raise forms.ValidationError("Admins are required to change emails using the Django Admin Interface.")
-
         return cleaned_data
 
     def clean_my_tags(self):
@@ -216,6 +213,9 @@ class EditProfile(forms.Form):
         # Update usernames and email
         User.objects.filter(pk=self.user.pk).update(username=username, email=email)
 
+        # Change email verification status if email changes.
+        verified = False if email != self.user.email else self.user.profile.email_verified
+
         # Update profile attributes
         Profile.objects.filter(user=self.user).update(
             html=html,
@@ -226,6 +226,7 @@ class EditProfile(forms.Form):
             twitter=self.cleaned_data['twitter'],
             scholar=self.cleaned_data['scholar'],
             text=self.cleaned_data["text"],
+            email_verified=verified,
             my_tags=self.cleaned_data['my_tags'],
             message_prefs=self.cleaned_data["message_prefs"],
             digest_prefs=self.cleaned_data['digest_prefs'])
