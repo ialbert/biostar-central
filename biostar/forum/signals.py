@@ -132,8 +132,7 @@ def finalize_post(sender, instance, created, **kwargs):
         instance.tags.add(*tags)
 
     # Classify post as spam/ham.
-    #tasks.classify_spam.spool(uid=instance.uid)
-
+    tasks.spam_check.spool(uid=instance.uid)
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)
 
