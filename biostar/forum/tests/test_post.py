@@ -177,7 +177,7 @@ class PostSearchTest(TestCase):
         Test functions associated with search.
         """
         query = "Test"
-        whoosh_search = search.preform_search(query)
+        whoosh_search = search.perform_search(query)
 
         search.print_info()
         # TODO: put back in

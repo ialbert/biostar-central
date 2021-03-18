@@ -18,7 +18,9 @@ def build(size, remove=False):
     """
     Builds search index
     """
-    posts = Post.objects.valid_posts(indexed=False).exclude(root=None)[:size]
+
+    # Get top level posts that have not been indexed.
+    posts = Post.objects.valid_posts(indexed=False, is_toplevel=True).exclude(root=None)[:size]
     target_count = len(posts)
 
     # The list of posts to update
@@ -30,7 +32,7 @@ def build(size, remove=False):
     # Set the indexed field to true.
     Post.objects.filter(id__in=ids).update(indexed=True)
 
-    count = Post.objects.valid_posts(indexed=False).exclude(root=None).count()
+    count = Post.objects.valid_posts(indexed=False, is_toplevel=True).exclude(root=None).count()
 
     logger.info(f"Indexed {target_count} posts, {count} unindexed posts remaining")
 
@@ -41,8 +43,6 @@ def build(size, remove=False):
     for post in spam_posts:
         # Remove spam from search index.
         search.remove_post(post=post)
-        # Add spam to its own index
-        spam.add_spam(post=post)
 
     # Update the spam indexed flag.
     Post.objects.filter(id__in=sids).update(indexed=True)
