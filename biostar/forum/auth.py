@@ -291,6 +291,7 @@ def post_tree(user, root):
 
     return root, comment_tree, answers, thread
 
+
 def valid_awards(user):
     """
     Return list of valid awards for a given user
@@ -307,7 +308,6 @@ def valid_awards(user):
 
             post = target if isinstance(target, Post) else None
             date = util.now()
-
             badge = Badge.objects.filter(name=award.name).first()
 
             valid.append((user, badge, date, post))
