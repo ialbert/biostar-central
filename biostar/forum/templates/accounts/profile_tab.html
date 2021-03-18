@@ -46,6 +46,12 @@
             <table class="ui very basic table profile">
                 <tbody>
 
+               {% if target == request.user %}
+                    <a class="ui basic tiny button" href="{% url 'send_email_verify' %}">
+                        <i class="mail icon"></i>Verify email
+                    </a>
+                {% endif %}
+
                 {% if target.profile.is_moderator %}
                     <tr>
                         <td>Role:</td>
@@ -94,11 +100,6 @@
                     </tr>
                 {% endif %}
 
-                {% if target == request.user %}
-                    <a class="ui basic button" href="{% url 'send_email_verify' %}">
-                        <i class="mail icon"></i>Verify email
-                    </a>
-                {% endif %}
 
                 {% if target.profile.scholar %}
                     <tr>
