@@ -189,6 +189,19 @@ def batch_create_awards(limit=100):
 
 
 @task
+def spam_check(uid):
+    from biostar.forum.models import Post
+    from biostar.forum.auth import toggle_spam
+    post = Post.objects.filter(uid=uid).first()
+
+    if 0:
+        # Mark as spam
+        pass
+
+    return False
+
+
+@task
 def mailing_list(emails, uid, extra_context={}):
     """
     Generate notification for mailing list users.
