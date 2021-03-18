@@ -155,7 +155,7 @@ def thread(*args, **kwargs):
         @functools.wraps(func)
         def inner(*args, **kwargs):
             # Run process in separate thread.
-            logger.info(f"new thread for function f{func} {args} {kwargs}")
+            logger.debug(f"new thread for function f{func} {args} {kwargs}")
             t = threading.Thread(target=func, args=args, kwargs=kwargs, daemon=True)
             t.start()
 
@@ -234,7 +234,7 @@ def b_worker():
     def outer(func, *args, **kwargs):
         @functools.wraps(func)
         def inner(*args, **kwargs):
-            #logger.info(f"running f{func} {args} {kwargs}")
+            logger.debug(f"running f{func} {args} {kwargs}")
             return func(*args, **kwargs)
 
         inner.spool = inner

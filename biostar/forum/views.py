@@ -102,7 +102,7 @@ def get_posts(user, topic="", order="", limit=None):
     post_type = POST_TYPE.get(topic)
     query = Post.objects.valid_posts(u=user, is_toplevel=True)
 
-    # Determines how to start the preform_search.
+    # Determines how to start the more_like_this.
     if post_type:
         query = query.filter(type=post_type)
 
@@ -159,27 +159,19 @@ def post_search(request):
 
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
-    page = int(request.GET.get('page', 1))
-    sortmap = dict(edit="lastedit_date", creation="creation_date", type='type')
-    sorting = request.GET.get('sort')
-    sortedby = [sortmap.get(sorting, "lastedit_date")]
 
     if length < settings.SEARCH_CHAR_MIN:
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    sortedby += ["lastedit_date"]
-    sortedby = set(sortedby)
-    results = search.preform_whoosh_search(query=query, page=page, sortedby=sortedby,
-                                           reverse=True)
+    results = search.perform_search(query=query)
 
-    total = results.total
+    total = len(results)
     template_name = "search/search_results.html"
 
     question_flag = Post.QUESTION
     context = dict(results=results, query=query, total=total, template_name=template_name,
-                   question_flag=question_flag, stop_words=','.join(search.STOP),
-                   sort=sorting)
+                   question_flag=question_flag)
 
     return render(request, template_name=template_name, context=context)
 

@@ -4,7 +4,6 @@ import logging
 import random
 import re
 import os
-
 import datetime
 from itertools import count, islice
 from datetime import timedelta
@@ -104,19 +103,6 @@ def counts(context):
     messages = dict(count=mcounts)
 
     return dict(votes=votes, messages=messages)
-
-
-@register.inclusion_tag('search/search_pages.html', takes_context=True)
-def pages_search(context, results):
-
-    previous_page = results.pagenum - 1
-    next_page = results.pagenum + 1 if not results.is_last_page() else results.pagenum
-    request = context['request']
-    query = request.GET.get('query', '')
-    context = dict(results=results, previous_page=previous_page, query=query,
-                   next_page=next_page)
-
-    return context
 
 
 @register.inclusion_tag('widgets/post_details.html', takes_context=True)
@@ -432,11 +418,6 @@ def get_last_login(user):
     return f"{time_ago(user.profile.date_joined)}"
 
 
-@register.filter
-def highlight(hit, field):
-    lit = hit.highlights(field, top=5)
-    return mark_safe(lit) if len(lit) else hit[field]
-
 
 @register.inclusion_tag('widgets/feed_custom.html')
 def custom_feed(objs, ftype='', title=''):
@@ -600,17 +581,17 @@ def relative_url(value, field_name, urlencode=None):
     """
     Updates field_name parameters in url with new value
     """
-    # Create preform_search string with updated field_name, value pair.
+    # Create more_like_this string with updated field_name, value pair.
     url = f'?{field_name}={value}'
     if urlencode:
-        # Split preform_search string
+        # Split query string
         querystring = urlencode.split('&')
-        # Exclude old value 'field_name' from preform_search string
+        # Exclude old value 'field_name' from more_like_this string
         filter_func = lambda p: p.split('=')[0] != field_name
         filtered_querystring = filter(filter_func, querystring)
         # Join the filtered string
         encoded_querystring = '&'.join(filtered_querystring)
-        # Update preform_search string
+        # Update query string
         url = f'{url}&{encoded_querystring}'
 
     return url

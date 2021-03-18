@@ -139,7 +139,7 @@ def search_spam(post, ix):
 
     # Search for this post in the spam index
     fields = ['uid']
-    results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
+    results = search.perform_search(ix=ix, query=post.uid, fields=fields)
 
     # Preform more_like_this on this posts content
     similar_content = results[0].more_like_this('content', top=5)
@@ -150,7 +150,7 @@ def search_spam(post, ix):
     writer.commit()
 
     # Get the results into a list and close the searcher object.
-    similar_content = list(map(search.normalize_result, similar_content))
+    similar_content = list(map(search.copy_hits, similar_content))
 
     # Close the searcher
     results.searcher.close()
