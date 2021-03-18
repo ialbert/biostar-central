@@ -28,9 +28,9 @@ LOG=/export/www/biostar-central/export/logs/crontab.log
 # Monthly digest
 0 0 1 * * $DIR/digest-monthly.sh >> $LOG 2>&1
 
-# Planet daily update
-0 0 * * * $DIR/planet-daily.sh >> $LOG 2>&1
+# Planet daily download
+0 0 * * * $DIR/planet-download.sh >> $LOG 2>&1
 
-# Planet hourly
-0 * * * * $DIR/planet-hourly.sh >> $LOG 2>&1
+# Planet hourly update
+0 * * * * $DIR/planet-update.sh >> $LOG 2>&1
 
