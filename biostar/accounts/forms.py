@@ -146,6 +146,12 @@ class EditProfile(forms.Form):
         self.fields['scholar'] = forms.CharField(label="Scholar", max_length=100, required=False,
                                                  initial=self.user.profile.scholar)
 
+        self.fields['user_icon'] = forms.ChoiceField(required=False, label="User icon",
+                                                     choices=Profile.USER_ICON_CHOICES,
+                                                     widget=forms.Select(attrs={'class': "ui dropdown"}),
+                                                     initial=self.user.profile.user_icon,
+                                                     help_text="User icon type")
+
         self.fields['text'] = forms.CharField(widget=forms.Textarea(), min_length=2, max_length=5000, required=False,
                                               help_text="Extra information about you to personalize your profile.",
                                               initial=self.user.profile.text)
@@ -227,6 +233,7 @@ class EditProfile(forms.Form):
             scholar=self.cleaned_data['scholar'],
             text=self.cleaned_data["text"],
             my_tags=self.cleaned_data['my_tags'],
+            user_icon=self.cleaned_data['user_icon'],
             message_prefs=self.cleaned_data["message_prefs"],
             digest_prefs=self.cleaned_data['digest_prefs'])
         # Recompute watched tags

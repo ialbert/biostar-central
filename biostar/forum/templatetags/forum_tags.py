@@ -136,7 +136,7 @@ def now():
 
 @register.simple_tag
 def gravatar(user=None, user_uid=None, size=80):
-    hasattr(user, 'profile')
+
     if user_uid and hasattr(user, 'profile'):
         user = User.objects.filter(profile__uid=user_uid).first()
 

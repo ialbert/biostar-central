@@ -142,7 +142,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 ]
 
-# Database settings.
+# Database directory.
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DATABASE_DIR = os.path.join(BASE_DIR, 'export', 'db')
 
@@ -189,7 +189,6 @@ STATICFILES_DIRS = [
     join(BASE_DIR, "biostar", "static"),
 ]
 
-
 # The media URL start.
 MEDIA_URL = '/media/'
 
@@ -208,20 +207,12 @@ STATICFILES_FINDERS = [
 # Apply default logger setting.
 LOGGER_NAME = "biostar"
 
-# Valid options; block, d_worker, threaded, uwsgi, celery.
-TASK_RUNNER = 'threaded'
-
-# Add celery apps to the installed set
-#CELERY_APPS = ['django_celery_results', 'django_celery_beat']
-#INSTALLED_APPS += CELERY_APPS
+# Valid options; block, disabled, threaded, uwsgi, celery.
+TASK_RUNNER = 'block'
 
 TASK_MODULES = []
 
-
 # The email delivery engine.
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-#EMAIL_BACKEND = 'sparkpost.django.email_backend.SparkPostEmailBackend'
-
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Session engine.

@@ -1,29 +1,22 @@
-import datetime
 import logging
-import json
 import hashlib
-
+import logging
 import urllib.parse as urlparse
-from urllib import request
 
-from django.template import loader
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import F, Q
-from django.utils.timezone import utc
-from django.core.cache import cache
-from django.core.paginator import Paginator
-from django.shortcuts import reverse
-from biostar.accounts.models import Profile
-from . import util, awards, tasks
-from .const import *
-from .models import Post, Vote, PostView, Subscription, Award, Badge, delete_post_cache
+from django.template import loader
 from django.utils.safestring import mark_safe
 
 # Needed for historical reasons.
 from biostar.accounts.auth import db_logger
+from biostar.accounts.models import Profile
+from . import util, awards, tasks
+from .const import *
+from .models import Post, Vote, Subscription, Award, Badge, delete_post_cache
 
 User = get_user_model()
 
@@ -53,14 +46,12 @@ def convert_html():
     return
 
 
-def gravatar_url(email, style='mp', size=80):
+def gravatar_url(email, style='mp', size=80, flag="n"):
     hash_num = hashlib.md5(email).hexdigest()
 
     url = "https://secure.gravatar.com/avatar/%s?" % hash_num
-    url += urlparse.urlencode({
-        's': str(size),
-        'd': style,
-    }
+    url += urlparse.urlencode(
+        dict(s=str(size), d=style, f=flag)
     )
     return url
 
@@ -80,19 +71,28 @@ def decode_email(email):
 
 
 def gravatar(user, size=80):
+
     if not user or user.is_anonymous:
         email = 'anon@biostars.org'.encode('utf8')
         return gravatar_url(email=email)
 
+
     email = user.email if user.is_authenticated else ''
-    email = email.encode('utf8')
+    email = email.encode('utf8', errors="ignore")
 
     if user.is_anonymous or not user.profile.is_valid:
-        # Removes spammy images for suspended users
+        # Removes images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
-
         style = "monsterid"
-    elif user.profile.is_moderator:
+        return gravatar_url(email=email, style=style, size=size, flag="y")
+
+    # The user has wants a non default icon.
+    if user.profile.user_icon != Profile.DEFAULT_ICON:
+        style = user.profile.user_icon
+        return gravatar_url(email=email, style=style, size=size, flag="y")
+
+    # Create the most appropriate default style.
+    if user.profile.is_moderator:
         style = "robohash"
     elif user.profile.score > 100:
         style = "retro"
@@ -100,7 +100,6 @@ def gravatar(user, size=80):
         style = "identicon"
     else:
         style = "mp"
-    style = settings.GRAVATAR_ICON or style
 
     return gravatar_url(email=email, style=style, size=size)
 
@@ -127,7 +126,6 @@ def walk_down_thread(parent, collect=set()):
 
 
 def create_post_from_json(**json_data):
-
     post_uid = json_data['id']
 
     # Check to see if the uid already exists
@@ -135,7 +133,6 @@ def create_post_from_json(**json_data):
 
     # Update an existing post
     if post:
-
         post.content = json_data['']
         post.lastedit_date = json_data['lastedit_date']
         post.creation_date = json_data['creation_date']
@@ -172,12 +169,11 @@ def create_post_from_json(**json_data):
     #     'tag_val': self.tag_val,
     #     'url': f'{settings.PROTOCOL}://{settings.SITE_DOMAIN}{self.get_absolute_url()}',
     # }
-    
+
     return
 
 
 def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
-
     # Check if a post with this content already exists.
     post = Post.objects.filter(content=content, author=author).first()
     if post:
@@ -224,7 +220,6 @@ def create_subscription(post, user, sub_type=None, update=False):
 
 
 def is_suspended(user):
-
     if user.is_authenticated and user.profile.state in (Profile.BANNED, Profile.SUSPENDED, Profile.SPAMMER):
         return True
 
@@ -386,7 +381,6 @@ def only_delete(post, user):
 
 
 def delete_post(post, user):
-
     if only_delete(post, user):
         # Deleted posts can be un=deleted by re-opening them.
         Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
@@ -411,7 +405,6 @@ def delete_post(post, user):
 
 
 def open(request, post, **kwargs):
-
     if post.is_spam and post.author.profile.low_rep:
         post.author.profile.bump_over_threshold()
 
@@ -524,7 +517,6 @@ def close(request, post, comment, **kwargs):
 
 
 def duplicated(request, post, comment, **kwargs):
-
     # Generate a rationale post on why this post is a duplicate.
     Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
     user = request.user
@@ -553,6 +545,7 @@ def delete(request, post, **kwargs):
 
     return url
 
+
 def off_topic(request, post, **kwargs):
     """
     Marks post as off topic. Generate off topic comment.
@@ -575,7 +568,6 @@ def off_topic(request, post, **kwargs):
 
 
 def moderate(request, post, action, comment=""):
-
     # Bind an action to a function.
     action_map = {REPORT_SPAM: toggle_spam,
                   DUPLICATE: duplicated,

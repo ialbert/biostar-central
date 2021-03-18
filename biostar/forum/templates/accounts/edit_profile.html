@@ -9,7 +9,8 @@
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <link disabled rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
+    <link disabled rel="stylesheet"
+          href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
     <script async src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
 {% endblock %}
 
@@ -39,11 +40,10 @@
                 </div>
 
                 <div class="fields">
-                    <div class="empty form-field field"></div>
 
                     <div class="required form-field field">
                         <div class="ui form-wrap segment">
-                            <label><i class="address card icon"></i>Name </label>
+                            <label><i class="address card icon"></i> Name</label>
                             {{ form.name }}
                             <div class="muted">
                                 Displayed name
@@ -51,30 +51,25 @@
                         </div>
                     </div>
 
-                    <div class="empty form-field field"></div>
-                </div>
-
-                <div class="fields">
-                    <div class="empty form-field field"></div>
 
                     <div class="required form-field field">
                         <div class="ui form-wrap segment">
-                            <label><i class="at icon"></i>Handle</label>
+                            <label><i class="at icon"></i> Handle</label>
                             {{ form.username }}
                             <div class="muted">
-                                Handle may be used to reference you in posts.
+                                May be used to reference you in posts <code>@user</code>.
                             </div>
                         </div>
                     </div>
 
-                    <div class="empty form-field field"></div>
                 </div>
+
                 <div class="fields">
-                    <div class="empty form-field field"></div>
+
 
                     <div class="required form-field field">
                         <div class="ui form-wrap segment">
-                            <label><i class="envelope icon"></i>Email</label>
+                            <label><i class="envelope icon"></i> Email</label>
                             {{ form.email }}
                             <div class="muted">
                                 Email used to register to the site.
@@ -82,14 +77,24 @@
                         </div>
                     </div>
 
-                    <div class="empty form-field field"></div>
+                    <div class="required form-field field">
+                        <div class="ui form-wrap segment" style="display: grid" >
+                            <label><i class="envelope icon"></i> User icon</label>
+                            {{ form.user_icon }}
+                            <div class="muted">
+                                User icon to generate
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 <div class="fields">
 
+
                     <div class="field">
                         <div class="ui form-wrap segment">
-                            <label><i class="linkify icon"></i>Website</label>
+                            <label><i class="linkify icon"></i> Website</label>
                             {{ form.website }}
                             <div class="muted">
                                 URL to your website
@@ -99,7 +104,7 @@
 
                     <div class="field">
                         <div class="ui form-wrap segment">
-                            <label><i class="map marker alternate icon"></i>Location</label>
+                            <label><i class="map marker alternate icon"></i> Location</label>
                             {{ form.location }}
                             <div class="muted">
                                 Country/City/Institution
@@ -115,7 +120,7 @@
                     <div class="field">
                         <div class="ui form-wrap segment">
 
-                            <label><i class="twitter icon"></i>Twitter id</label>
+                            <label><i class="twitter icon"></i> Twitter handle</label>
                             {{ form.twitter }}
                             <div class="muted">
                                 Your twitter id
@@ -125,7 +130,7 @@
 
                     <div class="field">
                         <div class="ui form-wrap segment">
-                            <label><i class="google icon"></i>Scholar</label>
+                            <label><i class="google icon"></i> Google Scholar</label>
                             {{ form.scholar }}
                             <div class="muted">
                                 Your Google Scholar ID
@@ -137,7 +142,7 @@
 
                     <div class="field">
                         <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="bell icon"></i>Digest Preferences </label>
+                            <label><i class="bell icon"></i> Digest Preferences </label>
                             {{ form.digest_prefs }}
                             <div class="muted">
                                 {{ form.digest_prefs.help_text }}
@@ -145,12 +150,9 @@
                         </div>
                     </div>
 
-                </div>
-                <div class="fields">
-
                     <div class="field">
                         <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="bell icon"></i>Notifications </label>
+                            <label><i class="bell icon"></i> Notifications </label>
                             {{ form.message_prefs }}
                             <div class="muted">
                                 {{ form.message_prefs.help_text }}
@@ -163,7 +165,7 @@
                 <div class="fields">
                     <div class="field">
                         <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="tags icon"></i>My Tags </label>
+                            <label><i class="tags icon"></i> My Tags </label>
 
                             {% tags_field form_field=form.my_tags initial=user.profile.my_tags %}
 
@@ -178,7 +180,7 @@
                 <div class="fields">
                     <div class="field">
                         <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="tags icon"></i>Watched Tags </label>
+                            <label><i class="tags icon"></i> Watched Tags </label>
 
                             {% tags_field form_field=form.watched_tags initial=user.profile.watched_tags %}
 
@@ -195,7 +197,7 @@
 
                     <div class="field">
                         <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="info icon"></i>Description</label>
+                            <label><i class="info circle icon"></i> Profile information</label>
                             {{ form.text }}
                             <div class="muted">
                                 {{ form.text.help_text }}

@@ -1,13 +1,13 @@
-import uuid
 import os
-from datetime import datetime, timedelta
-from taggit.managers import TaggableManager
+
 import mistune
-from taggit.models import Tag
 from django.conf import settings
-from django.shortcuts import reverse
 from django.contrib.auth.models import User
 from django.db import models
+from django.shortcuts import reverse
+from taggit.managers import TaggableManager
+from taggit.models import Tag
+
 from biostar.accounts import util
 
 
@@ -149,6 +149,19 @@ class Profile(models.Model):
 
     # Opt-in to all messages from the site
     opt_in = models.BooleanField(default=False)
+
+    # User icon types.
+    # See: https://en.gravatar.com/site/implement/images/
+    DEFAULT_ICON = "default"
+    USER_ICON_CHOICES = [
+        (DEFAULT_ICON, "Default"),
+        ("mp", "Mystery person"),
+        ("retro", "Retro"),
+        ("identicon", "Identicon"),
+        ("monsterid", "Monster"),
+        ("robohash", "Robohash"),
+    ]
+    user_icon = models.CharField(default=DEFAULT_ICON, choices=USER_ICON_CHOICES, max_length=100)
 
     objects = ProfileManager()
 
@@ -373,7 +386,7 @@ class Message(models.Model):
     SPAM_CHOICES = [(SPAM, "Spam"), (VALID, "Not spam"), (UNKNOWN, "Unknown")]
     spam = models.IntegerField(choices=SPAM_CHOICES, default=UNKNOWN)
 
-    #uid = models.CharField(max_length=32, unique=True)
+    # uid = models.CharField(max_length=32, unique=True)
     sender = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="author", on_delete=models.CASCADE)
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
