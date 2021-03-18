@@ -46,6 +46,12 @@
             <table class="ui very basic table profile">
                 <tbody>
 
+                {% if target == request.user %}
+                    <a class="ui basic tiny button" href="{% url 'send_email_verify' %}">
+                        <i class="mail icon"></i>Verify email
+                    </a>
+                {% endif %}
+
                 {% if target.profile.is_moderator %}
                     <tr>
                         <td>Role:</td>
@@ -60,7 +66,8 @@
 
                 <tr>
                     <td>Handle:</td>
-                    <td><code>@{{ target.username }}</code></td>
+                    <td><code>@{{ target.username }}</code>
+                    </td>
                 </tr>
 
                 <tr>
@@ -70,7 +77,11 @@
                 {% if target == request.user or request.user.profile.is_moderator %}
                     <tr>
                         <td>Email:</td>
-                        <td>{{ target.email }}</td>
+                        <td>{{ target.email }}
+                            {% if target.profile.email_verified %}
+                                <i class="blue check icon"></i>
+                            {% endif %}
+                        </td>
                     </tr>
                 {% endif %}
 
@@ -88,6 +99,7 @@
                         </td>
                     </tr>
                 {% endif %}
+
 
                 {% if target.profile.scholar %}
                     <tr>

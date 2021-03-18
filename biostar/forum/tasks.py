@@ -202,14 +202,19 @@ def spam_check(uid):
 
 
 @task
-def mailing_list(emails, uid, extra_context={}):
+def mailing_list(uid, extra_context={}):
     """
     Generate notification for mailing list users.
     """
     from django.conf import settings
     from biostar.forum.models import Post
+    from biostar.accounts.models import User, Profile
 
+    # Get the post and users that have this enabled.
     post = Post.objects.filter(uid=uid).first()
+    users = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES)
+
+    emails = [user.email for user in users]
 
     # Update template context with post
     extra_context.update(dict(post=post))
@@ -264,10 +269,9 @@ def notify_followers(sub_ids, author_id, uid, extra_context={}):
                     sender=author)
 
     # Select users with email subscriptions.
-    # Exclude mailing list users to avoid duplicate emails.
     email_subs = subs.filter(type=Subscription.EMAIL_MESSAGE)
+    # Exclude mailing list users to avoid duplicate emails.
     email_subs = email_subs.exclude(user__profile__digest_prefs=Profile.ALL_MESSAGES)
-
     # No email subscriptions
     if not email_subs:
         return
