@@ -212,8 +212,7 @@ def mailing_list(uid, extra_context={}):
 
     # Get the post and users that have this enabled.
     post = Post.objects.filter(uid=uid).first()
-    users = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES,
-                                profile__email_verified=True)
+    users = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES)
 
     emails = [user.email for user in users]
 
@@ -270,7 +269,7 @@ def notify_followers(sub_ids, author_id, uid, extra_context={}):
                     sender=author)
 
     # Select users with email subscriptions.
-    email_subs = subs.filter(type=Subscription.EMAIL_MESSAGE, user__profile__email_verified=True)
+    email_subs = subs.filter(type=Subscription.EMAIL_MESSAGE)
     # Exclude mailing list users to avoid duplicate emails.
     email_subs = email_subs.exclude(user__profile__digest_prefs=Profile.ALL_MESSAGES)
     # No email subscriptions
