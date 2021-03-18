@@ -2,7 +2,7 @@
 SHELL=/bin/bash
 DIR=/export/www/biostar-central/scripts
 LOG=/export/www/biostar-central/export/logs/crontab.log
-
+MAILTO="bar@localhost,foo@localhost"
 
 # Add clean up midnight
 0 0 * * * $DIR/server-cleanup.sh >> $LOG 2>&1
