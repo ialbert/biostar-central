@@ -5,10 +5,10 @@ LOG=/export/www/biostar-central/export/logs/crontab.log
 
 
 # Add clean up midnight
-0 0 * * * $SCRIPTS/server-cleanup.sh >> $LOG 2>&1
+0 0 * * * $DIR/server-cleanup.sh >> $LOG 2>&1
 
 # Index posts every 5 minutes
-*/5 * * * * $SCRIPTS/search-index.sh >> $LOG 2>&1
+*/5 * * * * $DIR/search-index.sh >> $LOG 2>&1
 
 # Batch award users every 30 minutes
 */30 * * * * $DIR/user-awards.sh >> $LOG 2>&1
