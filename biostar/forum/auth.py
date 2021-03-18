@@ -49,13 +49,19 @@ def convert_html():
     return
 
 
-def gravatar_url(email, style='mp', size=80, flag="n"):
+def gravatar_url(email, style='mp', size=80, force=None):
     hash_num = hashlib.md5(email).hexdigest()
 
+    data = dict(s=str(size), d=style)
+
     url = "https://secure.gravatar.com/avatar/%s?" % hash_num
-    url += urlparse.urlencode(
-        dict(s=str(size), d=style, f=flag)
-    )
+
+    # Force the new icon.
+    if force:
+        data['f'] = 'y'
+
+    url += urlparse.urlencode(data)
+
     return url
 
 
@@ -87,12 +93,12 @@ def gravatar(user, size=80):
         # Removes images for suspended users
         email = 'suspended@biostars.org'.encode('utf8')
         style = "monsterid"
-        return gravatar_url(email=email, style=style, size=size, flag="y")
+        return gravatar_url(email=email, style=style, size=size, force=True)
 
     # The user has wants a non default icon.
     if user.profile.user_icon != Profile.DEFAULT_ICON:
         style = user.profile.user_icon
-        return gravatar_url(email=email, style=style, size=size, flag="y")
+        return gravatar_url(email=email, style=style, size=size, force=True)
 
     # Create the most appropriate default style.
     if user.profile.is_moderator:
