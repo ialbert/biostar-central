@@ -46,7 +46,7 @@
             <table class="ui very basic table profile">
                 <tbody>
 
-               {% if target == request.user %}
+                {% if target == request.user %}
                     <a class="ui basic tiny button" href="{% url 'send_email_verify' %}">
                         <i class="mail icon"></i>Verify email
                     </a>
