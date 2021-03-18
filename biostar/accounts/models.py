@@ -151,7 +151,7 @@ class Profile(models.Model):
     # See: https://en.gravatar.com/site/implement/images/
     DEFAULT_ICON = "default"
     USER_ICON_CHOICES = [
-        (DEFAULT_ICON, "Default"),
+        (DEFAULT_ICON, "Gravatar image"),
         ("mp", "Mystery person"),
         ("retro", "Retro"),
         ("identicon", "Identicon"),

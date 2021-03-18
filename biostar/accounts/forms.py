@@ -154,7 +154,7 @@ class EditProfile(forms.Form):
 
         self.fields['text'] = forms.CharField(widget=forms.Textarea(attrs={'rows': 20}),
                                               min_length=2, max_length=5000, required=False,
-                                              help_text="Extra information about you to personalize your profile.",
+                                              help_text="Information about you (markdown)",
 
                                               initial=self.user.profile.text)
 
@@ -162,13 +162,13 @@ class EditProfile(forms.Form):
                                                          choices=Profile.MESSAGING_TYPE_CHOICES,
                                                          widget=forms.Select(attrs={'class': "ui dropdown"}),
                                                          initial=self.user.profile.message_prefs,
-                                                         help_text="""Default mode sends notifications using local messages.""")
+                                                         help_text="Default mode sends notifications using local messages.")
 
         self.fields['digest_prefs'] = forms.ChoiceField(required=True, label="Digest options",
                                                         choices=Profile.DIGEST_CHOICES,
                                                         widget=forms.Select(attrs={'class': "ui dropdown"}),
                                                         initial=self.user.profile.digest_prefs,
-                                                        help_text="""Digest are sent through the email provided.""")
+                                                        help_text="Digest are sent through the email provided.")
 
         self.fields['my_tags'] = forms.CharField(label="My tags", max_length=500, required=False,
                                                  initial=self.user.profile.my_tags,
