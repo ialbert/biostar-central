@@ -149,6 +149,9 @@ def create_user_awards(user_id, limit=None):
     for target in valid:
         user, badge, date, post = target
 
+        # Set the award date to the post edit date
+        date = post.lastedit_date if post else date
+
         # Create an award for each target.
         Award.objects.create(user=user, badge=badge, date=date, post=post)
 
