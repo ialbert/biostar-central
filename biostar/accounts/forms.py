@@ -1,17 +1,17 @@
 import logging
+
+import bleach
+import mistune
+from bleach.callbacks import nofollow
 from django import forms
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
-from django.contrib import messages
 from django.template.defaultfilters import slugify
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
-from django.contrib.auth.models import User
-from django.conf import settings
+
 from .models import Profile, UserImage
-import mistune
-import bleach
-from bleach.callbacks import nofollow
-from . import auth, util
 
 logger = logging.getLogger("engine")
 
@@ -152,8 +152,10 @@ class EditProfile(forms.Form):
                                                      initial=self.user.profile.user_icon,
                                                      help_text="User icon type")
 
-        self.fields['text'] = forms.CharField(widget=forms.Textarea(), min_length=2, max_length=5000, required=False,
+        self.fields['text'] = forms.CharField(widget=forms.Textarea(attrs={'rows': 20}),
+                                              min_length=2, max_length=5000, required=False,
                                               help_text="Extra information about you to personalize your profile.",
+
                                               initial=self.user.profile.text)
 
         self.fields['message_prefs'] = forms.ChoiceField(required=True, label="Notifications",

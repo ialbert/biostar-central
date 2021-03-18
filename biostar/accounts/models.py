@@ -157,6 +157,7 @@ class Profile(models.Model):
         ("identicon", "Identicon"),
         ("monsterid", "Monster"),
         ("robohash", "Robohash"),
+        ("wavatar", "Wavatar"),
     ]
     user_icon = models.CharField(default=DEFAULT_ICON, choices=USER_ICON_CHOICES, max_length=100)
 
