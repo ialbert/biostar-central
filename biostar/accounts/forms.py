@@ -1,17 +1,17 @@
 import logging
+
+import bleach
+import mistune
+from bleach.callbacks import nofollow
 from django import forms
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
-from django.contrib import messages
 from django.template.defaultfilters import slugify
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
-from django.contrib.auth.models import User
-from django.conf import settings
+
 from .models import Profile, UserImage
-import mistune
-import bleach
-from bleach.callbacks import nofollow
-from . import auth, util
 
 logger = logging.getLogger("engine")
 
@@ -146,21 +146,29 @@ class EditProfile(forms.Form):
         self.fields['scholar'] = forms.CharField(label="Scholar", max_length=100, required=False,
                                                  initial=self.user.profile.scholar)
 
-        self.fields['text'] = forms.CharField(widget=forms.Textarea(), min_length=2, max_length=5000, required=False,
-                                              help_text="Extra information about you to personalize your profile.",
+        self.fields['user_icon'] = forms.ChoiceField(required=False, label="User icon",
+                                                     choices=Profile.USER_ICON_CHOICES,
+                                                     widget=forms.Select(attrs={'class': "ui dropdown"}),
+                                                     initial=self.user.profile.user_icon,
+                                                     help_text="User icon type")
+
+        self.fields['text'] = forms.CharField(widget=forms.Textarea(attrs={'rows': 20}),
+                                              min_length=2, max_length=5000, required=False,
+                                              help_text="Information about you (markdown)",
+
                                               initial=self.user.profile.text)
 
         self.fields['message_prefs'] = forms.ChoiceField(required=True, label="Notifications",
                                                          choices=Profile.MESSAGING_TYPE_CHOICES,
                                                          widget=forms.Select(attrs={'class': "ui dropdown"}),
                                                          initial=self.user.profile.message_prefs,
-                                                         help_text="""Default mode sends notifications using local messages.""")
+                                                         help_text="Default mode sends notifications using local messages.")
 
         self.fields['digest_prefs'] = forms.ChoiceField(required=True, label="Digest options",
                                                         choices=Profile.DIGEST_CHOICES,
                                                         widget=forms.Select(attrs={'class': "ui dropdown"}),
                                                         initial=self.user.profile.digest_prefs,
-                                                        help_text="""Digest are sent through the email provided.""")
+                                                        help_text="Digest are sent through the email provided.")
 
         self.fields['my_tags'] = forms.CharField(label="My tags", max_length=500, required=False,
                                                  initial=self.user.profile.my_tags,
@@ -228,6 +236,7 @@ class EditProfile(forms.Form):
             text=self.cleaned_data["text"],
             email_verified=verified,
             my_tags=self.cleaned_data['my_tags'],
+            user_icon=self.cleaned_data['user_icon'],
             message_prefs=self.cleaned_data["message_prefs"],
             digest_prefs=self.cleaned_data['digest_prefs'])
         # Recompute watched tags
