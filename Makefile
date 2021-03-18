@@ -86,7 +86,7 @@ echo:
 	@echo DATABASE_NAME=${DATABASE_NAME}
 
 serve: init
-	python manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
+	python manage.py runserver lvh.me:8000 --settings ${DJANGO_SETTINGS_MODULE}
 
 init: echo
 	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
