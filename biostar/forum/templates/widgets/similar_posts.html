@@ -8,8 +8,9 @@
                 <div class="ui relaxed list" >
 
                     {% for post in results %}
+
                         <div class="item spaced">
-                            <a href="{{ post.url }}"> {{ post.title }}</a>
+                            <a href="{% url 'post_view' post.uid %}"> {{ post.title }}</a>
                             &bull;
                             <div class="muted">
                             {% postuid_user_line post.uid avatar=False %}

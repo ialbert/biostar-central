@@ -17,7 +17,7 @@ def get_uuid(limit=32):
 __MODULE_DIR = os.path.dirname(auth.__file__)
 TEST_ROOT = os.path.join(__MODULE_DIR, 'tests')
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 PLANET_DIR = os.path.abspath(os.path.join(TEST_ROOT, "feeds"))
 

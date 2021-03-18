@@ -23,6 +23,8 @@ JOB_LOGDIR = 'runlog'
 # Valid options; block, disable, threaded, uwsgi, celery.
 TASK_RUNNER = 'threaded'
 
+TASK_MODULES = ("biostar.recipes.tasks",)
+
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 
 # Amount of objects shown per page.

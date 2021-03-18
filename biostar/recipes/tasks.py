@@ -27,14 +27,15 @@ def send_emails(*args ,**kwargs):
 
 # @timer(2)
 # def test(*args ,**kwargs):
+#     from biostar.recipes.models import Job
+#     print(Job.objects.all())
 #     print('TESTING ' *10)
 #     logger.info('TESTING'*10)
-
+#
 
 @timer(30)
 def scheduler(*args, **kwargs):
     from biostar.recipes.models import Job
-
     # Check for queued jobs.
     jobs = Job.objects.filter(state=Job.QUEUED)
     if jobs:

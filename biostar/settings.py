@@ -30,8 +30,7 @@ ADMINS = [
 DEFAULT_ADMIN_PASSWORD = "admin@localhost"
 
 # Allowed CORS websites
-CORS_ORIGIN_WHITELIST = [
-]
+CORS_ORIGIN_WHITELIST = []
 
 POSTGRES_HOST = os.environ.setdefault("POSTGRES_HOST", "")
 
@@ -43,6 +42,9 @@ DEFAULT_FROM_EMAIL = ADMIN_EMAIL
 
 # The default no reply email.
 DEFAULT_NOREPLY_EMAIL = ADMIN_EMAIL
+
+# Email used to send errors to ADMINS
+SERVER_EMAIL = ADMIN_EMAIL
 
 FROM_EMAIL_PATTERN = "%s <%s>"
 

@@ -29,7 +29,7 @@ def column_names(row, colnames):
 
 def get_user(cursor, user_id):
     """
-    Use information from source database to preform_search users from target database.
+    Use information from source database to more_like_this users from target database.
     """
     # Get the user information from source database
     cursor.execute(f"SELECT * FROM auth_user WHERE id={user_id}")
@@ -61,7 +61,7 @@ def get_contributors(cursor, obj_dict):
 
 def get_project(cursor, project_id):
     """
-    Use information from source database to preform_search projects from target database.
+    Use information from source database to more_like_this projects from target database.
     """
     cursor.execute(f"SELECT * FROM engine_project WHERE id={project_id}")
     colnames = [col[0] for col in cursor.description]
@@ -75,7 +75,7 @@ def get_project(cursor, project_id):
 
 def get_recipe(cursor, recipe_id):
     """
-    Use information from source database to preform_search recipes from target database.
+    Use information from source database to more_like_this recipes from target database.
     """
     cursor.execute(f"SELECT * FROM engine_analysis WHERE id={recipe_id}")
     colnames = [col[0] for col in cursor.description]

@@ -11,7 +11,7 @@ from django.conf import settings
 from biostar.planet.models import Blog, BlogPost
 from biostar.forum.util import strip_tags
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 
 def abspath(*args):

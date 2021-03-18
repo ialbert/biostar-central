@@ -74,6 +74,7 @@ forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
+	$(eval TARGET := new)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TASKS_MODULE := biostar.forum.tasks)
 	$(eval WSGI_FILE := biostar/forum/wsgi.py)
@@ -92,9 +93,10 @@ init: echo
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
 test:
-	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+	@echo DJANGO_SETTINGS_MODULE=biostar.server.test_settings
 	@echo DJANGO_APP=${DJANGO_APP}
-	coverage run manage.py test ${TEST} --settings biostar.server.test_settings -v 2 --failfast
+	$(eval DJANGO_SETTINGS_MODULE=biostar.server.test_settings)
+	coverage run manage.py test ${TEST} --settings ${DJANGO_SETTINGS_MODULE} -v 2 --failfast
 	coverage html --skip-covered --omit="conf/*,biostar/celery.py,biostar/celeryconf.py"
 
 	# Remove files associated with tests
@@ -125,6 +127,7 @@ reset: echo
 	# Delete the database, logs and CACHE files.
 	# Keep media and spooler.
 	rm -rf export/logs/*.log
+	rm -rf export/spammers/
 	# Database is always found in export/db/
 	rm -f export/db/${DATABASE_NAME}
 	rm -rf export/static/CACHE
@@ -189,3 +192,6 @@ deploy:
 forum_deploy:
 	@echo "Deploying forum on test server."
 	(cd conf/ansible && make forum_deploy TARGET=test)
+
+clear_cache:
+	echo 'flush_all' | nc localhost 11211

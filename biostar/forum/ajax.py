@@ -28,7 +28,7 @@ def ajax_msg(msg, status, **kwargs):
     return JsonResponse(payload)
 
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 ajax_success = partial(ajax_msg, status='success')
 ajax_error = partial(ajax_msg, status='error')
 
@@ -512,8 +512,7 @@ def similar_posts(request, uid):
 
     if results is None:
         logger.info("Setting similar posts cache.")
-        results = search.preform_search(query=post.uid, fields=['uid'], sortedby=["lastedit_date"],
-                                        more_like_this=True)
+        results = search.more_like_this(uid=post.uid)
         # Set the results cache for 1 hour
         cache.set(cache_key, results, 3600)
 

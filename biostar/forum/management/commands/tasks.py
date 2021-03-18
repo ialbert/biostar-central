@@ -7,7 +7,7 @@ from django.conf import settings
 from biostar.utils.helpers import pg_dump
 import logging
 
-logger = logging.getLogger('biostar')
+logger = logging.getLogger('engine')
 
 
 BACKUP_DIR = os.path.join(settings.BASE_DIR, 'export', 'backup')
@@ -38,7 +38,7 @@ def unbump(uids,  **kwargs):
         p.save()
 
 
-def awards(limit=10, **kwargs):
+def awards(limit=50, **kwargs):
     """
     Give user awards using a batch method.
     """
@@ -57,6 +57,7 @@ class Command(BaseCommand):
         parser.add_argument('--prog', dest='prog', default="/usr/bin/pg_dump", help='the postgres program default=%default')
         parser.add_argument('--outdir', dest='outdir', default=BACKUP_DIR, help='output directory default=%default')
         parser.add_argument('--hourly', dest='hourly', action='store_true', default=False, help='hourly datadump'),
+        parser.add_argument('--limit', dest='limit', type=int, default=100, help='How many users'),
 
     def handle(self, *args, **options):
         action = options['action']
@@ -64,7 +65,7 @@ class Command(BaseCommand):
         opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards, DUMP: pg_dump}
 
         func = opts[action]
-
+        #print()
         #models.Award.objects.all().delete()
 
         func(**options)

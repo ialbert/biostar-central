@@ -39,8 +39,9 @@ REQUIRED_TAGS_URL = "/"
 # Gravatar icon to use
 GRAVATAR_ICON = None
 
+# How to run tasks in the background.
 # Valid options; block, disable, threaded, uwsgi, celery.
-TASK_RUNNER = 'disable'
+TASK_RUNNER = 'block'
 
 # Threshold to classify spam
 SPAM_THRESHOLD = .5
@@ -155,6 +156,20 @@ CACHES = {
     }
 }
 
+<<<<<<< HEAD
+=======
+TASK_MODULES = ("biostar.forum.tasks", )
+
+# Tries to load up secret settings from a predetermined module
+# This is for convenience only!
+try:
+    from conf.run.site_secrets import *
+    #print(f"Loaded secrets from: conf.run.secrets")
+except Exception as exc:
+    print(f"Secrets module not imported: {exc}", file=sys.stderr)
+    pass
+
+>>>>>>> 127d288e78dfa1f6d29aea245faa3ef518a2d5b6
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:
     INSTALLED_APPS.extend([

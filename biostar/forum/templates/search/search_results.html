@@ -12,89 +12,30 @@
         {% search_bar %}
 
     {% endblock %}
-    <div class="ui page-bar segment">
-        {% pages_search results %}
-    </div>
 
-    {% with params=request.GET.urlencode %}
-        <div class="ui small compact menu sorting no-box-shadow">
-            <div class="ui simple dropdown item">
-                Sort
-                <i class="dropdown icon"></i>
-                <div class="menu">
-                    <a class="item" href="{% url 'post_search' %}{% relative_url 'edit' 'sort' params %}">
-                        <i class="{% activate_check_mark sort 'eidt' %}"></i>Rank
-                    </a>
-                    <a class="item" href="{% url 'post_search' %}{% relative_url 'creation' 'sort' params %}">
-                        <i class="{% activate_check_mark sort 'creation' %}"></i>Creation
-                    </a>
-                    <a class="item" href="{% url 'post_search' %}{% relative_url 'type' 'sort' params %}">
-                        <i class="{% activate_check_mark sort 'type' %}"></i>Post type
-                    </a>
-                </div>
-            </div>
-        </div>
-    {% endwith %}
+    <div class="ui message"><i class="search icon"></i>{{ total }} posts containing: <b>{{ query }}</b></div>
 
-
-    <div class="ui message"><i class="search icon"></i>Searching for posts containing: <b>{{ query }}</b></div>
-
-    <div class="ui divided items" id="search-results" data-query="{{ query }}" data-stop="{{ stop_words }}">
+    <div class="ui divided items">
         {% for result in results %}
 
-            <div class="post item  top-padding">
-
+            <div class="post item">
                 <div class="content">
-                    <div class="post-title header">
-
-                        {% if result.type != question_flag %}
-                            <span class="ui title header">{{ result.type_display }}:</span>
-                        {% endif %}
-                        <a href="{% url 'post_view' result.uid %}{% if not result.is_toplevel %}#{{ result.uid }}{% endif %}"
-                           class="ui mini blue title header trigger-highlight">{{ result.title|truncatechars:150 }}
+                    <div class="header">
+                        <a href="{% url 'post_view' result.uid %}"
+                           class="ui mini blue title header">{{ result.title|safe|truncatechars_html:200 }}
                         </a>
                     </div>
-
-                    <div class="muted trigger-highlight">
-                        {{ result.content |truncatechars_html:400 }}
+                    <div class="muted ">
+                        {{ result.content|safe|truncatechars_html:400 }}
                     </div>
-
                     <div class=" extra right floated">
                         <div class="left floated">
                             {% post_tags tags_str=result.tags spaced=False %}
                         </div>
                         <div class="right floated muted">
-
-                            {% if result.author_uid != result.lastedit_user_uid %}
-
-                                {{ result.creation_date|time_ago }}
-                                <a href="{% url "user_profile"  result.author_uid %}">
-                                    {{ result.author|truncatechars:40 }}
-                                </a>
-                                {% user_icon is_moderator=result.author_is_moderator user='' score=result.author_score %}
-
-                                &bull;
-                                updated
-                                {{ result.lastedit_date|time_ago }}
-                                <a href="{% url "user_profile"  result.lastedit_user_uid %}">
-                                    {{ result.lastedit_user|truncatechars:50 }}
-                                </a>
-                                {% user_icon is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
-
-                            {% else %}
-
-                                {{ result.lastedit_date|time_ago }}
-                                <a href="{% url "user_profile"  result.lastedit_user_uid %}">
-                                    {{ result.lastedit_user }}
-                                </a>
-                                {% user_icon user='' is_moderator=result.lastedit_user_is_moderator score=result.lastedit_user_score %}
-
-
-                            {% endif %}
-
+                            {{ result.author|truncatechars:40 }}
                         </div>
                     </div>
-
                 </div>
             </div>
 
@@ -103,10 +44,6 @@
                 No posts found.
             </div>
         {% endfor %}
-    </div>
-
-    <div class="ui page-bar segment">
-        {% pages_search results %}
     </div>
 
 {% endblock %}

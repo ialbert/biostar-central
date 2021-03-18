@@ -47,7 +47,6 @@ def init_post(nusers=NUSERS, nposts=NPOSTS):
         post = Post.objects.create(title=title, author=author, content=content, type=ptype)
         posts.append(post)
 
-
     # Drop one post from targets.
     targets = posts[1:]
 

@@ -59,10 +59,7 @@ class Profile(models.Model):
     state = models.IntegerField(default=NEW, choices=STATE_CHOICES, db_index=True)
 
     READER, MODERATOR, MANAGER, BLOGGER = range(4)
-    ROLE_CHOICES = [
-        (READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"),
-        (BLOGGER, "Blog User")
-    ]
+    ROLE_CHOICES = [(READER, "Reader"), (MODERATOR, "Moderator"), (MANAGER, "Admin"), (BLOGGER, "Blog User")]
 
     NO_DIGEST, DAILY_DIGEST, WEEKLY_DIGEST, MONTHLY_DIGEST, ALL_MESSAGES = range(5)
 
@@ -175,7 +172,6 @@ class Profile(models.Model):
         self.date_joined = self.date_joined or util.now()
         self.last_login = self.last_login or util.now()  # - timedelta(days=1)
         self.token = self.token or util.get_uuid(16)
-
         super(Profile, self).save(*args, **kwargs)
 
     @property

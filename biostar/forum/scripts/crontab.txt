@@ -1,0 +1,40 @@
+
+SHELL=/bin/bash
+DIR=/export/www/biostar-central/scripts
+LOG=/export/www/biostar-central/export/logs/crontab.log
+MAILTO="bar@localhost,foo@localhost"
+
+# Add clean up midnight
+0 0 * * * $DIR/server-cleanup.sh >> $LOG 2>&1
+
+# Index posts every 5 minutes
+*/5 * * * * $DIR/search-index.sh >> $LOG 2>&1
+
+# Batch award users every 30 minutes
+*/30 * * * * $DIR/user-awards.sh >> $LOG 2>&1
+
+# Hourly database backup
+0 * * * * $DIR/backup-hourly.sh >> $LOG 2>&1
+
+# Daily database backup -- midnight
+0 0 * * * $DIR/backup-daily.sh >> $LOG 2>&1
+
+# Daily digest -- midnight
+0 0 * * * $DIR/digest-daily.sh >> $LOG 2>&1
+
+# Weekly digest -- sunday midnight
+0 0 * * 0 $DIR/digest-weekly.sh >> $LOG 2>&1
+
+# Monthly digest
+0 0 1 * * $DIR/digest-monthly.sh >> $LOG 2>&1
+
+# Planet daily download
+0 0 * * * $DIR/planet-download.sh >> $LOG 2>&1
+
+# Planet hourly update
+0 * * * * $DIR/planet-update.sh >> $LOG 2>&1
+
+# One time data transfer
+# 0 0 * * * /export/www/biostar-central/data-migration.sh >> /export/www/biostar-central/export/logs/crontab.log 2>&1
+
+

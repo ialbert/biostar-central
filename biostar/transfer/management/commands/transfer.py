@@ -69,12 +69,15 @@ def bulk_copy_users(limit):
         for index, user in stream:
             progress(index=index,  msg="users")
 
-            #TODO: slugify
             username = f"{slugify(user.name)}-{user.id}"
 
             # Create user
-            new_user = User(username=username, email=user.email, password=user.password,
-                            is_active=user.is_active, is_superuser=user.is_admin, is_staff=user.is_staff)
+            new_user = User(username=username,
+                            email=user.email,
+                            password=user.password,
+                            is_active=user.is_active,
+                            is_superuser=user.is_admin,
+                            is_staff=user.is_staff)
 
             current[user.email] = new_user
 
@@ -92,14 +95,25 @@ def bulk_copy_users(limit):
             text = util.strip_tags(user.profile.info)
 
             # The incoming users have weekly digest prefs as a default.
-            profile = Profile(uid=user.id, user=current.get(user.email), name=user.name,
-                              message_prefs=user.profile.message_prefs, state=user.status,
-                              role=user.type, last_login=user.last_login, html=user.profile.info,
-                              date_joined=user.profile.date_joined, location=user.profile.location,
-                              website=user.profile.website, scholar=user.profile.scholar, text=text,
-                              watched_tags=user.profile.watched_tags,score=user.score,
-                              twitter=user.profile.twitter_id, my_tags=user.profile.my_tags,
-                              digest_prefs=user.profile.digest_prefs, new_messages=user.new_messages)
+            profile = Profile(uid=user.id,
+                              user=current.get(user.email),
+                              name=user.name,
+                              message_prefs=user.profile.message_prefs,
+                              state=user.status,
+                              role=user.type,
+                              last_login=user.last_login,
+                              html=user.profile.info,
+                              date_joined=user.profile.date_joined,
+                              location=user.profile.location,
+                              website=user.profile.website,
+                              scholar=user.profile.scholar,
+                              text=text,
+                              watched_tags=user.profile.watched_tags,
+                              score=user.score,
+                              twitter=user.profile.twitter_id,
+                              my_tags=user.profile.my_tags,
+                              digest_prefs=Profile.NO_DIGEST,
+                              new_messages=user.new_messages)
 
             yield profile
 

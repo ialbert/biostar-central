@@ -19,7 +19,7 @@ from . import auth, tasks, const, util
 from .models import Vote
 from .util import now
 
-logger = logging.getLogger("biostar")
+logger = logging.getLogger("engine")
 
 
 def benchmark(get_response):
@@ -42,10 +42,9 @@ def benchmark(get_response):
         msg = f'time={delta}ms for path={request.path}'
 
         if delta > 1000:
-            logger.warning(f"\n***\n*** SLOW: {msg}\n***\a")
-        else:
-            if settings.DEBUG:
-                logger.info(f'{msg}')
+            logger.warning(f"SLOW: {msg}")
+        elif settings.DEBUG:
+            logger.info(f'{msg}')
 
         return response
 
@@ -60,7 +59,6 @@ def update_status(user):
         return True
 
     return user.profile.trusted
-
 
 
 def user_tasks(get_response):
@@ -97,15 +95,7 @@ def user_tasks(get_response):
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
 
-            # The number of new messages since last visit.
-            message_count = Message.objects.filter(recipient=user, unread=True).count()
-
-            # The number of new votes since last visit.
-            vote_count = Vote.objects.filter(post__author=user, date__gte=user.profile.last_login).exclude(
-                author=user).count()
-
-            # Store the counts into the session.
-            counts = {MESSAGE_COUNT: message_count, VOTES_COUNT: vote_count}
+            counts = auth.get_counts(user=user)
 
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts

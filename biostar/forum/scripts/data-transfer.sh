@@ -11,6 +11,8 @@ conda activate engine
 # Stop on errors.
 set -ue
 
+cd /export/www/biostar-central/
+
 # Comment out on local machine
 export POSTGRES_HOST=/var/run/postgresql
 
