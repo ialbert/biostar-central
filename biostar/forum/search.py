@@ -88,9 +88,6 @@ def add_index(post, writer):
 
 
 def get_schema():
-    """
-    This is the issue!!!!
-    """
     analyzer = StemmingAnalyzer(stoplist=STOP)
     schema = Schema(title=TEXT(analyzer=analyzer, stored=True, sortable=True),
                     content=TEXT(analyzer=analyzer, stored=True, sortable=True),
