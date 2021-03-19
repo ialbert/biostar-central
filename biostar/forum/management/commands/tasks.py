@@ -12,22 +12,21 @@ logger = logging.getLogger('engine')
 
 BACKUP_DIR = os.path.join(settings.BASE_DIR, 'export', 'backup')
 
-BUMP, UNBUMP, AWARD, DUMP = 'bump', 'unbump', 'award', 'pg_dump'
+BUMP, UNBUMP, AWARD, DUMP, FAKE = 'bump', 'unbump', 'award', 'pg_dump', 'fake'
+CHOICES = [BUMP, UNBUMP, AWARD, DUMP, FAKE]
 
-CHOICES = [BUMP, UNBUMP, AWARD, DUMP]
 
-
-def fake_awards():
+def fake_awards(**kwargs):
     """
     Creates some fake awards
     """
     #models.Award.objects.all().delete()
 
     badge = models.Badge.objects.get(name="Autobiographer")
-    for user in models.User.objects.all():
+    for user in models.User.objects.all()[:10]:
         award = models.Award(badge=badge, user=user)
         award.save()
-        print (f"Awarded {award}")
+        print (f"Awarded {award.badge.name}")
     return
 
 def bump(uids,  **kwargs):
@@ -67,16 +66,16 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--uids', '-u', type=str, required=False, default='', help='List of uids')
         parser.add_argument('--action', '-a', type=str, required=True, choices=CHOICES, default='', help='Action to take.')
-        parser.add_argument('--user', dest='pg_user', default="www", help='postgres user default=%default')
-        parser.add_argument('--prog', dest='prog', default="/usr/bin/pg_dump", help='the postgres program default=%default')
-        parser.add_argument('--outdir', dest='outdir', default=BACKUP_DIR, help='output directory default=%default')
+        parser.add_argument('--user', dest='pg_user', default="www", help='postgres user default=%(default)s')
+        parser.add_argument('--prog', dest='prog', default="/usr/bin/pg_dump", help='the postgres program default=%(default)s')
+        parser.add_argument('--outdir', dest='outdir', default=BACKUP_DIR, help='output directory default=%(default)s')
         parser.add_argument('--hourly', dest='hourly', action='store_true', default=False, help='hourly datadump'),
         parser.add_argument('--limit', dest='limit', type=int, default=100, help='How many users'),
 
     def handle(self, *args, **options):
         action = options['action']
 
-        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards, DUMP: pg_dump}
+        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards, DUMP: pg_dump, FAKE:fake_awards}
 
         func = opts[action]
         #print()

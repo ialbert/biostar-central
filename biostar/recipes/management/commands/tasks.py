@@ -19,9 +19,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--action', '-a', type=str, required=True, choices=CHOICES, default='', help='Action to take.')
-        parser.add_argument('--user', dest='pg_user', default="www", help='postgres user default=%default')
-        parser.add_argument('--prog', dest='prog', default="/usr/local/bin/pg_dump", help='the postgres program default=%default')
-        parser.add_argument('--outdir', dest='outdir', default=BACKUP_DIR, help='output directory default=%default')
+        parser.add_argument('--user', dest='pg_user', default="www", help='postgres user default=%(default)s')
+        parser.add_argument('--prog', dest='prog', default="/usr/local/bin/pg_dump", help='the postgres program default=%(default)s')
+        parser.add_argument('--outdir', dest='outdir', default=BACKUP_DIR, help='output directory default=%(default)s')
         parser.add_argument('--hourly', dest='hourly', action='store_true', default=False, help='hourly datadump'),
 
     def handle(self, *args, **options):
