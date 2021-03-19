@@ -119,7 +119,7 @@ class PostLongForm(forms.Form):
                                    widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type.")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
-                            validators=[valid_title, valid_language],
+                            validators=[valid_title],
                             help_text="Enter a descriptive title to promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=50, required=True, validators=[valid_tag],
                               help_text="""
