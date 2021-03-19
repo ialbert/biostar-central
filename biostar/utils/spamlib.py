@@ -24,8 +24,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 
-from sklearn.naive_bayes import GaussianNB
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
+from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
@@ -35,18 +35,18 @@ import sys
 
 from joblib import dump, load
 
-MAX_WORDS = 2000
 
-
-def load_model(fname="clf.joblib"):
+def load_model(fname="spam.model"):
     nb = load(fname)
     return nb
 
 
-def build_model(X, y, fname="clf.joblib"):
+def build_model(X, y, fname="spam.model"):
     nb = make_pipeline(
-        CountVectorizer(max_features=MAX_WORDS),
-        MultinomialNB()
+        CountVectorizer(),
+        MultinomialNB(),
+        #LinearSVC(),
+        #RandomForestClassifier(),
     )
     nb.fit(X, y)
     if fname:
@@ -54,27 +54,32 @@ def build_model(X, y, fname="clf.joblib"):
     return nb
 
 
-def evaluate_model(X, y):
+def evaluate_model(X, y, model=None):
     X_train, X_test, y_train, y_test = train_test_split(X, y)
-    nb = build_model(X_train, y_train)
+    if model:
+        nb = load_model(model)
+    else:
+        nb = build_model(X_train, y_train)
+        dump(nb, "spam.model")
+
     y_pred = nb.predict(X_test)
     rep = classification_report(y_test, y_pred)
     print(rep)
-
 
 def parse_file(stream):
     for line in stream:
         for word in line.split():
             word = word.decode("utf-8", errors="ignore").strip()
-            if len(word) > 3:
-                yield word
+            yield word
 
 
-def test(fname=None):
+def test(fname=None, model=None):
+    '''
+    wget -nc http://www.aueb.gr/users/ion/data/enron-spam/preprocessed/enron1.tar.gz
+    '''
     import tarfile
 
     # Take filename from command line
-    fname = fname or sys.argv[1]
     tar = tarfile.open(name=fname, mode='r:gz', fileobj=None)
     elems = filter(lambda t: t.isreg(), tar)
     X, y = [], []
@@ -89,11 +94,19 @@ def test(fname=None):
     ham_count = len(y) - spam_count
     print(f"Posts: {ham_count} ham, {spam_count} spam")
 
-    evaluate_model(X, y)
+    evaluate_model(X, y, model=model)
 
 
 def main():
-    test()
+    fname = sys.argv[1]
+
+    if len(sys.argv) > 2:
+        model = sys.argv[2]
+    else:
+        model = None
+
+    test(fname=fname, model=model)
+
 
 
 if __name__ == '__main__':
