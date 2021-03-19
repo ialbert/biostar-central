@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from biostar.accounts.models import User
-
+from unittest.mock import patch, MagicMock
 from biostar.forum import models, views, auth, forms, const
 from biostar.utils.helpers import fake_request
 from biostar.forum.util import get_uuid
@@ -40,15 +40,17 @@ class PostTest(TestCase):
 
         return
 
+    @patch('biostar.recipes.models.Job.save', MagicMock(name="save"))
     def test_toplevel_moderation(self):
         "Test top level post moderation."
         # Test every moderation action
         choices = [const.BUMP_POST, const.OPEN_POST, const.DELETE]
 
-        #self.moderate(choices=choices, post=self.post)
+        self.moderate(choices=choices, post=self.post)
 
         return
 
+    @patch('biostar.forum.models.Post.save', MagicMock(name="save"))
     def test_answer_moderation(self):
         "Test answer moderation."
         choices = [const.TOGGLE_ACCEPT, const.DELETE]
@@ -61,10 +63,11 @@ class PostTest(TestCase):
 
         answer.save()
 
-        #self.moderate(choices=choices, post=answer)
+        self.moderate(choices=choices, post=answer)
 
         return
 
+    @patch('biostar.recipes.models.Job.save', MagicMock(name="save"))
     def test_comment_moderation(self):
         "Test comment moderation."
         choices = [const.DELETE]
@@ -76,7 +79,7 @@ class PostTest(TestCase):
 
         comment.save()
 
-        #self.moderate(choices=choices, post=comment, extra={'pid': self.post.uid})
+        self.moderate(choices=choices, post=comment, extra={'pid': self.post.uid})
 
     def test_duplicate_post(self):
         "Test duplicate post moderation"
