@@ -17,6 +17,19 @@ BUMP, UNBUMP, AWARD, DUMP = 'bump', 'unbump', 'award', 'pg_dump'
 CHOICES = [BUMP, UNBUMP, AWARD, DUMP]
 
 
+def fake_awards():
+    """
+    Creates some fake awards
+    """
+    #models.Award.objects.all().delete()
+
+    badge = models.Badge.objects.get(name="Autobiographer")
+    for user in models.User.objects.all():
+        award = models.Award(badge=badge, user=user)
+        award.save()
+        print (f"Awarded {award}")
+    return
+
 def bump(uids,  **kwargs):
     """
     Set post rank the current timestamp
@@ -24,6 +37,7 @@ def bump(uids,  **kwargs):
     uids = uids.split(',')
     rank = util.now().timestamp()
     models.Post.objects.filter(uid__in=uids).update(rank=rank)
+
     return
 
 
