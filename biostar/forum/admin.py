@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from biostar.forum.models import Post, Subscription, Vote
+from biostar.forum.models import Post, Subscription, Vote, Log
 
 
 @admin.register(Post)
@@ -26,6 +26,17 @@ class VoteAdmin(admin.ModelAdmin):
 class SubscriptionAdmin(admin.ModelAdmin):
     search_fields = ('user__profile__name', 'user__email', 'uid')
     list_select_related = ["user", "post"]
+
+@admin.register(Log)
+class LoggerAdmin(admin.ModelAdmin):
+    list_display = ('action', 'user', 'date', 'text', "ipaddr")
+    ordering = ['-date']
+
+    fieldsets = (("Details",
+                  {"fields": ("user", 'action', 'text')}
+                  ),)
+
+    search_fields = ('user__email', 'user__profile__name', 'user__profile__uid', 'log_text')
 
 
 

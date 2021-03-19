@@ -23,12 +23,13 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
 
+from .auth import validate_login, send_verification_email
 
 from biostar.utils.helpers import get_ip
 from . import forms, tasks
-from .auth import validate_login, send_verification_email, db_logger
+
 from .const import *
-from .models import User, Profile, Message, Log
+from .models import User, Profile, Message
 from .tokens import account_verification_token
 from .util import now, get_uuid
 
@@ -88,8 +89,6 @@ def user_moderate(request, uid):
             profile.save()
             # Log the moderation action
             text = f"user={target.pk} state set to {target.profile.get_state_display()}"
-
-            db_logger(user=request.user, text=text, action=Log.MODERATE)
 
             messages.success(request, "User moderation complete.")
         else:
@@ -208,7 +207,7 @@ def image_upload_view(request):
     form = forms.ImageUploadForm(data=request.POST, files=request.FILES, user=user)
     if form.is_valid():
         url = form.save()
-        db_logger(user=user, action=Log.CREATE, text=f'uploaded an image: {url}')
+
         return JsonResponse({'success': True, 'url': url})
 
     return JsonResponse({'success': False, 'error': form.errors})
@@ -275,8 +274,6 @@ def user_login(request):
                 ipaddr = get_ip(request)
                 text = f"user {user.id} ({user.email}) logged in from {ipaddr}"
 
-                db_logger(user=request.user, text=text, action=Log.LOGIN, ipaddr=ipaddr)
-
                 return redirect(next_url)
             else:
                 messages.error(request, mark_safe(message))
@@ -287,20 +284,6 @@ def user_login(request):
     return render(request, "accounts/login.html", context=context)
 
 
-@login_required
-def view_logs(request):
-    LIMIT = 300
-
-    if 0 and request.user.is_superuser:
-        logs = Log.objects.all().order_by("-id")[:LIMIT]
-    elif request.user.profile.is_moderator:
-        logs = Log.objects.all().filter(action=Log.MODERATE).select_related("user", "user__profile").order_by("-id")[:LIMIT]
-    else:
-        logs = []
-
-    context = dict(logs=logs)
-
-    return render(request, "accounts/view_logs.html", context=context)
 
 
 @login_required

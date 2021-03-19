@@ -1,0 +1,25 @@
+{% extends "forum_base.html" %}
+{% load static %}
+{% load accounts_tags %}
+{% load forum_tags %}
+{% block headtitle %}{{ target.profile.name }}{% endblock %}
+
+
+{% block content %}
+    <ul>
+        {% for log in logs %}
+            <li>  {{ log.date }}
+                <a href="{{ user.profile.get_absolute_url }}">{{ log.user.profile.name }}</a>
+
+                {{ log.text }}
+
+                {% if log.post %}
+                    <a href="{{ log.post.get_absolute_url }}">{{ log.post.title }}</a>
+                {% endif %}
+
+
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

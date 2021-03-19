@@ -1,10 +1,11 @@
 import functools
-import random, logging
+import random, logging, os
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from django.conf import settings
 import time, random
 from biostar.utils.decorators import task, timer
+from biostar.forum.auth import db_logger
 
 from django.db.models import Q
 
@@ -18,24 +19,6 @@ logger = logging.getLogger("engine")
 def message(msg, level=0):
     print(f"{msg}")
 
-
-@task
-def classify_spam(uid):
-    """
-    Score the spam with a slight delay.
-    """
-    from biostar.forum import spam
-    from biostar.forum.models import Post
-
-    post = Post.objects.filter(uid=uid).first()
-
-    # Give spammers the illusion of success with a slight delay
-    #time.sleep(1)
-    try:
-        # Give this post a spam score and quarantine it if necessary.
-        spam.score(post=post)
-    except Exception as exc:
-        message(exc)
 
 @task
 def notify_watched_tags(uid, extra_context):
@@ -190,13 +173,28 @@ def batch_create_awards(limit=100):
 
 @task
 def spam_check(uid):
-    from biostar.forum.models import Post
-    from biostar.forum.auth import toggle_spam
+    from biostar.forum.models import Post, Log
+    from biostar.accounts.models import User
+
     post = Post.objects.filter(uid=uid).first()
 
-    if 0:
-        # Mark as spam
-        pass
+    try:
+        from biostar.utils import spamlib
+
+        if not os.path.isfile(settings.SPAM_MODEL):
+            spamlib.build_model(fname=settings.SPAM_DATA, model=settings.SPAM_MODEL)
+
+        # Classify the spam
+        if post.spam == Post.DEFAULT:
+            result = spamlib.classify_content(post.content, model=settings.SPAM_MODEL)
+            if result:
+                Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
+                user = User.objects.filter(is_superuser=True).first()
+                db_logger(user=user, action=Log.CLASSIFY, text=f"automatically classifed as spam", post=post)
+
+    except Exception as exc:
+
+        logger.error(exc)
 
     return False
 

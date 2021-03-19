@@ -5,7 +5,7 @@ from taggit.models import Tag
 from django.db.models import F, Q
 from biostar.accounts.models import Profile, Message, User
 from biostar.forum.models import Post, Award, Subscription
-from biostar.forum import tasks, auth, util, spam
+from biostar.forum import tasks, auth, util
 
 
 logger = logging.getLogger("engine")
