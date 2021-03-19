@@ -325,41 +325,6 @@ def is_moderator(user):
     return role_check
 
 
-class Log(models.Model):
-    """
-    Represents moderation actions
-    """
-    MODERATE, CREATE, EDIT, LOGIN, LOGOUT, DEFAULT = range(6)
-
-    ACTIONS_CHOICES = [
-        (MODERATE, "Moderate"),
-        (CREATE, "Create"),
-        (EDIT, "Edit"),
-        (LOGIN, "Login"),
-        (LOGOUT, "Logout"),
-        (DEFAULT, "Default")
-    ]
-
-    # User that is logged.
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, db_index=True)
-
-    # The IP address associated with the log.
-    ipaddr = models.GenericIPAddressField(null=True, blank=True)
-
-    # Actions that the user took.
-    action = models.IntegerField(choices=ACTIONS_CHOICES, default=DEFAULT, db_index=True)
-
-    # The logging information.
-    text = models.TextField()
-
-    # Date this log was created.
-    date = models.DateTimeField()
-
-    def save(self, *args, **kwargs):
-        self.date = self.date or util.now()
-        super(Log, self).save(*args, **kwargs)
-
-
 # Connects user to message bodies
 class MessageBody(models.Model):
     """

@@ -862,7 +862,7 @@ img {
     padding: .8em 0;
 }
 
-.ui.attached.segment {
+.ui.attached.segment.block {
     border: none;
     /*border: 1px solid var(--segment-border-color);*/
 }

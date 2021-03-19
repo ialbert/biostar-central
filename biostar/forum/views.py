@@ -19,10 +19,10 @@ from taggit.models import Tag
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Award
+from biostar.forum.models import Post, Vote, Badge, Subscription, Award, Log
 from biostar.utils.decorators import is_moderator
 
-from biostar.accounts.auth import db_logger
+from biostar.forum.auth import db_logger
 
 User = get_user_model()
 
@@ -428,7 +428,7 @@ def community_list(request):
 
 
 def badge_list(request):
-    badges = Badge.objects.annotate(count=Count("award")).order_by('-count')
+    badges = Badge.objects.annotate(count=Count("award")).order_by('count')
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
@@ -557,3 +557,21 @@ def post_moderate(request, uid):
     context = dict(form=form, post=post)
     return render(request, "forms/form_moderate.html", context)
 
+@login_required
+def view_logs(request):
+    LIMIT = 300
+
+    if 0 and request.user.is_superuser:
+        logs = Log.objects.all().order_by("-id")[:LIMIT]
+
+    elif request.user.profile.is_moderator:
+        logs = Log.objects.all().select_related("user", "user__profile").order_by("-id")[:LIMIT]
+
+    else:
+        logs = Log.objects.filter(pk=0)
+
+    logs = logs.select_related("user", "post", "user__profile", "post__author")
+
+    context = dict(logs=logs)
+
+    return render(request, "view_logs.html", context=context)

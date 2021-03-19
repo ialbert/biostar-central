@@ -80,7 +80,7 @@ GOOD_QUESTION = AwardDef(
     desc="asked a question that was upvoted at least 5 times",
     func=lambda user: Post.objects.filter(vote_count__gte=5, author=user, type=Post.QUESTION),
     max=1,
-    icon="question icon"
+    icon="question circle icon"
 )
 
 GOOD_ANSWER = AwardDef(
@@ -88,7 +88,7 @@ GOOD_ANSWER = AwardDef(
     desc="created an answer that was upvoted at least 5 times",
     func=lambda user: Post.objects.filter(vote_count__gt=5, author=user, type=Post.ANSWER),
     max=1,
-    icon="edit outline icon"
+    icon="book icon"
 )
 
 STUDENT = AwardDef(
@@ -96,7 +96,7 @@ STUDENT = AwardDef(
     desc="asked a question with at least 3 up-votes",
     func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.QUESTION),
     max=1,
-    icon="certificate icon"
+    icon="graduation cap icon"
 )
 
 TEACHER = AwardDef(
@@ -104,7 +104,7 @@ TEACHER = AwardDef(
     desc="created an answer with at least 3 up-votes",
     func=lambda user: Post.objects.filter(vote_count__gt=2, author=user, type=Post.ANSWER),
     max=1,
-    icon="smile outline icon"
+    icon="smile icon"
 )
 
 COMMENTATOR = AwardDef(
@@ -200,7 +200,7 @@ SCHOLAR = AwardDef(
     desc="created an answer that has been accepted",
     func=lambda user: Post.objects.filter(author=user, type=Post.ANSWER, accept_count__gt=0),
     max=1,
-    icon="check circle outline icon"
+    icon="university icon"
 )
 
 PROPHET = AwardDef(

@@ -3,7 +3,6 @@ import hashlib
 import logging
 import urllib.parse as urlparse
 
-
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.db import transaction
@@ -15,16 +14,14 @@ from biostar.accounts.const import MESSAGE_COUNT
 from django.utils.safestring import mark_safe
 
 # Needed for historical reasons.
-from biostar.accounts.auth import db_logger
 from biostar.accounts.models import Profile
 from . import util, awards, tasks
 from .const import *
-from .models import Post, Vote, Subscription, Award, Badge, delete_post_cache
+from .models import Post, Vote, Subscription, Award, Badge, delete_post_cache, Log
 
 User = get_user_model()
 
 logger = logging.getLogger("engine")
-
 
 def get_votes(user, root):
     store = {
@@ -406,9 +403,10 @@ def delete_post(post, user):
         # Deleted posts can be un=deleted by re-opening them.
         Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
         url = post.root.get_absolute_url()
-        msg = f"Deleted post: {post_link(post)}"
+        msg = f"deleted"
         post.recompute_scores()
         post.root.recompute_scores()
+        db_logger(user=user, post=post, text=msg)
         return url, msg
 
     # Redirect depends on the level of the post.
@@ -419,8 +417,9 @@ def delete_post(post, user):
         post.root.recompute_scores()
 
     # Remove post from the database with no trace.
-    msg = f"Removed post: {post_link(post)}"
+    msg = f"removed"
     post.delete()
+    db_logger(user=user, post=post, text=msg)
 
     return url, msg
 
@@ -434,10 +433,10 @@ def open(request, post, **kwargs):
     post.recompute_scores()
 
     post.root.recompute_scores()
-    msg = f"Opened post: {post_link(post)}"
+    msg = f"opened"
     url = post.get_absolute_url()
     messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
+    db_logger(user=user, text=f"{msg}", post=post)
     return url
 
 
@@ -446,25 +445,12 @@ def bump(request, post, **kwargs):
     user = request.user
 
     Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp())
-    msg = f"Post bumped : {post_link(post)}"
+    msg = f"bumped"
     url = post.get_absolute_url()
     messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
+    db_logger(user=user, text=f"{msg}", post=post)
 
     return url
-
-
-def post_link(post):
-    url = post.get_absolute_url()
-    link = f'<a href="{url}">{post.title} ({post.uid})</a>'
-    return link
-
-
-def user_link(user):
-    url = user.get_absolute_url()
-    link = f'<a href="{url}">{user.name} ({user.uid})</a>'
-    return link
-
 
 def toggle_spam(request, post, **kwargs):
     """
@@ -493,9 +479,9 @@ def toggle_spam(request, post, **kwargs):
 
     # Generate logging messages.
     if post.is_spam:
-        text = f'Restored {post_link(post)} from spam'
+        text = f'restored from spam'
     else:
-        text = f'Marked {post_link(post)} as spam'
+        text = f'marked as spam'
         # Set indexed flag to False, so it's removed from spam index
         Post.objects.filter(id=post.id).update(indexed=False)
 
@@ -503,7 +489,7 @@ def toggle_spam(request, post, **kwargs):
     messages.success(request, mark_safe(text))
 
     # Submit the log into the database.
-    db_logger(user=user, text=text)
+    db_logger(user=user, action=Log.MODERATE, text=text, post=post)
 
     # Reset post cache.
     delete_post_cache(post)
@@ -523,10 +509,10 @@ def close(request, post, comment, **kwargs):
     rationale = mod_rationale(post=post, user=user,
                               template="messages/closed.md",
                               extra_context=context)
-    msg = f"Closed {post_link(post)}. "
+    msg = "closed"
     url = rationale.get_absolute_url()
     messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
+    db_logger(user=user, text=f"{msg}", post=post)
     return url
 
 
@@ -542,9 +528,9 @@ def duplicated(request, post, comment, **kwargs):
                               template="messages/duplicate_posts.md",
                               extra_context=context)
     url = rationale.get_absolute_url()
-    msg = f"Closed duplicated post {post_link(post)}."
+    msg = "duplicate"
     messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
+    db_logger(user=user, text=f"{msg}", post=post)
     return url
 
 
@@ -573,9 +559,9 @@ def off_topic(request, post, **kwargs):
         content = "This post is off topic."
         create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
 
-    msg = f"Marked {post_link(post)} as off topic."
+    msg = "off topic"
     messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
+    db_logger(user=user, text=f"{msg}", post=post)
 
     url = post.get_absolute_url()
     return url
@@ -593,10 +579,21 @@ def moderate(request, post, action, comment=""):
 
     if action in action_map:
         mod_func = action_map[action]
+        mod_func = action_map[action]
         url = mod_func(request=request, post=post, comment=comment)
     else:
         url = post.get_absolute_url()
         msg = "Unknown moderation action given."
         logger.error(msg)
 
+
     return url
+
+def db_logger(user=None, action=Log.MODERATE, text='', ipaddr=None, post=None):
+    """
+    Creates a database log.
+    """
+    Log.objects.create(user=user, action=action, text=text, ipaddr=ipaddr, post=post)
+
+    logger.info(f"post={user.email}, post={post}, {text}")
+    return

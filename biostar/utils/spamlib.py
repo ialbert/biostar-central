@@ -16,67 +16,76 @@ Should work on any of the datasets:
 seq 1 6 | parallel -j 1 wget -q -nc http://www.aueb.gr/users/ion/data/enron-spam/preprocessed/enron{}.tar.gz
 
 '''
+import logging
+import sys, os
 
-from sklearn.model_selection import train_test_split
+import plac
+from joblib import dump, load
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics import classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import make_pipeline
 
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
+logger = logging.getLogger("engine")
 
-from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
-from sklearn.svm import SVC, NuSVC, LinearSVC
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-
-from sklearn.base import TransformerMixin
-from itertools import *
-import sys
-
-from joblib import dump, load
-
-
-def load_model(fname="spam.model"):
-    nb = load(fname)
+def load_model(model="spam.model"):
+    nb = load(model)
     return nb
 
 
-def build_model(X, y, fname="spam.model"):
+def classify_content(content, model):
+    """
+    Classify content
+    """
+    try:
+        nb = load_model(model)
+        y_pred = nb.predict([content])
+    except Exception as exc:
+        logger.error(exc)
+        y_pred = [0]
+
+    return y_pred[0]
+
+
+def fit_model(X, y):
+
     nb = make_pipeline(
+
         CountVectorizer(),
+
         MultinomialNB(),
-        #LinearSVC(),
-        #RandomForestClassifier(),
+
+        # LinearSVC(),
+
+        # RandomForestClassifier(),
+
     )
+
     nb.fit(X, y)
-    if fname:
-        dump(nb, fname)
+
     return nb
 
 
-def evaluate_model(X, y, model=None):
+
+def evaluate_model(fname, model):
+
+    X, y = parse_file(fname=fname)
+
     X_train, X_test, y_train, y_test = train_test_split(X, y)
+
     if model:
         nb = load_model(model)
     else:
-        nb = build_model(X_train, y_train)
-        dump(nb, "spam.model")
+        nb = fit_model(X_train, y_train)
 
     y_pred = nb.predict(X_test)
     rep = classification_report(y_test, y_pred)
+
     print(rep)
 
-def parse_file(stream):
-    for line in stream:
-        for word in line.split():
-            word = word.decode("utf-8", errors="ignore").strip()
-            yield word
 
-
-def test(fname=None, model=None):
-    '''
-    wget -nc http://www.aueb.gr/users/ion/data/enron-spam/preprocessed/enron1.tar.gz
-    '''
+def parse_file(fname):
     import tarfile
 
     # Take filename from command line
@@ -92,22 +101,53 @@ def test(fname=None, model=None):
 
     spam_count = sum(filter(None, y))
     ham_count = len(y) - spam_count
-    print(f"Posts: {ham_count} ham, {spam_count} spam")
 
-    evaluate_model(X, y, model=model)
+    logger.info(f"parsed: {ham_count} ham, {spam_count} spam")
 
-
-def main():
-    fname = sys.argv[1]
-
-    if len(sys.argv) > 2:
-        model = sys.argv[2]
-    else:
-        model = None
-
-    test(fname=fname, model=model)
+    return X, y
 
 
+def build_model(fname, model):
+    '''
+    wget -nc http://www.aueb.gr/users/ion/data/enron-spam/preprocessed/enron1.tar.gz
+    '''
+
+    # Generate features.
+    X, y = parse_file(fname)
+
+    # Fits the model.
+    nb = fit_model(X, y)
+
+    logger.info(f"fitted model to: {fname}")
+
+    # Save the model.
+    if model:
+        logger.info(f"saving model to: {model}")
+        dump(nb, model)
+
+    return nb
+
+    # evaluate_model(X, y, model=model)
+
+@plac.pos('fname')
+@plac.flg('build')
+@plac.flg('eval_', help="evaluate model ")
+@plac.opt('model')
+@plac.flg('classify')
+def main(classify, build, model, eval_, fname):
+
+    if build:
+        build_model(fname=fname, model=model)
+
+    if eval_:
+        evaluate_model(fname=fname, model=model)
+
+    if classify:
+        content = open(fname, 'rt').read()
+        res = classify_content(content=content, model=model)
+        print ("spam" if res else "ham")
 
 if __name__ == '__main__':
-    main()
+    logging.basicConfig(level=logging.DEBUG)
+
+    plac.call(main)

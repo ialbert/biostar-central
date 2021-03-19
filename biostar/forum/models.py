@@ -545,3 +545,42 @@ class Award(models.Model):
     @property
     def uid(self):
         return self.pk
+
+class Log(models.Model):
+    """
+    Represents moderation actions
+    """
+    MODERATE, CREATE, EDIT, LOGIN, LOGOUT, CLASSIFY, DEFAULT = range(7)
+
+    ACTIONS_CHOICES = [
+        (MODERATE, "Moderate"),
+        (CREATE, "Create"),
+        (EDIT, "Edit"),
+        (LOGIN, "Login"),
+        (LOGOUT, "Logout"),
+        (CLASSIFY, "Classify"),
+        (DEFAULT, "Default")
+    ]
+
+    # User that is logged.
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # Post related information goes here.
+    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # The IP address associated with the log.
+    ipaddr = models.GenericIPAddressField(null=True, blank=True)
+
+    # Actions that the user took.
+    action = models.IntegerField(choices=ACTIONS_CHOICES, default=DEFAULT, db_index=True)
+
+    # The logging information.
+    text = models.TextField()
+
+    # Date this log was created.
+    date = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        self.date = self.date or util.now()
+        super(Log, self).save(*args, **kwargs)
+

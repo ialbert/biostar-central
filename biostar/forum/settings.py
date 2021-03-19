@@ -23,6 +23,7 @@ AWARDS_PER_PAGE = 50
 
 STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
 
+
 # Enable image upload
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True
 
@@ -87,15 +88,15 @@ INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
 # Relative index directory
 
 INDEX_DIR = os.environ.setdefault("INDEX_DIR", "search")
+
 # Absolute path to index directory in export/
 INDEX_DIR = join(MEDIA_ROOT, '..', INDEX_DIR)
 
-# Spam index used to classify new posts as spam or ham.
-SPAM_INDEX_NAME = os.getenv("SPAM_INDEX_NAME", "spam")
-SPAM_INDEX_DIR = 'spammers'
+# Absolute path to the spam model
+SPAM_DATA  = join(BASE_DIR, "export", "spam.data.tar.gz")
+SPAM_MODEL = join(BASE_DIR, "export", "spam.model")
 
-# Absolute path to spam index directory in export/
-SPAM_INDEX_DIR = join(MEDIA_ROOT, '..', SPAM_INDEX_DIR)
+print (SPAM_DATA)
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
