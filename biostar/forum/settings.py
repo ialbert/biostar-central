@@ -96,8 +96,6 @@ INDEX_DIR = join(MEDIA_ROOT, '..', INDEX_DIR)
 SPAM_DATA  = join(BASE_DIR, "export", "spam.data.tar.gz")
 SPAM_MODEL = join(BASE_DIR, "export", "spam.model")
 
-print (SPAM_DATA)
-
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 SOCIALACCOUNT_QUERY_EMAIL = True

@@ -1,4 +1,4 @@
-import logging
+import hashlib
 import hashlib
 import logging
 import urllib.parse as urlparse
@@ -8,20 +8,20 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.models import F, Q
 from django.template import loader
-from biostar.accounts.models import Profile, Message
-from biostar.accounts.const import MESSAGE_COUNT
-
 from django.utils.safestring import mark_safe
 
+from biostar.accounts.const import MESSAGE_COUNT
+from biostar.accounts.models import Message
 # Needed for historical reasons.
 from biostar.accounts.models import Profile
-from . import util, awards, tasks
+from . import util, awards
 from .const import *
-from .models import Post, Vote, Subscription, Award, Badge, delete_post_cache, Log
+from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log
 
 User = get_user_model()
 
 logger = logging.getLogger("engine")
+
 
 def get_votes(user, root):
     store = {
@@ -77,11 +77,9 @@ def decode_email(email):
 
 
 def gravatar(user, size=80):
-
     if not user or user.is_anonymous:
         email = 'anon@biostars.org'.encode('utf8')
         return gravatar_url(email=email)
-
 
     email = user.email if user.is_authenticated else ''
     email = email.encode('utf8', errors="ignore")
@@ -302,7 +300,6 @@ def valid_awards(user):
         targets = award.get_awards(user)
 
         for target in targets:
-
             post = target if isinstance(target, Post) else None
             date = util.now()
             badge = Badge.objects.filter(name=award.name).first()
@@ -313,7 +310,6 @@ def valid_awards(user):
 
 
 def get_counts(user):
-
     # The number of new messages since last visit.
     message_count = Message.objects.filter(recipient=user, unread=True).count()
 
@@ -452,6 +448,7 @@ def bump(request, post, **kwargs):
 
     return url
 
+
 def toggle_spam(request, post, **kwargs):
     """
     Toggles spam status on post based on a status
@@ -460,33 +457,38 @@ def toggle_spam(request, post, **kwargs):
     url = post.get_absolute_url()
 
     # Moderators may only be suspended by admins (TODO).
-    if post.author.profile.is_moderator:
+    if post.author.profile.is_moderator and post.spam in (Post.DEFAULT, Post.NOT_SPAM):
         messages.warning(request, "cannot toggle spam on a post created by a moderator")
         return url
 
     # The user performing the action.
     user = request.user
 
-    # The spam status set by the toggle.
-    spam_toggle = Post.NOT_SPAM if post.is_spam else Post.SPAM
+    # Current state of the toggle.
+    if post.is_spam:
+        Post.objects.filter(id=post.id).update(spam=Post.NOT_SPAM)
+    else:
+        Post.objects.filter(id=post.id).update(spam=Post.SPAM)
 
-    # Update the object bypassing the signals.
-    Post.objects.filter(id=post.id).update(spam=spam_toggle)
+    # Refetch up to date state of the post.
+    post = Post.objects.filter(id=post.id).get()
 
     # Set the state for the user.
-    post.author.profile.state = Profile.SUSPENDED if post.is_spam else Profile.NEW
-    post.author.profile.save()
+    if post.is_spam and not post.author.profile.is_moderator:
+        post.author.profile.state = Profile.SUSPENDED if post.is_spam else Profile.NEW
+        post.author.profile.save()
 
     # Generate logging messages.
     if post.is_spam:
-        text = f'restored from spam'
+        text = f'"{post.title}" was marked spam'
     else:
-        text = f'marked as spam'
+        text = f'"{post.title}" was restored from spam'
+
         # Set indexed flag to False, so it's removed from spam index
         Post.objects.filter(id=post.id).update(indexed=False)
 
     # Set a logging message.
-    messages.success(request, mark_safe(text))
+    messages.success(request, text)
 
     # Submit the log into the database.
     db_logger(user=user, action=Log.MODERATE, text=text, post=post)
@@ -495,6 +497,7 @@ def toggle_spam(request, post, **kwargs):
     delete_post_cache(post)
 
     url = post.get_absolute_url()
+
     return url
 
 
@@ -586,8 +589,8 @@ def moderate(request, post, action, comment=""):
         msg = "Unknown moderation action given."
         logger.error(msg)
 
-
     return url
+
 
 def db_logger(user=None, action=Log.MODERATE, text='', ipaddr=None, post=None):
     """
