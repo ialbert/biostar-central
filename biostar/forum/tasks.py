@@ -171,9 +171,6 @@ def batch_create_awards(limit=100):
         valid = auth.valid_awards(user=u)
         targets.extend(valid)
 
-    # Shuffle the targets as well
-    random.shuffle(targets)
-
     def batch():
         for target in targets:
             if not target:
@@ -186,8 +183,8 @@ def batch_create_awards(limit=100):
 
             yield award
 
-    logger.info(f"{len(targets)} awards given to {len(users)} users")
     models.Award.objects.bulk_create(objs=batch(), batch_size=limit)
+    logger.info(f"{len(targets)} awards given to {len(users)} users")
 
 
 
