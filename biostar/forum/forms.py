@@ -34,7 +34,7 @@ def valid_language(text):
         except Exception as exc:
             logger.error(f"Lang detect error: {exc}")
             return
-        
+
         if lang not in supported_languages:
             raise ValidationError(f'Language "{lang}" is not one of the supported languages {supported_languages}!')
 
