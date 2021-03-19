@@ -428,7 +428,7 @@ def community_list(request):
 
 
 def badge_list(request):
-    badges = Badge.objects.annotate(count=Count("award")).order_by('-count')
+    badges = Badge.objects.annotate(count=Count("award")).order_by('count')
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
