@@ -203,7 +203,7 @@ def image_upload_view(request):
         raise PermissionDenied()
 
     if not settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
-        raise ImproperlyConfigured('Image upload is d_worker')
+        raise ImproperlyConfigured('Image upload is disabled')
 
     form = forms.ImageUploadForm(data=request.POST, files=request.FILES, user=user)
     if form.is_valid():

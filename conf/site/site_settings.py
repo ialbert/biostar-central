@@ -41,7 +41,7 @@ DATABASES = {
 
 WSGI_APPLICATION = 'conf.run.site_wsgi.application'
 
-# Valid options; block, d_worker, threaded, uwsgi, celery.
+# Valid options; block, disable, threaded, uwsgi, celery.
 TASK_RUNNER = 'block'
 
 SESSION_COOKIE_SECURE = True
