@@ -42,12 +42,19 @@ def load_model(fname="spam.model"):
 
 
 def build_model(X, y, fname="spam.model"):
+
     nb = make_pipeline(
+
         CountVectorizer(),
+
         MultinomialNB(),
+
         #LinearSVC(),
+
         #RandomForestClassifier(),
+
     )
+
     nb.fit(X, y)
     if fname:
         dump(nb, fname)
@@ -56,6 +63,7 @@ def build_model(X, y, fname="spam.model"):
 
 def evaluate_model(X, y, model=None):
     X_train, X_test, y_train, y_test = train_test_split(X, y)
+
     if model:
         nb = load_model(model)
     else:
@@ -85,7 +93,7 @@ def test(fname=None, model=None):
     X, y = [], []
     for info in elems:
         # Fill in the labels
-        y.append(int("spam" in info.name))
+        y.append( int("spam" in info.name) )
         stream = tar.extractfile(info)
         content = stream.read().decode("utf-8", errors="ignore")
         X.append(content)
