@@ -599,7 +599,7 @@ def recipe_view(request, uid):
     counts = get_counts(project)
 
     # Disable buttons if project not writeable.
-    btn_state = '' if auth.is_writable(user=user, project=project) else 'd_worker'
+    btn_state = '' if auth.is_writable(user=user, project=project) else 'disabled'
 
     # Get the list of jobs required to view recipe results
     jobs = recipe.job_set.filter(deleted=False).order_by("-lastedit_date").all()
