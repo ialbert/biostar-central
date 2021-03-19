@@ -24,8 +24,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 
-from sklearn.naive_bayes import GaussianNB
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import MultinomialNB, GaussianNB, BernoulliNB
+from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 
@@ -44,7 +44,9 @@ def load_model(fname="spam.model"):
 def build_model(X, y, fname="spam.model"):
     nb = make_pipeline(
         CountVectorizer(),
-        MultinomialNB()
+        MultinomialNB(),
+        #LinearSVC(),
+        #RandomForestClassifier(),
     )
     nb.fit(X, y)
     if fname:
