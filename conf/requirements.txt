@@ -64,3 +64,4 @@ webencodings==0.5.1
 whitenoise==5.2.0
 Whoosh==2.7.4
 zipp==3.4.0
+plac
