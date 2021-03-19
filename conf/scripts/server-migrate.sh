@@ -5,6 +5,7 @@
 # Load the conda commands.
 source ~/miniconda3/etc/profile.d/conda.sh
 
+cd /export/www/biostar-central/
 
 # Activate the conda environemnt.
 conda activate engine

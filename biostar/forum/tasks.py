@@ -1,5 +1,5 @@
 import functools
-import random
+import random, logging
 from biostar.accounts.tasks import create_messages
 from biostar.emailer.tasks import send_email
 from django.conf import settings
@@ -7,6 +7,8 @@ import time, random
 from biostar.utils.decorators import task, timer
 
 from django.db.models import Q
+
+logger = logging.getLogger("engine")
 
 #
 # Do not use logging in tasks! Deadlocking may occur!
@@ -56,13 +58,13 @@ def notify_watched_tags(uid, extra_context):
     emails = set(u.email for o in users for u in o)
 
     from_email = settings.DEFAULT_NOREPLY_EMAIL
-
-    send_email(template_name='messages/watched_tags.html',
-               extra_context=extra_context,
-               name=post.author.profile.name,
-               recipient_list=emails,
-               from_email=from_email,
-               mass=True)
+    if emails:
+        send_email(template_name='messages/watched_tags.html',
+                   extra_context=extra_context,
+                   name=post.author.profile.name,
+                   recipient_list=emails,
+                   from_email=from_email,
+                   mass=True)
 
 @task
 def created_post(pid):
@@ -147,6 +149,9 @@ def create_user_awards(user_id, limit=None):
     for target in valid:
         user, badge, date, post = target
 
+        # Set the award date to the post edit date
+        date = post.lastedit_date if post else date
+
         # Create an award for each target.
         Award.objects.create(user=user, badge=badge, date=date, post=post)
 
@@ -177,24 +182,42 @@ def batch_create_awards(limit=100):
             # In batch creation we overwrite date.
             date = post.lastedit_date if post else date
             award = models.Award(user=user, badge=badge, date=date, post=post)
-            message(f"awarded {award} to {user}")
+            logger.debug(f"awarded {award} to {user}")
 
             yield award
 
-    message(f"{len(targets)} awards given to {len(users)} users")
+    logger.info(f"{len(targets)} awards given to {len(users)} users")
     models.Award.objects.bulk_create(objs=batch(), batch_size=limit)
 
 
 
 @task
-def mailing_list(emails, uid, extra_context={}):
+def spam_check(uid):
+    from biostar.forum.models import Post
+    from biostar.forum.auth import toggle_spam
+    post = Post.objects.filter(uid=uid).first()
+
+    if 0:
+        # Mark as spam
+        pass
+
+    return False
+
+
+@task
+def mailing_list(uid, extra_context={}):
     """
     Generate notification for mailing list users.
     """
     from django.conf import settings
     from biostar.forum.models import Post
+    from biostar.accounts.models import User, Profile
 
+    # Get the post and users that have this enabled.
     post = Post.objects.filter(uid=uid).first()
+    users = User.objects.filter(profile__digest_prefs=Profile.ALL_MESSAGES)
+
+    emails = [user.email for user in users]
 
     # Update template context with post
     extra_context.update(dict(post=post))
@@ -203,13 +226,13 @@ def mailing_list(emails, uid, extra_context={}):
     email_template = "messages/mailing_list.html"
     author = post.author.profile.name
     from_email = settings.DEFAULT_NOREPLY_EMAIL
-
-    send_email(template_name=email_template,
-               extra_context=extra_context,
-               name=author,
-               from_email=from_email,
-               recipient_list=emails,
-               mass=True)
+    if emails:
+        send_email(template_name=email_template,
+                   extra_context=extra_context,
+                   name=author,
+                   from_email=from_email,
+                   recipient_list=emails,
+                   mass=True)
 
 
 @task
@@ -249,10 +272,9 @@ def notify_followers(sub_ids, author_id, uid, extra_context={}):
                     sender=author)
 
     # Select users with email subscriptions.
-    # Exclude mailing list users to avoid duplicate emails.
     email_subs = subs.filter(type=Subscription.EMAIL_MESSAGE)
+    # Exclude mailing list users to avoid duplicate emails.
     email_subs = email_subs.exclude(user__profile__digest_prefs=Profile.ALL_MESSAGES)
-
     # No email subscriptions
     if not email_subs:
         return

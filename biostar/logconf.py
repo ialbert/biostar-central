@@ -4,15 +4,23 @@ from django.core.servers import basehttp
 #
 # To see all log messages: export DJANGO_LOG_LEVEL=DEBUG
 #
-LOG_LEVEL = os.getenv('ENGINE_LOG_LEVEL') or 'INFO'
 
-DJANGO_LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL') or 'WARNING'
+VALID_LEVELS = ['DEBUG', 'INFO', 'WARNING', 'ERROR']
+
+LOG_LEVEL = os.getenv('ENGINE_LOG_LEVEL', '').upper() or 'INFO'
+
+assert LOG_LEVEL in VALID_LEVELS, f"level {LOG_LEVEL} not in {VALID_LEVELS}"
+
+DJANGO_LOG_LEVEL = os.getenv('DJANGO_LOG_LEVEL', '').upper() or 'WARNING'
+
+assert DJANGO_LOG_LEVEL in VALID_LEVELS
 
 
 class RateLimitFilter(object):
     """
     Limits the number of error emails when errors get triggered.
     """
+    # Time out in seconds.
     TIMEOUT = 600
     CACHE_KEY = "error-limiter"
 

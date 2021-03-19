@@ -274,6 +274,7 @@ def user_login(request):
                 login(request, user, backend="django.contrib.auth.backends.ModelBackend")
                 ipaddr = get_ip(request)
                 text = f"user {user.id} ({user.email}) logged in from {ipaddr}"
+
                 db_logger(user=request.user, text=text, action=Log.LOGIN, ipaddr=ipaddr)
 
                 return redirect(next_url)

@@ -1,13 +1,10 @@
 # Inherit from the main settings file.
 import os, sys
 
-
 from biostar.accounts.settings import *
 
 # Inherit from the accounts settings file.
 from biostar.planet.settings import *
-
-from .celeryconf import *
 
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -39,12 +36,9 @@ REQUIRED_TAGS = ''
 # Link to display after a post fails to have required tags.
 REQUIRED_TAGS_URL = "/"
 
-# Gravatar icon to use
-GRAVATAR_ICON = None
-
 # How to run tasks in the background.
 # Valid options; block, disable, threaded, uwsgi, celery.
-TASK_RUNNER = 'threaded'
+TASK_RUNNER = 'block'
 
 # Threshold to classify spam
 SPAM_THRESHOLD = .5
@@ -62,7 +56,7 @@ TIME_REQUESTS = True
 SEARCH_LIMIT = 50
 
 # Initialize the planet app.
-INIT_PLANET = True
+INIT_PLANET = False
 
 # Minimum amount of characters to preform searches
 SEARCH_CHAR_MIN = 1
@@ -113,7 +107,6 @@ ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 SOCIALACCOUNT_ADAPTER = "biostar.accounts.adapter.SocialAccountAdapter"
 
 FORUM_APPS = [
-
     'biostar.forum.apps.ForumConfig',
 ]
 
@@ -160,14 +153,7 @@ CACHES = {
     }
 }
 
-# Tries to load up secret settings from a predetermined module
-# This is for convenience only!
-try:
-    from conf.run.site_secrets import *
-    #print(f"Loaded secrets from: conf.run.secrets")
-except Exception as exc:
-    print(f"Secrets module not imported: {exc}", file=sys.stderr)
-    pass
+TASK_MODULES = ("biostar.forum.tasks", )
 
 # Enable debug toolbar specific functions
 if DEBUG_TOOLBAR:
@@ -176,4 +162,4 @@ if DEBUG_TOOLBAR:
     ])
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
-INIT_PLANET = False
+

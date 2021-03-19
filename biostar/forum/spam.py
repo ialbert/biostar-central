@@ -3,6 +3,7 @@ import os
 import shutil
 import random
 import time
+from collections import defaultdict
 from math import log, exp
 from itertools import groupby, islice, count, chain
 from django.conf import settings
@@ -125,21 +126,20 @@ def build_spam_index(overwrite=False, add_ham=False, limit=500):
     return ix
 
 
-def search_spam(post, ix,):
+def search_spam(post, ix):
     """
     Search spam index for posts similar to this one.
     Returns
     """
 
-    # Add this post to index to perform search.
+    # Add post to index to more_like_this perform search.
     writer = AsyncWriter(ix)
     add_post_to_index(post=post, writer=writer, is_spam=post.is_spam)
     writer.commit()
 
     # Search for this post in the spam index
     fields = ['uid']
-
-    results = search.preform_whoosh_search(ix=ix, query=post.uid, fields=fields)
+    results = search.perform_search(ix=ix, query=post.uid, fields=fields)
 
     # Preform more_like_this on this posts content
     similar_content = results[0].more_like_this('content', top=5)
@@ -150,8 +150,9 @@ def search_spam(post, ix,):
     writer.commit()
 
     # Get the results into a list and close the searcher object.
-    similar_content = list(map(search.normalize_result, similar_content))
+    similar_content = list(map(search.copy_hits, similar_content))
 
+    # Close the searcher
     results.searcher.close()
 
     return similar_content
@@ -201,7 +202,6 @@ def compute_score(post, ix=None):
 def score(post, threshold=None):
     """
     """
-
     if not settings.CLASSIFY_SPAM:
         return
 
@@ -221,6 +221,7 @@ def score(post, threshold=None):
     # If the score exceeds threshold it gets labeled spam.
     if spam_score >= threshold:
         Post.objects.filter(id=post.id).update(spam=Post.SPAM)
-        auth.db_logger(text=f"auto marked spam :{auth.post_link(post)} spam score={spam_score}")
+        msg = f"auto marked spam :{auth.post_link(post)} spam score={spam_score}"
+        auth.db_logger(text=msg)
 
     return spam_score

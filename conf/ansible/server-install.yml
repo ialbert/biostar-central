@@ -64,6 +64,16 @@
         dest: "{{ engine_dir }}"
         update: yes
 
+    - name: Create scripts in runtime directories
+      file:
+        path: "{{item}}"
+        state: directory
+        owner: www
+        group: www
+        mode: 0755
+      with_items:
+        - "{{ scripts_dir }}"
+
     - name: Link directory to the home
       file:
         src: "{{ engine_dir }}"
@@ -93,20 +103,20 @@
       with_items:
         - server-migrate.sh
         - server-reset.sh
+        - server-cleanup.sh
         - server-backup.sh
 
     - name: Initialize app specific scripts
       copy:
         remote_src: true
         force: no
-        src: "{{ engine_dir }}/conf/scripts/forum/{{item}}"
-        dest: "{{ engine_dir }}/{{ item }}"
+        src: "{{ engine_dir }}/conf/scripts/{{item}}"
+        dest: "{{ scripts_dir }}"
         mode: u+rwx,g+rx,o+rx
       with_items:
-        - transfer.sh
-        - index.sh
-        - planet.sh
-        -
+        - forum
+        - recipes
+
     - name: Copy settings file to runtime directories
       copy:
         remote_src: true

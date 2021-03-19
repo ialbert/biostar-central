@@ -9,7 +9,8 @@
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <link disabled rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
+    <link disabled rel="stylesheet"
+          href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/default.min.css">
     <script async src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
 {% endblock %}
 
@@ -23,10 +24,15 @@
 
 {% block content %}
 
+
+
+
     <div class="ui horizontal segments no-shadow">
 
+
         <div class="ui segment  no-shadow"></div>
-        <div class="ui basic compact segment no-shadow">
+        <div class="ui basic compact segment no-shadow" id="edit_profile">
+
 
             <form method="post" class="ui equal width form" action="{% url 'edit_profile' %}">
                 {{ form.media }}
@@ -35,172 +41,171 @@
                 {% form_errors form %}
 
                 <div class="ui basic center aligned segment">
-                    <span class="ui header">Update Profile</span>
+                    <span class="ui header">Edit Your Profile</span>
                 </div>
 
                 <div class="fields">
-                    <div class="empty form-field field"></div>
 
                     <div class="required form-field field">
-                        <div class="ui form-wrap segment">
-                            <label><i class="address card icon"></i>Name </label>
-                            {{ form.name }}
-                            <div class="muted">
-                                Displayed name
-                            </div>
+
+                        <label><i class="address card icon"></i> Display Name</label>
+                        {{ form.name }}
+                        <div class="muted">
+                            Shown for content you create
                         </div>
+
                     </div>
 
-                    <div class="empty form-field field"></div>
-                </div>
-
-                <div class="fields">
-                    <div class="empty form-field field"></div>
 
                     <div class="required form-field field">
-                        <div class="ui form-wrap segment">
-                            <label><i class="at icon"></i>Handle</label>
-                            {{ form.username }}
-                            <div class="muted">
-                                Handle may be used to reference you in posts.
-                            </div>
+
+                        <label><i class="at icon"></i> Handle</label>
+                        {{ form.username }}
+                        <div class="muted">
+                            People use it to to tag you: <code>@foo</code>.
                         </div>
+
                     </div>
 
-                    <div class="empty form-field field"></div>
                 </div>
+
                 <div class="fields">
-                    <div class="empty form-field field"></div>
+
 
                     <div class="required form-field field">
-                        <div class="ui form-wrap segment">
-                            <label><i class="envelope icon"></i>Email</label>
-                            {{ form.email }}
-                            <div class="muted">
-                                Email used to register to the site.
-                            </div>
+
+                        <label><i class="envelope icon"></i> Email</label>
+                        {{ form.email }}
+                        <div class="muted">
+                            Your email
                         </div>
+
                     </div>
 
-                    <div class="empty form-field field"></div>
-                </div>
+                    <div class="required form-field field">
 
-                <div class="fields">
-
-                    <div class="field">
-                        <div class="ui form-wrap segment">
-                            <label><i class="linkify icon"></i>Website</label>
-                            {{ form.website }}
-                            <div class="muted">
-                                URL to your website
-                            </div>
+                        <label><i class="envelope icon"></i> User icon style</label>
+                        {{ form.user_icon }}
+                        <div class="muted">
+                            User icon obtained from Gravatar.
                         </div>
-                    </div>
 
-                    <div class="field">
-                        <div class="ui form-wrap segment">
-                            <label><i class="map marker alternate icon"></i>Location</label>
-                            {{ form.location }}
-                            <div class="muted">
-                                Country/City/Institution
-                            </div>
-                        </div>
-                    </div>
-
-
-                </div>
-
-
-                <div class="fields">
-                    <div class="field">
-                        <div class="ui form-wrap segment">
-
-                            <label><i class="twitter icon"></i>Twitter id</label>
-                            {{ form.twitter }}
-                            <div class="muted">
-                                Your twitter id
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <div class="ui form-wrap segment">
-                            <label><i class="google icon"></i>Scholar</label>
-                            {{ form.scholar }}
-                            <div class="muted">
-                                Your Google Scholar ID
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="fields">
-
-                    <div class="field">
-                        <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="bell icon"></i>Digest Preferences </label>
-                            {{ form.digest_prefs }}
-                            <div class="muted">
-                                {{ form.digest_prefs.help_text }}
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <div class="fields">
-
-                    <div class="field">
-                        <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="bell icon"></i>Notifications </label>
-                            {{ form.message_prefs }}
-                            <div class="muted">
-                                {{ form.message_prefs.help_text }}
-                            </div>
-                        </div>
                     </div>
 
                 </div>
 
                 <div class="fields">
+
                     <div class="field">
-                        <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="tags icon"></i>My Tags </label>
 
-                            {% tags_field form_field=form.my_tags initial=user.profile.my_tags %}
-
-                            <div class="muted">
-                                Post with tags listed here will show up in the My Tags tab.
-                                Example: <code>galaxy</code>, <code>bed</code>
-                            </div>
+                        <label><i class="linkify icon"></i> Website</label>
+                        {{ form.website }}
+                        <div class="muted">
+                            The URL to your website
                         </div>
+
+                    </div>
+
+                    <div class="field">
+
+                        <label><i class="map marker alternate icon"></i> Location</label>
+                        {{ form.location }}
+                        <div class="muted">
+                            Geographical location
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="fields">
+                    <div class="field">
+
+                        <label><i class="twitter icon"></i> Twitter handle</label>
+                        {{ form.twitter }}
+                        <div class="muted">
+                            Your Twitter id
+                        </div>
+
+                    </div>
+
+                    <div class="field">
+
+                        <label><i class="google icon"></i> Google Scholar</label>
+                        {{ form.scholar }}
+                        <div class="muted">
+                            Your Google Scholar ID
+                        </div>
+
+                    </div>
+                </div>
+                <div class="fields">
+
+                    <div class="field">
+
+                        <label><i class="bell icon"></i> Digest Preferences </label>
+                        {{ form.digest_prefs }}
+                        <div class="muted">
+                            {{ form.digest_prefs.help_text }}
+                        </div>
+
+                    </div>
+
+                    <div class="field">
+
+                        <label><i class="bell icon"></i> Notification settings </label>
+                        {{ form.message_prefs }}
+                        <div class="muted">
+                            {{ form.message_prefs.help_text }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="fields">
+                    <div class="field">
+
+                        <label><i class="tags icon"></i> My Tags </label>
+
+                        {% tags_field form_field=form.my_tags initial=user.profile.my_tags %}
+
+                        <div class="muted">
+                            Post with tags listed here will show up in the My Tags tab.
+                            Example: <code>bwa</code>, <code>bedops</code>
+                        </div>
+
                     </div>
                 </div>
 
                 <div class="fields">
                     <div class="field">
-                        <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="tags icon"></i>Watched Tags </label>
+
+                            <label><i class="tags icon"></i> Watched Tags </label>
 
                             {% tags_field form_field=form.watched_tags initial=user.profile.watched_tags %}
 
                             <div class="muted">
-                                Get email when a post matching the tag is posted. Limit of 500.
+                                Get email when a post matching the tag is posted. Limit of 10.
                                 Example: <code>minia</code>, <code>bedops</code>, <code>breakdancer</code>,
                                 <code>music</code>.
                             </div>
-                        </div>
+
                     </div>
                 </div>
 
                 <div class="fields">
 
                     <div class="field">
-                        <div class="ui form-wrap segment" style="display: grid">
-                            <label><i class="info icon"></i>Description</label>
+
+                            <label><i class="info circle icon"></i> Profile information (markdown)</label>
                             {{ form.text }}
                             <div class="muted">
                                 {{ form.text.help_text }}
                             </div>
-                        </div>
+
                     </div>
 
                 </div>

@@ -797,6 +797,11 @@ img {
     display: flow-root;
 }
 
+#edit_profile {
+    background: var(--form-wrap-background);
+    overflow-wrap: break-word;
+    border-radius: 5px;
+}
 
 .ui.segment.form-wrap {
     box-shadow: none;

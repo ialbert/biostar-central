@@ -112,7 +112,7 @@ def bulk_copy_users(limit):
                               score=user.score,
                               twitter=user.profile.twitter_id,
                               my_tags=user.profile.my_tags,
-                              digest_prefs=user.profile.digest_prefs,
+                              digest_prefs=Profile.NO_DIGEST,
                               new_messages=user.new_messages)
 
             yield profile

@@ -1,9 +1,8 @@
 #!/bin/bash
 
-set -ue
+# Default database backup  script.
 
-# Ho
-HOURLY='--hourly'
+cd /export/www/biostar-central/
 
 # Load the conda commands.
 source ~/miniconda3/etc/profile.d/conda.sh
@@ -16,8 +15,13 @@ conda activate engine
 # Stop on errors.
 set -ue
 
+USER=www
+
 # Set the configuration module.
 export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
+# Backup location
+mkdir -p export/backup
 
-python manage.py digest ${HOURLY}
+# pg_dump the database
+python manage.py tasks --action pg_dump --outdir export/backup  --user ${USER}

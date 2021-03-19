@@ -52,7 +52,7 @@
 
      {% include "banners/insert-sidebar-top.html" %}
 
-     {% cache 500 "default" request.user.pk %}
+     {% cache 600 "default" request.user.pk %}
         {% default_feed user=request.user %}
      {% endcache %}
 
