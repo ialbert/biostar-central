@@ -470,6 +470,9 @@ def toggle_spam(request, post, **kwargs):
     else:
         Post.objects.filter(id=post.id).update(spam=Post.SPAM)
 
+    # Reset post cache just in case
+    delete_post_cache(post)
+
     # Refetch up to date state of the post.
     post = Post.objects.filter(id=post.id).get()
 
@@ -493,8 +496,6 @@ def toggle_spam(request, post, **kwargs):
     # Submit the log into the database.
     db_logger(user=user, action=Log.MODERATE, text=text, post=post)
 
-    # Reset post cache.
-    delete_post_cache(post)
 
     url = post.get_absolute_url()
 
