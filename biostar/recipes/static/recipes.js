@@ -50,10 +50,10 @@ function preview_template(fields) {
     return '<div class="ui segment run"><form class="ui form">'+
         '<span class="preview">' + fields+ '</span>'+
         '<div class="field">' +
-        '<button type="submit" class="ui green d_worker button">' +
+        '<button type="submit" class="ui green disabled button">' +
         '    <i class="check icon"></i>Run' +
         '</button>' +
-        '<a class="ui d_worker button">' +
+        '<a class="ui disabled button">' +
         '    <i class="redo icon"></i>Cancel' +
         '</a>' +
         '</div></form></div>'
