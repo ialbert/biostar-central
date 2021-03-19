@@ -29,6 +29,7 @@ def fake_awards(**kwargs):
         print (f"Awarded {award.badge.name}")
     return
 
+
 def bump(uids,  **kwargs):
     """
     Set post rank the current timestamp
