@@ -11,6 +11,7 @@ from django.db.models import Q
 
 logger = logging.getLogger("engine")
 
+
 #
 # Do not use logging in tasks! Deadlocking may occur!
 #
@@ -48,6 +49,7 @@ def notify_watched_tags(uid, extra_context):
                    recipient_list=emails,
                    from_email=from_email,
                    mass=True)
+
 
 @task
 def created_post(pid):
@@ -119,7 +121,7 @@ def create_user_awards(user_id, limit=None):
 
     user = User.objects.filter(id=user_id).first()
     # debugging
-    #Award.objects.all().delete()
+    # Award.objects.all().delete()
 
     # Collect valid targets
     valid = auth.valid_awards(user=user)
@@ -170,13 +172,24 @@ def batch_create_awards(limit=100):
     logger.info(f"{len(targets)} awards given to {len(users)} users")
 
 
+def high_trust(user, minscore=50):
+    """
+    Conditions for trusting a user
+    """
+    prof = user.profile
+    cond = prof.is_moderator or prof.score >= minscore
+    return cond
+
+def low_trust(user, minscore=50):
+    return not high_trust(user, minscore=minscore)
 
 @task
 def spam_check(uid):
     from biostar.forum.models import Post, Log
-    from biostar.accounts.models import User
+    from biostar.accounts.models import User, Profile
 
     post = Post.objects.filter(uid=uid).first()
+    author = post.author
 
     try:
         from biostar.utils import spamlib
@@ -187,13 +200,31 @@ def spam_check(uid):
         # Classify the spam
         if post.spam == Post.DEFAULT:
             result = spamlib.classify_content(post.content, model=settings.SPAM_MODEL)
+
+            ## links in title are usuall spam
+            spam_words = ["http://", "https://"]
+            for word in spam_words:
+                result = result or word in post.title
+
             if result:
                 Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
                 user = User.objects.filter(is_superuser=True).first()
-                db_logger(user=user, action=Log.CLASSIFY, text=f"automatically classifed as spam", post=post)
+
+                create_messages(template="messages/spam-detected.md",
+                                extra_context=dict(post=post),
+                                user_ids=[post.author.id])
+
+                spam_count = Post.objects.filter(spam=Post.SPAM, author=author).count()
+
+                if spam_count > 1 and low_trust(post.author):
+                    # Suspend the user
+                    Profile.objects.filter(user=author).update(state=Profile.SUSPENDED)
+                    db_logger(user=user, action=Log.MODERATE, text=f"suspended author of", post=post)
+
+                db_logger(user=user, action=Log.CLASSIFY, text=f"classifed as spam", post=post)
 
     except Exception as exc:
-
+        print(exc)
         logger.error(exc)
 
     return False

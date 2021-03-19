@@ -83,6 +83,8 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     """
     from biostar.accounts.models import User, Message, MessageBody
 
+    print("HERE")
+
     rec_list = User.objects.filter(id__in=user_ids)
     # Get the sender
     name, email = settings.ADMINS[0]

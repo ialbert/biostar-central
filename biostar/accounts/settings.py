@@ -16,6 +16,9 @@ ADMINS = [
     ("Admin User", "admin@localhost")
 ]
 
+# The address the error emails are coming from.
+SERVER_EMAIL = "admin@localhost"
+
 # Whitelist of Ip addresses to not rate limit.
 WHITELIST_IP = []
 

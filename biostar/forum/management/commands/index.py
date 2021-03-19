@@ -5,7 +5,7 @@ import os, sys
 from django.core.management.base import BaseCommand
 from biostar.forum.models import Post
 from django.conf import settings
-from biostar.forum import search, spam
+from biostar.forum import search
 from biostar.utils.decorators import check_lock
 
 logger = logging.getLogger('engine')
