@@ -53,7 +53,6 @@ class PostTest(TestCase):
 
         return
 
-    @patch('biostar.forum.models.Post.save', MagicMock(name="save"))
     def test_answer_moderation(self):
         "Test answer moderation."
         choices = [const.TOGGLE_ACCEPT, const.DELETE]
@@ -70,7 +69,6 @@ class PostTest(TestCase):
 
         return
 
-    @patch('biostar.recipes.models.Job.save', MagicMock(name="save"))
     def test_comment_moderation(self):
         "Test comment moderation."
         choices = [const.DELETE]
