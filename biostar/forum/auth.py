@@ -301,7 +301,7 @@ def valid_awards(user):
 
         for target in targets:
             post = target if isinstance(target, Post) else None
-            date = util.now()
+            date = post.lastedit_date if post else user.profile.last_login
             badge = Badge.objects.filter(name=award.name).first()
 
             valid.append((user, badge, date, post))

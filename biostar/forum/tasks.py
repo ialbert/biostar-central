@@ -161,8 +161,6 @@ def batch_create_awards(limit=100):
             if not target:
                 continue
             user, badge, date, post = target
-            # In batch creation we overwrite date.
-            date = post.lastedit_date if post else date
             award = models.Award(user=user, badge=badge, date=date, post=post)
             logger.debug(f"awarded {award.badge.name} to {user}")
 
