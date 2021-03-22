@@ -130,7 +130,7 @@ class Profile(models.Model):
     watched_tags = models.CharField(max_length=MAX_TEXT_LEN, default="", blank=True)
 
     # Tag objects
-    watched = TaggableManager()
+    watched = TaggableManager(blank=True)
 
     # Description provided by the user html.
     text = models.TextField(default="No profile information", null=True, max_length=MAX_TEXT_LEN, blank=True)
