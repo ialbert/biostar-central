@@ -412,8 +412,8 @@ def community_list(request):
     users = User.objects.select_related("profile")
 
     page = request.GET.get("page", 1)
-    ordering = request.GET.get("order", "")
-    limit_to = request.GET.get("limit", '')
+    ordering = request.GET.get("order", "visit")
+    limit_to = request.GET.get("limit", "time")
     query = request.GET.get('query', '')
     query = query.replace("'", "").replace('"', '').strip()
 
@@ -424,18 +424,15 @@ def community_list(request):
         users = users.filter(profile__last_login__gt=delta)
 
     if query and len(query) > 2:
-        db_query = Q(profile__name__icontains=query) | \
-                   Q(profile__uid__icontains=query) | \
-                   Q(username__icontains=query)| \
-                   Q(email__icontains=query)
-
+        db_query = Q(profile__name__icontains=query) | Q(profile__uid__icontains=query) | \
+                   Q(username__icontains=query) | Q(email__icontains=query)
         users = users.filter(db_query)
 
     # Remove the cache when filters are given.
     no_cache = days or (query and len(query) > 2) or ordering
     cache_key = None if no_cache else USERS_LIST_KEY
 
-    order = ORDER_MAPPER.get(ordering, "-profile__last_login")
+    order = ORDER_MAPPER.get(ordering, "visit")
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
     users = users.order_by(order)
 
