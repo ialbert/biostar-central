@@ -261,6 +261,8 @@ def release_quar(request, uid):
 
     return redirect('/')
 
+#def validate_keys(k, mapping):
+#    return
 
 @ensure_csrf_cookie
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
@@ -272,23 +274,17 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
 
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
-    order = request.GET.get("order", "rank")
+    order = request.GET.get("order", "rank") or "rank"
     topic = topic or request.GET.get("type", "")
-    limit = request.GET.get("limit", "all")
+    limit = request.GET.get("limit", "all") or "all"
 
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, order=order, limit=limit)
 
-    # Create the paginator.
-   # msg = f"{page} {order} {topic} {limit}"
-
+    # Needs to validate the keys before hand
     keys = [order, limit, topic]
     # Filter for any empty strings
-    keys = list(filter(lambda k: len(k), keys))
-
     paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
-
-    #paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
     posts = paginator.get_page(page)
