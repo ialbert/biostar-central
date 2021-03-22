@@ -81,7 +81,7 @@ class CachedPaginator(Paginator):
 
     @property
     def count(self):
-        
+
         # Start timer.
         start = time.time()
 
@@ -89,7 +89,8 @@ class CachedPaginator(Paginator):
             value = cache.get(self.cache_key) or super(CachedPaginator, self).count
             cache.add(self.cache_key, value, self.ttl)
         else:
-            value = super(CachedPaginator, self).count
+            #value = super(CachedPaginator, self).count
+            value = 1000 # testing out a fix
 
         delta = int((time.time() - start) * 1000)
 
