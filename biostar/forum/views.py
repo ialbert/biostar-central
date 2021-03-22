@@ -71,16 +71,17 @@ class CachedPaginator(Paginator):
     """
 
     # Time to live for the cache, in seconds
-    TTL = 300
+    TTL = 3000
 
-    def __init__(self, cache_key='', ttl=None, *args, **kwargs):
+    def __init__(self, cache_key='', ttl=None, msg='', *args, **kwargs):
         self.cache_key = cache_key
         self.ttl = ttl or self.TTL
+        self.msg = msg
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
     @property
     def count(self):
-        #return
+        
         # Start timer.
         start = time.time()
 
@@ -92,7 +93,7 @@ class CachedPaginator(Paginator):
 
         delta = int((time.time() - start) * 1000)
 
-        msg = f'time={delta}ms cache'
+        msg = f'time={delta}ms count: {self.msg}'
 
         if delta > 1000:
             logger.warning(f"SLOW: {msg}")
@@ -269,7 +270,8 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     posts = get_posts(user=user, topic=topic, order=order, limit=limit)
 
     # Create the paginator.
-    paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
+    msg = f"{page} {order} {topic} {limit}"
+    paginator = CachedPaginator(cache_key=cache_key, object_list=posts, msg=msg, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
     posts = paginator.get_page(page)
