@@ -94,7 +94,7 @@ def user_tasks(get_response):
         # Update information since the last visit.
         if elapsed > settings.SESSION_UPDATE_SECONDS:
             # Detect user location if not set in the profile.
-            detect_location.spool(ip=ip, user_id=user.id)
+            #detect_location.spool(ip=ip, user_id=user.id)
 
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
@@ -105,7 +105,7 @@ def user_tasks(get_response):
             request.session[const.COUNT_DATA_KEY] = counts
 
             # Trigger award generation.
-            tasks.create_user_awards.spool(user_id=user.id)
+            #tasks.create_user_awards.spool(user_id=user.id)
 
         # Can process response here after its been handled by the view
         response = get_response(request)

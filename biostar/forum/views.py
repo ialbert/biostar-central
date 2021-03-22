@@ -75,7 +75,10 @@ class CachedPaginator(Paginator):
 
     def __init__(self, cache_key='', ttl=None, keys=[], *args, **kwargs):
         self.cache_key = '-'.join(keys)
-        #self.cache_key = cache_key
+
+        # May not contain spaces
+        self.cache_key = ''.join(self.cache_key.split())
+
         self.ttl = ttl or self.TTL
 
         super(CachedPaginator, self).__init__(*args, **kwargs)
@@ -283,6 +286,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
 
     # Needs to validate the keys before hand
     keys = [order, limit, topic]
+
     # Filter for any empty strings
     paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
