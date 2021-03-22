@@ -253,8 +253,9 @@ def release_quar(request, uid):
 
     return redirect('/')
 
+
 @util.timeit
-def pagenate(obj, num):
+def paginate(obj, num):
     return obj.get_page(num)
 
 
@@ -283,7 +284,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
-    posts = pagenate(paginator, page)
+    posts = paginate(paginator, page)
 
     # Set the active tab.
     tab = topic or LATEST
