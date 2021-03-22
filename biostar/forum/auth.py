@@ -483,9 +483,9 @@ def toggle_spam(request, post, **kwargs):
 
     # Generate logging messages.
     if post.is_spam:
-        text = f'"{post.title}" was marked spam'
+        text = f"marked post as spam"
     else:
-        text = f'"{post.title}" was restored from spam'
+        text = f"restored post from spam"
 
         # Set indexed flag to False, so it's removed from spam index
         Post.objects.filter(id=post.id).update(indexed=False)

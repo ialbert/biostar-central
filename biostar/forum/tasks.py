@@ -191,6 +191,12 @@ def spam_check(uid):
 
     # Automated spam disabled in for trusted user
     if author.profile.trusted or author.profile.score > 50:
+        print("RETURN")
+        #return
+
+
+    # Classify spam only if we have not done it yet.
+    if post.spam != Post.DEFAULT:
         return
 
     try:
@@ -199,31 +205,31 @@ def spam_check(uid):
         if not os.path.isfile(settings.SPAM_MODEL):
             spamlib.build_model(fname=settings.SPAM_DATA, model=settings.SPAM_MODEL)
 
-        # Classify the spam
-        if post.spam == Post.DEFAULT:
-            result = spamlib.classify_content(post.content, model=settings.SPAM_MODEL)
+        # Calls the classification.
+        flag = spamlib.classify_content(post.content, model=settings.SPAM_MODEL)
 
-            ## links in title are usuall spam
-            spam_words = ["http://", "https://"]
-            for word in spam_words:
-                result = result or word in post.title
+        ## Links in title usually mean spam.
+        spam_words = ["http://", "https://"]
+        for word in spam_words:
+            flag = flag or (word in post.title)
 
-            if result:
-                Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
-                user = User.objects.filter(is_superuser=True).first()
+        if flag:
+            Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
+            user = User.objects.filter(is_superuser=True).first()
 
-                create_messages(template="messages/spam-detected.md",
-                                extra_context=dict(post=post),
-                                user_ids=[post.author.id])
+            create_messages(template="messages/spam-detected.md",
+                            extra_context=dict(post=post),
+                            user_ids=[post.author.id])
 
-                spam_count = Post.objects.filter(spam=Post.SPAM, author=author).count()
+            spam_count = Post.objects.filter(spam=Post.SPAM, author=author).count()
 
-                if spam_count > 1 and low_trust(post.author):
-                    # Suspend the user
-                    Profile.objects.filter(user=author).update(state=Profile.SUSPENDED)
-                    db_logger(user=user, action=Log.MODERATE, text=f"suspended author of", post=post)
+            db_logger(user=user, action=Log.CLASSIFY, text=f"thinks the post is spam", post=post)
 
-                db_logger(user=user, action=Log.CLASSIFY, text=f"classifed as spam", post=post)
+            if spam_count > 1 and low_trust(post.author):
+                # Suspend the user
+                Profile.objects.filter(user=author).update(state=Profile.SUSPENDED)
+                db_logger(user=user, action=Log.MODERATE, text=f"suspended the author of", post=post)
+
 
     except Exception as exc:
         print(exc)

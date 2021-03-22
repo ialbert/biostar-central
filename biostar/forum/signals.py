@@ -126,9 +126,6 @@ def finalize_post(sender, instance, created, **kwargs):
         instance.tags.clear()
         instance.tags.add(*tags)
 
-    # Classify post as spam/ham.
-    tasks.spam_check.spool(uid=instance.uid)
-
     # Ensure spam posts get closed status
     if instance.is_spam:
         Post.objects.filter(uid=instance.uid).update(status=Post.CLOSED)
@@ -146,3 +143,9 @@ def finalize_post(sender, instance, created, **kwargs):
                                  author_id=instance.author.pk,
                                  uid=instance.uid,
                                  extra_context=extra_context)
+
+
+@receiver(post_save, sender=Post)
+def check_spam(sender, instance, created, **kwargs):
+    # Classify post as spam/ham.
+    tasks.spam_check.spool(uid=instance.uid)
