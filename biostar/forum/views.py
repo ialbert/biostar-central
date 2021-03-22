@@ -234,6 +234,7 @@ def mark_spam(request, uid):
     else:
         return redirect('/')
 
+
 @is_moderator
 def release_quar(request, uid):
     """
