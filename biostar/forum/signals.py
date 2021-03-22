@@ -64,7 +64,6 @@ def finalize_post(sender, instance, created, **kwargs):
 
     # Update last contributor, last editor, and last edit date to the thread
     Post.objects.filter(uid=root.uid).update(lastedit_user=instance.lastedit_user,
-                                             last_contributor=instance.last_contributor,
                                              lastedit_date=instance.lastedit_date)
 
     # Get newly created subscriptions since the last edit date.
@@ -129,6 +128,11 @@ def finalize_post(sender, instance, created, **kwargs):
 
     # Classify post as spam/ham.
     tasks.spam_check.spool(uid=instance.uid)
+
+    # Ensure spam posts get closed status
+    if instance.is_spam:
+        Post.objects.filter(uid=instance.uid).update(status=Post.CLOSED)
+
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)
 

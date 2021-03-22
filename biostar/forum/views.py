@@ -74,8 +74,8 @@ class CachedPaginator(Paginator):
     TTL = 3000
 
     def __init__(self, cache_key='', ttl=None, keys=[], *args, **kwargs):
-        self.cache_key = '-'.join(keys) if keys else ''
-
+        self.cache_key = '-'.join(keys)
+        #self.cache_key = cache_key
         self.ttl = ttl or self.TTL
 
         super(CachedPaginator, self).__init__(*args, **kwargs)
@@ -87,7 +87,16 @@ class CachedPaginator(Paginator):
         start = time.time()
 
         if self.cache_key:
-            value = cache.get(self.cache_key) or super(CachedPaginator, self).count
+            # See if it is access the cache
+
+            value = cache.get(self.cache_key)
+            if value:
+                #logger.debug('getting from cache')
+                pass
+            else:
+                value = super(CachedPaginator, self).count
+                logger.info(f'settings the cache for {self.cache_key}')
+
             cache.add(self.cache_key, value, self.ttl)
         else:
             value = super(CachedPaginator, self).count
@@ -114,60 +123,58 @@ def get_posts(user, topic="", order="", limit=None):
 
     # Detect known post types.
     post_type = POST_TYPE.get(topic)
-    query = Post.objects.valid_posts(u=user, is_toplevel=True)
-    #query = Post.objects.filter(is_toplevel=True)
 
-    # Determines how to start the more_like_this.
+    # Get all open top level posts.
+    posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN)
+
+    # Filter for various post types.
     if post_type:
-        query = query.filter(type=post_type)
+        posts = posts.filter(type=post_type)
 
-    elif topic == SHOW_SPAM:
-        query = query.filter(Q(spam=Post.SPAM))
+    elif topic == SHOW_SPAM and user.profile.is_moderator:
+        posts = Post.objects.filter(spam=Post.SPAM)
 
     elif topic == OPEN:
-        query = query.filter(type=Post.QUESTION, answer_count=0)
+        posts = posts.filter(type=Post.QUESTION, answer_count=0)
 
     elif topic == BOOKMARKS and user.is_authenticated:
-        query = Post.objects.valid_posts(u=user, votes__author=user, votes__type=Vote.BOOKMARK)
+        posts = posts.filter(votes__author=user, votes__type=Vote.BOOKMARK)
 
     elif topic == FOLLOWING and user.is_authenticated:
-        query = query.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
+        posts = posts.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
 
     elif topic == MYPOSTS and user.is_authenticated:
         # Show users all of their posts ( deleted, spam, or quarantined )
-        query = Post.objects.filter(author=user)
+        posts = Post.objects.filter(author=user)
 
     elif topic == MYVOTES and user.is_authenticated:
-        query = query.filter(votes__post__author=user)
+        posts = posts.filter(votes__post__author=user)
 
     elif topic == MYTAGS and user.is_authenticated:
         tags = map(lambda t: t.lower(), user.profile.my_tags.split(","))
-        query = query.filter(tags__name__in=tags).distinct()
+        posts = posts.filter(tags__name__in=tags).distinct()
 
     # Search for tags
     elif topic != LATEST and (topic not in POST_TYPE):
-        query = query.filter(tags__name=topic.lower())
-    else:
-        # Exclude spam posts unless specifically on the tab.
-        query = query.exclude(Q(spam=Post.SPAM))
+        posts = posts.filter(tags__name=topic.lower())
 
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
         ordering = ORDER_MAPPER.get(order)
-        query = query.order_by(ordering)
+        posts = posts.order_by(ordering)
     else:
-        query = query.order_by("-rank")
+        posts = posts.order_by("-rank")
 
     days = LIMIT_MAP.get(limit, 0)
     # Apply time limit if required.
     if days:
         delta = util.now() - timedelta(days=days)
-        query = query.filter(lastedit_date__gt=delta)
+        posts = posts.filter(lastedit_date__gt=delta)
 
     # Select related information used during rendering.
-    query = query.select_related("root").select_related("author__profile", "lastedit_user__profile")
+    posts = posts.select_related("root").select_related("author__profile", "lastedit_user__profile")
 
-    return query
+    return posts
 
 
 def post_search(request):
@@ -265,7 +272,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
 
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
-    order = request.GET.get("order", "")
+    order = request.GET.get("order", "rank")
     topic = topic or request.GET.get("type", "")
     limit = request.GET.get("limit", "all")
 
@@ -274,8 +281,14 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
 
     # Create the paginator.
    # msg = f"{page} {order} {topic} {limit}"
-    keys = [order, topic, limit]
+
+    keys = [order, limit, topic]
+    # Filter for any empty strings
+    keys = list(filter(lambda k: len(k), keys))
+
     paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
+
+    #paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
     posts = paginator.get_page(page)
