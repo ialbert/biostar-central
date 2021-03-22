@@ -90,7 +90,7 @@ class CachedPaginator(Paginator):
         #     cache.add(self.cache_key, value, self.ttl)
         # else:
         #     #value = super(CachedPaginator, self).count
-        value = 1000000 # testing out a fix
+        value = 200000 # testing out a fix
 
         delta = int((time.time() - start) * 1000)
 
@@ -273,7 +273,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
 
     # Create the paginator.
     msg = f"{page} {order} {topic} {limit}"
-    
+
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, msg=msg, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
