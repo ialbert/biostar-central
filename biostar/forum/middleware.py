@@ -68,7 +68,7 @@ def update_status(user):
 
 
 @util.timeit
-def elaspe(request, user):
+def elapse(request, user):
 
     ip = helpers.get_ip(request)
     # Detect user location if not set in the profile.
@@ -113,7 +113,7 @@ def user_tasks(get_response):
         # Update information since the last visit.
         if elapsed > settings.SESSION_UPDATE_SECONDS:
             # Detect user location if not set in the profile.
-            elaspe(request, user)
+            elapse(request, user)
 
         # Can process response here after its been handled by the view
         response = get_response(request)
