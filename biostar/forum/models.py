@@ -44,8 +44,9 @@ class PostManager(models.Manager):
         # Filter for open posts.
         query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
 
-        query = query.filter(models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT) |
-                             models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT))
+        # Mark every spam post as 'closed'
+        # This doubles the query time.
+        query = query.exclude(models.Q(spam=Post.SPAM) | models.Q(root__spam=Post.SPAM))
 
         return query
 

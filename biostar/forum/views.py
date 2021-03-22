@@ -73,10 +73,11 @@ class CachedPaginator(Paginator):
     # Time to live for the cache, in seconds
     TTL = 3000
 
-    def __init__(self, cache_key='', ttl=None, msg='', *args, **kwargs):
-        self.cache_key = cache_key
+    def __init__(self, cache_key='', ttl=None, keys=[], *args, **kwargs):
+        self.cache_key = '-'.join(keys) if keys else ''
+
         self.ttl = ttl or self.TTL
-        self.msg = msg
+
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
     @property
@@ -85,16 +86,15 @@ class CachedPaginator(Paginator):
         # Start timer.
         start = time.time()
 
-        # if self.cache_key:
-        #     value = cache.get(self.cache_key) or super(CachedPaginator, self).count
-        #     cache.add(self.cache_key, value, self.ttl)
-        # else:
-        #     #value = super(CachedPaginator, self).count
-        value = 200000 # testing out a fix
+        if self.cache_key:
+            value = cache.get(self.cache_key) or super(CachedPaginator, self).count
+            cache.add(self.cache_key, value, self.ttl)
+        else:
+            value = super(CachedPaginator, self).count
 
         delta = int((time.time() - start) * 1000)
 
-        msg = f'time={delta}ms count: {self.msg}'
+        msg = f'time={delta}ms count key:{self.cache_key}'
 
         if delta > 1000:
             logger.warning(f"SLOW: {msg}")
@@ -115,6 +115,7 @@ def get_posts(user, topic="", order="", limit=None):
     # Detect known post types.
     post_type = POST_TYPE.get(topic)
     query = Post.objects.valid_posts(u=user, is_toplevel=True)
+    #query = Post.objects.filter(is_toplevel=True)
 
     # Determines how to start the more_like_this.
     if post_type:
@@ -266,15 +267,15 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     page = request.GET.get('page', 1)
     order = request.GET.get("order", "")
     topic = topic or request.GET.get("type", "")
-    limit = request.GET.get("limit", "")
+    limit = request.GET.get("limit", "all")
 
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, order=order, limit=limit)
 
     # Create the paginator.
-    msg = f"{page} {order} {topic} {limit}"
-
-    paginator = CachedPaginator(cache_key=cache_key, object_list=posts, msg=msg, per_page=settings.POSTS_PER_PAGE)
+   # msg = f"{page} {order} {topic} {limit}"
+    keys = [order, topic, limit]
+    paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
     posts = paginator.get_page(page)
