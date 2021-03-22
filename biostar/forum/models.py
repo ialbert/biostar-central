@@ -173,10 +173,10 @@ class Post(models.Model):
     sticky = models.BooleanField(default=False)
 
     # This will maintain the ancestor/descendant relationship bewteen posts.
-    root = models.ForeignKey('self', related_name="descendants", null=True, blank=True, on_delete=models.SET_NULL)
+    root = models.ForeignKey('self', related_name="descendants", null=True, blank=True, on_delete=models.CASCADE)
 
     # This will maintain parent/child relationships between posts.
-    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.SET_NULL)
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='children', on_delete=models.CASCADE)
 
     # This is the text that the user enters.
     content = models.TextField(default='')
