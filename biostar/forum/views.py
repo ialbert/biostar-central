@@ -111,7 +111,7 @@ class CachedPaginator(Paginator):
         if delta > 1000:
             logger.warning(f"SLOW: {msg}")
         elif settings.DEBUG:
-            logger.info(f'{msg}')
+            logger.debug(f'{msg}')
 
         return value
 

@@ -68,7 +68,7 @@
                     <td>Reputation:</td>
                     <td>{{ target.profile.get_score }}</td>
                 </tr>
-                {% if target == request.user or request.user.profile.is_moderator %}
+                {% if target == request.user or request.user.is_superuser %}
                     <tr>
                         <td>Email:</td>
                         <td>{{ target.email }}
