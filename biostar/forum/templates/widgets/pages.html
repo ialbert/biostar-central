@@ -18,13 +18,8 @@
 {% endif %}
 
 
-<span class="phone">{{ objs.paginator.count|intcomma }}
-    result{{ objs.paginator.count|pluralize }}
-    &bull;
+<span class="phone">
         Page </span> {{ objs.number }} of {{ objs.paginator.num_pages }}
-
-
-
 
 {% if objs.has_next %}
 
