@@ -311,11 +311,11 @@ def valid_awards(user):
 
 def get_counts(user):
     # The number of new messages since last visit.
-    message_count = Message.objects.filter(recipient=user, unread=True).count()
+    message_count = Message.objects.filter(recipient=user, unread=True)[:1000].count()
 
     # The number of new votes since last visit.
     vote_count = Vote.objects.filter(post__author=user, date__gte=user.profile.last_login).exclude(
-        author=user).count()
+        author=user)[:1000].count()
 
     # Store the counts into the session.
     counts = {MESSAGE_COUNT: message_count, VOTES_COUNT: vote_count}
