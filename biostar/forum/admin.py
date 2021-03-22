@@ -9,7 +9,7 @@ class PostAdmin(admin.ModelAdmin):
     ordering = ['type', 'rank']
     fieldsets = (
         (None, {'fields': ('title',)}),
-        ('Attributes', {'fields': ('type', 'status', 'sticky',)}),
+        ('Attributes', {'fields': ('type', 'status', 'author', 'sticky',)}),
         ('Content', {'fields': ('content', )}),
     )
     search_fields = ('title', 'author__profile__name', 'uid')
