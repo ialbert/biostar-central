@@ -67,7 +67,7 @@ MESSAGES_PER_PAGE = 5
 
 # Additional middleware.
 MIDDLEWARE += [
-    'biostar.accounts.middleware.limiter',
+    #'biostar.accounts.middleware.limiter',
 ]
 
 
