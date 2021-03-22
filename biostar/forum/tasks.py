@@ -189,6 +189,10 @@ def spam_check(uid):
     post = Post.objects.filter(uid=uid).first()
     author = post.author
 
+    # Automated spam disabled in for trusted user
+    if author.profile.trusted or author.profile.score > 50:
+        return
+
     try:
         from biostar.utils import spamlib
 
