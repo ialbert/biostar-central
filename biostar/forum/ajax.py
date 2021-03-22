@@ -514,7 +514,7 @@ def similar_posts(request, uid):
     results = cache.get(cache_key)
 
     if results is None:
-        logger.info("Setting similar posts cache.")
+        logger.debug("Setting similar posts cache.")
         results = search.more_like_this(uid=post.uid)
         # Set the results cache for 1 hour
         cache.set(cache_key, results, 3600)

@@ -15,6 +15,7 @@ from biostar.forum.const import VOTES_COUNT
 from biostar.forum.settings import RATELIMIT_KEY
 from ratelimit.utils import is_ratelimited
 from biostar.utils import helpers
+
 from . import auth, tasks, const, util
 from .models import Vote
 from .util import now
@@ -42,7 +43,9 @@ def benchmark(get_response):
         msg = f'time={delta}ms for path={request.path}'
 
         if delta > 1000:
-            logger.warning(f"SLOW: {msg}")
+            ip = helpers.get_ip(request)
+            agent = request.META.get('HTTP_USER_AGENT', None)
+            logger.warning(f"SLOW: {msg} IP:{ip} AGENT:{agent}")
         elif settings.DEBUG:
             logger.info(f'{msg}')
 
