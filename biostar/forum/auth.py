@@ -466,9 +466,9 @@ def toggle_spam(request, post, **kwargs):
 
     # Current state of the toggle.
     if post.is_spam:
-        Post.objects.filter(id=post.id).update(spam=Post.NOT_SPAM)
+        Post.objects.filter(id=post.id).update(spam=Post.NOT_SPAM, status=Post.OPEN)
     else:
-        Post.objects.filter(id=post.id).update(spam=Post.SPAM)
+        Post.objects.filter(id=post.id).update(spam=Post.SPAM, status=Post.CLOSED)
 
     # Reset post cache just in case
     delete_post_cache(post)

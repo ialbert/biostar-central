@@ -44,8 +44,9 @@ class PostManager(models.Manager):
         # Filter for open posts.
         query = query.filter(status=Post.OPEN, root__status=Post.OPEN)
 
-        query = query.filter(models.Q(spam=Post.NOT_SPAM) | models.Q(spam=Post.DEFAULT) |
-                             models.Q(root__spam=Post.NOT_SPAM) | models.Q(root__spam=Post.DEFAULT))
+        # Mark every spam post as 'closed'
+        # This doubles the query time.
+        query = query.exclude(models.Q(spam=Post.SPAM) | models.Q(root__spam=Post.SPAM))
 
         return query
 
@@ -122,10 +123,6 @@ class Post(models.Model):
     # The user that edited the post most recently.
     lastedit_user = models.ForeignKey(User, related_name='editor', null=True,
                                       on_delete=models.CASCADE)
-
-    # The user that last contributed to the thread.
-    last_contributor = models.ForeignKey(User, related_name='contributor', null=True,
-                                         on_delete=models.CASCADE)
 
     # Store users contributing to the thread as "tags" to more_like_this later.
     thread_users = models.ManyToManyField(User, related_name="thread_users")
@@ -323,7 +320,6 @@ class Post(models.Model):
 
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or util.now()
-        self.last_contributor = self.lastedit_user
 
         # Sanitize the post body.
         self.html = markdown.parse(self.content, post=self, clean=True, escape=False)

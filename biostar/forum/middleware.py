@@ -44,8 +44,9 @@ def benchmark(get_response):
 
         if delta > 1000:
             ip = helpers.get_ip(request)
+            authen = request.user.is_authenticated
             #agent = request.META.get('HTTP_USER_AGENT', None)
-            logger.warning(f"SLOW: {msg} IP:{ip}")
+            logger.warning(f"SLOW: {msg} IP:{ip} authenticated:{authen}")
         elif settings.DEBUG:
             logger.info(f'{msg}')
 
