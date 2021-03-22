@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta
 from functools import wraps, lru_cache
 import os
-
+import time
 
 from django.conf import settings
 from django.contrib import messages
@@ -80,12 +80,24 @@ class CachedPaginator(Paginator):
 
     @property
     def count(self):
+        #return
+        # Start timer.
+        start = time.time()
 
         if self.cache_key:
             value = cache.get(self.cache_key) or super(CachedPaginator, self).count
             cache.add(self.cache_key, value, self.ttl)
         else:
             value = super(CachedPaginator, self).count
+
+        delta = int((time.time() - start) * 1000)
+
+        msg = f'time={delta}ms cache'
+
+        if delta > 1000:
+            logger.warning(f"SLOW: {msg}")
+        elif settings.DEBUG:
+            logger.info(f'{msg}')
 
         return value
 
