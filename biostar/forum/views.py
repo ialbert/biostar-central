@@ -79,7 +79,7 @@ class CachedPaginator(Paginator):
         # May not contain spaces
         self.cache_key = ''.join(self.cache_key.split())
 
-        self.ttl = ttl or self.TTL
+        self.ttl = self.TTL
 
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
@@ -98,9 +98,9 @@ class CachedPaginator(Paginator):
                 pass
             else:
                 value = super(CachedPaginator, self).count
-                logger.info(f'settings the cache for {self.cache_key}')
+                logger.info(f'setting the cache for "{self.cache_key}"')
 
-            cache.add(self.cache_key, value, self.ttl)
+                cache.set(self.cache_key, value, self.ttl)
         else:
             value = super(CachedPaginator, self).count
 
