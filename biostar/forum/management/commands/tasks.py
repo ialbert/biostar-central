@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta
+import random
 from datetime import datetime
 from biostar import VERSION
 from django.core.management.base import BaseCommand
@@ -36,6 +38,12 @@ def bump(uids,  **kwargs):
     """
     uids = uids.split(',')
     rank = util.now().timestamp()
+    #if not uids:
+    #    weeks = random.randint(20, 200)
+    #    trange = util.now() - timedelta(weeks=weeks)
+    #    uid = models.Post.objects(lastedit_date__gt=trange).order_by('?').first()
+    #    models.Post.objects.filter(uid=uid).update(rank=rank)
+    #else:
     models.Post.objects.filter(uid__in=uids).update(rank=rank)
 
     return

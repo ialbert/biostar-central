@@ -55,7 +55,9 @@ def benchmark(get_response):
     return middleware
 
 
+@util.timeit
 def update_status(user):
+
     # Update a new user into trusted after a threshold score is reached.
     if (user.profile.state == Profile.NEW) and (user.profile.score > 50):
         user.profile.state = Profile.TRUSTED
@@ -65,11 +67,31 @@ def update_status(user):
     return user.profile.trusted
 
 
+@util.timeit
+def elaspe(request, user):
+
+    ip = helpers.get_ip(request)
+    # Detect user location if not set in the profile.
+    detect_location.spool(ip=ip, user_id=user.id)
+
+    # Set the last login time.
+    Profile.objects.filter(user=user).update(last_login=now())
+
+    counts = auth.get_counts(user=user)
+
+    # Set the session.
+    request.session[const.COUNT_DATA_KEY] = counts
+
+    # Trigger award generation.
+    tasks.create_user_awards.spool(user_id=user.id)
+
+
 def user_tasks(get_response):
     """
     Tasks run for authenticated users.
     """
 
+    @util.timeit
     def middleware(request):
 
         user, session = request.user, request.session
@@ -85,27 +107,13 @@ def user_tasks(get_response):
 
         update_status(user=user)
 
-        # Parses the ip of the request.
-        ip = helpers.get_ip(request)
-
         # Find out the time since the last visit.
         elapsed = (now() - user.profile.last_login).total_seconds()
 
         # Update information since the last visit.
         if elapsed > settings.SESSION_UPDATE_SECONDS:
             # Detect user location if not set in the profile.
-            #detect_location.spool(ip=ip, user_id=user.id)
-
-            # Set the last login time.
-            Profile.objects.filter(user=user).update(last_login=now())
-
-            counts = auth.get_counts(user=user)
-
-            # Set the session.
-            request.session[const.COUNT_DATA_KEY] = counts
-
-            # Trigger award generation.
-            #tasks.create_user_awards.spool(user_id=user.id)
+            elaspe(request, user)
 
         # Can process response here after its been handled by the view
         response = get_response(request)

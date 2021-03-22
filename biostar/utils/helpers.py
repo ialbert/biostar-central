@@ -86,9 +86,9 @@ def get_ip(request):
     meta = request.META
 
     # Lowercase keys
-    simple_meta = {k.lower(): v for k, v in request.META.items()}
+    lower = {k.lower(): v for k, v in request.META.items()}
 
-    ip = meta.get(key, simple_meta.get(key, '0.0.0.0'))
+    ip = meta.get(key, lower.get(key, '0.0.0.0'))
 
     return ip
 
