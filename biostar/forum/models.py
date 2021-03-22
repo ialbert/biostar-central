@@ -71,6 +71,9 @@ def delete_post_cache(post):
     """
     delete_fragment_cache("post", True, post.uid)
     delete_fragment_cache("post", False, post.uid)
+    if post.root:
+        delete_fragment_cache("post", True, post.root.uid)
+        delete_fragment_cache("post", False, post.root.uid)
 
 
 class Post(models.Model):

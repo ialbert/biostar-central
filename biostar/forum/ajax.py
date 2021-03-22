@@ -19,7 +19,7 @@ from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views, const
-from .models import Post, Vote, Subscription
+from .models import Post, Vote, Subscription, delete_post_cache
 
 
 def ajax_msg(msg, status, **kwargs):
@@ -118,6 +118,9 @@ def ajax_vote(request):
         return ajax_error("Only moderators or the person asking the question may accept answers.")
 
     msg, vote, change = auth.apply_vote(post=post, user=user, vote_type=vote_type)
+
+    # Expire post cache upon vote.
+    delete_post_cache(post)
 
     return ajax_success(msg=msg, change=change)
 
