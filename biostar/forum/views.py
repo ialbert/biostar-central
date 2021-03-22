@@ -85,12 +85,12 @@ class CachedPaginator(Paginator):
         # Start timer.
         start = time.time()
 
-        if self.cache_key:
-            value = cache.get(self.cache_key) or super(CachedPaginator, self).count
-            cache.add(self.cache_key, value, self.ttl)
-        else:
-            #value = super(CachedPaginator, self).count
-            value = 1000 # testing out a fix
+        # if self.cache_key:
+        #     value = cache.get(self.cache_key) or super(CachedPaginator, self).count
+        #     cache.add(self.cache_key, value, self.ttl)
+        # else:
+        #     #value = super(CachedPaginator, self).count
+        value = 1000 # testing out a fix
 
         delta = int((time.time() - start) * 1000)
 
