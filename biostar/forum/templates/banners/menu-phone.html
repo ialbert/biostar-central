@@ -1,8 +1,6 @@
 {% load forum_tags %}
 {% load static %}
 
-<script async src="{% static 'semantic.min.js' %}"></script>
-
 {% block headimg %}
     <div class="header item" id="logo">
         <a href="/"><img class="ui image" width="220px" src="{% static "images/logo6.svg" %}"></a>
@@ -12,7 +10,7 @@
 
 <div class="ui labeled icon attached fluid pointing menu" id="menu-header">
 
-    <div class="ui left simple dropdown item">
+    <div class="ui left simple dropdown item" >
 
         <i class="bars icon"><i class="dropdown icon"></i></i>
         <div class="menu">
@@ -58,9 +56,9 @@
             <div class=" menu">
                 <a class="item  {% activate tab "messages" %}" href="{% url 'inbox' %}">
                     <i class="envelope icon"></i>Messages
-                    {% if counts.messages.count %}
-                        {{ counts.messages.count }}
-                    {% endif %}
+                    {% if counts.messages.count%}
+                    {{ counts.messages.count }}
+                {% endif %}
                 </a>
                 <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
                     <i class="thumbs up icon"></i>Votes
@@ -101,8 +99,7 @@
             {% else %}
                 <a class="item {% activate tab "login" %}" href="{% url 'login' %}"><i class="sign-in icon"></i>
                     Log In</a>
-                <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i
-                        class="arrow circle up icon"></i>
+                <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i class="arrow circle up icon"></i>
                     Sign Up</a>
             {% endif %}
 
@@ -113,10 +110,3 @@
 
     </div>
 </div>
-
-<script>
-
-    $(document).ready(function () {
-        $('.ui.dropdown').dropdown();
-    })
-</script>
