@@ -1,27 +1,34 @@
 #!/bin/bash
 
-# Default database backup  script.
-
-cd /export/www/biostar-central/
-
-# Load the conda commands.
-source ~/miniconda3/etc/profile.d/conda.sh
-
-export POSTGRES_HOST=/var/run/postgresql
-
-# Activate the conda environemnt.
-conda activate engine
-
 # Stop on errors.
 set -ue
 
+# Postgres user.
 USER=www
 
-# Set the configuration module.
-export DJANGO_SETTINGS_MODULE=conf.run.site_settings
+# Postgres database
+DATABASE=biostardb
 
-# Backup location
-mkdir -p export/backup
+# Backup directory.
+DIR=/export/www/biostar-central/export/backup
 
-# pg_dump the database
-python manage.py tasks --action pg_dump --outdir export/backup  --user ${USER}
+# Make the backup directory.
+mkdir -p $DIR
+
+# Build the name for the file
+TSTAMP=`date +"daily-2021-03-23"`
+
+# Build the name o
+NAME=$DATABASE-$TSTAMP.gz
+
+# Backup filename.
+FILE=$DIR/$NAME
+
+# Dump the database.
+/usr/bin/pg_dump -x -O -b -U $USER  $DATABASE | gzip > $FILE
+
+# Check the files the pattern finds.
+#find $DIR/*.gz -mtime +4 -exec echo {} \;
+
+# Dangerous command! Make sure it is correct!
+#find $DIR/*.gz -mtime +4 -exec rm {} \;

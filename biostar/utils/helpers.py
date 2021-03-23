@@ -53,7 +53,7 @@ def pg_dump(prog, pg_user, outdir, hourly=False,  **kwargs):
         tstamp = datetime.now().strftime("hourly-%H")
     else:
         # These names include the date.
-        tstamp = datetime.now().strftime("%Y-%m-%d")
+        tstamp = datetime.now().strftime("daily-%Y-%m-%d")
 
     db_file = "%s-%s-%s.sql.gz" % (pg_name, VERSION, tstamp)
     db_file = os.path.abspath(os.path.join(outdir, db_file))
