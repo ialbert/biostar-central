@@ -10,19 +10,19 @@
                 <i class="dropdown icon"></i>
 
                 <div class="menu">
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'all' 'limit' params %}">
+                    <a class="item" href="{% relative_url 'all' 'limit' params %}">
                         <i class="{% get_icon 'all' %}"></i>all time
                     </a>
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'today' 'limit' params %}">
+                    <a class="item" href="{% relative_url 'today' 'limit' params %}">
                         <i class="{% get_icon 'today' %}"></i>today
                     </a>
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'week' 'limit' params %}">
+                    <a class="item" href="{% relative_url 'week' 'limit' params %}">
                         <i class="{% get_icon 'week' %}"></i>this week
                     </a>
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'month' 'limit' params %}">
+                    <a class="item" href="{% relative_url 'month' 'limit' params %}">
                         <i class="{% get_icon 'month' %}"></i>this month
                     </a>
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'year' 'limit' params %}">
+                    <a class="item" href="{% relative_url 'year' 'limit' params %}">
                         <i class="{% get_icon 'year' %}"></i>this year
                     </a>
 
@@ -48,18 +48,18 @@
 
                 <div class="menu">
 
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'rank' 'order' params %}">
+                    <a class="item" href="{% relative_url 'rank' 'order' params %}">
                         <i class="{% get_icon 'rank' %}"></i>Rank
                     </a>
 
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'views' 'order' params %}">
+                    <a class="item" href="{% relative_url 'views' 'order' params %}">
                         <i class="{% get_icon 'views' %}"></i>Views
                     </a>
 
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'votes' 'order' params %}">
+                    <a class="item" href="{% relative_url 'votes' 'order' params %}">
                         <i class="{% get_icon 'votes' %}"></i>Votes
                     </a>
-                    <a class="item" href="{% url 'post_list' %}{% relative_url 'replies' 'order' params %}">
+                    <a class="item" href="{% relative_url 'replies' 'order' params %}">
                         <i class="{% get_icon 'replies' %}"></i>Replies
                     </a>
 

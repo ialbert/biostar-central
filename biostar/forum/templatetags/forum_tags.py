@@ -576,11 +576,12 @@ def activate_check_mark(filter, active):
     return ''
 
 
-@register.simple_tag
-def relative_url(value, field_name, urlencode=None):
+@register.simple_tag(takes_context=True)
+def relative_url(context, value, field_name, urlencode=None):
     """
     Updates field_name parameters in url with new value
     """
+    request = context['request']
     # Create more_like_this string with updated field_name, value pair.
     url = f'?{field_name}={value}'
     if urlencode:
@@ -593,6 +594,9 @@ def relative_url(value, field_name, urlencode=None):
         encoded_querystring = '&'.join(filtered_querystring)
         # Update query string
         url = f'{url}&{encoded_querystring}'
+
+    # Concatenate current path to relative query string
+    url = request.path + url
 
     return url
 
