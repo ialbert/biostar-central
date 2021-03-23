@@ -5,6 +5,7 @@ from datetime import datetime
 from biostar import VERSION
 from django.core.management.base import BaseCommand
 from biostar.forum import models, util, tasks
+from biostar.forum.models import Post
 from django.conf import settings
 from biostar.utils.helpers import pg_dump
 from biostar.accounts.models import User
@@ -36,23 +37,31 @@ def bump(uids, **kwargs):
     """
     Set post rank the current timestamp
     """
-    rank = util.now().timestamp()
+
+    top = Post.objects.filter(status=Post.OPEN, is_toplevel=True).order_by("-rank")[:10]
+
+    top = random.choice(list(top))
+    rank = top.rank
     user = User.objects.filter(is_superuser=True).first()
 
     if uids:
         uids = uids.split(',')
-        models.Post.objects.filter(uid__in=uids, lastedit_user=user).update(rank=rank)
+        Post.objects.filter(uid__in=uids).update(rank=rank, lastedit_user=user)
+        logger.debug(f'uids={uids} bumped')
 
     else:
         # Pick a week from a relatively long time ago.
+        # TODO: favor unanswered posts ( or popular post )
         weeks = random.randint(200, 700)
         trange = util.now() - timedelta(weeks=weeks)
 
-        post = models.Post.objects.filter(lastedit_date__gt=trange, is_toplevel=True).order_by('?').first()
+        # Pick a random toplevel post within date range.
+        post = Post.objects.filter(lastedit_date__gt=trange, is_toplevel=True).order_by('?').first()
         user = User.objects.filter(is_superuser=True).first()
 
-        models.Post.objects.filter(uid=post.uid, lastedit_user=user).update(rank=rank)
-        logger.debug(f'{post.uid} bumped lastedit_date={post.lastedit_date}')
+        Post.objects.filter(uid=post.uid).update(rank=rank, lastedit_user=user)
+
+        logger.debug(f'post {post.uid}="{post.title}" bumped')
 
     return
 
