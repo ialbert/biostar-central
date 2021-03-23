@@ -178,8 +178,10 @@ def high_trust(user, minscore=50):
     cond = prof.is_moderator or prof.score >= minscore
     return cond
 
+
 def low_trust(user, minscore=50):
     return not high_trust(user, minscore=minscore)
+
 
 @task
 def spam_check(uid):
@@ -191,8 +193,7 @@ def spam_check(uid):
 
     # Automated spam disabled in for trusted user
     if author.profile.trusted or author.profile.score > 50:
-        print("RETURN")
-        #return
+        return
 
     # Classify spam only if we have not done it yet.
     if post.spam != Post.DEFAULT:
@@ -204,8 +205,13 @@ def spam_check(uid):
         if not os.path.isfile(settings.SPAM_MODEL):
             spamlib.build_model(fname=settings.SPAM_DATA, model=settings.SPAM_MODEL)
 
-        # Calls the classification.
+        # Classify the content.
         flag = spamlib.classify_content(post.content, model=settings.SPAM_MODEL)
+
+        # Another process may have already classified it as spam.
+        check = Post.objects.filter(uid=post.uid).first()
+        if check and check.spam == Post.SPAM:
+            return
 
         ## Links in title usually mean spam.
         spam_words = ["http://", "https://"]
@@ -213,6 +219,7 @@ def spam_check(uid):
             flag = flag or (word in post.title)
 
         if flag:
+
             Post.objects.filter(uid=post.uid).update(spam=Post.SPAM, status=Post.CLOSED)
             user = User.objects.filter(is_superuser=True).first()
 
