@@ -7,7 +7,6 @@ from django.core.management.base import BaseCommand
 from biostar.forum import models, util, tasks
 from biostar.forum.models import Post
 from django.conf import settings
-from biostar.utils.helpers import pg_dump
 from biostar.accounts.models import User
 import logging
 
@@ -15,22 +14,8 @@ logger = logging.getLogger('engine')
 
 BACKUP_DIR = os.path.join(settings.BASE_DIR, 'export', 'backup')
 
-BUMP, UNBUMP, AWARD, DUMP, FAKE = 'bump', 'unbump', 'award', 'pg_dump', 'fake'
-CHOICES = [BUMP, UNBUMP, AWARD, DUMP, FAKE]
-
-
-def fake_awards(**kwargs):
-    """
-    Creates some fake awards
-    """
-    # models.Award.objects.all().delete()
-
-    badge = models.Badge.objects.get(name="Autobiographer")
-    for user in models.User.objects.all()[:10]:
-        award = models.Award(badge=badge, user=user)
-        award.save()
-        print(f"Awarded {award.badge.name}")
-    return
+BUMP, UNBUMP, AWARD = 'bump', 'unbump', 'award'
+CHOICES = [BUMP, UNBUMP, AWARD]
 
 
 def bump(uids, **kwargs):
@@ -105,7 +90,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         action = options['action']
 
-        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards, DUMP: pg_dump, FAKE: fake_awards}
+        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards}
 
         func = opts[action]
         # print()

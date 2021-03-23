@@ -16,7 +16,7 @@ DIR=/export/www/biostar-central/export/backup
 mkdir -p $DIR
 
 # Build the name for the file
-TSTAMP=`date +"daily-2021-03-23"`
+TSTAMP=`date +"daily-%Y-%m-%d"`
 
 # Build the name of the backup file.
 NAME=$DATABASE-$TSTAMP.gz

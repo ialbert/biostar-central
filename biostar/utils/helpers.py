@@ -37,46 +37,6 @@ def fake_request(url, data, user, method="POST", rmeta={}):
     return request
 
 
-def pg_dump(prog, pg_user, outdir, hourly=False,  **kwargs):
-    # Get the full path to the directory.
-    """
-    """
-
-    os.makedirs(outdir, exist_ok=True)
-
-    pg_name = settings.DATABASE_NAME
-
-    # Hourly database dumps have a simpler name so
-    # that they overwrite each other.
-    if hourly:
-        # These names only include the hours.
-        tstamp = datetime.now().strftime("hourly-%H")
-    else:
-        # These names include the date.
-        tstamp = datetime.now().strftime("daily-%Y-%m-%d")
-
-    db_file = "%s-%s-%s.sql.gz" % (pg_name, VERSION, tstamp)
-    db_file = os.path.abspath(os.path.join(outdir, db_file))
-
-    params = dict(
-        pg_user=pg_user,
-        pg_name=pg_name,
-        version=VERSION,
-        db_file=db_file,
-        prog=prog,
-    )
-
-    # logger.info("saving %(pg_name)s to %(db_file)s" % params)
-
-    cmd = "%(prog)s -x -O -b -U %(pg_user)s %(pg_name)s | gzip > %(db_file)s" % params
-
-    # Running the command
-    logger.info("%s" % cmd)
-    os.system(cmd)
-
-    return
-
-
 def get_ip(request):
     """
     Attempts to extract the IP number from the HTTP request headers.
