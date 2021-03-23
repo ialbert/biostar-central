@@ -18,7 +18,7 @@ mkdir -p $DIR
 # Build the name for the file
 TSTAMP=`date +"daily-2021-03-23"`
 
-# Build the name o
+# Build the name of the backup file.
 NAME=$DATABASE-$TSTAMP.gz
 
 # Backup filename.

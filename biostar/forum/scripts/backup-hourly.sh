@@ -18,14 +18,14 @@ mkdir -p $DIR
 # Build the name for the file
 TSTAMP=`date +"hourly-%H"`
 
-# Build the name o
+# Build the name of the backup file.
 NAME=$DATABASE-$TSTAMP.gz
 
 # Backup filename.
 FILE=$DIR/$NAME
 
 # Dump the database.
-echo /usr/bin/pg_dump -x -O -b -U $USER  $DATABASE | gzip > $FILE
+/usr/bin/pg_dump -x -O -b -U $USER  $DATABASE | gzip > $FILE
 
 # Check the files the pattern finds.
 #find $DIR/*.gz -mtime +4 -exec echo {} \;
