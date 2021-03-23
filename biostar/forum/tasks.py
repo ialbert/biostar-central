@@ -221,7 +221,9 @@ def spam_check(uid):
         if flag:
 
             Post.objects.filter(uid=post.uid).update(spam=Post.SPAM, status=Post.CLOSED)
-            user = User.objects.filter(is_superuser=True).first()
+
+            # Get the first admin.
+            user = User.objects.filter(is_superuser=True).order_by("pk").first()
 
             create_messages(template="messages/spam-detected.md",
                             extra_context=dict(post=post),
@@ -229,7 +231,7 @@ def spam_check(uid):
 
             spam_count = Post.objects.filter(spam=Post.SPAM, author=author).count()
 
-            db_logger(user=user, action=Log.CLASSIFY, text=f"thinks the post is spam", post=post)
+            db_logger(user=user, action=Log.CLASSIFY, text=f"classified the post as spam", post=post)
 
             if spam_count > 1 and low_trust(post.author):
                 # Suspend the user

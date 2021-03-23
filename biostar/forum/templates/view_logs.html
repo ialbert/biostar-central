@@ -2,14 +2,16 @@
 {% load static %}
 {% load accounts_tags %}
 {% load forum_tags %}
+{%  load humanize %}
 {% block headtitle %}{{ target.profile.name }}{% endblock %}
 
 
 {% block content %}
     <ul>
         {% for log in logs %}
-            <li>  {{ log.date }}
-                <a href="{{ user.profile.get_absolute_url }}">{{ log.user.profile.name }}</a>
+            <li>  {{ log.date|naturaltime }}
+
+                <a href="{{ log.user.profile.get_absolute_url }}">{{ log.user.profile.name }}</a>
 
                 {{ log.text }}
 
