@@ -10,9 +10,6 @@ logger = logging.getLogger('engine')
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
 SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
 
-"""
-Here is a [direct link](ftp://emboss.open-bio.org/pub/EMBOSS/emboss-latest.tar.gz) for the latest EMBOSS.
-"""
 
 
 TEST_CASES = [
