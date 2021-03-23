@@ -12,5 +12,4 @@ http://liorpachter.wordpress.com/feed/
 http://biomickwatson.wordpress.com/feed/
 http://flxlexblog.wordpress.com/feed/
 http://pmelsted.wordpress.com/feed/
-http://www.rna-seqblog.com/feed/
 http://feeds.feedburner.com/openhelix/GhpE
