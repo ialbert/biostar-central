@@ -81,8 +81,11 @@ ALLOWED_ATTRIBUTES = {
 ALLOWED_TAGS = ['p', 'div', 'br', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'hr', 'span', 's',
                 'sub', 'sup', 'b', 'i', 'img', 'strong', 'strike', 'em', 'underline',
                 'super', 'table', 'thead', 'tr', 'th', 'td', 'tbody']
-
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + ALLOWED_TAGS
+
+ALLOWED_PROTOCOLS = ['ftp', 'http']
+ALLOWED_PROTOCOLS = bleach.ALLOWED_PROTOCOLS + ALLOWED_PROTOCOLS
+
 ALLOWED_STYLES = ['color', 'font-weight', 'background-color', 'width height']
 
 # Youtube patterns
@@ -432,8 +435,8 @@ def parse(text, post=None, clean=True, escape=True, allow_rewrite=False):
         output = bleach.clean(text=output,
                             tags=ALLOWED_TAGS,
                             styles=ALLOWED_STYLES,
-                            attributes=ALLOWED_ATTRIBUTES)
-
+                            attributes=ALLOWED_ATTRIBUTES,
+                            protocols=ALLOWED_PROTOCOLS)
     # Embed sensitive links into html
     output = linkify(text=output)
 
