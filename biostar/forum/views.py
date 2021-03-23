@@ -50,6 +50,31 @@ LIMIT_MAP = dict(
     year=365
 )
 
+
+def timeit(func):
+    """
+    Print how long function takes.
+    """
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        start = time.time()
+        val = func(*args, **kwargs)
+
+        delta = int((time.time() - start) * 1000)
+        msg = f"time={delta}ms for {func.__name__}"
+
+        if delta > 1000:
+            msg = f'SLOW: {msg}'
+            logger.info(msg)
+        else:
+            logger.debug(msg)
+
+        return val
+
+    return inner
+
+
 def post_exists(func):
     """
     Ensure uid passed to view function exists.
@@ -84,38 +109,27 @@ class CachedPaginator(Paginator):
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
     @property
+    @timeit
     def count(self):
-
-        # Start timer.
-        start = time.time()
 
         if self.cache_key:
             # See if it is access the cache
-
             value = cache.get(self.cache_key)
             if value:
-                #logger.debug('getting from cache')
+                logger.debug('getting from cache')
                 pass
             else:
                 value = super(CachedPaginator, self).count
-                logger.info(f'setting the cache for "{self.cache_key}"')
+                logger.debug(f'setting the cache for "{self.cache_key}"')
 
                 cache.set(self.cache_key, value, self.ttl)
         else:
             value = super(CachedPaginator, self).count
 
-        delta = int((time.time() - start) * 1000)
-
-        msg = f'time={delta}ms count key:{self.cache_key}'
-
-        if delta > 1000:
-            logger.warning(f"SLOW: {msg}")
-        elif settings.DEBUG:
-            logger.debug(f'{msg}')
-
         return value
 
 
+@timeit
 def get_posts(user, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
@@ -245,6 +259,7 @@ def mark_spam(request, uid):
     else:
         return redirect('/')
 
+
 @is_moderator
 def release_quar(request, uid):
     """
@@ -264,10 +279,14 @@ def release_quar(request, uid):
 
     return redirect('/')
 
-#def validate_keys(k, mapping):
-#    return
+
+@timeit
+def paginate(obj, num):
+    return obj.get_page(num)
+
 
 @ensure_csrf_cookie
+@timeit
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
@@ -291,7 +310,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
-    posts = paginator.get_page(page)
+    posts = paginate(paginator, page)
 
     # Set the active tab.
     tab = topic or LATEST

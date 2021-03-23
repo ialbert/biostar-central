@@ -194,7 +194,6 @@ def spam_check(uid):
         print("RETURN")
         #return
 
-
     # Classify spam only if we have not done it yet.
     if post.spam != Post.DEFAULT:
         return
@@ -214,7 +213,7 @@ def spam_check(uid):
             flag = flag or (word in post.title)
 
         if flag:
-            Post.objects.filter(uid=post.uid).update(spam=Post.SPAM)
+            Post.objects.filter(uid=post.uid).update(spam=Post.SPAM, status=Post.CLOSED)
             user = User.objects.filter(is_superuser=True).first()
 
             create_messages(template="messages/spam-detected.md",
@@ -229,7 +228,6 @@ def spam_check(uid):
                 # Suspend the user
                 Profile.objects.filter(user=author).update(state=Profile.SUSPENDED)
                 db_logger(user=user, action=Log.MODERATE, text=f"suspended the author of", post=post)
-
 
     except Exception as exc:
         print(exc)
