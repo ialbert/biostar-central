@@ -66,8 +66,17 @@
     --menu-header-color: #1678c2;
 }
 
+.ui.container {
+    width: 80%;
+}
+
+/* Needed for syntax highlighting */
+:not(pre) > code {
+    color: orangered !important;
+}
+
 body {
-/ / background-color: var(--page-bg-color) !important;
+    // background-color: var(--page-bg-color) !important;
     //padding-top: 1rem;
     font-family: var(--root-font);
     color: #333;
