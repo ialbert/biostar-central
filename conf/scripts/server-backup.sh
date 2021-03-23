@@ -25,6 +25,6 @@ export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 mkdir -p export/backup
 
 # pg_dump the database
-python manage.py tasks --action pg_dump --outdir export/backup  --user ${USER}
+# python manage.py tasks --action pg_dump --outdir export/backup  --user ${USER}
 
 
