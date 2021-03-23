@@ -22,7 +22,7 @@ from django.core.cache import cache
 
 from biostar.forum import markdown
 from biostar.accounts.models import Profile, Message
-from biostar.forum import const, auth
+from biostar.forum import const, auth, util
 from biostar.forum.models import Post, Vote, Award, Subscription, Badge
 
 User = get_user_model()
@@ -469,7 +469,7 @@ def get_post_list(target, request, show=None):
 
 
 def awards_feed():
-    awards = Award.objects.order_by('-pk').select_related("badge", "user", "user__profile")
+    awards = Award.objects.order_by('-pk').select_related("badge", "user", "user__profile")[:300]
     # Store already seen users
     seen = set()
     # Aggregate list of shown awards
