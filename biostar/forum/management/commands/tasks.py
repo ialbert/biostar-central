@@ -36,22 +36,23 @@ def bump(uids, **kwargs):
     """
     Set post rank the current timestamp
     """
-    rank = util.now().timestamp()
+    lastedit = util.now()
+    rank = lastedit.timestamp()
     user = User.objects.filter(is_superuser=True).first()
 
     if uids:
         uids = uids.split(',')
         models.Post.objects.filter(uid__in=uids, lastedit_user=user).update(rank=rank)
-
     else:
         # Pick a week from a relatively long time ago.
         weeks = random.randint(200, 700)
         trange = util.now() - timedelta(weeks=weeks)
 
+        # Pick a random toplevel post within date range.
         post = models.Post.objects.filter(lastedit_date__gt=trange, is_toplevel=True).order_by('?').first()
         user = User.objects.filter(is_superuser=True).first()
 
-        models.Post.objects.filter(uid=post.uid, lastedit_user=user).update(rank=rank)
+        models.Post.objects.filter(uid=post.uid).update(rank=rank, lastedit_user=user, lastedit_date=lastedit)
         logger.debug(f'{post.uid} bumped lastedit_date={post.lastedit_date}')
 
     return
