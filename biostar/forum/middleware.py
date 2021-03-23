@@ -23,30 +23,6 @@ from .util import now
 logger = logging.getLogger("engine")
 
 
-def timeit(func):
-    """
-    Print how long function takes to run
-    """
-
-    @wraps(func)
-    def inner(*args, **kwargs):
-        start = time.time()
-        val = func(*args, **kwargs)
-
-        delta = int((time.time() - start) * 1000)
-        msg = f"time={delta}ms for {func.__name__}"
-
-        if delta > 1000:
-            msg = f'SLOW: {msg}'
-            logger.info(msg)
-        else:
-            logger.debug(msg)
-
-        return val
-
-    return inner
-
-
 def benchmark(get_response):
     """
     Prints the time needed to perform a request.
@@ -79,7 +55,7 @@ def benchmark(get_response):
     return middleware
 
 
-@timeit
+@util.timeit
 def update_status(user):
 
     # Update a new user into trusted after a threshold score is reached.
@@ -91,31 +67,12 @@ def update_status(user):
     return user.profile.trusted
 
 
-@timeit
-def elapse(request, user):
-
-    ip = helpers.get_ip(request)
-    # Detect user location if not set in the profile.
-    detect_location.spool(ip=ip, user_id=user.id)
-
-    # Set the last login time.
-    Profile.objects.filter(user=user).update(last_login=now())
-
-    counts = auth.get_counts(user=user)
-
-    # Set the session.
-    request.session[const.COUNT_DATA_KEY] = counts
-
-    # Trigger award generation.
-    tasks.create_user_awards.spool(user_id=user.id)
-
-
 def user_tasks(get_response):
     """
     Tasks run for authenticated users.
     """
 
-    @timeit
+    @util.timeit
     def middleware(request):
 
         user, session = request.user, request.session
@@ -134,10 +91,36 @@ def user_tasks(get_response):
         # Find out the time since the last visit.
         elapsed = (now() - user.profile.last_login).total_seconds()
 
+        @util.timeit
+        def elapse():
+            # Detect user location if not set in the profile.
+            ip = helpers.get_ip(request)
+            # Detect user location if not set in the profile.
+            detect_location.spool(ip=ip, user_id=user.id)
+            # Set the last login time.
+            Profile.objects.filter(user=user).update(last_login=now())
+            counts = auth.get_counts(user=user)
+            # Set the session.
+            request.session[const.COUNT_DATA_KEY] = counts
+            # Trigger award generation.
+            tasks.create_user_awards.spool(user_id=user.id)
+
         # Update information since the last visit.
         if elapsed > settings.SESSION_UPDATE_SECONDS:
+
+            elapse()
+
             # Detect user location if not set in the profile.
-            elapse(request, user)
+            #ip = helpers.get_ip(request)
+            # Detect user location if not set in the profile.
+            #detect_location.spool(ip=ip, user_id=user.id)
+            # Set the last login time.
+            #Profile.objects.filter(user=user).update(last_login=now())
+            #counts = auth.get_counts(user=user)
+            # Set the session.
+            #request.session[const.COUNT_DATA_KEY] = counts
+            # Trigger award generation.
+            #tasks.create_user_awards.spool(user_id=user.id)
 
         # Can process response here after its been handled by the view
         response = get_response(request)
