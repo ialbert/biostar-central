@@ -1,4 +1,5 @@
 import logging, functools, time, os
+from functools import wraps
 from functools import partial
 from django.conf import settings
 from django.shortcuts import redirect
@@ -18,6 +19,7 @@ def is_moderator(f):
         return redirect('/')
 
     return inner
+
 
 def timeit(func):
     """
@@ -252,7 +254,7 @@ def c_worker():
 
 def b_worker():
     """
-    Return a blocking decorator that runs the funtion once.
+    Return a blocking decorator that runs the function once.
     """
     def outer(func, *args, **kwargs):
         @functools.wraps(func)
