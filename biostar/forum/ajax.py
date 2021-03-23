@@ -339,8 +339,8 @@ def get_fields(request, post=None):
     return fields
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='50/h')
-@ratelimit(key=RATELIMIT_KEY, rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate='250/h')
+@ratelimit(key=RATELIMIT_KEY, rate='30/m')
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_edit(request, uid):
     """
