@@ -309,7 +309,6 @@ def valid_awards(user):
     return valid
 
 
-@util.timeit
 def get_counts(user):
     # The number of new messages since last visit.
     message_count = Message.objects.filter(recipient=user, unread=True)[:1000].count()

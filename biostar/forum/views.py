@@ -86,27 +86,22 @@ class CachedPaginator(Paginator):
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
     @property
-    @util.timeit
     def count(self):
 
         if self.cache_key:
             # See if it is access the cache
             value = cache.get(self.cache_key)
-            if value:
-                logger.debug('getting from cache')
-                pass
-            else:
+            if value is None:
                 value = super(CachedPaginator, self).count
                 logger.debug(f'setting the cache for "{self.cache_key}"')
-
                 cache.set(self.cache_key, value, self.ttl)
+
         else:
             value = super(CachedPaginator, self).count
 
         return value
 
 
-@util.timeit
 def get_posts(user, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
@@ -258,7 +253,6 @@ def release_quar(request, uid):
 
 
 @ensure_csrf_cookie
-@util.timeit
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
@@ -281,12 +275,8 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     # Filter for any empty strings
     paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
-    @util.timeit
-    def paginate(obj, num):
-        return obj.get_page(num)
-
     # Apply the post paging.
-    posts = paginate(paginator, page)
+    posts = paginator.get_page(page)
 
     # Set the active tab.
     tab = topic or LATEST

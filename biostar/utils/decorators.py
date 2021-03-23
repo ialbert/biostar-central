@@ -19,6 +19,29 @@ def is_moderator(f):
 
     return inner
 
+def timeit(func):
+    """
+    Print how long function takes.
+    """
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        start = time.time()
+        val = func(*args, **kwargs)
+
+        delta = int((time.time() - start) * 1000)
+        msg = f"time={delta}ms for {func.__name__}"
+
+        if delta > 1000:
+            msg = f'SLOW: {msg}'
+            logger.info(msg)
+        else:
+            logger.debug(msg)
+
+        return val
+
+    return inner
+
 
 def check_lock(lock):
     """
