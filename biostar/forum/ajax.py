@@ -35,6 +35,9 @@ ajax_error = partial(ajax_msg, status='error')
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
 
+HOURLY_RATE = settings.HOURLY_RATE
+MINUTE_RATE = settings.MINUTE_RATE
+
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 
@@ -86,8 +89,8 @@ def user_image(request, username):
     return redirect(gravatar_url)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='100/h')
-@ratelimit(key=RATELIMIT_KEY, rate='25/m')
+@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
+@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
     was_limited = getattr(request, 'limited', False)
@@ -164,8 +167,8 @@ def validate_drop(request):
     return True, "Valid drop"
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='50/h')
-@ratelimit(key=RATELIMIT_KEY, rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
+@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
     was_limited = getattr(request, 'limited', False)
@@ -196,8 +199,8 @@ def drag_and_drop(request):
     return ajax_success(msg="success", redir=redir)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='50/h')
-@ratelimit(key=RATELIMIT_KEY, rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
+@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_subs(request):
     was_limited = getattr(request, 'limited', False)
@@ -222,8 +225,8 @@ def ajax_subs(request):
     return ajax_success(msg="Changed subscription.")
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='50/h')
-@ratelimit(key=RATELIMIT_KEY, rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
+@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_digest(request):
     was_limited = getattr(request, 'limited', False)
@@ -339,8 +342,8 @@ def get_fields(request, post=None):
     return fields
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='250/h')
-@ratelimit(key=RATELIMIT_KEY, rate='30/m')
+@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
+@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_edit(request, uid):
     """
@@ -410,8 +413,8 @@ def ajax_delete(request):
     return ajax_success(msg=msg, url=url)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='50/h')
-@ratelimit(key=RATELIMIT_KEY, rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
+@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_comment_create(request):
     was_limited = getattr(request, 'limited', False)
@@ -440,8 +443,8 @@ def ajax_comment_create(request):
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='50/h')
-@ratelimit(key=RATELIMIT_KEY, rate='20/m')
+@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
+@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
 @ajax_error_wrapper(method="GET")
 def handle_search(request):
     """
@@ -461,8 +464,8 @@ def handle_search(request):
     return ajax_success(users=users, msg="Username searched")
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='50/h')
-@ratelimit(key=RATELIMIT_KEY, rate='10/m')
+@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
+@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
 @ajax_error_wrapper(method="GET")
 def inplace_form(request):
     """

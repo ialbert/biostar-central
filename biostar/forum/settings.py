@@ -109,6 +109,10 @@ FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
 ]
 
+
+HOURLY_RATE = '250/h'
+MINUTE_RATE = '50/m'
+
 # Additional middleware.
 MIDDLEWARE += [
     #'biostar.forum.middleware.ban_ip',
