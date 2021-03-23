@@ -66,6 +66,10 @@
     --menu-header-color: #1678c2;
 }
 
+.ui.container {
+    width: 80%;
+}
+
 body {
 / / background-color: var(--page-bg-color) !important;
     //padding-top: 1rem;
