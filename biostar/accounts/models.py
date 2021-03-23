@@ -197,7 +197,7 @@ class Profile(models.Model):
 
     def add_watched(self):
         tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
-        self.watched.remove()
+        self.watched.clear()
         self.watched.add(*tags)
 
     def set_upload_size(self):
