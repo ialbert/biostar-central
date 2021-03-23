@@ -83,7 +83,7 @@ def timeit(func):
             msg = f'SLOW: {msg}'
             logger.info(msg)
         else:
-            logger.info(msg)
+            logger.debug(msg)
 
         return val
 

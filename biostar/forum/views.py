@@ -168,7 +168,6 @@ def get_posts(user, topic="", order="", limit=None):
     # Select related information used during rendering.
     posts = posts.select_related("root").select_related("author__profile", "lastedit_user__profile")
 
-    #list(posts)
     return posts
 
 
