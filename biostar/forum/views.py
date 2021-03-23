@@ -51,29 +51,6 @@ LIMIT_MAP = dict(
 )
 
 
-def timeit(func):
-    """
-    Print how long function takes.
-    """
-
-    @wraps(func)
-    def inner(*args, **kwargs):
-        start = time.time()
-        val = func(*args, **kwargs)
-
-        delta = int((time.time() - start) * 1000)
-        msg = f"time={delta}ms for {func.__name__}"
-
-        if delta > 1000:
-            msg = f'SLOW: {msg}'
-            logger.info(msg)
-        else:
-            logger.debug(msg)
-
-        return val
-
-    return inner
-
 
 def post_exists(func):
     """
@@ -109,7 +86,7 @@ class CachedPaginator(Paginator):
         super(CachedPaginator, self).__init__(*args, **kwargs)
 
     @property
-    @timeit
+    @util.timeit
     def count(self):
 
         if self.cache_key:
@@ -129,7 +106,7 @@ class CachedPaginator(Paginator):
         return value
 
 
-@timeit
+@util.timeit
 def get_posts(user, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
@@ -280,13 +257,8 @@ def release_quar(request, uid):
     return redirect('/')
 
 
-@timeit
-def paginate(obj, num):
-    return obj.get_page(num)
-
-
 @ensure_csrf_cookie
-@timeit
+@util.timeit
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
@@ -308,6 +280,10 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
 
     # Filter for any empty strings
     paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
+
+    @util.timeit
+    def paginate(obj, num):
+        return obj.get_page(num)
 
     # Apply the post paging.
     posts = paginate(paginator, page)

@@ -27,4 +27,4 @@ mkdir -p export/backup
 python manage.py tasks --action pg_dump --outdir export/backup  --user ${USER} --hourly
 
 # bump a random post
-# python manage.py tasks --action bump
+python manage.py tasks --action bump

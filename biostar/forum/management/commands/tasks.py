@@ -7,10 +7,10 @@ from django.core.management.base import BaseCommand
 from biostar.forum import models, util, tasks
 from django.conf import settings
 from biostar.utils.helpers import pg_dump
+from biostar.accounts.models import User
 import logging
 
 logger = logging.getLogger('engine')
-
 
 BACKUP_DIR = os.path.join(settings.BASE_DIR, 'export', 'backup')
 
@@ -22,34 +22,42 @@ def fake_awards(**kwargs):
     """
     Creates some fake awards
     """
-    #models.Award.objects.all().delete()
+    # models.Award.objects.all().delete()
 
     badge = models.Badge.objects.get(name="Autobiographer")
     for user in models.User.objects.all()[:10]:
         award = models.Award(badge=badge, user=user)
         award.save()
-        print (f"Awarded {award.badge.name}")
+        print(f"Awarded {award.badge.name}")
     return
 
 
-def bump(uids,  **kwargs):
+def bump(uids, **kwargs):
     """
     Set post rank the current timestamp
     """
-    uids = uids.split(',')
     rank = util.now().timestamp()
-    #if not uids:
-    #    weeks = random.randint(20, 200)
-    #    trange = util.now() - timedelta(weeks=weeks)
-    #    uid = models.Post.objects(lastedit_date__gt=trange).order_by('?').first()
-    #    models.Post.objects.filter(uid=uid).update(rank=rank)
-    #else:
-    models.Post.objects.filter(uid__in=uids).update(rank=rank)
+    user = User.objects.filter(is_superuser=True).first()
+
+    if uids:
+        uids = uids.split(',')
+        models.Post.objects.filter(uid__in=uids, lastedit_user=user).update(rank=rank)
+
+    else:
+        # Pick a week from a relatively long time ago.
+        weeks = random.randint(200, 700)
+        trange = util.now() - timedelta(weeks=weeks)
+
+        post = models.Post.objects.filter(lastedit_date__gt=trange, is_toplevel=True).order_by('?').first()
+        user = User.objects.filter(is_superuser=True).first()
+
+        models.Post.objects.filter(uid=post.uid, lastedit_user=user).update(rank=rank)
+        logger.debug(f'{post.uid} bumped lastedit_date={post.lastedit_date}')
 
     return
 
 
-def unbump(uids,  **kwargs):
+def unbump(uids, **kwargs):
     """
     Set post rank to creation date
     """
@@ -69,14 +77,17 @@ def awards(limit=50, **kwargs):
 
     return
 
+
 class Command(BaseCommand):
     help = 'Preform action on list of posts.'
 
     def add_arguments(self, parser):
         parser.add_argument('--uids', '-u', type=str, required=False, default='', help='List of uids')
-        parser.add_argument('--action', '-a', type=str, required=True, choices=CHOICES, default='', help='Action to take.')
+        parser.add_argument('--action', '-a', type=str, required=True, choices=CHOICES, default='',
+                            help='Action to take.')
         parser.add_argument('--user', dest='pg_user', default="www", help='postgres user default=%(default)s')
-        parser.add_argument('--prog', dest='prog', default="/usr/bin/pg_dump", help='the postgres program default=%(default)s')
+        parser.add_argument('--prog', dest='prog', default="/usr/bin/pg_dump",
+                            help='the postgres program default=%(default)s')
         parser.add_argument('--outdir', dest='outdir', default=BACKUP_DIR, help='output directory default=%(default)s')
         parser.add_argument('--hourly', dest='hourly', action='store_true', default=False, help='hourly datadump'),
         parser.add_argument('--limit', dest='limit', type=int, default=100, help='How many users'),
@@ -84,10 +95,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         action = options['action']
 
-        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards, DUMP: pg_dump, FAKE:fake_awards}
+        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards, DUMP: pg_dump, FAKE: fake_awards}
 
         func = opts[action]
-        #print()
-        #models.Award.objects.all().delete()
+        # print()
+        # models.Award.objects.all().delete()
 
         func(**options)
