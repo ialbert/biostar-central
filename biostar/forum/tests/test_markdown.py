@@ -10,6 +10,8 @@ logger = logging.getLogger('engine')
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
 SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
 
+
+
 TEST_CASES = [
 
     # Top level Post anchors
@@ -61,6 +63,9 @@ TEST_CASES = [
 
     # Test nested unclosed tags
     ("<b><b><b><b>foo  ", '<p><b><b><b><b>foo</b></b></b></b></p><b><b><b></b></b></b>'),
+
+    # Test ftp
+    #("Here is a [direct link](ftp://emboss.open-bio.org/pub/EMBOSS/emboss-latest.tar.gz) for the latest EMBOSS.", '<p>Here is a <a href="ftp://emboss.open-bio.org/pub/EMBOSS/emboss-latest.tar.gz">direct link</a> for the latest EMBOSS.</p>')
 
 ]
 
