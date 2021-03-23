@@ -9,12 +9,13 @@
 
         <a href="{% url "user_profile" post.lastedit_user.profile.uid %}">
 
-            {% if avatar %}
+            <!-- {% if avatar %}
                 <div class="ui avatar image">
                     <img class="ui tiny centered image thread-users"
                          src="{% gravatar user=post.lastedit_user size=80 %}">
                 </div>
-            {% endif %}
+            {% endif %} -->
+
             {{ post.lastedit_user.profile.name|truncatechars:50 }}
         </a>
 
@@ -29,11 +30,11 @@
 
         <a href="{% url "user_profile" post.author.profile.uid %}">
 
-            {% if avatar %}
+            <!-- {% if avatar %}
                 <div class="ui avatar image">
                     <img class="ui tiny centered  image thread-users" src="{% gravatar user=post.author size=80 %}">
                 </div>
-            {% endif %}
+            {% endif %} -->
             {{ post.author.profile.name|truncatechars:40 }}
         </a>
 
@@ -49,11 +50,11 @@
     {% endblock %}
 
     <a href="{% url "user_profile" post.lastedit_user.profile.uid %}">
-        {% if avatar %}
+        <!-- {% if avatar %}
             <div class="ui avatar image">
                 <img class="ui tiny centered image thread-users" src="{% gravatar user=post.lastedit_user size=80 %}">
             </div>
-        {% endif %}
+        {% endif %} -->
         {{ post.lastedit_user.profile.name|truncatechars:40 }}
     </a>
 
