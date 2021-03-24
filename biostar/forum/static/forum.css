@@ -35,7 +35,7 @@
     --voteicon-color: #2F5B14;
     --search-highlight: yellow;
     --comment-color: #666666;
-    --comment-background: #efefef;
+    --comment-background: #f5f5f5;
     --link-header-color: #4183c4;
     --shadow-color: rgba(0, 0, 0, .2);
     --spam-background: #ffd2cf;
@@ -76,10 +76,10 @@
 }
 
 blockquote{
-    border-left: 5px solid #d0d0d0 !important;;
+    border-left: 5px solid #F4D2B5 !important;;
     padding: 1ex !important;
     margin: 1ex;
-    background-color: #ececec !important;
+    background-color: #FFF6EE !important;
 }
 
 body {
