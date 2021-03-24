@@ -2,6 +2,11 @@
 {% load forum_tags %}
 {% load static %}
 
+{% block title %}
+    {{ post.title }}
+{% endblock %}
+
+
 {% block headtitle %}
     {{ post.title }}
 {% endblock %}
