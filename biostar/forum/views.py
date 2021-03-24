@@ -2,6 +2,7 @@ import logging
 from datetime import timedelta
 from functools import wraps, lru_cache
 import os
+from django.http import Http404
 import time
 
 from django.conf import settings
@@ -501,13 +502,17 @@ def post_view(request, uid):
 
     # Get the post.
     post = Post.objects.filter(uid=uid).select_related('root').first()
-
+    user = request.user
     if not post:
         messages.error(request, "Post does not exist.")
         return redirect("post_list")
 
     if not post.is_toplevel:
         return redirect(post.get_absolute_url())
+
+    # Return 404 when post is spam and
+    if post.is_spam and (user.is_anonymous or not user.profile.is_moderator):
+        return Http404("Post does not exist.")
 
     # Form used for answers
     form = forms.PostShortForm(user=request.user, post=post)
