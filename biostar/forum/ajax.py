@@ -35,7 +35,7 @@ ajax_error = partial(ajax_msg, status='error')
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
 
-VOTE_RATE = "1/h"
+VOTE_RATE = settings.VOTE_RATE
 EDIT_RATE = settings.EDIT_RATE
 SUBS_RATE = settings.SUBS_RATE
 DIGEST_RATE = settings.DIGEST_RATE
