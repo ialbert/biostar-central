@@ -36,6 +36,3 @@ MAILTO="foo@bar.com"
 
 # Planet hourly update
 0 * * * * $DIR/planet-update.sh >> $LOG 2>&1
-
-# Bump various posts
-0 */6 * * * $DIR/bump.sh >> $LOG 2>&1

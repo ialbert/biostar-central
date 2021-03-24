@@ -21,7 +21,6 @@ from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views, const
 from .models import Post, Vote, Subscription, delete_post_cache
 
-
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
     payload.update(kwargs)
@@ -39,8 +38,6 @@ VOTE_RATE = settings.VOTE_RATE
 EDIT_RATE = settings.EDIT_RATE
 SUBS_RATE = settings.SUBS_RATE
 DIGEST_RATE = settings.DIGEST_RATE
-HANDLE_SEARCH_RATE = settings.HANDLE_SEARCH_RATE
-DRAG_DROP_RATE = settings.DRAG_DROP_RATE
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
@@ -186,7 +183,7 @@ def validate_drop(request):
     return True, "Valid drop"
 
 
-@ajax_limited(key=RATELIMIT_KEY, rate=DRAG_DROP_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
 
@@ -443,7 +440,7 @@ def ajax_comment_create(request):
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
-@ajax_limited(key=RATELIMIT_KEY, rate=HANDLE_SEARCH_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="GET")
 def handle_search(request):
     """
