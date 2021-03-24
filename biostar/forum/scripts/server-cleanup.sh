@@ -18,3 +18,4 @@ export DJANGO_SETTINGS_MODULE=conf.run.site_settings
 
 python manage.py cleanup
 
+python manage.py sitemap
