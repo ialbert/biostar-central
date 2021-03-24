@@ -14,15 +14,17 @@
 
     {% include "banners/insert-post-top.html" %}
 
+<span itemscope itemtype="http://schema.org/QAPage">
+
     {# The toplevel post #}
-    <div class="ui vertical segment">
-        {% post_body post=post user=request.user tree=tree %}
+    <div class="ui vertical segment" itemscope itemtype="http://schema.org/Question">
+            {% post_body post=post user=request.user tree=tree %}
     </div>
 
     {# Render each answer for the post #}
     {% for answer in answers %}
-        <div class="ui vertical segment">
-            {% post_body post=answer user=request.user tree=tree %}
+        <div class="ui vertical segment" itemscope itemtype="http://schema.org/Answer">
+                {% post_body post=answer user=request.user tree=tree %}
         </div>
     {% endfor %}
 
@@ -91,6 +93,7 @@
 
     </script>
 
+</span>
 
 {% endblock %}
 
