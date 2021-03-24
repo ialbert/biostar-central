@@ -109,6 +109,14 @@ FORUM_APPS = [
     'biostar.forum.apps.ForumConfig',
 ]
 
+
+VOTE_RATE = '250/h'
+EDIT_RATE = '250/h'
+SUBS_RATE = '100/h'
+DIGEST_RATE = '100/h'
+HANDLE_SEARCH_RATE = '100/h'
+DRAG_DROP_RATE = '100/h'
+
 # Additional middleware.
 MIDDLEWARE += [
     #'biostar.forum.middleware.ban_ip',

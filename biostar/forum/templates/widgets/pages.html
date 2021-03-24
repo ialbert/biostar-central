@@ -3,7 +3,7 @@
 
 {% if objs.has_previous %}
     <a class="ui small basic button no-shadow"
-       href="{{ url }}{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
+       href="{% relative_url objs.previous_page_number 'page' request.GET.urlencode %}">
 
             <i class="ui angle  double left icon"> </i>
 
@@ -27,7 +27,7 @@
 {% if objs.has_next %}
 
     <a class="ui small basic button no-shadow"
-       href="{{ url }}{% relative_url objs.next_page_number 'page' request.GET.urlencode %}">
+       href="{% relative_url objs.next_page_number 'page' request.GET.urlencode %}">
 
             <i class="ui angle  double right icon"></i>
 
