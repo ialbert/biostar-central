@@ -26,15 +26,13 @@ from ratelimit.decorators import ratelimit
 from .auth import validate_login, send_verification_email
 
 from biostar.utils.helpers import get_ip
+from biostar.utils.decorators import limited
 from . import forms, tasks
 
 from .const import *
 from .models import User, Profile, Message
 from .tokens import account_verification_token
 from .util import now, get_uuid
-
-import bleach
-from bleach.callbacks import nofollow
 
 logger = logging.getLogger('engine')
 
@@ -43,16 +41,6 @@ SIGNUP_RATE = settings.SIGNUP_RATE
 PASSWORD_RESET_RATE = settings.PASSWORD_RESET_RATE
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
-
-
-def is_ratelimited(request):
-
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        messages.warning(request, "Too many requests from same IP address. Temporary ban.")
-        return True
-
-    return False
 
 
 def edit_profile(request):
@@ -185,11 +173,8 @@ def toggle_notify(request):
     return redirect(reverse('user_profile', kwargs=dict(uid=user.profile.uid)))
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=SIGNUP_RATE)
+@limited(key=RATELIMIT_KEY, rate=SIGNUP_RATE)
 def user_signup(request):
-
-    if is_ratelimited(request=request):
-        return redirect("/")
 
     if request.method == 'POST':
 
@@ -365,29 +350,24 @@ def external_login(request):
 @ratelimit(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def password_reset(request):
 
-    if is_ratelimited(request=request):
-        return redirect("/")
-
     return PasswordResetView.as_view(template_name="accounts/password_reset_form.html",
                                      subject_template_name="accounts/password_reset_subject.txt",
                                      email_template_name="accounts/password_reset_email.html"
                                      )(request=request)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
+@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def password_reset_done(request):
-    if is_ratelimited(request=request):
-        return redirect("/")
+
     context = dict()
 
     return PasswordResetDoneView.as_view(extra_context=context,
                                          template_name="accounts/password_reset_done.html")(request=request)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
+@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def pass_reset_confirm(request, uidb64, token):
-    if is_ratelimited(request=request):
-        return redirect("/")
+
     context = dict()
 
     return PasswordResetConfirmView.as_view(extra_context=context,

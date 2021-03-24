@@ -281,7 +281,7 @@ class BiostarInlineLexer(MonkeyPatch):
         link = m.group(0)
         profile = Profile.objects.filter(uid=uid).first()
         name = profile.name if profile else f"Invalid user uid: {uid}"
-        return f'<a href="{link}">USER: {name}</a>'
+        return f'<a href="{link}">{name}</a>'
 
     def enable_youtube_link1(self):
         self.rules.youtube_link1 = YOUTUBE_PATTERN1
