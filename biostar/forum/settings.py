@@ -110,8 +110,12 @@ FORUM_APPS = [
 ]
 
 
-HOURLY_RATE = '250/h'
-MINUTE_RATE = '50/m'
+VOTE_RATE = '250/h'
+EDIT_RATE = '250/h'
+SUBS_RATE = '100/h'
+DIGEST_RATE = '100/h'
+HANDLE_SEARCH_RATE = '100/h'
+DRAG_DROP_RATE = '100/h'
 
 # Additional middleware.
 MIDDLEWARE += [

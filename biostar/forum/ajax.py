@@ -35,10 +35,34 @@ ajax_error = partial(ajax_msg, status='error')
 MIN_TITLE_CHARS = 10
 MAX_TITLE_CHARS = 180
 
-HOURLY_RATE = settings.HOURLY_RATE
-MINUTE_RATE = settings.MINUTE_RATE
+VOTE_RATE = "1/h"
+EDIT_RATE = settings.EDIT_RATE
+SUBS_RATE = settings.SUBS_RATE
+DIGEST_RATE = settings.DIGEST_RATE
+HANDLE_SEARCH_RATE = settings.HANDLE_SEARCH_RATE
+DRAG_DROP_RATE = settings.DRAG_DROP_RATE
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
+
+
+def limited(key, rate):
+    """
+    Make a blocking rate limiter that does not raise an exception
+    """
+    def outer(func):
+
+        @ratelimit(key=key, rate=rate)
+        def inner(request, **kwargs):
+
+            was_limited = getattr(request, 'limited', False)
+            if was_limited:
+                return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
+
+            return func(request, **kwargs)
+
+        return inner
+
+    return outer
 
 
 class ajax_error_wrapper:
@@ -89,14 +113,9 @@ def user_image(request, username):
     return redirect(gravatar_url)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
-@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
+@limited(key=RATELIMIT_KEY, rate=VOTE_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
-    was_limited = getattr(request, 'limited', False)
-
-    if was_limited:
-        return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
 
     user = request.user
     type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
@@ -167,13 +186,9 @@ def validate_drop(request):
     return True, "Valid drop"
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
-@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
+@limited(key=RATELIMIT_KEY, rate=DRAG_DROP_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
@@ -199,14 +214,9 @@ def drag_and_drop(request):
     return ajax_success(msg="success", redir=redir)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
-@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
+@limited(key=RATELIMIT_KEY, rate=SUBS_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_subs(request):
-    was_limited = getattr(request, 'limited', False)
-
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     type_map = dict(messages=Subscription.LOCAL_MESSAGE, email=Subscription.EMAIL_MESSAGE,
                     unfollow=Subscription.NO_MESSAGES)
@@ -225,14 +235,12 @@ def ajax_subs(request):
     return ajax_success(msg="Changed subscription.")
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
-@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
+@limited(key=RATELIMIT_KEY, rate=DIGEST_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_digest(request):
-    was_limited = getattr(request, 'limited', False)
+
     user = request.user
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
+
     type_map = dict(daily=Profile.DAILY_DIGEST, weekly=Profile.WEEKLY_DIGEST,
                     monthly=Profile.MONTHLY_DIGEST)
     if user.is_anonymous:
@@ -342,16 +350,12 @@ def get_fields(request, post=None):
     return fields
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
-@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
+@limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_edit(request, uid):
     """
     Edit post content using ajax.
     """
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     post = Post.objects.filter(uid=uid).first()
     if not post:
@@ -413,13 +417,9 @@ def ajax_delete(request):
     return ajax_success(msg=msg, url=url)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
-@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
+@limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_comment_create(request):
-    was_limited = getattr(request, 'limited', False)
-    if was_limited:
-        return ajax_error(msg="Too many request from same IP address. Temporary ban.")
 
     # Fields common to all posts
     user = request.user
@@ -443,8 +443,7 @@ def ajax_comment_create(request):
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
-@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
+@limited(key=RATELIMIT_KEY, rate=HANDLE_SEARCH_RATE)
 @ajax_error_wrapper(method="GET")
 def handle_search(request):
     """
@@ -464,8 +463,7 @@ def handle_search(request):
     return ajax_success(users=users, msg="Username searched")
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=HOURLY_RATE)
-@ratelimit(key=RATELIMIT_KEY, rate=MINUTE_RATE)
+@limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="GET")
 def inplace_form(request):
     """

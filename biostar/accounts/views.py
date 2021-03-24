@@ -38,7 +38,21 @@ from bleach.callbacks import nofollow
 
 logger = logging.getLogger('engine')
 
+
+SIGNUP_RATE = settings.SIGNUP_RATE
+PASSWORD_RESET_RATE = settings.PASSWORD_RESET_RATE
+
 RATELIMIT_KEY = settings.RATELIMIT_KEY
+
+
+def is_ratelimited(request):
+
+    was_limited = getattr(request, 'limited', False)
+    if was_limited:
+        messages.warning(request, "Too many requests from same IP address. Temporary ban.")
+        return True
+
+    return False
 
 
 def edit_profile(request):
@@ -171,8 +185,11 @@ def toggle_notify(request):
     return redirect(reverse('user_profile', kwargs=dict(uid=user.profile.uid)))
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='10/m', block=True, method=ratelimit.UNSAFE)
+@ratelimit(key=RATELIMIT_KEY, rate=SIGNUP_RATE)
 def user_signup(request):
+
+    if is_ratelimited(request=request):
+        return redirect("/")
 
     if request.method == 'POST':
 
@@ -345,46 +362,32 @@ def external_login(request):
     return redirect("/")
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='500/h')
-@ratelimit(key=RATELIMIT_KEY, rate='25/m')
+@ratelimit(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def password_reset(request):
 
-    # if request.method == "POST":
-    #     email = request.POST.get('email', '')
-    #     user = User.objects.filter(email=email).first()
-    #     if not user:
-    #         messages.error(request, "Email does not exist.")
-    #         return redirect(reverse('password_reset'))
-    # The email template instance
-    # email = sender.EmailTemplate(template_name)
-    #
-    # # Default context added to each template.
-    # context = dict(domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
-    #                port=settings.HTTP_PORT, name=settings.SITE_NAME, subject=subject)
-    #
-    # # Additional context added to the template.
-    # context.update(extra_context)
-    #
-    # # Generate and send the email.
-    # email.render()
+    if is_ratelimited(request=request):
+        return redirect("/")
+
     return PasswordResetView.as_view(template_name="accounts/password_reset_form.html",
                                      subject_template_name="accounts/password_reset_subject.txt",
                                      email_template_name="accounts/password_reset_email.html"
                                      )(request=request)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='500/h')
-@ratelimit(key=RATELIMIT_KEY, rate='25/m')
+@ratelimit(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def password_reset_done(request):
+    if is_ratelimited(request=request):
+        return redirect("/")
     context = dict()
 
     return PasswordResetDoneView.as_view(extra_context=context,
                                          template_name="accounts/password_reset_done.html")(request=request)
 
 
-@ratelimit(key=RATELIMIT_KEY, rate='500/h')
-@ratelimit(key=RATELIMIT_KEY, rate='25/m')
+@ratelimit(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def pass_reset_confirm(request, uidb64, token):
+    if is_ratelimited(request=request):
+        return redirect("/")
     context = dict()
 
     return PasswordResetConfirmView.as_view(extra_context=context,
