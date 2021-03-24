@@ -75,6 +75,13 @@
     color: orangered !important;
 }
 
+blockquote{
+    border-left: 5px solid #d0d0d0 !important;;
+    padding: 1ex !important;
+    margin: 1ex;
+    background-color: #ececec !important;
+}
+
 body {
     // background-color: var(--page-bg-color) !important;
     //padding-top: 1rem;
