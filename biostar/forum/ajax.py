@@ -21,7 +21,6 @@ from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views, const
 from .models import Post, Vote, Subscription, delete_post_cache
 
-
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
     payload.update(kwargs)
@@ -39,13 +38,11 @@ VOTE_RATE = settings.VOTE_RATE
 EDIT_RATE = settings.EDIT_RATE
 SUBS_RATE = settings.SUBS_RATE
 DIGEST_RATE = settings.DIGEST_RATE
-HANDLE_SEARCH_RATE = settings.HANDLE_SEARCH_RATE
-DRAG_DROP_RATE = settings.DRAG_DROP_RATE
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
 
-def limited(key, rate):
+def ajax_limited(key, rate):
     """
     Make a blocking rate limiter that does not raise an exception
     """
@@ -56,7 +53,7 @@ def limited(key, rate):
 
             was_limited = getattr(request, 'limited', False)
             if was_limited:
-                return ajax_error(msg="Too many votes from same IP address. Temporary ban.")
+                return ajax_error(msg="Too many requests from same IP address. Temporary ban.")
 
             return func(request, **kwargs)
 
@@ -113,7 +110,7 @@ def user_image(request, username):
     return redirect(gravatar_url)
 
 
-@limited(key=RATELIMIT_KEY, rate=VOTE_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=VOTE_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
 
@@ -186,7 +183,7 @@ def validate_drop(request):
     return True, "Valid drop"
 
 
-@limited(key=RATELIMIT_KEY, rate=DRAG_DROP_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
 
@@ -214,7 +211,7 @@ def drag_and_drop(request):
     return ajax_success(msg="success", redir=redir)
 
 
-@limited(key=RATELIMIT_KEY, rate=SUBS_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=SUBS_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_subs(request):
 
@@ -235,7 +232,7 @@ def ajax_subs(request):
     return ajax_success(msg="Changed subscription.")
 
 
-@limited(key=RATELIMIT_KEY, rate=DIGEST_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=DIGEST_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_digest(request):
 
@@ -350,7 +347,7 @@ def get_fields(request, post=None):
     return fields
 
 
-@limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_edit(request, uid):
     """
@@ -417,7 +414,7 @@ def ajax_delete(request):
     return ajax_success(msg=msg, url=url)
 
 
-@limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_comment_create(request):
 
@@ -443,7 +440,7 @@ def ajax_comment_create(request):
     return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
-@limited(key=RATELIMIT_KEY, rate=HANDLE_SEARCH_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="GET")
 def handle_search(request):
     """
@@ -463,7 +460,7 @@ def handle_search(request):
     return ajax_success(users=users, msg="Username searched")
 
 
-@limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
+@ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="GET")
 def inplace_form(request):
     """

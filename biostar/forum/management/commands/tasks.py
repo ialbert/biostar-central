@@ -23,31 +23,32 @@ def bump(uids, **kwargs):
     Set post rank the current timestamp
     """
 
-    # Don't bump to very top.
     top = Post.objects.filter(status=Post.OPEN, is_toplevel=True).order_by("-rank")[3:13]
 
     top = random.choice(list(top))
     rank = top.rank
     user = User.objects.filter(is_superuser=True).first()
 
-    if uids:
-        uids = uids.split(',')
-        Post.objects.filter(uid__in=uids).update(rank=rank, lastedit_user=user)
-        logger.debug(f'uids={uids} bumped')
+    if not uids:
 
+        # Pick open questions from given time period.
+        since = util.now() - timedelta(weeks=10)
+        query = Post.objects.filter(type=Post.QUESTION,
+                                    status=Post.OPEN,
+                                    reply_count=0,
+                                    creation_date__gt=since)
+
+        # Get valid uids
+        query = query.values_list("uid", flat=True)
+        uids = [p for p in query]
+
+        # Pick a random uid
+        uids = [random.choice(uids)]
     else:
-        # Pick a week from a relatively long time ago.
-        # TODO: favor unanswered posts ( or popular post )
-        weeks = random.randint(200, 700)
-        trange = util.now() - timedelta(weeks=weeks)
+        uids = uids.split(',')
 
-        # Pick a random toplevel post within date range.
-        post = Post.objects.filter(lastedit_date__gt=trange, is_toplevel=True).order_by('?').first()
-        user = User.objects.filter(is_superuser=True).first()
-
-        Post.objects.filter(uid=post.uid).update(rank=rank, lastedit_user=user)
-
-        logger.debug(f'post {post.uid}="{post.title}" bumped')
+    Post.objects.filter(uid__in=uids).update(rank=rank, lastedit_user=user)
+    logger.debug(f'uids={uids} bumped')
 
     return
 
@@ -59,8 +60,8 @@ def unbump(uids, **kwargs):
     uids = uids.split(',')
     posts = models.Post.objects.filter(uid__in=uids)
     for p in posts:
-        p.rank = p.creation_date
-        p.save()
+        models.Post.objects.filter(uid__in=uids).update(rank=p.creation_date.timestamp())
+        logger.debug(f'title={p.title} uid={p.uid} unbumped.')
 
 
 def awards(limit=50, **kwargs):
@@ -78,14 +79,8 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--uids', '-u', type=str, required=False, default='', help='List of uids')
-        parser.add_argument('--action', '-a', type=str, required=True, choices=CHOICES, default='',
-                            help='Action to take.')
-        parser.add_argument('--user', dest='pg_user', default="www", help='postgres user default=%(default)s')
-        parser.add_argument('--prog', dest='prog', default="/usr/bin/pg_dump",
-                            help='the postgres program default=%(default)s')
-        parser.add_argument('--outdir', dest='outdir', default=BACKUP_DIR, help='output directory default=%(default)s')
-        parser.add_argument('--hourly', dest='hourly', action='store_true', default=False, help='hourly datadump'),
-        parser.add_argument('--limit', dest='limit', type=int, default=100, help='How many users'),
+        parser.add_argument('--action', '-a', type=str, required=True, choices=CHOICES, default='',help='Action to take.')
+        parser.add_argument('--limit', dest='limit', type=int, default=100, help='Limit how many users/posts to process.'),
 
     def handle(self, *args, **options):
         action = options['action']

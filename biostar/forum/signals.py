@@ -19,8 +19,11 @@ def send_award_message(sender, instance, created, **kwargs):
     if created:
         template = "messages/awards_created.md"
         context = dict(award=instance)
-        # Send local message
-        tasks.create_messages(template=template, extra_context=context, user_ids=[instance.user.pk])
+
+        # Temporarily stop messages to high rep users.
+        if instance.user.profile.score < 1000:
+            # Send local message
+            tasks.create_messages(template=template, extra_context=context, user_ids=[instance.user.pk])
 
     return
 

@@ -9,6 +9,7 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.template import loader
 from django.utils.safestring import mark_safe
+from django.core.cache import cache
 
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
@@ -43,6 +44,20 @@ def convert_html():
     """
     Converts html to text
     """
+    return
+
+
+def delete_cache(prefix, user):
+    """
+    Create key from prefix-user.pk and delete from cache.
+    """
+    key = f"{prefix}-{user.pk}"
+
+    # Check if it exists and delete object from cache.
+    if cache.get(key):
+        cache.delete(key)
+        logger.debug(f'deleted {key} from cache')
+
     return
 
 
@@ -187,6 +202,7 @@ def create_post(author, title, content, root=None, parent=None, ptype=Post.QUEST
     post = Post.objects.create(title=title, content=content, root=root, parent=parent,
                                type=ptype, tag_val=tag_val, author=author)
 
+    delete_cache(MYPOSTS, author)
     return post
 
 
@@ -221,6 +237,9 @@ def create_subscription(post, user, sub_type=None, update=False):
 
     # Update root subscription counts.
     Post.objects.filter(pk=post.root.pk).update(subs_count=subs_count)
+
+    # Delete following cache
+    delete_cache(FOLLOWING, user)
 
 
 def is_suspended(user):
@@ -359,6 +378,8 @@ def apply_vote(post, user, vote_type):
     # Increment the bookmark count.
     if vote_type == Vote.BOOKMARK:
         Post.objects.filter(uid=post.uid).update(book_count=bookcount)
+        # Reset bookmark cache
+        delete_cache(BOOKMARKS, user)
 
     # Handle accepted vote.
     if vote_type == Vote.ACCEPT:
