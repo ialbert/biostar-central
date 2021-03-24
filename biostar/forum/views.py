@@ -576,7 +576,7 @@ def post_moderate(request, uid):
 
 @login_required
 def view_logs(request):
-    LIMIT = 300
+    LIMIT = 100
 
     if 0 and request.user.is_superuser:
         logs = Log.objects.all().order_by("-id")[:LIMIT]
