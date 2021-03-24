@@ -1025,6 +1025,10 @@ pre {
 
 @media all and (max-width: 1200px) {
 
+    .ui.container {
+        width: 100%;
+    }
+
     .menu-tablet {
         display: none;
     }
