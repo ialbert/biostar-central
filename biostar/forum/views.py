@@ -434,9 +434,9 @@ def community_list(request):
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
     users = users.order_by(order)
 
-    # Create the paginator
+    # Create the paginator (six users per row)
     paginator = CachedPaginator(cache_key=cache_key, object_list=users,
-                                per_page=settings.POSTS_PER_PAGE)
+                                per_page=60)
     users = paginator.get_page(page)
     context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)
 

@@ -18,31 +18,30 @@
 
             <div class="ui basic compact segment no-shadow">
 
-                <div class="ui medium header">Create a new post</div>
-                <div class="ui divider"></div>
-                <form method="post" class="ui  form" action="{{ action_url }}">
+                <div class="ui center aligned medium header">Create a new post</div>
 
-                    {{ form.media }}
-                    {% csrf_token %}
+                <div class="ui form-wrap segment">
 
-                    <div class="ui form-wrap segment">
+                    <form method="post" class="ui  form" action="{{ action_url }}">
+
+                        {{ form.media }}
+                        {% csrf_token %}
+
+
                         <div class="required field">
                             <label>{{ form.title.label }}</label>
                             {{ form.title }}
                             <p class="muted">{{ form.title.help_text }}</p>
                         </div>
-                    </div>
 
-                    <div class="ui form-wrap segment">
+
                         <div class="required field">
                             <label>{{ form.post_type.label }}</label>
                             {{ form.post_type }}
                             <p class="muted" style="display: contents; ">{{ form.post_type.help_text }} Click here for
                                 more</p> {% include 'forms/help_text.html' %}
                         </div>
-                    </div>
 
-                    <div class="ui form-wrap segment">
 
                         <div class="required field">
                             <label>{{ form.tag_val.label }}</label>
@@ -50,39 +49,36 @@
                             <p class="muted">{{ form.tag_val.help_text }}</p>
                         </div>
 
-                    </div>
 
-
-                    <div class="ui form-wrap segment">
                         <div class="required input field">
                             {% include 'widgets/post_message.html' %}
                             {% include 'widgets/textarea.html' with boilerplate=True %}
                         </div>
-                    </div>
 
-                    <div class="ui preview segment"></div>
+                        <div class="ui preview segment"></div>
 
-                    {% if form.captcha %}
-                        <div class="top-padding">
-                            <div class="required field">
-                                {{ form.captcha }}
+                        {% if form.captcha %}
+                            <div class="top-padding">
+                                <div class="required field">
+                                    {{ form.captcha }}
+                                </div>
                             </div>
+                        {% endif %}
+
+                        <div class="top-padding">
+                            <button type="submit" class="ui submit green button">
+                                <i class="check icon"></i>Submit
+                            </button>
+                            <a class="ui right floated button" onclick="window.history.back()">
+                                <i class="undo icon"></i>Cancel
+                            </a>
                         </div>
-                    {% endif %}
 
-                    <div class="top-padding">
-                        <button type="submit" class="ui submit green button">
-                            <i class="check icon"></i>Save
-                        </button>
-                        <a class="ui right floated button" onclick="window.history.back()">
-                            <i class="undo icon"></i>Cancel
-                        </a>
-                    </div>
+                    </form>
 
-                </form>
+                </div>
 
             </div>
-
         {% endblock %}
     </div>
 

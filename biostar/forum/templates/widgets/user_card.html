@@ -13,7 +13,6 @@
         <a href="{% url "user_profile" target.profile.uid %}">{{ target.profile.name|truncatechars:40 }}</a>
         {% user_icon user=target %}<br>
         <span class="phone">
-        @{{ target.username }}
         visited {{ target.profile.last_login|time_ago }}<br>
         {{ target.profile.location }}
         </span>
