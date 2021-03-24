@@ -14,10 +14,19 @@ from django.contrib import sitemaps
 
 logger = logging.getLogger("engine")
 
+XML_START = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">"""
 
-def path(*args):
-    "Generates absolute paths"
-    return os.path.abspath(os.path.join(*args))
+XML_END = """
+</urlset>"
+"""
+
+XML_ROW = """
+    <url>
+        <loc>https://%s/p/%s/</loc>
+    </url>
+"""
+
 
 def ping_google():
     try:
@@ -30,20 +39,17 @@ def ping_google():
 
 
 def generate_sitemap():
-    sitemap = GenericSitemap({
-        'queryset': Post.objects.filter(is_toplevel=True,
-                                        root__status=Post.OPEN).exclude(type=Post.BLOG),
-    })
-    urlset = sitemap.get_urls()
-    text = loader.render_to_string('sitemap.xml', {'urlset': urlset})
-    text = smart_str(text)
     site = Site.objects.get_current()
-    fname = path(settings.STATIC_ROOT, 'sitemap.xml')
-    logger.info(f'*** writing sitemap for {site} to {fname}')
-    fp = open(fname, 'wt')
-    fp.write(text)
-    fp.close()
-    logger.info('*** done')
+
+    # Defers all fields beyond uid!
+    posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN)\
+            .exclude(type=Post.BLOG).order_by("-pk").only("uid")
+
+    print(XML_START, end='')
+    for post in posts:
+        row = XML_ROW % (site.domain, post.uid)
+        print(row, end='')
+    print(XML_END, end='')
 
 
 class Command(BaseCommand):
@@ -51,4 +57,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         generate_sitemap()
-        #ping_google()
+        # ping_google()

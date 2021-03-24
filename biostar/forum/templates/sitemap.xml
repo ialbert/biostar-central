@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
-{% spaceless %}
-{% for url in urlset %}
+    {% for url in urlset %}
     <url>
         <loc>{{ url.location }}</loc>
         <lastmod>{{ url.item.lastedit_date|date:"Y-m-d" }}</lastmod>
     </url>
 {% endfor %}
-{% endspaceless %}
 </urlset>
