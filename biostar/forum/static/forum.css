@@ -297,7 +297,7 @@ i.icon {
 }
 
 .user_box {
-    width: 160px;
+    width: 150px;
     margin: 0em 0em 0.5em 0.5em;
     padding: 10px 0px 10px 0px;
     background-color: var(--user-box-backgound);
