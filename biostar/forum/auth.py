@@ -604,7 +604,6 @@ def moderate(request, post, action, comment=""):
 
     if action in action_map:
         mod_func = action_map[action]
-        mod_func = action_map[action]
         url = mod_func(request=request, post=post, comment=comment)
     else:
         url = post.get_absolute_url()
