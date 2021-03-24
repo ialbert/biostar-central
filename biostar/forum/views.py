@@ -573,6 +573,7 @@ def post_moderate(request, uid):
     context = dict(form=form, post=post)
     return render(request, "forms/form_moderate.html", context)
 
+
 @login_required
 def view_logs(request):
     LIMIT = 300
