@@ -512,7 +512,7 @@ def post_view(request, uid):
 
     # Return 404 when post is spam and
     if post.is_spam and (user.is_anonymous or not user.profile.is_moderator):
-        return Http404("Post does not exist.")
+        raise Http404("Post does not exist.")
 
     # Form used for answers
     form = forms.PostShortForm(user=request.user, post=post)
