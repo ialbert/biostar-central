@@ -2,8 +2,10 @@
 {% load static %}
 {% load accounts_tags %}
 {% load forum_tags %}
-{% block headtitle %}{{ target.profile.name }}{% endblock %}
 
+{% block title %}User: {{ target.profile.name }}{% endblock %}
+
+{% block headtitle %}{{ target.profile.name }}{% endblock %}
 
 {% block head %}
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>

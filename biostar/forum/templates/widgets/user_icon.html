@@ -7,8 +7,10 @@
         <i class="ui muted bug icon"></i>
     {% elif score > 1000 %}
         &starf;
-    {% else %}
+    {% elif score > 1 %}
         &utrif;
+    {% else %}
+        &bull;
     {% endif %}
 
     {{ score|bignum }}
