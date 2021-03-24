@@ -128,7 +128,7 @@ def get_posts(user, topic="", order="", limit=None):
         posts = posts.filter(type=Post.QUESTION, answer_count=0)
 
     elif topic == BOOKMARKS and user.is_authenticated:
-        posts = posts.filter(votes__author=user, votes__type=Vote.BOOKMARK)
+        posts = Post.objects.filter(votes__author=user, votes__type=Vote.BOOKMARK)
 
     elif topic == FOLLOWING and user.is_authenticated:
         posts = posts.filter(subs__user=user).exclude(subs__type=Subscription.NO_MESSAGES)
