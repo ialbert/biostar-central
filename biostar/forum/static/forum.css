@@ -292,6 +292,11 @@ i.icon.mycomment:before {
     font-size: 1em;
 }
 
+.ui.muted.icon{
+    margin-left:-3px;
+    margin-right: -3px;
+}
+
 i.icon {
     margin-right: 0px;
 }
