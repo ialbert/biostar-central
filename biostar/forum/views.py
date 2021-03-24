@@ -510,8 +510,8 @@ def post_view(request, uid):
     if not post.is_toplevel:
         return redirect(post.get_absolute_url())
 
-    # Return 404 when post is spam and
-    if post.is_spam and (user.is_anonymous or not user.profile.is_moderator):
+    # Return 404 when post is spam and user is anonymous.
+    if post.is_spam and user.is_anonymous:
         raise Http404("Post does not exist.")
 
     # Form used for answers
