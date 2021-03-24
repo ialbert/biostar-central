@@ -75,8 +75,8 @@ class CachedPaginator(Paginator):
     # Time to live for the cache, in seconds
     TTL = 3000
 
-    def __init__(self, cache_key='', ttl=None, keys=[], *args, **kwargs):
-        self.cache_key = '-'.join(keys)
+    def __init__(self, cache_key='', ttl=None, *args, **kwargs):
+        self.cache_key = cache_key
 
         # May not contain spaces
         self.cache_key = ''.join(self.cache_key.split())
@@ -227,7 +227,7 @@ def mark_spam(request, uid):
 
     # Was spam actually
     if post.is_spam:
-        return redirect('/?type=spam')
+        return redirect(reverse('post_topic', kwargs=dict(topic='spam')))
     else:
         return redirect('/')
 
@@ -269,11 +269,8 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, order=order, limit=limit)
 
-    # Needs to validate the keys before hand
-    keys = [order, limit, topic]
-
     # Filter for any empty strings
-    paginator = CachedPaginator(keys=keys, object_list=posts, per_page=settings.POSTS_PER_PAGE)
+    paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
     # Apply the post paging.
     posts = paginator.get_page(page)
@@ -293,16 +290,26 @@ def latest(request):
     """
     Show latest post listing.
     """
-    order = request.GET.get("order", "")
-    tag = request.GET.get("tag", "")
-    topic = request.GET.get("type", "")
-    limit = request.GET.get("limit", "")
+    order = request.GET.get("order", 'rank') or 'rank'
+    limit = request.GET.get("limit", 'all') or 'all'
 
-    # Only cache unfiltered posts.
-    cache_off = (order or limit or tag or topic)
-    cache_key = None if cache_off else LATEST_CACHE_KEY
+    # Set the cache key based on order and limit
+    cache_key = f"{LATEST_CACHE_KEY}-{order}-{limit}"
 
     return post_list(request, cache_key=cache_key)
+
+
+def post_topic(request, topic):
+    """
+    Show list of posts of a given type
+    """
+    order = request.GET.get("order", 'rank') or 'rank'
+    limit = request.GET.get("limit", 'all') or 'all'
+
+    # Set the cache key based on order and limit
+    cache_key = '-'.join([topic, order, limit])
+
+    return post_list(request, cache_key=cache_key, topic=topic)
 
 
 def authenticated(func):
@@ -350,7 +357,7 @@ def tags_list(request):
     count = Count('post', filter=Q(post__is_toplevel=True))
 
     db_query = Q(name__icontains=query) if query else Q()
-    cache_key = None if query else TAGS_CACHE_KEY
+    cache_key = '' if query else TAGS_CACHE_KEY
 
     tags = Tag.objects.annotate(nitems=count).filter(db_query)
     tags = tags.order_by('-nitems')
@@ -373,14 +380,14 @@ def myposts(request):
     """
     Show posts by user
     """
-    return post_list(request, topic=MYPOSTS, template_name="user_myposts.html")
 
-
-def post_topic(request, topic):
-    """
-    Show list of posts of a given type
-    """
-    return post_list(request, topic=topic)
+    # Set cache key based on user
+    user = request.user
+    cache_key = f'{MYPOSTS}-{user.pk}'
+    return post_list(request,
+                     topic=MYPOSTS,
+                     cache_key=cache_key,
+                     template_name="user_myposts.html")
 
 
 @authenticated
@@ -388,7 +395,13 @@ def following(request):
     """
     Show posts followed by user.
     """
-    return post_list(request, topic=FOLLOWING, template_name="user_following.html")
+    user = request.user
+    cache_key = f'{FOLLOWING}-{user.pk}'
+
+    return post_list(request,
+                     topic=FOLLOWING,
+                     cache_key=cache_key,
+                     template_name="user_following.html")
 
 
 @authenticated
@@ -396,13 +409,22 @@ def bookmarks(request):
     """
     Show posts bookmarked by user.
     """
-
-    return post_list(request, topic=BOOKMARKS, template_name="user_bookmarks.html")
+    user = request.user
+    cache_key = f'{BOOKMARKS}-{user.pk}'
+    return post_list(request,
+                     topic=BOOKMARKS,
+                     cache_key=cache_key,
+                     template_name="user_bookmarks.html")
 
 
 @authenticated
 def mytags(request):
-    return post_list(request=request, topic=MYTAGS, template_name="user_mytags.html")
+    user = request.user
+    cache_key = f'{MYTAGS}-{user.pk}'
+    return post_list(request=request,
+                     topic=MYTAGS,
+                     cache_key=cache_key,
+                     template_name="user_mytags.html")
 
 
 def community_list(request):
@@ -428,7 +450,7 @@ def community_list(request):
 
     # Remove the cache when filters are given.
     no_cache = days or (query and len(query) > 2) or ordering
-    cache_key = None if no_cache else USERS_LIST_KEY
+    cache_key = '' if no_cache else USERS_LIST_KEY
 
     order = ORDER_MAPPER.get(ordering, "visit")
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])

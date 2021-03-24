@@ -1,6 +1,7 @@
 import logging, functools, time, os
 from functools import wraps
 from functools import partial
+from ratelimit.decorators import ratelimit
 from django.conf import settings
 from django.shortcuts import redirect
 from django.contrib import messages
@@ -19,6 +20,27 @@ def is_moderator(f):
         return redirect('/')
 
     return inner
+
+
+def limited(key, rate):
+    """
+    Make a blocking rate limiter that does not raise an exception
+    """
+    def outer(func):
+
+        @ratelimit(key=key, rate=rate)
+        def inner(request, **kwargs):
+
+            was_limited = getattr(request, 'limited', False)
+            if was_limited:
+                messages.warning(request, "Too many requests from same IP address. Temporary ban.")
+                return redirect('/')
+
+            return func(request, **kwargs)
+
+        return inner
+
+    return outer
 
 
 def timeit(func):

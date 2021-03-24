@@ -35,19 +35,18 @@ def bump(uids, **kwargs):
         Post.objects.filter(uid__in=uids).update(rank=rank, lastedit_user=user)
         logger.debug(f'uids={uids} bumped')
 
-    else:
-        # Pick a week from a relatively long time ago.
-        # TODO: favor unanswered posts ( or popular post )
-        weeks = random.randint(200, 700)
-        trange = util.now() - timedelta(weeks=weeks)
+    # Picked a random post to make the
+    days = random.randint(365, 1980)
 
-        # Pick a random toplevel post within date range.
-        post = Post.objects.filter(lastedit_date__gt=trange, is_toplevel=True).order_by('?').first()
-        user = User.objects.filter(is_superuser=True).first()
+    trange = util.now() - timedelta(days=days)
 
-        Post.objects.filter(uid=post.uid).update(rank=rank, lastedit_user=user)
+    # Pick a random toplevel post within date range.
+    post = Post.objects.filter(lastedit_date__gt=trange, is_toplevel=True).order_by('?').first()
+    user = User.objects.filter(is_superuser=True).first()
 
-        logger.debug(f'post {post.uid}="{post.title}" bumped')
+    Post.objects.filter(uid=post.uid).update(rank=rank, lastedit_user=user)
+
+    logger.debug(f'post {post.uid}="{post.title}" bumped')
 
     return
 
