@@ -31,7 +31,8 @@ def ping_google():
 
 def generate_sitemap():
     sitemap = GenericSitemap({
-        'queryset': Post.objects.filter(type__in=Post.TOP_LEVEL).exclude(type=Post.BLOG),
+        'queryset': Post.objects.filter(is_toplevel=True,
+                                        root__status=Post.OPEN).exclude(type=Post.BLOG),
     })
     urlset = sitemap.get_urls()
     text = loader.render_to_string('sitemap.xml', {'urlset': urlset})
