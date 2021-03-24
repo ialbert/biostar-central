@@ -15,7 +15,6 @@ from celery import Celery
 # Django settings module
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'biostar.settings')
 
-
 app = Celery('biostar')
 
 # Read the configuration from the config file.
