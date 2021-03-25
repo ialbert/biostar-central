@@ -65,6 +65,22 @@ def post_exists(func):
     return _wrapper_
 
 
+def check_params(func):
+
+    @wraps(func)
+    def inner(request, **kwargs):
+        incoming = set(request.GET.keys())
+        # Expected parameter names.
+        diff = incoming - ALLOWED_PARAMS
+        if diff:
+            logger.error(f"invalid get request parameters {diff}")
+            return redirect("/")
+
+        return func(request, **kwargs)
+
+    return inner
+
+
 class CachedPaginator(Paginator):
     """
     Paginator that caches the count call.
@@ -164,6 +180,7 @@ def get_posts(user, topic="", order="", limit=None):
     return posts
 
 
+@check_params
 def post_search(request):
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
@@ -184,6 +201,7 @@ def post_search(request):
     return render(request, template_name=template_name, context=context)
 
 
+@check_params
 def pages(request, fname):
     # Add markdown file extension to markdown
     infile = f"{fname}.md"
@@ -246,32 +264,6 @@ def release_quar(request, uid):
     Post.objects.filter(uid=uid).update(spam=Post.NOT_SPAM)
 
     return redirect('/')
-
-
-def invalid_params(request, expect):
-    """
-    Check for unexpected parameter names
-    """
-    incoming = set(request.GET.keys())
-    diff = incoming - expect
-    if diff:
-        logger.error(f"invalid get request parameters {diff}")
-    return diff
-
-
-def check_params(func):
-
-    def inner(request, **kwargs):
-        incoming = set(request.GET.keys())
-        # Expected parameter names.
-        diff = incoming - ALLOWED_PARAMS
-        if diff:
-            logger.error(f"invalid get request parameters {diff}")
-            return redirect("/")
-
-        return func(request, **kwargs)
-
-    return inner
 
 
 @check_params
@@ -522,6 +514,7 @@ def badge_view(request, uid):
     return render(request, "badge_view.html", context=context)
 
 
+@check_params
 @ensure_csrf_cookie
 def post_view(request, uid):
     "Return a detailed view for specific post"
@@ -566,6 +559,7 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
+@check_params
 @login_required
 def new_post(request):
     """
@@ -600,6 +594,7 @@ def new_post(request):
     return render(request, "new_post.html", context=context)
 
 
+@check_params
 @post_exists
 @login_required
 def post_moderate(request, uid):
@@ -627,6 +622,7 @@ def post_moderate(request, uid):
     return render(request, "forms/form_moderate.html", context)
 
 
+@check_params
 @login_required
 def view_logs(request):
     LIMIT = 100
