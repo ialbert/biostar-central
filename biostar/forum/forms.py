@@ -215,12 +215,15 @@ class PostModForm(forms.Form):
             (REPORT_SPAM, "Spam"),
         ]
 
+        if post.is_comment:
+            choices += [(MOVE_ANSWER, "Move as answer.")]
+
         # Top level posts may be bumped.
         if post.is_toplevel:
             choices += [(BUMP_POST, "Bump post.")]
         else:
-            self.fields['parent'] = forms.CharField(help_text="Move post to parent", required=False)
-            choices += [(MOVE, "Move post to given parent.")]
+            choices += [(MOVE, "Move to post ( ID required below ).")]
+            self.fields['parent'] = forms.CharField(required=False)
 
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
 
@@ -236,15 +239,14 @@ class PostModForm(forms.Form):
         pid = self.cleaned_data.get('parent', '')
         parent = Post.objects.filter(uid=pid).first()
 
-        if action == MOVE and not parent:
-            raise forms.ValidationError("Parent post does not exist.")
+        if action == MOVE:
 
-        invalid_root = parent.root.uid != self.post.root.uid
-        same_post = parent.uid == self.post.uid
+            if not parent:
+                raise forms.ValidationError("Parent post does not exist.")
 
-        # Parent exists but move action is not valid.
-        if parent and (same_post or invalid_root):
-            raise forms.ValidationError("Invalid move action.")
+            is_valid = auth.validate_move(user=self.user, source=self.post, target=parent)
+            if not is_valid:
+                raise forms.ValidationError("Invalid move.")
 
 
 

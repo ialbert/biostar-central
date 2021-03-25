@@ -1,15 +1,14 @@
 import hashlib
-import hashlib
 import logging
 import urllib.parse as urlparse
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import F, Q
 from django.template import loader
 from django.utils.safestring import mark_safe
-from django.core.cache import cache
 
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
@@ -415,7 +414,8 @@ def only_delete(post, user):
     return only_del
 
 
-def delete_post(post, user):
+def delete_post(request, post, callback=lambda: None):
+    user = request.user
     if only_delete(post, user):
         # Deleted posts can be un=deleted by re-opening them.
         Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
@@ -423,8 +423,10 @@ def delete_post(post, user):
         msg = f"deleted"
         post.recompute_scores()
         post.root.recompute_scores()
+
+        # messages.info(request, mark_safe(msg))
         db_logger(user=user, post=post, text=msg)
-        return url, msg
+        return url
 
     # Redirect depends on the level of the post.
     if post.is_toplevel:
@@ -436,9 +438,11 @@ def delete_post(post, user):
     # Remove post from the database with no trace.
     msg = f"removed"
     post.delete()
+    messages.info(request, mark_safe(msg))
+
     db_logger(user=user, post=post, text=msg)
 
-    return url, msg
+    return url
 
 
 def open(request, post, **kwargs):
@@ -470,6 +474,35 @@ def bump(request, post, **kwargs):
     return url
 
 
+def change_user_state(mod, target, state):
+    """
+    Changes user state.
+    """
+
+    # Only moderators may change user states.
+    if not mod.profile.is_moderator:
+        logger.error(f"{mod} is not a moderator")
+        return
+
+    # Cannot moderate self.
+    if mod == target:
+        logger.error(f"{mod} cannot moderate themselves")
+        return
+
+    # The target may not be a moderator.
+    if target.profile.is_moderator:
+        logger.info(f"{mod} cannot alter state on a moderator {target}")
+        return
+
+    # Set the new state.
+    target.profile.state = state
+    target.save()
+
+    # Generate the logging message.
+    msg = f"changed user state to {target.profile.get_state_display()}"
+    db_logger(user=mod, action=Log.MODERATE, target=target, text=msg, post=None)
+
+
 def toggle_spam(request, post, **kwargs):
     """
     Toggles spam status on post based on a status
@@ -497,10 +530,11 @@ def toggle_spam(request, post, **kwargs):
     # Refetch up to date state of the post.
     post = Post.objects.filter(id=post.id).get()
 
-    # Set the state for the user.
-    if post.is_spam and not post.author.profile.is_moderator:
-        post.author.profile.state = Profile.SUSPENDED if post.is_spam else Profile.NEW
-        post.author.profile.save()
+    # Set the state for the user (only non moderators are affected)
+    state = Profile.SUSPENDED if post.is_spam else Profile.NEW
+
+    # Apply the user change.
+    change_user_state(mod=user, target=post.author, state=state)
 
     # Generate logging messages.
     if post.is_spam:
@@ -515,7 +549,7 @@ def toggle_spam(request, post, **kwargs):
     messages.success(request, text)
 
     # Submit the log into the database.
-    db_logger(user=user, action=Log.MODERATE, text=text, post=post)
+    db_logger(user=user, action=Log.MODERATE, target=post.author, text=text, post=post)
 
     url = post.get_absolute_url()
 
@@ -523,11 +557,28 @@ def toggle_spam(request, post, **kwargs):
 
 
 def move_post(request, post, parent):
-
     parent = Post.objects.filter(uid=parent).first()
+    user = request.user
 
-    Post.objects.filter(uid=post.uid).update()
+    if parent:
+        Post.objects.filter(uid=post.uid).update(parent=parent, type=Post)
+        msg = f"moved to {parent.uid}" if parent else "moved to answer"
+        messages.info(request, mark_safe(msg))
+        db_logger(user=user, text=f"{msg}", post=post)
 
+    return
+
+
+def move_to_answer(request, post):
+    """
+    Move this post to be an answer
+    """
+    user = request.user
+    Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
+
+    msg = f"moved to {post.uid}" if post else "moved to answer"
+    messages.info(request, mark_safe(msg))
+    db_logger(user=user, text=f"{msg}", post=post)
     return
 
 
@@ -571,12 +622,50 @@ def delete(request, post, **kwargs):
     """
     Delete this post or complete remove it from the database.
     """
-    user = request.user
-    url, msg = delete_post(post=post, user=user)
+    uid = post.uid
+    url = delete_post(request=request, post=post)
+
+    if Post.objects.filter(uid=uid).exists():
+        msg = "removed"
+    else:
+        msg = "deleted"
+
     messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
 
     return url
+
+
+def validate_move(user, source, target):
+    """
+    Return True if moving post from one to another is valid.
+    """
+
+    if not source or not target:
+        return False
+
+    valid_user = user.profile.is_moderator or source.author == user
+
+    # source and target do not share a root
+    same_root = source.root.uid == target.root.uid
+
+    # source and target are the same thing.
+    is_diff = source.uid != target.uid
+
+    # See if target is a descendant of source.
+    children = set()
+    walk_down_thread(parent=source, collect=children)
+    not_desc = target not in children
+
+    not_toplevel = not source.is_toplevel
+
+    # Conditions needed for a valid post moving.
+    valid = same_root and is_diff and not_desc and not_toplevel and valid_user
+
+    # Conditions needed to be classified as
+    if valid:
+        return True
+
+    return False
 
 
 def off_topic(request, post, **kwargs):
@@ -609,6 +698,7 @@ def moderate(request, post, action, parent, comment=""):
                   DELETE: delete,
                   CLOSE: close,
                   MOVE: move_post,
+                  MOVE_ANSWER: move_to_answer,
                   OFF_TOPIC: off_topic}
 
     if action in action_map:
@@ -622,11 +712,9 @@ def moderate(request, post, action, parent, comment=""):
     return url
 
 
-def db_logger(user=None, action=Log.MODERATE, text='', ipaddr=None, post=None):
+def db_logger(user=None, action=Log.MODERATE, text='', target=None, ipaddr=None, post=None):
     """
     Creates a database log.
     """
-    Log.objects.create(user=user, action=action, text=text, ipaddr=ipaddr, post=post)
-
-    logger.info(f"post={user.email}, post={post}, {text}")
-    return
+    Log.objects.create(user=user, action=action, text=text, target=target, ipaddr=ipaddr, post=post)
+    logger.info(f"user={user.email} {text} ")

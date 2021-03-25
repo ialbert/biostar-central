@@ -2,26 +2,36 @@
 {% load static %}
 {% load accounts_tags %}
 {% load forum_tags %}
-{%  load humanize %}
+{% load humanize %}
 {% block headtitle %}{{ target.profile.name }}{% endblock %}
 
 
 {% block content %}
-    <ul>
+    <p>
+        <a href="/info/mods/"><i class="info circle icon"></i> Moderator resources</a>
+    </p>
+
+    <div class="ui middle aligned list">
         {% for log in logs %}
-            <li>  {{ log.date|naturaltime }}
+            <div class="item">
+                <img class="ui avatar image" src="{% gravatar user=log.user size=80 %}"/>
+                <div class="content">
+                    <em>{{ log.date|naturaltime }}</em> &bull;
+                    <a href="{{ log.user.profile.get_absolute_url }}">{{ log.user.profile.name }}</a>
 
-                <a href="{{ log.user.profile.get_absolute_url }}">{{ log.user.profile.name }}</a>
+                    {{ log.text }}
 
-                {{ log.text }}
+                    {% if log.target %}
+                        &bull; <a href="{{ log.target.profile.get_absolute_url }}">{{ log.target.profile.name }}</a>
+                    {% endif %}
 
-                {% if log.post %}
-                    <a href="{{ log.post.get_absolute_url }}">{{ log.post.title }}</a>
-                {% endif %}
+                    {% if log.post %}
+                        &bull; <em><a href="{{ log.post.get_absolute_url }}">{{ log.post.title }}</a></em>
+                    {% endif %}
 
-
-            </li>
+                </div>
+            </div>
         {% endfor %}
-    </ul>
+    </div>
 
 {% endblock %}

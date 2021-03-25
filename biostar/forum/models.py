@@ -191,7 +191,7 @@ class Post(models.Model):
     tags = TaggableManager()
 
     # What site does the post belong to.
-    site = models.ForeignKey(Site, null=True, on_delete=models.SET_NULL)
+    site = models.ForeignKey(Site, null=True,  on_delete=models.CASCADE)
 
     # Unique id for the post.
     uid = models.CharField(max_length=32, unique=True, db_index=True)
@@ -531,7 +531,7 @@ class Award(models.Model):
     '''
     badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
+    post = models.ForeignKey(Post, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField()
 
     # context = models.CharField(max_length=1000, default='')
@@ -561,11 +561,14 @@ class Log(models.Model):
         (DEFAULT, "Default")
     ]
 
-    # User that is logged.
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    # User that performed the action.
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
 
-    # Post related information goes here.
-    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, blank=True)
+    # A potential target user (it may be null)
+    target = models.ForeignKey(User, related_name="target", null=True, blank=True, on_delete=models.CASCADE)
+
+    # Post related information goes here (it may be null).
+    post = models.ForeignKey(Post, null=True, blank=True, on_delete=models.CASCADE)
 
     # The IP address associated with the log.
     ipaddr = models.GenericIPAddressField(null=True, blank=True)
@@ -574,7 +577,7 @@ class Log(models.Model):
     action = models.IntegerField(choices=ACTIONS_CHOICES, default=DEFAULT, db_index=True)
 
     # The logging information.
-    text = models.TextField()
+    text = models.TextField(null=True, blank=True)
 
     # Date this log was created.
     date = models.DateTimeField()

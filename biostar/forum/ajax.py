@@ -144,64 +144,25 @@ def ajax_vote(request):
     return ajax_success(msg=msg, change=change)
 
 
-def validate_drop(request):
-    """
-    Vaildates drag and drop and makes
-    """
-    parent_uid = request.POST.get("parent", '')
-    uid = request.POST.get("uid", '')
-    user = request.user
-    parent = Post.objects.filter(uid=parent_uid).first()
-    post = Post.objects.filter(uid=uid).first()
-
-    if not post:
-        msg = "Post does not exist."
-        return False, msg
-
-    if parent_uid == "NEW":
-        return True, "Valid drop."
-
-    if not parent:
-        msg = "Parent needs to be provided."
-        return False, msg
-
-    if not (user.profile.is_moderator or post.author == user):
-        msg = "Only moderators or the author can move posts."
-        return False, msg
-
-    children = set()
-    auth.walk_down_thread(parent=post, collect=children)
-
-    if parent == post or (parent in children) or parent.root != post.root:
-        msg = "Can not move post here."
-        return False, msg
-
-    if post.is_toplevel:
-        msg = "Top level posts can not be moved."
-        return False, msg
-
-    return True, "Valid drop"
-
-
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
 
     parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
-
+    user = request.user
     parent = Post.objects.filter(uid=parent_uid).first()
     post = Post.objects.filter(uid=uid).first()
     post_type = Post.COMMENT
-
-    valid, msg = validate_drop(request)
-    if not valid:
-        return ajax_error(msg=msg)
 
     # Dropping comment as a new answer
     if parent_uid == "NEW":
         parent = post.root
         post_type = Post.ANSWER
+
+    valid = auth.validate_move(user=user, source=post, target=parent)
+    if not valid:
+        return ajax_error(msg="Invalid Drop")
 
     Post.objects.filter(uid=post.uid).update(type=post_type, parent=parent)
 
@@ -409,7 +370,12 @@ def ajax_delete(request):
     if not (user.profile.is_moderator or post.author == user):
         return ajax_error(msg="Only moderators and post authors can delete.")
 
-    url, msg = auth.delete_post(post=post, user=user)
+    url = auth.delete_post(post=post, request=request)
+
+    if Post.objects.filter(uid=uid).exists():
+        msg = "removed"
+    else:
+        msg = "deleted"
 
     return ajax_success(msg=msg, url=url)
 

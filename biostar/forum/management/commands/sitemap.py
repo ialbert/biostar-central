@@ -14,10 +14,33 @@ from django.contrib import sitemaps
 
 logger = logging.getLogger("engine")
 
+URLSET_START = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+"""
 
-def path(*args):
-    "Generates absolute paths"
-    return os.path.abspath(os.path.join(*args))
+URLSET_END = """
+</urlset>
+"""
+
+URLSET_ROW = """
+    <url>
+        <loc>https://%s/p/%s/</loc>
+        <lastmod>%s</lastmod>
+    </url>
+"""
+
+SITEMAP_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+%s
+</sitemapindex>
+"""
+
+SITEMAP_ROW = """
+    <sitemap>
+        <loc>https://%s/static/sitemap_%d.xml</loc>
+    </sitemap>
+"""
+
 
 def ping_google():
     try:
@@ -29,26 +52,44 @@ def ping_google():
         pass
 
 
-def generate_sitemap():
-    sitemap = GenericSitemap({
-        'queryset': Post.objects.filter(is_toplevel=True,
-                                        root__status=Post.OPEN).exclude(type=Post.BLOG),
-    })
-    urlset = sitemap.get_urls()
-    text = loader.render_to_string('sitemap.xml', {'urlset': urlset})
-    text = smart_str(text)
+def generate_sitemap(index, batch):
     site = Site.objects.get_current()
-    fname = path(settings.STATIC_ROOT, 'sitemap.xml')
-    logger.info(f'*** writing sitemap for {site} to {fname}')
-    fp = open(fname, 'wt')
-    fp.write(text)
-    fp.close()
-    logger.info('*** done')
+
+    # Generates the sitemap index.
+    if index:
+        body = []
+        for step in range(index):
+            body.append(SITEMAP_ROW % (site.domain, step+1))
+        text = "".join(body)
+        print(SITEMAP_XML % text)
+
+        return
+
+    if batch:
+        N = 50000
+        # Defers all fields beyond uid!
+        start = (batch-1) * N
+        end = batch * N
+        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN) \
+            .exclude(type=Post.BLOG).order_by("-pk").only("uid", "lastedit_date")[start:end]
+
+        print(URLSET_START, end='')
+        for post in posts:
+            lastmod = post.lastedit_date.strftime("%Y-%m-%d")
+            row = URLSET_ROW % (site.domain, post.uid, lastmod)
+            print(row, end='')
+        print(URLSET_END, end='')
 
 
 class Command(BaseCommand):
     help = 'Creates a sitemap in the export folder of the site'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--index', default=0, help="Writes an index")
+        parser.add_argument('--batch', default=0, help="50K URL in a batch")
+
     def handle(self, *args, **options):
-        generate_sitemap()
-        #ping_google()
+        index = int(options['index'])
+        batch = int(options['batch'])
+        generate_sitemap(index=index, batch=batch)
+        # ping_google()
