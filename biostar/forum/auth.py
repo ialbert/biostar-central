@@ -1,15 +1,14 @@
 import hashlib
-import hashlib
 import logging
 import urllib.parse as urlparse
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.db import transaction
 from django.db.models import F, Q
 from django.template import loader
 from django.utils.safestring import mark_safe
-from django.core.cache import cache
 
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
@@ -470,6 +469,34 @@ def bump(request, post, **kwargs):
     return url
 
 
+def change_user_state(mod, target, state):
+    """
+    Changes user state.
+    """
+
+    # Only moderators may change user states.
+    if not mod.profile.is_moderator:
+        logger.error(f"{mod} is not a moderator")
+        return
+
+    # Cannot moderate self.
+    if mod == target:
+        logger.error(f"{mod} cannot moderate themselves")
+        return
+
+    # The target may not be a moderator.
+    if target.profile.is_moderator:
+        logger.info(f"{mod} cannot alter state on a moderator {target}")
+        return
+
+    # Set the new state.
+    target.profile.state = state
+    target.save()
+
+    # Generate the logging message.
+    msg = f"changed user state to {target.profile.get_state_display()}"
+    db_logger(user=mod, action=Log.MODERATE, target=target, text=msg, post=None)
+
 def toggle_spam(request, post, **kwargs):
     """
     Toggles spam status on post based on a status
@@ -497,10 +524,11 @@ def toggle_spam(request, post, **kwargs):
     # Refetch up to date state of the post.
     post = Post.objects.filter(id=post.id).get()
 
-    # Set the state for the user.
-    if post.is_spam and not post.author.profile.is_moderator:
-        post.author.profile.state = Profile.SUSPENDED if post.is_spam else Profile.NEW
-        post.author.profile.save()
+    # Set the state for the user (only non moderators are affected)
+    state = Profile.SUSPENDED if post.is_spam else Profile.NEW
+
+    # Apply the user change.
+    change_user_state(mod=user, target=post.author, state=state)
 
     # Generate logging messages.
     if post.is_spam:
@@ -515,8 +543,7 @@ def toggle_spam(request, post, **kwargs):
     messages.success(request, text)
 
     # Submit the log into the database.
-    db_logger(user=user, action=Log.MODERATE, text=text, post=post)
-
+    db_logger(user=user, action=Log.MODERATE, target=post.author, text=text, post=post)
 
     url = post.get_absolute_url()
 
@@ -613,11 +640,9 @@ def moderate(request, post, action, comment=""):
     return url
 
 
-def db_logger(user=None, action=Log.MODERATE, text='', ipaddr=None, post=None):
+def db_logger(user=None, action=Log.MODERATE, text='', target=None, ipaddr=None, post=None):
     """
     Creates a database log.
     """
-    Log.objects.create(user=user, action=action, text=text, ipaddr=ipaddr, post=post)
-
-    logger.info(f"post={user.email}, post={post}, {text}")
-    return
+    Log.objects.create(user=user, action=action, text=text, target=target, ipaddr=ipaddr, post=post)
+    logger.info(f"user={user.email} {text} ")
