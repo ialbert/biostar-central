@@ -11,7 +11,6 @@ from whoosh import writing, classify
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.writing import AsyncWriter, BufferedWriter
 from whoosh.searching import Results
-
 import html2markdown
 import bleach
 from whoosh.qparser import MultifieldParser, OrGroup
@@ -55,12 +54,11 @@ def copy_hits(result, highlight=False):
     """
     Copy the items in results into a dict.
     """
-
     # Highlight title and content
     if highlight:
-        #title = result.highlights("title", top=5)
+        #title = result.highlights("title", minscore=0)
         title = result.get('title')
-        content = result.highlights("content", top=5)
+        content = result.highlights("content", top=5, minscore=0)
     else:
         title = result.get('title')
         content = result.get('content')
