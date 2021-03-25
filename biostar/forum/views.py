@@ -259,6 +259,22 @@ def invalid_params(request, expect):
     return diff
 
 
+def check_params(func):
+
+    def inner(request, **kwargs):
+        incoming = set(request.GET.keys())
+        # Expected parameter names.
+        diff = incoming - ALLOWED_PARAMS
+        if diff:
+            logger.error(f"invalid get request parameters {diff}")
+            return redirect("/")
+
+        return func(request, **kwargs)
+
+    return inner
+
+
+@check_params
 @ensure_csrf_cookie
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
@@ -272,13 +288,6 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     order = request.GET.get("order", "rank") or "rank"
     topic = topic or request.GET.get("type", "")
     limit = request.GET.get("limit", "all") or "all"
-
-    # Expected parameter names.
-    expect = {"page", "order", "type", "limit"}
-
-    # Redirect to main on invalid parameters.
-    if invalid_params(request, expect=expect):
-        return redirect(reverse("post_list"))
 
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, order=order, limit=limit)
@@ -362,6 +371,7 @@ def myvotes(request):
     return render(request, template_name="user_votes.html", context=context)
 
 
+@check_params
 def tags_list(request):
     """
     Show posts by user
@@ -442,6 +452,7 @@ def mytags(request):
                      template_name="user_mytags.html")
 
 
+@check_params
 def community_list(request):
     users = User.objects.select_related("profile")
 
@@ -479,12 +490,14 @@ def community_list(request):
     return render(request, "community_list.html", context=context)
 
 
+@check_params
 def badge_list(request):
     badges = Badge.objects.annotate(count=Count("award")).order_by('-count')
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
 
+@check_params
 def badge_view(request, uid):
     badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
     target = request.GET.get('user')
