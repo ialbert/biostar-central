@@ -1,33 +1,23 @@
-## Frequently Asked Questions
+# Frequently Asked Questions
 
 ### Contact
 
 Contact email: [admin@biostars.org](mailto:admin@biostars.org)
 
-### Moderation guidelines
+### Common Questions
 
-Users posting content that does not belong to the site will be notified and
-required to edit their content. Users may post commercially motivated posts to
-the Forum section as long as the topic aligns with the main focus of this
-site. Users posting obvious spam will be immediately suspended.
+* [How to convert Gene Symbols into Entrez ID](https://www.biostars.org/p/9461782/)
 
-### User reputation
+### Best of Biostar
 
-The number next to a user's name is the sum of upvotes and accepted answers
-that user has collected.
-
-### Becoming a moderator
-
-Active users above a certain reputation threshold are periodically promoted to
-moderators. You may also explicitly ask for moderation rights or suggest good
-candidates on the newsgroup. Inactive users that do not visit the site for
-extended periods of time may lose their moderation rights.
+* [What Are The Most Common Stupid Mistakes In Bioinformatics?](https://www.biostars.org/p/7126/)
+* [Bioinformatics cartoon](https://www.biostars.org/p/16049/)
 
 ### Support for Biostar
 
-Biostar has been developed as an open source software and has been released
-with the **MIT licence** thanks to the support from the following
-institutions:
+Biostar has been developed as an open source software with the **MIT licence** thanks to awards from the following
+organizations:
 
-  * [The Pennsylvania State University](http://www.psu.edu/)
-  * [National Institutes of Health (NIH)](http://www.nih.gov/), specifially grant [NIH 5R25HG006243-02, Analyzing Next Generation Sequencing Data](http://ged.msu.edu/downloads/2010-ngs-course-nih-r25.pdf)  principal investigator:  [Titus Brown (Michigan State University)](http://ged.msu.edu/),
+* [US Fish and Wildlife Service Cooperative Agreement](https://www.fws.gov/grants/atc.html): award `F16AC01007`
+* [National Institutes of Health (NIH)](http://www.nih.gov/), grant `NIH 5R25HG006243-02`
+* [The Pennsylvania State University](http://www.psu.edu/)

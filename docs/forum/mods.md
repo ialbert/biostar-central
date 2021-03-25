@@ -1,6 +1,25 @@
 # Moderator guidelines
 
-- how to join slack ... other relevant info
+- TODO: how to join slack ... other relevant info
+
+### Moderation guidelines
+
+Users posting content that does not belong to the site will be notified and
+required to edit their content. Users may post commercially motivated posts to
+the Forum section as long as the topic aligns with the main focus of this
+site. Users posting obvious spam will be immediately suspended.
+
+### User reputation
+
+The number next to a user's name is the sum of upvotes and accepted answers
+that user has collected.
+
+### Becoming a moderator
+
+Active users above a certain reputation threshold are periodically promoted to
+moderators. You may also explicitly ask for moderation rights or suggest good
+candidates on the newsgroup. Inactive users that do not visit the site for
+extended periods of time may lose their moderation rights.
 
 ### How to modify this page
 
