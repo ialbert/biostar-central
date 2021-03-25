@@ -581,19 +581,28 @@ def relative_url(context, value, field_name, urlencode=None):
     """
     Updates field_name parameters in url with new value
     """
+    # Check if the param is in biggest common set.
+    expect = const.ALLOWED_PARAMS
+
+    def apply_filter(param):
+        key = param.split('=')[0]
+        # Return parameter if in valid const.
+        if key != field_name and key in expect:
+            return param
+
     request = context['request']
     # Create more_like_this string with updated field_name, value pair.
     url = f'?{field_name}={value}'
     if urlencode:
         # Split query string
         querystring = urlencode.split('&')
-        # Exclude old value 'field_name' from more_like_this string
-        filter_func = lambda p: p.split('=')[0] != field_name
-        filtered_querystring = filter(filter_func, querystring)
+        # Exclude old value 'field_name' from query string
+        filtered = filter(apply_filter, querystring)
         # Join the filtered string
-        encoded_querystring = '&'.join(filtered_querystring)
+        encoded = '&'.join(filtered)
         # Update query string
-        url = f'{url}&{encoded_querystring}'
+        encoded = f'&{encoded}' if encoded else ''
+        url = f'{url}{encoded}'
 
     # Concatenate current path to relative query string
     url = request.path + url

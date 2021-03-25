@@ -185,7 +185,7 @@ def low_trust(user, minscore=50):
 
 @task
 def spam_check(uid):
-    from biostar.forum.models import Post, Log
+    from biostar.forum.models import Post, Log, delete_post_cache
     from biostar.accounts.models import User, Profile
 
     post = Post.objects.filter(uid=uid).first()
@@ -198,6 +198,9 @@ def spam_check(uid):
     # Classify spam only if we have not done it yet.
     if post.spam != Post.DEFAULT:
         return
+
+    # Drop the cache for the post.
+    delete_post_cache(post)
 
     try:
         from biostar.utils import spamlib
@@ -231,12 +234,12 @@ def spam_check(uid):
 
             spam_count = Post.objects.filter(spam=Post.SPAM, author=author).count()
 
-            db_logger(user=user, action=Log.CLASSIFY, text=f"classified the post as spam", post=post)
+            db_logger(user=user, action=Log.CLASSIFY, target=post.author, text=f"classified the post as spam", post=post)
 
             if spam_count > 1 and low_trust(post.author):
                 # Suspend the user
                 Profile.objects.filter(user=author).update(state=Profile.SUSPENDED)
-                db_logger(user=user, action=Log.MODERATE, text=f"suspended the author of", post=post)
+                db_logger(user=user, action=Log.MODERATE, text=f"suspended", target=post.author)
 
     except Exception as exc:
         print(exc)

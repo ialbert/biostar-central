@@ -518,14 +518,14 @@ def toggle_spam(request, post, **kwargs):
     # The user performing the action.
     user = request.user
 
+    # Drop the cache for the post.
+    delete_post_cache(post)
+
     # Current state of the toggle.
     if post.is_spam:
         Post.objects.filter(id=post.id).update(spam=Post.NOT_SPAM, status=Post.OPEN)
     else:
         Post.objects.filter(id=post.id).update(spam=Post.SPAM, status=Post.CLOSED)
-
-    # Reset post cache just in case
-    delete_post_cache(post)
 
     # Refetch up to date state of the post.
     post = Post.objects.filter(id=post.id).get()
