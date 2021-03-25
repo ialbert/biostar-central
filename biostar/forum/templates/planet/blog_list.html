@@ -19,7 +19,7 @@
                         <h3><a href="{{ post.link }}">{{ post.title }}</a></h3>
                     </div>
                     <div>
-                        {{ post.content|truncatewords:100 }}
+                        {{ post.content|safe|truncatechars_html:400 }}
                     </div>
                     <div class="right floated muted" style="float: right; padding-bottom: 5px">
                         written {{ post.creation_date|timesince }}

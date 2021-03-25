@@ -517,10 +517,18 @@ def toggle_spam(request, post, **kwargs):
     # Submit the log into the database.
     db_logger(user=user, action=Log.MODERATE, text=text, post=post)
 
-
     url = post.get_absolute_url()
 
     return url
+
+
+def move_post(request, post, parent):
+
+    parent = Post.objects.filter(uid=parent).first()
+
+    Post.objects.filter(uid=post.uid).update()
+
+    return
 
 
 def close(request, post, comment, **kwargs):
@@ -592,7 +600,7 @@ def off_topic(request, post, **kwargs):
     return url
 
 
-def moderate(request, post, action, comment=""):
+def moderate(request, post, action, parent, comment=""):
     # Bind an action to a function.
     action_map = {REPORT_SPAM: toggle_spam,
                   DUPLICATE: duplicated,
@@ -600,11 +608,12 @@ def moderate(request, post, action, comment=""):
                   OPEN_POST: open,
                   DELETE: delete,
                   CLOSE: close,
+                  MOVE: move_post,
                   OFF_TOPIC: off_topic}
 
     if action in action_map:
         mod_func = action_map[action]
-        url = mod_func(request=request, post=post, comment=comment)
+        url = mod_func(request=request, post=post, parent=parent, comment=comment)
     else:
         url = post.get_absolute_url()
         msg = "Unknown moderation action given."

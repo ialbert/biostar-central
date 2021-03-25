@@ -218,27 +218,34 @@ class PostModForm(forms.Form):
         # Top level posts may be bumped.
         if post.is_toplevel:
             choices += [(BUMP_POST, "Bump post.")]
-
-        # Options for top level posts.
-        if settings.ALLOW_POST_CLOSING:
-            extras = [(CLOSE, "Close post ( reason required ). "),
-                      (DUPLICATE, "Duplicated post ( links required ).")]
-            choices += extras
-            self.fields['comment'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea,
-                                                     strip=True)
+        else:
+            self.fields['parent'] = forms.CharField(help_text="Move post to parent", required=False)
+            choices += [(MOVE, "Move post to given parent.")]
 
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
 
     def clean(self):
-        action = self.cleaned_data.get("action")
-        comment = self.cleaned_data.get("comment")
 
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
-        if (action == CLOSE or action == DUPLICATE) and not comment:
-            raise forms.ValidationError("Closing a post requires a reason.")
-
         return self.cleaned_data
+
+    def clean_parent(self):
+        action = self.cleaned_data.get("action")
+        pid = self.cleaned_data.get('parent', '')
+        parent = Post.objects.filter(uid=pid).first()
+
+        if action == MOVE and not parent:
+            raise forms.ValidationError("Parent post does not exist.")
+
+        invalid_root = parent.root.uid != self.post.root.uid
+        same_post = parent.uid == self.post.uid
+
+        # Parent exists but move action is not valid.
+        if parent and (same_post or invalid_root):
+            raise forms.ValidationError("Invalid move action.")
+
+
 
 

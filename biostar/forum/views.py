@@ -588,7 +588,8 @@ def post_moderate(request, uid):
         if form.is_valid():
             action = form.cleaned_data.get('action')
             comment = form.cleaned_data.get('comment')
-            url = auth.moderate(request=request, post=post, action=action, comment=comment)
+            parent = form.cleaned_data.get('parent')
+            url = auth.moderate(request=request, post=post, action=action, parent=parent, comment=comment)
             return redirect(url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])
