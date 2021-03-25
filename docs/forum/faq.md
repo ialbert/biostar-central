@@ -11,6 +11,7 @@ Contact email: [admin@biostars.org](mailto:admin@biostars.org)
 
 ### Common questions
 
+* [How to convert Gene Symbols into Entrez ID](https://www.biostars.org/p/9461782/)
 
 ### Support for Biostar
 
