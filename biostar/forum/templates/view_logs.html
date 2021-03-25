@@ -22,7 +22,7 @@
                     {{ log.text }}
 
                     {% if log.target %}
-                        &bull; <a href="{{ log.target.profile.get_absolute_url }}">{{ log.target.profile.name }}</a>
+                        &bull; <a href="{{ log.target.profile.get_absolute_url }}">{{ log.target.profile.name }} </a>
                     {% endif %}
 
                     {% if log.post %}
