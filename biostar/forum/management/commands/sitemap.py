@@ -14,17 +14,32 @@ from django.contrib import sitemaps
 
 logger = logging.getLogger("engine")
 
-XML_START = """<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">"""
-
-XML_END = """
-</urlset>"
+URLSET_START = """
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
 """
 
-XML_ROW = """
+URLSET_END = """
+</urlset>
+"""
+
+URLSET_ROW = """
     <url>
         <loc>https://%s/p/%s/</loc>
     </url>
+"""
+
+SITEMAP_XML = """
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+%s
+</sitemapindex
+"""
+
+SITEMAP_ROW = """
+    <sitemap>
+        <loc>https://%s/sitemap_%d.xml</loc>
+    </sitemap>
 """
 
 
@@ -38,23 +53,43 @@ def ping_google():
         pass
 
 
-def generate_sitemap():
+def generate_sitemap(index, batch):
     site = Site.objects.get_current()
 
-    # Defers all fields beyond uid!
-    posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN)\
-            .exclude(type=Post.BLOG).order_by("-pk").only("uid")
+    # Generates the sitemap index.
+    if index:
+        body = []
+        for step in range(index):
+            body.append(SITEMAP_ROW % (site.domain, step+1))
+        text = "".join(body)
+        print(SITEMAP_XML % text)
 
-    print(XML_START, end='')
-    for post in posts:
-        row = XML_ROW % (site.domain, post.uid)
-        print(row, end='')
-    print(XML_END, end='')
+        return
+
+    if batch:
+        N = 50000
+        # Defers all fields beyond uid!
+        start = (batch-1) * N
+        end = batch * N
+        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN) \
+            .exclude(type=Post.BLOG).order_by("-pk").only("uid")[start:end]
+
+        print(URLSET_START, end='')
+        for post in posts:
+            row = URLSET_ROW % (site.domain, post.uid)
+            print(row, end='')
+        print(URLSET_END, end='')
 
 
 class Command(BaseCommand):
     help = 'Creates a sitemap in the export folder of the site'
 
+    def add_arguments(self, parser):
+        parser.add_argument('--index', default=0, help="Writes an index")
+        parser.add_argument('--batch', default=0, help="50K URL in a batch")
+
     def handle(self, *args, **options):
-        generate_sitemap()
+        index = int(options['index'])
+        batch = int(options['batch'])
+        generate_sitemap(index=index, batch=batch)
         # ping_google()
