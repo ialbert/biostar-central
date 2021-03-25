@@ -58,7 +58,8 @@ def copy_hits(result, highlight=False):
 
     # Highlight title and content
     if highlight:
-        title = result.highlights("title", top=5)
+        #title = result.highlights("title", top=5)
+        title = result.get('title')
         content = result.highlights("content", top=5)
     else:
         title = result.get('title')
