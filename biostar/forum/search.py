@@ -59,6 +59,7 @@ def copy_hits(result, highlight=False):
         title = result.highlights("title", minscore=0)
         title = title or result.get('title')
         content = result.highlights("content", top=5, minscore=0)
+        content = content or result.get('content')
     else:
         title = result.get('title')
         content = result.get('content')
