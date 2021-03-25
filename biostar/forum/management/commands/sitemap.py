@@ -14,8 +14,7 @@ from django.contrib import sitemaps
 
 logger = logging.getLogger("engine")
 
-URLSET_START = """
-<?xml version="1.0" encoding="UTF-8"?>
+URLSET_START = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
 """
 
@@ -29,11 +28,10 @@ URLSET_ROW = """
     </url>
 """
 
-SITEMAP_XML = """
-<?xml version="1.0" encoding="UTF-8"?>
+SITEMAP_XML = """<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 %s
-</sitemapindex
+</sitemapindex>
 """
 
 SITEMAP_ROW = """
