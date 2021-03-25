@@ -50,8 +50,9 @@ class Blog(models.Model):
 
     def download(self):
         try:
-            text = request.urlopen(self.feed).read().decode()
-            stream = open(self.fname, 'wt')
+            stream = request.urlopen(self.feed)
+            text = stream.read().decode("utf-8", errors="replace")
+            stream = open(self.fname, 'w', encoding='utf-8')
             stream.write(text)
             stream.close()
         except Exception as exc:

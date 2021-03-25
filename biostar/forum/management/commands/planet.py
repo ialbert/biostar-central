@@ -31,9 +31,8 @@ class Command(BaseCommand):
         # Create the planet directory if it is missing
         os.makedirs(settings.PLANET_DIR, exist_ok=True)
 
-        add_fname = options['add']
-        if add_fname:
-            fname = os.path.abspath(os.path.join(settings.PLANET_DIR, add_fname))
+        fname = options['add']
+        if fname:
             auth.add_blogs(fname)
 
         if options['download']:

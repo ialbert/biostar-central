@@ -14,14 +14,14 @@
     </div>
         {% endblock %}
 
-    <div class="ui five column tags grid">
+    <div class="ui seven column tags grid">
         {% for tag in tags %}
-            <div class="column">
+            <div class="column" style="font-size: larger;">
                 <div class="item">
                     <a class="ptag" href="{% url 'post_topic' tag %}">
                         {{ tag }}
                     </a>
-                    <i class="ui tags icon"></i> {{ tag.nitems }}
+                    &times; {{ tag.nitems }}
                 </div>
             </div>
         {% endfor %}

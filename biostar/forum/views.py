@@ -450,7 +450,7 @@ def community_list(request):
         users = users.filter(db_query)
 
     # Remove the cache when filters are given.
-    no_cache = days or (query and len(query) > 2) or ordering
+    no_cache = True
     cache_key = '' if no_cache else USERS_LIST_KEY
 
     order = ORDER_MAPPER.get(ordering, "visit")
