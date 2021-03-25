@@ -4,14 +4,14 @@
 
 Contact email: [admin@biostars.org](mailto:admin@biostars.org)
 
-### Interesting questions
+### Common Questions
+
+* [How to convert Gene Symbols into Entrez ID](https://www.biostars.org/p/9461782/)
+
+### Best of Biostar
 
 * [What Are The Most Common Stupid Mistakes In Bioinformatics?](https://www.biostars.org/p/7126/)
 * [Bioinformatics cartoon](https://www.biostars.org/p/16049/)
-
-### Common questions
-
-* [How to convert Gene Symbols into Entrez ID](https://www.biostars.org/p/9461782/)
 
 ### Support for Biostar
 
