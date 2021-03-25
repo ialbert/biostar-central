@@ -1,29 +1,25 @@
 import logging
-from datetime import timedelta
-from functools import wraps, lru_cache
 import os
-from django.http import Http404
-import time
+from datetime import timedelta
+from functools import wraps
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.db.models import Count, Q
-from django.core.paginator import Paginator
-from django.shortcuts import render, redirect, reverse
 from django.core.cache import cache
-from ratelimit.decorators import ratelimit
+from django.core.paginator import Paginator
+from django.db.models import Count, Q
+from django.http import Http404
+from django.shortcuts import render, redirect, reverse
+from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
 
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Award, Log
+from biostar.forum.models import Post, Vote, Badge, Subscription, Log
 from biostar.utils.decorators import is_moderator
-
-from biostar.forum.auth import db_logger
 
 User = get_user_model()
 
@@ -52,11 +48,11 @@ LIMIT_MAP = dict(
 )
 
 
-
 def post_exists(func):
     """
     Ensure uid passed to view function exists.
     """
+
     @wraps(func)
     def _wrapper_(request, **kwargs):
         uid = kwargs.get('uid')
@@ -65,6 +61,7 @@ def post_exists(func):
             messages.error(request, "Post does not exist.")
             return redirect(reverse("post_list"))
         return func(request, **kwargs)
+
     return _wrapper_
 
 
@@ -168,7 +165,6 @@ def get_posts(user, topic="", order="", limit=None):
 
 
 def post_search(request):
-
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
 
@@ -189,7 +185,6 @@ def post_search(request):
 
 
 def pages(request, fname):
-
     # Add markdown file extension to markdown
     infile = f"{fname}.md"
     # Look for this file in static root.
@@ -253,6 +248,17 @@ def release_quar(request, uid):
     return redirect('/')
 
 
+def invalid_params(request, expect):
+    """
+    Check for unexpected parameter names
+    """
+    incoming = set(request.GET.keys())
+    diff = incoming - expect
+    if diff:
+        logger.error(f"invalid get request parameters {diff}")
+    return diff
+
+
 @ensure_csrf_cookie
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
@@ -267,9 +273,11 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     topic = topic or request.GET.get("type", "")
     limit = request.GET.get("limit", "all") or "all"
 
-    # The q parameter is used a lot by spammers.
-    # Redirect for now (should be removed TODO)
-    if 'q' in request.GET:
+    # Expected parameter names.
+    expect = {"page", "order", "type", "limit"}
+
+    # Redirect to main on invalid parameters.
+    if invalid_params(request, expect=expect):
         return redirect(reverse("post_list"))
 
     # Get posts available to users.
@@ -324,6 +332,7 @@ def authenticated(func):
             messages.error(request, "You need to be logged in to view this page.")
             return reverse('post_list')
         return func(request, **kwargs)
+
     return _wrapper_
 
 
@@ -335,7 +344,7 @@ def myvotes(request):
     page = request.GET.get('page', 1)
 
     votes = Vote.objects.filter(post__author=request.user).select_related('post', 'post__root',
-                                                                            'author__profile').order_by("-date")
+                                                                          'author__profile').order_by("-date")
     # Create the paginator
     paginator = CachedPaginator(object_list=votes,
                                 per_page=settings.POSTS_PER_PAGE)
@@ -434,7 +443,6 @@ def mytags(request):
 
 
 def community_list(request):
-
     users = User.objects.select_related("profile")
 
     page = request.GET.get("page", 1)
