@@ -25,6 +25,7 @@ URLSET_END = """
 URLSET_ROW = """
     <url>
         <loc>https://%s/p/%s/</loc>
+        <lastmod>%s</lastmod>
     </url>
 """
 
@@ -70,11 +71,12 @@ def generate_sitemap(index, batch):
         start = (batch-1) * N
         end = batch * N
         posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN) \
-            .exclude(type=Post.BLOG).order_by("-pk").only("uid")[start:end]
+            .exclude(type=Post.BLOG).order_by("-pk").only("uid", "lastedit_date")[start:end]
 
         print(URLSET_START, end='')
         for post in posts:
-            row = URLSET_ROW % (site.domain, post.uid)
+            lastmod = post.lastedit_date.strftime("%Y-%m-%d")
+            row = URLSET_ROW % (site.domain, post.uid, lastmod)
             print(row, end='')
         print(URLSET_END, end='')
 
