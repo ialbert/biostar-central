@@ -38,7 +38,7 @@ SITEMAP_XML = """
 
 SITEMAP_ROW = """
     <sitemap>
-        <loc>https://%s/sitemap_%d.xml</loc>
+        <loc>https://%s/static/sitemap_%d.xml</loc>
     </sitemap>
 """
 
