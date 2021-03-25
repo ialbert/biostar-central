@@ -581,6 +581,7 @@ def relative_url(context, value, field_name, urlencode=None):
     """
     Updates field_name parameters in url with new value
     """
+    # Check if the param is in biggest common set.
     expect = const.ALLOWED_PARAMS
 
     def apply_filter(param):
