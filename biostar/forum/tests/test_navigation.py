@@ -40,7 +40,7 @@ class ForumNavigation(TestCase):
         c.login(username=self.owner.username, email='tested@tested.com', password='tested')
         for url in urls:
             print(url)
-            resp = c.get(url, data={"q":"tested"})
+            resp = c.get(url)
             code = resp.status_code
             if code not in codes:
                 # We already know it is an error.

@@ -267,6 +267,11 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     topic = topic or request.GET.get("type", "")
     limit = request.GET.get("limit", "all") or "all"
 
+    # The q parameter is used a lot by spammers.
+    # Redirect for now (should be removed TODO)
+    if 'q' in request.GET:
+        return redirect(reverse("post_list"))
+
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, order=order, limit=limit)
 
