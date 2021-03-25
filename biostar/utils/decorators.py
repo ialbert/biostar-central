@@ -3,6 +3,7 @@ from functools import wraps
 from functools import partial
 from ratelimit.decorators import ratelimit
 from django.conf import settings
+from django.http import Http404
 from django.shortcuts import redirect
 from django.contrib import messages
 import sys
@@ -20,6 +21,27 @@ def is_moderator(f):
         return redirect('/')
 
     return inner
+
+
+def check_params(allowed):
+    """
+    Validate if only allowed params are present in request.GET.
+    """
+    def outter(func):
+        @wraps(func)
+        def inner(request, **kwargs):
+            incoming = set(request.GET.keys())
+            # Expected parameter names.
+            diff = incoming - allowed
+            if diff:
+                logger.error(f"invalid get request parameters {diff}")
+                raise Http404("Parameter does not exist.")
+
+            return func(request, **kwargs)
+
+        return inner
+
+    return outter
 
 
 def limited(key, rate):

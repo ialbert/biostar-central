@@ -19,7 +19,7 @@ from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription, Log
-from biostar.utils.decorators import is_moderator
+from biostar.utils.decorators import is_moderator, check_params
 
 User = get_user_model()
 
@@ -164,6 +164,7 @@ def get_posts(user, topic="", order="", limit=None):
     return posts
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 def post_search(request):
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
@@ -184,6 +185,7 @@ def post_search(request):
     return render(request, template_name=template_name, context=context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 def pages(request, fname):
     # Add markdown file extension to markdown
     infile = f"{fname}.md"
@@ -248,17 +250,7 @@ def release_quar(request, uid):
     return redirect('/')
 
 
-def invalid_params(request, expect):
-    """
-    Check for unexpected parameter names
-    """
-    incoming = set(request.GET.keys())
-    diff = incoming - expect
-    if diff:
-        logger.error(f"invalid get request parameters {diff}")
-    return diff
-
-
+@check_params(allowed=ALLOWED_PARAMS)
 @ensure_csrf_cookie
 def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
     """
@@ -272,13 +264,6 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     order = request.GET.get("order", "rank") or "rank"
     topic = topic or request.GET.get("type", "")
     limit = request.GET.get("limit", "all") or "all"
-
-    # Expected parameter names.
-    expect = {"page", "order", "type", "limit"}
-
-    # Redirect to main on invalid parameters.
-    if invalid_params(request, expect=expect):
-        return redirect(reverse("post_list"))
 
     # Get posts available to users.
     posts = get_posts(user=user, topic=topic, order=order, limit=limit)
@@ -362,6 +347,7 @@ def myvotes(request):
     return render(request, template_name="user_votes.html", context=context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 def tags_list(request):
     """
     Show posts by user
@@ -442,6 +428,7 @@ def mytags(request):
                      template_name="user_mytags.html")
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 def community_list(request):
     users = User.objects.select_related("profile")
 
@@ -479,12 +466,14 @@ def community_list(request):
     return render(request, "community_list.html", context=context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 def badge_list(request):
     badges = Badge.objects.annotate(count=Count("award")).order_by('-count')
     context = dict(badges=badges)
     return render(request, "badge_list.html", context=context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 def badge_view(request, uid):
     badge = Badge.objects.filter(uid=uid).annotate(count=Count("award")).first()
     target = request.GET.get('user')
@@ -509,6 +498,7 @@ def badge_view(request, uid):
     return render(request, "badge_view.html", context=context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 @ensure_csrf_cookie
 def post_view(request, uid):
     "Return a detailed view for specific post"
@@ -553,6 +543,7 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 @login_required
 def new_post(request):
     """
@@ -587,6 +578,7 @@ def new_post(request):
     return render(request, "new_post.html", context=context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 @post_exists
 @login_required
 def post_moderate(request, uid):
@@ -614,6 +606,7 @@ def post_moderate(request, uid):
     return render(request, "forms/form_moderate.html", context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
 @login_required
 def view_logs(request):
     LIMIT = 100
