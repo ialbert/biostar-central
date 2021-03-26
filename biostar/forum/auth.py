@@ -683,18 +683,17 @@ def validate_move(user, source, target):
     is_diff = source.uid != target.uid
 
     # cond 4: target is not a descendant of source.
-    # if target.is_toplevel or (source.is_comment and target.is_answer):
-    #     not_desc = True
-    # else:
     children = set()
-    walk_down_thread(parent=source, collect=children)
-    not_desc = (target not in children)
+    try:
+        walk_down_thread(parent=source, collect=children)
+        not_desc = (target not in children)
+    except Exception as exc:
+        logger.error(exc)
+        not_desc = False
 
-    #print(source, target, children)
     # cond 5: source is not top level
     not_toplevel = not source.is_toplevel
 
-    #print(same_root, is_diff , not_desc , not_toplevel , valid_user)
     # All conditions need to be met for valid move.
     valid = same_root and is_diff and not_desc and not_toplevel and valid_user
 
