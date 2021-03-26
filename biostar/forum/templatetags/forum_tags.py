@@ -453,7 +453,7 @@ def get_post_list(target, request, show=None):
     # Show a specific post listing.
     show_map = dict(questions=Post.QUESTION, tools=Post.TOOL, news=Post.NEWS,
                     blogs=Post.BLOG, tutorials=Post.TUTORIAL, answers=Post.ANSWER,
-                    comments=Post.COMMENT)
+                    comments=Post.COMMENT, forum=Post.FORUM)
 
     type_filter = show_map.get(show)
     posts = posts.filter(type=type_filter) if type_filter is not None else posts

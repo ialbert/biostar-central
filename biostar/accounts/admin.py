@@ -12,12 +12,11 @@ class ProfileInline(admin.StackedInline):
     fk_name = 'user'
 
 
-
-
 class CustomUserAdmin(UserAdmin):
     inlines = (ProfileInline,)
     list_display = ('email', 'first_name', 'is_staff', 'is_active', "get_state")
     list_select_related = ('profile',)
+    search_fields = ('username', 'email', 'profile__name', 'profile__uid')
 
     fieldsets = (
         ("Information",

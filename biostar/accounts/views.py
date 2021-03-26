@@ -139,7 +139,7 @@ def user_profile(request, uid):
     active = request.GET.get("active", "profile")
 
     # Apply filter to what is shown.
-    show = request.GET.get('show', '')
+    limit = request.GET.get('limit', '')
 
     # User viewing profile is a moderator
     is_mod = (request.user.is_authenticated and request.user.profile.is_moderator)
@@ -150,7 +150,7 @@ def user_profile(request, uid):
     allow_debug = request.user.is_superuser and settings.DEBUG_USERS
 
     context = dict(target=profile.user, active=active, allow_debug=allow_debug, show_info=show_info,
-                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, show=show,
+                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, limit=limit,
                    tab="profile")
 
     return render(request, "accounts/user_profile.html", context)

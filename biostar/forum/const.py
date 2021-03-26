@@ -27,7 +27,7 @@ ORDER_MAPPER = {
     ACTIVITY: '-profile__date_joined'
 }
 
-ALLOWED_PARAMS = {"page", "order", "type", "limit", "query", "user", "show"}
+ALLOWED_PARAMS = {"page", "order", "type", "limit", "query", "user", "active"}
 
 # Cache keys used to cache objects.
 LATEST_CACHE_KEY = "LATEST"
