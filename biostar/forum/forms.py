@@ -231,7 +231,6 @@ class PostModForm(forms.Form):
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
-        pid = self.cleaned_data.get('parent', '')
         return self.cleaned_data
 
 
