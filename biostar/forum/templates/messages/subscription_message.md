@@ -1,1 +1,1 @@
-[{{ post.title}}]({{ post.get_absolute_url }}):{{post.content|truncatechars:80}}
+[{{ post.title}}]({{ post.get_absolute_url }}): {{post.content|truncatechars:100}}

@@ -5,37 +5,63 @@
 
 {% block title %}Biostar Planet{% endblock %}
 
+{% block css %}
+    <style>
+        .ui.list .list > .item a.header, .ui.list > .item a.header {
+            color: red;
+            font-size: larger;
+            padding: 1ex 0ex 1ex 0ex;
+        }
+
+        .ui.divided.list > .item {
+            padding: 2ex 0ex 2ex 0ex !important;
+        }
+
+        .ui.list .list > .item > .content, .ui.list > .item > .content {
+            line-height: 1.4285em;
+        }
+
+        .byline {
+            padding-top: 1ex;
+        }
+    </style>
+
+{% endblock %}
+
+
+
 {% block body %}
 
     <div class="ui page-bar segment">
         {% pages objs=blogposts %}
     </div>
 
-    <div class="ui relaxed list">
+
+    <div class="ui middle aligned divided relaxed list blog">
         {% for post in blogposts %}
-            <div class="ui vertical segment" style="overflow: auto">
 
+            <div class="item">
 
-                <div class="ui header">
-                    <a href="{{ post.link }}">{{ post.title }}</a>
+                <img class="ui avatar image" src="{% planet_gravatar planet_author=post.blog.title %}">
+
+                <div class="content">
+                    <a class="header" href="{{ post.link }}">{{ post.title }}</a>
                 </div>
-                <div>
-                    {{ post.content|truncatewords:200 }}
+
+                <div class="content">
+                    {{ post.content|truncatewords:200 }} <a href="{{ post.link }}">go to blog</a>
                 </div>
 
-                <span class="muted" style="float:right;padding-top:1ex;">
-                    written {{ post.creation_date|timesince }}
-                    by
-                    <div class="ui avatar image">
-                        <img class="ui tiny centered  image thread-users"
-                             src="{% planet_gravatar planet_author=post.blog.title %}">
+                 <div class="right floated content">
+                    <div class="description byline">
+                        posted {{ post.creation_date|timesince }} ago on
+                        <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
                     </div>
-                    <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
+                </div>
 
-                </span>
+
             </div>
         {% endfor %}
-
     </div>
 
     <div class="ui page-bar segment">
