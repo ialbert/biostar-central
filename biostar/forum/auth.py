@@ -335,8 +335,21 @@ def get_counts(user):
     vote_count = Vote.objects.filter(post__author=user, date__gte=user.profile.last_login).exclude(
         author=user)[:1000].count()
 
+    # Planet count since last visit
+    planet_count = 0
+
+    # Spamcount since last visit.
+    spam_count = 0
+
+    # Moderation actions since last visit.
+    mod_count = 0
+
     # Store the counts into the session.
-    counts = {MESSAGE_COUNT: message_count, VOTES_COUNT: vote_count}
+    counts = dict(mod_count=mod_count, spam_count=spam_count, planet_count=planet_count)
+
+    # TODO: needs to be changed
+    counts[MESSAGE_COUNT] = message_count
+    counts[VOTES_COUNT] = vote_count
 
     return counts
 
@@ -496,6 +509,7 @@ def change_user_state(mod, target, state):
     # Generate the logging message.
     msg = f"changed user state to {target.profile.get_state_display()}"
     db_logger(user=mod, action=Log.MODERATE, target=target, text=msg, post=None)
+
 
 def toggle_spam(request, post, **kwargs):
     """

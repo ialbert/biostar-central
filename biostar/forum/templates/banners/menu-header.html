@@ -1,7 +1,6 @@
 {% load forum_tags %}
 {% load static %}
 
-
 <div class="ui borderless menu" id="topicbar">
 
     <a class="item {% activate tab "latest" %} " href="{% url 'post_list' %}">
@@ -35,7 +34,6 @@
 
 </div>
 
-
 <div class="ui labeled icon top attached evenly divided menu" id="menu-header" user-id="{{ request.user.id }}">
 
 
@@ -50,15 +48,15 @@
     </a>
 
     <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
-        <i class="rss icon"></i> Planet
+        <i class="rss icon"></i> Planet  {% show_count cnt.planet_count %}
     </a>
 
     {% if request.user.profile.is_moderator %}
         <a class="item {% activate tab 'spam' %} " href="{% url 'post_topic' 'spam' %}">
-            <i class="bug icon"></i> Spam
+            <i class="bug icon"></i> Spam  {% show_count cnt.spam_count %}
         </a>
         <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
-            <i class="chess queen icon"></i> Mods
+            <i class="chess queen icon"></i> Mods {% show_count cnt.mod_count %}
         </a>
     {% endif %}
 

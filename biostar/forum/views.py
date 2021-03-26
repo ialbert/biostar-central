@@ -91,9 +91,8 @@ class CachedPaginator(Paginator):
             value = cache.get(self.cache_key)
             if value is None:
                 value = super(CachedPaginator, self).count
-                logger.debug(f'setting the cache for "{self.cache_key}"')
+                #logger.debug(f'setting the cache for "{self.cache_key}"')
                 cache.set(self.cache_key, value, self.ttl)
-
         else:
             value = super(CachedPaginator, self).count
 

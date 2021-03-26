@@ -59,6 +59,9 @@ def get_count(request, key, default=0):
     value = request.session.get(const.COUNT_DATA_KEY, {}).get(key, default)
     return value
 
+@register.simple_tag
+def show_count(count):
+    return f"({count})" if count else ""
 
 @register.simple_tag(takes_context=True)
 def activate(context, state, target):
@@ -99,6 +102,7 @@ def counts(context):
     request = context['request']
     vcounts = get_count(request, 'vote_count') or 0
     mcounts = get_count(request, 'message_count') or 0
+
     votes = dict(count=vcounts)
     messages = dict(count=mcounts)
 

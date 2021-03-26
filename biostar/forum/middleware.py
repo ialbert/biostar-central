@@ -96,11 +96,16 @@ def user_tasks(get_response):
             ip = helpers.get_ip(request)
             # Detect user location if not set in the profile.
             detect_location.spool(ip=ip, user_id=user.id)
+
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
+
+            # Compute latest counts.
             counts = auth.get_counts(user=user)
+
             # Set the session.
             request.session[const.COUNT_DATA_KEY] = counts
+
             # Trigger award generation.
             tasks.create_user_awards.spool(user_id=user.id)
 
