@@ -594,7 +594,8 @@ def post_moderate(request, uid):
         if form.is_valid():
             action = form.cleaned_data.get('action')
             comment = form.cleaned_data.get('comment')
-            parent = form.cleaned_data.get('parent')
+            parent = form.cleaned_data.get('parent', '')
+            parent = Post.objects.filter(uid=parent).first()
             url = auth.moderate(request=request, post=post, action=action, parent=parent, comment=comment)
             return redirect(url)
         else:

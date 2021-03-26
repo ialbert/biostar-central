@@ -414,7 +414,7 @@ def only_delete(post, user):
     return only_del
 
 
-def delete_post(request, post):
+def delete_post(request, post, **kwargs):
     user = request.user
     if only_delete(post, user):
         # Deleted posts can be un=deleted by re-opening them.
@@ -555,16 +555,23 @@ def toggle_spam(request, post, **kwargs):
 
 
 def move_post(request, post, parent, **kwargs):
-    parent = Post.objects.filter(uid=parent).first()
     user = request.user
-
-    if parent:
-        Post.objects.filter(uid=post.uid).update(parent=parent, type=Post.COMMENT)
-        msg = f"moved to {parent.uid}" if parent else "moved to answer"
-        messages.info(request, mark_safe(msg))
-        db_logger(user=user, text=f"{msg}", post=post)
-
     url = post.get_absolute_url()
+
+    if not parent:
+        return url
+
+    # Move this post to comment of parent
+    Post.objects.filter(uid=post.uid).update(parent=parent, type=Post.COMMENT)
+
+    # Log action and let user know
+    msg = f"moved to {parent.uid}" if parent else "moved to answer"
+    messages.info(request, mark_safe(msg))
+    db_logger(user=user, text=f"{msg}", post=post)
+    post.update_parent_counts()
+    # Delete post cache on valid move.
+    delete_post_cache(post)
+
     return url
 
 
@@ -574,11 +581,15 @@ def move_to_answer(request, post, **kwargs):
     """
     user = request.user
     Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
+    url = post.get_absolute_url()
 
     msg = f"moved to {post.root.uid}"
     messages.info(request, mark_safe(msg))
     db_logger(user=user, text=f"{msg}", post=post)
-    url = post.get_absolute_url()
+    post.update_parent_counts()
+    # Delete post cache on valid move.
+    delete_post_cache(post)
+
     return url
 
 
@@ -615,17 +626,6 @@ def duplicated(request, post, comment, **kwargs):
     msg = "duplicate"
     messages.info(request, mark_safe(msg))
     db_logger(user=user, text=f"{msg}", post=post)
-    return url
-
-
-def delete(request, post, **kwargs):
-    """
-    Delete this post or complete remove it from the database.
-    """
-
-    url = delete_post(request=request, post=post)
-
-
     return url
 
 
@@ -689,7 +689,7 @@ def moderate(request, post, action, parent, comment=""):
                   DUPLICATE: duplicated,
                   BUMP_POST: bump,
                   OPEN_POST: open,
-                  DELETE: delete,
+                  DELETE: delete_post,
                   CLOSE: close,
                   MOVE: move_post,
                   MOVE_ANSWER: move_to_answer,

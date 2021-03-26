@@ -153,23 +153,21 @@ def drag_and_drop(request):
     user = request.user
     parent = Post.objects.filter(uid=parent_uid).first()
     post = Post.objects.filter(uid=uid).first()
-    post_type = Post.COMMENT
 
-    # Dropping comment as a new answer
-    if parent_uid == "NEW":
-        parent = post.root
-        post_type = Post.ANSWER
+    # Parent is root when dropping to a new answer.
+    parent = post.root if (parent_uid == "NEW" and post) else parent
 
     valid = auth.validate_move(user=user, source=post, target=parent)
     if not valid:
         return ajax_error(msg="Invalid Drop")
 
-    Post.objects.filter(uid=post.uid).update(type=post_type, parent=parent)
+    # Dropping comment as a new answer
+    if parent_uid == "NEW":
+        url = auth.move_to_answer(request=request, post=post)
+    else:
+        url = auth.move_post(request=request, post=post, parent=parent)
 
-    post.update_parent_counts()
-    redir = post.get_absolute_url()
-
-    return ajax_success(msg="success", redir=redir)
+    return ajax_success(msg="success", redir=url)
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=SUBS_RATE)
