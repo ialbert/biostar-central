@@ -9,32 +9,32 @@
             <i class="dropdown icon"></i>
 
             <div class="menu">
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'all' 'show' params %}">
+                <a class="item" href="{% relative_url 'all' 'limit' params %}">
                     <i class="list icon"></i>all
                 </a>
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'questions' 'show' params %}">
+                <a class="item" href="{% relative_url 'questions' 'limit' params %}">
                     <i class="question mark icon"></i>questions
                 </a>
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'tools' 'show' params %}">
+                <a class="item" href="{% relative_url 'tools' 'limit' params %}">
                     <i class="cogs icon"></i>tools
                 </a>
 
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'blogs' 'show' params %}">
+                <a class="item" href="{% relative_url 'blogs' 'limit' params %}">
                     <i class="file icon"></i>blogs
                 </a>
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'news' 'show' params %}">
+                <a class="item" href="{% relative_url 'news' 'limit' params %}">
                     <i class="newspaper icon"></i>news
                 </a>
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'tutorials' 'show' params %}">
+                <a class="item" href="{% relative_url 'tutorials' 'limit' params %}">
                     <i class="help icon"></i>tutorials
                 </a>
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'forum' 'show' params %}">
+                <a class="item" href="{% relative_url 'forum' 'limit' params %}">
                     <i class="list icon"></i>forum
                 </a>
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'answers' 'show' params %}">
+                <a class="item" href="{% relative_url 'answers' 'limit' params %}">
                     <i class="{% get_icon 'week' %}"></i>answers
                 </a>
-                <a class="item" href="{% url 'user_profile' target.profile.uid %}{% relative_url 'comments' 'show' params %}">
+                <a class="item" href="{% relative_url 'comments' 'limit' params %}">
                     <i class="{% get_icon 'month' %}"></i>comments
                 </a>
 
@@ -43,12 +43,12 @@
     </div>
 {% endwith %}
 
-{% if show %}
-    <div class="ui blue message"> Showing :<b> {{ show }}</b></div>
+{% if limit %}
+    <div class="ui blue message"> Showing :<b> {{ limit }}</b></div>
 {% endif %}
 
 <div class="ui divided items">
-    {% get_post_list request=request target=target show=show as post_list %}
+    {% get_post_list request=request target=target show=limit as post_list %}
 
     {% for post in post_list %}
         {% post_details post=post user=request.user %}

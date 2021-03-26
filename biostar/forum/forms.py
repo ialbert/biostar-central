@@ -211,33 +211,25 @@ class PostModForm(forms.Form):
         choices = [
             (OPEN_POST, "Open post"),
             (DELETE, "Delete post"),
-            (OFF_TOPIC, "Off topic"),
-            (REPORT_SPAM, "Spam"),
+            #(OFF_TOPIC, "Off topic"),
+            (REPORT_SPAM, "Report Spam"),
         ]
 
         # Top level posts may be bumped.
         if post.is_toplevel:
             choices += [(BUMP_POST, "Bump post.")]
+        elif post.is_comment:
+            choices += [(MOVE_ANSWER, "Move as answer.")]
 
-        # Options for top level posts.
-        if settings.ALLOW_POST_CLOSING:
-            extras = [(CLOSE, "Close post ( reason required ). "),
-                      (DUPLICATE, "Duplicated post ( links required ).")]
-            choices += extras
-            self.fields['comment'] = forms.CharField(required=False, max_length=1000, widget=forms.Textarea,
-                                                     strip=True)
+        if post.is_answer or post.is_comment:
+            choices += [(MOVE_COMMENT, "Move as comment to top level")]
 
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
 
     def clean(self):
-        action = self.cleaned_data.get("action")
-        comment = self.cleaned_data.get("comment")
 
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
-
-        if (action == CLOSE or action == DUPLICATE) and not comment:
-            raise forms.ValidationError("Closing a post requires a reason.")
 
         return self.cleaned_data
 

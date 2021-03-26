@@ -338,7 +338,7 @@ def get_counts(user):
     # Planet count since last visit
     planet_count = 0
 
-    # Spamcount since last visit.
+    # Spam count since last visit.
     spam_count = 0
 
     # Moderation actions since last visit.
@@ -427,7 +427,8 @@ def only_delete(post, user):
     return only_del
 
 
-def delete_post(post, user):
+def delete_post(request, post, **kwargs):
+    user = request.user
     if only_delete(post, user):
         # Deleted posts can be un=deleted by re-opening them.
         Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
@@ -435,8 +436,9 @@ def delete_post(post, user):
         msg = f"deleted"
         post.recompute_scores()
         post.root.recompute_scores()
+        messages.info(request, mark_safe(msg))
         db_logger(user=user, post=post, text=msg)
-        return url, msg
+        return url
 
     # Redirect depends on the level of the post.
     if post.is_toplevel:
@@ -447,10 +449,11 @@ def delete_post(post, user):
 
     # Remove post from the database with no trace.
     msg = f"removed"
-    post.delete()
+    messages.info(request, mark_safe(msg))
     db_logger(user=user, post=post, text=msg)
+    post.delete()
 
-    return url, msg
+    return url
 
 
 def open(request, post, **kwargs):
@@ -564,6 +567,68 @@ def toggle_spam(request, post, **kwargs):
     return url
 
 
+def move(request, parent, source, ptype=Post.COMMENT, msg="moved"):
+    user = request.user
+    url = source.get_absolute_url()
+
+    if source.is_toplevel or not parent:
+        return url
+
+    # Move this post to comment of parent
+    source.parent = parent
+    source.type = ptype
+    source.save()
+
+    # Log action and let user know
+    messages.info(request, mark_safe(msg))
+    db_logger(user=user, text=f"{msg}", post=source)
+    source.update_parent_counts()
+    return url
+
+
+def move_post(request, post, parent, **kwargs):
+    """
+    Move one post to another
+    """
+    ptype = Post.COMMENT
+    msg = f"moved post"
+    return move(request=request,
+                parent=parent,
+                source=post,
+                ptype=ptype,
+                msg=msg)
+
+
+def move_to_comment(request, post, **kwargs):
+    """
+    move this post to a comment
+    """
+
+    parent = post.root
+    ptype = Post.COMMENT
+    msg = "moved comment"
+    return move(request=request,
+                parent=parent,
+                source=post,
+                ptype=ptype,
+                msg=msg)
+
+
+def move_to_answer(request, post, **kwargs):
+    """
+    Move this post to be an answer
+    """
+
+    parent = post.root
+    ptype = Post.ANSWER
+    msg = "moved answer"
+    return move(request=request,
+                parent=parent,
+                source=post,
+                ptype=ptype,
+                msg=msg)
+
+
 def close(request, post, comment, **kwargs):
     """
     Close this post and provide a rationale for closing as well.
@@ -600,16 +665,43 @@ def duplicated(request, post, comment, **kwargs):
     return url
 
 
-def delete(request, post, **kwargs):
+def validate_move(user, source, target):
     """
-    Delete this post or complete remove it from the database.
+    Return True if moving post from one to another is valid.
     """
-    user = request.user
-    url, msg = delete_post(post=post, user=user)
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg} ; post.uid={post.uid}.")
 
-    return url
+    if not source or not target:
+        return False
+
+    # cond 1: user is a moderator or author
+    valid_user = user.profile.is_moderator or source.author == user
+
+    # cond 2: source and target share the same root
+    same_root = source.root.uid == target.root.uid
+
+    # cond 3: source and target are different posts
+    is_diff = source.uid != target.uid
+
+    # cond 4: target is not a descendant of source.
+    children = set()
+    try:
+        walk_down_thread(parent=source, collect=children)
+        not_desc = (target not in children)
+    except Exception as exc:
+        logger.error(exc)
+        not_desc = False
+
+    # cond 5: source is not top level
+    not_toplevel = not source.is_toplevel
+
+    # All conditions need to be met for valid move.
+    valid = same_root and is_diff and not_desc and not_toplevel and valid_user
+
+    # Conditions needed to be classified as
+    if valid:
+        return True
+
+    return False
 
 
 def off_topic(request, post, **kwargs):
@@ -633,19 +725,20 @@ def off_topic(request, post, **kwargs):
     return url
 
 
-def moderate(request, post, action, comment=""):
+def moderate(request, post, action, parent, comment=""):
     # Bind an action to a function.
     action_map = {REPORT_SPAM: toggle_spam,
                   DUPLICATE: duplicated,
                   BUMP_POST: bump,
                   OPEN_POST: open,
-                  DELETE: delete,
+                  DELETE: delete_post,
                   CLOSE: close,
-                  OFF_TOPIC: off_topic}
+                  MOVE_COMMENT: move_to_comment,
+                  MOVE_ANSWER: move_to_answer}
 
     if action in action_map:
         mod_func = action_map[action]
-        url = mod_func(request=request, post=post, comment=comment)
+        url = mod_func(request=request, post=post, parent=parent, comment=comment)
     else:
         url = post.get_absolute_url()
         msg = "Unknown moderation action given."

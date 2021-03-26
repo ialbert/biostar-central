@@ -72,7 +72,7 @@ def listing(request):
 
 
 @login_required
-def user_moderate(request, uid):
+def user_moderate(request, uid, callback=lambda *args, **kwargs: None):
 
     source = request.user
     target = User.objects.filter(id=uid).first()
@@ -90,8 +90,7 @@ def user_moderate(request, uid):
             profile.state = state
             profile.save()
             # Log the moderation action
-            text = f"user={target.pk} state set to {target.profile.get_state_display()}"
-
+            callback()
             messages.success(request, "User moderation complete.")
         else:
             errs = ','.join([err for err in form.non_field_errors()])
@@ -139,7 +138,7 @@ def user_profile(request, uid):
     active = request.GET.get("active", "profile")
 
     # Apply filter to what is shown.
-    show = request.GET.get('show', '')
+    limit = request.GET.get('limit', '')
 
     # User viewing profile is a moderator
     is_mod = (request.user.is_authenticated and request.user.profile.is_moderator)
@@ -150,7 +149,7 @@ def user_profile(request, uid):
     allow_debug = request.user.is_superuser and settings.DEBUG_USERS
 
     context = dict(target=profile.user, active=active, allow_debug=allow_debug, show_info=show_info,
-                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, show=show,
+                   const_post=POSTS, const_project=PROJECT, can_moderate=can_moderate, limit=limit,
                    tab="profile")
 
     return render(request, "accounts/user_profile.html", context)

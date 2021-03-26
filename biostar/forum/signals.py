@@ -91,10 +91,6 @@ def finalize_post(sender, instance, created, **kwargs):
         # Sanity check.
         assert instance.root and instance.parent
 
-        if not instance.is_toplevel:
-            # Title is inherited from top level.
-            instance.title = "%s: %s" % (instance.get_type_display(), instance.root.title[:80])
-
         # Make the last editor first in the list of contributors
         # Done on post creation to avoid moderators being added for editing a post.
         instance.root.thread_users.remove(instance.lastedit_user)
@@ -132,6 +128,11 @@ def finalize_post(sender, instance, created, **kwargs):
     # Ensure spam posts get closed status
     if instance.is_spam:
         Post.objects.filter(uid=instance.uid).update(status=Post.CLOSED)
+
+    if not instance.is_toplevel:
+        # Title is inherited from top level.
+        title = f"{instance.get_type_display()}: {instance.root.title[:80]}"
+        Post.objects.filter(uid=instance.uid).update(title=title)
 
     # Ensure posts get re-indexed after being edited.
     Post.objects.filter(uid=instance.uid).update(indexed=False)

@@ -93,6 +93,9 @@ urlpatterns = [
     # Main entry. Post listing.
     path('', include(forum_patterns)),
 
+    # Override the moderate
+    path(r'accounts/moderate/<str:uid>/', views.user_moderate, name="user_moderate"),
+
     # Include the accounts urls
     path('accounts/', include(account_patterns)),
 

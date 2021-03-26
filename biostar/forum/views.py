@@ -15,6 +15,8 @@ from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
 
+from biostar.accounts.views import user_moderate as account_moderate
+
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
@@ -592,7 +594,9 @@ def post_moderate(request, uid):
         if form.is_valid():
             action = form.cleaned_data.get('action')
             comment = form.cleaned_data.get('comment')
-            url = auth.moderate(request=request, post=post, action=action, comment=comment)
+            parent = form.cleaned_data.get('parent', '')
+            parent = Post.objects.filter(uid=parent).first()
+            url = auth.moderate(request=request, post=post, action=action, parent=parent, comment=comment)
             return redirect(url)
         else:
             errors = ','.join([err for err in form.non_field_errors()])
@@ -603,6 +607,20 @@ def post_moderate(request, uid):
 
     context = dict(form=form, post=post)
     return render(request, "forms/form_moderate.html", context)
+
+
+def user_moderate(request, uid):
+
+    def callback():
+        source = request.user
+        target = User.objects.filter(id=uid).first()
+        text = f"set to {target.profile.get_state_display()}"
+        auth.db_logger(user=source, text=text, target=target)
+        return
+
+    result = account_moderate(request=request, uid=uid, callback=callback)
+
+    return result
 
 
 @check_params(allowed=ALLOWED_PARAMS)

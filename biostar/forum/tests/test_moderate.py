@@ -43,7 +43,6 @@ class PostTest(TestCase):
 
         return
 
-    @patch('biostar.forum.models.Post.save', MagicMock(name="save"))
     def test_toplevel_moderation(self):
         "Test top level post moderation."
         # Test every moderation action
@@ -52,11 +51,9 @@ class PostTest(TestCase):
         self.post = models.Post.objects.create(title="Test",
                                                author=self.owner, content="Test",
                                                type=models.Post.QUESTION, uid='bar')
-        self.post.save()
 
         self.moderate(choices=choices, post=self.post)
 
-    @patch('biostar.forum.models.Post.save', MagicMock(name="save"))
     def test_answer_moderation(self):
         "Test answer moderation."
         choices = [const.TOGGLE_ACCEPT, const.DELETE]
@@ -65,13 +62,12 @@ class PostTest(TestCase):
         answer = models.Post.objects.create(title="Test", author=self.owner, content="Test",
                                   type=models.Post.ANSWER, root=self.post, uid='foo2',
                                   parent=self.post)
-        answer.save()
+
         # Add the same amount of giving of the
         self.moderate(choices=choices, post=answer)
 
         return
 
-    @patch('biostar.forum.models.Post.save', MagicMock(name="save"))
     def test_comment_moderation(self):
         "Test comment moderation."
         choices = [const.DELETE]
@@ -81,11 +77,8 @@ class PostTest(TestCase):
                                    type=models.Post.COMMENT, root=self.post, uid='foo3',
                                    parent=self.post)
 
-        comment.save()
-
         self.moderate(choices=choices, post=comment, extra={'pid': self.post.uid})
 
-    @patch('biostar.forum.models.Post.save', MagicMock(name="save"))
     def test_duplicate_post(self):
         "Test duplicate post moderation"
 

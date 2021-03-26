@@ -6,6 +6,7 @@ DEBUG = True
 
 CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[bioc] "
 HTTP_PROTOCOL = "http"
 
 LANGUAGE_DETECTION = ["af", "ar", "bg",

@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.conf import settings
 
 from biostar.planet.models import Blog, BlogPost
-from biostar.forum.util import strip_tags
+from biostar.forum.util import strip_tags, get_uuid
 
 logger = logging.getLogger('engine')
 
@@ -34,8 +34,9 @@ def create_blogpost(entry, blog):
                                        creation_date=date, link=entry.link)
 
     except Exception as exc:
-        logger.error(entry.title)
-        logger.error(f"database error {exc}")
+
+        logger.error(entry.id)
+        logger.warning(f"database error {exc}")
     else:
         logger.info(f"added: {post.title}")
 
@@ -51,8 +52,10 @@ def add_blogpost(blogs, count=3):
             seen = set(seen)
             # Parse the blog
             doc = blog.parse()
+
             # get the new posts
-            entries = [e for e in doc.entries if e.id not in seen]
+            entries = [e for e in doc.entries if f"{e.id}" not in seen]
+
             # Only list a few entries
             entries = entries[:count]
             for entry in entries:
@@ -76,6 +79,7 @@ def add_blogpost(blogs, count=3):
 def add_blog(feed):
 
     try:
+
         text = request.urlopen(feed).read().decode(errors="surrogatepass")
         doc = feedparser.parse(text)
         title = doc.feed.title
@@ -94,8 +98,8 @@ def add_blog(feed):
         logger.debug(blog.desc)
 
     except Exception as exc:
-        logger.error(f"error {exc} parsing {feed}")
-        blog = None
+       logger.error(f"error {exc} parsing {feed}")
+       blog = None
 
     logger.info('-' * 10)
     return blog
@@ -120,7 +124,7 @@ def add_blogs(add_fname):
     urls = map(str.strip, open(add_fname))
 
     # Keep feeds with urls that do not yet exists
-    urls = filter(lambda url: not Blog.objects.filter(feed=url) and len(url), urls)
+    urls = filter(lambda url: len(url) or not Blog.objects.filter(feed=url), urls)
 
     # Attempt to populate the database with the feeds
     for feed in urls:

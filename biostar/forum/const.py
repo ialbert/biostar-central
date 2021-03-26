@@ -1,7 +1,7 @@
 # Moderation action codes.
-MOD_ACTIONS = list(range(9))
+MOD_ACTIONS = list(range(10))
 
-BUMP_POST, OPEN_POST, TOGGLE_ACCEPT, MOVE_ANSWER, DUPLICATE, OFF_TOPIC, DELETE, CLOSE, REPORT_SPAM = MOD_ACTIONS
+BUMP_POST, OPEN_POST, TOGGLE_ACCEPT, MOVE_COMMENT, DUPLICATE, OFF_TOPIC, DELETE, CLOSE, REPORT_SPAM, MOVE_ANSWER = MOD_ACTIONS
 
 # Filter actions
 RANK, VIEWS, REPLIES, TAGGED, \
@@ -27,7 +27,7 @@ ORDER_MAPPER = {
     ACTIVITY: '-profile__date_joined'
 }
 
-ALLOWED_PARAMS = {"page", "order", "type", "limit", "query", "user"}
+ALLOWED_PARAMS = {"page", "order", "type", "limit", "query", "user", "active"}
 
 # Cache keys used to cache objects.
 LATEST_CACHE_KEY = "LATEST"

@@ -17,6 +17,20 @@
             </div>
         </div>
 
+        {% if form.parent %}
+
+        <div class="ui segment">
+            <div class="field">
+                <label>Parent post to move under.</label>
+                {{ form.parent }}
+                <div class="ui muted">
+                    The parent ID to move this post under.
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+
         <p>
             If a post is a duplicate please indicate that as an answer.
         </p>
@@ -25,19 +39,6 @@
             If this is a cross-post with bioinformatics relevance please provide the link as an answer.
         </p>
 
-        {% if form.comment %}
-
-        <div class="ui segment">
-            <div class="field">
-                <label>Reasons for closure</label>
-                {{ form.comment }}
-                <div class="ui muted">
-                    Reason for closing this post. Enter duplicate links separated by new line.
-                </div>
-            </div>
-        </div>
-
-        {% endif %}
        <button type="submit" class="ui green enter button">
             <i class="check icon"></i>
             Submit
