@@ -592,6 +592,7 @@ def move_to_answer(request, post, **kwargs):
     """
     Move this post to be an answer
     """
+
     user = request.user
     Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
     url = post.get_absolute_url()
@@ -650,22 +651,24 @@ def validate_move(user, source, target):
     if not source or not target:
         return False
 
+    # cond 1: user is a moderator or author
     valid_user = user.profile.is_moderator or source.author == user
 
-    # source and target do not share a root
+    # cond 2: source and target share the same root
     same_root = source.root.uid == target.root.uid
 
-    # source and target are the same thing.
+    # cond 3: source and target are different posts
     is_diff = source.uid != target.uid
 
-    # See if target is a descendant of source.
+    # cond 4: target is not a descendant of source.
     children = set()
     walk_down_thread(parent=source, collect=children)
     not_desc = target not in children
 
+    # cond 5: source is not top level
     not_toplevel = not source.is_toplevel
 
-    # Conditions needed for a valid post moving.
+    # All conditions need to be met for valid move.
     valid = same_root and is_diff and not_desc and not_toplevel and valid_user
 
     # Conditions needed to be classified as
