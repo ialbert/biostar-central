@@ -131,6 +131,14 @@ blockquote.twitter-tweet {
 }
 
 
+.message td {
+    padding-bottom: 0ex !important;
+}
+
+.message p {
+    margin: 0 0 1ex 0ex;
+}
+
 .post .bug.icon {
     opacity: .25;
 }
@@ -550,7 +558,7 @@ i.icon {
 }
 
 .indent {
-    margin-left: 3em;
+    margin-left: 2em;
 }
 
 .comment {

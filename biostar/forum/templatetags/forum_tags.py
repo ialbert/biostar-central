@@ -1,28 +1,25 @@
-import hashlib
+import datetime
 import itertools
 import logging
-import random
-import re
 import os
-import datetime
-from itertools import count, islice
+import random
 from datetime import timedelta
-from django.db.models import Count
+from itertools import count, islice
+
 import bleach
-from taggit.models import Tag
 from django import template, forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
+from django.db.models import Count
 from django.shortcuts import reverse
-from django.db.models import Q
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
-from django.core.paginator import Paginator
-from django.core.cache import cache
+from taggit.models import Tag
 
-from biostar.forum import markdown
 from biostar.accounts.models import Profile, Message
-from biostar.forum import const, auth, util
+from biostar.forum import const, auth
+from biostar.forum import markdown
 from biostar.forum.models import Post, Vote, Award, Subscription, Badge
 
 User = get_user_model()
@@ -59,9 +56,19 @@ def get_count(request, key, default=0):
     value = request.session.get(const.COUNT_DATA_KEY, {}).get(key, default)
     return value
 
+
 @register.simple_tag
 def show_count(count):
+
+    try:
+        count = int(count)
+    except ValueError as exc:
+        # TODO: this is to catch ongoing stale sessions, may be removed later
+        logger.error(f"invalid count (stale session?) {count}")
+        count = 0
+
     return f"({count})" if count else ""
+
 
 @register.simple_tag(takes_context=True)
 def activate(context, state, target):
@@ -69,6 +76,7 @@ def activate(context, state, target):
     label = "active" if state in targets else ""
 
     return label
+
 
 @register.simple_tag()
 def vote_icon(vote):
@@ -98,7 +106,6 @@ def bignum(number):
 
 @register.simple_tag(takes_context=True)
 def counts(context):
-
     request = context['request']
     vcounts = get_count(request, 'vote_count') or 0
     mcounts = get_count(request, 'message_count') or 0
@@ -126,7 +133,6 @@ def now():
 
 @register.simple_tag
 def gravatar(user=None, user_uid=None, size=80):
-
     if user_uid and hasattr(user, 'profile'):
         user = User.objects.filter(profile__uid=user_uid).first()
 
@@ -135,13 +141,11 @@ def gravatar(user=None, user_uid=None, size=80):
 
 @register.inclusion_tag('widgets/filter_dropdown.html', takes_context=True)
 def filter_dropdown(context):
-
     return context
 
 
 @register.inclusion_tag('widgets/user_icon.html', takes_context=True)
 def user_icon(context, user=None, is_moderator=False, is_spammer=False, score=0):
-
     try:
         is_moderator = user.profile.is_moderator if user else is_moderator
         score = user.profile.get_score() if user else score * 10
@@ -190,7 +194,6 @@ def user_card(context, target):
 
 @register.inclusion_tag('widgets/post_user_box.html', takes_context=True)
 def post_user_box(context, target_user, post):
-
     context.update(dict(target_user=target_user, post=post))
     return context
 
@@ -205,7 +208,6 @@ def post_actions(context, post, label="ADD COMMENT", author=None, lastedit_user=
 
 @register.inclusion_tag('widgets/post_tags.html')
 def post_tags(post=None, post_uid=None, show_views=False, tags_str='', spaced=True):
-
     if post_uid:
         post = Post.objects.filter(uid=post_uid).first()
 
@@ -252,7 +254,6 @@ def toggle_unread(user):
 
 @register.simple_tag(takes_context=True)
 def digest_label(context, post):
-
     user = context['request'].user
     no_digest = 'No digest'
 
@@ -299,7 +300,7 @@ def inplace_type_field(post=None, field_id='type'):
     choices = [opt for opt in Post.TYPE_CHOICES]
 
     choices = filter(lambda opt: (opt[1] in settings.ALLOWED_POST_TYPES) if settings.ALLOWED_POST_TYPES else
-                                 (opt[0] in Post.TOP_LEVEL), choices)
+    (opt[0] in Post.TOP_LEVEL), choices)
 
     post_type = forms.IntegerField(label="Post Type",
                                    widget=forms.Select(choices=choices, attrs={'class': "ui fluid dropdown",
@@ -422,7 +423,6 @@ def get_last_login(user):
     return f"{time_ago(user.profile.date_joined)}"
 
 
-
 @register.inclusion_tag('widgets/feed_custom.html')
 def custom_feed(objs, ftype='', title=''):
     users = ()
@@ -462,7 +462,7 @@ def get_post_list(target, request, show=None):
     type_filter = show_map.get(show)
     posts = posts.filter(type=type_filter) if type_filter is not None else posts
 
-    posts = posts.select_related("root").select_related( "author__profile", "lastedit_user__profile")
+    posts = posts.select_related("root").select_related("author__profile", "lastedit_user__profile")
     posts = posts.order_by("-rank")
 
     # Cache the users posts add pagination to posts.
@@ -490,7 +490,6 @@ def awards_feed():
 
 @register.inclusion_tag('widgets/feed_default.html')
 def default_feed(user):
-
     recent_votes = Vote.objects.filter(post__status=Post.OPEN,
                                        post__root__status=Post.OPEN).prefetch_related("post")
     recent_votes = recent_votes.order_by("-pk")[:settings.VOTE_FEED_COUNT]
@@ -515,7 +514,6 @@ def default_feed(user):
 
 @register.simple_tag
 def planet_gravatar(planet_author):
-
     email = planet_author.replace(' ', '')
     email = f"{email}@planet.org"
     email = email.encode('utf-8')
@@ -573,7 +571,6 @@ def get_wording(filtered, prefix="Sort by:", default=""):
 
 @register.simple_tag
 def activate_check_mark(filter, active):
-
     if filter == active:
         return 'check icon'
 
@@ -616,7 +613,6 @@ def relative_url(context, value, field_name, urlencode=None):
 
 @register.simple_tag
 def get_thread_users(users, post, limit=2):
-
     displayed_users = {post.author, post.lastedit_user or post.author}
 
     for user in users:
@@ -702,7 +698,6 @@ def bignum(number):
 
 
 def post_boxclass(root_type, answer_count, root_has_accepted):
-
     # Create the css class for each row
     if root_type == Post.JOB:
         style = "job"
@@ -737,7 +732,6 @@ def search_boxclass(root_type, answer_count, root_has_accepted):
 
 @register.simple_tag
 def boxclass(post=None, uid=None):
-
     return post_boxclass(root_type=post.root.type,
                          answer_count=post.root.answer_count,
                          root_has_accepted=post.root.has_accepted)
@@ -821,7 +815,7 @@ def markdown_file(pattern):
 
 
 class MarkDownNode(template.Node):
-    #CALLBACKS = [top_level_only]
+    # CALLBACKS = [top_level_only]
 
     def __init__(self, nodelist):
         self.nodelist = nodelist
@@ -829,7 +823,7 @@ class MarkDownNode(template.Node):
     def render(self, context):
         text = self.nodelist.render(context)
         text = markdown.parse(text, clean=False, escape=False, allow_rewrite=True)
-        #text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
+        # text = bleach.linkify(text, callbacks=self.CALLBACKS, skip_tags=['pre'])
         return text
 
 
