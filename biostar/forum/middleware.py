@@ -77,6 +77,8 @@ def user_tasks(get_response):
 
         # Views for anonymous users are not analzed further.
         if user.is_anonymous:
+            # Set the anon user counts
+            auth.set_counts(request=request)
             return get_response(request)
 
         # Banned and suspended will be logged out.

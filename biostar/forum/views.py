@@ -16,7 +16,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
 
 from biostar.accounts.views import user_moderate as account_moderate
-
+from biostar.planet.views import blog_list as planet_list
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
@@ -349,6 +349,21 @@ def myvotes(request):
 
 
 @check_params(allowed=ALLOWED_PARAMS)
+def blog_list(request):
+
+    def callback():
+        """
+        Set the planet count to zero in cache
+        """
+        counts = request.session.get(COUNT_DATA_KEY, {})
+        counts["planet_count"] = 0
+        request.session[COUNT_DATA_KEY] = counts
+        return
+
+    return planet_list(request, callback=callback)
+
+
+@check_params(allowed=ALLOWED_PARAMS)
 def tags_list(request):
     """
     Show posts by user
@@ -609,6 +624,7 @@ def post_moderate(request, uid):
     return render(request, "forms/form_moderate.html", context)
 
 
+@login_required
 def user_moderate(request, uid):
 
     def callback():
@@ -618,7 +634,7 @@ def user_moderate(request, uid):
         auth.db_logger(user=source, text=text, target=target)
         return
 
-    result = account_moderate(request=request, uid=uid, callback=callback)
+    result = account_moderate(request, uid=uid, callback=callback)
 
     return result
 

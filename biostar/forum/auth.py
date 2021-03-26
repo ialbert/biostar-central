@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import urllib.parse as urlparse
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -9,11 +10,15 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.template import loader
 from django.utils.safestring import mark_safe
+from django.conf import settings
+
 
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
+from biostar.planet.models import BlogPost
 # Needed for historical reasons.
 from biostar.accounts.models import Profile
+from biostar.utils.helpers import get_ip
 from . import util, awards
 from .const import *
 from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log
@@ -327,6 +332,39 @@ def valid_awards(user):
     return valid
 
 
+def set_counts(request):
+    """
+    Set request count for anonymous users.
+    """
+    # Get the IP
+    ip = get_ip(request)
+
+    # Try to get last seen date from cache
+    date = cache.get(ip)
+
+    # Set the last seen date as now
+    if not date:
+        date = util.now()
+        cache.set(ip, date)
+
+    # Calculate out elapsed seconds since last seen
+    elapsed = (util.now() - date).total_seconds()
+
+    # Update counts if elapsed is greater than session update time.
+    if elapsed >= settings.SESSION_UPDATE_SECONDS:
+        count = BlogPost.objects.filter(creation_date__gte=date)[:100].count()
+
+        # Store the counts into the session.
+        counts = dict(planet_count=count)
+
+        # Set the counts in sessions
+        request.session[COUNT_DATA_KEY] = counts
+
+        # Reset the last seen date for an anon user.
+        date = util.now()
+        cache.set(ip, date)
+
+
 def get_counts(user):
     # The number of new messages since last visit.
     message_count = Message.objects.filter(recipient=user, unread=True)[:1000].count()
@@ -336,20 +374,20 @@ def get_counts(user):
         author=user)[:1000].count()
 
     # Planet count since last visit
-    planet_count = 0
+    planet_count = BlogPost.objects.filter(creation_date__gte=user.profile.last_login)[:100].count()
 
     # Spam count since last visit.
-    spam_count = 0
+    spam_count = Post.objects.filter(spam=Post.SPAM, creation_date__gte=user.profile.last_login)[:1000].count()
 
     # Moderation actions since last visit.
-    mod_count = 0
+    mod_count = Log.objects.filter(date__gte=user.profile.last_login)[:100].count()
 
     # Store the counts into the session.
-    counts = dict(mod_count=mod_count, spam_count=spam_count, planet_count=planet_count)
-
-    # TODO: needs to be changed
-    counts[MESSAGE_COUNT] = message_count
-    counts[VOTES_COUNT] = vote_count
+    counts = dict(mod_count=mod_count,
+                  spam_count=spam_count,
+                  planet_count=planet_count,
+                  message_count=message_count,
+                  vote_count=vote_count)
 
     return counts
 
