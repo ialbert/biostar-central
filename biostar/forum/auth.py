@@ -338,7 +338,7 @@ def get_counts(user):
     # Planet count since last visit
     planet_count = 0
 
-    # Spamcount since last visit.
+    # Spam count since last visit.
     spam_count = 0
 
     # Moderation actions since last visit.
@@ -567,35 +567,11 @@ def toggle_spam(request, post, **kwargs):
     return url
 
 
-def move_post(request, post, parent, **kwargs):
-    """
-    Used to move posts in drag and drop
-    """
-    user = request.user
-    url = post.get_absolute_url()
-
-    if not parent:
-        return url
-
-    # Move this post to comment of parent
-    post.parent = parent
-    post.type = Post.COMMENT
-    post.save()
-
-    # Log action and let user know
-    msg = f"moved to {parent.uid}"
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg}", post=post)
-    post.update_parent_counts()
-
-    return url
-
-
 def move(request, parent, source, ptype=Post.COMMENT, msg="moved"):
     user = request.user
     url = source.get_absolute_url()
 
-    if source.is_toplevel:
+    if source.is_toplevel or not parent:
         return url
 
     # Move this post to comment of parent
@@ -615,8 +591,12 @@ def move_post(request, post, parent, **kwargs):
     Move one post to another
     """
     ptype = Post.COMMENT
-
-    return move(request=request, parent=parent, source=post, ptype=ptype)
+    msg = f"moved post"
+    return move(request=request,
+                parent=parent,
+                source=post,
+                ptype=ptype,
+                msg=msg)
 
 
 def move_to_comment(request, post, **kwargs):
@@ -627,7 +607,11 @@ def move_to_comment(request, post, **kwargs):
     parent = post.root
     ptype = Post.COMMENT
     msg = "moved comment"
-    return move(request=request, parent=parent, source=post, ptype=ptype, msg=msg)
+    return move(request=request,
+                parent=parent,
+                source=post,
+                ptype=ptype,
+                msg=msg)
 
 
 def move_to_answer(request, post, **kwargs):
@@ -638,7 +622,11 @@ def move_to_answer(request, post, **kwargs):
     parent = post.root
     ptype = Post.ANSWER
     msg = "moved answer"
-    return move(request=request, parent=parent, source=post, ptype=ptype, msg=msg)
+    return move(request=request,
+                parent=parent,
+                source=post,
+                ptype=ptype,
+                msg=msg)
 
 
 def close(request, post, comment, **kwargs):
