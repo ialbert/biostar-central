@@ -44,7 +44,7 @@ def create_blogpost(entry, blog):
 
 
 def add_blogpost(blogs, count=3):
-
+    import html
     for blog in blogs:
         logger.info(f"parsing blog: {blog.id}: {blog.title}")
         try:
@@ -63,7 +63,10 @@ def add_blogpost(blogs, count=3):
                 entry.title = entry.title.strip()
                 # entry.title = html.strip_tags(entry.title)
                 entry.title = entry.title.strip()[:200]
-                entry.description = smart_text(entry.description)
+                desc =smart_text(entry.description)
+                desc = html.unescape(desc)
+                entry.description = desc
+
                 # entry.description = html.strip_tags(entry.description)
                 create_blogpost(entry=entry, blog=blog)
 
@@ -91,8 +94,8 @@ def add_blog(feed):
         add_blogpost(blogs=Blog.objects.filter(id=blog.id))
 
         logger.info(f"adding {blog.title}")
-        logger.info(f"link: {blog.link}")
-        logger.info(blog.desc)
+        logger.debug(f"link: {blog.link}")
+        logger.debug(blog.desc)
 
     except Exception as exc:
        logger.error(f"error {exc} parsing {feed}")
@@ -125,5 +128,5 @@ def add_blogs(add_fname):
 
     # Attempt to populate the database with the feeds
     for feed in urls:
-        logger.info(f"parsing {feed}")
+        logger.debug(f"parsing {feed}")
         add_blog(feed)

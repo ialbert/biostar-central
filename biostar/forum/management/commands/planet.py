@@ -34,9 +34,9 @@ class Command(BaseCommand):
         #BlogPost.objects.all().delete()
         #Blog.objects.all().delete()
 
-        add_fname = options['add']
-        if add_fname:
-            fname = os.path.abspath(os.path.join(settings.PLANET_DIR, add_fname))
+        fname = options['add']
+        if fname:
+            fname = os.path.abspath(os.path.join(settings.PLANET_DIR, fname))
             auth.add_blogs(fname)
 
         if options['download']:

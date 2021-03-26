@@ -222,7 +222,7 @@ class PostModForm(forms.Form):
         if post.is_toplevel:
             choices += [(BUMP_POST, "Bump post.")]
         else:
-            choices += [(MOVE, "Move to post ( ID required below ).")]
+            choices += [(MOVE, "Move as comment ( ID required below ).")]
             self.fields['parent'] = forms.CharField(required=False)
 
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
@@ -232,9 +232,6 @@ class PostModForm(forms.Form):
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
-        return self.cleaned_data
-
-    def clean_parent(self):
         action = self.cleaned_data.get("action")
         pid = self.cleaned_data.get('parent', '')
         parent = Post.objects.filter(uid=pid).first()
@@ -248,6 +245,6 @@ class PostModForm(forms.Form):
             if not is_valid:
                 raise forms.ValidationError("Invalid move.")
 
-
+        return self.cleaned_data
 
 

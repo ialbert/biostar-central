@@ -372,12 +372,7 @@ def ajax_delete(request):
 
     url = auth.delete_post(post=post, request=request)
 
-    if Post.objects.filter(uid=uid).exists():
-        msg = "removed"
-    else:
-        msg = "deleted"
-
-    return ajax_success(msg=msg, url=url)
+    return ajax_success(msg="post deleted", url=url)
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

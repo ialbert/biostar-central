@@ -414,7 +414,7 @@ def only_delete(post, user):
     return only_del
 
 
-def delete_post(request, post, callback=lambda: None):
+def delete_post(request, post):
     user = request.user
     if only_delete(post, user):
         # Deleted posts can be un=deleted by re-opening them.
@@ -423,8 +423,7 @@ def delete_post(request, post, callback=lambda: None):
         msg = f"deleted"
         post.recompute_scores()
         post.root.recompute_scores()
-
-        # messages.info(request, mark_safe(msg))
+        messages.info(request, mark_safe(msg))
         db_logger(user=user, post=post, text=msg)
         return url
 
@@ -437,10 +436,9 @@ def delete_post(request, post, callback=lambda: None):
 
     # Remove post from the database with no trace.
     msg = f"removed"
-    post.delete()
     messages.info(request, mark_safe(msg))
-
     db_logger(user=user, post=post, text=msg)
+    post.delete()
 
     return url
 
@@ -556,30 +554,32 @@ def toggle_spam(request, post, **kwargs):
     return url
 
 
-def move_post(request, post, parent):
+def move_post(request, post, parent, **kwargs):
     parent = Post.objects.filter(uid=parent).first()
     user = request.user
 
     if parent:
-        Post.objects.filter(uid=post.uid).update(parent=parent, type=Post)
+        Post.objects.filter(uid=post.uid).update(parent=parent, type=Post.COMMENT)
         msg = f"moved to {parent.uid}" if parent else "moved to answer"
         messages.info(request, mark_safe(msg))
         db_logger(user=user, text=f"{msg}", post=post)
 
-    return
+    url = post.get_absolute_url()
+    return url
 
 
-def move_to_answer(request, post):
+def move_to_answer(request, post, **kwargs):
     """
     Move this post to be an answer
     """
     user = request.user
     Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
 
-    msg = f"moved to {post.uid}" if post else "moved to answer"
+    msg = f"moved to {post.root.uid}"
     messages.info(request, mark_safe(msg))
     db_logger(user=user, text=f"{msg}", post=post)
-    return
+    url = post.get_absolute_url()
+    return url
 
 
 def close(request, post, comment, **kwargs):
@@ -622,15 +622,9 @@ def delete(request, post, **kwargs):
     """
     Delete this post or complete remove it from the database.
     """
-    uid = post.uid
+
     url = delete_post(request=request, post=post)
 
-    if Post.objects.filter(uid=uid).exists():
-        msg = "removed"
-    else:
-        msg = "deleted"
-
-    messages.info(request, mark_safe(msg))
 
     return url
 

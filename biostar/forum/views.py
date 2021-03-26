@@ -15,6 +15,7 @@ from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
 
+from biostar.accounts.forms import UserModerate
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
@@ -450,7 +451,7 @@ def community_list(request):
         users = users.filter(db_query)
 
     # Remove the cache when filters are given.
-    no_cache = days or (query and len(query) > 2) or ordering
+    no_cache = True
     cache_key = '' if no_cache else USERS_LIST_KEY
 
     order = ORDER_MAPPER.get(ordering, "visit")
@@ -605,6 +606,37 @@ def post_moderate(request, uid):
 
     context = dict(form=form, post=post)
     return render(request, "forms/form_moderate.html", context)
+
+
+def user_moderate(request, uid):
+
+    source = request.user
+    target = User.objects.filter(id=uid).first()
+    form = UserModerate(source=source, target=target, request=request,
+                        initial=dict(action=target.profile.state))
+    if request.method == "POST":
+
+        form = UserModerate(source=source, data=request.POST, target=target, request=request,
+                            initial=dict(action=target.profile.state))
+        if form.is_valid():
+            state = form.cleaned_data.get("action", "")
+            profile = Profile.objects.filter(user=target).first()
+            profile.state = state
+            profile.save()
+            # Log the moderation action
+            text = f"set state to {profile.get_state_display()}"
+            auth.db_logger(user=source, text=text, target=target)
+
+            messages.success(request, "User moderation complete.")
+        else:
+            errs = ','.join([err for err in form.non_field_errors()])
+            messages.error(request, errs)
+
+        return redirect(reverse("user_profile", kwargs=dict(uid=target.profile.uid)))
+
+    context = dict(form=form, target=target)
+
+    return render(request, "accounts/user_moderate.html", context)
 
 
 @check_params(allowed=ALLOWED_PARAMS)

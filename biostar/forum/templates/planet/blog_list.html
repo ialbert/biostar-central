@@ -13,28 +13,27 @@
 
     <div class="ui relaxed list">
         {% for post in blogposts %}
-            <div class="ui basic segment" style="padding-top: 0;padding-left: 0; padding-right: 0;">
-                <div class="blog-post">
-                    <div>
-                        <h3><a href="{{ post.link }}">{{ post.title }}</a></h3>
-                    </div>
-                    <div>
-                        {{ post.content|safe|truncatechars_html:400 }}
-                    </div>
-                    <div class="right floated muted" style="float: right; padding-bottom: 5px">
-                        written {{ post.creation_date|timesince }}
-                        by
-                        <div class="ui avatar image">
-                            <img class="ui tiny centered  image thread-users"
-                                 src="{% planet_gravatar  planet_author=post.blog.title %}">
-                        </div>
+            <div class="ui vertical segment" style="overflow: auto">
 
-                        <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
-                    </div>
+
+                <div class="ui header">
+                    <a href="{{ post.link }}">{{ post.title }}</a>
+                </div>
+                <div>
+                    {{ post.content|truncatewords:200 }}
                 </div>
 
+                <span class="muted" style="float:right;">
+                    written {{ post.creation_date|timesince }}
+                    by
+                    <div class="ui avatar image">
+                        <img class="ui tiny centered  image thread-users"
+                             src="{% planet_gravatar planet_author=post.blog.title %}">
+                    </div>
+                    <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
+
+                </span>
             </div>
-            <div class="ui divider"></div>
         {% endfor %}
 
     </div>

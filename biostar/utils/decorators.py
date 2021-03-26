@@ -55,8 +55,9 @@ def limited(key, rate):
 
             was_limited = getattr(request, 'limited', False)
             if was_limited:
-                messages.warning(request, "Too many requests from same IP address. Temporary ban.")
-                return redirect('/')
+                msg = "Too many requests from same IP address. Temporary ban."
+                messages.warning(request, msg)
+                raise Http404(msg)
 
             return func(request, **kwargs)
 
