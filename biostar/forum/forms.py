@@ -211,19 +211,18 @@ class PostModForm(forms.Form):
         choices = [
             (OPEN_POST, "Open post"),
             (DELETE, "Delete post"),
-            (OFF_TOPIC, "Off topic"),
-            (REPORT_SPAM, "Spam"),
+            #(OFF_TOPIC, "Off topic"),
+            (REPORT_SPAM, "Report Spam"),
         ]
-
-        if post.is_comment:
-            choices += [(MOVE_ANSWER, "Move as answer.")]
 
         # Top level posts may be bumped.
         if post.is_toplevel:
             choices += [(BUMP_POST, "Bump post.")]
-        else:
-            choices += [(MOVE, "Move as comment ( ID required below ).")]
-            self.fields['parent'] = forms.CharField(required=False)
+        elif post.is_comment:
+            choices += [(MOVE_ANSWER, "Move as answer.")]
+
+        if post.is_answer or post.is_comment:
+            choices += [(MOVE_COMMENT, "Move as comment to top level")]
 
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
 
@@ -232,19 +231,7 @@ class PostModForm(forms.Form):
         if not self.user.profile.is_moderator:
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
-        action = self.cleaned_data.get("action")
         pid = self.cleaned_data.get('parent', '')
-        parent = Post.objects.filter(uid=pid).first()
-
-        if action == MOVE:
-
-            if not parent:
-                raise forms.ValidationError("Parent post does not exist.")
-
-            is_valid = auth.validate_move(user=self.user, source=self.post, target=parent)
-            if not is_valid:
-                raise forms.ValidationError("Invalid move.")
-
         return self.cleaned_data
 
 

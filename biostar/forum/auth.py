@@ -568,6 +568,9 @@ def toggle_spam(request, post, **kwargs):
 
 
 def move_post(request, post, parent, **kwargs):
+    """
+    Used to move posts in drag and drop
+    """
     user = request.user
     url = post.get_absolute_url()
 
@@ -575,17 +578,56 @@ def move_post(request, post, parent, **kwargs):
         return url
 
     # Move this post to comment of parent
-    Post.objects.filter(uid=post.uid).update(parent=parent, type=Post.COMMENT)
+    post.parent = parent
+    post.type = Post.COMMENT
+    post.save()
 
     # Log action and let user know
-    msg = f"moved to {parent.uid}" if parent else "moved to answer"
+    msg = f"moved to {parent.uid}"
     messages.info(request, mark_safe(msg))
     db_logger(user=user, text=f"{msg}", post=post)
     post.update_parent_counts()
-    # Delete post cache on valid move.
-    delete_post_cache(post)
 
     return url
+
+
+def move(request, parent, source, ptype=Post.COMMENT, msg="moved"):
+    user = request.user
+    url = source.get_absolute_url()
+
+    if source.is_toplevel:
+        return url
+
+    # Move this post to comment of parent
+    source.parent = parent
+    source.type = ptype
+    source.save()
+
+    # Log action and let user know
+    messages.info(request, mark_safe(msg))
+    db_logger(user=user, text=f"{msg}", post=source)
+    source.update_parent_counts()
+    return url
+
+
+def move_post(request, post, parent, **kwargs):
+    """
+    Move one post to another
+    """
+    ptype = Post.COMMENT
+
+    return move(request=request, parent=parent, source=post, ptype=ptype)
+
+
+def move_to_comment(request, post, **kwargs):
+    """
+    move this post to a comment
+    """
+
+    parent = post.root
+    ptype = Post.COMMENT
+    msg = "moved comment"
+    return move(request=request, parent=parent, source=post, ptype=ptype, msg=msg)
 
 
 def move_to_answer(request, post, **kwargs):
@@ -593,18 +635,10 @@ def move_to_answer(request, post, **kwargs):
     Move this post to be an answer
     """
 
-    user = request.user
-    Post.objects.filter(uid=post.uid).update(type=Post.ANSWER)
-    url = post.get_absolute_url()
-
-    msg = f"moved to {post.root.uid}"
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg}", post=post)
-    post.update_parent_counts()
-    # Delete post cache on valid move.
-    delete_post_cache(post)
-
-    return url
+    parent = post.root
+    ptype = Post.ANSWER
+    msg = "moved answer"
+    return move(request=request, parent=parent, source=post, ptype=ptype, msg=msg)
 
 
 def close(request, post, comment, **kwargs):
@@ -661,13 +695,18 @@ def validate_move(user, source, target):
     is_diff = source.uid != target.uid
 
     # cond 4: target is not a descendant of source.
+    # if target.is_toplevel or (source.is_comment and target.is_answer):
+    #     not_desc = True
+    # else:
     children = set()
     walk_down_thread(parent=source, collect=children)
-    not_desc = target not in children
+    not_desc = (target not in children)
 
+    #print(source, target, children)
     # cond 5: source is not top level
     not_toplevel = not source.is_toplevel
 
+    #print(same_root, is_diff , not_desc , not_toplevel , valid_user)
     # All conditions need to be met for valid move.
     valid = same_root and is_diff and not_desc and not_toplevel and valid_user
 
@@ -707,9 +746,8 @@ def moderate(request, post, action, parent, comment=""):
                   OPEN_POST: open,
                   DELETE: delete_post,
                   CLOSE: close,
-                  MOVE: move_post,
-                  MOVE_ANSWER: move_to_answer,
-                  OFF_TOPIC: off_topic}
+                  MOVE_COMMENT: move_to_comment,
+                  MOVE_ANSWER: move_to_answer}
 
     if action in action_map:
         mod_func = action_map[action]

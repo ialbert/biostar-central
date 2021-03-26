@@ -15,7 +15,8 @@ from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
 
-from biostar.accounts.forms import UserModerate
+from biostar.accounts.views import user_moderate as account_moderate
+
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
@@ -610,33 +611,16 @@ def post_moderate(request, uid):
 
 def user_moderate(request, uid):
 
-    source = request.user
-    target = User.objects.filter(id=uid).first()
-    form = UserModerate(source=source, target=target, request=request,
-                        initial=dict(action=target.profile.state))
-    if request.method == "POST":
+    def callback():
+        source = request.user
+        target = User.objects.filter(id=uid).first()
+        text = f"set to {target.profile.get_state_display()}"
+        auth.db_logger(user=source, text=text, target=target)
+        return
 
-        form = UserModerate(source=source, data=request.POST, target=target, request=request,
-                            initial=dict(action=target.profile.state))
-        if form.is_valid():
-            state = form.cleaned_data.get("action", "")
-            profile = Profile.objects.filter(user=target).first()
-            profile.state = state
-            profile.save()
-            # Log the moderation action
-            text = f"set state to {profile.get_state_display()}"
-            auth.db_logger(user=source, text=text, target=target)
+    result = account_moderate(request=request, uid=uid, callback=callback)
 
-            messages.success(request, "User moderation complete.")
-        else:
-            errs = ','.join([err for err in form.non_field_errors()])
-            messages.error(request, errs)
-
-        return redirect(reverse("user_profile", kwargs=dict(uid=target.profile.uid)))
-
-    context = dict(form=form, target=target)
-
-    return render(request, "accounts/user_moderate.html", context)
+    return result
 
 
 @check_params(allowed=ALLOWED_PARAMS)

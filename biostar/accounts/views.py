@@ -72,7 +72,7 @@ def listing(request):
 
 
 @login_required
-def user_moderate(request, uid):
+def user_moderate(request, uid, callback=lambda *args, **kwargs: None):
 
     source = request.user
     target = User.objects.filter(id=uid).first()
@@ -90,8 +90,7 @@ def user_moderate(request, uid):
             profile.state = state
             profile.save()
             # Log the moderation action
-            text = f"user={target.pk} state set to {target.profile.get_state_display()}"
-
+            callback()
             messages.success(request, "User moderation complete.")
         else:
             errs = ','.join([err for err in form.non_field_errors()])
