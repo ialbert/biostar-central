@@ -124,7 +124,7 @@ def add_blogs(add_fname):
     urls = map(str.strip, open(add_fname))
 
     # Keep feeds with urls that do not yet exists
-    urls = filter(lambda url: len(url) or not Blog.objects.filter(link=url), urls)
+    urls = filter(lambda url: len(url) or not Blog.objects.filter(feed=url), urls)
 
     # Attempt to populate the database with the feeds
     for feed in urls:
