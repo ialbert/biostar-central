@@ -29,10 +29,18 @@ def get_traffic(key='traffic', timeout=300, minutes=60):
 
     return traffic
 
+
 def forum(request):
     """
     Additional context applied to each request.
     """
+
+    # Will inject the counts into every session
+    if request.user.is_anonymous:
+        # TODO: anonymous users should get a planet count reminder!
+        counts = dict(planet_count=0)
+    else:
+        counts = request.session.get(const.COUNT_DATA_KEY, {})
 
     params = dict(user=request.user,
                   TRAFFIC=get_traffic(),
@@ -42,6 +50,7 @@ def forum(request):
                   site_domain=settings.SITE_DOMAIN,
                   google_tracker=settings.GOOGLE_TRACKER,
                   IS_MODERATOR=is_moderator(request.user),
+                  cnt=counts,
                   )
 
     return params

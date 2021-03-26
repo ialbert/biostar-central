@@ -75,7 +75,7 @@
     color: orangered !important;
 }
 
-blockquote{
+blockquote {
     border-left: 5px solid #F4D2B5 !important;;
     padding: 1ex !important;
     margin: 1ex;
@@ -83,15 +83,15 @@ blockquote{
 }
 
 body {
-    // background-color: var(--page-bg-color) !important;
-    //padding-top: 1rem;
+/ / background-color: var(--page-bg-color) !important;
+/ / padding-top: 1 rem;
     font-family: var(--root-font);
     color: #333;
     line-height: 1.428571429;
     font-size: 13px;
 }
 
-#sidebar  .title {
+#sidebar .title {
     font-size: 1.0rem;
     font-weight: bold;
 }
@@ -127,7 +127,7 @@ blockquote.twitter-tweet {
 
 #logo {
     padding: 0px 5px 5px 5px;
-    //background-color: var(--logo-background);
+/ / background-color: var(--logo-background);
 }
 
 
@@ -229,6 +229,10 @@ blockquote.twitter-tweet {
     padding: 1em;
 }
 
+.counter {
+
+}
+
 #menu-topics {
     border: none;
     background-color: var(--menu-topics-bg-color);
@@ -291,8 +295,8 @@ i.icon.mycomment:before {
     font-size: 1em;
 }
 
-.ui.muted.icon{
-    margin-left:-3px;
+.ui.muted.icon {
+    margin-left: -3px;
     margin-right: -3px;
 }
 
@@ -563,7 +567,7 @@ i.icon {
 
 
 .magnify {
-    //font-size: 108%;
+/ / font-size: 108 %;
 }
 
 .voting > .score {
@@ -1009,15 +1013,15 @@ pre {
 
 
 #traffic {
-  position: fixed;
-  font-size: smaller;
-  bottom: 0px;
-  left: 0px;
-  color: #999999;
-  background-color: white;
-  padding: 3px;
-  -moz-border-radius: 3px;
-  border-radius: 3px;
+    position: fixed;
+    font-size: smaller;
+    bottom: 0px;
+    left: 0px;
+    color: #999999;
+    background-color: white;
+    padding: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
 
 @media all and (max-width: 1200px) {

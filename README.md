@@ -4,15 +4,12 @@
 
 **Biostar Central** is a [Python][python] and [Django][django] based collection of web applications that support scientific practice and education.
 
-The goal of the project is to produce software with straightforward installation and minimal dependencies that works on any computing platform that supports Python. For each app the philosophy is that of decentralization and self hosting. We write code to allow others to recreate the same services that we run.
+The goal of the project is to produce software with straightforward installation and minimal dependencies that works on any computing platform that supports Python. For each app the philosophy is that of decentralization and self hosting. We write our code to allow others to recreate the same services that we run.
 
 Each web application may be deployed individually or in combination with  the others. The following applications are currently feature complete:
 
-- `recipes` a web app that can runs data analysis scripts via a web interface, see: [Bioinformatics Recipes][recipes]
 - `forum` a web app that runs a Q&A forum inspired by StackOverflow, see: [Biostars Q&A][biostars]
-
-Note: The public [biostars.org][biostars] site runs the code from the `biostar2016` branch. The  master branch is the development version that we will migrate the main server to in the future.
-
+- `recipes` a web app that can runs data analysis scripts, see: [Bioinformatics Recipes][recipes]
 
 [python]: https://www.python.org/
 [django]: https://www.djangoproject.com/
