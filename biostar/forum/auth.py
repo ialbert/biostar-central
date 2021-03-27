@@ -340,27 +340,25 @@ def set_counts(request):
     ip = get_ip(request)
 
     # Try to get last seen date from cache
-    date = cache.get(ip)
+    last_seen = cache.get(ip)
 
     # Set the last seen date as now
-    if not date:
-        date = util.now()
-        cache.set(ip, date)
+    if not last_seen:
+        last_seen = util.now()
+        cache.set(ip, last_seen)
 
     # Calculate out elapsed seconds since last seen
-    elapsed = (util.now() - date).total_seconds()
+    elapsed = (util.now() - last_seen).total_seconds()
 
     # Update counts if elapsed is greater than session update time.
     if elapsed >= settings.SESSION_UPDATE_SECONDS:
-        count = BlogPost.objects.filter(creation_date__gte=date)[:100].count()
-
-        # Store the counts into the session.
-        counts = dict(planet_count=count)
+        count = BlogPost.objects.filter(creation_date__gte=last_seen)[:100].count()
 
         # Set the counts in sessions
+        counts = dict(planet_count=count)
         request.session[COUNT_DATA_KEY] = counts
 
-        # Delete last seen time from cache
+        # Reset last seen date to now
         cache.delete(ip)
 
 
