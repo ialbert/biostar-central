@@ -22,7 +22,7 @@ if MODULE not in os.environ:
     os.environ.setdefault(MODULE, "biostar.forum.settings")
 
 # A reminder of what the settings are
-print(f"# {MODULE}={os.environ[MODULE]}")
+#print(f"# {MODULE}={os.environ[MODULE]}")
 
 # Bootstrap the Django framework.
 django.setup()
@@ -49,12 +49,12 @@ def recently(days=2):
 def main(delete=False, days=2, limit=10):
     admin = get_admin()
     
-    posts = Post.objects.filter(spam=Post.SPAM).exclude(author__profile__state=Profile.NEW).order_by("-pk")
+    posts = Post.objects.filter(spam=Post.SPAM, author__profile__state=Profile.NEW).order_by("-pk")
     posts = islice(posts, limit)
 
     users = {}
     for post in posts:
-        print (post.title)
+        #print (post.title)
         users[post.author.id] = post.author
     
     u_count = s_count = 0
@@ -73,15 +73,14 @@ def main(delete=False, days=2, limit=10):
             u_count += 1
             s_count += spam_count
             text = f"user={user.profile.name} spam_count={spam_count}"
-            print (text)
+            #print (text)
             if delete:
                 user.delete()
-                print("deleted")
+                #print("deleted")
 
     if delete and s_count:
         msg = f"spam cleanup, removed {u_count} spammers and {s_count} spam posts"
         auth.db_logger(user=admin, text=msg)
 
 if __name__ == "__main__":
-    print (settings.DATABASE_NAME)
     plac.call(main)
