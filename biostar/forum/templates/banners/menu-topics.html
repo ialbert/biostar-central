@@ -15,9 +15,9 @@
 
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
             {% if counts.message_count %}
-                <div class="ui green button"><i class="heart icon"></i>Messages  {% show_count counts.message_count %}</div>
+                <div class="ui green button"> <i class="envelope icon"></i>Messages  {% show_count counts.message_count %}</div>
             {%  else %}
-                <i class="heart icon"></i> Messages
+                 <i class="envelope icon"></i>Messages
             {% endif %}
         </a>
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
