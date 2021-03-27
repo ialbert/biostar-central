@@ -25,9 +25,7 @@ def fake():
     # Get or create a blog
     blog, created = Blog.objects.get_or_create(title="Fake")
 
-    BlogPost.objects.create(blog=blog, title='Creating a fake blog post.',
-                            creation_date=now())
-
+    BlogPost.objects.create(blog=blog, title='Creating a fake blog post.', creation_date=now())
 
 class Command(BaseCommand):
     help = 'Create search index for the forum app.'
