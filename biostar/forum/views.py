@@ -101,6 +101,12 @@ class CachedPaginator(Paginator):
         return value
 
 
+@reset_counts(ckey='spam_count', skey=COUNT_DATA_KEY)
+def get_spam(request):
+    posts = Post.objects.filter(spam=Post.SPAM)
+    return posts
+
+
 def get_posts(request, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
@@ -122,7 +128,7 @@ def get_posts(request, topic="", order="", limit=None):
         posts = posts.filter(type=post_type)
 
     elif topic == SHOW_SPAM and user.profile.is_moderator:
-        posts = Post.objects.filter(spam=Post.SPAM)
+        posts = get_spam(request)
 
     elif topic == OPEN:
         posts = posts.filter(type=Post.QUESTION, answer_count=0)
@@ -166,7 +172,6 @@ def get_posts(request, topic="", order="", limit=None):
     posts = posts.select_related("root").select_related("author__profile", "lastedit_user__profile")
 
     return posts
-
 
 
 @check_params(allowed=ALLOWED_PARAMS)
@@ -621,7 +626,7 @@ def user_moderate(request, uid):
     def callback():
         source = request.user
         target = User.objects.filter(id=uid).first()
-        text = f"set to {target.profile.get_state_display()}"
+        text = f"changed user state to {target.profile.get_state_display()}"
         auth.db_logger(user=source, text=text, target=target)
         return
 

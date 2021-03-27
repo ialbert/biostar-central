@@ -26,11 +26,11 @@ def is_moderator(f):
 def reset_counts(ckey, skey):
 
     def outer(func):
-
+        @wraps(func)
         def inner(request, **kwargs):
-
             # Get the count from sessions
             counts = request.session.get(skey, {})
+            print(counts, "COUNTS")
             counts[ckey] = 0
             request.session[skey] = counts
 
