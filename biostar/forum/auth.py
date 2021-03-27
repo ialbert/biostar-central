@@ -360,9 +360,8 @@ def set_counts(request):
         # Set the counts in sessions
         request.session[COUNT_DATA_KEY] = counts
 
-        # Reset the last seen date for an anon user.
-        date = util.now()
-        cache.set(ip, date)
+        # Delete last seen time from cache
+        cache.delete(ip)
 
 
 def get_counts(user):

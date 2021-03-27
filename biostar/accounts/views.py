@@ -26,7 +26,7 @@ from ratelimit.decorators import ratelimit
 from .auth import validate_login, send_verification_email
 
 from biostar.utils.helpers import get_ip
-from biostar.utils.decorators import limited
+from biostar.utils.decorators import limited, reset_counts
 from . import forms, tasks
 
 from .const import *
@@ -103,6 +103,7 @@ def user_moderate(request, uid, callback=lambda *args, **kwargs: None):
     return render(request, "accounts/user_moderate.html", context)
 
 
+@reset_counts(ckey="message_count", skey=COUNT_DATA_KEY)
 @login_required
 def message_list(request):
     """
@@ -117,11 +118,6 @@ def message_list(request):
     # Get the pagination info
     paginator = Paginator(msgs, settings.MESSAGES_PER_PAGE)
     msgs = paginator.get_page(page)
-
-    counts = request.session.get(COUNT_DATA_KEY, {})
-    # Set message count back to 0
-    counts[MESSAGE_COUNT] = 0
-    request.session.update(dict(counts=counts))
 
     context = dict(tab="messages", all_messages=msgs)
     return render(request, "message_list.html", context)
@@ -346,7 +342,7 @@ def external_login(request):
     return redirect("/")
 
 
-@ratelimit(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
+@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def password_reset(request):
 
     return PasswordResetView.as_view(template_name="accounts/password_reset_form.html",

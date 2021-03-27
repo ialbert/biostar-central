@@ -23,6 +23,24 @@ def is_moderator(f):
     return inner
 
 
+def reset_counts(ckey, skey):
+
+    def outer(func):
+
+        def inner(request, **kwargs):
+
+            # Get the count from sessions
+            counts = request.session.get(skey, {})
+            counts[ckey] = 0
+            request.session[skey] = counts
+
+            return func(request, **kwargs)
+
+        return inner
+
+    return outer
+
+
 def check_params(allowed):
     """
     Validate if only allowed params are present in request.GET.

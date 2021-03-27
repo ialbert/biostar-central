@@ -21,7 +21,7 @@ from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription, Log
-from biostar.utils.decorators import is_moderator, check_params
+from biostar.utils.decorators import is_moderator, check_params, reset_counts
 
 User = get_user_model()
 
@@ -101,10 +101,20 @@ class CachedPaginator(Paginator):
         return value
 
 
-def get_posts(user, topic="", order="", limit=None):
+@reset_counts(ckey='spam_count', skey=COUNT_DATA_KEY)
+def get_spam(request):
+    """
+    Reset spam count in session and return latest spam posts.
+    """
+    posts = Post.objects.filter(spam=Post.SPAM)
+    return posts
+
+
+def get_posts(request, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
     """
+    user = request.user
     # Topics are case insensitive.
     topic = topic or LATEST
     topic = topic.lower()
@@ -120,7 +130,7 @@ def get_posts(user, topic="", order="", limit=None):
         posts = posts.filter(type=post_type)
 
     elif topic == SHOW_SPAM and user.profile.is_moderator:
-        posts = Post.objects.filter(spam=Post.SPAM)
+        posts = get_spam(request)
 
     elif topic == OPEN:
         posts = posts.filter(type=Post.QUESTION, answer_count=0)
@@ -267,7 +277,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     limit = request.GET.get("limit", "all") or "all"
 
     # Get posts available to users.
-    posts = get_posts(user=user, topic=topic, order=order, limit=limit)
+    posts = get_posts(request=request, topic=topic, order=order, limit=limit)
 
     # Filter for any empty strings
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
@@ -323,6 +333,7 @@ def authenticated(func):
 
 
 @authenticated
+@reset_counts(ckey=VOTES_COUNT, skey=COUNT_DATA_KEY)
 def myvotes(request):
     """
     Show posts by user that received votes
@@ -338,29 +349,15 @@ def myvotes(request):
     # Apply the votes paging.
     votes = paginator.get_page(page)
 
-    # Clear the votes count.
-    counts = request.session.get(COUNT_DATA_KEY, {})
-    # Set votes count back to 0
-    counts[VOTES_COUNT] = 0
-    request.session.update(dict(counts=counts))
-
     context = dict(votes=votes, page=page, tab='myvotes')
     return render(request, template_name="user_votes.html", context=context)
 
 
 @check_params(allowed=ALLOWED_PARAMS)
+@reset_counts(ckey="planet_count", skey=COUNT_DATA_KEY)
 def blog_list(request):
 
-    def callback():
-        """
-        Set the planet count to zero in cache
-        """
-        counts = request.session.get(COUNT_DATA_KEY, {})
-        counts["planet_count"] = 0
-        request.session[COUNT_DATA_KEY] = counts
-        return
-
-    return planet_list(request, callback=callback)
+    return planet_list(request)
 
 
 @check_params(allowed=ALLOWED_PARAMS)
@@ -639,6 +636,7 @@ def user_moderate(request, uid):
     return result
 
 
+@reset_counts(ckey='mod_count', skey=COUNT_DATA_KEY)
 @check_params(allowed=ALLOWED_PARAMS)
 @login_required
 def view_logs(request):
