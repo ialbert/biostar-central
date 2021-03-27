@@ -436,6 +436,7 @@ def removal_condition(post, user, age=1):
 
     return True
 
+
 def delete_post(request, post, **kwargs):
     """
     Post may be marked as deleted or removed entirely
@@ -736,17 +737,47 @@ def off_topic(request, post, **kwargs):
     return url
 
 
+def relocate(request, post, **kwds):
+    """
+    Moves an answer to a comment and viceversa.
+    """
+    url = post.get_absolute_url()
+
+    if post.is_toplevel:
+        messages.warning(request, "cannot relocate a top level post")
+        return url
+
+    if post.type == Post.COMMENT:
+        msg = f"moved comment to answer"
+        post.type = Post.ANSWER
+    else:
+        msg = f"moved answer to comment"
+        post.type = Post.COMMENT
+
+    post.parent = post.root
+    post.save()
+
+    db_logger(user=request.user, post=post, text=f"{msg}")
+    messages.info(request, msg)
+    return url
+
+
 def moderate(request, post, action, parent, comment=""):
     # Bind an action to a function.
-    action_map = {REPORT_SPAM: toggle_spam,
-                  DUPLICATE: duplicated,
-                  BUMP_POST: bump,
-                  OPEN_POST: open,
-                  OFF_TOPIC: off_topic,
-                  DELETE: delete_post,
-                  CLOSE: close,
-                  MOVE_COMMENT: move_to_comment,
-                  MOVE_ANSWER: move_to_answer}
+    action_map = {
+        REPORT_SPAM: toggle_spam,
+        DUPLICATE: duplicated,
+        BUMP_POST: bump,
+        OPEN_POST: open,
+        OFF_TOPIC: off_topic,
+        DELETE: delete_post,
+        CLOSE: close,
+        MOVE_COMMENT: move_to_comment,
+        MOVE_ANSWER: move_to_answer,
+
+        # TODO: change to words!
+        100: relocate,
+    }
 
     if action in action_map:
         mod_func = action_map[action]

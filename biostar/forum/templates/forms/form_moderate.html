@@ -12,34 +12,40 @@
 
             <div class="field">
 
-                <button class="ui tiny button" name="action" value="6">
+                <button class="ui mini button" name="action" value="6">
                     Delete
                 </button>
 
 
-                <button class="ui tiny button" name="action" value="1">
+                <button class="ui mini button" name="action" value="1">
                     Open
                 </button>
 
-                <button class="ui tiny button" name="action" value="0">
+                <button class="ui mini button" name="action" value="0">
                     Bump
                 </button>
 
-                <button class="ui tiny button" name="action" value="5">
+                <button class="ui mini button" name="action" value="5">
                     Off topic
                 </button>
 
+                {%  if not post.is_toplevel  %}
+                    <button class="ui mini button" name="action" value="100">
+                        Relocate
+                    </button>
+                {%  endif %}
+
                 {% if post.is_spam %}
-                    <button class="ui tiny green button" name="action" value="8">
+                    <button class="ui mini green button" name="action" value="8">
                         Not spam
                     </button>
                 {% else %}
-                    <button class="ui tiny  negative button" name="action" value="8">
+                    <button class="ui mini  negative button" name="action" value="8">
                         Spam
                     </button>
                 {% endif %}
 
-                <button class="ui tiny right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+                <button class="ui mini right floated button" onclick="javascript:obj=$('#modpanel').remove();">
                     x
                 </button>
 
@@ -52,6 +58,7 @@
             If this is a cross-post with bioinformatics relevance please provide the link as an answer.
         </p>
 
+        <p>See <a href="/info/mods" target="_blank">moderator resources</a> for more information on what each action does</p>
     </form>
 </div>
 
