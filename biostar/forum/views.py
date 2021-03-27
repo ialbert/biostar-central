@@ -101,10 +101,12 @@ class CachedPaginator(Paginator):
         return value
 
 
-def get_posts(user, topic="", order="", limit=None):
+def get_posts(request, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
     """
+
+    user = request.user
     # Topics are case insensitive.
     topic = topic or LATEST
     topic = topic.lower()
@@ -145,6 +147,7 @@ def get_posts(user, topic="", order="", limit=None):
     # Search for tags
     elif topic != LATEST and (topic not in POST_TYPE):
         posts = posts.filter(tags__name=topic.lower())
+        messages.success(request, f"Filtering for tag: {topic}")
 
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
@@ -267,7 +270,7 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     limit = request.GET.get("limit", "all") or "all"
 
     # Get posts available to users.
-    posts = get_posts(user=user, topic=topic, order=order, limit=limit)
+    posts = get_posts(request=request, topic=topic, order=order, limit=limit)
 
     # Filter for any empty strings
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)

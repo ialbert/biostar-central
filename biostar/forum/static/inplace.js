@@ -195,7 +195,7 @@ function update_post(uid, data) {
     var post = $("[data-value='{0}']".format(uid));
     var post_content = $(".post[data-value='{0}'] .editable".format(uid)).first();
     var post_title = $("[data-value='{0}'] .title".format(uid)).first();
-    var post_tags =$("[data-value='{0}'] .tags".format(uid)).first();
+    var post_tags =$("[data-value='{0}'] .inplace-tags".format(uid)).first();
     var post_users =$("[data-value='{0}'] .user-info".format(uid)).first();
 
     // Replace current post info with edited data
