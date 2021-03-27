@@ -1,19 +1,12 @@
 """
-This package needs to be installd for th
+Install the biostar tools only!
 """
 from setuptools import setup
 
 setup(
-    name="Biostar Central",
-    version="2.0",
+    name="biostar-tools",
+    version="1.0",
     packages=[
         "biostar.tools",
-        "biostar.accounts",
-        "biostar.emailer",
-        "biostar.accounts",
-        "biostar.forum",
-        "biostar.publisher",
-        "biostar.recipes",
-        "themes"
     ],
 )

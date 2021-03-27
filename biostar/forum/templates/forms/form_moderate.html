@@ -8,47 +8,52 @@
 
         {% csrf_token %}
 
-        <div class="ui divider"></div>
-
         <div class="ui segment">
+
             <div class="field">
-                <label>Select a moderation choice</label>
-                {{ form.action }}
+
+                <button class="ui tiny button" name="action" value="6">
+                    Delete
+                </button>
+
+
+                <button class="ui tiny button" name="action" value="1">
+                    Open
+                </button>
+
+                <button class="ui tiny button" name="action" value="0">
+                    Bump
+                </button>
+
+                <button class="ui tiny button" name="action" value="5">
+                    Off topic
+                </button>
+
+                {% if post.is_spam %}
+                    <button class="ui tiny green button" name="action" value="8">
+                        Not spam
+                    </button>
+                {% else %}
+                    <button class="ui tiny  negative button" name="action" value="8">
+                        Spam
+                    </button>
+                {% endif %}
+
+                <button class="ui tiny right floated button" onclick="javascript:obj=$('#modpanel').remove();">
+                    x
+                </button>
+
             </div>
         </div>
-
-        {% if form.parent %}
-
-        <div class="ui segment">
-            <div class="field">
-                <label>Parent post to move under.</label>
-                {{ form.parent }}
-                <div class="ui muted">
-                    The parent ID to move this post under.
-                </div>
-            </div>
-        </div>
-
-        {% endif %}
-
         <p>
             If a post is a duplicate please indicate that as an answer.
         </p>
-
         <p>
             If this is a cross-post with bioinformatics relevance please provide the link as an answer.
         </p>
 
-       <button type="submit" class="ui green enter button">
-            <i class="check icon"></i>
-            Submit
-        </button>
-
-        <a class="ui orange button" onclick="javascript:obj=$('#modpanel').remove();">
-            <i class="cancel icon"></i>
-            Cancel
-        </a>
-
     </form>
-
 </div>
+
+
+
