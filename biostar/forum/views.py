@@ -101,19 +101,11 @@ class CachedPaginator(Paginator):
         return value
 
 
-@reset_counts(ckey='spam_count', skey=COUNT_DATA_KEY)
-def get_spam(request):
-    """
-    Reset spam count in session and return latest spam posts.
-    """
-    posts = Post.objects.filter(spam=Post.SPAM)
-    return posts
-
-
 def get_posts(request, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
     """
+
     user = request.user
     # Topics are case insensitive.
     topic = topic or LATEST
@@ -130,7 +122,7 @@ def get_posts(request, topic="", order="", limit=None):
         posts = posts.filter(type=post_type)
 
     elif topic == SHOW_SPAM and user.profile.is_moderator:
-        posts = get_spam(request)
+        posts = Post.objects.filter(spam=Post.SPAM)
 
     elif topic == OPEN:
         posts = posts.filter(type=Post.QUESTION, answer_count=0)
@@ -155,6 +147,7 @@ def get_posts(request, topic="", order="", limit=None):
     # Search for tags
     elif topic != LATEST and (topic not in POST_TYPE):
         posts = posts.filter(tags__name=topic.lower())
+        messages.success(request, f"Filtering for tag: {topic}")
 
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
@@ -173,6 +166,7 @@ def get_posts(request, topic="", order="", limit=None):
     posts = posts.select_related("root").select_related("author__profile", "lastedit_user__profile")
 
     return posts
+
 
 
 @check_params(allowed=ALLOWED_PARAMS)

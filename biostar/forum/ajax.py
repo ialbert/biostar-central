@@ -350,10 +350,7 @@ def ajax_edit(request, uid):
     tmpl = loader.get_template('widgets/post_user_line.html')
     user_line = tmpl.render(context)
 
-    # Prepare the new title to render
-    new_title = f'{post.get_type_display()}: {post.title}'
-
-    return ajax_success(msg='success', html=post.html, title=new_title, user_line=user_line, tag_html=tag_html)
+    return ajax_success(msg='success', html=post.html, title=post.title, user_line=user_line, tag_html=tag_html)
 
 
 @ajax_error_wrapper(method="POST", login_required=True)

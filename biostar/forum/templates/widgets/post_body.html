@@ -62,7 +62,7 @@
                 {# Show tags #}
                 {% if post.is_toplevel %}
                     {# Wrap tags to enable inplace editting #}
-                    <span class="tags">{% post_tags post=post show_views=True %}</span>
+                    <span class="inplace-tags">{% post_tags post=post show_views=True %}</span>
                 {% endif %}
 
                 {# Show the post actions #}
