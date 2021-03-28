@@ -453,8 +453,13 @@ i.icon {
 
 .post .actions.top-level {
     padding-bottom: 17px;
+    //display: block;
 }
 
+.inplace-tags {
+    display:inline-block;
+    padding-top: 1em;
+}
 
 .blog-feed > h5 {
     margin-bottom: 5px;

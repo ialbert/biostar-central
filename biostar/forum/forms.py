@@ -1,4 +1,3 @@
-
 from pagedown.widgets import PagedownWidget
 import os
 import langdetect
@@ -26,7 +25,6 @@ MAX_TAGS = 5
 
 
 def valid_language(text):
-
     supported_languages = settings.LANGUAGE_DETECTION
     if supported_languages:
         try:
@@ -70,10 +68,10 @@ def informative_choices(choices):
     Map choices for post types to a more informative description.
     """
     mapper = {
-              Post.QUESTION: "Ask a question", Post.TUTORIAL: "Share a Tutorial",
-              Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
-              Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
-              }
+        Post.QUESTION: "Ask a question", Post.TUTORIAL: "Share a Tutorial",
+        Post.JOB: "Post a Job Opening", Post.FORUM: "Start a Discussion",
+        Post.TOOL: "Share a Tool", Post.NEWS: "Announce News"
+    }
     new_choices = []
     for c in choices:
         new_choices.append((c[0], mapper.get(c[0], c[1])))
@@ -112,7 +110,6 @@ def required_tags(lst):
 
 
 class PostLongForm(forms.Form):
-
     choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
 
     if settings.ALLOWED_POST_TYPES:
@@ -209,20 +206,24 @@ class PostModForm(forms.Form):
         super(PostModForm, self).__init__(*args, **kwargs)
 
         choices = [
-            (OPEN_POST, "Open post"),
             (DELETE, "Delete post"),
-            #(OFF_TOPIC, "Off topic"),
-            (REPORT_SPAM, "Report Spam"),
+            (OPEN_POST, "Open post"),
         ]
 
         # Top level posts may be bumped.
         if post.is_toplevel:
-            choices += [(BUMP_POST, "Bump post.")]
+            choices += [(BUMP_POST, "Bump post")]
         elif post.is_comment:
-            choices += [(MOVE_ANSWER, "Move as answer.")]
+            choices += [(MOVE_ANSWER, "Move to answer")]
 
         if post.is_answer or post.is_comment:
-            choices += [(MOVE_COMMENT, "Move as comment to top level")]
+            choices += [(MOVE_COMMENT, "Move to comment")]
+
+        # Punitive options.
+        choices.extend((
+                (OFF_TOPIC, "Mark as offtopic"),
+                (REPORT_SPAM, "Mark as spam (suspend author)"),
+        ))
 
         self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
 
@@ -232,5 +233,3 @@ class PostModForm(forms.Form):
             raise forms.ValidationError("You need to be a moderator to preform that action.")
 
         return self.cleaned_data
-
-

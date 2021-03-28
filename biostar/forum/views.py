@@ -616,7 +616,7 @@ def post_moderate(request, uid):
     else:
         form = forms.PostModForm(post=post, user=user, request=request)
 
-    context = dict(form=form, post=post)
+    context = dict(form=form, post=post, user=user)
     return render(request, "forms/form_moderate.html", context)
 
 

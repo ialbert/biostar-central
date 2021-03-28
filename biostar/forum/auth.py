@@ -197,8 +197,8 @@ def create_post_from_json(**json_data):
 
 
 def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
-    # Check if a post with this content already exists.
-    post = Post.objects.filter(content=content, author=author).first()
+    # Check if a post with this exact content already exists.
+    post = Post.objects.filter(content=content, author=author, is_toplevel=True).first()
     if post:
         logger.info("Post with this content already exists.")
         return post
@@ -450,45 +450,56 @@ def mod_rationale(post, user, template, ptype=Post.ANSWER, extra_context=dict())
     return post
 
 
-def only_delete(post, user):
+def removal_condition(post, user, age=1):
     """
-    Return if this post should get a 'Delete' flag instead of being removed from database.
+    Removal condition for the post.
     """
-    children = Post.objects.filter(parent_id=post.id).exclude(pk=post.id)
-    # The conditions where post can only be deleted.
-    cond1 = children or post.age_in_days > 7
-    cond2 = post.vote_count > 1 or (post.author != user)
 
-    only_del = cond1 or cond2
+    # Only authors may remove their own posts
+    if post.author != user:
+        return False
 
-    return only_del
+    # Post older than a day may not be removed
+    if post.age_in_days > age:
+        return False
+
+    # If the post has children it may not be removed
+    if Post.objects.filter(parent=post).exclude(pk=post.id):
+        return False
+
+    # If the post has votes it may not be removed
+    if post.vote_count:
+        return False
+
+    return True
 
 
 def delete_post(request, post, **kwargs):
+    """
+    Post may be marked as deleted or removed entirely
+    """
     user = request.user
-    if only_delete(post, user):
-        # Deleted posts can be un=deleted by re-opening them.
-        Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
-        url = post.root.get_absolute_url()
-        msg = f"deleted"
-        post.recompute_scores()
-        post.root.recompute_scores()
+
+    # Decide on the removal
+    remove = removal_condition(post, user)
+
+    if remove:
+        msg = f"removed post"
         messages.info(request, mark_safe(msg))
         db_logger(user=user, post=post, text=msg)
-        return url
-
-    # Redirect depends on the level of the post.
-    if post.is_toplevel:
+        post.delete()
         url = "/"
     else:
-        url = post.root.get_absolute_url()
-        post.root.recompute_scores()
+        Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
+        post.recompute_scores()
+        msg = f"deleted post"
+        messages.info(request, mark_safe(msg))
+        db_logger(user=user, post=post, text=msg)
+        url = post.get_absolute_url()
 
-    # Remove post from the database with no trace.
-    msg = f"removed"
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, post=post, text=msg)
-    post.delete()
+    # Recompute post score.
+    if not post.is_toplevel:
+        post.root.recompute_scores()
 
     return url
 
@@ -502,7 +513,7 @@ def open(request, post, **kwargs):
     post.recompute_scores()
 
     post.root.recompute_scores()
-    msg = f"opened"
+    msg = f"opened post"
     url = post.get_absolute_url()
     messages.info(request, mark_safe(msg))
     db_logger(user=user, text=f"{msg}", post=post)
@@ -514,7 +525,7 @@ def bump(request, post, **kwargs):
     user = request.user
 
     Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp())
-    msg = f"bumped"
+    msg = f"bumped post"
     url = post.get_absolute_url()
     messages.info(request, mark_safe(msg))
     db_logger(user=user, text=f"{msg}", post=post)
@@ -544,7 +555,7 @@ def change_user_state(mod, target, state):
 
     # Set the new state.
     target.profile.state = state
-    target.save()
+    target.profile.save()
 
     # Generate the logging message.
     msg = f"changed user state to {target.profile.get_state_display()}"
@@ -753,25 +764,57 @@ def off_topic(request, post, **kwargs):
         # Generate off comment.
         content = "This post is off topic."
         create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
-
-    msg = "off topic"
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg}", post=post)
+        msg = "off topic"
+        messages.info(request, mark_safe(msg))
+        db_logger(user=user, text=f"{msg}", post=post)
+    else:
+        messages.warning(request, "post has been already tagged as off topic")
 
     url = post.get_absolute_url()
     return url
 
 
+def relocate(request, post, **kwds):
+    """
+    Moves an answer to a comment and viceversa.
+    """
+    url = post.get_absolute_url()
+
+    if post.is_toplevel:
+        messages.warning(request, "cannot relocate a top level post")
+        return url
+
+    if post.type == Post.COMMENT:
+        msg = f"moved comment to answer"
+        post.type = Post.ANSWER
+    else:
+        msg = f"moved answer to comment"
+        post.type = Post.COMMENT
+
+    post.parent = post.root
+    post.save()
+
+    db_logger(user=request.user, post=post, text=f"{msg}")
+    messages.info(request, msg)
+    return url
+
+
 def moderate(request, post, action, parent, comment=""):
     # Bind an action to a function.
-    action_map = {REPORT_SPAM: toggle_spam,
-                  DUPLICATE: duplicated,
-                  BUMP_POST: bump,
-                  OPEN_POST: open,
-                  DELETE: delete_post,
-                  CLOSE: close,
-                  MOVE_COMMENT: move_to_comment,
-                  MOVE_ANSWER: move_to_answer}
+    action_map = {
+        REPORT_SPAM: toggle_spam,
+        DUPLICATE: duplicated,
+        BUMP_POST: bump,
+        OPEN_POST: open,
+        OFF_TOPIC: off_topic,
+        DELETE: delete_post,
+        CLOSE: close,
+        MOVE_COMMENT: move_to_comment,
+        MOVE_ANSWER: move_to_answer,
+
+        # TODO: change to words!
+        100: relocate,
+    }
 
     if action in action_map:
         mod_func = action_map[action]

@@ -2,6 +2,17 @@
 
 - TODO: how to join slack ... other relevant info
 
+### Post moderation
+
+Each moderation action generates a log entry in the moderation log.
+
+* Delete - marks the post as deleted, only mods and the author can see the post
+* Open - removes deleted flag from a post
+* Bump - sets the timestamp to be among the first ten posts
+* Off-topic - adds the offtopic tag and creates a comment stating that the post if off topic.
+* Spam - marks post as spam, suspends post author
+* Not spam - unmarks post from spam, reinstates post author 
+ 
 ### Moderation guidelines
 
 Users posting content that does not belong to the site will be notified and

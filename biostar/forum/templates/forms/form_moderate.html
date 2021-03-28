@@ -8,47 +8,66 @@
 
         {% csrf_token %}
 
-        <div class="ui divider"></div>
-
         <div class="ui segment">
+
             <div class="field">
-                <label>Select a moderation choice</label>
-                {{ form.action }}
+
+                <button class="ui green mini button" name="action" value="1">
+                    Open
+                </button>
+
+                <button class="ui red mini button" name="action" value="6">
+                    Delete
+                </button>
+
+                {% if post.is_spam %}
+                    <button class="ui mini green button" name="action" value="8">
+                        Not spam
+                    </button>
+                {% else %}
+                    <button class="ui red mini  button" name="action" value="8">
+                        Spam
+                    </button>
+                {% endif %}
+
+            </div>
+
+            <div class="field">
+                <button class="ui grey mini button" name="action" value="0">
+                    Bump
+                </button>
+
+                <button class="ui grey mini button" name="action" value="5">
+                    Off topic
+                </button>
+
+                {% if not post.is_toplevel %}
+                    <button class="ui grey mini button" name="action" value="100">
+                        Relocate
+                    </button>
+                {% endif %}
+
+            </div>
+
+            <div class="field">
+
+                <button class="ui mini button" onclick="javascript:obj=$('#modpanel').remove();">
+                    <i class="close icon"></i> Exit moderation
+                </button>
+
             </div>
         </div>
-
-        {% if form.parent %}
-
-        <div class="ui segment">
-            <div class="field">
-                <label>Parent post to move under.</label>
-                {{ form.parent }}
-                <div class="ui muted">
-                    The parent ID to move this post under.
-                </div>
-            </div>
-        </div>
-
-        {% endif %}
-
         <p>
             If a post is a duplicate please indicate that as an answer.
         </p>
-
         <p>
             If this is a cross-post with bioinformatics relevance please provide the link as an answer.
         </p>
 
-       <button type="submit" class="ui green enter button">
-            <i class="check icon"></i>
-            Submit
-        </button>
-
-        <a class="ui orange button" onclick="javascript:obj=$('#modpanel').remove();">
-            <i class="cancel icon"></i>
-            Cancel
-        </a>
-
+        <p>See <a href="/info/mods" target="_blank">moderator resources</a> for more information on what each action
+            does</p>
     </form>
-
 </div>
+
+
+

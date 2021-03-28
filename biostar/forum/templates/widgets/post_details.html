@@ -48,6 +48,7 @@
                     {% endif %}
                 </div>
 
+                {%  comment %}
                 {% if post.high_spam_score and user.profile.is_moderator %}
 
                     <a href="{% url 'mark_spam' post.uid %}">
@@ -61,6 +62,7 @@
                     </a>
 
                 {% endif %}
+                {%  endcomment %}
 
                 <div class="right floated muted">
                     {% post_user_line post avatar=avatar %}
