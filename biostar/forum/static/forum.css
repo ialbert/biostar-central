@@ -456,6 +456,10 @@ i.icon {
     //display: block;
 }
 
+.inplace-tags {
+    display:inline-block;
+    padding-top: 1em;
+}
 
 .blog-feed > h5 {
     margin-bottom: 5px;
