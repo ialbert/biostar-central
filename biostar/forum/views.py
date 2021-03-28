@@ -21,7 +21,7 @@ from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription, Log
-from biostar.utils.decorators import is_moderator, check_params, reset_counts
+from biostar.utils.decorators import is_moderator, check_params, reset_count
 
 User = get_user_model()
 
@@ -101,7 +101,7 @@ class CachedPaginator(Paginator):
         return value
 
 
-@reset_counts(ckey='spam_count', skey=COUNT_DATA_KEY)
+@reset_count(key='spam_count')
 def get_spam(request):
     posts = Post.objects.filter(spam=Post.SPAM)
     return posts
@@ -332,7 +332,7 @@ def authenticated(func):
 
 
 @authenticated
-@reset_counts(ckey=VOTES_COUNT, skey=COUNT_DATA_KEY)
+@reset_count(key="vote_count")
 def myvotes(request):
     """
     Show posts by user that received votes
@@ -353,7 +353,7 @@ def myvotes(request):
 
 
 @check_params(allowed=ALLOWED_PARAMS)
-@reset_counts(ckey="planet_count", skey=COUNT_DATA_KEY)
+@reset_count(key="planet_count")
 def blog_list(request):
 
     return planet_list(request)
@@ -635,7 +635,7 @@ def user_moderate(request, uid):
     return result
 
 
-@reset_counts(ckey='mod_count', skey=COUNT_DATA_KEY)
+@reset_count(key='mod_count')
 @check_params(allowed=ALLOWED_PARAMS)
 @login_required
 def view_logs(request):

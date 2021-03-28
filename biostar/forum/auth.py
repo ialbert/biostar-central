@@ -334,7 +334,7 @@ def valid_awards(user):
 
 def set_counts(request):
     """
-    Set request count for anonymous users.
+    Set counts for anonymous users.
     """
     # Get the IP
     ip = get_ip(request)
@@ -356,9 +356,9 @@ def set_counts(request):
 
         # Set the counts in sessions
         counts = dict(planet_count=count)
-        request.session[COUNT_DATA_KEY] = counts
+        request.session[settings.SESSION_COUNT_KEY] = counts
 
-        # Reset last seen date to now
+        # Reset last seen date.
         cache.delete(ip)
 
 

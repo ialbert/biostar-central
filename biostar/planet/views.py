@@ -3,8 +3,10 @@ from django.db.models import Max, Count
 from django.core.paginator import Paginator
 from biostar.planet.models import Blog, BlogPost
 from django.conf import settings
+from biostar.utils.decorators import reset_count
 
 
+@reset_count(key="planet_count")
 def blog_list(request):
 
     page = request.GET.get("page", 1)

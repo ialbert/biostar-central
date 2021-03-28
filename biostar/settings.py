@@ -222,3 +222,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 # Session key name.
 SESSION_KEY = "session"
+
+
+# Session key to keep track of counts
+SESSION_COUNT_KEY = "counts"

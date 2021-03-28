@@ -26,7 +26,7 @@ from ratelimit.decorators import ratelimit
 from .auth import validate_login, send_verification_email
 
 from biostar.utils.helpers import get_ip
-from biostar.utils.decorators import limited, reset_counts
+from biostar.utils.decorators import limited, reset_count
 from . import forms, tasks
 
 from .const import *
@@ -103,7 +103,7 @@ def user_moderate(request, uid, callback=lambda *args, **kwargs: None):
     return render(request, "accounts/user_moderate.html", context)
 
 
-@reset_counts(ckey="message_count", skey=COUNT_DATA_KEY)
+@reset_count(key="message_count")
 @login_required
 def message_list(request):
     """

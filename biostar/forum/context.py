@@ -36,7 +36,7 @@ def forum(request):
     """
 
     # Will inject the counts into every session
-    counts = request.session.get(const.COUNT_DATA_KEY, {})
+    counts = request.session.get(settings.SESSION_COUNT_KEY, {})
 
     params = dict(user=request.user,
                   TRAFFIC=get_traffic(),
