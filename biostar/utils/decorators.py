@@ -35,7 +35,7 @@ def reset_count(key):
             # Get the count from sessions
             counts = request.session.get(session_key, {})
             counts[key] = 0
-            request.session[key] = counts
+            request.session[session_key] = counts
 
             return func(request, **kwargs)
 
