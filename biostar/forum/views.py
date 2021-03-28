@@ -353,13 +353,6 @@ def myvotes(request):
 
 
 @check_params(allowed=ALLOWED_PARAMS)
-@reset_count(key="planet_count")
-def blog_list(request):
-
-    return planet_list(request)
-
-
-@check_params(allowed=ALLOWED_PARAMS)
 def tags_list(request):
     """
     Show posts by user
