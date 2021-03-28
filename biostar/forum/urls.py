@@ -96,14 +96,14 @@ urlpatterns = [
     # Override the moderate
     path(r'accounts/moderate/<str:uid>/', views.user_moderate, name="user_moderate"),
 
-    # Include the planet urls
-    path('planet/', include(planet_patterns)),
-
     # Include the accounts urls
     path('accounts/', include(account_patterns)),
 
     # User profile url
     path(r'u/<str:uid>/', account_views.user_profile, name="user_profile"),
+
+    # Include the planet urls
+    path('planet/', include(planet_patterns)),
 
     # Add admin urls.
     path('admin/', admin.site.urls),
