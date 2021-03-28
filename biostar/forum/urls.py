@@ -97,7 +97,7 @@ urlpatterns = [
     path(r'accounts/moderate/<str:uid>/', views.user_moderate, name="user_moderate"),
 
     # Include the planet urls
-    path('planet/', views.blog_list, name="blog_list"),
+    path('planet/', include(planet_patterns)),
 
     # Include the accounts urls
     path('accounts/', include(account_patterns)),
