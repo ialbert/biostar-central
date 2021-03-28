@@ -343,7 +343,7 @@ def set_counts(request):
     last_seen = cache.get(ip)
 
     # Set the last seen date as now
-    if not last_seen:
+    if last_seen is None:
         last_seen = util.now()
         cache.set(ip, last_seen)
 
