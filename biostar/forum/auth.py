@@ -376,7 +376,7 @@ def get_counts(user):
     # Spam count since last visit.
     spam_count = Post.objects.filter(spam=Post.SPAM, creation_date__gte=user.profile.last_login)[:1000].count()
 
-    print(spam_count)
+    #print(spam_count, "count")
     #1/0
     # Moderation actions since last visit.
     mod_count = Log.objects.filter(date__gte=user.profile.last_login)[:100].count()
