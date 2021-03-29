@@ -46,7 +46,7 @@ def create_blogpost(entry, blog):
 def add_blogpost(blogs, count=3):
     import html
     for blog in blogs:
-        logger.info(f"parsing blog: {blog.id}: {blog.title}")
+        logger.debug(f"parsing blog: {blog.id}: {blog.title}")
         try:
             seen = [e.uid for e in BlogPost.objects.filter(blog=blog)]
             seen = set(seen)
@@ -77,7 +77,7 @@ def add_blogpost(blogs, count=3):
 
 def add_blog(feed):
     try:
-
+        logger.debug(f"processing {feed}")
         text = request.urlopen(feed).read().decode(errors="surrogatepass")
         doc = feedparser.parse(text)
         title = doc.feed.title
@@ -89,9 +89,9 @@ def add_blog(feed):
         link = doc.feed.link
         blog = Blog.objects.create(title=smart_text(title), feed=feed, link=link, desc=smart_text(desc))
 
-        add_blogpost(blogs=Blog.objects.filter(id=blog.id))
-
-        logger.info(f"adding {blog.title}")
+        #add_blogpost(blogs=Blog.objects.filter(id=blog.id))
+        blog.download()
+        logger.debug(f"adding {blog.title}")
         logger.debug(f"link: {blog.link}")
         logger.debug(blog.desc)
 
@@ -99,7 +99,6 @@ def add_blog(feed):
         logger.error(f"error {exc} parsing {feed}")
         blog = None
 
-    logger.info('-' * 10)
     return blog
 
 
@@ -121,10 +120,12 @@ def add_blogs(add_fname):
     # Strip newlines
     urls = map(str.strip, open(add_fname))
 
-    # Keep feeds with urls that do not yet exists
-    urls = filter(lambda url: len(url) or not Blog.objects.filter(feed=url), urls)
-
     # Attempt to populate the database with the feeds
     for feed in urls:
-        logger.debug(f"parsing {feed}")
-        add_blog(feed)
+
+        exists = Blog.objects.filter(feed=feed).first()
+
+        if exists:
+            logger.info(f"Blog already exists feed={feed}")
+        else:
+            add_blog(feed)

@@ -1,6 +1,6 @@
 
 from django.conf import settings
-
+from django.db.models import Max, Count
 from biostar.forum.util import now
 from biostar.planet.models import Blog, BlogPost
 from django.core.management.base import BaseCommand
@@ -27,6 +27,16 @@ def fake():
 
     BlogPost.objects.create(blog=blog, title='Creating a fake blog post.', creation_date=now())
 
+
+def dropall():
+
+    Blog.objects.all().delete()
+
+    logger.info("deleted all blogs.")
+
+    return
+
+
 class Command(BaseCommand):
     help = 'Create search index for the forum app.'
 
@@ -38,21 +48,31 @@ class Command(BaseCommand):
         parser.add_argument('--report', action='store_true', default=False, help="Reports on the content of the index.")
         parser.add_argument('--update', dest='update', default=0, type=int, help='updates existing blogs with latest feeds')
         parser.add_argument('--fake', dest='fake',  action="store_true", default=False, help='Create fake blog entries.')
+        parser.add_argument('--drop', dest='drop',  action="store_true", default=False,
+                            help='Delete repeated blogs in database.')
+        parser.add_argument('--limit', dest='limit', default=1, type=int, help='object limits')
 
     def handle(self, *args, **options):
         # Create the planet directory if it is missing
         os.makedirs(settings.PLANET_DIR, exist_ok=True)
 
+        limit = options['limit']
+        fname = options['add']
+        update = options['update']
+        download = options['download']
+        drop = options['drop']
+
         if options['fake']:
             fake()
 
-        fname = options['add']
+        if drop:
+            dropall()
+
         if fname:
             auth.add_blogs(fname)
 
-        if options['download']:
+        if download:
             auth.download_blogs()
 
-        count = options['update']
-        if count:
-            auth.update_entries(count)
+        if update:
+            auth.update_entries(update)
