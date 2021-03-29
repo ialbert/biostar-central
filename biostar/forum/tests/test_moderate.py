@@ -46,7 +46,7 @@ class PostTest(TestCase):
     def test_toplevel_moderation(self):
         "Test top level post moderation."
         # Test every moderation action
-        choices = [const.BUMP, const.OPEN_POST, const.DELETE]
+        choices = [const.BUMP, const.OPEN_POST, const.DELETE, const.CLOSE, const.OFF_TOPIC, const.RELOCATE]
 
         self.post = models.Post.objects.create(title="Test",
                                                author=self.owner, content="Test",
@@ -56,7 +56,7 @@ class PostTest(TestCase):
 
     def test_answer_moderation(self):
         "Test answer moderation."
-        choices = [const.TOGGLE_ACCEPT, const.DELETE]
+        choices = [const.DELETE]
 
         # Create an answer to moderate
         answer = models.Post.objects.create(title="Test", author=self.owner, content="Test",
@@ -79,17 +79,6 @@ class PostTest(TestCase):
 
         self.moderate(choices=choices, post=comment, extra={'pid': self.post.uid})
 
-    def test_duplicate_post(self):
-        "Test duplicate post moderation"
-
-        data = {"dupe": "google.com"}
-
-        url = reverse('post_moderate', kwargs=dict(uid=self.post.uid))
-        request = fake_request(url=url, data=data, user=self.owner)
-        response = views.post_moderate(request=request, uid=self.post.uid)
-        self.process_response(response)
-
-        pass
 
     def process_response(self, response):
         "Check the response on POST request is redirected"
