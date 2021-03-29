@@ -30,7 +30,8 @@ def create_blogpost(entry, blog):
     body = entry.description
     content = strip_tags(body)
     try:
-        post = BlogPost.objects.create(title=entry.title, blog=blog, uid=entry.id, content=content, html=body,
+        post = BlogPost.objects.create(title=entry.title, blog=blog, uid=entry.id,
+                                       content=content, html=body,
                                        creation_date=date, link=entry.link)
 
     except Exception as exc:
@@ -52,7 +53,6 @@ def add_blogpost(blogs, count=3):
             seen = set(seen)
             # Parse the blog
             doc = blog.parse()
-
             # get the new posts
             entries = [e for e in doc.entries if f"{e.id}" not in seen]
 

@@ -48,12 +48,9 @@ class Command(BaseCommand):
 
         fname = options['add']
         if fname:
-            fname = os.path.abspath(os.path.join(settings.PLANET_DIR, fname))
             auth.add_blogs(fname)
 
         if options['download']:
-            fname = os.path.abspath(os.path.join(settings.PLANET_DIR, 'example-feeds.txt'))
-            auth.add_blogs(fname)
             auth.download_blogs()
 
         count = options['update']
