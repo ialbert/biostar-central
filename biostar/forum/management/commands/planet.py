@@ -54,7 +54,7 @@ class Command(BaseCommand):
         parser.add_argument('--report', action='store_true', default=False, help="Reports on the content of the index.")
         parser.add_argument('--update', dest='update', default=0, type=int, help='updates existing blogs with latest feeds')
         parser.add_argument('--fake', dest='fake',  action="store_true", default=False, help='Create fake blog entries.')
-        parser.add_argument('--delete_repeats', dest='delete',  action="store_true", default=False,
+        parser.add_argument('--remove_repeats', dest='remove',  action="store_true", default=False,
                             help='Delete repeated blogs in database.')
 
     def handle(self, *args, **options):
@@ -66,7 +66,7 @@ class Command(BaseCommand):
 
         fname = options['add']
 
-        if options['delete']:
+        if options['remove']:
             delete_repeats()
 
         if fname:
