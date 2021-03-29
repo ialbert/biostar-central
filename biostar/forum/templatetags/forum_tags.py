@@ -48,8 +48,8 @@ ICON_MAP = dict(
     tagged="tags icon",
 )
 
-@register.simple_tag
-def show_count(count):
+@register.inclusion_tag('widgets/count_badge.html')
+def count_badge(count):
 
     try:
         count = int(count)
@@ -58,7 +58,7 @@ def show_count(count):
         logger.error(f"invalid count (stale session?) {count}")
         count = 0
 
-    return f"({count})" if count else ""
+    return dict(count=count)
 
 
 @register.simple_tag(takes_context=True)

@@ -54,10 +54,10 @@
             <i class="plus icon"><i class="dropdown icon"></i></i>
             <div class=" menu">
                 <a class="item  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-                    <i class="envelope icon"></i>Messages {% show_count counts.message_count %}
+                    <i class="envelope icon"></i>Messages {{ counts.message_count }}
                 </a>
                 <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-                    <i class="thumbs up icon"></i>Votes {% show_count counts.vote_count %}
+                    <i class="thumbs up icon"></i>Votes {{ counts.vote_count }}
                 </a>
 
                 <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
