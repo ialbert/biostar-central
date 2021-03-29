@@ -12,7 +12,6 @@ from django.template import loader
 from django.utils.safestring import mark_safe
 from django.conf import settings
 
-
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
 from biostar.planet.models import BlogPost
@@ -332,36 +331,6 @@ def valid_awards(user):
     return valid
 
 
-def set_counts(request):
-    """
-    Set counts for anonymous users.
-    """
-    # Get the IP
-    ip = get_ip(request)
-
-    # Try to get last seen date from cache
-    last_seen = cache.get(ip)
-
-    # Set the last seen date as now
-    if last_seen is None:
-        last_seen = util.now()
-        cache.set(ip, last_seen)
-
-    # Calculate out elapsed seconds since last seen
-    elapsed = (util.now() - last_seen).total_seconds()
-
-    # Update counts if elapsed is greater than session update time.
-    if elapsed >= settings.SESSION_UPDATE_SECONDS:
-        count = BlogPost.objects.filter(creation_date__gte=last_seen)[:100].count()
-
-        # Set the counts in sessions
-        counts = dict(planet_count=count)
-        request.session[settings.SESSION_COUNT_KEY] = counts
-
-        # Reset last seen date.
-        cache.delete(ip)
-
-
 def get_counts(user):
     # The number of new messages since last visit.
     message_count = Message.objects.filter(recipient=user, unread=True)[:1000].count()
@@ -380,10 +349,7 @@ def get_counts(user):
     mod_count = Log.objects.filter(date__gte=user.profile.last_login)[:100].count()
 
     # Store the counts into the session.
-    counts = dict(mod_count=mod_count,
-                  spam_count=spam_count,
-                  planet_count=planet_count,
-                  message_count=message_count,
+    counts = dict(mod_count=mod_count, spam_count=spam_count, planet_count=planet_count, message_count=message_count,
                   vote_count=vote_count)
 
     return counts
