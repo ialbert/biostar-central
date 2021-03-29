@@ -30,8 +30,7 @@ def fake():
 
 def delete_repeats():
 
-    blogs = Blog.objects.annotate(updated_date=Max("blogpost__creation_date"))
-    blogs = blogs.annotate(count=Count("blogpost__id"))
+    blogs = Blog.objects.annotate(count=Count("blogpost__id"))
     # Order by most blog posts.
     blogs = blogs.order_by("-count")
 
