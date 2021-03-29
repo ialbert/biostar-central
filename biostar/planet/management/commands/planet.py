@@ -70,7 +70,6 @@ class Command(BaseCommand):
             delete_repeats()
 
         if fname:
-            fname = os.path.abspath(os.path.join(settings.PLANET_DIR, fname))
             auth.add_blogs(fname)
 
         if options['download']:

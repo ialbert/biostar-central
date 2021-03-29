@@ -15,19 +15,9 @@ def blog_list(request):
     blogs = Blog.objects.annotate(updated_date=Max("blogpost__creation_date"))
     blogs = blogs.annotate(count=Count("blogpost__id"))
     blogs = blogs.order_by("-updated_date", "-list_order")[:100]
-
     # .distinct() on textfield not allowed on sql database backend.
     # .distinct() + .annotate() not implemented in postgres unless ordered by text field.
-    # seen = set()
-    #
-    # def distinct(blg):
-    #     # Return True if feed is already seen
-    #     if blg.feed in seen:
-    #         return False
-    #     seen.update([blg.feed])
-    #     return True
-    #
-    # blogs = [b for b in blogs if distinct(b)]
+    #blogs = blogs.order_by("-updated_date", "-list_order").distinct('feed')
 
     blogposts = Paginator(blogposts, per_page=settings.BLOGS_PER_PAGE)
     blogposts = blogposts.get_page(page)
