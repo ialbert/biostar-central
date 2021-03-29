@@ -30,6 +30,7 @@ class Blog(models.Model):
     """
     title = models.CharField(max_length=255, default="")
     desc = models.TextField(default='', blank=True)
+    #feed = models.URLField(unique=True)
     feed = models.URLField()
     link = models.URLField()
     active = models.BooleanField(default=True)

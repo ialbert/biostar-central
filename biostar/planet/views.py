@@ -12,8 +12,12 @@ def blog_list(request):
     page = request.GET.get("page", 1)
     blogposts = BlogPost.objects.select_related("blog").order_by("-creation_date")
 
-    blogs = Blog.objects.all().annotate(updated_date=Max("blogpost__creation_date"),
-                                        count=Count("blogpost__id")).order_by("-updated_date", "-list_order")
+    blogs = Blog.objects.annotate(updated_date=Max("blogpost__creation_date"))
+    blogs = blogs.annotate(count=Count("blogpost__id"))
+    blogs = blogs.order_by("-updated_date", "-list_order")[:100]
+    # .distinct() on textfield not allowed on sql database backend.
+    # .distinct() + .annotate() not implemented in postgres unless ordered by text field.
+    #blogs = blogs.order_by("-updated_date", "-list_order").distinct('feed')
 
     blogposts = Paginator(blogposts, per_page=settings.BLOGS_PER_PAGE)
     blogposts = blogposts.get_page(page)
