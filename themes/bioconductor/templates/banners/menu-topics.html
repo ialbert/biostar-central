@@ -6,16 +6,14 @@
 <div class="ui top attached text menu" id="menu-topics">
     <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}
-        {% counts as counts %}
 
         <a class="item messages {% activate tab "messages" %}" href="{% url 'inbox' %}">
-            <i class="envelope icon"></i> Messages {% if counts.messages.count %}{{ counts.messages.count }}{% endif %}
+            <i class="envelope icon"></i> Messages {% if counts.message_count %}{{ counts.message_count }}{% endif %}
 
         </a>
 
         <a class="item votes {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-            <i class="heart icon"></i> Votes {% if counts.votes.count %}{{ counts.votes.count }}{% endif %}
-
+            <i class="heart icon"></i> Votes {% if counts.message_count %}{{ counts.message_count }}{% endif %}
         </a>
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
@@ -40,7 +38,7 @@
     {% endif %}
     {% if request.user.profile.is_moderator %}
         <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
-            <i class="info circle icon"></i> Activity
+            <i class="info circle icon"></i> Activity {% if counts.mod_count %}{{ counts.mod_count }}{% endif %}
         </a>
     {% endif %}
 
