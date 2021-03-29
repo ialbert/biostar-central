@@ -611,36 +611,6 @@ def move_post(request, post, parent, **kwargs):
                 msg=msg)
 
 
-def move_to_comment(request, post, **kwargs):
-    """
-    move this post to a comment
-    """
-
-    parent = post.root
-    ptype = Post.COMMENT
-    msg = "moved comment"
-    return move(request=request,
-                parent=parent,
-                source=post,
-                ptype=ptype,
-                msg=msg)
-
-
-def move_to_answer(request, post, **kwargs):
-    """
-    Move this post to be an answer
-    """
-
-    parent = post.root
-    ptype = Post.ANSWER
-    msg = "moved answer"
-    return move(request=request,
-                parent=parent,
-                source=post,
-                ptype=ptype,
-                msg=msg)
-
-
 def close(request, post, comment, **kwargs):
     """
     Close this post and provide a rationale for closing as well.
@@ -658,23 +628,6 @@ def close(request, post, comment, **kwargs):
     db_logger(user=user, text=f"{msg}", post=post)
     return url
 
-
-def duplicated(request, post, comment, **kwargs):
-    # Generate a rationale post on why this post is a duplicate.
-    Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-    user = request.user
-
-    dupes = comment.split("\n")[:5]
-    dupes = list(filter(lambda d: len(d), dupes))
-    context = dict(dupes=dupes, comment=comment)
-    rationale = mod_rationale(post=post, user=user,
-                              template="messages/duplicate_posts.md",
-                              extra_context=context)
-    url = rationale.get_absolute_url()
-    msg = "duplicate"
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg}", post=post)
-    return url
 
 
 def validate_move(user, source, target):
@@ -763,26 +716,22 @@ def relocate(request, post, **kwds):
     return url
 
 
-def moderate(request, post, action, parent, comment=""):
+def moderate(request, post, action):
+
     # Bind an action to a function.
     action_map = {
         REPORT_SPAM: toggle_spam,
-        DUPLICATE: duplicated,
-        BUMP_POST: bump,
+        BUMP: bump,
         OPEN_POST: open,
         OFF_TOPIC: off_topic,
         DELETE: delete_post,
         CLOSE: close,
-        MOVE_COMMENT: move_to_comment,
-        MOVE_ANSWER: move_to_answer,
-
-        # TODO: change to words!
-        100: relocate,
+        RELOCATE: relocate,
     }
 
     if action in action_map:
         mod_func = action_map[action]
-        url = mod_func(request=request, post=post, parent=parent, comment=comment)
+        url = mod_func(request=request, post=post)
     else:
         url = post.get_absolute_url()
         msg = "Unknown moderation action given."

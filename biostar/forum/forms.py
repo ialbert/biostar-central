@@ -208,24 +208,23 @@ class PostModForm(forms.Form):
         choices = [
             (DELETE, "Delete post"),
             (OPEN_POST, "Open post"),
+            (CLOSE, "Close post"),
         ]
 
         # Top level posts may be bumped.
         if post.is_toplevel:
-            choices += [(BUMP_POST, "Bump post")]
-        elif post.is_comment:
-            choices += [(MOVE_ANSWER, "Move to answer")]
-
-        if post.is_answer or post.is_comment:
-            choices += [(MOVE_COMMENT, "Move to comment")]
+            choices += [(BUMP, "Bump post")]
+        elif post.is_comment or post.is_answer:
+            choices += [(RELOCATE, "Move post")]
 
         # Punitive options.
         choices.extend((
                 (OFF_TOPIC, "Mark as offtopic"),
                 (REPORT_SPAM, "Mark as spam (suspend author)"),
+
         ))
 
-        self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
+        self.fields['action'] = forms.CharField(widget=forms.RadioSelect(choices=choices), required=True)
 
     def clean(self):
 

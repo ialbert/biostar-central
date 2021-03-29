@@ -48,7 +48,7 @@ def check_params(allowed):
     """
     Validate if only allowed params are present in request.GET.
     """
-    def outter(func):
+    def outer(func):
         @wraps(func)
         def inner(request, **kwargs):
             incoming = set(request.GET.keys())
@@ -62,7 +62,7 @@ def check_params(allowed):
 
         return inner
 
-    return outter
+    return outer
 
 
 def limited(key, rate):

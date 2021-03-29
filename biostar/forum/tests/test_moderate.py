@@ -46,7 +46,7 @@ class PostTest(TestCase):
     def test_toplevel_moderation(self):
         "Test top level post moderation."
         # Test every moderation action
-        choices = [const.BUMP_POST, const.OPEN_POST, const.DELETE]
+        choices = [const.BUMP, const.OPEN_POST, const.DELETE]
 
         self.post = models.Post.objects.create(title="Test",
                                                author=self.owner, content="Test",
