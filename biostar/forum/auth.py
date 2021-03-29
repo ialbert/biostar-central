@@ -611,17 +611,15 @@ def move_post(request, post, parent, **kwargs):
                 msg=msg)
 
 
-def close(request, post, comment, **kwargs):
+def close(request, post, **kwargs):
     """
     Close this post and provide a rationale for closing as well.
     """
     user = request.user
     Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
     # Generate a rationale post on why this post is closed.
-    context = dict(comment=comment)
     rationale = mod_rationale(post=post, user=user,
-                              template="messages/closed.md",
-                              extra_context=context)
+                              template="messages/closed.md")
     msg = "closed"
     url = rationale.get_absolute_url()
     messages.info(request, mark_safe(msg))
