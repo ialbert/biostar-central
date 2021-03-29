@@ -12,10 +12,8 @@ def blog_list(request):
     page = request.GET.get("page", 1)
     blogposts = BlogPost.objects.select_related("blog").order_by("-creation_date")
 
-    # TODO: distinct + annotate not allowed on postgres, distinct not allowed on sql
-    blogs = Blog.objects.all()[:100]
-    blogs = blogs.annotate(updated_date=Max("blogpost__creation_date"))
-    blogs = blogs.annotate(count=Count("blogpost__id"))
+    blogs = Blog.objects.all().annotate(updated_date=Max("blogpost__creation_date"),
+                                        count=Count("blogpost__id")).order_by("-updated_date", "-list_order")
 
     blogposts = Paginator(blogposts, per_page=settings.BLOGS_PER_PAGE)
     blogposts = blogposts.get_page(page)

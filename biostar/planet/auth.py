@@ -30,8 +30,7 @@ def create_blogpost(entry, blog):
     body = entry.description
     content = strip_tags(body)
     try:
-        post = BlogPost.objects.create(title=entry.title, blog=blog, uid=entry.id,
-                                       content=content, html=body,
+        post = BlogPost.objects.create(title=entry.title, blog=blog, uid=entry.id, content=content, html=body,
                                        creation_date=date, link=entry.link)
 
     except Exception as exc:
@@ -63,7 +62,7 @@ def add_blogpost(blogs, count=3):
                 entry.title = entry.title.strip()
                 # entry.title = html.strip_tags(entry.title)
                 entry.title = entry.title.strip()[:200]
-                desc =smart_text(entry.description)
+                desc = smart_text(entry.description)
                 desc = html.unescape(desc)
                 entry.description = desc
 
@@ -77,7 +76,6 @@ def add_blogpost(blogs, count=3):
 
 
 def add_blog(feed):
-
     try:
 
         text = request.urlopen(feed).read().decode(errors="surrogatepass")
@@ -98,8 +96,8 @@ def add_blog(feed):
         logger.debug(blog.desc)
 
     except Exception as exc:
-       logger.error(f"error {exc} parsing {feed}")
-       blog = None
+        logger.error(f"error {exc} parsing {feed}")
+        blog = None
 
     logger.info('-' * 10)
     return blog
