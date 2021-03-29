@@ -28,7 +28,6 @@ def fake():
     BlogPost.objects.create(blog=blog, title='Creating a fake blog post.', creation_date=now())
 
 
-
 def dropall():
 
     Blog.objects.all().delete()
@@ -65,8 +64,6 @@ class Command(BaseCommand):
 
         if options['fake']:
             fake()
-
-        fname = options['add']
 
         if drop:
             dropall()
