@@ -28,20 +28,6 @@ def fake():
     BlogPost.objects.create(blog=blog, title='Creating a fake blog post.', creation_date=now())
 
 
-def delete_repeats():
-
-    blogs = Blog.objects.annotate(count=Count("blogpost__id"))
-    # Order by most blog posts.
-    blogs = blogs.order_by("-count")
-
-    seen = set()
-    for blg in blogs:
-        # Delete the blog if already seen
-        if blg.feed in seen:
-            blg.delete()
-            logger.debug(f"deleted {blg.feed}")
-        seen.update([blg.feed])
-
 
 def dropall():
 
