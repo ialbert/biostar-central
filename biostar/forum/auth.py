@@ -611,6 +611,21 @@ def move_post(request, post, parent, **kwargs):
                 msg=msg)
 
 
+
+def move_to_answer(request, post, **kwargs):
+    """
+    Move this post to be an answer
+    """
+
+    parent = post.root
+    ptype = Post.ANSWER
+    msg = "moved answer"
+    return move(request=request,
+                parent=parent,
+                source=post,
+                ptype=ptype,
+                msg=msg)
+
 def close(request, post, comment, **kwargs):
     """
     Close this post and provide a rationale for closing as well.
