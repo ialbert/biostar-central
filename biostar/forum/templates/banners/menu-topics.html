@@ -1,10 +1,8 @@
 {% load forum_tags %}
 
 {% if user.is_authenticated %}
-    {% counts as counts %}
 
     <div class="ui small attached six item menu" id="menu-topics">
-
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
             <i class="comments icon"></i> My Posts
@@ -15,21 +13,15 @@
         </a>
 
         <a class="item {% activate tab "messages" %}" href="{% url 'inbox' %}">
-
-            {% if counts.messages.count %}
-
-                <div class="ui green button">
-                    <i class="envelope icon"></i>Messages ({{ counts.messages.count }})
-                   </div>
+            {% if counts.message_count %}
+                <div class="ui green button"> <i class="envelope icon"></i>Messages  {% show_count counts.message_count %}</div>
             {%  else %}
-                 <i class="envelope icon"></i> Messages
+                 <i class="envelope icon"></i>Messages
             {% endif %}
-
         </a>
         <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-
-            {% if counts.votes.count %}
-                <div class="ui pink button"><i class="heart icon"></i> Votes ({{ counts.votes.count }})</div>
+            {% if counts.vote_count %}
+                <div class="ui pink button"><i class="heart icon"></i> Votes {% show_count counts.vote_count %}</div>
             {%  else %}
                 <i class="heart icon"></i> Votes
             {% endif %}

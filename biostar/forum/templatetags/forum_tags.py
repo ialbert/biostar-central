@@ -48,15 +48,6 @@ ICON_MAP = dict(
     tagged="tags icon",
 )
 
-
-def get_count(request, key, default=0):
-    """
-    Returns a count stored in the session.
-    """
-    value = request.session.get(const.COUNT_DATA_KEY, {}).get(key, default)
-    return value
-
-
 @register.simple_tag
 def show_count(count):
 
@@ -102,18 +93,6 @@ def bignum(number):
     except ValueError as exc:
         pass
     return str(number)
-
-
-@register.simple_tag(takes_context=True)
-def counts(context):
-    request = context['request']
-    vcounts = get_count(request, 'vote_count') or 0
-    mcounts = get_count(request, 'message_count') or 0
-
-    votes = dict(count=vcounts)
-    messages = dict(count=mcounts)
-
-    return dict(votes=votes, messages=messages)
 
 
 @register.inclusion_tag('widgets/post_details.html', takes_context=True)

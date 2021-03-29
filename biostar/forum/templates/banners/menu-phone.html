@@ -6,7 +6,6 @@
         <a href="/"><img class="ui image" width="220px" src="{% static "images/logo6.svg" %}"></a>
     </div>
 {% endblock %}
-{% counts as counts %}
 
 <div class="ui labeled icon attached fluid pointing menu" id="menu-header">
 
@@ -55,10 +54,10 @@
             <i class="plus icon"><i class="dropdown icon"></i></i>
             <div class=" menu">
                 <a class="item  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-                    <i class="envelope icon"></i>Messages {{ counts.messages.count }}
+                    <i class="envelope icon"></i>Messages {% show_count counts.message_count %}
                 </a>
                 <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-                    <i class="thumbs up icon"></i>Votes {{ counts.votes.count }}
+                    <i class="thumbs up icon"></i>Votes {% show_count counts.vote_count %}
                 </a>
 
                 <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">

@@ -1,6 +1,7 @@
 
 from django.conf import settings
 
+from biostar.forum.util import now
 from biostar.planet.models import Blog, BlogPost
 from django.core.management.base import BaseCommand
 import os
@@ -16,6 +17,16 @@ def abspath(*args):
     return os.path.abspath(os.path.join(*args))
 
 
+def fake():
+    """
+    Create a fake blog post.
+    """
+
+    # Get or create a blog
+    blog, created = Blog.objects.get_or_create(title="Fake")
+
+    BlogPost.objects.create(blog=blog, title='Creating a fake blog post.', creation_date=now())
+
 class Command(BaseCommand):
     help = 'Create search index for the forum app.'
 
@@ -26,13 +37,14 @@ class Command(BaseCommand):
                             help='downloads latest feeds')
         parser.add_argument('--report', action='store_true', default=False, help="Reports on the content of the index.")
         parser.add_argument('--update', dest='update', default=0, type=int, help='updates existing blogs with latest feeds')
+        parser.add_argument('--fake', dest='fake',  action="store_true", default=False, help='Create fake blog entries.')
 
     def handle(self, *args, **options):
         # Create the planet directory if it is missing
         os.makedirs(settings.PLANET_DIR, exist_ok=True)
 
-        #BlogPost.objects.all().delete()
-        #Blog.objects.all().delete()
+        if options['fake']:
+            fake()
 
         fname = options['add']
         if fname:

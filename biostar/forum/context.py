@@ -37,10 +37,9 @@ def forum(request):
 
     # Will inject the counts into every session
     if request.user.is_anonymous:
-        # TODO: anonymous users should get a planet count reminder!
         counts = dict(planet_count=0)
     else:
-        counts = request.session.get(const.COUNT_DATA_KEY, {})
+        counts = request.session.get(settings.SESSION_COUNT_KEY, {})
 
     params = dict(user=request.user,
                   TRAFFIC=get_traffic(),
@@ -50,7 +49,7 @@ def forum(request):
                   site_domain=settings.SITE_DOMAIN,
                   google_tracker=settings.GOOGLE_TRACKER,
                   IS_MODERATOR=is_moderator(request.user),
-                  cnt=counts,
+                  counts=counts,
                   )
 
     return params

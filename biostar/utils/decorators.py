@@ -23,6 +23,27 @@ def is_moderator(f):
     return inner
 
 
+def reset_count(key):
+    """
+    Set value of given key in settings.SESSION_COUNT_KEY to 0.
+    """
+    session_key = settings.SESSION_COUNT_KEY
+
+    def outer(func):
+        @wraps(func)
+        def inner(request, **kwargs):
+            # Get the count from sessions
+            counts = request.session.get(session_key, {})
+            counts[key] = 0
+            request.session[session_key] = counts
+
+            return func(request, **kwargs)
+
+        return inner
+
+    return outer
+
+
 def check_params(allowed):
     """
     Validate if only allowed params are present in request.GET.

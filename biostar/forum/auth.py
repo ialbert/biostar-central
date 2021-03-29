@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import urllib.parse as urlparse
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth import get_user_model
@@ -9,11 +10,14 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.template import loader
 from django.utils.safestring import mark_safe
+from django.conf import settings
 
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
+from biostar.planet.models import BlogPost
 # Needed for historical reasons.
 from biostar.accounts.models import Profile
+from biostar.utils.helpers import get_ip
 from . import util, awards
 from .const import *
 from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log
@@ -336,20 +340,17 @@ def get_counts(user):
         author=user)[:1000].count()
 
     # Planet count since last visit
-    planet_count = 0
+    planet_count = BlogPost.objects.filter(creation_date__gte=user.profile.last_login)[:100].count()
 
     # Spam count since last visit.
-    spam_count = 0
+    spam_count = Post.objects.filter(spam=Post.SPAM, creation_date__gte=user.profile.last_login)[:1000].count()
 
     # Moderation actions since last visit.
-    mod_count = 0
+    mod_count = Log.objects.filter(date__gte=user.profile.last_login)[:100].count()
 
     # Store the counts into the session.
-    counts = dict(mod_count=mod_count, spam_count=spam_count, planet_count=planet_count)
-
-    # TODO: needs to be changed
-    counts[MESSAGE_COUNT] = message_count
-    counts[VOTES_COUNT] = vote_count
+    counts = dict(mod_count=mod_count, spam_count=spam_count, planet_count=planet_count, message_count=message_count,
+                  vote_count=vote_count)
 
     return counts
 

@@ -48,15 +48,15 @@
     </a>
 
     <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
-        <i class="rss icon"></i> Planet  {% show_count cnt.planet_count %}
+        <i class="rss icon"></i> Planet  {% show_count counts.planet_count %}
     </a>
 
     {% if request.user.profile.is_moderator %}
         <a class="item {% activate tab 'spam' %} " href="{% url 'post_topic' 'spam' %}">
-            <i class="bug icon"></i> Spam  {% show_count cnt.spam_count %}
+            <i class="bug icon"></i> Spam  {% show_count counts.spam_count %}
         </a>
         <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
-            <i class="chess queen icon"></i> Mods {% show_count cnt.mod_count %}
+            <i class="chess queen icon"></i> Mods {% show_count counts.mod_count %}
         </a>
     {% endif %}
 

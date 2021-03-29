@@ -16,12 +16,12 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
 
 from biostar.accounts.views import user_moderate as account_moderate
-
+from biostar.planet.views import blog_list as planet_list
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription, Log
-from biostar.utils.decorators import is_moderator, check_params
+from biostar.utils.decorators import is_moderator, check_params, reset_count
 
 User = get_user_model()
 
@@ -101,6 +101,12 @@ class CachedPaginator(Paginator):
         return value
 
 
+@reset_count(key='spam_count')
+def get_spam(request):
+    posts = Post.objects.filter(spam=Post.SPAM)
+    return posts
+
+
 def get_posts(request, topic="", order="", limit=None):
     """
     Generates a post list on a topic.
@@ -122,7 +128,7 @@ def get_posts(request, topic="", order="", limit=None):
         posts = posts.filter(type=post_type)
 
     elif topic == SHOW_SPAM and user.profile.is_moderator:
-        posts = Post.objects.filter(spam=Post.SPAM)
+        posts = get_spam(request)
 
     elif topic == OPEN:
         posts = posts.filter(type=Post.QUESTION, answer_count=0)
@@ -326,6 +332,7 @@ def authenticated(func):
 
 
 @authenticated
+@reset_count(key="vote_count")
 def myvotes(request):
     """
     Show posts by user that received votes
@@ -340,12 +347,6 @@ def myvotes(request):
 
     # Apply the votes paging.
     votes = paginator.get_page(page)
-
-    # Clear the votes count.
-    counts = request.session.get(COUNT_DATA_KEY, {})
-    # Set votes count back to 0
-    counts[VOTES_COUNT] = 0
-    request.session.update(dict(counts=counts))
 
     context = dict(votes=votes, page=page, tab='myvotes')
     return render(request, template_name="user_votes.html", context=context)
@@ -612,20 +613,22 @@ def post_moderate(request, uid):
     return render(request, "forms/form_moderate.html", context)
 
 
+@login_required
 def user_moderate(request, uid):
 
     def callback():
         source = request.user
         target = User.objects.filter(id=uid).first()
-        text = f"set to {target.profile.get_state_display()}"
+        text = f"changed user state to {target.profile.get_state_display()}"
         auth.db_logger(user=source, text=text, target=target)
         return
 
-    result = account_moderate(request=request, uid=uid, callback=callback)
+    result = account_moderate(request, uid=uid, callback=callback)
 
     return result
 
 
+@reset_count(key='mod_count')
 @check_params(allowed=ALLOWED_PARAMS)
 @login_required
 def view_logs(request):

@@ -104,7 +104,7 @@ def user_tasks(get_response):
             counts = auth.get_counts(user=user)
 
             # Set the session.
-            request.session[const.COUNT_DATA_KEY] = counts
+            request.session[settings.SESSION_COUNT_KEY] = counts
 
             # Trigger award generation.
             tasks.create_user_awards.spool(user_id=user.id)
