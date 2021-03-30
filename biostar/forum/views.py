@@ -280,7 +280,7 @@ def post_list(request, topic=None, tag="", cache_key=''):
 
     if tag:
         # Get all open top level posts.
-        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN, tags__name=tag.lower())
+        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN, tags__name__iexact=tag)
     else:
         # Get posts available to users.
         posts = get_posts(request=request, topic=topic)
