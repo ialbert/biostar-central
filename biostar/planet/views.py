@@ -44,8 +44,8 @@ def set_planet_count(request):
     planets = cache.get(ip)
 
     if planets is None:
-        # Get latest blog posts in past week.
-        date = now() - timedelta(weeks=3)
+        # Get latest blog posts
+        date = now() - timedelta(weeks=1)
         planets = BlogPost.objects.filter(rank__gte=date)[:100].count()
 
         # Expire counts cache in 24 hours
