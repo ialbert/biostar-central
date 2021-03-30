@@ -21,6 +21,11 @@ def now():
 
 
 def reset_planet_counts(request):
+
+    # Set the session.
+    counts = dict(planet_count=0)
+    request.session[settings.SESSION_COUNT_KEY] = counts
+
     # Get the ip
     ip = get_ip(request)
 
@@ -29,11 +34,7 @@ def reset_planet_counts(request):
     if request.user.is_anonymous:
         # Set the counts to zero in the cache
         cache.set(ip, 0, expire)
-
-    # Set the session.
-    counts = dict(planet_count=0)
-    request.session[settings.SESSION_COUNT_KEY] = counts
-
+        
 
 def set_planet_count(request):
     """
