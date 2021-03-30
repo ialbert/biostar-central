@@ -18,7 +18,7 @@
         {% for tag in tags %}
             <div class="column" style="font-size: larger;">
                 <div class="item">
-                    <a class="ptag" href="{% url 'post_tags' tag|lower %}">
+                    <a class="ptag" href="{% url 'post_tags' tag %}">
                         {{ tag }}
                     </a>
                     &times; {{ tag.nitems }}
