@@ -201,6 +201,22 @@ class Post(models.Model):
     def parse_tags(self):
         return [tag.lower() for tag in self.tag_val.split(",") if tag]
 
+    def new(self, user):
+        """
+        Return True if post is considered 'new' to a user.
+        """
+
+        if user.is_anonymous:
+            # Look for posts made in the past day.
+            date = util.now() - timedelta(days=1)
+        else:
+            date = user.profile.last_login
+
+        if self.creation_date > date:
+            return True
+
+        return False
+
     @property
     def get_votecount(self):
 
