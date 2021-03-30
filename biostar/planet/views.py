@@ -29,11 +29,9 @@ def reset_planet_counts(request):
     if request.user.is_anonymous:
         # Set the counts to zero in the cache
         cache.set(ip, 0, expire)
-        counts = dict(planet_count=0)
         # Set the session.
+        counts = dict(planet_count=0)
         request.session[settings.SESSION_COUNT_KEY] = counts
-
-    return
 
 
 def set_planet_count(request):
@@ -47,14 +45,14 @@ def set_planet_count(request):
 
     if planets is None:
         # Get latest blog posts in past week.
-        date = now() - timedelta(weeks=1)
+        date = now() - timedelta(weeks=3)
         planets = BlogPost.objects.filter(rank__gte=date)[:100].count()
 
         # Expire counts cache in 24 hours
         expire = 3600 * 24
         cache.set(ip, planets, expire)
 
-    counts = dict(plane_count=planets)
+    counts = dict(planet_count=planets)
     # Set the session.
     request.session[settings.SESSION_COUNT_KEY] = counts
 
