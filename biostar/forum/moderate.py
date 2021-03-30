@@ -19,9 +19,6 @@ from biostar.utils.decorators import check_params
 from biostar.forum.models import Post, delete_post_cache, Log
 from biostar.forum import auth, const, util
 
-MOD_ACTIONS = ('bump', 'open', 'relocate', 'offtopic', 'delete', 'close', 'spam')
-BUMP, OPEN_POST, RELOCATE, OFF_TOPIC, DELETE, CLOSE, REPORT_SPAM = MOD_ACTIONS
-
 
 logger = logging.getLogger('engine')
 
@@ -52,21 +49,21 @@ class PostModForm(forms.Form):
         super(PostModForm, self).__init__(*args, **kwargs)
 
         choices = [
-            (DELETE, "Delete post"),
-            (OPEN_POST, "Open post"),
-            (CLOSE, "Close post"),
+            ('delete', "Delete post"),
+            ('open', "Open post"),
+            ('close', "Close post"),
         ]
 
         # Top level posts may be bumped.
         if post.is_toplevel:
-            choices += [(BUMP, "Bump post")]
+            choices += [('bump', "Bump post")]
         elif post.is_comment or post.is_answer:
-            choices += [(RELOCATE, "Move post")]
+            choices += [('relocate', "Move post")]
 
         # Punitive options.
         choices.extend((
-                (OFF_TOPIC, "Mark as offtopic"),
-                (REPORT_SPAM, "Mark as spam (suspend author)"),
+                ('offtopic', "Mark as offtopic"),
+                ('spam', "Mark as spam (suspend author)"),
 
         ))
 
@@ -172,7 +169,8 @@ def delete_post(request, post, **kwargs):
         messages.info(request, mark_safe(msg))
         auth.db_logger(user=user, post=post, text=msg)
         post.delete()
-        url = "/"
+        # Deleted children should return root url.
+        url = "/" if post.is_toplevel else post.root.get_absolute_url()
     else:
         Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
         post.recompute_scores()

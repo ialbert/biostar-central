@@ -45,7 +45,7 @@ class PostTest(TestCase):
     def test_toplevel_moderation(self):
         "Test top level post moderation."
         # Test every moderation action
-        choices = [BUMP, OPEN_POST, DELETE, CLOSE, OFF_TOPIC, RELOCATE]
+        choices = ['bump', 'open', 'delete', 'close', 'offtopic', 'relocate']
 
         self.post = models.Post.objects.create(title="Test",
                                                author=self.owner, content="Test",
@@ -55,7 +55,7 @@ class PostTest(TestCase):
 
     def test_answer_moderation(self):
         "Test answer moderation."
-        choices = [DELETE]
+        choices = ['open', 'delete', 'close', 'offtopic', 'relocate']
 
         # Create an answer to moderate
         answer = models.Post.objects.create(title="Test", author=self.owner, content="Test",
@@ -69,7 +69,7 @@ class PostTest(TestCase):
 
     def test_comment_moderation(self):
         "Test comment moderation."
-        choices = [DELETE]
+        choices = [ 'open', 'delete', 'close', 'offtopic', 'relocate']
 
         # Create a comment to moderate
         comment = models.Post.objects.create(title="Test", author=self.owner, content="Test",
