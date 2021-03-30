@@ -10,10 +10,7 @@ from django.shortcuts import redirect
 from biostar.accounts.models import Profile, Message
 from biostar.accounts.tasks import detect_location
 
-from biostar.accounts.const import MESSAGE_COUNT
-from biostar.forum.const import VOTES_COUNT
-from biostar.forum.settings import RATELIMIT_KEY
-from ratelimit.utils import is_ratelimited
+from biostar.planet.views import set_planet_count
 from biostar.utils import helpers
 
 from . import auth, tasks, const, util
@@ -77,6 +74,7 @@ def user_tasks(get_response):
 
         # Views for anonymous users are not analzed further.
         if user.is_anonymous:
+            set_planet_count(request)
             return get_response(request)
 
         # Banned and suspended will be logged out.
