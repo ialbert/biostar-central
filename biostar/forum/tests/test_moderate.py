@@ -5,7 +5,8 @@ from django.urls import reverse
 
 from biostar.accounts.models import User
 from unittest.mock import patch, MagicMock
-from biostar.forum import models, views, auth, forms, const
+from biostar.forum import models, views
+from biostar.forum.moderate import *
 from biostar.utils.helpers import fake_request
 from biostar.forum.util import get_uuid
 
@@ -20,9 +21,7 @@ class PostTest(TestCase):
                                          password="tested", is_superuser=True, is_staff=True)
 
         # Create an existing tested post
-        self.post = models.Post.objects.create(title="Test",
-                                               author=self.owner, content="Test",
-                                     type=models.Post.QUESTION, uid='foo')
+        self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test", type=models.Post.QUESTION, uid='foo')
         self.uid = 'foo'
 
         self.owner.save()
@@ -38,7 +37,7 @@ class PostTest(TestCase):
 
             url = reverse('post_moderate', kwargs=dict(uid=post.uid))
             request = fake_request(url=url, data=data, user=self.owner)
-            response = views.post_moderate(request=request, uid=post.uid)
+            response = post_moderate(request=request, uid=post.uid)
             self.process_response(response)
 
         return
@@ -46,7 +45,7 @@ class PostTest(TestCase):
     def test_toplevel_moderation(self):
         "Test top level post moderation."
         # Test every moderation action
-        choices = [const.BUMP, const.OPEN_POST, const.DELETE, const.CLOSE, const.OFF_TOPIC, const.RELOCATE]
+        choices = [BUMP, OPEN_POST, DELETE, CLOSE, OFF_TOPIC, RELOCATE]
 
         self.post = models.Post.objects.create(title="Test",
                                                author=self.owner, content="Test",
@@ -56,7 +55,7 @@ class PostTest(TestCase):
 
     def test_answer_moderation(self):
         "Test answer moderation."
-        choices = [const.DELETE]
+        choices = [DELETE]
 
         # Create an answer to moderate
         answer = models.Post.objects.create(title="Test", author=self.owner, content="Test",
@@ -70,7 +69,7 @@ class PostTest(TestCase):
 
     def test_comment_moderation(self):
         "Test comment moderation."
-        choices = [const.DELETE]
+        choices = [DELETE]
 
         # Create a comment to moderate
         comment = models.Post.objects.create(title="Test", author=self.owner, content="Test",

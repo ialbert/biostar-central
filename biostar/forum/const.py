@@ -1,7 +1,3 @@
-# Moderation action codes.
-
-MOD_ACTIONS = ('bump', 'open', 'relocate', 'offtopic', 'delete', 'close', 'spam')
-BUMP, OPEN_POST, RELOCATE, OFF_TOPIC, DELETE, CLOSE, REPORT_SPAM = MOD_ACTIONS
 
 # Filter actions
 RANK, VIEWS, REPLIES, TAGGED, \

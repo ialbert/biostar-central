@@ -15,8 +15,6 @@ from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
 
-from biostar.accounts.views import user_moderate as account_moderate
-from biostar.planet.views import blog_list as planet_list
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models
 from biostar.forum.const import *
@@ -581,47 +579,6 @@ def new_post(request):
                    content=content)
 
     return render(request, "new_post.html", context=context)
-
-
-@check_params(allowed=ALLOWED_PARAMS)
-@post_exists
-@login_required
-def post_moderate(request, uid):
-    """Used to make display post moderate form given a post request."""
-
-    user = request.user
-    post = Post.objects.filter(uid=uid).first()
-
-    if request.method == "POST":
-        form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
-        if form.is_valid():
-            action = form.cleaned_data.get('action')
-            url = auth.moderate(request=request, post=post, action=action)
-            return redirect(url)
-        else:
-            errors = ','.join([err for err in form.non_field_errors()])
-            messages.error(request, errors)
-            return redirect(reverse("post_view", kwargs=dict(uid=post.root.uid)))
-    else:
-        form = forms.PostModForm(post=post, user=user, request=request)
-
-    context = dict(form=form, post=post, user=user)
-    return render(request, "forms/form_moderate.html", context)
-
-
-@login_required
-def user_moderate(request, uid):
-
-    def callback():
-        source = request.user
-        target = User.objects.filter(id=uid).first()
-        text = f"changed user state to {target.profile.get_state_display()}"
-        auth.db_logger(user=source, text=text, target=target)
-        return
-
-    result = account_moderate(request, uid=uid, callback=callback)
-
-    return result
 
 
 @reset_count(key='mod_count')

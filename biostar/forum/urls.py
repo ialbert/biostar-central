@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import include, path, re_path  # For django versions from 2.0 and up
 import debug_toolbar
-from biostar.forum import views
+from biostar.forum import views, moderate
 from biostar.accounts.views import image_upload_view
 from biostar.forum import ajax, api, feed
 import biostar.accounts.views as account_views
@@ -51,7 +51,7 @@ forum_patterns = [
     path('ajax/user/image/<str:username>/', ajax.user_image, name='user_image'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
 
-    path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
+    path('moderate/<str:uid>/', moderate.post_moderate, name="post_moderate"),
 
     path(r'mark/spam/<str:uid>/', views.mark_spam, name='mark_spam'),
     path(r'mark/spam/<str:uid>/', views.release_quar, name='release_quar'),
@@ -94,7 +94,7 @@ urlpatterns = [
     path('', include(forum_patterns)),
 
     # Override the moderate
-    path(r'accounts/moderate/<str:uid>/', views.user_moderate, name="user_moderate"),
+    path(r'accounts/moderate/<str:uid>/', moderate.user_moderate, name="user_moderate"),
 
     # Include the accounts urls
     path('accounts/', include(account_patterns)),

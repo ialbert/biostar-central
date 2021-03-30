@@ -32,7 +32,6 @@ def reset_count(key):
     def outer(func):
         @wraps(func)
         def inner(request, **kwargs):
-            #results = func(request, **kwargs)
 
             # Get the count from sessions
             counts = request.session.get(session_key, {})
