@@ -26,15 +26,14 @@ def reset_planet_counts(request):
     counts = dict(planet_count=0)
     request.session[settings.SESSION_COUNT_KEY] = counts
 
-    # Get the ip
-    ip = get_ip(request)
-
-    # Expire counts cache in 24 hours
-    expire = 3600 * 24
     if request.user.is_anonymous:
+        # Get the ip
+        ip = get_ip(request)
+        # Expire counts cache in 24 hours
+        expire = 3600 * 24
         # Set the counts to zero in the cache
         cache.set(ip, 0, expire)
-        
+
 
 def set_planet_count(request):
     """
