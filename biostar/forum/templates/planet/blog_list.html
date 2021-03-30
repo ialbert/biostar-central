@@ -54,11 +54,14 @@
 
                 <div class="content">
                     {{ post.content|truncatewords:200 }} <a href="{{ post.link }}">go to blog</a>
+                    {%  if user.profile.is_moderator %}
+                        &bull; <a class="muted" href="{% url "blog_bump" post.id %}">mod bump</a>
+                    {%  endif %}
                 </div>
 
                  <div class="right floated content">
                     <div class="description byline">
-                        posted {{ post.creation_date|timesince }} ago on
+                        posted <!-- {{ post.creation_date|timesince }} ago -->on
                         <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
                     </div>
                 </div>

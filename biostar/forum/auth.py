@@ -340,7 +340,7 @@ def get_counts(user):
         author=user)[:1000].count()
 
     # Planet count since last visit
-    planet_count = BlogPost.objects.filter(creation_date__gte=user.profile.last_login)[:100].count()
+    planet_count = BlogPost.objects.filter(rank__gte=user.profile.last_login)[:100].count()
 
     # Spam count since last visit.
     spam_count = Post.objects.filter(spam=Post.SPAM, creation_date__gte=user.profile.last_login)[:1000].count()

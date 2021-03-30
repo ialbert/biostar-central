@@ -96,8 +96,7 @@ class BlogPost(models.Model):
     link = models.URLField()
 
     # Posts should be ranked by this.
-    rank = models.FloatField(default=0, blank=True, db_index=True)
-
+    rank = models.DateTimeField(db_index=True, null=True)
     @property
     def get_title(self):
         return f"BLOG: {self.title}"
@@ -110,7 +109,7 @@ class BlogPost(models.Model):
         self.insert_date = self.insert_date or now()
 
         # Set the rank
-        self.rank = self.rank or self.insert_date.timestamp()
+        self.rank = self.rank or self.creation_date
 
         self.uid = self.uid or get_uuid(10)
 
