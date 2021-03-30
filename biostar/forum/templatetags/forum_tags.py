@@ -120,6 +120,12 @@ def gravatar(user=None, user_uid=None, size=80):
 
 @register.inclusion_tag('widgets/filter_dropdown.html', takes_context=True)
 def filter_dropdown(context):
+
+    request = context['request']
+    order = request.GET.get("order", 'rank') or 'rank'
+    limit = request.GET.get("limit", 'all') or 'all'
+    # TODO will be refactored out.
+    context.update(dict(order=order, limit=limit))
     return context
 
 

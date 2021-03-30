@@ -61,7 +61,8 @@ class ForumNavigation(TestCase):
             reverse('api_traffic'),
             reverse('latest_feed'),
             reverse('latest_feed'),
-            reverse('tag_feed', kwargs=dict(text='tage1')),
+            reverse('post_tags', kwargs=dict(tag='tag1')),
+            reverse('tag_feed', kwargs=dict(text='tag1')),
             reverse('post_feed', kwargs=dict(text=self.post.uid)),
             reverse('post_type', kwargs=dict(text="job")),
 
