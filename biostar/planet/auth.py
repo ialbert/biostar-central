@@ -52,7 +52,6 @@ def add_blogpost(blogs, count=3):
             seen = set(seen)
             # Parse the blog
             doc = blog.parse()
-
             # get the new posts
             entries = [e for e in doc.entries if f"{e.id}" not in seen]
 
@@ -63,7 +62,7 @@ def add_blogpost(blogs, count=3):
                 entry.title = entry.title.strip()
                 # entry.title = html.strip_tags(entry.title)
                 entry.title = entry.title.strip()[:200]
-                desc =smart_text(entry.description)
+                desc = smart_text(entry.description)
                 desc = html.unescape(desc)
                 entry.description = desc
 
@@ -77,7 +76,6 @@ def add_blogpost(blogs, count=3):
 
 
 def add_blog(feed):
-
     try:
         logger.debug(f"processing {feed}")
         text = request.urlopen(feed).read().decode(errors="surrogatepass")
@@ -98,8 +96,8 @@ def add_blog(feed):
         logger.debug(blog.desc)
 
     except Exception as exc:
-       logger.error(f"error {exc} parsing {feed}")
-       blog = None
+        logger.error(f"error {exc} parsing {feed}")
+        blog = None
 
     return blog
 

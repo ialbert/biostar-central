@@ -32,12 +32,15 @@ def reset_count(key):
     def outer(func):
         @wraps(func)
         def inner(request, **kwargs):
+
             # Get the count from sessions
             counts = request.session.get(session_key, {})
             counts[key] = 0
             request.session[session_key] = counts
 
-            return func(request, **kwargs)
+            results = func(request, **kwargs)
+
+            return results
 
         return inner
 
@@ -48,7 +51,7 @@ def check_params(allowed):
     """
     Validate if only allowed params are present in request.GET.
     """
-    def outter(func):
+    def outer(func):
         @wraps(func)
         def inner(request, **kwargs):
             incoming = set(request.GET.keys())
@@ -62,7 +65,7 @@ def check_params(allowed):
 
         return inner
 
-    return outter
+    return outer
 
 
 def limited(key, rate):
