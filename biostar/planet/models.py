@@ -30,11 +30,13 @@ class Blog(models.Model):
     """
     title = models.CharField(max_length=255, default="")
     desc = models.TextField(default='', blank=True)
-    #feed = models.URLField(unique=True)
     feed = models.URLField()
     link = models.URLField()
     active = models.BooleanField(default=True)
     list_order = models.IntegerField(default=0)
+
+    # Adding field that indicates a remote blog
+    remote = models.BooleanField(default=True)
 
     @property
     def fname(self):
@@ -93,6 +95,8 @@ class BlogPost(models.Model):
     # The link to the entry
     link = models.URLField()
 
+    # Posts should be ranked by this.
+    rank = models.DateTimeField(db_index=True, null=True)
     @property
     def get_title(self):
         return f"BLOG: {self.title}"
@@ -103,7 +107,12 @@ class BlogPost(models.Model):
     def save(self, *args, **kwargs):
 
         self.insert_date = self.insert_date or now()
+
+        # Set the rank
+        self.rank = self.rank or self.creation_date
+
         self.uid = self.uid or get_uuid(10)
+
         super(BlogPost, self).save(*args, **kwargs)
 
     def __str__(self):
