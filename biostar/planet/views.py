@@ -4,7 +4,10 @@ from django.core.paginator import Paginator
 from biostar.planet.models import Blog, BlogPost
 from django.conf import settings
 from biostar.utils.decorators import reset_count
-
+from django.shortcuts import reverse
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.http import Http404
 
 @reset_count(key="planet_count")
 def blog_list(request):
@@ -24,4 +27,20 @@ def blog_list(request):
 
     context = dict(blogposts=blogposts, tab='planet', blogs=blogs)
     return render(request, 'planet/blog_list.html', context)
+
+def blog_view(request, id):
+
+    post = BlogPost.objects.filter(id=id).first()
+
+    if not post:
+        msg = f"Invalid blog post id: {id}"
+        raise Http404(msg)
+
+    # Redirect to remote
+    if post.blog.remote:
+        return redirect(post.link)
+
+    context = dict(post=post)
+
+    return render(request, 'planet/blog_view.html', context)
 

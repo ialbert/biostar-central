@@ -14,4 +14,3 @@ class PlanetConfig(AppConfig):
         #post_migrate.connect(init_digest, sender=self)
         #post_migrate.connect(init_planet, sender=self)
         pass
-

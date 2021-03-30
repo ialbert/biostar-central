@@ -6,7 +6,9 @@ from django.contrib import admin
 
 planet_patterns = [
     path('', views.blog_list, name="blog_list"),
+    path(r'view/<int:id>/', views.blog_view, name="blog_view"),
 ]
+
 urlpatterns = [
 
     # Get the reset/ urls

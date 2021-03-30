@@ -93,7 +93,7 @@ def add_blog(feed):
 
         #add_blogpost(blogs=Blog.objects.filter(id=blog.id))
         blog.download()
-        logger.debug(f"adding {blog.title}")
+        logger.info(f"adding {blog.title}")
         logger.debug(f"link: {blog.link}")
         logger.debug(blog.desc)
 
@@ -105,14 +105,14 @@ def add_blog(feed):
 
 
 def download_blogs():
-    blogs = Blog.objects.filter(active=True)
+    blogs = Blog.objects.filter(active=True, remote=True)
     for blog in blogs:
         logger.info(f"downloading: {blog.title}")
         blog.download()
 
 
 def update_entries(count=3):
-    blogs = Blog.objects.filter(active=True)
+    blogs = Blog.objects.filter(active=True, remote=True)
 
     # Update blog posts for active blogs
     add_blogpost(blogs=blogs, count=count)
