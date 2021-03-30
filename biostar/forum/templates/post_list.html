@@ -28,15 +28,12 @@
 
     {% if tag %}
         <div class="ui blue filter message">
-
             Filtering for <span class="ptag">{{ tag }}</span> &bull;
             <a href="{% url 'post_list' %}">
                 reset <i class="undo small icon"></i>
             </a>
         </div>
-
     {% endif %}
-
 
         <div class="ui divided items">
             {% for post in posts %}

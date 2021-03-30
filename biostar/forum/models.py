@@ -208,11 +208,11 @@ class Post(models.Model):
 
         if user.is_anonymous:
             # Look for posts made in the past day.
-            date = util.now() - timedelta(days=1)
+            date = util.now() - timedelta(hours=12)
         else:
             date = user.profile.last_login
 
-        if self.creation_date > date:
+        if self.lastedit_date > date:
             return True
 
         return False
