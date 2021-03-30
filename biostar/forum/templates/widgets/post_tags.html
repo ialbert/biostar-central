@@ -2,7 +2,7 @@
 
     {% for tag in tags %}
         {% if tag %}
-        <a class="ptag" href="{% url 'post_topic' tag|lower %}">
+        <a class="ptag" href="{% url 'post_tags' tag %}">
             {{ tag }}
         </a>
         {% endif %}

@@ -33,6 +33,7 @@ forum_patterns = [
 
     path('b/list/', views.badge_list, name='badge_list'),
     path('t/', views.tags_list, name='tags_list'),
+    path('tag/<str:tag>/', views.post_tags, name='post_tags'),
 
     path('b/view/<str:uid>/', views.badge_view, name='badge_view'),
 
