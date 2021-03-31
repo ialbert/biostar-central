@@ -313,5 +313,5 @@ def remove_post(post, ix=None):
     writer = AsyncWriter(ix)
     writer.delete_by_term('uid', text=post.uid)
     writer.commit()
-    logger.debug(f"Removing {post.uid} from index")
+    logger.debug(f"Removing uid={post.uid} from index")
     return

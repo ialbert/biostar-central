@@ -15,10 +15,8 @@ from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
 
-from biostar.accounts.views import user_moderate as account_moderate
-from biostar.planet.views import blog_list as planet_list
 from biostar.accounts.models import Profile
-from biostar.forum import forms, auth, tasks, util, search, models
+from biostar.forum import forms, auth, tasks, util, search, models, moderate
 from biostar.forum.const import *
 from biostar.forum.models import Post, Vote, Badge, Subscription, Log
 from biostar.utils.decorators import is_moderator, check_params, reset_count
@@ -67,6 +65,15 @@ def post_exists(func):
     return _wrapper_
 
 
+def authenticated(func):
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+            return reverse('post_list')
+        return func(request, **kwargs)
+
+    return _wrapper_
+
 class CachedPaginator(Paginator):
     """
     Paginator that caches the count call.
@@ -101,13 +108,34 @@ class CachedPaginator(Paginator):
         return value
 
 
+def apply_sort(posts, limit=None, order=None):
+
+    # Apply post ordering.
+    if ORDER_MAPPER.get(order):
+        ordering = ORDER_MAPPER.get(order)
+        posts = posts.order_by(ordering)
+    else:
+        posts = posts.order_by("-rank")
+
+    days = LIMIT_MAP.get(limit, 0)
+    # Apply time limit if required.
+    if days:
+        delta = util.now() - timedelta(days=days)
+        posts = posts.filter(lastedit_date__gt=delta)
+
+    # Select related information used during rendering.
+    posts = posts.select_related("root").select_related("author__profile", "lastedit_user__profile")
+
+    return posts
+
+
 @reset_count(key='spam_count')
 def get_spam(request):
     posts = Post.objects.filter(spam=Post.SPAM)
     return posts
 
 
-def get_posts(request, topic="", order="", limit=None):
+def get_posts(request, topic=""):
     """
     Generates a post list on a topic.
     """
@@ -149,27 +177,6 @@ def get_posts(request, topic="", order="", limit=None):
     elif topic == MYTAGS and user.is_authenticated:
         tags = map(lambda t: t.lower(), user.profile.my_tags.split(","))
         posts = posts.filter(tags__name__in=tags).distinct()
-
-    # Search for tags
-    elif topic != LATEST and (topic not in POST_TYPE):
-        posts = posts.filter(tags__name=topic.lower())
-        messages.success(request, f"Filtering for tag: {topic}")
-
-    # Apply post ordering.
-    if ORDER_MAPPER.get(order):
-        ordering = ORDER_MAPPER.get(order)
-        posts = posts.order_by(ordering)
-    else:
-        posts = posts.order_by("-rank")
-
-    days = LIMIT_MAP.get(limit, 0)
-    # Apply time limit if required.
-    if days:
-        delta = util.now() - timedelta(days=days)
-        posts = posts.filter(lastedit_date__gt=delta)
-
-    # Select related information used during rendering.
-    posts = posts.select_related("root").select_related("author__profile", "lastedit_user__profile")
 
     return posts
 
@@ -229,7 +236,7 @@ def mark_spam(request, uid):
 
     # Apply the toggle.
     if post:
-        auth.toggle_spam(request, post)
+        moderate.toggle_spam(request, post)
     else:
         messages.error(request, "Post does not seem to exist")
 
@@ -260,14 +267,10 @@ def release_quar(request, uid):
     return redirect('/')
 
 
-@check_params(allowed=ALLOWED_PARAMS)
-@ensure_csrf_cookie
-def post_list(request, topic=None, cache_key='', extra_context=dict(), template_name="post_list.html"):
+def post_list(request, topic=None, tag="", cache_key=''):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
-    # The user performing the request.
-    user = request.user
 
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
@@ -275,8 +278,14 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     topic = topic or request.GET.get("type", "")
     limit = request.GET.get("limit", "all") or "all"
 
-    # Get posts available to users.
-    posts = get_posts(request=request, topic=topic, order=order, limit=limit)
+    if tag:
+        # Get all open top level posts.
+        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN, tags__name__iexact=tag)
+    else:
+        # Get posts available to users.
+        posts = get_posts(request=request, topic=topic)
+
+    posts = apply_sort(posts, limit=limit, order=order)
 
     # Filter for any empty strings
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
@@ -284,51 +293,116 @@ def post_list(request, topic=None, cache_key='', extra_context=dict(), template_
     # Apply the post paging.
     posts = paginator.get_page(page)
 
-    # Set the active tab.
-    tab = topic or LATEST
-
-    # Fill in context.
-    context = dict(posts=posts, tab=tab, order=order, type=topic, limit=limit, avatar=True)
-    context.update(extra_context)
-
-    # Render the page.
-    return render(request, template_name=template_name, context=context)
+    return posts
 
 
+def get_key(prefix, request):
+    """
+    build cache suffix from order and limit
+    """
+    order = request.GET.get("order", 'rank') or 'rank'
+    limit = request.GET.get("limit", 'all') or 'all'
+    key = f'{prefix}-{order}-{limit}'
+
+    return key
+
+
+@check_params(allowed=ALLOWED_PARAMS)
+@ensure_csrf_cookie
 def latest(request):
     """
     Show latest post listing.
     """
-    order = request.GET.get("order", 'rank') or 'rank'
-    limit = request.GET.get("limit", 'all') or 'all'
 
     # Set the cache key based on order and limit
-    cache_key = f"{LATEST_CACHE_KEY}-{order}-{limit}"
+    cache_key = get_key(prefix=LATEST, request=request)
 
-    return post_list(request, cache_key=cache_key)
+    posts = post_list(request, topic=LATEST, cache_key=cache_key)
+
+    context = dict(posts=posts, tab=LATEST)
+
+    return render(request, template_name="post_list.html", context=context)
 
 
+@check_params(allowed=ALLOWED_PARAMS)
+@ensure_csrf_cookie
+def post_tags(request, tag):
+    """
+    Show list of posts belonging to one post.
+    """
+    # Set the cache key based on order and limit
+    cache_key = get_key(prefix=tag, request=request)
+
+    posts = post_list(request, tag=tag, cache_key=cache_key)
+
+    context = dict(posts=posts, tag=tag)
+
+    return render(request, template_name="post_list.html", context=context)
+
+
+@check_params(allowed=ALLOWED_PARAMS)
+@ensure_csrf_cookie
 def post_topic(request, topic):
     """
     Show list of posts of a given type
     """
-    order = request.GET.get("order", 'rank') or 'rank'
-    limit = request.GET.get("limit", 'all') or 'all'
+    # Set the cache key based on order and limit
+    cache_key = get_key(prefix=topic, request=request)
 
     # Set the cache key based on order and limit
-    cache_key = '-'.join([topic, order, limit])
+    posts = post_list(request, topic=topic, cache_key=cache_key)
 
-    return post_list(request, cache_key=cache_key, topic=topic)
+    context = dict(posts=posts, topic=topic, tab=topic)
+
+    return render(request, template_name="post_list.html", context=context)
 
 
-def authenticated(func):
-    def _wrapper_(request, **kwargs):
-        if request.user.is_anonymous:
-            messages.error(request, "You need to be logged in to view this page.")
-            return reverse('post_list')
-        return func(request, **kwargs)
+@ensure_csrf_cookie
+@authenticated
+def bookmarks(request):
+    """
+    Show posts bookmarked by user.
+    """
 
-    return _wrapper_
+    posts = post_list(request, topic=BOOKMARKS)
+
+    context = dict(posts=posts, topic=BOOKMARKS, tab=BOOKMARKS)
+    return render(request, template_name="user_bookmarks.html", context=context)
+
+
+@ensure_csrf_cookie
+@authenticated
+def mytags(request):
+
+    posts = post_list(request, topic=MYTAGS)
+
+    context = dict(posts=posts, topic=MYTAGS, tab=MYTAGS)
+    return render(request, template_name="user_mytags.html", context=context)
+
+
+@ensure_csrf_cookie
+@authenticated
+def myposts(request):
+    """
+    Show posts by user
+    """
+    posts = post_list(request, topic=MYPOSTS)
+
+    context = dict(posts=posts, topic=MYPOSTS, tab=MYPOSTS)
+
+    return render(request, template_name="user_myposts.html", context=context)
+
+
+@ensure_csrf_cookie
+@authenticated
+def following(request):
+    """
+    Show posts followed by user.
+    """
+    posts = post_list(request, topic=FOLLOWING)
+
+    context = dict(posts=posts, topic=FOLLOWING, tab=FOLLOWING)
+    return render(request, template_name="user_following.html", context=context)
 
 
 @authenticated
@@ -379,58 +453,6 @@ def tags_list(request):
     context = dict(tags=tags, tab='tags', query=query)
 
     return render(request, 'tags_list.html', context=context)
-
-
-@authenticated
-def myposts(request):
-    """
-    Show posts by user
-    """
-
-    # Set cache key based on user
-    user = request.user
-    cache_key = f'{MYPOSTS}-{user.pk}'
-    return post_list(request,
-                     topic=MYPOSTS,
-                     cache_key=cache_key,
-                     template_name="user_myposts.html")
-
-
-@authenticated
-def following(request):
-    """
-    Show posts followed by user.
-    """
-    user = request.user
-    cache_key = f'{FOLLOWING}-{user.pk}'
-
-    return post_list(request,
-                     topic=FOLLOWING,
-                     cache_key=cache_key,
-                     template_name="user_following.html")
-
-
-@authenticated
-def bookmarks(request):
-    """
-    Show posts bookmarked by user.
-    """
-    user = request.user
-    cache_key = f'{BOOKMARKS}-{user.pk}'
-    return post_list(request,
-                     topic=BOOKMARKS,
-                     cache_key=cache_key,
-                     template_name="user_bookmarks.html")
-
-
-@authenticated
-def mytags(request):
-    user = request.user
-    cache_key = f'{MYTAGS}-{user.pk}'
-    return post_list(request=request,
-                     topic=MYTAGS,
-                     cache_key=cache_key,
-                     template_name="user_mytags.html")
 
 
 @check_params(allowed=ALLOWED_PARAMS)
@@ -581,51 +603,6 @@ def new_post(request):
                    content=content)
 
     return render(request, "new_post.html", context=context)
-
-
-@check_params(allowed=ALLOWED_PARAMS)
-@post_exists
-@login_required
-def post_moderate(request, uid):
-    """Used to make display post moderate form given a post request."""
-
-    user = request.user
-    post = Post.objects.filter(uid=uid).first()
-
-    if request.method == "POST":
-        form = forms.PostModForm(post=post, data=request.POST, user=user, request=request)
-
-        if form.is_valid():
-            action = form.cleaned_data.get('action')
-            comment = form.cleaned_data.get('comment')
-            parent = form.cleaned_data.get('parent', '')
-            parent = Post.objects.filter(uid=parent).first()
-            url = auth.moderate(request=request, post=post, action=action, parent=parent, comment=comment)
-            return redirect(url)
-        else:
-            errors = ','.join([err for err in form.non_field_errors()])
-            messages.error(request, errors)
-            return redirect(reverse("post_view", kwargs=dict(uid=post.root.uid)))
-    else:
-        form = forms.PostModForm(post=post, user=user, request=request)
-
-    context = dict(form=form, post=post, user=user)
-    return render(request, "forms/form_moderate.html", context)
-
-
-@login_required
-def user_moderate(request, uid):
-
-    def callback():
-        source = request.user
-        target = User.objects.filter(id=uid).first()
-        text = f"changed user state to {target.profile.get_state_display()}"
-        auth.db_logger(user=source, text=text, target=target)
-        return
-
-    result = account_moderate(request, uid=uid, callback=callback)
-
-    return result
 
 
 @reset_count(key='mod_count')

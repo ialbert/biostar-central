@@ -12,20 +12,20 @@
 
             <div class="field">
 
-                <button class="ui green mini button" name="action" value="1">
+                <button class="ui green mini button" name="action" value="open">
                     Open
                 </button>
 
-                <button class="ui red mini button" name="action" value="6">
+                <button class="ui red mini button" name="action" value="delete">
                     Delete
                 </button>
 
                 {% if post.is_spam %}
-                    <button class="ui mini green button" name="action" value="8">
+                    <button class="ui mini green button" name="action" value="spam">
                         Not spam
                     </button>
                 {% else %}
-                    <button class="ui red mini  button" name="action" value="8">
+                    <button class="ui red mini  button" name="action" value="spam">
                         Spam
                     </button>
                 {% endif %}
@@ -33,16 +33,20 @@
             </div>
 
             <div class="field">
-                <button class="ui grey mini button" name="action" value="0">
+                <button class="ui grey mini button" name="action" value="bump">
                     Bump
                 </button>
 
-                <button class="ui grey mini button" name="action" value="5">
+                <button class="ui grey mini button" name="action" value="offtopic">
                     Off topic
                 </button>
 
+                <button class="ui grey mini button" name="action" value="close">
+                    Close
+                </button>
+
                 {% if not post.is_toplevel %}
-                    <button class="ui grey mini button" name="action" value="100">
+                    <button class="ui grey mini button" name="action" value="relocate">
                         Relocate
                     </button>
                 {% endif %}

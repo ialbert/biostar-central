@@ -179,7 +179,7 @@ class PostShortForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea,
                               min_length=MIN_LEN, max_length=MAX_LEN, strip=False)
 
-    def __init__(self, user=None, post=None, recaptcha=True, *args, **kwargs):
+    def __init__(self, user=None, post=None,  *args, **kwargs):
         self.user = user
         self.post = post
         super().__init__(*args, **kwargs)
@@ -194,42 +194,3 @@ class PostShortForm(forms.Form):
         if self.user.is_anonymous:
             raise forms.ValidationError("You need to be logged in.")
         return cleaned_data
-
-
-class PostModForm(forms.Form):
-
-    def __init__(self, post, request, user, *args, **kwargs):
-        self.post = post
-        self.user = user
-        self.request = request
-
-        super(PostModForm, self).__init__(*args, **kwargs)
-
-        choices = [
-            (DELETE, "Delete post"),
-            (OPEN_POST, "Open post"),
-        ]
-
-        # Top level posts may be bumped.
-        if post.is_toplevel:
-            choices += [(BUMP_POST, "Bump post")]
-        elif post.is_comment:
-            choices += [(MOVE_ANSWER, "Move to answer")]
-
-        if post.is_answer or post.is_comment:
-            choices += [(MOVE_COMMENT, "Move to comment")]
-
-        # Punitive options.
-        choices.extend((
-                (OFF_TOPIC, "Mark as offtopic"),
-                (REPORT_SPAM, "Mark as spam (suspend author)"),
-        ))
-
-        self.fields['action'] = forms.IntegerField(widget=forms.RadioSelect(choices=choices), required=True)
-
-    def clean(self):
-
-        if not self.user.profile.is_moderator:
-            raise forms.ValidationError("You need to be a moderator to preform that action.")
-
-        return self.cleaned_data

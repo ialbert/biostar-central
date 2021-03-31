@@ -281,6 +281,10 @@ i.icon.mycomment:before {
     content: "\f075";
 }
 
+.filter.message .ptag{
+    float: none !important;
+}
+
 .ui.items > .post.item > .image:not(.ui) {
     width: max-content;
 }
