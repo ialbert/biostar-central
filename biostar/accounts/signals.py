@@ -1,9 +1,12 @@
+import logging
+
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
 from biostar.accounts.models import Profile, User
 from biostar.accounts import util, tasks
 
+logger = logging.getLogger("engine")
 
 @receiver(pre_save, sender=User)
 def create_uuid(sender, instance, *args, **kwargs):
@@ -19,9 +22,13 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         # Set the username a simpler username.
         username = f"{instance.pk}"
 
+        # Set the username
+        logger.info(f"setting username={username}")
+
         # Fix uid clashes.
         if User.objects.filter(username=username).first():
             username = util.get_uuid(8)
+            logger.info(f"username clash for pk={instance.pk} new username={username}")
 
         # Update the user with a simpler username.
         User.objects.filter(pk=instance.pk).update(username=username)
@@ -38,9 +45,16 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
             user=instance, uid=util.get_uuid(8), name=instance.first_name, role=role
         )
 
-        # Send the welcome message.
-        user_ids = [instance.pk]
-        tasks.create_messages(user_ids=user_ids, template="messages/welcome.md")
+        try:
+            # Minimize failures on signup.
+            # Send the welcome message.
+            user_ids = [instance.pk]
+            tasks.create_messages(user_ids=user_ids, template="messages/welcome.md")
+        except Exception as exc:
+            logger.error(f"{exc}")
 
     # Recompute watched tags
-    instance.profile.add_watched()
+    try:
+        instance.profile.add_watched()
+    except Exception as exc:
+            logger.error(f"recomputing watched tags={exc}")

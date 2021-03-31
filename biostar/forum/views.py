@@ -625,3 +625,10 @@ def view_logs(request):
     context = dict(logs=logs)
 
     return render(request, "view_logs.html", context=context)
+
+def error(request):
+    """
+    Checking error propagation and logging
+    """
+    logger.error("error check view")
+    1/0

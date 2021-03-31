@@ -74,9 +74,11 @@ forum_patterns = [
     path(r'api/stats/date/<int:year>/<int:month>/<int:day>/', api.daily_stats_on_date,
          name='api_stats_on_date'),
 
-    # Loggin view
+    # Log view
     path(r'view/logs/', views.view_logs, name='view_logs'),
 
+    # Error check.
+    path(r'error/', views.error, name="error"),
 
     # RSS feeds
     path(r'feeds/latest/', feed.LatestFeed(), name='latest_feed'),
