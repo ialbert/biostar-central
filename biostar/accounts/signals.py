@@ -18,6 +18,10 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         # Set the username a simpler username.
         username = f"{instance.pk}"
 
+        # Fix uid clashes.
+        if User.objects.filter(username=username).first():
+            username = util.get_uuid(8)
+
         # Update the user with a simpler username.
         User.objects.filter(pk=instance.pk).update(username=username)
 
