@@ -459,7 +459,6 @@ def tags_list(request):
 @check_params(allowed=ALLOWED_PARAMS)
 def community_list(request):
     users = User.objects.select_related("profile")
-
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
