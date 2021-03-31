@@ -64,8 +64,16 @@ def delete_cache(prefix, user):
     return
 
 
+import datetime
+
 def gravatar_url(email, style='mp', size=80, force=None):
     hash_num = hashlib.md5(email).hexdigest()
+
+    # April fools gimmick.
+    now = datetime.datetime.now()
+    if now.month == 4 and now.day == 1:
+        style = "monsterid"
+        force = True
 
     data = dict(s=str(size), d=style)
 

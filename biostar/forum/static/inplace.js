@@ -188,35 +188,6 @@ function inplace_form(elem, add_comment) {
 }
 
 
-function update_post(uid, data) {
-
-    // Current post content and title to replace
-    // with returned values.
-    var post = $("[data-value='{0}']".format(uid));
-    var post_content = $(".post[data-value='{0}'] .editable".format(uid)).first();
-    var post_title = $("[data-value='{0}'] .title".format(uid)).first();
-    var post_tags =$("[data-value='{0}'] .inplace-tags".format(uid)).first();
-    var post_users =$("[data-value='{0}'] .user-info".format(uid)).first();
-
-    // Replace current post info with edited data
-    post_content.html(data.html).show().focus();
-
-    post_title.html(data.title).show();
-    post_tags.html(data.tag_html).show();
-    post_users.html(data.user_line).show();
-
-    cancel_inplace(post);
-
-    // Enable Mathjax on the new content.
-    const content = document.createElement('p');
-    content.textContent = post_content.text();
-    MathJax.typesetPromise().then(() => {
-        MathJax.typesetPromise();
-    }).catch((err) => console.log(err.message));
-
-}
-
-
 function edit_post(post) {
 
     var uid = post.data('value');
@@ -260,7 +231,8 @@ function edit_post(post) {
                     popup_message(form.find(".save,.create"), data.msg, data.status, 3000);
                 } else {
                     // Update post with latest
-                    update_post(uid, data);
+                    window.location = data.redirect;
+                    window.location.reload();
                 }
             },
             error: function (xhr, status, text) {

@@ -347,10 +347,7 @@ def get_dropdown_options(selected_list):
         query = Tag.objects.exclude(name__in=selected_list)[:limit].values_list("name", flat=True)
         opts = {(name.strip(), False) for name in query}
 
-    # Chain the selected and rest of the options
-    opts = itertools.chain(selected, opts)
-
-    return opts
+    return selected
 
 
 @register.inclusion_tag('forms/field_tags.html', takes_context=True)
@@ -359,9 +356,8 @@ def tags_field(context, form_field, initial=''):
 
     # Get currently selected tags from the post or request
     selected = initial.split(",") if initial else []
-    options = get_dropdown_options(selected_list=selected)
 
-    context = dict(initial=initial, form_field=form_field, dropdown_options=options)
+    context = dict(initial=initial, form_field=form_field, dropdown_options=selected)
 
     return context
 
