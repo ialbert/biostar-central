@@ -175,10 +175,15 @@ def user_signup(request):
 
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-            Profile.objects.filter(user=user).update(last_login=now())
-            tasks.verification_email.spool(user_id=user.pk)
+            try:
+                user = form.save()
+                login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+                Profile.objects.filter(user=user).update(last_login=now())
+                tasks.verification_email.spool(user_id=user.pk)
+            except Exception as exc:
+                logger.error(exc)
+                messages.error(request, "Signup error")
+
             return redirect("/")
         else:
             messages.error(request, "Invalid form submission")
