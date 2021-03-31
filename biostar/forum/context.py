@@ -47,7 +47,6 @@ def forum(request):
                   site_domain=settings.SITE_DOMAIN,
                   google_tracker=settings.GOOGLE_TRACKER,
                   IS_MODERATOR=is_moderator(request.user),
-                  ALLOW_POST_CLOSING=settings.ALLOW_POST_CLOSING,
                   counts=counts,
                   )
 

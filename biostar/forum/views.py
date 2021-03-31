@@ -74,6 +74,7 @@ def authenticated(func):
 
     return _wrapper_
 
+
 class CachedPaginator(Paginator):
     """
     Paginator that caches the count call.
