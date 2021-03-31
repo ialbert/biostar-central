@@ -180,6 +180,8 @@ def user_signup(request):
             Profile.objects.filter(user=user).update(last_login=now())
             tasks.verification_email.spool(user_id=user.pk)
             return redirect("/")
+        else:
+            messages.error(request, "Invalid form submission")
 
     else:
         form = forms.SignUpWithCaptcha()
