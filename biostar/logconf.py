@@ -33,6 +33,12 @@ class RateLimitFilter(object):
         return not exists
 
 
+# Override the Django defaults
+#
+# https://stackoverflow.com/questions/20282521/django-request-logger-not-propagated-to-root
+#
+# LOGGING_CONFIG = None
+#
 LOGGING = {
 
     'version': 1,
@@ -72,6 +78,8 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false', 'rate_limit'],
             'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+
         },
 
         'errors': {
@@ -88,12 +96,14 @@ LOGGING = {
         'django': {
             'handlers': ['console', 'mail_admins'],
             'level': DJANGO_LOG_LEVEL,
+            'propagate': True,
 
         },
 
         'engine': {
             'handlers': ['console', 'mail_admins'],
             'level': LOG_LEVEL,
+            'propagate': True,
         },
 
     },
