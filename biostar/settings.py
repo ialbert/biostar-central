@@ -109,13 +109,13 @@ SECRET_KEY = 'secret-key'
 API_KEY = "api-key"
 
 # Used during testing
-TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'themes', 'biostar')]
+#TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'themes', 'biostar')]
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
-        'DIRS': TEMPLATE_DIRS,
+        #'DIRS': TEMPLATE_DIRS,
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
