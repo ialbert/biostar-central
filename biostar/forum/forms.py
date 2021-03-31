@@ -1,5 +1,6 @@
 from pagedown.widgets import PagedownWidget
 import os
+import re
 import langdetect
 from django import forms
 from django.utils.safestring import mark_safe
@@ -157,12 +158,15 @@ class PostLongForm(forms.Form):
         """
         Take out duplicates
         """
+
+        pattern = r'^[A-Za-z0-9-._]+$'
         tag_val = self.cleaned_data["tag_val"]
         tag_val = tag_val.replace(',', ' ').split()
 
         for tag in tag_val:
-            if not tag.isalnum():
-                raise forms.ValidationError(f'only alphanumeric tags allowed: {tag}')
+            match = re.match(pattern, tag)
+            if not match:
+                raise forms.ValidationError(f'Invalid characters in tag: {tag}')
 
         tags = set(tag_val)
         tags = ",".join(tags)

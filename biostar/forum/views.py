@@ -74,6 +74,7 @@ def authenticated(func):
 
     return _wrapper_
 
+
 class CachedPaginator(Paginator):
     """
     Paginator that caches the count call.
@@ -506,14 +507,14 @@ def badge_view(request, uid):
     target = request.GET.get('user')
     page = request.GET.get('page', 1)
 
-    user = User.objects.filter(profile__uid=target).first()
-
     if not badge:
         messages.error(request, f"Badge with id={uid} does not exist.")
         return redirect(reverse("badge_list"))
 
     awards = badge.award_set.all().order_by("-date")
-    if user:
+
+    if target:
+        user = User.objects.filter(profile__uid=target).first()
         awards = awards.filter(user=user)
 
     awards = awards.prefetch_related("user", "user__profile", "post", "post__root")
