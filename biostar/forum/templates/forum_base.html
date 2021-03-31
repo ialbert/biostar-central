@@ -7,7 +7,7 @@
 <head>
 
     <title>
-        {% block title %}{{ site_name }}{% endblock %}
+        {% block title %}Page Title{% endblock %}
     </title>
 
     <meta charset="UTF-8">
@@ -91,7 +91,9 @@
     </span>
 
     {% block container %}
-        {% show_messages messages %}
+        {% if messages %}
+            {% show_messages messages %}
+        {% endif %}
         <div class="ui bottom attached segment block">
 
             {% block content %}
