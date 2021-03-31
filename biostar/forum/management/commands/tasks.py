@@ -23,7 +23,7 @@ def bump(uids, **kwargs):
     Set post rank the current timestamp
     """
 
-    top = Post.objects.filter(status=Post.OPEN, is_toplevel=True).order_by("-rank")[3:13]
+    top = Post.objects.filter(status=Post.OPEN, is_toplevel=True).order_by("-rank")[2:6]
 
     top = random.choice(list(top))
     rank = top.rank
