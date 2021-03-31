@@ -168,6 +168,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
+        #print(self.uid)
         self.max_upload_size = self.max_upload_size or self.set_upload_size()
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or util.now()
