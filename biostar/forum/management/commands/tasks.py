@@ -85,8 +85,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         action = options['action']
 
-        #print(User.objects.filter(profile=None).values_list('email'))
-        #1/0
         opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards}
 
         func = opts[action]
