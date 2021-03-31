@@ -104,9 +104,6 @@ class PostTest(TestCase):
         json_response = ajax.ajax_edit(request, uid=self.post.uid)
         response_data = json.loads(json_response.content)
 
-        for tag in data['tag_val']:
-            self.assertTrue(tag in response_data['tag_html'], 'Tag not working')
-
         self.process_response(json_response)
 
     def test_inplace_create(self):

@@ -18,7 +18,7 @@ from django.http import JsonResponse
 from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
-from . import auth, util, forms, tasks, search, views, const
+from . import auth, util, forms, tasks, search, views, const, moderate
 from .models import Post, Vote, Subscription, delete_post_cache
 
 def ajax_msg(msg, status, **kwargs):
@@ -210,80 +210,6 @@ def ajax_digest(request):
     return ajax_success(msg="Changed digest options.")
 
 
-def validate_recaptcha(token):
-    """
-    Send recaptcha token to API to check if user response is valid
-    """
-    url = 'https://www.google.com/recaptcha/api/siteverify'
-    values = {
-        'secret': settings.RECAPTCHA_PRIVATE_KEY,
-        'response': token
-    }
-    data = urlencode(values).encode("utf-8")
-    response = builtin_request.urlopen(url, data)
-    result = json.load(response)
-
-    if result['success']:
-        return True, ""
-
-    return False, "Invalid reCAPTCHA. Please try again."
-
-
-def validate_toplevel_fields(fields={}):
-    """Validate fields found in top level posts"""
-
-    title = fields.get('title', '')
-    tag_list = fields.get('tag_list', [])
-    tag_val = fields.get('tag_val', '')
-    post_type = fields.get('post_type', '')
-    title_length = len(title.replace(' ', ''))
-    allowed_types = [opt[0] for opt in Post.TYPE_CHOICES]
-    tag_length = len(tag_list)
-
-    if title_length <= forms.MIN_CHARS:
-        msg = f"Title too short, please add more than {forms.MIN_CHARS} characters."
-        return False, msg
-
-    if title_length > forms.MAX_TITLE:
-        msg = f"Title too long, please add less than {forms.MAX_TITLE} characters."
-        return False, msg
-
-    if post_type not in allowed_types:
-        msg = "Not a valid post type."
-        return False, msg
-    if tag_length > forms.MAX_TAGS:
-        msg = f"Too many tags, maximum of {forms.MAX_TAGS} tags allowed."
-        return False, msg
-
-    if len(tag_val) > 100:
-        msg = f"Tags have too many characters, maximum of 100 characters total allowed in tags."
-        return False, msg
-
-    return True, ""
-
-
-def validate_post_fields(fields={}, is_toplevel=False):
-    """
-    Validate fields found in dictionary.
-    """
-    content = fields.get('content', '')
-    content_length = len(content.replace(' ', ''))
-
-    # Validate fields common to all posts.
-    if content_length <= forms.MIN_CHARS:
-        msg = f"Content too short, please add more than {forms.MIN_CHARS} characters."
-        return False, msg
-    if content_length > forms.MAX_CONTENT:
-        msg = f"Content too long, please add less than {forms.MAX_CONTENT} characters."
-        return False, msg
-
-    # Validate fields found in top level posts
-    if is_toplevel:
-        return validate_toplevel_fields(fields=fields)
-
-    return True, ""
-
-
 def get_fields(request, post=None):
     """
     Used to retrieve all fields in a request used for editing and creating posts.
@@ -306,6 +232,22 @@ def get_fields(request, post=None):
     return fields
 
 
+def set_post(post, user, fields):
+
+    # Set the fields for this post.
+    if post.is_toplevel:
+        post.title = fields.get('title', post.title)
+        post.type = fields.get('post_type', post.type)
+        post.tag_val = fields.get('tag_val', post.tag_val)
+
+    post.lastedit_user = user
+    post.lastedit_date = util.now()
+    post.content = fields.get('content', post.content)
+    post.save()
+
+    return post
+
+
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def ajax_edit(request, uid):
@@ -314,43 +256,30 @@ def ajax_edit(request, uid):
     """
 
     post = Post.objects.filter(uid=uid).first()
+    user = request.user
+    can_edit = (user.profile.is_moderator or user == post.author)
+
     if not post:
         return ajax_error(msg="Post does not exist")
+
+    if not can_edit:
+        return ajax_error(msg="Only moderators or the author can edit posts.")
 
     # Get the fields found in the request
     fields = get_fields(request=request, post=post)
 
-    if not (request.user.profile.is_moderator or request.user == post.author):
-        return ajax_error(msg="Only moderators or the author can edit posts.")
-
-    # Validate fields in request.POST
-    valid, msg = validate_post_fields(fields=fields, is_toplevel=post.is_toplevel)
-    if not valid:
-        return ajax_error(msg=msg)
-
-    # Set the fields for this post.
+    # Pick the form
     if post.is_toplevel:
-        post.title = fields.get('title', post.title)
-        post.type = fields.get('post_type', post.type)
-        post.tag_val = fields.get('tag_val', post.tag_val)
+        form = forms.PostLongForm(post=post, user=user, data=fields)
+    else:
+        form = forms.PostShortForm(post=post, user=user, data=fields)
 
-    post.lastedit_user = request.user
-    post.lastedit_date = util.now()
-    post.content = fields.get('content', post.content)
-    post.save()
-
-    # Get the newly set tags to render
-    tags = post.tag_val.split(",")
-    context = dict(post=post, tags=tags, show_views=True)
-    tmpl = loader.get_template('widgets/post_tags.html')
-    tag_html = tmpl.render(context)
-
-    # Get the newly updated user line
-    context = dict(post=post, avatar=post.is_comment)
-    tmpl = loader.get_template('widgets/post_user_line.html')
-    user_line = tmpl.render(context)
-
-    return ajax_success(msg='success', html=post.html, title=post.title, user_line=user_line, tag_html=tag_html)
+    if form.is_valid():
+        post = set_post(post, user, form.cleaned_data)
+        return ajax_success(msg='Edited post', redirect=post.get_absolute_url())
+    else:
+        msg = [field.errors for field in form if field.errors]
+        return ajax_error(msg=msg)
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
@@ -365,7 +294,7 @@ def ajax_delete(request):
     if not (user.profile.is_moderator or post.author == user):
         return ajax_error(msg="Only moderators and post authors can delete.")
 
-    url = auth.delete_post(post=post, request=request)
+    url = moderate.delete_post(post=post, request=request)
 
     return ajax_success(msg="post deleted", url=url)
 
@@ -383,17 +312,17 @@ def ajax_comment_create(request):
     if not parent:
         return ajax_error(msg='Parent post does not exist.')
 
-    fields = dict(content=content, user=user, parent=parent)
+    fields = dict(content=content, parent_uid=parent_uid)
 
-    # Validate the fields
-    valid, msg = validate_post_fields(fields=fields, is_toplevel=False)
-    if not valid:
+    form = forms.PostShortForm(post=parent, user=user, data=fields)
+
+    if form.is_valid():
+        # Create the comment.
+        post = Post.objects.create(type=Post.COMMENT, content=content, author=user, parent=parent)
+        return ajax_success(msg='Created post', redirect=post.get_absolute_url())
+    else:
+        msg = [field.errors for field in form if field.errors]
         return ajax_error(msg=msg)
-
-    # Create the comment.
-    post = Post.objects.create(type=Post.COMMENT, content=content, author=user, parent=parent)
-
-    return ajax_success(msg='Created post', redirect=post.get_absolute_url())
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

@@ -157,11 +157,17 @@ class PostLongForm(forms.Form):
         """
         Take out duplicates
         """
-        tag_val = self.cleaned_data["tag_val"] or 'tag1,tag2'
-        tags = set([x for x in tag_val.split(",") if x])
-        required_tags(tags)
+        tag_val = self.cleaned_data["tag_val"]
+        tag_val = tag_val.replace(',', ' ').split()
 
-        return ",".join(tags)
+        for tag in tag_val:
+            if not tag.isalnum():
+                raise forms.ValidationError(f'only alphanumeric tags allowed: {tag}')
+
+        tags = set(tag_val)
+        tags = ",".join(tags)
+
+        return tags
 
     def clean_content(self):
         content = self.cleaned_data["content"]
@@ -175,7 +181,7 @@ class PostLongForm(forms.Form):
 
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
-    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32)
+    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32, required=False)
     content = forms.CharField(widget=forms.Textarea,
                               min_length=MIN_LEN, max_length=MAX_LEN, strip=False)
 
