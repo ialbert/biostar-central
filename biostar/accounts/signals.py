@@ -34,7 +34,7 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
 
         # Create a user profile associate with the user.
         Profile.objects.using(using).create(
-            user=instance, uid=username, name=instance.first_name, role=role
+            user=instance, uid=util.get_uuid(8), name=instance.first_name, role=role
         )
 
         # Send the welcome message.
