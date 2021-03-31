@@ -15,6 +15,7 @@ def create_uuid(sender, instance, *args, **kwargs):
 def create_profile(sender, instance, created, raw, using, **kwargs):
 
     if created:
+
         # Set the username a simpler username.
         username = f"{instance.pk}"
 

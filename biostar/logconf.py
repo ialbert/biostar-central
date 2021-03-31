@@ -22,7 +22,7 @@ class RateLimitFilter(object):
     Limits the number of error emails when errors get triggered.
     """
     # Time out in seconds.
-    TIMEOUT = 60
+    TIMEOUT = 300
     CACHE_KEY = "error-limiter"
 
     def filter(self, record):
@@ -37,7 +37,7 @@ LOGGING = {
 
     'version': 1,
 
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
 
     'formatters': {
 
