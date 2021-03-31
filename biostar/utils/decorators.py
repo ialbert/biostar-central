@@ -58,7 +58,7 @@ def check_params(allowed):
             # Expected parameter names.
             diff = incoming - allowed
             if diff:
-                logger.error(f"invalid get request parameters {diff}")
+                logger.warning(f"invalid get request parameters {diff}")
                 raise Http404("Parameter does not exist.")
 
             return func(request, **kwargs)
