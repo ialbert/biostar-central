@@ -22,11 +22,8 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         # Set the username a simpler username.
         username = f"{instance.pk}"
 
-        # Set the username
-        logger.info(f"setting username={username}")
-
         # Fix uid clashes.
-        if User.objects.filter(username=username).first():
+        if User.objects.filter(username=username) or Profile.objects.filter(uid=username):
             username = util.get_uuid(8)
             logger.info(f"username clash for pk={instance.pk} new username={username}")
 
@@ -42,7 +39,7 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
 
         # Create a user profile associate with the user.
         Profile.objects.using(using).create(
-            user=instance, uid=util.get_uuid(8), name=instance.first_name, role=role
+            user=instance, uid=username, name=instance.first_name, role=role
         )
 
         try:
@@ -57,4 +54,4 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
     try:
         instance.profile.add_watched()
     except Exception as exc:
-            logger.error(f"recomputing watched tags={exc}")
+        logger.error(f"recomputing watched tags={exc}")
