@@ -99,12 +99,6 @@ LOGGING = {
             'propagate': True,
         },
 
-        'django.request': {
-            'handlers': ['console', 'mail_admins'],
-            'level': DJANGO_LOG_LEVEL,
-            'propagate': True,
-        },
-
         'engine': {
             'handlers': ['console', 'mail_admins'],
             'level': LOG_LEVEL,
