@@ -40,21 +40,6 @@
 
     {% endif %}
 
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>
-
-    <script>
-        MathJax = {
-            tex: {
-                // \$ fixes php conflicting with Mathjax delimiter
-                inlineMath: [['\$', '\$'], ['\\(', '\\)']]
-            },
-            svg: {
-                fontCache: 'global'
-            }
-        };
-
-    </script>
-
     {#  CSS compression. #}
     {% compress css %}
 
