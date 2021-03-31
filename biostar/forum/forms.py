@@ -157,12 +157,20 @@ class PostLongForm(forms.Form):
         """
         Take out duplicates
         """
+
+        whitelist_chars = ['-', '.', '_']
         tag_val = self.cleaned_data["tag_val"]
         tag_val = tag_val.replace(',', ' ').split()
 
         for tag in tag_val:
-            if not tag.isalnum():
-                raise forms.ValidationError(f'only alphanumeric tags allowed: {tag}')
+
+            # Take out allowed special chars.
+            remain = [c for c in tag if c not in whitelist_chars]
+            # Check if remaining values are alphanumeric.
+            isalnum = ''.join(remain).isalnum()
+
+            if not isalnum:
+                raise forms.ValidationError(f'Invalid characters in tag: {tag}')
 
         tags = set(tag_val)
         tags = ",".join(tags)

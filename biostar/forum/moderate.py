@@ -12,7 +12,7 @@ from django.template import loader
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-
+from django.conf import settings
 from biostar.accounts.views import user_moderate as account_moderate
 from biostar.accounts.models import Profile, User
 from biostar.utils.decorators import check_params
@@ -51,7 +51,6 @@ class PostModForm(forms.Form):
         choices = [
             ('delete', "Delete post"),
             ('open', "Open post"),
-            ('close', "Close post"),
         ]
 
         # Top level posts may be bumped.
@@ -66,6 +65,9 @@ class PostModForm(forms.Form):
                 ('spam', "Mark as spam (suspend author)"),
 
         ))
+
+        if settings.ALLOW_POST_CLOSING:
+            choices.extend(('close', "Close post"))
 
         self.fields['action'] = forms.CharField(widget=forms.RadioSelect(choices=choices), required=True)
 
