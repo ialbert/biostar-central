@@ -66,13 +66,17 @@ def delete_cache(prefix, user):
 
 import datetime
 
+ICONS = [ "monsterid", "robohash", "wavatar", "retro"]
+
 def gravatar_url(email, style='mp', size=80, force=None):
+    global ICONS
     hash_num = hashlib.md5(email).hexdigest()
 
-    # April fools gimmick.
+    # April fools gimmick. Swap icons every hour.
     now = datetime.datetime.now()
     if now.month == 4 and now.day == 1:
-        style = "monsterid"
+        index = now.second % 4
+        style = ICONS[index]
         force = True
 
     data = dict(s=str(size), d=style)
