@@ -55,7 +55,7 @@ def count_badge(count):
         count = int(count)
     except ValueError as exc:
         # TODO: this is to catch ongoing stale sessions, may be removed later
-        logger.error(f"invalid count (stale session?) {count}")
+        logger.info(f"invalid count (stale session?) {count}")
         count = 0
 
     return dict(count=count)
