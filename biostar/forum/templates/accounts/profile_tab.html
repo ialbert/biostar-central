@@ -57,12 +57,13 @@
                     <td>Status:</td>
                     <td>{{ target.profile.get_state_display }}</td>
                 </tr>
-
+                {% if target.profile.handle %}
                 <tr>
                     <td>Handle:</td>
-                    <td><code>@{{ target.username }}</code>
+                    <td><code>@{{ target.profile.handle }}</code>
                     </td>
                 </tr>
+                {% endif %}
 
                 <tr>
                     <td>Reputation:</td>

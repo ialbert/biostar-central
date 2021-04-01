@@ -135,8 +135,8 @@ class EditProfile(forms.Form):
                                               initial=self.user.profile.name)
         self.fields['email'] = forms.CharField(label='Email', max_length=100, required=True,
                                                initial=self.user.email)
-        self.fields['username'] = forms.CharField(label="Handler", max_length=100, required=True,
-                                                  initial=self.user.username)
+        self.fields['handle'] = forms.CharField(label="Handler", max_length=100, required=True,
+                                                  initial=self.user.profile.handle)
         self.fields['location'] = forms.CharField(label="Location", max_length=100, required=False,
                                                   initial=self.user.profile.location)
         self.fields['website'] = forms.URLField(label="Website", max_length=225, required=False,
@@ -181,16 +181,14 @@ class EditProfile(forms.Form):
                                   """, widget=forms.HiddenInput(),
                                                       initial=self.user.profile.watched_tags)
 
-    def clean_username(self):
+    def clean_handle(self):
 
-        data = self.cleaned_data['username']
+        data = self.cleaned_data['handle']
         data = slugify(data)
-        username = User.objects.exclude(pk=self.user.pk).filter(username=data)
+        handle = Profile.objects.filter(handle=data).exclude(user=self.user)
 
-        if len(data.split()) > 1:
-            raise forms.ValidationError("No spaces allowed in username/handlers.")
-        if username.exists():
-            raise forms.ValidationError("This handler is already being used.")
+        if handle.exists():
+            raise forms.ValidationError("This handle is already being used.")
 
         return data
 
@@ -214,12 +212,11 @@ class EditProfile(forms.Form):
         return validate_tags(tags=watched_tags)
 
     def save(self):
-        username = self.cleaned_data["username"]
         email = self.cleaned_data['email']
         html = markdown(self.cleaned_data["text"])
 
         # Update usernames and email
-        User.objects.filter(pk=self.user.pk).update(username=username, email=email)
+        User.objects.filter(pk=self.user.pk).update(email=email)
 
         # Change email verification status if email changes.
         verified = False if email != self.user.email else self.user.profile.email_verified
@@ -230,6 +227,7 @@ class EditProfile(forms.Form):
             name=self.cleaned_data['name'],
             watched_tags=self.cleaned_data['watched_tags'],
             location=self.cleaned_data['location'],
+            handle=self.cleaned_data['handle'],
             website=self.cleaned_data['website'],
             twitter=self.cleaned_data['twitter'],
             scholar=self.cleaned_data['scholar'],

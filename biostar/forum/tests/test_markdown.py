@@ -77,6 +77,7 @@ class MarkdownTest(TestCase):
         self.owner = User.objects.create(username="test", email="tested2@tested.com", password="tested")
 
         self.owner.profile.uid = "5"
+        self.owner.profile.handle = "test"
         self.owner.profile.save()
         self.owner.save()
 
