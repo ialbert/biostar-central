@@ -92,8 +92,10 @@ def user_tasks(get_response):
 
             # Detect user location if not set in the profile.
             ip = helpers.get_ip(request)
+
             # Detect user location if not set in the profile.
-            detect_location.spool(ip=ip, user_id=user.id)
+            if not user.profile.location:
+                detect_location.spool(ip=ip, user_id=user.id)
 
             # Set the last login time.
             Profile.objects.filter(user=user).update(last_login=now())
