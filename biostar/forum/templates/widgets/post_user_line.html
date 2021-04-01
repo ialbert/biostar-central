@@ -28,8 +28,8 @@
 
         written {{ post.creation_date|time_ago }} by
 
-        <a href="{% url "user_profile" post.author.profile.uid %}">
-            {{ post.author.profile.name|truncatechars:40 }}
+        <a itemprop="author" itemscope itemtype="https://schema.org/Person" href="{% url "user_profile" post.author.profile.uid %}">
+            <span itemprop="name">{{ post.author.profile.name|truncatechars:40 }}</span>
         </a>
 
         {% user_icon user=post.author %}

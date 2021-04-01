@@ -10,6 +10,7 @@
     {% if post.is_toplevel %}
         {# Show author message about their quarantied post. #}
         <div class="title" itemprop="name">{{ post.title_prefix }}{{ post.title }}</div>
+        <span itemprop="answerCount" style="display: none">{{ post.answer_count }}</span>
     {% endif %}
 
     {#  Post body #}
@@ -57,11 +58,13 @@
                     {% post_user_box target_user=post.author post=post %}
 
                     {# Display post content. #}
+                <span  itemprop="text">
                     {% if post.is_editable %}
-                        <div class="editable" itemprop="text">{{ post.html|safe }}</div>
+                        <div class="editable">{{ post.html|safe }}</div>
                     {% else %}
                         {{ post.html|safe }}
                     {% endif %}
+                </span>
                 </div>
 
                 {# Show tags #}
@@ -70,7 +73,6 @@
                     <span class="inplace-tags">{% post_tags post=post show_views=True %}</span>
                 {% endif %}
 
-                <span itemprop="author" itemscope itemtype="{% url "user_profile" post.author.profile.uid %}"></span>
                 <time itemprop="dateCreated" datetime="{{ post.creation_date|date:"Y-m-d" }}"></time>
 
                 {# Show the post actions #}
