@@ -193,7 +193,7 @@ class ProfileTest(TestCase):
     def test_edit_profile(self):
         "Test editing profile with POST request."
 
-        data = {"email":"new@new.com", "name":"new name", "username":"new",
+        data = {"email":"new@new.com", "name":"new name", "handle":"new",
                 "digest_prefs" : models.Profile.DAILY_DIGEST,
                 "message_prefs" : models.Profile.LOCAL_MESSAGE}
 

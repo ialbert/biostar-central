@@ -199,13 +199,11 @@ function tags_dropdown() {
             return value
         }
         // // Set value with SPACE bar
-        // if (ek === 32) {
-        //     event.preventDefault();
-        //     //alert( $(this).val().trim());
-        //     //alert($(this).closest('.tags').html());
-        //     $(this).closest('.tags').dropdown('set selected', value);
-        //     $(this).val('');
-        // }
+        if (ek === 32) {
+            event.preventDefault();
+            $(this).closest('.tags').dropdown('set selected', value);
+            $(this).val('');
+        }
     })
 
 }

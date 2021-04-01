@@ -334,11 +334,11 @@ def handle_search(request):
 
     query = request.GET.get('query')
     if query:
-        users = User.objects.filter(username__icontains=query
-                                    ).values_list('username', flat=True
+        users = User.objects.filter(profile__handle__icontains=query
+                                    ).values_list('profile__handle', flat=True
                                                   ).order_by('profile__score')
     else:
-        users = User.objects.order_by('profile__score').values_list('username', flat=True)
+        users = User.objects.order_by('profile__score').values_list('profile__handle', flat=True)
 
     users = list(users[:20])
     # Return list of users matching username
