@@ -242,7 +242,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
         handle = m.group("handle")
         # Query user and get the link
-        user = User.objects.filter(username=handle).first()
+        user = User.objects.filter(profile__handle=handle).first()
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'

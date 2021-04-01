@@ -141,6 +141,9 @@ class Profile(models.Model):
     # The state of the user email verification.
     email_verified = models.BooleanField(default=False)
 
+    # The user handle
+    handle = models.CharField(max_length=MAX_NAME_LEN, null=True, unique=True, db_index=True)
+
     # Automatic notification
     notify = models.BooleanField(default=False)
 
@@ -168,7 +171,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
-        #print(self.uid)
+        self.handle = self.handle or util.get_uuid(8)
         self.max_upload_size = self.max_upload_size or self.set_upload_size()
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or util.now()
