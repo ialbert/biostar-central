@@ -306,6 +306,38 @@ class Profile(models.Model):
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
 
 
+class UserLog(models.Model):
+    DEFAULT, ACTION = 1, 2
+    CHOICES = [
+        (DEFAULT, "Default"),
+        (ACTION, "Action"),
+    ]
+    # User that performed the action.
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+
+    # A potential subject user (it may be null)
+    subject = models.ForeignKey(User, related_name="subject", null=True, blank=True, on_delete=models.CASCADE)
+
+    # The IP address associated with the log.
+    ipaddr = models.GenericIPAddressField(null=True, blank=True)
+
+    # Actions that the user took.
+    action = models.IntegerField(choices=CHOICES, default=DEFAULT, db_index=True)
+
+    # The logging information.
+    text = models.TextField(null=True, blank=True)
+
+    # Data attached to the logging info.
+    data = models.TextField(null=True, blank=True)
+
+    # Date this log was created.
+    date = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        self.date = self.date or util.now()
+        super(UserLog, self).save(*args, **kwargs)
+
+
 def is_moderator(user):
     """
     Shortcut to identify moderators from users.
