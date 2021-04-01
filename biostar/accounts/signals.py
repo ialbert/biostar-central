@@ -23,12 +23,9 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         username = f"{instance.pk}"
 
         # Fix uid clashes.
-        if User.objects.filter(username=username) or Profile.objects.filter(uid=username):
+        if Profile.objects.filter(uid=username):
             username = util.get_uuid(8)
-            logger.info(f"username clash for pk={instance.pk} new username={username}")
-
-        # Update the user with a simpler username.
-        User.objects.filter(pk=instance.pk).update(username=username)
+            logger.info(f"username clash for pk={instance.pk} new uid={username}")
 
         # Make sure staff users are also moderators.
         role = (
