@@ -7,7 +7,7 @@
 
     <a class="add-comment ui tiny label">{{ label }}</a>
 
-    &bull; <a href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
+    &bull; <a itemprop="url" href="{% url 'post_view' post.root.uid %}#{{ post.uid }}">link</a>
 
     {% if post.is_editable %}
         &bull; <a class="edit-button" href="#">edit</a>
