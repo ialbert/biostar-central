@@ -66,10 +66,12 @@ def post_exists(func):
 
 
 def authenticated(func):
+
     def _wrapper_(request, **kwargs):
         if request.user.is_anonymous:
             messages.error(request, "You need to be logged in to view this page.")
-            return reverse('post_list')
+            return redirect(reverse('post_list'))
+
         return func(request, **kwargs)
 
     return _wrapper_

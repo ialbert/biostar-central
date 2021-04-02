@@ -19,19 +19,20 @@
 
     {% include "banners/insert-post-top.html" %}
 
-<span itemscope itemtype="http://schema.org/QAPage">
-
+<span itemprop="mainEntity" itemscope itemtype="https://schema.org/Question">
     {# The toplevel post #}
-    <div class="ui vertical segment" itemscope itemtype="http://schema.org/Question">
+    <div class="ui vertical segment">
             {% post_body post=post user=request.user tree=tree %}
     </div>
 
     {# Render each answer for the post #}
     {% for answer in answers %}
-        <div class="ui vertical segment" itemscope itemtype="http://schema.org/Answer">
+        <div class="ui vertical segment">
                 {% post_body post=answer user=request.user tree=tree %}
         </div>
     {% endfor %}
+
+</span>
 
     {# Display the newanswer form #}
     {% if request.user.is_authenticated and post.is_open %}
@@ -97,8 +98,6 @@
         });
 
     </script>
-
-</span>
 
 {% endblock %}
 

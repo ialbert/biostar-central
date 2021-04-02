@@ -7,16 +7,9 @@
     {% if  post.lastedit_user.profile.is_valid %}
         updated {{ post.lastedit_date|time_ago }} by
 
-        <a href="{% url "user_profile" post.lastedit_user.profile.uid %}">
-
-            <!-- {% if avatar %}
-                <div class="ui avatar image">
-                    <img class="ui tiny centered image thread-users"
-                         src="{% gravatar user=post.lastedit_user size=80 %}">
-                </div>
-            {% endif %} -->
-
-            {{ post.lastedit_user.profile.name|truncatechars:50 }}
+        <a itemprop="author" itemscope itemtype="https://schema.org/Person"
+           href="{% url "user_profile" post.lastedit_user.profile.uid %}">
+            <span itemprop="name">{{ post.lastedit_user.profile.name|truncatechars:50 }}</span>
         </a>
 
         {% user_icon user=post.lastedit_user %}
@@ -24,17 +17,16 @@
         &bull;
     {% endif %}
 
-     <span class="menu-tablet_small">
 
         written {{ post.creation_date|time_ago }} by
 
-        <a href="{% url "user_profile" post.author.profile.uid %}">
-            {{ post.author.profile.name|truncatechars:40 }}
+        <a itemprop="author" itemscope itemtype="https://schema.org/Person"
+           href="{% url "user_profile" post.author.profile.uid %}">
+            <span itemprop="name">{{ post.author.profile.name|truncatechars:40 }}</span>
         </a>
 
         {% user_icon user=post.author %}
 
-    </span>
 
 {% elif post %}
 
