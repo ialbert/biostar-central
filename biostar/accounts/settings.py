@@ -123,7 +123,7 @@ ACCOUNTS_APPS = [
 ]
 
 # Should the server look up locations in a task.
-LOCATION_LOOKUP = False
+LOCATION_LOOKUP = True
 
 INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS + EMAILER_APP + PAGEDOWN_APP
 
@@ -151,3 +151,4 @@ SOCIAL_CLIENTS = [
 ]
 
 GOOGLE_TRACKER = ""
+

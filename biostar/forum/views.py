@@ -632,5 +632,4 @@ def error(request):
     """
     Checking error propagation and logging
     """
-    logger.error("error check view")
     1/0

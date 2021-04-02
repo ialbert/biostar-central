@@ -75,7 +75,7 @@ def gravatar_url(email, style='mp', size=80, force=None):
     # April fools gimmick. Swap icons every hour.
     now = datetime.datetime.now()
     if now.month == 4 and now.day == 1:
-        index = now.hour % 4
+        index = now.hour % len(ICONS)
         style = ICONS[index]
         force = True
 
