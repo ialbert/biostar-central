@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 import random
+from itertools import islice, count
 from datetime import datetime
 from biostar import VERSION
 from django.core.management.base import BaseCommand
@@ -16,9 +17,8 @@ logger = logging.getLogger('engine')
 
 BACKUP_DIR = os.path.join(settings.BASE_DIR, 'export', 'backup')
 
-BUMP, UNBUMP, AWARD, SET_HANDLES = 'bump', 'unbump', 'award', 'set_handles'
-CHOICES = [BUMP, UNBUMP, AWARD, SET_HANDLES]
-
+BUMP, UNBUMP, AWARD = 'bump', 'unbump', 'award'
+CHOICES = [BUMP, UNBUMP, AWARD]
 
 
 def bump(uids, **kwargs):
@@ -77,30 +77,6 @@ def awards(limit=50, **kwargs):
     return
 
 
-@timeit
-def set_handles(**kwargs):
-    """
-    Set handle and uids
-    """
-    # Get all profiles
-
-    profiles = models.Profile.objects.all()
-    logger.debug("setting handles")
-
-    def batch():
-
-        for profile in profiles:
-            profile.handle = profile.user.username
-            # Create better name for user uids.
-            profile.uid = f"u{profile.user.pk}"
-            yield profile
-
-        return
-
-    models.Profile.objects.bulk_update(objs=batch(), batch_size=10000,  fields=["handle", "uid"])
-
-    return
-
 
 class Command(BaseCommand):
     help = 'Preform action on list of posts.'
@@ -113,7 +89,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         action = options['action']
 
-        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards, SET_HANDLES: set_handles}
+        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards}
 
         func = opts[action]
         # print()
