@@ -9,7 +9,7 @@
 
 <div class="ui labeled icon attached fluid pointing menu" id="menu-header">
 
-    <div class="ui left simple dropdown item" >
+    <div class="ui left simple dropdown item">
 
         <i class="bars icon"><i class="dropdown icon"></i></i>
         <div class="menu">
@@ -54,10 +54,20 @@
             <i class="plus icon"><i class="dropdown icon"></i></i>
             <div class=" menu">
                 <a class="item  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-                    <i class="envelope icon"></i>Messages {{ counts.message_count }}
+                    {% if counts.message_count %}
+                        <div class="ui green button"><i class="envelope icon"></i>Messages {{ counts.message_count }}
+                        </div>
+                    {% else %}
+                        <i class="envelope icon"></i>Messages
+                    {% endif %}
                 </a>
                 <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-                    <i class="thumbs up icon"></i>Votes {{ counts.vote_count }}
+                    {% if counts.vote_count %}
+                        <div class="ui pink button"><i class="heart icon"></i> Votes {{ counts.vote_count }}</div>
+                    {% else %}
+                        <i class="heart icon"></i> Votes
+                    {% endif %}
+
                 </a>
 
                 <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
@@ -92,7 +102,8 @@
             {% else %}
                 <a class="item {% activate tab "login" %}" href="{% url 'login' %}"><i class="sign-in icon"></i>
                     Log In</a>
-                <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i class="arrow circle up icon"></i>
+                <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i
+                        class="arrow circle up icon"></i>
                     Sign Up</a>
             {% endif %}
 

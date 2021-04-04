@@ -6,16 +6,23 @@
 <div class="ui top attached text menu" id="menu-topics">
     <div class="ui inverted dimmer"></div>
     {% if user.is_authenticated %}
-        {% counts as counts %}
 
         <a class="item messages {% activate tab "messages" %}" href="{% url 'inbox' %}">
-            <i class="envelope icon"></i> Messages {% if counts.messages.count %}{{ counts.messages.count }}{% endif %}
+                        {% if counts.message_count %}
+                        <div class="ui green label"><i class="envelope icon"></i>Messages {{ counts.message_count }}
+                        </div>
+                    {% else %}
+                        <i class="envelope icon"></i>Messages
+                    {% endif %}
 
         </a>
 
         <a class="item votes {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-            <i class="heart icon"></i> Votes {% if counts.votes.count %}{{ counts.votes.count }}{% endif %}
-
+   {% if counts.vote_count %}
+                        <div class="ui pink label"><i class="heart icon"></i> Votes {{ counts.vote_count }}</div>
+                    {% else %}
+                        <i class="heart icon"></i> Votes
+                    {% endif %}
         </a>
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">

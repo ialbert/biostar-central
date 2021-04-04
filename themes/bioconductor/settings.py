@@ -9,16 +9,7 @@ CUSTOM_THEME = os.path.abspath(os.path.join(BASE_DIR, 'themes', 'bioconductor'))
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[bioc] "
 HTTP_PROTOCOL = "http"
 
-LANGUAGE_DETECTION = ["af", "ar", "bg",
-                      "bn", "ca", "cs", "cy",
-                      "da", "de", "el", "en",
-                      "es", "et", "fa", "fi", "fr",
-                      "gu", "he", "hi", "hr", "hu", "id",
-                      "it", "ja", "kn", "ko", "lt", "lv",
-                      "mk", "ml", "mr", "ne", "nl", "no", "pa",
-                      "pl", "pt", "ro", "ru", "sk", "sl", "so", "sq",
-                      "sv", "sw", "ta", "te", "th", "tl", "tr",
-                      "uk", "ur", "vi", "zh-cn", "zh-tw"]
+LANGUAGE_DETECTION = ["en"]
 
 # Full file path to tags.
 # Each line is a list of comma separated tags.
@@ -94,6 +85,8 @@ SITE_DOMAIN = "127.0.0.1"
 
 # What domain will handle the replies.
 EMAIL_REPLY_PATTERN = "reply+%s+code@bioconductor.org"
+
+STRICT_TAGS = False
 
 # The format of the email that is sent
 EMAIL_FROM_PATTERN = u'''"%s [bioc]" <%s>'''

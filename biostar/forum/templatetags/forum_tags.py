@@ -326,38 +326,37 @@ def read_tags(exclude=[], limit=5000):
     return tags_opts
 
 
-def get_dropdown_options(selected_list):
+def file_tags_options(selected):
     """
     Present tags tags in a multi-select dropdown format.
     """
-    limit = 50
-
-    # Gather already selected tags
-    selected = {(val, True) for val in selected_list}
-
     # Read tags from file.
     try:
-        opts = read_tags(exclude=selected_list)
+        opts = read_tags(exclude=selected)
     except Exception as exc:
         logger.error(f"Error reading tags from file.:{exc}")
         opts = []
 
-    # Read tags from database if none found in file.
-    if not opts:
-        query = Tag.objects.exclude(name__in=selected_list)[:limit].values_list("name", flat=True)
-        opts = {(name.strip(), False) for name in query}
-
-    return selected
+    return opts
 
 
 @register.inclusion_tag('forms/field_tags.html', takes_context=True)
 def tags_field(context, form_field, initial=''):
     """Render multi-select dropdown options for tags. """
 
+    # Read from tags file
+    tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
     # Get currently selected tags from the post or request
     selected = initial.split(",") if initial else []
+    selected = {(val, True) for val in selected}
+    if tags_file:
+        opts = file_tags_options(selected)
+    else:
+        opts = {}
 
-    context = dict(initial=initial, form_field=form_field, dropdown_options=selected)
+    options = itertools.chain(selected, opts)
+
+    context = dict(initial=initial, form_field=form_field, dropdown_options=options)
 
     return context
 

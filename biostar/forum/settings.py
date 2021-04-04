@@ -158,6 +158,8 @@ CACHES = {
     }
 }
 
+STRICT_TAGS = True
+
 TASK_MODULES = ("biostar.forum.tasks", )
 
 # Enable debug toolbar specific functions

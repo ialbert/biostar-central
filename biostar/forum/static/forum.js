@@ -191,18 +191,15 @@ function tags_dropdown() {
         // Prevent submitting form when adding tag by pressing ENTER.
         var ek = event.keyCode || event.which;
         var value = $(this).val().trim();
-        if (ek === 13 || ek === 10) {
+
+        // Get a list of delimiters
+        var delimiters = $('#field-tags').data('delimiters').split(',');
+        if (delimiters.indexOf(ek) !== -1) {
+
             event.preventDefault();
-            //alert($(this).closest('.tags').html());
             $(this).closest('.tags').dropdown('set selected', value);
             $(this).val('');
             return value
-        }
-        // // Set value with SPACE bar
-        if (ek === 32) {
-            event.preventDefault();
-            $(this).closest('.tags').dropdown('set selected', value);
-            $(this).val('');
         }
     })
 

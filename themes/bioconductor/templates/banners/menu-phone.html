@@ -7,7 +7,6 @@
     </div>
 {% endblock %}
 
-{% counts as counts %}
 
 <div class="ui labeled icon attached fluid pointing menu narrow" id="menu-header">
 
@@ -56,10 +55,19 @@
             <i class="plus icon"><i class="dropdown icon"></i></i>
             <div class=" menu">
                 <a class="item  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-                    <i class="envelope icon"></i>Messages {{ counts.messages.count }}
+                    {% if counts.message_count %}
+                        <div class="ui green button"><i class="envelope icon"></i>Messages {{ counts.message_count }}
+                        </div>
+                    {% else %}
+                        <i class="envelope icon"></i>Messages
+                    {% endif %}
                 </a>
                 <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-                    <i class="thumbs up icon"></i>Votes {{ counts.votes.count }}
+                    {% if counts.vote_count %}
+                        <div class="ui pink button"><i class="heart icon"></i> Votes {{ counts.vote_count }}</div>
+                    {% else %}
+                        <i class="heart icon"></i> Votes
+                    {% endif %}
                 </a>
 
                 <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
@@ -102,9 +110,11 @@
 
             <a class="item {% activate tab "about" %}" href=""><i class="info circle icon"></i>About
             </a>
-           <a class="item {% activate tab "about" %}" href="{% url 'pages' 'about' %}"> <iclass="info icon"></i>about</a>
-        <a class="item  {% activate tab "faq" %}" href="{% url 'pages' 'faq' %}"> <i class="question icon"></i> faq
-        </a>
+            <a class="item {% activate tab "about" %}" href="{% url 'pages' 'about' %}">
+                <iclass
+                ="info icon"></i>about</a>
+            <a class="item  {% activate tab "faq" %}" href="{% url 'pages' 'faq' %}"> <i class="question icon"></i> faq
+            </a>
         </div>
 
 
