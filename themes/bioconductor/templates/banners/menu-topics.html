@@ -8,21 +8,21 @@
     {% if user.is_authenticated %}
 
         <a class="item messages {% activate tab "messages" %}" href="{% url 'inbox' %}">
-                        {% if counts.message_count %}
-                        <div class="ui green label"><i class="envelope icon"></i>Messages {{ counts.message_count }}
-                        </div>
-                    {% else %}
-                        <i class="envelope icon"></i>Messages
-                    {% endif %}
+            {% if counts.message_count %}
+                <div class="ui green label"><i class="envelope icon"></i>Messages {{ counts.message_count }}
+                </div>
+            {% else %}
+                <i class="envelope icon"></i>Messages
+            {% endif %}
 
         </a>
 
         <a class="item votes {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-   {% if counts.vote_count %}
-                        <div class="ui pink label"><i class="heart icon"></i> Votes {{ counts.vote_count }}</div>
-                    {% else %}
-                        <i class="heart icon"></i> Votes
-                    {% endif %}
+            {% if counts.vote_count %}
+                <div class="ui pink label"><i class="heart icon"></i> Votes {{ counts.vote_count }}</div>
+            {% else %}
+                <i class="heart icon"></i> Votes
+            {% endif %}
         </a>
 
         <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
