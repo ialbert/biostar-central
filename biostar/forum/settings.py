@@ -158,6 +158,7 @@ CACHES = {
     }
 }
 
+# Strict rules applied to post tags
 STRICT_TAGS = True
 
 TASK_MODULES = ("biostar.forum.tasks", )
