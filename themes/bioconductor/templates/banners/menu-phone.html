@@ -24,23 +24,18 @@
             <a class="item  {% activate tab "news" %} " href="{% url 'post_topic' 'news' %}">
                 <i class=" newspaper icon"></i> News
             </a>
-            <a class="item {% activate tab "job" %} " href="{% url 'post_topic' 'job' %}">
+            <a class="item {% activate tab "job" %} " href="{% url 'post_topic' 'jobs' %}">
                 <i class=" briefcase icon"></i> Jobs
             </a>
 
-            <a class="item {% activate tab "tutorial" %} " href="{% url 'post_topic' 'tutorial' %}">
+            <a class="item {% activate tab "tutorial" %} " href="{% url 'post_topic' 'tutorials' %}">
                 <i class=" info circle icon"></i> Tutorials
-            </a>
-            <a class="item {% activate tab "forum" %} " href="{% url 'post_topic' 'forum' %}">
-                <i class="file icon"></i> Forum
             </a>
 
             <a class="item {% activate tab "tags" %} " href="{% url 'tags_list' %}">
                 <i class="tag icon"></i>Tags
             </a>
-            <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
-                <i class="rss icon"></i> Planet
-            </a>
+
             <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
                 <i class=" world icon"></i>
                 Users
