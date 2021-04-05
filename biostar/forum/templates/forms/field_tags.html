@@ -7,14 +7,14 @@
 
     {% endif %}
 
-    <select multiple="multiple" data-value="{{ form_field.id_for_label }}" class="ui search selection dropdown tags">
-    <option value="">Insert tags</option>
-    {% for value in dropdown_options %}
+    <select multiple="multiple" data-value="{{ form_field.id_for_label }}" class="ui search selection dropdown tags"
+    id="field-tags" data-delimiters="32,13,10">
 
-        <option value="{{ value }}" selected="selected">
+    <option value="">Insert tags</option>
+    {% for value, selected in dropdown_options %}
+        <option value="{{ value }}" {% if selected %}selected="selected" {% endif %}>
         {{ value }}
         </option>
 
     {% endfor %}
-
     </select>

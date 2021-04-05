@@ -16,14 +16,14 @@
     <a class="item {% activate tab "latest" %} format " href="{% url 'post_list' %}">
     <span class="">Latest</span>
     </a>
-    <a class=" item {% activate tab "news" %} format" href="{% url 'post_list' %}?type=news">
+    <a class=" item {% activate tab "news" %} format" href="{% url 'post_topic' 'news' %}">
     <span class="">News</span>
     </a>
-    <a class=" item {% activate tab "job" %} format " href="{% url 'post_list' %}?type=job">
+    <a class=" item {% activate tab "jobs" %} format " href="{% url 'post_topic' 'jobs' %}">
     <span class="">Jobs</span>
     </a>
 
-    <a class=" item {% activate tab "tutorial" %} format " href="{% url 'post_list' %}?type=tutorial">
+    <a class=" item {% activate tab "tutorials" %} format " href="{% url 'post_topic' 'tutorials' %}">
     <span class="">Tutorials</span>
     </a>
 

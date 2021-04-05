@@ -3,15 +3,13 @@
 
 {% block headimg %}
     <div class="header item" id="logo">
-        <a href="https://support.bioconductor.org/"><img class="ui image" src="{% static "transparent-logo.png" %}"></a>
+        <a href="/"><img class="ui image" width="220px" src="{% static "transparent-logo.png" %}"></a>
     </div>
 {% endblock %}
 
-{% counts as counts %}
+<div class="ui labeled icon attached fluid pointing menu" id="menu-header" style="background-color: white">
 
-<div class="ui labeled icon attached fluid pointing menu narrow" id="menu-header">
-
-    <div class="ui left dropdown item">
+    <div class="ui left simple dropdown item">
 
         <i class="bars icon"><i class="dropdown icon"></i></i>
         <div class="menu">
@@ -22,25 +20,19 @@
             <a class="item {% activate tab "latest" %} " href="{% url 'post_list' %}">
                 <i class=" list icon"></i> Latest
             </a>
-            <a class="item  {% activate tab "news" %} " href="{% url 'post_list' %}?type=news">
+            <a class="item  {% activate tab "news" %} " href="{% url 'post_topic' 'news' %}">
                 <i class=" newspaper icon"></i> News
             </a>
-            <a class="item {% activate tab "job" %} " href="{% url 'post_list' %}?type=job">
+            <a class="item {% activate tab "jobs" %} " href="{% url 'post_topic' 'jobs' %}">
                 <i class=" briefcase icon"></i> Jobs
             </a>
 
-            <a class="item {% activate tab "tutorial" %} " href="{% url 'post_list' %}?type=tutorial">
+            <a class="item {% activate tab "tutorials" %} " href="{% url 'post_topic' 'tutorials' %}">
                 <i class=" info circle icon"></i> Tutorials
-            </a>
-            <a class="item {% activate tab "forum" %} " href="{% url 'post_list' %}?type=forum">
-                <i class="file icon"></i> Forum
             </a>
 
             <a class="item {% activate tab "tags" %} " href="{% url 'tags_list' %}">
                 <i class="tag icon"></i>Tags
-            </a>
-            <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
-                <i class="rss icon"></i> Planet
             </a>
             <a class="item {% activate tab "community" %}" href="{% url 'community_list' %}">
                 <i class=" world icon"></i>
@@ -51,15 +43,25 @@
     </div>
 
 
-    <div class="ui right dropdown  item">
+    <div class="ui right simple dropdown  item">
         {% if request.user.is_authenticated %}
             <i class="plus icon"><i class="dropdown icon"></i></i>
             <div class=" menu">
                 <a class="item  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-                    <i class="envelope icon"></i>Messages {{ counts.messages.count }}
+                    {% if counts.message_count %}
+                        <div class="ui green button"><i class="envelope icon"></i>Messages {{ counts.message_count }}
+                        </div>
+                    {% else %}
+                        <i class="envelope icon"></i>Messages
+                    {% endif %}
                 </a>
                 <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-                    <i class="thumbs up icon"></i>Votes {{ counts.votes.count }}
+                    {% if counts.vote_count %}
+                        <div class="ui pink button"><i class="heart icon"></i> Votes {{ counts.vote_count }}</div>
+                    {% else %}
+                        <i class="heart icon"></i> Votes
+                    {% endif %}
+
                 </a>
 
                 <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
@@ -80,11 +82,10 @@
 
     </div>
 
-    <div class="ui right dropdown item">
+    <div class="ui right simple dropdown item">
 
         <i class="user icon"><i class="dropdown icon"></i></i>
         <div class="menu" id="login-opts">
-
             {% if user.is_authenticated %}
                 <a class="item  {% activate tab "profile" %}" href="{% url 'user_profile' user.profile.uid %}">
                     <i class="user icon"></i> {{ user.profile.name }}{% user_icon user %}
@@ -100,11 +101,8 @@
                     Sign Up</a>
             {% endif %}
 
-            <a class="item {% activate tab "about" %}" href=""><i class="info circle icon"></i>About
+            <a class="item {% activate tab "about" %}" href="{% url 'pages' 'about' %}"><i class="info circle icon"></i>About
             </a>
-           <a class="item {% activate tab "about" %}" href="{% url 'pages' 'about' %}"> <iclass="info icon"></i>about</a>
-        <a class="item  {% activate tab "faq" %}" href="{% url 'pages' 'faq' %}"> <i class="question icon"></i> faq
-        </a>
         </div>
 
 

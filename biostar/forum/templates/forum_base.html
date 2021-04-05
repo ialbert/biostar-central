@@ -55,9 +55,12 @@
     {# Javascript compression. #}
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'forum.js' %}{% randparam %}"></script>
         {% block jsfile %}
         {% endblock %}
 
+        {% block themesjs %}
+        {% endblock %}
     {% endcompress %}
 
     {% block extrajs %}

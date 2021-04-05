@@ -158,15 +158,17 @@ class PostLongForm(forms.Form):
         """
         Take out duplicates
         """
+        if settings.STRICT_TAGS:
+            pattern = r'^[A-Za-z0-9-._]+$'
+            tag_val = self.cleaned_data["tag_val"]
+            tag_val = tag_val.replace(',', ' ').split()
 
-        pattern = r'^[A-Za-z0-9-._]+$'
-        tag_val = self.cleaned_data["tag_val"]
-        tag_val = tag_val.replace(',', ' ').split()
-
-        for tag in tag_val:
-            match = re.match(pattern, tag)
-            if not match:
-                raise forms.ValidationError(f'Invalid characters in tag: {tag}')
+            for tag in tag_val:
+                match = re.match(pattern, tag)
+                if not match:
+                    raise forms.ValidationError(f'Invalid characters in tag: {tag}')
+        else:
+            tag_val = self.cleaned_data["tag_val"].split(',')
 
         tags = set(tag_val)
         tags = ",".join(tags)

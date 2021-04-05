@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import re
 import urllib.parse as urlparse
 from datetime import timedelta
 
