@@ -293,6 +293,9 @@ def more_like_this(uid, top=0, sortedby=[]):
         results = results[0].more_like_this("content", top=top)
         # Copy hits to list and close searcher object.
         final = list(map(copy_hits, results))
+        # Show unique posts
+        final = {h['uid']: h for h in final}
+        final = list(final.values())
     else:
         final = []
 
