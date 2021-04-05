@@ -9,6 +9,7 @@ from django.conf import settings
 from django.template import loader
 from biostar.utils.decorators import task
 
+
 #
 # Do not use logging in tasks! Deadlocking may occur!
 #
@@ -17,6 +18,7 @@ from biostar.utils.decorators import task
 
 def message(msg, level=0):
     print(f"{msg}")
+
 
 @task
 def detect_location(ip, user_id):
@@ -35,6 +37,7 @@ def detect_location(ip, user_id):
 
     # Get the profile for the user
     profile = Profile.objects.filter(user__id=user_id).first()
+    template = "messages/location-set.md"
 
     # Skip value if it has the word unknown in it
     def get(data, attr):
@@ -57,12 +60,15 @@ def detect_location(ip, user_id):
             # Log the return data.
             message(data)
 
-            #city = get(data, "city")
-            location = get(data, "country_name")
+            # city = get(data, "city")
+            # region = get(data, "regionName")
+            location = get(data, "country")
 
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
             if location:
                 Profile.objects.filter(user__id=user_id).update(location=location)
+                context = dict(profile=profile, location=location)
+                create_messages(template=template, user_ids=[user_id], extra_context=context)
                 message(f"updated profile: {msg}")
             else:
                 message(f"empty location: {msg}")
@@ -95,7 +101,12 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     sender = sender or User.objects.filter(email=email).first() or User.objects.filter(is_superuser=True).first()
     # Load the template and context
     tmpl = loader.get_template(template_name=template)
-    context = dict(sender=sender)
+
+    # Default context added to each template.
+    port = f":{settings.HTTP_PORT}" if settings.HTTP_PORT else ""
+    context = dict(sender=sender, domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
+                   port=port, name=settings.SITE_NAME)
+
     context.update(extra_context)
     body = tmpl.render(context)
     html = mistune.markdown(body, escape=False)
@@ -103,4 +114,3 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     for rec in rec_list:
         body = MessageBody.objects.create(body=body, html=html)
         Message.objects.create(sender=sender, recipient=rec, body=body)
-
