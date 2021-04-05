@@ -15,13 +15,13 @@ SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
 TEST_CASES = [
 
     # Top level Post anchors
-    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/" rel="nofollow">Test</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/ ", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/" rel="nofollow">Test</a></p>'),
 
     # Non-toplevel post anchors
-    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/#2", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/#2" rel="nofollow">Comment: Test</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/#2 ", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/#2" rel="nofollow">Comment: Test</a></p>'),
 
     # User profile url pattern
-    (f"{settings.PROTOCOL}://{SITE_URL}/u/5", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/u/5" rel="nofollow">tested2</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/u/5 ", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/u/5" rel="nofollow">tested2</a></p>'),
 
     # Twitter link
     ("https://twitter.com/Linux/status/2311234267", '<p></p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">w00t! 10,000 followers!</p>— Linux (@Linux) <a href="https://twitter.com/Linux/status/2311234267?ref_src=twsrc%5Etfw" rel="nofollow">June 24, 2009</a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script><p></p>'),

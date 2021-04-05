@@ -63,9 +63,9 @@ rec = re.compile
 # Biostar patterns
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
 SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
-USER_PATTERN = rec(fr"^http(s)?://{SITE_URL}/u/(?P<uid>[\w_.-]+)(/)?")
-POST_TOPLEVEL = rec(fr"^http(s)?://{SITE_URL}/p/(?P<uid>(\w+))(/)?$")
-POST_ANCHOR = rec(fr"^http(s)?://{SITE_URL}/p/\w+/\#(?P<uid>(\w+))(/)?")
+USER_PATTERN = rec(fr"http(s)?://{SITE_URL}/u/(?P<uid>[\w_.-]+)(/)?")
+POST_TOPLEVEL = rec(fr"http(s)?://{SITE_URL}/p/(?P<uid>(\w+))(/)?")
+POST_ANCHOR = rec(fr"http(s)?://{SITE_URL}/p/\w+/\#(?P<uid>(\w+))(/)?")
 
 # Match any alphanumeric characters after the @.
 # These characters are allowed in handles: _  .  -
