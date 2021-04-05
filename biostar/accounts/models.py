@@ -232,6 +232,10 @@ class Profile(models.Model):
 
         return threshold
 
+    def edit_url(self):
+
+        return reverse('edit_profile')
+
     @property
     def mailing_list(self):
         """
