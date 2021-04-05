@@ -57,9 +57,9 @@ def detect_location(ip, user_id):
             # Log the return data.
             message(data)
 
-            city = get(data, "city")
-            country = get(data, "country_name")
-            location = city or country
+            #city = get(data, "city")
+            #country = get(data, "country_name")
+            location = get(data, "country_name")
 
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
             if location:
