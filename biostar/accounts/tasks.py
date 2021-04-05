@@ -103,9 +103,7 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     tmpl = loader.get_template(template_name=template)
 
     # Default context added to each template.
-    port = f":{settings.HTTP_PORT}" if settings.HTTP_PORT else ""
-    context = dict(sender=sender, domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
-                   port=port, name=settings.SITE_NAME)
+    context = dict(sender=sender, domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL, name=settings.SITE_NAME)
 
     context.update(extra_context)
     body = tmpl.render(context)
