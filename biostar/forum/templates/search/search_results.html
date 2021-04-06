@@ -12,28 +12,28 @@
         {% search_bar %}
 
     {% endblock %}
+    {% search_pages indexed %}
 
-    <div class="ui message"><i class="search icon"></i>{{ total }} posts containing: <b>{{ query }}</b></div>
-
-    <div class="ui divided items">
+    <div class="ui divided items" id="search-results" data-query="{{ query }}">
         {% for result in results %}
 
             <div class="post item">
                 <div class="content">
                     <div class="header">
+                        {{ result.title_prefix }}
                         <a href="{% url 'post_view' result.uid %}"
-                           class="ui mini blue title header">{{ result.title|safe|truncatechars_html:200 }}
+                           class="ui mini blue title header search-highlight">{{ result.title|safe|truncatechars_html:200 }}
                         </a>
                     </div>
-                    <div class="muted ">
+                    <div class="muted search-highlight">
                         {{ result.content|safe|truncatechars_html:400 }}
                     </div>
                     <div class=" extra right floated">
-                        <div class="left floated">
-                            {% post_tags tags_str=result.tags spaced=False %}
+                        <div class="left floated search-highlight">
+                             {% post_tags result spaced=False %}
                         </div>
                         <div class="right floated muted">
-                            {{ result.author|truncatechars:40 }}
+                            {% post_user_line result %}
                         </div>
                     </div>
                 </div>
@@ -45,6 +45,7 @@
             </div>
         {% endfor %}
     </div>
+    {% search_pages indexed %}
 
 {% endblock %}
 

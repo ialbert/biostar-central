@@ -415,6 +415,15 @@ def custom_feed(objs, ftype='', title=''):
     return context
 
 
+@register.inclusion_tag(takes_context=True, filename='search/search_pages.html')
+def search_pages(context, results):
+    previous_page = results.pagenum - 1
+    next_page = results.pagenum + 1 if not results.is_last_page() else results.pagenum
+    request = context['request']
+    query = request.GET.get('query', '')
+    context = dict(results=results, previous_page=previous_page, query=query,next_page=next_page)
+    return context
+
 @register.inclusion_tag(takes_context=True, filename='search/search_bar.html')
 def search_bar(context, tags=False, users=False):
     search_url = reverse('tags_list') if tags else reverse('community_list') if users else reverse('post_search')

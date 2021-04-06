@@ -10,7 +10,7 @@ from django.db.models import Q
 from whoosh import writing, classify
 from whoosh.analysis import StemmingAnalyzer
 from whoosh.writing import AsyncWriter, BufferedWriter
-from whoosh.searching import Results
+from whoosh.searching import Results, ResultsPage
 import html2markdown
 import bleach
 from whoosh.qparser import MultifieldParser, OrGroup
@@ -77,7 +77,6 @@ def index_exists(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME):
 
 
 def add_index(post, writer):
-
     # Ensure the content is stripped of any html.
     content = bleach.clean(post.content, styles=[], attributes={}, tags=[], strip=True)
     writer.update_document(title=post.title,
@@ -93,8 +92,9 @@ def get_schema():
                     content=TEXT(analyzer=analyzer, stored=True, sortable=True),
                     tags=KEYWORD(commas=True, stored=True),
                     author=TEXT(stored=True),
-                    uid=ID(stored=True))
+                    uid=ID(unique=True, stored=True))
     return schema
+
 
 #
 # def get_schema():
@@ -231,7 +231,7 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def whoosh_search(query, limit=10, ix=None, fields=None, sortedby=[], **kwargs):
+def whoosh_search(query, limit=10, page=1, ix=None, fields=None, sortedby=[], **kwargs):
     """
     Query search index
     """
@@ -246,38 +246,34 @@ def whoosh_search(query, limit=10, ix=None, fields=None, sortedby=[], **kwargs):
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
 
-    hits = searcher.search(parser,
-                           sortedby=sortedby,
-                           terms=True,
-                           limit=limit)
+    hits = searcher.search_page(parser,pagenum=page, pagelen=limit,reverse=True,**kwargs)
+    hits.results.fragmenter.maxchars = 100
+    hits.results.fragmenter.surround = 100
 
-    # Allow larger fragments
-    hits.fragmenter.maxchars = 100
-    hits.fragmenter.surround = 100
 
     return hits
 
 
-def perform_search(query, fields=None, sortedby=[], limit=None):
+def perform_search(query, page=1, fields=None, sortedby=[], limit=None):
     """
     Utility functions to search whoosh index, collect results and closes
     """
 
     limit = limit or settings.SEARCH_LIMIT
 
-    hits = whoosh_search(query=query,
-                         fields=fields,
-                         sortedby=sortedby,
-                         limit=limit)
+    indexed = whoosh_search(query=query, fields=fields, page=page, sortedby=sortedby, limit=limit)
 
-    # Highlight the whoosh results.
-    copier = lambda r: copy_hits(r, highlight=True)
+    uids = set(h.get('uid') for h in indexed)
+    #copier = lambda r: copy_hits(r, highlight=True)
 
-    final = list(map(copier, hits))
-    # Ensure searcher object gets closed.
-    hits.searcher.close()
+    #final = list(map(copier, indexed))
 
-    return final
+    final = Post.objects.filter(uid__in=uids).order_by('-lastedit_date')
+    final = final.select_related("root").select_related("author__profile", "lastedit_user__profile")
+
+    indexed.results.searcher.close()
+
+    return final, indexed
 
 
 def more_like_this(uid, top=0, sortedby=[]):

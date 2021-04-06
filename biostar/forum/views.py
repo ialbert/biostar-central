@@ -188,21 +188,18 @@ def get_posts(request, topic=""):
 def post_search(request):
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
+    page = int(request.GET.get('page', 1))
 
     if length < settings.SEARCH_CHAR_MIN:
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    results = search.perform_search(query=query)
+    results, indexed = search.perform_search(query=query, page=page)
 
-    total = len(results)
-    template_name = "search/search_results.html"
 
-    question_flag = Post.QUESTION
-    context = dict(results=results, query=query, total=total, template_name=template_name,
-                   question_flag=question_flag)
+    context = dict(results=results, query=query, indexed=indexed)
 
-    return render(request, template_name=template_name, context=context)
+    return render(request, "search/search_results.html", context=context)
 
 
 @check_params(allowed=ALLOWED_PARAMS)
