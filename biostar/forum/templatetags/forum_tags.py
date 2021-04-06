@@ -16,6 +16,7 @@ from django.shortcuts import reverse
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 from taggit.models import Tag
+from re import IGNORECASE, compile, escape
 
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const, auth
@@ -423,6 +424,7 @@ def search_pages(context, results):
     query = request.GET.get('query', '')
     context = dict(results=results, previous_page=previous_page, query=query,next_page=next_page)
     return context
+
 
 @register.inclusion_tag(takes_context=True, filename='search/search_bar.html')
 def search_bar(context, tags=False, users=False):

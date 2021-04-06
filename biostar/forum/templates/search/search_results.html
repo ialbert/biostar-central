@@ -14,26 +14,39 @@
     {% endblock %}
     {% search_pages indexed %}
 
-    <div class="ui divided items" id="search-results" data-query="{{ query }}">
+  <div class="ui simple compact dropdown item">
+      Order by: {{ order|capfirst }}
+
+    <i class="dropdown icon"></i>
+    <div class="menu">
+      <a class="item" href="{% url 'post_search' %}?query={{ query }}&order=similarity">
+          <i class="star icon"></i> Similarity</a>
+      <a class="item" href="{% url 'post_search' %}?query={{ query }}&order=update">
+          <i class="calendar icon"></i>Updated</a>
+
+    </div>
+  </div>
+
+
+    <div class="ui divided items">
         {% for result in results %}
 
             <div class="post item">
                 <div class="content">
                     <div class="header">
-                        {{ result.title_prefix }}
                         <a href="{% url 'post_view' result.uid %}"
-                           class="ui mini blue title header search-highlight">{{ result.title|safe|truncatechars_html:200 }}
+                           class="ui mini blue title header">{{ result.title|safe|truncatechars_html:200 }}
                         </a>
                     </div>
-                    <div class="muted search-highlight">
+                    <div class="muted ">
                         {{ result.content|safe|truncatechars_html:400 }}
                     </div>
                     <div class=" extra right floated">
-                        <div class="left floated search-highlight">
-                             {% post_tags result spaced=False %}
+                        <div class="left floated">
+                            {% post_tags tags_str=result.tags spaced=False %}
                         </div>
                         <div class="right floated muted">
-                            {% post_user_line result %}
+                             updated {{ result.lastedit_date|time_ago }} &bull; {{ result.author|truncatechars:40 }}
                         </div>
                     </div>
                 </div>
@@ -45,8 +58,7 @@
             </div>
         {% endfor %}
     </div>
-    {% search_pages indexed %}
-
+ {% search_pages indexed %}
 {% endblock %}
 
 

@@ -3,7 +3,7 @@
     {% for tag in tags %}
         {% if tag %}
         <a class="ptag" href="{% url 'post_tags' tag %}">
-            {{ tag }}
+            {{ tag |safe}}
         </a>
         {% endif %}
     {% endfor %}

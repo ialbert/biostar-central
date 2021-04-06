@@ -217,25 +217,6 @@ function highligh_preview(form, text) {
 
 }
 
-function highlight_search(target, content) {
-
-    // Find the target in the content.
-
-    var target_list = target.replace(/\s{2,}/g, ' ').split(" ");
-
-    $.each(target_list, function (index, value) {
-
-        var html = content.html();
-        var insert = "<span class='search-highlight'>" + value + "</span>";
-
-        var new_html = html.replace(new RegExp(value, "ig"), insert);
-        alert(new_html);
-
-        // Don't highlight any stop words.
-        content.html(new_html);
-
-    });
-}
 
 $(document).ready(function () {
 
@@ -357,19 +338,6 @@ $(document).ready(function () {
     });
 
     tags_dropdown();
-
-    $('.search-highlight').each(function (event) {
-        var elem = $(this);
-        let container = $('#search-results');
-        let query = container.data('query');
-
-        if (container.html() === undefined || container.html() === null) {
-        } else {
-
-            highlight_search(query, elem)
-        }
-
-    });
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
