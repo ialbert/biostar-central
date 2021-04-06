@@ -158,7 +158,7 @@ def get_posts(request, topic=""):
     if post_type:
         posts = posts.filter(type=post_type)
 
-    elif topic == SHOW_SPAM and (user.is_anonymous and user.profile.is_moderator):
+    if topic == SHOW_SPAM and (user.is_authenticated and user.profile.is_moderator):
         posts = get_spam(request)
 
     elif topic == OPEN:
