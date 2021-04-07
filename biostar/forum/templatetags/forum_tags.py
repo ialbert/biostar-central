@@ -368,7 +368,7 @@ def form_errors(form, wmd_prefix='', override_content=False):
     """
 
     try:
-        errorlist = [('', message) for message in form.non_field_errors()]
+        errorlist = [('', message, '') for message in form.non_field_errors()]
         for field in form:
             for error in field.errors:
                 # wmd_prefix is required when dealing with 'content' field.
