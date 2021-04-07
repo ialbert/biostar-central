@@ -257,9 +257,10 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_post_link(self, m):
         uid = m.group("uid")
-        post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
         link = m.group(0)
-        return f'<a href="{link}">{post.title}</a>'
+        post = Post.objects.filter(uid=uid).first()
+        title = post.root.title if post else "Post not found"
+        return f'<a href="{link}">{title}</a>'
 
     def enable_anchor_link(self):
         self.rules.anchor_link = POST_ANCHOR
@@ -267,9 +268,9 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_anchor_link(self, m):
         uid = m.group("uid")
-        alt, link = f"{uid}", m.group(0)
+        link = m.group(0)
         post = Post.objects.filter(uid=uid).first()
-        title = post.title if post else "Post not found"
+        title = post.root.title if post else "Post not found"
         return f'<a href="{link}">{title}</a>'
 
     def enable_user_link(self):
