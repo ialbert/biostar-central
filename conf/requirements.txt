@@ -1,5 +1,5 @@
 amqp==5.0.5
-asgiref==3.3.1
+asgiref==3.3.2
 beautifulsoup4==4.9.3
 billiard==3.6.3.0
 bleach==3.3.0
@@ -13,7 +13,7 @@ click-repl==0.1.6
 coverage==5.4
 cryptography==3.4.4
 defusedxml==0.6.0
-Django==3.1.6
+Django==3.2
 django-allauth==0.44.0
 django-appconf==1.0.4
 django-compressor==2.4
