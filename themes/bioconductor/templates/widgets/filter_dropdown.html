@@ -26,16 +26,16 @@
                             <i class="{% activate_check_mark limit 'year' %}"></i>this year
                         </a>
                         <div class="ui divider"></div>
-                        <a class="item" href="{% relative_url 'open' 'type' params %}">
+                        <a class="item" href="{% url 'post_topic' 'open' %}">
                             <i class="{% activate_check_mark type 'open' %}"></i>Unanswered
                         </a>
 
-                        <a class="item" href="{% relative_url 'latest' 'type' params %}">
+                        <a class="item" href="{% url 'post_list' %}">
                             <i class="{% activate_check_mark type 'latest' %}"></i>All posts
                         </a>
                         {%  if  request.user.profile.is_moderator %}
 
-                         <a class="item" href="{% relative_url 'spam' 'type' params %}">
+                         <a class="item" href="{% url 'post_topic' 'spam' %}">
                             <i class="{% activate_check_mark type 'spam' %}"></i>Spam posts
                         </a>
                         {% endif %}
