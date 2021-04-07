@@ -23,9 +23,8 @@ def now():
 def reset_planet_counts(request):
 
     if request.user.is_authenticated:
-
-        # Set the session.
-        counts = dict(planet_count=0)
+        counts = request.session.get(settings.SESSION_COUNT_KEY, {})
+        counts['planet_count'] = 0
         request.session[settings.SESSION_COUNT_KEY] = counts
 
 
