@@ -33,10 +33,11 @@ def reset_count(key):
         @wraps(func)
         def inner(request, **kwargs):
 
-            # Get the count from sessions
-            counts = request.session.get(session_key, {})
-            counts[key] = 0
-            request.session[session_key] = counts
+            if request.user.is_authenticated:
+                # Get the count from sessions
+                counts = request.session.get(session_key, {})
+                counts[key] = 0
+                request.session[session_key] = counts
 
             results = func(request, **kwargs)
 

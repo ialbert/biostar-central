@@ -10,7 +10,6 @@ from django.shortcuts import redirect
 from biostar.accounts.models import Profile, Message
 from biostar.accounts.tasks import detect_location
 
-from biostar.planet.views import set_planet_count
 from biostar.utils import helpers
 
 from . import auth, tasks, const, util
