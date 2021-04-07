@@ -10,7 +10,6 @@ from django.shortcuts import redirect
 from biostar.accounts.models import Profile, Message
 from biostar.accounts.tasks import detect_location
 
-from biostar.planet.views import set_planet_count
 from biostar.utils import helpers
 
 from . import auth, tasks, const, util
@@ -74,7 +73,6 @@ def user_tasks(get_response):
 
         # Views for anonymous users are not analzed further.
         if user.is_anonymous:
-            set_planet_count(request)
             return get_response(request)
 
         # Banned and suspended will be logged out.
