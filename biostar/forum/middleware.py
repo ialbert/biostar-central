@@ -74,7 +74,6 @@ def user_tasks(get_response):
 
         # Views for anonymous users are not analzed further.
         if user.is_anonymous:
-            set_planet_count(request)
             return get_response(request)
 
         # Banned and suspended will be logged out.
