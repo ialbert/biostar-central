@@ -497,6 +497,18 @@ class Subscription(models.Model):
         return self.pk
 
 
+class Links(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    url = models.URLField()
+    NEW, REJECTED, PUBLISHED = range(3)
+    CHOICES = ((NEW, 'New link'), (REJECTED, 'Rejected'), (PUBLISHED, 'Published'))
+
+    status = models.IntegerField(choices=CHOICES, default=NEW)
+
+    pass
+
+
 class Badge(models.Model):
     BRONZE, SILVER, GOLD = range(3)
     CHOICES = ((BRONZE, 'Bronze'), (SILVER, 'Silver'), (GOLD, 'Gold'))
