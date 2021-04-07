@@ -36,8 +36,10 @@ def forum(request):
     """
 
     # Will inject the counts into every session
-
-    counts = request.session.get(settings.SESSION_COUNT_KEY, {})
+    if request.user.is_anonymous:
+        counts = dict(planet_count=0)
+    else:
+        counts = request.session.get(settings.SESSION_COUNT_KEY, {})
 
     params = dict(user=request.user,
                   TRAFFIC=get_traffic(),
