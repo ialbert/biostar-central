@@ -25,7 +25,7 @@
                                 {{ message.sent_date|timesince }} ago
                                 <a href="{{ message.sender.profile.get_absolute_url }}">{{ message.sender.profile.name }}</a>
                                 wrote:</i>
-                            <p>{{ message.body.html|safe|truncatewords_html:130 }}</p>
+                            <p>{{ message.body.html|safe|truncatewords_html:180 }}</p>
                         </div>
                     </div>
                 </td>
