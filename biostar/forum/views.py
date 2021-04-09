@@ -198,6 +198,7 @@ def post_search(request):
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
+    # Reverse sort when ordering by date.
     revsort = order == 'date'
     results, indexed = search.perform_search(query=query, page=page, reverse=revsort, sortedby=sortedby)
 
