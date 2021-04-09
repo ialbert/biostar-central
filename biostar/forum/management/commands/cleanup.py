@@ -36,7 +36,7 @@ def prune_data(weeks=10, days=1, delall=False):
     # Get all messages bodies without a message
     bodies = MessageBody.objects.filter(message=None)
 
-    logger.info(f"Deleting {bodies.count()} messages")
+    logger.info(f"Deleting {bodies.count()} message bodies.")
     bodies.delete()
 
     return
