@@ -189,16 +189,16 @@ def post_search(request):
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
     page = int(request.GET.get('page', 1))
-    order = request.GET.get('order', 'similarity')
+    order = request.GET.get('order', 'relevance')
 
-    mapper = dict(similarity=None, update=['lastedit_date'])
+    mapper = dict(relevance=None, date=['lastedit_date'])
     sortedby = mapper.get(order)
 
     if length < settings.SEARCH_CHAR_MIN:
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    revsort = order == 'update'
+    revsort = order == 'date'
     results, indexed = search.perform_search(query=query, page=page, reverse=revsort, sortedby=sortedby)
 
     context = dict(results=results, query=query, indexed=indexed, order=order)

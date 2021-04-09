@@ -19,10 +19,10 @@
 
     <i class="dropdown icon"></i>
     <div class="menu">
-      <a class="item" href="{% url 'post_search' %}?query={{ query }}&order=similarity">
-          <i class="star icon"></i> Similarity</a>
-      <a class="item" href="{% url 'post_search' %}?query={{ query }}&order=update">
-          <i class="calendar icon"></i>Updated</a>
+      <a class="item" href="{% url 'post_search' %}?query={{ query }}&order=Relevance">
+          <i class="star icon"></i> Relevance</a>
+      <a class="item" href="{% url 'post_search' %}?query={{ query }}&order=date">
+          <i class="calendar icon"></i>Date</a>
 
     </div>
   </div>
