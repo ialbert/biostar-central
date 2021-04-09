@@ -108,7 +108,7 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     context.update(extra_context)
     body = tmpl.render(context)
     html = mistune.markdown(body, escape=False)
+    body = MessageBody.objects.create(body=body, html=html)
 
     for rec in rec_list:
-        body = MessageBody.objects.create(body=body, html=html)
         Message.objects.create(sender=sender, recipient=rec, body=body)

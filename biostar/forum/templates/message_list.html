@@ -17,15 +17,15 @@
         <tbody>
         {% for message in all_messages %}
             <tr class="message">
-                <td class="{{ message.css }}">
-                    <div class="item">
+                <td class="{{ message.css }} " style="    overflow-x: auto;">
+                    <div class="item" style="max-width: 52rem">
                         <div class="content">
                             <i>
                                 <i class="angle double right icon"></i>
                                 {{ message.sent_date|timesince }} ago
                                 <a href="{{ message.sender.profile.get_absolute_url }}">{{ message.sender.profile.name }}</a>
                                 wrote:</i>
-                            <p>{{ message.body.html|safe }}</p>
+                            <p>{{ message.body.html|safe|truncatewords_html:130 }}</p>
                         </div>
                     </div>
                 </td>
