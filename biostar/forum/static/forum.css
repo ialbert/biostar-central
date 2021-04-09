@@ -125,6 +125,11 @@ blockquote.twitter-tweet {
     padding-bottom: 1ex;
 }
 
+tr.message > td{
+    overflow-x: auto;
+    max-width: 0;
+}
+
 #logo {
     padding: 0px 5px 5px 5px;
 / / background-color: var(--logo-background);
