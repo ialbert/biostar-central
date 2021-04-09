@@ -86,15 +86,17 @@ class Post(models.Model):
                       (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
-    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
+    question_types = [
+        'question', 'answer', 'job', 'forum', 'page', 'blog', 'comment', 'data',
+        'tutorial', 'board', 'tool', 'news'
+    ]
+    # Raise the post types to class-level enums keyed as upper()
+    for i, q in enumerate(question_types):
+        local()[q.upper()] = i
 
     # Valid post types.
-    TYPE_CHOICES = [
-        (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
-        (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"),
-        (DATA, "Data"), (PAGE, "Page"), (TOOL, "Tool"), (NEWS, "News"),
-        (BLOG, "Blog"), (BOARD, "Bulletin Board")
-    ]
+    TYPE_CHOICES = [(i, q.title()) for i, q in enumerate(question_types)]
+
     TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
 
     # Possible spam states.
