@@ -422,7 +422,8 @@ def search_pages(context, results):
     next_page = results.pagenum + 1 if not results.is_last_page() else results.pagenum
     request = context['request']
     query = request.GET.get('query', '')
-    context = dict(results=results, previous_page=previous_page, query=query,next_page=next_page)
+    order = request.GET.get('order', 'relevance')
+    context = dict(results=results, previous_page=previous_page, query=query,next_page=next_page, order=order)
     return context
 
 
