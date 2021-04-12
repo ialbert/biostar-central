@@ -1,0 +1,33 @@
+{% load humanize %}
+{% load forum_tags %}
+    <div class="ui page-bar segment">
+{% if results.pagenum != 1 %}
+    <a class="ui small basic button no-shadow"
+
+       href="{% url 'post_search' %}?query={{ query }}&page={{ previous_page }}&order={{ order }}">
+        <i class="ui angle  double left icon"> </i>
+    </a>
+{% else %}
+    <div class="ui small basic button no-shadow">
+        <i class="ui angle  double left icon"> </i>
+    </div>
+{% endif %}
+
+<span class="phone">{{ results.total|intcomma }}
+    result{{ results.total|pluralize }}
+    &bull;
+    Page </span> {{ results.pagenum }} of {{ results.pagecount }}
+
+{% if not results.is_last_page %}
+
+    <a class="ui small basic button no-shadow"
+       href="{% url 'post_search' %}?query={{ query }}&page={{ next_page }}&order={{ order }}">
+
+        <i class="ui angle  double right icon"></i>
+    </a>
+    {% else %}
+    <div class="ui small basic button no-shadow">
+        <i class="ui angle  double right icon"></i>
+    </div>
+{% endif %}
+    </div>
