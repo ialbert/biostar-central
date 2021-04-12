@@ -217,6 +217,7 @@ function highligh_preview(form, text) {
 
 }
 
+
 $(document).ready(function () {
 
     $('#similar-feed').each(function () {
@@ -336,11 +337,11 @@ $(document).ready(function () {
         $('.hidden-answer').toggle()
     });
 
+    tags_dropdown();
+
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
-
-    tags_dropdown();
 
 
 })

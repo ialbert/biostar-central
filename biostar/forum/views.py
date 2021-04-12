@@ -83,7 +83,7 @@ class CachedPaginator(Paginator):
     """
 
     # Time to live for the cache, in seconds
-    TTL = 3000
+    TTL = 300
 
     def __init__(self, cache_key='', ttl=None, *args, **kwargs):
         self.cache_key = cache_key
@@ -197,21 +197,23 @@ def get_posts(request, topic=""):
 def post_search(request):
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
+    page = int(request.GET.get('page', 1))
+    order = request.GET.get('order', 'relevance')
+
+    mapper = dict(relevance=None, date=['lastedit_date'])
+    sortedby = mapper.get(order)
 
     if length < settings.SEARCH_CHAR_MIN:
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    results = search.perform_search(query=query)
+    # Reverse sort when ordering by date.
+    revsort = order == 'date'
+    results, indexed = search.perform_search(query=query, page=page, reverse=revsort, sortedby=sortedby)
 
-    total = len(results)
-    template_name = "search/search_results.html"
+    context = dict(results=results, query=query, indexed=indexed, order=order)
 
-    question_flag = Post.QUESTION
-    context = dict(results=results, query=query, total=total, template_name=template_name,
-                   question_flag=question_flag)
-
-    return render(request, template_name=template_name, context=context)
+    return render(request, "search/search_results.html", context=context)
 
 
 @check_params(allowed=ALLOWED_PARAMS)
