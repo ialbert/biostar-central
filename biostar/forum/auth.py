@@ -425,7 +425,9 @@ def move(request, parent, source, ptype=Post.COMMENT, msg="moved"):
     # Move this post to comment of parent
     source.parent = parent
     source.type = ptype
-    source.save()
+
+    title = f"{source.get_type_display()}: {source.root.title[:80]}"
+    Post.objects.filter(uid=source.uid).update(parent=parent, type=ptype, title=title)
 
     # Log action and let user know
     messages.info(request, mark_safe(msg))
