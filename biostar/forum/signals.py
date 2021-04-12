@@ -135,7 +135,7 @@ def finalize_post(sender, instance, created, **kwargs):
         Post.objects.filter(uid=instance.uid).update(title=title)
 
     # Ensure posts get re-indexed after being edited.
-    #Post.objects.filter(uid=instance.uid).update(indexed=False)
+    Post.objects.filter(uid=instance.uid).update(indexed=False)
 
     # Exclude current authors from receiving messages from themselves
     subs = subs.exclude(Q(type=Subscription.NO_MESSAGES) | Q(user=instance.author))
