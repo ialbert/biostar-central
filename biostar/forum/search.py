@@ -24,7 +24,8 @@ logger = logging.getLogger('engine')
 
 # Stop words ignored where searching.
 STOP = ['there', 'where', 'who', 'that', 'to', 'do', 'my', 'only', 'but', 'about',
-        'our']
+        'our', 'able', 'how', 'am', 'so', 'want']
+
 STOP += [w for w in STOP_WORDS]
 STOP = set(STOP)
 
