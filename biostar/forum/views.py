@@ -152,13 +152,17 @@ def get_posts(request, topic=""):
     post_type = POST_TYPE.get(topic)
 
     # Get all open top level posts.
-    posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN)
+    posts = Post.objects.filter(is_toplevel=True, status=Post.OPEN)
+
+    # Pass the above query when asking for latest
+    if topic == LATEST:
+        pass
 
     # Filter for various post types.
-    if post_type:
+    elif post_type is not None:
         posts = posts.filter(type=post_type)
 
-    if topic == SHOW_SPAM and (user.is_authenticated and user.profile.is_moderator):
+    elif topic == SHOW_SPAM and (user.is_authenticated and user.profile.is_moderator):
         posts = get_spam(request)
 
     elif topic == OPEN:
@@ -180,6 +184,11 @@ def get_posts(request, topic=""):
     elif topic == MYTAGS and user.is_authenticated:
         tags = map(lambda t: t.lower(), user.profile.my_tags.split(","))
         posts = posts.filter(tags__name__in=tags).distinct()
+
+    else:
+        messages.error(request, "Topic was not found")
+        posts = Post.objects.none()
+
 
     return posts
 
@@ -270,7 +279,7 @@ def release_quar(request, uid):
     return redirect('/')
 
 
-def post_list(request, topic=None, tag="", cache_key=''):
+def post_list(request, topic=None, tag="", cutoff=None):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -278,15 +287,20 @@ def post_list(request, topic=None, tag="", cache_key=''):
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
     order = request.GET.get("order", "rank") or "rank"
-    topic = topic or request.GET.get("type", "")
+    topic = topic or request.GET.get("type", LATEST) or LATEST
     limit = request.GET.get("limit", "all") or "all"
+    cache_key = ''
 
     if tag:
         # Get all open top level posts.
-        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN, tags__name__iexact=tag)
+        posts = Post.objects.filter(is_toplevel=True, status=Post.OPEN, tags__name__iexact=tag)
     else:
         # Get posts available to users.
         posts = get_posts(request=request, topic=topic)
+        cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else cache_key
+
+    if cutoff:
+        posts = posts[:cutoff]
 
     posts = apply_sort(posts, limit=limit, order=order)
 
@@ -299,17 +313,6 @@ def post_list(request, topic=None, tag="", cache_key=''):
     return posts
 
 
-def get_key(prefix, request):
-    """
-    build cache suffix from order and limit
-    """
-    order = request.GET.get("order", 'rank') or 'rank'
-    limit = request.GET.get("limit", 'all') or 'all'
-    key = f'{prefix}-{order}-{limit}'
-
-    return key
-
-
 @check_params(allowed=ALLOWED_PARAMS)
 @ensure_csrf_cookie
 def latest(request):
@@ -317,10 +320,7 @@ def latest(request):
     Show latest post listing.
     """
 
-    # Set the cache key based on order and limit
-    cache_key = get_key(prefix=LATEST, request=request)
-
-    posts = post_list(request, topic=LATEST, cache_key=cache_key)
+    posts = post_list(request, topic=LATEST)
 
     context = dict(posts=posts, tab=LATEST)
 
@@ -333,10 +333,7 @@ def post_tags(request, tag):
     """
     Show list of posts belonging to one post.
     """
-    # Set the cache key based on order and limit
-    cache_key = get_key(prefix=tag, request=request)
-
-    posts = post_list(request, tag=tag, cache_key=cache_key)
+    posts = post_list(request, tag=tag, cutoff=1000)
 
     context = dict(posts=posts, tag=tag)
 
@@ -349,11 +346,9 @@ def post_topic(request, topic):
     """
     Show list of posts of a given type
     """
-    # Set the cache key based on order and limit
-    cache_key = get_key(prefix=topic, request=request)
 
     # Set the cache key based on order and limit
-    posts = post_list(request, topic=topic, cache_key=cache_key)
+    posts = post_list(request, topic=topic, cutoff=1000)
 
     context = dict(posts=posts, topic=topic, tab=topic)
 

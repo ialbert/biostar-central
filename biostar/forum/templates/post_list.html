@@ -4,11 +4,24 @@
 {% load cache %}
 
 {% block title %}
-    Bioinformatics Answers
+    {% if tag %}
+        Biostar {{ tag|capfirst }}
+    {% elif topic %}
+        Biostar {{ topic|capfirst }}
+    {% else %}
+        Bioinformatics Answers
+    {% endif %}
 {% endblock %}
 
 {% block headtitle %}
-    Bioinformatics Answers
+    {% if tag %}
+        Biostar {{ tag|capfirst }}
+    {% elif topic %}
+        Biostar {{ topic|capfirst }}
+    {% else %}
+        Bioinformatics Answers
+    {% endif %}
+
 {% endblock %}
 
 {% block body %}
@@ -26,16 +39,18 @@
     {% block listing %}
 
 
-    {% if tag %}
+        {% if tag %}
 
-        <div class="ui  filter message">
+            <div class="ui  filter message">
 
-            Filtering for tag: <span class="ptag">{{ tag }}</span> &bull;
-            <a href="{% url 'post_list' %}">
-                reset <i class="undo small icon"></i>
-            </a>
-        </div>
-    {% endif %}
+                Filtering for tag: <span class="ptag">{{ tag }}</span> &bull;
+                <a href="{% url 'post_list' %}">
+                    reset <i class="undo small icon"></i>
+                </a>
+                &bull; Showing top 1000 results.
+            </div>
+        {% endif %}
+
 
         <div class="ui divided items">
             {% for post in posts %}
