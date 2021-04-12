@@ -83,7 +83,7 @@ class CachedPaginator(Paginator):
     """
 
     # Time to live for the cache, in seconds
-    TTL = 3000
+    TTL = 300
 
     def __init__(self, cache_key='', ttl=None, *args, **kwargs):
         self.cache_key = cache_key
