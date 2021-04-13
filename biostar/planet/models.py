@@ -109,7 +109,7 @@ class BlogPost(models.Model):
         self.insert_date = self.insert_date or now()
 
         # Set the rank
-        self.rank = self.rank or self.creation_date
+        self.rank = self.rank or self.insert_date
 
         self.uid = self.uid or get_uuid(10)
 
