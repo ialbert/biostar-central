@@ -676,6 +676,10 @@ figure {
     padding-bottom: 20px;
 }
 
+.tag-list .column{
+    font-size: larger;
+}
+
 .user_box.muted {
     font-size: small;
 }
