@@ -301,11 +301,10 @@ def post_list(request, topic=None, tag="", cutoff=None):
         posts = get_posts(request=request, topic=topic)
         cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else cache_key
 
-    if cutoff:
-        posts = posts[:cutoff]
-
     posts = apply_sort(posts, limit=limit, order=order)
 
+    if cutoff:
+        posts = posts[:cutoff]
     # Filter for any empty strings
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
@@ -457,14 +456,15 @@ def tags_list(request):
 
 @check_params(allowed=ALLOWED_PARAMS)
 def community_list(request):
-    users = User.objects.select_related("profile")
+
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
     query = request.GET.get('query', '')
     query = query.replace("'", "").replace('"', '').strip()
-
     days = LIMIT_MAP.get(limit_to, 0)
+
+    users = User.objects.select_related("profile")
 
     if days:
         delta = util.now() - timedelta(days=days)
@@ -475,17 +475,12 @@ def community_list(request):
                    Q(username__icontains=query) | Q(email__icontains=query)
         users = users.filter(db_query)
 
-    # Remove the cache when filters are given.
-    no_cache = True
-    cache_key = '' if no_cache else USERS_LIST_KEY
-
     order = ORDER_MAPPER.get(ordering, "visit")
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
     users = users.order_by(order)
 
     # Create the paginator (six users per row)
-    paginator = CachedPaginator(cache_key=cache_key, object_list=users,
-                                per_page=60)
+    paginator = CachedPaginator(object_list=users, per_page=60)
     users = paginator.get_page(page)
     context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)
 
