@@ -346,7 +346,7 @@ def embedder(attrs, new, embed=None):
         return attrs
 
     href = attrs['_text']
-    linkable = href[:4] in ('http', 'ftp:', 'https')
+    linkable = href.startswith(('http', 'ftp:', 'https'))
 
     # Don't linkify non http links
     if not linkable:
@@ -377,16 +377,13 @@ def embedder(attrs, new, embed=None):
 def linkify(text):
     # List of links to embed
     embed = []
-    html = bleach.linkify(text=text, callbacks=[partial(embedder, embed=embed)], skip_tags=['pre', 'code'])
+    html = bleach.linkify(text=text, callbacks=[partial(embedder, embed=embed), nofollow], skip_tags=['pre', 'code'])
 
     # Embed links into html.
     for em in embed:
         source, target = em
-        emb = f'<a href="{source}">{source}</a>'
+        emb = f'<a href="{source}" rel="nofollow">{source}</a>'
         html = html.replace(emb, target)
-
-    # Add nofollow to each link.
-    html = bleach.linkify(text=html, callbacks=[nofollow], skip_tags=['pre', 'code'])
 
     return html
 
