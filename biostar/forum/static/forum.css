@@ -671,9 +671,13 @@ figure {
 }
 
 
-.tags.grid {
+.tag-list.grid {
     padding-top: 20px;
     padding-bottom: 20px;
+}
+
+.tag-list .column{
+    font-size: larger;
 }
 
 .user_box.muted {
