@@ -584,14 +584,16 @@ def new_post(request):
     Creates a new post
     """
 
-    form = forms.PostLongForm(user=request.user)
     title = request.GET.get('title', '')
     tag_val = request.GET.get('tag_val', '')
+    tag_val = ','.join(tag_val.split())
+    initial = dict(title=title, tag_val=tag_val)
     content = ''
     author = request.user
+    form = forms.PostLongForm(user=request.user, initial=initial)
     if request.method == "POST":
 
-        form = forms.PostLongForm(data=request.POST, user=request.user, initial=dict(title=title, tag_val=tag_val))
+        form = forms.PostLongForm(data=request.POST, user=request.user, initial=initial)
         tag_val = form.data.get('tag_val')
         content = form.data.get('content', '')
         if form.is_valid():
