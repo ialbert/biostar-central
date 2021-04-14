@@ -5,7 +5,6 @@ import os, sys
 import django
 from datetime import timedelta
 
-
 # Module environment variable.
 MODULE_NAME = "DJANGO_SETTINGS_MODULE"
 
