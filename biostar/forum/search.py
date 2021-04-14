@@ -61,16 +61,14 @@ def copy_hits(result, highlight=False):
     if highlight:
         title = result.highlights("title", minscore=0) or result.get('title')
         content = result.highlights("content", top=5, minscore=0) or result.get('content')
-        tags = result.highlights("tags", minscore=0) or result.get('tags')
     else:
         title = result.get('title')
         content = result.get('content')
-        tags = result.get('tags')
 
     bunched = dict(title=title,
                    content=content,
                    uid=result.get('uid'),
-                   tags=tags,
+                   tags=result.get('tags'),
                    author=result.get('author'),
                    lastedit_date=result.get('lastedit_date'))
     return bunched
