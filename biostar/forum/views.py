@@ -27,6 +27,9 @@ logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
+CREATE_PARAMS = {'title', 'tag_val'}
+CREATE_PARAMS.update(ALLOWED_PARAMS)
+
 # Valid post values as they correspond to database post types.
 POST_TYPE = dict(
     question=Post.QUESTION,
@@ -574,7 +577,7 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
-@check_params(allowed=ALLOWED_PARAMS)
+@check_params(allowed=CREATE_PARAMS)
 @login_required
 def new_post(request):
     """
@@ -582,11 +585,13 @@ def new_post(request):
     """
 
     form = forms.PostLongForm(user=request.user)
+    title = request.GET.get('title', '')
+    tag_val = request.GET.get('tag_val', '')
+    content = ''
     author = request.user
-    tag_val = content = ''
     if request.method == "POST":
 
-        form = forms.PostLongForm(data=request.POST, user=request.user)
+        form = forms.PostLongForm(data=request.POST, user=request.user, initial=dict(title=title, tag_val=tag_val))
         tag_val = form.data.get('tag_val')
         content = form.data.get('content', '')
         if form.is_valid():
