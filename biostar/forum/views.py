@@ -295,6 +295,9 @@ def post_list(request, topic=None, tag="", cache_key=''):
 
     posts = apply_sort(posts, limit=limit, order=order)
 
+    if tag:
+        posts = posts[:settings.POSTS_PER_PAGE]
+
     # Filter for any empty strings
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
