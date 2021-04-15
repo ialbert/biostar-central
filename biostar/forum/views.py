@@ -155,7 +155,7 @@ def get_posts(request, topic=""):
     post_type = POST_TYPE.get(topic)
 
     # Get all open top level posts.
-    posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN)
+    posts = Post.objects.filter(is_toplevel=True, status=Post.OPEN)
 
     # Filter for various post types.
     if post_type:
@@ -288,7 +288,7 @@ def post_list(request, topic=None, tag="", cache_key=''):
 
     if tag:
         # Get all open top level posts.
-        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN, tags__name__iexact=tag)
+        posts = Post.objects.filter(is_toplevel=True, status=Post.OPEN, tags__name__iexact=tag)
     else:
         # Get posts available to users.
         posts = get_posts(request=request, topic=topic)
