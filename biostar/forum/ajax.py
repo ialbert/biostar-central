@@ -400,14 +400,14 @@ def similar_posts(request, uid):
     if results is None:
         logger.debug("Setting similar posts cache.")
         # Do a more like this search on post
-        mlt = search.more_like_this(uid=post.uid)
+        similar = search.more_like_this(uid=post.uid)
         # Render template with posts
         tmpl = loader.get_template(template_name)
-        context = dict(results=mlt)
+        context = dict(results=similar)
         results = tmpl.render(context)
 
         # Expire in one week if results exists, one hour if not.
-        expire = 3600 * 24 * 7 if len(mlt) > 1 else 3600
+        expire = 3600 * 24 * 7 if len(similar) > 1 else 3600
         cache.set(cache_key, results, expire)
 
     return ajax_success(html=results, msg="success")
