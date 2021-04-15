@@ -6,13 +6,15 @@ import logging, plac
 from itertools import *
 from biostar.tools.config import *
 
+
 logger = logging.getLogger("engine")
 
 @plac.opt("limit", "limit ", abbrev="L")
-@plac.opt("days", "deletes the users", abbrev="d")
+@plac.opt("days", "how far to go back in time", abbrev="d")
 @plac.flg("apply", "applies the action", abbrev='A')
 @plac.flg("verbose", "show debug messages")
-def main(apply=False, days=2, limit=10, verbose=False):
+def main(apply=False, days=7, limit=10, verbose=False):
+
     # Increase verbosity
     if verbose:
         logger.setLevel(logging.DEBUG)
@@ -20,8 +22,9 @@ def main(apply=False, days=2, limit=10, verbose=False):
     # Get the first admin.
     admin = get_first_admin()
 
-    # Get the spam posts
-    posts = Post.objects.filter(spam=Post.SPAM, author__profile__state=Profile.NEW).select_related("author__profile").order_by("-pk")
+    # Get the recently created spam
+    recent = time_ago(days=days)
+    posts = Post.objects.filter(spam=Post.SPAM, creation_date__gt=recent).select_related("author__profile").order_by("-pk")
 
     # Apply the limit.
     posts = islice(posts, limit)
