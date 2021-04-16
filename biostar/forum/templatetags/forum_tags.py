@@ -97,7 +97,7 @@ def bignum(number):
     return str(number)
 
 @register.filter
-def tomarkdown(text):
+def htmltomarkdown(text):
     return html2markdown.convert(text)
 
 @register.inclusion_tag('widgets/post_details.html', takes_context=True)
