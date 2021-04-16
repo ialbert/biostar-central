@@ -82,7 +82,7 @@ def index_exists(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME):
 
 def add_index(post, writer):
     # Ensure the content is stripped of any html.
-    content = bleach.clean(post.content, styles=[], attributes={}, tags=[], strip=True)
+    content = html2markdown.convert(post.content)
     writer.update_document(title=post.title,
                            content=content,
                            tags=post.tag_val,
