@@ -21,6 +21,7 @@ import html2markdown
 
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const, auth
+from biostar.utils import helpers
 from biostar.forum import markdown
 from biostar.forum.models import Post, Vote, Award, Subscription, Badge
 
@@ -98,7 +99,7 @@ def bignum(number):
 
 @register.filter
 def htmltomarkdown(text):
-    return html2markdown.convert(text)
+    return helpers.htmltomarkdown(text)
 
 @register.inclusion_tag('widgets/post_details.html', takes_context=True)
 def post_details(context, post, user, avatar=True):

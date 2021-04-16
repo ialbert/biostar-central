@@ -18,6 +18,7 @@ from whoosh.analysis import STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
+from biostar.utils.helpers import htmltomarkdown
 from biostar.forum.models import Post
 
 logger = logging.getLogger('engine')
@@ -82,7 +83,8 @@ def index_exists(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME):
 
 def add_index(post, writer):
     # Ensure the content is stripped of any html.
-    content = html2markdown.convert(post.content)
+    content = htmltomarkdown(post.content)
+
     writer.update_document(title=post.title,
                            content=content,
                            tags=post.tag_val,
