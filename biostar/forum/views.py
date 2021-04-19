@@ -296,12 +296,12 @@ def post_list(request, topic=None, tag="", cutoff=None):
     if tag:
         # Get all open top level posts.
         posts = Post.objects.filter(is_toplevel=True, status=Post.OPEN, tags__name__iexact=tag)
+        cache_key = ''
     else:
         # Get posts available to users.
         posts = get_posts(request=request, topic=topic)
-
-    # Create the cache key only with latest topic
-    cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else ''
+        # Create the cache key only with latest topic
+        cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else ''
 
     posts = apply_sort(posts, limit=limit, order=order)
 
