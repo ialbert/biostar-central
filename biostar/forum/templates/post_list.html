@@ -4,23 +4,11 @@
 {% load cache %}
 
 {% block title %}
-
-    {% if tag or topic %}
-        Biostar {% if tag %}{{ tag|capfirst }}{% else %}{{ topic|capfirst }}{% endif %}
-    {% else %}
-        Bioinformatics Answers
-    {% endif %}
-
+    Bioinformatics Answers
 {% endblock %}
 
 {% block headtitle %}
-
-    {% if tag or topic %}
-        Biostar {% if tag %}{{ tag|capfirst }}{% else %}{{ topic|capfirst }}{% endif %}
-    {% else %}
-        Bioinformatics Answers
-    {% endif %}
-
+    Bioinformatics Answers
 {% endblock %}
 
 {% block body %}
@@ -37,19 +25,9 @@
 
     {% block listing %}
 
+        {% block filtermsg %}
 
-        {% if tag %}
-
-            <div class="ui  filter message">
-
-                Showing top results for tag: <span class="ptag">{{ tag }}</span> &bull;
-                <a href="{% url 'post_list' %}">
-                    reset <i class="undo small icon"></i>
-                </a>
-            </div>
-        {% endif %}
-
-
+        {% endblock %}
 
         <div class="ui divided items">
             {% for post in posts %}

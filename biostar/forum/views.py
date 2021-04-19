@@ -189,9 +189,7 @@ def get_posts(request, topic=""):
         posts = posts.filter(tags__name__in=tags).distinct()
 
     else:
-        messages.error(request, "Topic was not found")
         posts = Post.objects.none()
-
 
     return posts
 
@@ -341,10 +339,11 @@ def post_tags(request, tag):
     Show list of posts belonging to one post.
     """
     posts = post_list(request, tag=tag, cutoff=settings.POSTS_PER_PAGE)
-
+    # Clear tags if no posts are found for it
+    tag = tag if posts else ''
     context = dict(posts=posts, tag=tag)
 
-    return render(request, template_name="post_list.html", context=context)
+    return render(request, template_name="post_tags.html", context=context)
 
 
 @check_params(allowed=ALLOWED_PARAMS)
@@ -357,9 +356,11 @@ def post_topic(request, topic):
     # Set the cache key based on order and limit
     posts = post_list(request, topic=topic, cutoff=1000)
 
+    # Clear topic if there are no posts.
+    topic = topic if posts else ''
     context = dict(posts=posts, topic=topic, tab=topic)
 
-    return render(request, template_name="post_list.html", context=context)
+    return render(request, template_name="post_topic.html", context=context)
 
 
 @ensure_csrf_cookie
@@ -615,16 +616,13 @@ def new_post(request):
 def view_logs(request):
     LIMIT = 100
 
-    if 0 and request.user.is_superuser:
+    if request.user.profile.is_moderator:
         logs = Log.objects.all().order_by("-id")[:LIMIT]
-
-    elif request.user.profile.is_moderator:
-        logs = Log.objects.all().select_related("user", "user__profile").order_by("-id")[:LIMIT]
 
     else:
         logs = Log.objects.filter(pk=0)
 
-    logs = logs.select_related("user", "post", "user__profile", "post__author")
+    logs = logs.select_related("user", "post", "post__root","user__profile", "target", "target__profile", "post__author")
 
     context = dict(logs=logs)
 
