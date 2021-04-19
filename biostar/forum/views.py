@@ -292,7 +292,6 @@ def post_list(request, topic=None, tag="", cutoff=None):
     order = request.GET.get("order", "rank") or "rank"
     topic = topic or request.GET.get("type", LATEST) or LATEST
     limit = request.GET.get("limit", "all") or "all"
-    cache_key = ''
 
     if tag:
         # Get all open top level posts.
@@ -300,8 +299,9 @@ def post_list(request, topic=None, tag="", cutoff=None):
     else:
         # Get posts available to users.
         posts = get_posts(request=request, topic=topic)
-        # Create the cache key only with latest topic
-        cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else cache_key
+
+    # Create the cache key only with latest topic
+    cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else ''
 
     posts = apply_sort(posts, limit=limit, order=order)
 
