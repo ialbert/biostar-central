@@ -111,9 +111,6 @@ function similar_posts(elem) {
             type: 'GET',
             dataType: 'json',
             ContentType: 'application/json',
-            data: {
-                'uid': uid
-            },
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status);

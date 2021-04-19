@@ -393,19 +393,21 @@ def similar_posts(request, uid):
     if not post:
         ajax_error(msg='Post does not exist.')
 
+    template_name = 'widgets/similar_posts.html'
     cache_key = f"{const.SIMILAR_CACHE_KEY}-{post.uid}"
     results = cache.get(cache_key)
 
     if results is None:
         logger.debug("Setting similar posts cache.")
-        results = search.more_like_this(uid=post.uid)
-        # Set the results cache for 1 hour
-        cache.set(cache_key, results, 3600)
+        # Do a more like this search on post
+        similar = search.more_like_this(uid=post.uid)
+        # Render template with posts
+        tmpl = loader.get_template(template_name)
+        context = dict(results=similar)
+        results = tmpl.render(context)
 
-    template_name = 'widgets/similar_posts.html'
+        # Expire in one week if results exists, one hour if not.
+        expire = 3600 * 24 * 7 if len(similar) > 1 else 3600
+        cache.set(cache_key, results, expire)
 
-    tmpl = loader.get_template(template_name)
-    context = dict(results=results)
-    results_html = tmpl.render(context)
-
-    return ajax_success(html=results_html, msg="success")
+    return ajax_success(html=results, msg="success")

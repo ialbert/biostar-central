@@ -27,8 +27,9 @@ logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
-NEW_POST_PARAMS = {'title', 'tag_val'}
-NEW_POST_PARAMS.update(ALLOWED_PARAMS)
+
+CREATE_PARAMS = {'title', 'tag_val'}
+CREATE_PARAMS.update(ALLOWED_PARAMS)
 
 # Valid post values as they correspond to database post types.
 POST_TYPE = dict(
@@ -160,7 +161,6 @@ def get_posts(request, topic=""):
     # Pass the above query when asking for latest
     if topic == LATEST:
         pass
-
     # Filter for various post types.
     elif post_type is not None:
         posts = posts.filter(type=post_type)
@@ -340,7 +340,7 @@ def post_tags(request, tag):
     """
     Show list of posts belonging to one post.
     """
-    posts = post_list(request, tag=tag, cutoff=1000)
+    posts = post_list(request, tag=tag, cutoff=settings.POSTS_PER_PAGE)
 
     context = dict(posts=posts, tag=tag)
 
@@ -570,21 +570,23 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
-@check_params(allowed=NEW_POST_PARAMS)
+
+@check_params(allowed=CREATE_PARAMS)
 @login_required
 def new_post(request):
     """
     Creates a new post
     """
+    title = request.GET.get('title', '')
     tag_val = request.GET.get('tag_val', '')
     tag_val = ','.join(tag_val.split())
-    title = request.GET.get('title', '')
+    initial = dict(title=title, tag_val=tag_val)
     content = ''
-    form = forms.PostLongForm(user=request.user, initial=dict(title=title, tag_val=tag_val))
     author = request.user
+    form = forms.PostLongForm(user=request.user, initial=initial)
     if request.method == "POST":
 
-        form = forms.PostLongForm(data=request.POST, user=request.user)
+        form = forms.PostLongForm(data=request.POST, user=request.user, initial=initial)
         tag_val = form.data.get('tag_val')
         content = form.data.get('content', '')
         if form.is_valid():

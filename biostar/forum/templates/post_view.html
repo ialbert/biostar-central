@@ -1,6 +1,7 @@
 {% extends "base_view.html" %}
 {% load forum_tags %}
 {% load static %}
+{% load cache %}
 
 {% block title %}
     {{ post.title }}
@@ -19,18 +20,18 @@
 
     {% include "banners/insert-post-top.html" %}
 
-<span itemprop="mainEntity" itemscope itemtype="https://schema.org/Question">
+    <span itemprop="mainEntity" itemscope itemtype="https://schema.org/Question">
     {# The toplevel post #}
     <div class="ui vertical segment">
             {% post_body post=post user=request.user tree=tree %}
     </div>
 
     {# Render each answer for the post #}
-    {% for answer in answers %}
-        <div class="ui vertical segment">
+        {% for answer in answers %}
+            <div class="ui vertical segment">
                 {% post_body post=answer user=request.user tree=tree %}
         </div>
-    {% endfor %}
+        {% endfor %}
 
 </span>
 
@@ -103,21 +104,21 @@
 
 {% block sidebar %}
 
-    {#  Cache every hour #}
-    <div class="ui large wrap-text" id="sidebar">
+        {#  Cache every hour #}
+        <div class="ui large wrap-text" id="sidebar">
 
-        <div class="title">Similar Posts</div>
+            <div class="title">Similar Posts</div>
 
-        <div class="ui basic segment similar" id="similar">
-            <div id="similar-feed" post_uid="{{ post.uid }}"></div>
-            <div class="ui inverted dimmer">
-                <div class="content">
-                    <div class="ui text loader">
-                        <div class="muted">Loading Similar Posts</div>
+            <div class="ui basic segment similar" id="similar">
+                <div id="similar-feed" post_uid="{{ post.uid }}"></div>
+                <div class="ui inverted dimmer">
+                    <div class="content">
+                        <div class="ui text loader">
+                            <div class="muted">Loading Similar Posts</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
 {% endblock %}
