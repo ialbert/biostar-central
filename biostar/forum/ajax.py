@@ -167,6 +167,7 @@ def drag_and_drop(request):
     else:
         url = auth.move_post(request=request, post=post, parent=parent)
 
+    delete_post_cache(post)
     return ajax_success(msg="success", redir=url)
 
 

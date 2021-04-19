@@ -357,6 +357,7 @@ def relocate(request, post, **kwds):
 
     post.parent = post.root
     post.save()
+    post.update_parent_counts()
 
     auth.db_logger(user=request.user, post=post, text=f"{msg}")
     messages.info(request, msg)
