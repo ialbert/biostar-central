@@ -2,6 +2,7 @@ from django.contrib.messages.storage import fallback
 from django.test import RequestFactory, client
 from django.conf import settings
 import logging
+import traceback
 import html2markdown
 from datetime import datetime
 from biostar import VERSION
@@ -58,10 +59,12 @@ def htmltomarkdown(text):
     """
     Safely convert html to markdown
     """
+
     try:
         content = html2markdown.convert(text)
     except Exception as exc:
-        logger.error(exc)
+        tb = traceback.format_exc()
+        logger.error(f"traceback={tb}; text={text[:100]}; error={exc}")
         content = text
 
     return content

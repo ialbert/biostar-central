@@ -1,0 +1,21 @@
+{% extends 'post_list.html' %}
+
+{% block title %}
+    Biostar {{ tag|capfirst }}
+{% endblock %}
+
+{% block headtitle %}
+    Biostar {{ tag|capfirst }}
+{% endblock %}
+
+{% block filtermsg %}
+    {% if tag %}
+    <div class="ui  filter message">
+        Showing top results for tag: <span class="ptag">{{ tag }}</span> &bull;
+        <a href="{% url 'post_list' %}">reset <i class="undo small icon"></i></a>
+    </div>
+    {% else %}
+        <div class="ui  filter message"> Tag does not exist.</div>
+    {% endif %}
+
+{% endblock %}
