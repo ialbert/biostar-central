@@ -302,12 +302,15 @@ def post_list(request, topic=None, tag="", cutoff=None):
     else:
         # Get posts available to users.
         posts = get_posts(request=request, topic=topic)
+        # Create the cache key only with latest topic
         cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else cache_key
 
     posts = apply_sort(posts, limit=limit, order=order)
-
+    
+    # Institute a cutoff
     if cutoff:
         posts = posts[:cutoff]
+
     # Filter for any empty strings
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
 
