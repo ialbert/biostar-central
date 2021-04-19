@@ -4,20 +4,19 @@
 {% load cache %}
 
 {% block title %}
-    {% if tag %}
-        Biostar {{ tag|capfirst }}
-    {% elif topic %}
-        Biostar {{ topic|capfirst }}
+
+    {% if tag or topic %}
+        Biostar {% if tag %}{{ tag|capfirst }}{% else %}{{ topic|capfirst }}{% endif %}
     {% else %}
         Bioinformatics Answers
     {% endif %}
+    
 {% endblock %}
 
 {% block headtitle %}
-    {% if tag %}
-        Biostar {{ tag|capfirst }}
-    {% elif topic %}
-        Biostar {{ topic|capfirst }}
+
+    {% if tag or topic %}
+        Biostar {% if tag %}{{ tag|capfirst }}{% else %}{{ topic|capfirst }}{% endif %}
     {% else %}
         Bioinformatics Answers
     {% endif %}

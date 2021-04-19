@@ -306,7 +306,7 @@ def post_list(request, topic=None, tag="", cutoff=None):
         cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else cache_key
 
     posts = apply_sort(posts, limit=limit, order=order)
-    
+
     # Institute a cutoff
     if cutoff:
         posts = posts[:cutoff]
