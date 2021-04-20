@@ -63,7 +63,7 @@ class Subscription(models.Model):
     group = models.ForeignKey(EmailGroup, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.address.name} | {self.list.name}"
+        return f"{self.address.name} | {self.group.name}"
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or get_uuid(16)
