@@ -127,7 +127,7 @@ blockquote.twitter-tweet {
 
 tr.message > td{
     overflow-x: auto;
-    max-width: 0;
+    max-width: 780px;
 }
 
 #logo {
