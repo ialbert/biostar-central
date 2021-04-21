@@ -17,9 +17,11 @@ from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 from taggit.models import Tag
 from re import IGNORECASE, compile, escape
+import html2markdown
 
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const, auth
+from biostar.utils import helpers
 from biostar.forum import markdown
 from biostar.forum.models import Post, Vote, Award, Subscription, Badge
 
@@ -95,6 +97,9 @@ def bignum(number):
         pass
     return str(number)
 
+@register.filter
+def htmltomarkdown(text):
+    return helpers.htmltomarkdown(text)
 
 @register.inclusion_tag('widgets/post_details.html', takes_context=True)
 def post_details(context, post, user, avatar=True):
@@ -369,7 +374,7 @@ def form_errors(form, wmd_prefix='', override_content=False):
     """
 
     try:
-        errorlist = [('', message) for message in form.non_field_errors()]
+        errorlist = [('', message, '') for message in form.non_field_errors()]
         for field in form:
             for error in field.errors:
                 # wmd_prefix is required when dealing with 'content' field.
@@ -422,7 +427,8 @@ def search_pages(context, results):
     next_page = results.pagenum + 1 if not results.is_last_page() else results.pagenum
     request = context['request']
     query = request.GET.get('query', '')
-    context = dict(results=results, previous_page=previous_page, query=query,next_page=next_page)
+    order = request.GET.get('order', 'relevance')
+    context = dict(results=results, previous_page=previous_page, query=query,next_page=next_page, order=order)
     return context
 
 

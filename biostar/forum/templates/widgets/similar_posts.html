@@ -16,7 +16,7 @@
                             {% postuid_user_line post.uid avatar=False %}
                             </div>
                         <div class="muted top-padding">
-                            {{ post.content |truncatechars:140 }}
+                            {{ post.content |htmltomarkdown|truncatechars:140 }}
                             </div>
                         </div>
 

@@ -349,14 +349,15 @@ def relocate(request, post, **kwds):
         return url
 
     if post.type == Post.COMMENT:
-        msg = f"moved comment to answer"
+        msg = f"relocated comment to answer"
         post.type = Post.ANSWER
     else:
-        msg = f"moved answer to comment"
+        msg = f"relocated answer to comment"
         post.type = Post.COMMENT
 
     post.parent = post.root
     post.save()
+    post.update_parent_counts()
 
     auth.db_logger(user=request.user, post=post, text=f"{msg}")
     messages.info(request, msg)

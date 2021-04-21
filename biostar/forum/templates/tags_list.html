@@ -16,9 +16,9 @@
     </div>
         {% endblock %}
 
-    <div class="ui seven column tags grid">
+    <div class="ui seven column tag-list grid">
         {% for tag in tags %}
-            <div class="column" style="font-size: larger;">
+            <div class="column">
                 <div class="item">
                     <a class="ptag" href="{% url 'post_tags' tag %}">
                         {{ tag }}

@@ -257,9 +257,10 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_post_link(self, m):
         uid = m.group("uid")
-        post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
         link = m.group(0)
-        return f'<a href="{link}">{post.title}</a>'
+        post = Post.objects.filter(uid=uid).first()
+        title = post.root.title if post else "Post not found"
+        return f'<a href="{link}">{title}</a>'
 
     def enable_anchor_link(self):
         self.rules.anchor_link = POST_ANCHOR
@@ -267,9 +268,9 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_anchor_link(self, m):
         uid = m.group("uid")
-        alt, link = f"{uid}", m.group(0)
+        link = m.group(0)
         post = Post.objects.filter(uid=uid).first()
-        title = post.title if post else "Post not found"
+        title = post.root.title if post else "Post not found"
         return f'<a href="{link}">{title}</a>'
 
     def enable_user_link(self):
@@ -345,7 +346,7 @@ def embedder(attrs, new, embed=None):
         return attrs
 
     href = attrs['_text']
-    linkable = href[:4] in ('http', 'ftp:', 'https')
+    linkable = href.startswith(('http', 'ftp:', 'https'))
 
     # Don't linkify non http links
     if not linkable:
@@ -376,16 +377,13 @@ def embedder(attrs, new, embed=None):
 def linkify(text):
     # List of links to embed
     embed = []
-    html = bleach.linkify(text=text, callbacks=[partial(embedder, embed=embed)], skip_tags=['pre', 'code'])
+    html = bleach.linkify(text=text, callbacks=[partial(embedder, embed=embed), nofollow], skip_tags=['pre', 'code'])
 
     # Embed links into html.
     for em in embed:
         source, target = em
-        emb = f'<a href="{source}">{source}</a>'
+        emb = f'<a href="{source}" rel="nofollow">{source}</a>'
         html = html.replace(emb, target)
-
-    # Add nofollow to each link.
-    html = bleach.linkify(text=html, callbacks=[nofollow], skip_tags=['pre', 'code'])
 
     return html
 

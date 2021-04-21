@@ -425,7 +425,9 @@ def move(request, parent, source, ptype=Post.COMMENT, msg="moved"):
     # Move this post to comment of parent
     source.parent = parent
     source.type = ptype
-    source.save()
+
+    title = f"{source.get_type_display()}: {source.root.title[:80]}"
+    Post.objects.filter(uid=source.uid).update(parent=parent, type=ptype, title=title)
 
     # Log action and let user know
     messages.info(request, mark_safe(msg))
@@ -439,7 +441,7 @@ def move_post(request, post, parent, **kwargs):
     Move one post to another
     """
     ptype = Post.COMMENT
-    msg = f"moved post"
+    msg = f"dragged post to comment"
     return move(request=request,
                 parent=parent,
                 source=post,
@@ -454,7 +456,7 @@ def move_to_answer(request, post, **kwargs):
 
     parent = post.root
     ptype = Post.ANSWER
-    msg = "moved answer"
+    msg = "dragged post to answer"
     return move(request=request,
                 parent=parent,
                 source=post,

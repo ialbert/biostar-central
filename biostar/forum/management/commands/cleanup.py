@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 from django.db.models import Count
 from django.core.management.base import BaseCommand
-from biostar.accounts.models import Message, User
+from biostar.accounts.models import Message, User, MessageBody
 from biostar.forum.util import now
 from biostar.forum.models import PostView, Post
 
@@ -19,10 +19,6 @@ def prune_data(weeks=10, days=1, delall=False):
     past_days = now() - timedelta(days=days)
     weeks_since = now() - timedelta(weeks=weeks)
 
-    #spam_posts = Post.objects.filter(spam=Post.SPAM)
-    #logger.info(f"Deleting {spam_posts.count()} spam posts")
-    #spam_posts.delete()
-
     # Remove post views.
     post_views = PostView.objects.filter(date__lt=past_days)
     logger.info(f"Deleting {post_views.count()} post views")
@@ -37,11 +33,11 @@ def prune_data(weeks=10, days=1, delall=False):
     logger.info(f"Deleting {messages.count()} messages")
     messages.delete()
 
-    # Get rid of too many messages
-    #users = User.objects.annotate(total=Count("message__recipient")).filter(total__gt=MAX_MSG)[:100]
-    #for user in users:
-    #    since = now() - timedelta(days=1)
-    #    Message.objects.filter(user=user, sent_at__lt=since).delete()
+    # Get all messages bodies without a message
+    bodies = MessageBody.objects.filter(message=None)
+
+    logger.info(f"Deleting {bodies.count()} message bodies.")
+    bodies.delete()
 
     return
 

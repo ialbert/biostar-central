@@ -62,6 +62,7 @@ def detect_location(ip, user_id):
 
             # city = get(data, "city")
             # region = get(data, "regionName")
+            # country = get(data, "country")
             location = get(data, "country")
 
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
@@ -108,7 +109,7 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     context.update(extra_context)
     body = tmpl.render(context)
     html = mistune.markdown(body, escape=False)
+    body = MessageBody.objects.create(body=body, html=html)
 
     for rec in rec_list:
-        body = MessageBody.objects.create(body=body, html=html)
         Message.objects.create(sender=sender, recipient=rec, body=body)

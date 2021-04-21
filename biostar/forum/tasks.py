@@ -5,7 +5,6 @@ from biostar.emailer.tasks import send_email
 from django.conf import settings
 import time, random
 from biostar.utils.decorators import task, timer
-from biostar.forum.auth import db_logger
 
 from django.db.models import Q
 
@@ -187,6 +186,7 @@ def low_trust(user, minscore=50):
 def spam_check(uid):
     from biostar.forum.models import Post, Log, delete_post_cache
     from biostar.accounts.models import User, Profile
+    from biostar.forum.auth import db_logger
 
     post = Post.objects.filter(uid=uid).first()
     author = post.author

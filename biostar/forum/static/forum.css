@@ -125,6 +125,11 @@ blockquote.twitter-tweet {
     padding-bottom: 1ex;
 }
 
+tr.message > td{
+    overflow-x: auto;
+    max-width: 780px;
+}
+
 #logo {
     padding: 0px 5px 5px 5px;
 / / background-color: var(--logo-background);
@@ -666,9 +671,13 @@ figure {
 }
 
 
-.tags.grid {
+.tag-list.grid {
     padding-top: 20px;
     padding-bottom: 20px;
+}
+
+.tag-list .column{
+    font-size: larger;
 }
 
 .user_box.muted {

@@ -25,17 +25,9 @@
 
     {% block listing %}
 
+        {% block filtermsg %}
 
-    {% if tag %}
-
-        <div class="ui  filter message">
-
-            Filtering for tag: <span class="ptag">{{ tag }}</span> &bull;
-            <a href="{% url 'post_list' %}">
-                reset <i class="undo small icon"></i>
-            </a>
-        </div>
-    {% endif %}
+        {% endblock %}
 
         <div class="ui divided items">
             {% for post in posts %}

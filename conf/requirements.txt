@@ -1,5 +1,5 @@
 amqp==5.0.5
-asgiref==3.3.1
+asgiref==3.3.2
 beautifulsoup4==4.9.3
 billiard==3.6.3.0
 bleach==3.3.0
@@ -13,11 +13,11 @@ click-repl==0.1.6
 coverage==5.4
 cryptography==3.4.4
 defusedxml==0.6.0
-Django==3.1.6
+Django==3.2
 django-allauth==0.44.0
 django-appconf==1.0.4
 django-compressor==2.4
-django-debug-toolbar==3.2
+django-debug-toolbar==3.2.1
 django-mailer==2.1
 django-pagedown==2.2.0
 django-ratelimit==3.0.1
@@ -57,7 +57,7 @@ soupsieve==2.2
 sqlparse==0.4.1
 toml==0.10.2
 typing-extensions==3.7.4.3
-urllib3==1.26.3
+urllib3==1.26.4
 vine==5.0.0
 wcwidth==0.2.5
 webencodings==0.5.1

@@ -18,13 +18,15 @@ from whoosh.analysis import STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
+from biostar.utils.helpers import htmltomarkdown
 from biostar.forum.models import Post
 
 logger = logging.getLogger('engine')
 
 # Stop words ignored where searching.
 STOP = ['there', 'where', 'who', 'that', 'to', 'do', 'my', 'only', 'but', 'about',
-        'our']
+        'our', 'able', 'how', 'am', 'so', 'want']
+
 STOP += [w for w in STOP_WORDS]
 STOP = set(STOP)
 
@@ -81,7 +83,8 @@ def index_exists(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME):
 
 def add_index(post, writer):
     # Ensure the content is stripped of any html.
-    content = bleach.clean(post.content, styles=[], attributes={}, tags=[], strip=True)
+    content = htmltomarkdown(post.content)
+
     writer.update_document(title=post.title,
                            content=content,
                            tags=post.tag_val,

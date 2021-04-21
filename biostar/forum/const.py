@@ -28,7 +28,7 @@ ALLOWED_PARAMS = {"page", "order", "type", "limit", "query", "user", "active"}
 # Cache keys used to cache objects.
 LATEST_CACHE_KEY = "LATEST"
 TAGS_CACHE_KEY = "TAGS"
-SIMILAR_CACHE_KEY = "SIMILAR"
+SIMILAR_CACHE_KEY = "similar"
 USERS_LIST_KEY = "USERS_LIST"
 
 # The name of the session count data.

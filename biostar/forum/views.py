@@ -27,6 +27,10 @@ logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
+
+CREATE_PARAMS = {'title', 'tag_val'}
+CREATE_PARAMS.update(ALLOWED_PARAMS)
+
 # Valid post values as they correspond to database post types.
 POST_TYPE = dict(
     question=Post.QUESTION,
@@ -83,7 +87,7 @@ class CachedPaginator(Paginator):
     """
 
     # Time to live for the cache, in seconds
-    TTL = 3000
+    TTL = 300
 
     def __init__(self, cache_key='', ttl=None, *args, **kwargs):
         self.cache_key = cache_key
@@ -152,13 +156,16 @@ def get_posts(request, topic=""):
     post_type = POST_TYPE.get(topic)
 
     # Get all open top level posts.
-    posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN)
+    posts = Post.objects.filter(is_toplevel=True, status=Post.OPEN)
 
+    # Pass the above query when asking for latest
+    if topic == LATEST:
+        pass
     # Filter for various post types.
-    if post_type:
+    elif post_type is not None:
         posts = posts.filter(type=post_type)
 
-    elif topic == SHOW_SPAM and (user.is_anonymous and user.profile.is_moderator):
+    elif topic == SHOW_SPAM and (user.is_authenticated and user.profile.is_moderator):
         posts = get_spam(request)
 
     elif topic == OPEN:
@@ -181,6 +188,9 @@ def get_posts(request, topic=""):
         tags = map(lambda t: t.lower(), user.profile.my_tags.split(","))
         posts = posts.filter(tags__name__in=tags).distinct()
 
+    else:
+        posts = Post.objects.none()
+
     return posts
 
 
@@ -189,16 +199,17 @@ def post_search(request):
     query = request.GET.get('query', '')
     length = len(query.replace(" ", ""))
     page = int(request.GET.get('page', 1))
-    order = request.GET.get('order', 'similarity')
+    order = request.GET.get('order', 'relevance')
 
-    mapper = dict(similarity=None, update=['lastedit_date'])
+    mapper = dict(relevance=None, date=['lastedit_date'])
     sortedby = mapper.get(order)
 
     if length < settings.SEARCH_CHAR_MIN:
         messages.error(request, "Enter more characters before preforming search.")
         return redirect(reverse('post_list'))
 
-    revsort = order == 'update'
+    # Reverse sort when ordering by date.
+    revsort = order == 'date'
     results, indexed = search.perform_search(query=query, page=page, reverse=revsort, sortedby=sortedby)
 
     context = dict(results=results, query=query, indexed=indexed, order=order)
@@ -271,7 +282,7 @@ def release_quar(request, uid):
     return redirect('/')
 
 
-def post_list(request, topic=None, tag="", cache_key=''):
+def post_list(request, topic=None, tag="", cutoff=None):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
@@ -279,17 +290,24 @@ def post_list(request, topic=None, tag="", cache_key=''):
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
     order = request.GET.get("order", "rank") or "rank"
-    topic = topic or request.GET.get("type", "")
+    topic = topic or request.GET.get("type", LATEST) or LATEST
     limit = request.GET.get("limit", "all") or "all"
 
     if tag:
         # Get all open top level posts.
-        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN, tags__name__iexact=tag)
+        posts = Post.objects.filter(is_toplevel=True, status=Post.OPEN, tags__name__iexact=tag)
+        cache_key = ''
     else:
         # Get posts available to users.
         posts = get_posts(request=request, topic=topic)
+        # Create the cache key only with latest topic
+        cache_key = f"{LATEST}-{order}-{limit}" if topic is LATEST else ''
 
     posts = apply_sort(posts, limit=limit, order=order)
+
+    # Institute a cutoff
+    if cutoff:
+        posts = posts[:cutoff]
 
     # Filter for any empty strings
     paginator = CachedPaginator(cache_key=cache_key, object_list=posts, per_page=settings.POSTS_PER_PAGE)
@@ -300,17 +318,6 @@ def post_list(request, topic=None, tag="", cache_key=''):
     return posts
 
 
-def get_key(prefix, request):
-    """
-    build cache suffix from order and limit
-    """
-    order = request.GET.get("order", 'rank') or 'rank'
-    limit = request.GET.get("limit", 'all') or 'all'
-    key = f'{prefix}-{order}-{limit}'
-
-    return key
-
-
 @check_params(allowed=ALLOWED_PARAMS)
 @ensure_csrf_cookie
 def latest(request):
@@ -318,10 +325,7 @@ def latest(request):
     Show latest post listing.
     """
 
-    # Set the cache key based on order and limit
-    cache_key = get_key(prefix=LATEST, request=request)
-
-    posts = post_list(request, topic=LATEST, cache_key=cache_key)
+    posts = post_list(request, topic=LATEST)
 
     context = dict(posts=posts, tab=LATEST)
 
@@ -334,14 +338,12 @@ def post_tags(request, tag):
     """
     Show list of posts belonging to one post.
     """
-    # Set the cache key based on order and limit
-    cache_key = get_key(prefix=tag, request=request)
-
-    posts = post_list(request, tag=tag, cache_key=cache_key)
-
+    posts = post_list(request, tag=tag, cutoff=settings.POSTS_PER_PAGE)
+    # Clear tags if no posts are found for it
+    tag = tag if posts else ''
     context = dict(posts=posts, tag=tag)
 
-    return render(request, template_name="post_list.html", context=context)
+    return render(request, template_name="post_tags.html", context=context)
 
 
 @check_params(allowed=ALLOWED_PARAMS)
@@ -350,15 +352,15 @@ def post_topic(request, topic):
     """
     Show list of posts of a given type
     """
-    # Set the cache key based on order and limit
-    cache_key = get_key(prefix=topic, request=request)
 
     # Set the cache key based on order and limit
-    posts = post_list(request, topic=topic, cache_key=cache_key)
+    posts = post_list(request, topic=topic, cutoff=1000)
 
+    # Clear topic if there are no posts.
+    topic = topic if posts else ''
     context = dict(posts=posts, topic=topic, tab=topic)
 
-    return render(request, template_name="post_list.html", context=context)
+    return render(request, template_name="post_topic.html", context=context)
 
 
 @ensure_csrf_cookie
@@ -461,14 +463,15 @@ def tags_list(request):
 
 @check_params(allowed=ALLOWED_PARAMS)
 def community_list(request):
-    users = User.objects.select_related("profile")
+
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
     query = request.GET.get('query', '')
     query = query.replace("'", "").replace('"', '').strip()
-
     days = LIMIT_MAP.get(limit_to, 0)
+
+    users = User.objects.select_related("profile")
 
     if days:
         delta = util.now() - timedelta(days=days)
@@ -479,17 +482,12 @@ def community_list(request):
                    Q(username__icontains=query) | Q(email__icontains=query)
         users = users.filter(db_query)
 
-    # Remove the cache when filters are given.
-    no_cache = True
-    cache_key = '' if no_cache else USERS_LIST_KEY
-
     order = ORDER_MAPPER.get(ordering, "visit")
     users = users.filter(profile__state__in=[Profile.NEW, Profile.TRUSTED])
     users = users.order_by(order)
 
     # Create the paginator (six users per row)
-    paginator = CachedPaginator(cache_key=cache_key, object_list=users,
-                                per_page=60)
+    paginator = CachedPaginator(object_list=users, per_page=60)
     users = paginator.get_page(page)
     context = dict(tab="community", users=users, query=query, order=ordering, limit=limit_to)
 
@@ -573,19 +571,23 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
-@check_params(allowed=ALLOWED_PARAMS)
+
+@check_params(allowed=CREATE_PARAMS)
 @login_required
 def new_post(request):
     """
     Creates a new post
     """
-
-    form = forms.PostLongForm(user=request.user)
+    title = request.GET.get('title', '')
+    tag_val = request.GET.get('tag_val', '')
+    tag_val = ','.join(tag_val.split())
+    initial = dict(title=title, tag_val=tag_val)
+    content = ''
     author = request.user
-    tag_val = content = ''
+    form = forms.PostLongForm(user=request.user, initial=initial)
     if request.method == "POST":
 
-        form = forms.PostLongForm(data=request.POST, user=request.user)
+        form = forms.PostLongForm(data=request.POST, user=request.user, initial=initial)
         tag_val = form.data.get('tag_val')
         content = form.data.get('content', '')
         if form.is_valid():
@@ -614,16 +616,13 @@ def new_post(request):
 def view_logs(request):
     LIMIT = 100
 
-    if 0 and request.user.is_superuser:
+    if request.user.profile.is_moderator:
         logs = Log.objects.all().order_by("-id")[:LIMIT]
-
-    elif request.user.profile.is_moderator:
-        logs = Log.objects.all().select_related("user", "user__profile").order_by("-id")[:LIMIT]
 
     else:
         logs = Log.objects.filter(pk=0)
 
-    logs = logs.select_related("user", "post", "user__profile", "post__author")
+    logs = logs.select_related("user", "post", "post__root","user__profile", "target", "target__profile", "post__author")
 
     context = dict(logs=logs)
 
