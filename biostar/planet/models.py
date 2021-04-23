@@ -4,10 +4,12 @@ import os, logging, datetime
 from urllib import request
 import feedparser
 from django.utils.timezone import utc
+from biostar.accounts.models import User
 import uuid
 
 logger = logging.getLogger("engine")
 
+MAX_TEXT_LEN = 10000
 
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -80,7 +82,7 @@ class BlogPost(models.Model):
     # The content of the feed
     content = models.TextField(default='', max_length=20000)
 
-    # Santizied HTML
+    # Sanitized HTML
     html = models.TextField(default='')
 
     # Date related fields.

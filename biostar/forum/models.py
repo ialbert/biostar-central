@@ -497,17 +497,30 @@ class Subscription(models.Model):
         return self.pk
 
 
-class Links(models.Model):
-
+class Link(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    url = models.URLField()
+    url = models.URLField(max_length=MAX_TEXT_LEN)
+    text = models.TextField(max_length=MAX_TEXT_LEN)
+    html = models.TextField(max_length=MAX_TEXT_LEN)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+
     NEW, REJECTED, PUBLISHED = range(3)
-    CHOICES = ((NEW, 'New link'), (REJECTED, 'Rejected'), (PUBLISHED, 'Published'))
+    CHOICES = [(NEW, 'New link'), (REJECTED, 'Rejected'), (PUBLISHED, 'Published')]
 
     status = models.IntegerField(choices=CHOICES, default=NEW)
 
-    pass
+    def save(self, *args, **kwargs):
+        # Needs to be imported here to avoid circular imports.
+        from biostar.forum import markdown
 
+        self.date = self.date or util.now()
+
+        self.text = f"{self.text}\n\n{self.url}\n"
+        self.html = markdown.parse(self.text, clean=True, escape=True)
+
+        super(Link, self).save(*args, **kwargs)
+        return
 
 class Badge(models.Model):
     BRONZE, SILVER, GOLD = range(3)

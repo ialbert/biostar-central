@@ -1,0 +1,66 @@
+{% extends "forum_list.html" %}
+{% load forum_tags %}
+{% load humanize %}
+{% load cache %}
+
+{% block title %}
+    Bioinformatics Answers
+{% endblock %}
+
+{% block headtitle %}
+    Bioinformatics Answers
+{% endblock %}
+
+{% block body %}
+
+    {% block search %}
+
+        {% search_bar %}
+
+        <div class="ui horizontal basic top-menu segments">
+            {% filter_dropdown %}
+        </div>
+
+    {% endblock %}
+
+    {% block listing %}
+
+        {% block filtermsg %}
+
+        {% endblock %}
+
+        <div class="ui divided items">
+            {% for post in posts %}
+                {% post_details post=post user=request.user avatar=avatar %}
+            {% empty %}
+                <div class="ui warn message">
+                    No posts found.
+                </div>
+            {% endfor %}
+        </div>
+    {% endblock %}
+
+    <div class="ui page-bar segment">
+        {% pages objs=posts %}
+    </div>
+
+{% endblock %}
+
+{% block sidebar %}
+
+    <h4>Planet Feeds</h4>
+
+    {% for blog in blogs %}
+        <div class="blog-feed">
+            <h5><a href="{{ blog.link }}">{{ blog.title }}</a></h5>
+            <div>{{ blog.desc|safe }}</div>
+            <div class="muted">{{ blog.count }} post{{ blog.count|pluralize }} - last
+                updated {{ blog.updated_date|timesince }} ago
+            </div>
+        </div>
+        <div class="ui divider"></div>
+    {% endfor %}
+
+
+
+{% endblock %}

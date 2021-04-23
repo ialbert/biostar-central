@@ -29,12 +29,27 @@
 {% endblock %}
 
 
-
 {% block body %}
 
     <div class="ui page-bar segment">
         {% pages objs=blogposts %}
     </div>
+
+    <a class="ui button" href="{% url 'planet_suggest' %}">Suggest </a>
+
+    {% if request.user.is_authenticated %}
+<div class="ui middle aligned divided relaxed list">
+        {% for link in links %}
+            <div class="item">
+            <div>{{ link.user }}</div>
+            <div>{{ link.text }}</div>
+            <div>{{ link.date }}</div>
+            <div> {{ link.url|embed|safe }}</div>
+            </div>
+        {% endfor %}
+</div>
+
+    {% endif %}
 
 
     <div class="ui middle aligned divided relaxed list blog">

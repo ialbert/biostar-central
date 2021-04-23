@@ -86,7 +86,6 @@ forum_patterns = [
     path(r'feeds/user/<str:text>/', feed.UserFeed(), name='user_feed'),
     path(r'feeds/post/<str:text>/', feed.PostFeed(), name='post_feed' ),
     path(r'feeds/type/<str:text>/', feed.PostTypeFeed(), name='post_type'),
-    #path(r'^feeds/planet/$', feed.PlanetFeed(), name='planet-feed'),
 
 ]
 

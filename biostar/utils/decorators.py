@@ -23,6 +23,18 @@ def is_moderator(f):
     return inner
 
 
+def authenticated(func):
+
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+            return redirect("/")
+
+        return func(request, **kwargs)
+
+    return _wrapper_
+
+
 def reset_count(key):
     """
     Set value of given key in settings.SESSION_COUNT_KEY to 0.

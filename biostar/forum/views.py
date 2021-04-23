@@ -18,8 +18,8 @@ from taggit.models import Tag
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models, moderate
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Log
-from biostar.utils.decorators import is_moderator, check_params, reset_count
+from biostar.forum.models import Post, Vote, Badge, Subscription, Log,Link
+from biostar.utils.decorators import is_moderator, check_params, reset_count, authenticated
 
 User = get_user_model()
 
@@ -64,18 +64,6 @@ def post_exists(func):
         if not post:
             messages.error(request, "Post does not exist.")
             return redirect(reverse("post_list"))
-        return func(request, **kwargs)
-
-    return _wrapper_
-
-
-def authenticated(func):
-
-    def _wrapper_(request, **kwargs):
-        if request.user.is_anonymous:
-            messages.error(request, "You need to be logged in to view this page.")
-            return redirect(reverse('post_list'))
-
         return func(request, **kwargs)
 
     return _wrapper_
@@ -627,6 +615,49 @@ def view_logs(request):
     context = dict(logs=logs)
 
     return render(request, "view_logs.html", context=context)
+
+def list_links(request):
+    """
+    List user submitted links
+    """
+
+    links = Link.objects.all()
+
+    context = dict(links=links)
+    return render(request, 'list_links.html', context)
+
+
+@authenticated
+def planet_suggest(request):
+    # Give the planet a suggestion.
+
+    form = forms.SuggestForm()
+    user = request.user
+
+    if request.method == 'POST':
+        form = forms.SuggestForm(data=request.POST)
+
+        if form.is_valid():
+            # Add the Link attribute.
+            link = form.cleaned_data['url']
+            text = form.cleaned_data['text']
+            # Create the link objects.
+            Link.objects.create(user=user, text=text, url=link)
+
+            return redirect(reverse('blog_list'))
+
+    context = dict(form=form)
+    return render(request, template_name="planet/blog_suggest.html", context=context)
+
+
+@is_moderator
+def publish(request):
+    """
+    Publish a link into a blog post
+    """
+
+    return
+
 
 def error(request):
     """

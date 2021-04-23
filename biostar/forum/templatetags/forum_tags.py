@@ -124,6 +124,11 @@ def gravatar(user=None, user_uid=None, size=80):
     return auth.gravatar(user=user, size=size)
 
 
+@register.filter
+def embed(text):
+    return markdown.parse(text, clean=True, escape=True)
+
+
 @register.inclusion_tag('widgets/filter_dropdown.html', takes_context=True)
 def filter_dropdown(context):
 
