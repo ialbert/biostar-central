@@ -11,10 +11,7 @@ from django.shortcuts import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import Http404
-from django.core.cache import cache
-from biostar.planet.models import Link, MAX_TEXT_LEN
-from biostar.utils.decorators import authenticated, is_moderator
-from biostar.utils.helpers import get_ip
+
 
 
 def now():
@@ -40,11 +37,10 @@ def blog_list(request):
     blogposts = Paginator(blogposts, per_page=settings.BLOGS_PER_PAGE)
     blogposts = blogposts.get_page(page)
 
-    links = Link.objects.all()
     # Reset counts in sessions
     reset_planet_counts(request)
 
-    context = dict(blogposts=blogposts, tab='planet', blogs=blogs, links=links)
+    context = dict(blogposts=blogposts, tab='planet', blogs=blogs)
     return render(request, 'planet/blog_list.html', context)
 
 

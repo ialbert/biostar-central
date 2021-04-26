@@ -1,40 +1,6 @@
-{% extends 'planet/blog_list.html' %}
-{% load humanize %}
+
 {% load forum_tags %}
-{% load cache %}
 
 
-{% block body %}
-
-<form method="post" class="ui form" action="{% url 'planet_suggest' %}">
-        {% form_errors form %}
-
-        {% csrf_token %}
-        {#% if form.captcha %#}
-
-            <div class="required field">
-                <label>Link to suggest</label>
-                {{ form.url }}
-            </div>
 
 
-            <div class="field">
-                <label>Link description</label>
-                {{ form.text }}
-            </div>
-        {#% endif %#}
-
-            <button type="submit" class="ui submit green button">
-                <i class="check icon"></i>Save
-            </button>
-
-            <a class="ui button cancel">
-                <i class="undo icon"></i>Cancel
-            </a>
-    </form>
-
-    <div>
-
-
-    </div>
-{% endblock %}

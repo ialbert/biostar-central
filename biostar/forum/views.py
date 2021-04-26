@@ -14,11 +14,11 @@ from django.http import Http404
 from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
-
+from biostar.planet.models import Blog, BlogPost
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models, moderate
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Log,Link
+from biostar.forum.models import Post, Vote, Badge, Subscription, Log, Link
 from biostar.utils.decorators import is_moderator, check_params, reset_count, authenticated
 
 User = get_user_model()
@@ -26,7 +26,6 @@ User = get_user_model()
 logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
-
 
 CREATE_PARAMS = {'title', 'tag_val'}
 CREATE_PARAMS.update(ALLOWED_PARAMS)
@@ -95,7 +94,7 @@ class CachedPaginator(Paginator):
             value = cache.get(self.cache_key)
             if value is None:
                 value = super(CachedPaginator, self).count
-                #logger.debug(f'setting the cache for "{self.cache_key}"')
+                # logger.debug(f'setting the cache for "{self.cache_key}"')
                 cache.set(self.cache_key, value, self.ttl)
         else:
             value = super(CachedPaginator, self).count
@@ -104,7 +103,6 @@ class CachedPaginator(Paginator):
 
 
 def apply_sort(posts, limit=None, order=None):
-
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
         ordering = ORDER_MAPPER.get(order)
@@ -367,7 +365,6 @@ def bookmarks(request):
 @ensure_csrf_cookie
 @authenticated
 def mytags(request):
-
     posts = post_list(request, topic=MYTAGS)
 
     context = dict(posts=posts, topic=MYTAGS, tab=MYTAGS)
@@ -451,7 +448,6 @@ def tags_list(request):
 
 @check_params(allowed=ALLOWED_PARAMS)
 def community_list(request):
-
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
@@ -559,7 +555,6 @@ def post_view(request, uid):
     return render(request, "post_view.html", context=context)
 
 
-
 @check_params(allowed=CREATE_PARAMS)
 @login_required
 def new_post(request):
@@ -610,32 +605,30 @@ def view_logs(request):
     else:
         logs = Log.objects.filter(pk=0)
 
-    logs = logs.select_related("user", "post", "post__root","user__profile", "target", "target__profile", "post__author")
+    logs = logs.select_related("user", "post", "post__root", "user__profile", "target", "target__profile",
+                               "post__author")
 
     context = dict(logs=logs)
 
     return render(request, "view_logs.html", context=context)
+
 
 def list_links(request):
     """
     List user submitted links
     """
 
-    links = Link.objects.all()
+    mapper = dict(rejected=Link.REJECTED, published=Link.PUBLISHED, new=Link.NEW)
+    display_status = request.GET.get('status', 'new')
+    status = mapper.get(display_status, Link.NEW)
 
-    context = dict(links=links)
-    return render(request, 'list_links.html', context)
-
-
-@authenticated
-def planet_suggest(request):
-    # Give the planet a suggestion.
-
-    form = forms.SuggestForm()
+    # List newly submitted links.
+    links = Link.objects.filter(status=status)
     user = request.user
+    form = forms.SuggestForm(user=user)
 
     if request.method == 'POST':
-        form = forms.SuggestForm(data=request.POST)
+        form = forms.SuggestForm(data=request.POST, user=user)
 
         if form.is_valid():
             # Add the Link attribute.
@@ -644,23 +637,57 @@ def planet_suggest(request):
             # Create the link objects.
             Link.objects.create(user=user, text=text, url=link)
 
-            return redirect(reverse('blog_list'))
+            return redirect(reverse('list_links'))
 
-    context = dict(form=form)
-    return render(request, template_name="planet/blog_suggest.html", context=context)
+    context = dict(links=links, form=form, status=display_status)
+    return render(request, 'list_links.html', context)
+
+
+def biostar_herald():
+    blog, created = Blog.objects.get_or_create(title="Biostar Herald",
+                                               desc="Share bioinformatics resources from across the web.", remote=False)
+    return blog
 
 
 @is_moderator
-def publish(request):
+def publish_link(request, pk):
     """
     Publish a link into a blog post
     """
 
-    return
+    # Create
+    link = Link.objects.filter(pk=pk).first()
+
+    # Update to published
+    Link.objects.filter(pk=pk).update(status=Link.PUBLISHED)
+
+    # Get the biostar herald blog.
+    blog = biostar_herald()
+
+    # Publish the blog post
+    title = link.text[:60] + '...'
+    blg = BlogPost.objects.create(blog=blog, title=title, content=link.text, html=link.html, creation_date=util.now(),
+                                  insert_date=util.now())
+
+    return redirect(reverse('blog_list'))
+
+
+@is_moderator
+def reject_link(request, pk):
+    """
+    Reject a link from blog posts.
+    """
+    # Create
+    link = Link.objects.filter(pk=pk).first()
+
+    # Update to published
+    Link.objects.filter(pk=pk).update(status=Link.REJECTED)
+
+    return redirect(reverse('list_links'))
 
 
 def error(request):
     """
     Checking error propagation and logging
     """
-    1/0
+    1 / 0

@@ -112,6 +112,7 @@ class BlogPost(models.Model):
 
         # Set the rank
         self.rank = self.rank or self.insert_date
+        #self.html = self.hmtl or
 
         self.uid = self.uid or get_uuid(10)
 

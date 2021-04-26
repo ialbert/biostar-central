@@ -316,15 +316,20 @@ $(document).ready(function () {
         var elem = $(this);
         // Get errored out field id and label
         var field_id = elem.attr('data-value');
-        var field_label = elem.attr('label');
         // Get the error message
         var message = elem.attr("message");
         // Select field in the form using it's id
-        var field = $(field_id);
-        // Add an 'error' to '.ui.field' to turn it red.
-        field.closest(".field").addClass("error");
+
+        try {
+            var field = $(field_id);
+            // Add an 'error' to '.ui.field' to turn it red.
+            field.closest(".field").addClass("error");
+        } catch (err) {
+             field = $('#form-errors');
+        }
+
         // Insert the error message
-        field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
+        field.before('<div class="ui small red message">'+ message +'</div>')
     });
 
 
@@ -334,6 +339,9 @@ $(document).ready(function () {
         $('.hidden-answer').toggle()
     });
 
+    $('#planet_suggest').click(function () {
+        $('.links-form').toggle(300)
+    });
     tags_dropdown();
 
     $('pre').addClass('language-bash');

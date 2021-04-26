@@ -8,7 +8,6 @@ planet_patterns = [
     path('', views.blog_list, name="blog_list"),
     path(r'view/<int:id>/', views.blog_view, name="blog_view"),
     path(r'bump/<int:id>/', views.blog_bump, name="blog_bump"),
-    path('suggest/', views.planet_suggest, name='planet_suggest'),
 ]
 
 urlpatterns = [

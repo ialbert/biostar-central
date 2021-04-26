@@ -209,15 +209,23 @@ class PostShortForm(forms.Form):
 
 
 class SuggestForm(forms.Form):
-    url = forms.CharField(min_length=10, max_length=MAX_CONTENT)
-    text = forms.CharField(widget=forms.Textarea, max_length=MAX_CONTENT)
+    url = forms.CharField(min_length=10, max_length=MAX_CONTENT, required=True)
+    text = forms.CharField(widget=forms.Textarea, max_length=MAX_CONTENT, required=True, strip=False)
+
+    def __init__(self, user=None,  *args, **kwargs):
+        self.user = user
+        super(SuggestForm, self).__init__(*args, **kwargs)
 
     def clean(self):
         cleaned_data = super(SuggestForm, self).clean()
         url = cleaned_data['url']
         exists = Link.objects.filter(url=url).first()
 
+        if self.user.is_anonymous:
+            raise forms.ValidationError("You need to be logged in.")
+
         if exists:
+
             raise forms.ValidationError("This link already exists.")
 
         return cleaned_data

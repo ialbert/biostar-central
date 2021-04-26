@@ -135,6 +135,9 @@ tr.message > td{
 / / background-color: var(--logo-background);
 }
 
+.links-form{
+    display: none;
+}
 
 .message td {
     padding-bottom: 0ex !important;

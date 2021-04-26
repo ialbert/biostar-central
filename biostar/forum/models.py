@@ -502,13 +502,13 @@ class Link(models.Model):
     url = models.URLField(max_length=MAX_TEXT_LEN)
     text = models.TextField(max_length=MAX_TEXT_LEN)
     html = models.TextField(max_length=MAX_TEXT_LEN)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    #post = models.ForeignKey(Post, on_delete=models.CASCADE)
     date = models.DateTimeField()
 
     NEW, REJECTED, PUBLISHED = range(3)
     CHOICES = [(NEW, 'New link'), (REJECTED, 'Rejected'), (PUBLISHED, 'Published')]
 
-    status = models.IntegerField(choices=CHOICES, default=NEW)
+    status = models.IntegerField(choices=CHOICES, default=NEW, db_index=True)
 
     def save(self, *args, **kwargs):
         # Needs to be imported here to avoid circular imports.
@@ -521,6 +521,18 @@ class Link(models.Model):
 
         super(Link, self).save(*args, **kwargs)
         return
+
+    @property
+    def rejected(self):
+        return self.status == self.REJECTED
+
+    @property
+    def published(self):
+        return self.status == self.PUBLISHED
+
+    @property
+    def new(self):
+        return self.status == self.NEW
 
 class Badge(models.Model):
     BRONZE, SILVER, GOLD = range(3)
