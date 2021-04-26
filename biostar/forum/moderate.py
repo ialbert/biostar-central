@@ -326,7 +326,11 @@ def off_topic(request, post, **kwargs):
         post.save()
 
         # Generate off comment.
-        content = "This post is off topic."
+        template = 'messages/offtopic.md'
+        tmpl = loader.get_template(template)
+        context = dict(post=post)
+        content = tmpl.render(context)
+
         auth.create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
         msg = "off topic"
         messages.info(request, mark_safe(msg))
