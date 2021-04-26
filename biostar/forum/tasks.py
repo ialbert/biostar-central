@@ -208,6 +208,10 @@ def spam_check(uid):
         if not os.path.isfile(settings.SPAM_MODEL):
             spamlib.build_model(fname=settings.SPAM_DATA, model=settings.SPAM_MODEL)
 
+        # Short posts do not get classified too many false positives
+        if len(post.content) < 150:
+            return
+
         # Classify the content.
         flag = spamlib.classify_content(post.content, model=settings.SPAM_MODEL)
 
@@ -221,6 +225,7 @@ def spam_check(uid):
         for word in spam_words:
             flag = flag or (word in post.title)
 
+        # Handle the spam.
         if flag:
 
             Post.objects.filter(uid=post.uid).update(spam=Post.SPAM, status=Post.CLOSED)
