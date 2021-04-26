@@ -326,7 +326,11 @@ def off_topic(request, post, **kwargs):
         post.save()
 
         # Generate off comment.
-        content = "This post is off topic."
+        template = 'messages/offtopic.md'
+        tmpl = loader.get_template(template)
+        context = dict(post=post)
+        content = tmpl.render(context)
+
         auth.create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
         msg = "off topic"
         messages.info(request, mark_safe(msg))
@@ -349,14 +353,15 @@ def relocate(request, post, **kwds):
         return url
 
     if post.type == Post.COMMENT:
-        msg = f"moved comment to answer"
+        msg = f"relocated comment to answer"
         post.type = Post.ANSWER
     else:
-        msg = f"moved answer to comment"
+        msg = f"relocated answer to comment"
         post.type = Post.COMMENT
 
     post.parent = post.root
     post.save()
+    post.update_parent_counts()
 
     auth.db_logger(user=request.user, post=post, text=f"{msg}")
     messages.info(request, msg)

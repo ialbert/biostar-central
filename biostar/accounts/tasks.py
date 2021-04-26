@@ -62,6 +62,7 @@ def detect_location(ip, user_id):
 
             # city = get(data, "city")
             # region = get(data, "regionName")
+            # country = get(data, "country")
             location = get(data, "country")
 
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
