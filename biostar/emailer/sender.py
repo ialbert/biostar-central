@@ -131,13 +131,13 @@ def send_mass_html_mail(subject, message, message_html, from_email, recipient_li
         msg = EmailMultiAlternatives(subject=subject,
                                      body=message,
                                      from_email=from_email,
-                                     to=rec,
-                                     connection=connection).attach_alternative(message_html,
-                                                                         "text/html")
+                                     to=[rec],
+                                     connection=connection)
+        msg.attach_alternative(message_html, "text/html")
         return msg
 
     # Format mass mail
-    messages = map(make_email, recipient_list)
+    messages = list(map(make_email, recipient_list))
 
     return connection.send_messages(messages)
 
