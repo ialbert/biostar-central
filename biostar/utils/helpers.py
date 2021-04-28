@@ -4,7 +4,6 @@ from django.conf import settings
 import logging
 import traceback
 import html2markdown
-import re
 from datetime import datetime
 from biostar import VERSION
 import os
