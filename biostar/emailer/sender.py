@@ -109,7 +109,7 @@ class EmailTemplate(object):
         text = textwrap.dedent(text)
 
         # Send mass html email
-        if len(html) > 10:
+        if len(html) < 10:
             # Format mass mail
             datatuple = ((subject, text, from_email, [rec]) for rec in recipient_list)
             send_mass_mail(datatuple=datatuple, fail_silently=False)
