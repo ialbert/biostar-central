@@ -18,55 +18,79 @@
 
         <h2 class="ui header">
             <img src="{% static 'images/news-herald.png' %}">
-            <div class="content">
+            <a class="content" href="{% url 'list_links' %}">
                 Biostar Herald
                 <div class="sub header">Share bioinformatics resources from across the web.</div>
-            </div>
+            </a>
         </h2>
 
-        <a class="muted" href="#" id="planet_suggest"><i class="pencil alternate icon"></i> Share</a>
-             &bull;
-             <a class="muted" href="{% url 'list_links' %}"> New </a>
-        &bull;
-
-            <a class="muted" href="{% url 'list_links' %}?status=published"> Published </a>
+        {% if request.user.profile.is_moderator %}
+            <a class="muted" href="{% url 'list_links' %}?status=submitted"> Submitted </a>
             &bull;
+        {% endif %}
 
-            <a class="muted" href="{% url 'list_links' %}?status=rejected"> Rejected </a>
+        <a class="muted" href="{% url 'list_links' %}?status=accepted" id="planet_suggest"> Accepted</a>
+        &bull;
+        <a class="muted" href="{% url 'list_links' %}?status=published"> Published </a>
 
+        {% if request.user.profile.is_moderator %}
+            &bull;
+            <a class="muted" href="{% url 'list_links' %}?status=declined"> Declined </a>
+        {% endif %}
 
+    </div>
+    <div class="ui basic segment">
+        <div class="ui two column grid">
+            <div class="column">
+
+                <div class="ui segment form-wrap">
+
+                    <form method="post" class="ui form" action="{% url 'list_links' %}">
+                        {% form_errors form %}
+
+                        {% csrf_token %}
+
+                        <div class="required field">
+                            <label>Share link</label>
+                            {{ form.url }}
+                            <p class="muted">Share a link from youtube, twitter, github, etc.</p>
+                        </div>
+
+                        <div class="field">
+                            <label>Description ( optional )</label>
+                            {{ form.text }}
+                            <p class="muted">Short description of the above shared link. </p>
+                        </div>
+
+                        <button type="submit" class="ui submit green button">
+                            <i class="check icon"></i>Submit
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+            <div class="column">
+                <div class="ui segment">
+                    <h4 class="ui header muted">
+                        Community Guidelines
+                    </h4>
+                    <ol style="list-style-type: upper-roman;">
+                        <li>Topics need to pertain to the biological sciences.</li>
+                        <li>Moderators can accept submitted topics.</li>
+                        <li>Staff members can publish and accept topics.</li>
+                        <li>Accepted links are auto-published every day.</li>
+                    </ol>
+
+                </div>
+            </div>
+        </div>
 
     </div>
 
-    <div class="ui segment links-form form-wrap">
-
-        <form method="post" class="ui form" action="{% url 'list_links' %}">
-            {% form_errors form %}
-
-            {% csrf_token %}
-
-            <div class="required field">
-                <label>Link to suggest</label>
-                {{ form.url }}
-            </div>
-
-            <div class="required field">
-                <label>Link description</label>
-                {{ form.text }}
-            </div>
-
-            <button type="submit" class="ui submit green button">
-                <i class="check icon"></i>Submit
-            </button>
-
-            <a class="ui button cancel">
-                <i class="undo icon"></i>Cancel
-            </a>
-        </form>
-
-    </div>
     <div class="ui vertical segment">
-        <h4 class="ui header">{{ status|capfirst }} Stories</h4>
+        <h4 class="ui header">{{ status|capfirst }} </h4>
 
         <div class="ui relaxed divided list">
 
@@ -78,21 +102,21 @@
                         <a href="{{ link.user.profile.get_absolute_url }}">{{ link.user.profile.name }}</a>
                         suggested
                         <a href="{{ link.url }}">{{ link.url }}</a>
+
                         {% if user.profile.is_moderator %}
 
-                            {% if link.rejected or link.new %}
-                                &bull;
-                                <a class="muted" href="{% url "publish_link" link.id %}">
-                                    <i class="green check circle icon"></i>
-                                    Publish</a>
-                            {% endif %}
+                            &bull;
+                            <a class="muted" href="{% url "publish_link" link.id %}">
+                                <i class="green check circle icon"></i> Accept</a>
 
-                            {% if link.published  or link.new%}
-                                <a class="muted" href="{% url "reject_link" link.id %}">
-                                    <i class="red times icon"></i>
-                                    Reject</a>
-                            {% endif %}
+                            <a class="muted" href="{% url "reject_link" link.id %}">
+                                <i class="red times icon"></i> Decline</a>
 
+                        {% endif %}
+
+                        {% if user.is_staff or user.is_superuser %}
+                            <a class="muted" href="{% url "reject_link" link.id %}">
+                                <i class="blue book icon"></i> Publish</a>
                         {% endif %}
 
                         {% if link.text %}

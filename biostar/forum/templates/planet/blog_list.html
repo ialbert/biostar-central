@@ -1,6 +1,7 @@
 {% extends 'forum_list.html' %}
 {% load humanize %}
 {% load forum_tags %}
+{% load static %}
 {% load cache %}
 
 {% block title %}Biostar Planet{% endblock %}
@@ -30,13 +31,25 @@
 
 
 {% block body %}
+    <div class="ui vertical segment">
+
+    <h2 class="ui header">
+        <img src="{% static 'images/news-herald.png' %}">
+        <a class="content" href="{% url 'list_links' %}">
+            Biostar Herald
+            <div class="sub header">Share bioinformatics resources from across the web</div>
+
+        </a>
+
+    </h2>
+
+    </div>
 
     <div class="ui page-bar segment">
         {% pages objs=blogposts %}
     </div>
-    {% if request.user.profile.is_moderator %}
-        <a class="ui button" href="{% url 'list_links' %}"> <i class="newspaper outline icon"></i>Biostar Herald</a>
-    {% endif %}
+
+
     <div class="ui middle aligned divided relaxed list blog">
         {% for post in blogposts %}
 

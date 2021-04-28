@@ -210,7 +210,8 @@ class PostShortForm(forms.Form):
 
 class SuggestForm(forms.Form):
     url = forms.CharField(min_length=10, max_length=MAX_CONTENT, required=True)
-    text = forms.CharField(widget=forms.Textarea, max_length=MAX_CONTENT, required=True, strip=False)
+    text = forms.CharField(widget=forms.Textarea(attrs=dict(rows='5')), max_length=MAX_CONTENT, required=True,
+                           strip=False)
 
     def __init__(self, user=None,  *args, **kwargs):
         self.user = user

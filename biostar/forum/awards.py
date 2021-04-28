@@ -75,6 +75,32 @@ AUTOBIO = AwardDef(
     icon="bullhorn icon"
 )
 
+
+CURATOR = AwardDef(
+    name="Curator",
+    desc="accepted at least five submitted links ",
+    func=lambda user: wrap_qs(len(user.profile.text) > 80 and user.profile.score > 1, User, user.id),
+    max=1,
+    icon="bullhorn icon"
+)
+
+COLLECTOR = AwardDef(
+    name="Collector",
+    desc="Submitted at least five links for review ",
+    func=lambda user: wrap_qs(len(user.profile.text) > 80 and user.profile.score > 1, User, user.id),
+    max=1,
+    icon="bullhorn icon"
+)
+
+EDITOR = AwardDef(
+    name="Editor",
+    desc="Published at least five links for review ",
+    func=lambda user: wrap_qs(len(user.profile.text) > 80 and user.profile.score > 1, User, user.id),
+    max=1,
+    icon="bullhorn icon"
+)
+
+
 GOOD_QUESTION = AwardDef(
     name="Good Question",
     desc="asked a question that was upvoted at least 5 times",

@@ -44,6 +44,11 @@ def blog_list(request):
     return render(request, 'planet/blog_list.html', context)
 
 
+def biostar_herald():
+    blog, created = Blog.objects.get_or_create(title="Biostar Herald",
+                                               desc="Share bioinformatics resources from across the web.", remote=False)
+    return blog
+
 def blog_bump(request, id):
     post = BlogPost.objects.filter(id=id).update(rank=now())
 

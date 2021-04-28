@@ -618,9 +618,9 @@ def list_links(request):
     List user submitted links
     """
 
-    mapper = dict(rejected=Link.REJECTED, published=Link.PUBLISHED, new=Link.NEW)
-    display_status = request.GET.get('status', 'new')
-    status = mapper.get(display_status, Link.NEW)
+    mapper = dict(declined=Link.DECLINED, published=Link.PUBLISHED, submitted=Link.SUBMITTED, accepted=Link.ACCEPTED)
+    display_status = request.GET.get('status', 'accepted')
+    status = mapper.get(display_status, Link.ACCEPTED)
 
     # List newly submitted links.
     links = Link.objects.filter(status=status)
@@ -643,48 +643,38 @@ def list_links(request):
     return render(request, 'list_links.html', context)
 
 
-def biostar_herald():
-    blog, created = Blog.objects.get_or_create(title="Biostar Herald",
-                                               desc="Share bioinformatics resources from across the web.", remote=False)
-    return blog
+def publish(request, link):
+
+
+
+    return
 
 
 @is_moderator
-def publish_link(request, pk):
-    """
-    Publish a link into a blog post
+def update_link(request, pk):
     """
 
-    # Create
+    """
+
     link = Link.objects.filter(pk=pk).first()
 
-    # Update to published
-    Link.objects.filter(pk=pk).update(status=Link.PUBLISHED)
+    mapper = dict(pub=Link.PUBLISHED, acc=Link.ACCEPTED, dec=Link.DECLINED)
 
-    # Get the biostar herald blog.
-    blog = biostar_herald()
+    if request.method == 'POST':
+        # Update to published
+        given = request.POST.get('state')
+        state = mapper.get(given)
+        if state:
+            link.status = state
+            Link.objects.filter(pk=link.pk).update(status=link.status)
+            text = f'{link.get_status_display().lower()} {link.url}'
+            auth.db_logger(user=request.user, action=Log.MODERATE, text=text)
+            
+        # Publish tht link if it exists.
+        if link.published:
+            publish(request=request, link=link)
 
-    # Publish the blog post
-    title = link.text[:60] + '...'
-    blg = BlogPost.objects.create(blog=blog, title=title, content=link.text, html=link.html, creation_date=util.now(),
-                                  insert_date=util.now())
-
-    return redirect(reverse('blog_list'))
-
-
-@is_moderator
-def reject_link(request, pk):
-    """
-    Reject a link from blog posts.
-    """
-    # Create
-    link = Link.objects.filter(pk=pk).first()
-
-    # Update to published
-    Link.objects.filter(pk=pk).update(status=Link.REJECTED)
-
-    return redirect(reverse('list_links'))
-
+    return
 
 def error(request):
     """
