@@ -358,6 +358,7 @@ def post_topic(request, topic):
 
     # Clear topic if there are no posts.
     topic = topic if posts else ''
+
     context = dict(posts=posts, topic=topic, tab=topic)
 
     return render(request, template_name="post_topic.html", context=context)
