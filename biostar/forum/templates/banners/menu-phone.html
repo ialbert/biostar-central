@@ -20,6 +20,9 @@
             <a class="item {% activate tab "latest" %} " href="{% url 'post_list' %}">
                 <i class=" list icon"></i> Latest
             </a>
+            <a class="item {% activate tab "open" %} " href="{% url 'post_topic' 'open' %}">
+                <i class="envelope open icon"></i> Open
+            </a>
             <a class="item  {% activate tab "news" %} " href="{% url 'post_topic' 'news' %}">
                 <i class=" newspaper icon"></i> News
             </a>
