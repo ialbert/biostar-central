@@ -669,7 +669,7 @@ def update_link(request, pk):
             Link.objects.filter(pk=link.pk).update(status=link.status)
             text = f'{link.get_status_display().lower()} {link.url}'
             auth.db_logger(user=request.user, action=Log.MODERATE, text=text)
-            
+
         # Publish tht link if it exists.
         if link.published:
             publish(request=request, link=link)

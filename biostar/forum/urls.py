@@ -107,8 +107,6 @@ urlpatterns = [
     # Include the planet urls
     path('planet/', include(planet_patterns)),
     path('herald/', views.list_links, name="list_links"),
-    path('publish/<int:pk>/', views.publish_link, name="publish_link"),
-    path('reject/<int:pk>/', views.reject_link, name="reject_link"),
 
     # Add admin urls.
     path('admin/', admin.site.urls),
