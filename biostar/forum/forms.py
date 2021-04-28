@@ -59,9 +59,16 @@ def valid_title(text):
 def valid_tag(text):
     "Validates form input for tags"
 
-    words = text.split(",")
-    if len(words) > MAX_TAGS:
+    tag_val = text.replace(',', ' ').split()
+    if len(tag_val) > MAX_TAGS:
         raise ValidationError('You have too many tags (5 allowed)')
+
+    if settings.STRICT_TAGS:
+        pattern = r'^[A-Za-z0-9-._]+$'
+        for tag in tag_val:
+            match = re.match(pattern, tag)
+            if not match:
+                raise ValidationError(f'Invalid characters in tag: {tag}')
 
 
 def informative_choices(choices):
@@ -159,14 +166,8 @@ class PostLongForm(forms.Form):
         Take out duplicates
         """
         if settings.STRICT_TAGS:
-            pattern = r'^[A-Za-z0-9-._]+$'
             tag_val = self.cleaned_data["tag_val"]
             tag_val = tag_val.replace(',', ' ').split()
-
-            for tag in tag_val:
-                match = re.match(pattern, tag)
-                if not match:
-                    raise forms.ValidationError(f'Invalid characters in tag: {tag}')
         else:
             tag_val = self.cleaned_data["tag_val"].split(',')
 
