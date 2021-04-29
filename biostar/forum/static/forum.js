@@ -246,7 +246,6 @@ $(document).ready(function () {
     $(this).on('click', '#wmd-button-bar', function (event) {
         var form = $(this).closest('form');
         var text = form.find('textarea').val();
-        alert('alert');
         highligh_preview(form, text);
 
     });
