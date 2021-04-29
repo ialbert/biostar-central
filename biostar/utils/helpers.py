@@ -3,6 +3,7 @@ from django.test import RequestFactory, client
 from django.conf import settings
 import logging
 import traceback
+import html
 import html2markdown
 from datetime import datetime
 from biostar import VERSION
@@ -63,11 +64,11 @@ def htmltomarkdown(text):
     try:
         content = html2markdown.convert(text)
     except Exception as exc:
-        tb = traceback.format_exc()
-        logger.error(f"traceback={tb}; text={text[:100]}; error={exc}")
-        content = text
+        logger.warning(f"error={exc};text={text[:100]}")
+        content = html.escape(text)
 
     return content
+
 
 def ip_triplet(request):
     """

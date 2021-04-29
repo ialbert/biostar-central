@@ -179,8 +179,8 @@ function tags_dropdown() {
             var field = $(this).find("select").data("value");
             var tag_field = $('#{0}'.f(field));
             // Add selected tag to field
-            tag_field.val(value);
-
+            // Set text instead of value
+            tag_field.val(text);
         }
     });
     $('.tags > input.search').keydown(function (event) {
@@ -191,8 +191,10 @@ function tags_dropdown() {
 
         // Get a list of delimiters
         var delimiters = $('#field-tags').data('delimiters').split(',');
-        if (delimiters.indexOf(ek) !== -1) {
 
+        if (delimiters.indexOf(String(ek)) !== -1) {
+            // Escape the text before settings value.
+            value = $('<div/>').text(value).html();
             event.preventDefault();
             $(this).closest('.tags').dropdown('set selected', value);
             $(this).val('');
