@@ -207,7 +207,7 @@ function tags_dropdown() {
 
 function herald_update(hpk, status, elem) {
 
-    $.ajax('/handle/update/' + hpk + '/',
+    $.ajax('/herald/update/' + hpk + '/',
         {
             type: 'POST',
             dataType: 'json',
@@ -366,10 +366,10 @@ $(document).ready(function () {
     });
 
     $(".herald.menu .item").click(function () {
-        alert($(this).closest('.menu').data('value'));
+        var elem = $(this).closest('.menu').closest('.item');
         var hpk = $(this).closest('.menu').data('value');
         var status = $(this).data('val');
-        herald_update(hpk, status)
+        herald_update(hpk, status, elem)
     });
 
     $('#planet_suggest').click(function () {

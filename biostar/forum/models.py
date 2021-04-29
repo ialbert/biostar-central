@@ -498,13 +498,17 @@ class Subscription(models.Model):
 
 
 class Herald(models.Model):
+
     # User submitting the herald
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     # URL of the given herald
     url = models.URLField(max_length=MAX_TEXT_LEN)
+
     # Text ( markdown ) description and html representation.
     text = models.TextField(max_length=MAX_TEXT_LEN)
     html = models.TextField(max_length=MAX_TEXT_LEN)
+
     # Date this herald was created.
     date = models.DateTimeField()
 

@@ -3,57 +3,50 @@
 
 {% block newsubmission %}
 
-    <div class="ui basic segment">
-        <div class="ui two column grid">
-            <div class="column">
+    <div class="ui segment form-wrap" style="width: 61%;margin:auto;margin-top:30px;">
 
-                <div class="ui segment form-wrap">
-                    <h3 class="ui header">Submit a story</h3>
+        <form method="post" class="ui form" action="{% url 'herald_submit' %}">
+            {% form_errors form %}
 
-                    <form method="post" class="ui form" action="{% url 'herald_submit' %}">
-                        {% form_errors form %}
+            {% csrf_token %}
 
-                        {% csrf_token %}
-
-                        <div class="required field">
-                            <label>Source link</label>
-                            {{ form.url }}
-                            <p class="muted">The URL to share.</p>
-                        </div>
-
-                        <div class="field">
-                            <label>Description ( optional )</label>
-                            {{ form.text }}
-                            <p class="muted">Short description of the above shared link. </p>
-                        </div>
-
-                        <button type="submit" class="ui submit green button">
-                            <i class="check icon"></i>Submit
-                        </button>
-                        <button href="{% url 'herald' %}" class="ui button">
-                            <i class="times icon"></i>Cancel
-                        </button>
-
-                    </form>
-
-                </div>
-
+            <div class="required field">
+                <label>Source link</label>
+                {{ form.url }}
+                <p class="muted">The URL to share.</p>
             </div>
-            <div class="column">
-                <div class="ui segment">
-                    <h4 class="ui header muted">
-                        Community Guidelines
-                    </h4>
-                    <ol style="list-style-type: upper-roman;">
-                        <li>Topics need to pertain to the biological sciences.</li>
-                        <li>Moderators can accept submitted topics.</li>
-                        <li>Staff members can publish and accept topics.</li>
-                        <li>Accepted links are auto-published every day.</li>
-                    </ol>
 
-                </div>
+            <div class="field">
+                <label>Description ( optional )</label>
+                {{ form.text }}
+                <p class="muted">Short description of the above shared link. </p>
             </div>
-        </div>
+
+            <button type="submit" class="ui submit green button">
+                <i class="check icon"></i>Submit
+            </button>
+            <button href="{% url 'herald' %}" class="ui button">
+                <i class="times icon"></i>Cancel
+            </button>
+
+        </form>
 
     </div>
+
+
+{% endblock %}
+
+{% block sidebar %}
+
+        <h4 class="ui header muted">
+            Community Guidelines
+        </h4>
+        <ol style="list-style-type: upper-roman;">
+            <li>Topics need to pertain to the biological sciences.</li>
+            <li>Moderators can accept submitted topics.</li>
+            <li>Staff members can publish and accept topics.</li>
+            <li>Accepted links are auto-published every day.</li>
+        </ol>
+
+
 {% endblock %}

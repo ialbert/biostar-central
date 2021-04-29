@@ -14,7 +14,7 @@ from django.db.models import Q, Count
 from django.shortcuts import reverse, redirect
 from django.template import loader
 from django.http import JsonResponse
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
@@ -327,6 +327,7 @@ def ajax_comment_create(request):
 
 
 @ajax_error_wrapper(method="POST", login_required=True)
+@ensure_csrf_cookie
 def herald_update(request, pk):
     """
     Update th given herald
@@ -337,14 +338,17 @@ def herald_update(request, pk):
     if not herald:
         return ajax_error(msg="Herald not found")
 
-    status = request.POST.get('state')
-    mapper = dict(accepted=Herald.ACCEPTED, declined=Herald.DECLINED)
+    status = request.POST.get('status')
+    mapper = dict(accept=Herald.ACCEPTED, decline=Herald.DECLINED)
     status = mapper.get(status)
 
-    if not status:
+    if status is None:
         return ajax_error(msg="Invalid status.")
 
-    Herald.objects.filter(pk=herald.pk).update(status=status)
+    herald.status = status
+    Herald.objects.filter(pk=herald.pk).update(status=herald.status)
+    logmsg = f"{herald.get_status_display().lower()} herald {herald.url}"
+    auth.db_logger(user=request.user, target=herald.user, text=logmsg)
 
     return ajax_success(msg="Changed herald state")
 
