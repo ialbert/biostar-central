@@ -2,6 +2,7 @@ import logging
 
 import bleach
 import mistune
+import re
 from bleach.callbacks import nofollow
 from django import forms
 from django.conf import settings
@@ -39,6 +40,22 @@ def check_size(fobj, maxsize=0.3, field=None):
         raise forms.ValidationError(error_msg)
 
     return fobj
+
+
+def valid_tag(text):
+    "Validates form input for tags"
+
+    tag_val = text.replace(',', ' ').split()
+
+    if len(tag_val) > MAX_TAGS:
+        return forms.ValidationError("Maximum number of tags reached.")
+
+    if settings.STRICT_TAGS:
+        pattern = r'^[A-Za-z0-9-._]+$'
+        for tag in tag_val:
+            match = re.match(pattern, tag)
+            if not match:
+                raise forms.ValidationError(f'Invalid characters in tag: {tag}')
 
 
 class SignUpForm(forms.Form):
@@ -107,13 +124,6 @@ class LogoutForm(forms.Form):
     pass
 
 
-def validate_tags(tags):
-    my_tags = tags.split(',')
-    if len(my_tags) > MAX_TAGS:
-        return forms.ValidationError("Maximum number of tags reached.")
-    return tags
-
-
 def markdown(text):
     # Add admin urls.
     html = mistune.markdown(text)
@@ -171,7 +181,7 @@ class EditProfile(forms.Form):
                                                         help_text="Digest are sent through the email provided.")
 
         self.fields['my_tags'] = forms.CharField(label="My tags", max_length=500, required=False,
-                                                 initial=self.user.profile.my_tags,
+                                                 initial=self.user.profile.my_tags, validators=[valid_tag],
                                                  help_text="""
                                   Add a tag by typing a word then adding a comma or press ENTER or SPACE.
                                   """, widget=forms.HiddenInput())
@@ -179,7 +189,7 @@ class EditProfile(forms.Form):
                                                       help_text="""
                                   Add a tag by typing a word then adding a comma or press ENTER or SPACE.
                                   """, widget=forms.HiddenInput(),
-                                                      initial=self.user.profile.watched_tags)
+                                                      initial=self.user.profile.watched_tags, validators=[valid_tag])
 
     def clean_handle(self):
 
@@ -202,14 +212,26 @@ class EditProfile(forms.Form):
         return cleaned_data
 
     def clean_my_tags(self):
-        my_tags = self.cleaned_data['my_tags']
-        my_tags = ','.join(list(set(my_tags.split(","))))
-        return validate_tags(tags=my_tags)
+        my_tags = self.cleaned_data["my_tags"]
+        my_tags = self.tag_cleaner(tags=my_tags)
+        return my_tags
 
     def clean_watched_tags(self):
-        watched_tags = self.cleaned_data['watched_tags']
-        watched_tags = ','.join(list(set(watched_tags.split(","))))
-        return validate_tags(tags=watched_tags)
+        watched_tags = self.cleaned_data["watched_tags"]
+        watched_tags = self.tag_cleaner(tags=watched_tags)
+        return watched_tags
+
+    def tag_cleaner(self, tags):
+
+        if settings.STRICT_TAGS:
+            tags = tags.replace(',', ' ').split()
+        else:
+            tags = tags.split(',')
+
+        tags = set(tags)
+        tags = ",".join(tags)
+
+        return tags
 
     def save(self):
         email = self.cleaned_data['email']
