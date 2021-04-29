@@ -265,10 +265,9 @@ $(document).ready(function () {
             function () {
                 var text = form.find('textarea').val();
                 highligh_preview(form, text);
-            }, 600);
+            }, 500);
     });
-
-
+    
     $('#subscribe').dropdown();
 
     $(this).unbind("click").on('click', '#subscribe .item', function (event) {

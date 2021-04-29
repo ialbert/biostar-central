@@ -120,6 +120,15 @@
                 save.click();
             }
         });
+        $("body").on("click", '.pagedown-image-upload.show .submit-input', function () {
+
+            var form = $(this).closest('form');
+            setTimeout(
+                function () {
+                    var text = form.find('.wmd-input').val();
+                    highligh_preview(form, text);
+                }, 500);
+        });
 
         $("#wmd-button-bar").click(function (event) {
             var text = $(this).closest('form').find('.wmd-input').val();
