@@ -246,9 +246,29 @@ $(document).ready(function () {
     $(this).on('click', '#wmd-button-bar', function (event) {
         var form = $(this).closest('form');
         var text = form.find('textarea').val();
+        alert('alert');
         highligh_preview(form, text);
 
     });
+
+    $("#wmd-button-bar").click(function (event) {
+        var form = $(this).closest('form');
+        var text = form.find('textarea').val();
+        highligh_preview(form, text);
+
+    });
+
+    $("body").on("click", '.pagedown-image-upload.show .submit-input', function () {
+
+        var form = $(this).closest('form');
+        setTimeout(
+            function () {
+                var text = form.find('textarea').val();
+                highligh_preview(form, text);
+            }, 600);
+    });
+
+
     $('#subscribe').dropdown();
 
     $(this).unbind("click").on('click', '#subscribe .item', function (event) {
