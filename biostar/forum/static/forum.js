@@ -193,7 +193,7 @@ function tags_dropdown() {
         // Get a list of delimiters
         var delimiters = $('#field-tags').data('delimiters').split(',');
 
-        if (delimiters.indexOf(ek) !== -1) {
+        if (delimiters.indexOf(String(ek)) !== -1) {
             // Escape the text before settings value.
             value = $('<div/>').text(value).html();
             event.preventDefault();
@@ -267,7 +267,7 @@ $(document).ready(function () {
                 highligh_preview(form, text);
             }, 500);
     });
-    
+
     $('#subscribe').dropdown();
 
     $(this).unbind("click").on('click', '#subscribe .item', function (event) {
