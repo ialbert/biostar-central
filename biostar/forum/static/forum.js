@@ -60,8 +60,8 @@ function remove_trigger() {
 function highlight(text) {
 
     var con = markdownit({
-        // ESCAPES when html=true
-        html: true,
+        // escape html in previews with html=false.
+        html: false,
         highlight: function (str, lang) {
             if (lang && hljs.getLanguage(lang)) {
                 try {
