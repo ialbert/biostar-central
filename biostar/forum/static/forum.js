@@ -180,7 +180,8 @@ function tags_dropdown() {
             var tag_field = $('#{0}'.f(field));
             // Add selected tag to field
             // Set text instead of value
-            tag_field.val(text);
+            value = $('<div/>').text(value).html();
+            tag_field.val(value);
         }
     });
     $('.tags > input.search').keydown(function (event) {
@@ -248,6 +249,24 @@ $(document).ready(function () {
         highligh_preview(form, text);
 
     });
+
+    $("#wmd-button-bar").click(function (event) {
+        var form = $(this).closest('form');
+        var text = form.find('textarea').val();
+        highligh_preview(form, text);
+
+    });
+
+    $("body").on("click", '.pagedown-image-upload.show .submit-input', function () {
+
+        var form = $(this).closest('form');
+        setTimeout(
+            function () {
+                var text = form.find('textarea').val();
+                highligh_preview(form, text);
+            }, 500);
+    });
+
     $('#subscribe').dropdown();
 
     $(this).unbind("click").on('click', '#subscribe .item', function (event) {
