@@ -204,6 +204,30 @@ function tags_dropdown() {
 
 }
 
+
+function herald_update(hpk, status, elem) {
+
+    $.ajax('/handle/update/' + hpk + '/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {'status': status},
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(elem, data.msg, data.status);
+                } else {
+                    // Replace current item with the select one.
+                    // active.text($item.text());
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
+
+}
+
 function highligh_preview(form, text) {
     var highlighted = highlight(text);
 
@@ -327,11 +351,11 @@ $(document).ready(function () {
             // Add an 'error' to '.ui.field' to turn it red.
             field.closest(".field").addClass("error");
         } catch (err) {
-             field = $('#form-errors');
+            field = $('#form-errors');
         }
 
         // Insert the error message
-        field.before('<div class="ui small red message">'+ message +'</div>')
+        field.before('<div class="ui small red message">' + message + '</div>')
     });
 
 
@@ -339,6 +363,13 @@ $(document).ready(function () {
 
     $('#show-answer').click(function () {
         $('.hidden-answer').toggle()
+    });
+
+    $(".herald.menu .item").click(function () {
+        alert($(this).closest('.menu').data('value'));
+        var hpk = $(this).closest('.menu').data('value');
+        var status = $(this).data('val');
+        herald_update(hpk, status)
     });
 
     $('#planet_suggest').click(function () {

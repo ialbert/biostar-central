@@ -10,7 +10,7 @@ from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User
-from .models import Post, Link
+from .models import Post, Herald
 from biostar.forum import models, auth
 
 from .const import *
@@ -208,19 +208,19 @@ class PostShortForm(forms.Form):
         return cleaned_data
 
 
-class SuggestForm(forms.Form):
+class HeraldSubmit(forms.Form):
     url = forms.CharField(min_length=10, max_length=MAX_CONTENT, required=True)
-    text = forms.CharField(widget=forms.Textarea(attrs=dict(rows='5')), max_length=MAX_CONTENT, required=True,
+    text = forms.CharField(widget=forms.Textarea(attrs=dict(rows='5')), max_length=MAX_CONTENT, required=False,
                            strip=False)
 
     def __init__(self, user=None,  *args, **kwargs):
         self.user = user
-        super(SuggestForm, self).__init__(*args, **kwargs)
+        super(HeraldSubmit, self).__init__(*args, **kwargs)
 
     def clean(self):
-        cleaned_data = super(SuggestForm, self).clean()
+        cleaned_data = super(HeraldSubmit, self).clean()
         url = cleaned_data['url']
-        exists = Link.objects.filter(url=url).first()
+        exists = Herald.objects.filter(url=url).first()
 
         if self.user.is_anonymous:
             raise forms.ValidationError("You need to be logged in.")

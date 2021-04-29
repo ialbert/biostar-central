@@ -19,7 +19,7 @@ from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views, const, moderate
-from .models import Post, Vote, Subscription, delete_post_cache
+from .models import Post, Vote, Subscription, delete_post_cache, Herald
 
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
@@ -324,6 +324,29 @@ def ajax_comment_create(request):
     else:
         msg = [field.errors for field in form if field.errors]
         return ajax_error(msg=msg)
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+def herald_update(request, pk):
+    """
+    Update th given herald
+    """
+
+    herald = Herald.objects.filter(pk=pk).first()
+
+    if not herald:
+        return ajax_error(msg="Herald not found")
+
+    status = request.POST.get('state')
+    mapper = dict(accepted=Herald.ACCEPTED, declined=Herald.DECLINED)
+    status = mapper.get(status)
+
+    if not status:
+        return ajax_error(msg="Invalid status.")
+
+    Herald.objects.filter(pk=herald.pk).update(status=status)
+
+    return ajax_success(msg="Changed herald state")
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

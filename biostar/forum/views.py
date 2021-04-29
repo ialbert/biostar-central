@@ -18,7 +18,7 @@ from biostar.planet.models import Blog, BlogPost
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models, moderate
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Log, Link
+from biostar.forum.models import Post, Vote, Badge, Subscription, Log, Herald
 from biostar.utils.decorators import is_moderator, check_params, reset_count, authenticated
 
 User = get_user_model()
@@ -613,68 +613,40 @@ def view_logs(request):
     return render(request, "view_logs.html", context=context)
 
 
-def list_links(request):
+@authenticated
+def herald(request):
     """
-    List user submitted links
+    List latest herald items
     """
-
-    mapper = dict(declined=Link.DECLINED, published=Link.PUBLISHED, submitted=Link.SUBMITTED, accepted=Link.ACCEPTED)
-    display_status = request.GET.get('status', 'accepted')
-    status = mapper.get(display_status, Link.ACCEPTED)
 
     # List newly submitted links.
-    links = Link.objects.filter(status=status)
+    links = Herald.objects.order_by('-date')
+
+    context = dict(links=links, tab='herald')
+    return render(request, 'herald.html', context)
+
+
+@authenticated
+def herald_submit(request):
     user = request.user
-    form = forms.SuggestForm(user=user)
+    form = forms.HeraldSubmit(user=user)
 
     if request.method == 'POST':
-        form = forms.SuggestForm(data=request.POST, user=user)
+
+        form = forms.HeraldSubmit(data=request.POST, user=user)
 
         if form.is_valid():
             # Add the Link attribute.
             link = form.cleaned_data['url']
             text = form.cleaned_data['text']
-            # Create the link objects.
-            Link.objects.create(user=user, text=text, url=link)
+            # Create the herald objects.
+            herald = Herald.objects.create(user=user, text=text, url=link)
 
-            return redirect(reverse('list_links'))
+            return redirect(reverse('herald'))
 
-    context = dict(links=links, form=form, status=display_status)
-    return render(request, 'list_links.html', context)
+    context = dict(form=form, tab='submit')
+    return render(request, 'herald_submit.html', context)
 
-
-def publish(request, link):
-
-
-
-    return
-
-
-@is_moderator
-def update_link(request, pk):
-    """
-
-    """
-
-    link = Link.objects.filter(pk=pk).first()
-
-    mapper = dict(pub=Link.PUBLISHED, acc=Link.ACCEPTED, dec=Link.DECLINED)
-
-    if request.method == 'POST':
-        # Update to published
-        given = request.POST.get('state')
-        state = mapper.get(given)
-        if state:
-            link.status = state
-            Link.objects.filter(pk=link.pk).update(status=link.status)
-            text = f'{link.get_status_display().lower()} {link.url}'
-            auth.db_logger(user=request.user, action=Log.MODERATE, text=text)
-
-        # Publish tht link if it exists.
-        if link.published:
-            publish(request=request, link=link)
-
-    return
 
 def error(request):
     """

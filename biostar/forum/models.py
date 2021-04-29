@@ -497,16 +497,19 @@ class Subscription(models.Model):
         return self.pk
 
 
-class Link(models.Model):
+class Herald(models.Model):
+    # User submitting the herald
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # URL of the given herald
     url = models.URLField(max_length=MAX_TEXT_LEN)
+    # Text ( markdown ) description and html representation.
     text = models.TextField(max_length=MAX_TEXT_LEN)
     html = models.TextField(max_length=MAX_TEXT_LEN)
+    # Date this herald was created.
     date = models.DateTimeField()
 
     SUBMITTED, DECLINED, ACCEPTED, PUBLISHED = range(4)
     CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Declined'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
-
     status = models.IntegerField(choices=CHOICES, default=SUBMITTED, db_index=True)
 
     def save(self, *args, **kwargs):
@@ -518,11 +521,11 @@ class Link(models.Model):
         self.text = f"{self.text}\n\n{self.url}\n"
         self.html = markdown.parse(self.text, clean=True, escape=True)
 
-        super(Link, self).save(*args, **kwargs)
+        super(Herald, self).save(*args, **kwargs)
         return
 
     @property
-    def rejected(self):
+    def declined(self):
         return self.status == self.DECLINED
 
     @property
@@ -530,12 +533,24 @@ class Link(models.Model):
         return self.status == self.PUBLISHED
 
     @property
-    def new(self):
+    def submitted(self):
         return self.status == self.SUBMITTED
 
     @property
     def accepted(self):
         return self.status == self.ACCEPTED
+
+    @property
+    def icon(self):
+
+        if self.accepted:
+            return 'green check'
+        elif self.published:
+            return 'purple book'
+        elif self.declined:
+            return 'orange times'
+        else:
+            return 'blue paper plane'
 
 
 class Badge(models.Model):

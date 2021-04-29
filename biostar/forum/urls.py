@@ -80,6 +80,11 @@ forum_patterns = [
     # Error check.
     path(r'error/', views.error, name="error"),
 
+    # Herald url
+    path('herald/', views.herald, name="herald"),
+    path('herald/submit/', views.herald_submit, name="herald_submit"),
+    path('herald/update/<int:pk>/', ajax.herald_update, name="herald_update"),
+
     # RSS feeds
     path(r'feeds/latest/', feed.LatestFeed(), name='latest_feed'),
     path(r'feeds/tag/<str:text>/', feed.TagFeed(), name='tag_feed'),
@@ -106,7 +111,6 @@ urlpatterns = [
 
     # Include the planet urls
     path('planet/', include(planet_patterns)),
-    path('herald/', views.list_links, name="list_links"),
 
     # Add admin urls.
     path('admin/', admin.site.urls),
