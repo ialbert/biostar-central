@@ -36,7 +36,6 @@ class Blog(models.Model):
     link = models.URLField()
     active = models.BooleanField(default=True)
     list_order = models.IntegerField(default=0)
-
     # Adding field that indicates a remote blog
     remote = models.BooleanField(default=True)
 

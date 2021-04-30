@@ -13,6 +13,7 @@ from taggit.managers import TaggableManager
 
 from biostar.utils import helpers
 from biostar.accounts.models import Profile
+from biostar.planet.models import BlogPost
 from . import util
 
 User = get_user_model()
@@ -499,18 +500,23 @@ class Subscription(models.Model):
 
 class Herald(models.Model):
 
-    # User submitting the herald
+    # User submitting the herald_list
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    # URL of the given herald
+    # URL of the given herald_list
     url = models.URLField(max_length=MAX_TEXT_LEN)
 
     # Text ( markdown ) description and html representation.
     text = models.TextField(max_length=MAX_TEXT_LEN)
     html = models.TextField(max_length=MAX_TEXT_LEN)
 
-    # Date this herald was created.
+    # Date this herald_list was created.
     date = models.DateTimeField()
+
+    # Gains a blog post once published, assumed none until then.
+    blog_post = models.ForeignKey(BlogPost, on_delete=models.SET_NULL, null=True)
+
+    #blog_post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
 
     SUBMITTED, DECLINED, ACCEPTED, PUBLISHED = range(4)
     CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Declined'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]

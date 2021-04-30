@@ -330,7 +330,7 @@ def ajax_comment_create(request):
 @ensure_csrf_cookie
 def herald_update(request, pk):
     """
-    Update th given herald
+    Update th given herald_list
     """
 
     herald = Herald.objects.filter(pk=pk).first()
@@ -347,10 +347,10 @@ def herald_update(request, pk):
 
     herald.status = status
     Herald.objects.filter(pk=herald.pk).update(status=herald.status)
-    logmsg = f"{herald.get_status_display().lower()} herald {herald.url}"
+    logmsg = f"{herald.get_status_display().lower()} herald_list {herald.url}"
     auth.db_logger(user=request.user, target=herald.user, text=logmsg)
 
-    return ajax_success(msg="Changed herald state")
+    return ajax_success(msg="Changed herald_list state")
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

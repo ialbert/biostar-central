@@ -14,6 +14,7 @@ class ForumConfig(AppConfig):
         from . import signals
         # Triggered upon app initialization.
         post_migrate.connect(init_awards, sender=self)
+        post_migrate.connect(init_herald, sender=self)
 
 
 def init_awards(sender, **kwargs):
@@ -37,3 +38,25 @@ def init_awards(sender, **kwargs):
             badge.save()
 
         logger.debug("initializing badge %s" % badge)
+
+
+def init_herald(sender, **kwargs):
+    """
+    Initialize the Biostar Herald Blog.
+    """
+    from biostar.planet.models import Blog
+    from django.shortcuts import reverse
+
+    title = "Biostar Herald"
+    link = reverse('herald_list')
+    desc = "Share bioinformatics resources from across the web."
+
+    hblog = Blog.objects.filter(link=link).first()
+
+    if hblog:
+        Blog.objects.fitler(pk=hblog.pk).update(desc=desc, title=title, remote=False)
+    else:
+        Blog.objects.create(title=title, remote=False, link=link)
+        logger.info("created the biostar herald blog")
+
+    return

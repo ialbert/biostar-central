@@ -206,7 +206,6 @@ function tags_dropdown() {
 
 
 function herald_update(hpk, status, elem) {
-
     $.ajax('/herald/update/' + hpk + '/',
         {
             type: 'POST',

@@ -81,7 +81,8 @@ forum_patterns = [
     path(r'error/', views.error, name="error"),
 
     # Herald url
-    path('herald/', views.herald, name="herald"),
+    path('herald/', views.herald_list, name="herald_list"),
+    path('herald/issue/<int:blog_pk>/', views.herald_issue, name="herald_issue"),
     path('herald/submit/', views.herald_submit, name="herald_submit"),
     path('herald/update/<int:pk>/', ajax.herald_update, name="herald_update"),
 

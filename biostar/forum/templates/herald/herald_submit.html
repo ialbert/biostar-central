@@ -1,4 +1,4 @@
-{% extends 'herald.html' %}
+{% extends 'herald/herald_list.html' %}
 {% load forum_tags %}
 
 {% block newsubmission %}
@@ -13,7 +13,7 @@
             <div class="required field">
                 <label>Source link</label>
                 {{ form.url }}
-                <p class="muted">The URL to share.</p>
+                <p class="muted">The URL containing the video, tweet, code, or paper.</p>
             </div>
 
             <div class="field">
@@ -25,7 +25,7 @@
             <button type="submit" class="ui submit green button">
                 <i class="check icon"></i>Submit
             </button>
-            <button href="{% url 'herald' %}" class="ui button">
+            <button href="{% url 'herald_list' %}" class="ui button">
                 <i class="times icon"></i>Cancel
             </button>
 
@@ -35,6 +35,8 @@
 
 
 {% endblock %}
+{% block listing %}
+{% endblock %}
 
 {% block sidebar %}
 
@@ -42,10 +44,9 @@
             Community Guidelines
         </h4>
         <ol style="list-style-type: upper-roman;">
-            <li>Topics need to pertain to the biological sciences.</li>
+            <li>Share code, videos, tweets, papers relating to biological sciences.</li>
             <li>Moderators can accept submitted topics.</li>
-            <li>Staff members can publish and accept topics.</li>
-            <li>Accepted links are auto-published every day.</li>
+            <li>Accepted submissions are auto-published every day.</li>
         </ol>
 
 

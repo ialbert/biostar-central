@@ -614,16 +614,28 @@ def view_logs(request):
 
 
 @authenticated
-def herald(request):
+def herald_list(request):
     """
-    List latest herald items
+    List latest herald_list items
     """
 
     # List newly submitted links.
     links = Herald.objects.order_by('-date')
 
-    context = dict(links=links, tab='herald')
-    return render(request, 'herald.html', context)
+    context = dict(links=links, tab='herald_list')
+    return render(request, 'herald/herald_list.html', context)
+
+
+@authenticated
+def herald_issue(request, pk):
+    """
+    Return a list publications given a
+    """
+    links = Herald.objects.order_by('-date')
+
+    context = dict(links=links, tab='herald_list')
+
+    return render(request, 'herald/herald_list.html', context)
 
 
 @authenticated
@@ -639,13 +651,13 @@ def herald_submit(request):
             # Add the Link attribute.
             link = form.cleaned_data['url']
             text = form.cleaned_data['text']
-            # Create the herald objects.
+            # Create the herald_list objects.
             herald = Herald.objects.create(user=user, text=text, url=link)
 
-            return redirect(reverse('herald'))
+            return redirect(reverse('herald_list'))
 
     context = dict(form=form, tab='submit')
-    return render(request, 'herald_submit.html', context)
+    return render(request, 'herald/herald_submit.html', context)
 
 
 def error(request):
