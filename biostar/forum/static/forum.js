@@ -214,7 +214,7 @@ function herald_update(hpk, status, elem) {
             data: {'status': status},
             success: function (data) {
                 if (data.status === 'error') {
-                    popup_message(elem, data.msg, data.status);
+                    popup_message(elem, data.msg, data.status, 1000);
                 } else {
                     // Replace current item with the select one.
                     // active.text($item.text());

@@ -345,12 +345,16 @@ def herald_update(request, pk):
     if status is None:
         return ajax_error(msg="Invalid status.")
 
+    # If herald is already published, do not accept again.
+    if herald.published:
+        return ajax_error(msg=f"submission is already published.")
+
     herald.status = status
     Herald.objects.filter(pk=herald.pk).update(status=herald.status)
-    logmsg = f"{herald.get_status_display().lower()} herald_list {herald.url}"
+    logmsg = f"{herald.get_status_display().lower()} herald story {herald.url}"
     auth.db_logger(user=request.user, target=herald.user, text=logmsg)
 
-    return ajax_success(msg="Changed herald_list state")
+    return ajax_success(msg="changed herald state")
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

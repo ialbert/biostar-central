@@ -98,6 +98,7 @@ class BlogPost(models.Model):
 
     # Posts should be ranked by this.
     rank = models.DateTimeField(db_index=True, null=True)
+
     @property
     def get_title(self):
         return f"BLOG: {self.title}"
@@ -112,7 +113,8 @@ class BlogPost(models.Model):
         # Set the rank
         self.rank = self.rank or self.insert_date
         #self.html = self.hmtl or
-
+        # SET THE HTML
+        #self.html = ''
         self.uid = self.uid or get_uuid(10)
 
         super(BlogPost, self).save(*args, **kwargs)

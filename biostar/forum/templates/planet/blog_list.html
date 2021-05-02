@@ -31,18 +31,6 @@
 
 
 {% block body %}
-    <div class="ui vertical segment">
-
-    <h2 class="ui header">
-        <img src="{% static 'images/news-herald.png' %}">
-        <a class="content" href="{% url 'herald_list' %}">
-            Biostar Herald
-            <div class="sub header">Share bioinformatics resources from across the web</div>
-        </a>
-
-    </h2>
-
-    </div>
 
     <div class="ui page-bar segment">
         {% pages objs=blogposts %}
@@ -64,7 +52,7 @@
                     {% endif %}
                 </div>
 
-                    {{ post.content|truncatewords:200 }} <a href="{{ post.link }}">go to blog</a>
+                {{ post.html|safe|truncatewords_html:180 }} <a href="{{ post.link }}">go to blog</a>
 
                 <div class="content">
                     {% if user.profile.is_moderator %}

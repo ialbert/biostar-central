@@ -627,15 +627,20 @@ def herald_list(request):
 
 
 @authenticated
-def herald_issue(request, pk):
+def herald_issue(request, blog_pk):
     """
     Return a list publications given a
     """
-    links = Herald.objects.order_by('-date')
 
-    context = dict(links=links, tab='herald_list')
+    # Get a blog post.
+    blogpost = BlogPost.objects.filter(pk=blog_pk).first()
 
-    return render(request, 'herald/herald_list.html', context)
+    # Get herald posts belonging to this blog post issue.
+    heralds = blogpost.herald_set.all()
+
+    context = dict(heralds=heralds, tab='planet', blogpost=blogpost)
+
+    return render(request, 'herald/herald_issue.html', context)
 
 
 @authenticated

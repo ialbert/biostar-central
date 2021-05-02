@@ -516,7 +516,7 @@ class Herald(models.Model):
     # Gains a blog post once published, assumed none until then.
     blog_post = models.ForeignKey(BlogPost, on_delete=models.SET_NULL, null=True)
 
-    #blog_post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
+    #post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
 
     SUBMITTED, DECLINED, ACCEPTED, PUBLISHED = range(4)
     CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Declined'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
