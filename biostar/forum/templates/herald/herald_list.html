@@ -5,7 +5,7 @@
 {% load cache %}
 
 {% block title %}
-   Biostar Herald
+    Biostar Herald
 {% endblock %}
 
 {% block headtitle %}
@@ -19,63 +19,54 @@
         <h2 class="ui header">
             <img src="{% static 'images/news-herald.png' %}">
             <div class="content">
-                Biostar Herald
-                <div class="sub header">Share bioinformatics resources from across the web.</div>
-
+                {% block heraldtitle %}
+                    Biostar Herald
+                {% endblock %}
+             <div class="sub header">Share bioinformatics resources from across the web.</div>
             </div>
 
         </h2>
 
     </div>
+
     {% block inner %}
         <div class="ui vertical segment">
-        <h4 class="ui header">Latest News </h4>
+            <h4 class="ui header">Recently Stories </h4>
 
-        <div class="ui relaxed divided list">
+            <div class="ui relaxed divided list">
 
-            {% for link in links %}
-                <div class="item">
-                    <img class="ui avatar image" src="{% gravatar user=link.user size=80 %}"/>
-                    <div class="content">
-                        <em>{{ link.date|naturaltime }}</em> &bull;
-                        <a href="{{ link.user.profile.get_absolute_url }}">{{ link.user.profile.name }}</a>
-                        suggested
-                        <a href="{{ link.url }}">{{ link.url }}</a>
-                        &bull;
-                        <div class="ui dropdown">
-                            <div class="text {{ link.get_status_display|lower }}">
-                                <i class="{{ link.icon }} icon" style="margin-right: 0"></i>
-                                {{ link.get_status_display }}
+                {% for story in stories %}
+                    <div class="item">
+                        <img class="ui avatar image" src="{% gravatar user=story.user size=80 %}"/>
+                        <div class="content">
+                            <em>{{ story.date|naturaltime }}</em> &bull;
+                            <a href="{{ story.user.profile.get_absolute_url }}">{{ story.user.profile.name }}</a>shared
+                            <a href="{{ story.url }}">{{ story.url|truncatechars:50 }}</a>&bull;
+                            <div class="ui dropdown">
+                                <div class="text {{ story.get_status_display|lower }}">
+                                    <i class="{{ story.icon }} icon" style="margin-right: 0"></i>{{ story.get_status_display }}
+                                </div>
+                                {% if user.profile.is_moderator and not story.published %}
+                                    <i class="dropdown icon"></i>
+                                    <div class="menu herald" data-value="{{ story.pk }}">
+                                        <div class="item" data-val="accept"><i class="green check icon"></i>Accept</div>
+                                        <div class="item" data-val="decline"><i class="orange times icon"></i>Decline</div>
+                                    </div>
+                                {% endif %}
                             </div>
 
-                            {% if user.profile.is_moderator and not link.published %}
-                                <i class="dropdown icon"></i>
-                                <div class="menu herald" data-value="{{ link.pk }}">
-                                    <div class="item" data-val="accept">
-                                        <i class="green check icon"></i>Accept
-                                    </div>
-                                    <div class="item" data-val="decline">
-                                        <i class="orange times icon"></i>Decline
-                                    </div>
-                                </div>
+                            {% if story.text %}
+                                <p class="muted">{{ story.text|truncatechars:100 }}</p>
                             {% endif %}
+
                         </div>
-
-
-                        {% if link.text %}
-                            <p class="muted">
-                                {{ link.text|truncatechars:100 }}
-                            </p>
-                        {% endif %}
-
                     </div>
-                </div>
-            {% empty %}
-                <div class="ui blue message">No results found.</div>
-            {% endfor %}
+                {% empty %}
+                    <div class="ui blue message">No results found.</div>
+                {% endfor %}
 
+            </div>
         </div>
-    </div>
     {% endblock %}
 
 

@@ -20,8 +20,16 @@ def run_publisher(limit=20):
     Create one publication from Herald accepted submissions ( up to 'limit' ).
     """
 
-    # Get most recent heralds
-    heralds = Herald.objects.filter(status=Herald.ACCEPTED)[:limit]
+    # Slice heralds and
+    # re-fetch query so we can apply .update() later
+    hpk = Herald.objects.filter(status=Herald.ACCEPTED)[:limit].values_list('id', flat=True)
+    heralds = Herald.objects.filter(pk__in=hpk)
+
+    nheralds = heralds.count()
+
+    if not nheralds:
+        logger.warning(f"There are no new stories to publish.")
+        return
 
     date = now()
     # Create content used when listing blog posts.
@@ -52,24 +60,25 @@ def run_publisher(limit=20):
     heralds.update(blog_post=blgpost, status=Herald.PUBLISHED)
     # Log the action.
     user = User.objects.filter(is_superuser=True).first()
-    auth.db_logger(user=user, text=f"published {heralds.count()} submissions in {title}")
+    auth.db_logger(user=user, text=f"published {nheralds} submissions in {title}")
 
 
 class Command(BaseCommand):
     help = 'Create search index for the forum app.'
 
     def add_arguments(self, parser):
-        parser.add_argument('--publish', action='store_true', default=False,
-                            help="Create a publication out of the most recently accepted herald_list submissions")
-        parser.add_argument('--limit', type=int,
-                            help="How many submission to collate in this publication", default=20)
+        parser.add_argument('--publish', type=int,default=0,
+                            help="Create one publication out of N most recently accepted herald submissions")
 
     def handle(self, *args, **options):
         # Index all un-indexed posts that have a root.
         logger.debug(f"Database: {settings.DATABASE_NAME}")
 
         publish = options['publish']
-        limit = options['limit']
+
+        #Herald.objects.update(status=Herald.ACCEPTED)
+        #BlogPost.objects.all().delete()
+
         if publish:
-            run_publisher(limit=limit)
+            run_publisher(limit=publish)
             return

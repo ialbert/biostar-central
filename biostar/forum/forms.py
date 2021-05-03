@@ -226,8 +226,11 @@ class HeraldSubmit(forms.Form):
             raise forms.ValidationError("You need to be logged in.")
 
         if exists:
-
             raise forms.ValidationError("This link already exists.")
+
+        # Low rep users can submit one link for consideration.
+        if self.user.profile.low_rep:
+            raise forms.ValidationError("Your reputation is too low .")
 
         return cleaned_data
 

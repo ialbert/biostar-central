@@ -52,7 +52,7 @@
                     {% endif %}
                 </div>
 
-                {{ post.html|safe|truncatewords_html:180 }} <a href="{{ post.link }}">go to blog</a>
+                {{ post.html|safe|truncatewords_html:80 }} <a href="{{ post.link }}">go to blog</a>
 
                 <div class="content">
                     {% if user.profile.is_moderator %}

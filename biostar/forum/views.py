@@ -620,9 +620,11 @@ def herald_list(request):
     """
 
     # List newly submitted links.
-    links = Herald.objects.order_by('-date')
+    stories = Herald.objects.order_by('-date')
+    stories = stories.select_related('user', 'user__profile')
 
-    context = dict(links=links, tab='herald_list')
+    # Add pagination.
+    context = dict(stories=stories, tab='herald_list')
     return render(request, 'herald/herald_list.html', context)
 
 
@@ -637,6 +639,8 @@ def herald_issue(request, blog_pk):
 
     # Get herald posts belonging to this blog post issue.
     heralds = blogpost.herald_set.order_by('-date').all()
+
+    #users = heralds.objects.all().values_list('user', flat=True)
 
     context = dict(heralds=heralds, tab='planet', blogpost=blogpost)
 

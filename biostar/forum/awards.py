@@ -78,7 +78,7 @@ AUTOBIO = AwardDef(
 
 CURATOR = AwardDef(
     name="Curator",
-    desc="accepted at least five submitted links ",
+    desc="accepted atleast once",
     func=lambda user: wrap_qs(len(user.profile.text) > 80 and user.profile.score > 1, User, user.id),
     max=1,
     icon="bullhorn icon"
@@ -86,7 +86,7 @@ CURATOR = AwardDef(
 
 COLLECTOR = AwardDef(
     name="Collector",
-    desc="Submitted at least five links for review ",
+    desc="submitted five or more herald stories ",
     func=lambda user: wrap_qs(len(user.profile.text) > 80 and user.profile.score > 1, User, user.id),
     max=1,
     icon="bullhorn icon"
@@ -94,7 +94,7 @@ COLLECTOR = AwardDef(
 
 EDITOR = AwardDef(
     name="Editor",
-    desc="Published at least five links for review ",
+    desc="published links ",
     func=lambda user: wrap_qs(len(user.profile.text) > 80 and user.profile.score > 1, User, user.id),
     max=1,
     icon="bullhorn icon"

@@ -1,4 +1,4 @@
-{% extends "forum_list.html" %}
+{% extends "herald/herald_list.html" %}
 {% load forum_tags %}
 {% load static %}
 {% load humanize %}
@@ -12,36 +12,31 @@
     Biostar Herald
 {% endblock %}
 
-{% block body %}
+{% block heraldtitle %}
+    {{ blogpost.title }}
+{% endblock %}
 
+{% block inner %}
     <div class="ui vertical segment">
-        <h2 class="ui header">
-            <img src="{% static 'images/news-herald.png' %}">
-            <div class="content">
-                {{ blogpost.title }}
-                <div class="sub header">Share bioinformatics resources from across the web.</div>
-            </div>
-        </h2>
-    </div>
+        <div class="ui relaxed divided list">
 
-    {% block inner %}
-        <div class="ui vertical segment">
-            <div class="ui relaxed divided list">
-
-                {% for herald in heralds %}
-                    <div class="item">{{ herald.html|safe }}</div>
-                {% empty %}
-                    <div class="ui blue message">No results found.</div>
-                {% endfor %}
-
-            </div>
-
+            {% for herald in heralds %}
+                <div class="item">
+                    <p>
+                        <img class="ui avatar image" src="{% gravatar user=herald.user size=80 %}"/>
+                        <a href="{{ herald.user.profile.get_absolute_url }}">{{ herald.user.profile.name }}</a>
+                        &bull; <em>{{ herald.date|naturaltime }}</em>
+                    </p>
+                    {{ herald.html|safe }}</div>
+            {% empty %}
+                <div class="ui blue message">No results found.</div>
+            {% endfor %}
         </div>
-    {% endblock %}
-
+    </div>
 {% endblock %}
 
 {% block sidebar %}
+    
 
 
 {% endblock %}

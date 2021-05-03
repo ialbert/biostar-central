@@ -67,9 +67,10 @@ class ajax_error_wrapper:
     Used as decorator to trap/display  errors in the ajax calls
     """
 
-    def __init__(self, method, login_required=True):
+    def __init__(self, method, login_required=True, mod_required=False):
         self.method = method
         self.login_required = login_required
+        self.mod_required = mod_required
 
     def __call__(self, func, *args, **kwargs):
 
@@ -81,6 +82,9 @@ class ajax_error_wrapper:
 
             if not request.user.is_authenticated and self.login_required:
                 return ajax_error('You must be logged in.')
+
+            if self.mod_required and (request.user.is_anonymous or not request.user.profile.is_moderator):
+                return ajax_error('You must be a moderator to perform this action.')
 
             if request.user.is_authenticated and request.user.profile.is_spammer:
                 return ajax_error('You must be logged in.')
@@ -326,11 +330,11 @@ def ajax_comment_create(request):
         return ajax_error(msg=msg)
 
 
-@ajax_error_wrapper(method="POST", login_required=True)
+@ajax_error_wrapper(method="POST", mod_required=True)
 @ensure_csrf_cookie
 def herald_update(request, pk):
     """
-    Update th given herald_list
+    Update the given herald status, moderators action only.
     """
 
     herald = Herald.objects.filter(pk=pk).first()
@@ -349,9 +353,12 @@ def herald_update(request, pk):
     if herald.published:
         return ajax_error(msg=f"submission is already published.")
 
+    if herald.user.profile.uid == request.user.profile.uid:
+        return ajax_error(msg="you can not edit your own submissions")
+
     herald.status = status
     Herald.objects.filter(pk=herald.pk).update(status=herald.status)
-    logmsg = f"{herald.get_status_display().lower()} herald story {herald.url}"
+    logmsg = f"{herald.get_status_display().lower()} herald story {herald.url[:100]}"
     auth.db_logger(user=request.user, target=herald.user, text=logmsg)
 
     return ajax_success(msg="changed herald state")
