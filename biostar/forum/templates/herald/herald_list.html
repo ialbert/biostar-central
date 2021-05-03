@@ -48,7 +48,7 @@
                                 {{ link.get_status_display }}
                             </div>
 
-                            {% if user.profile.is_moderator %}
+                            {% if user.profile.is_moderator and not link.published %}
                                 <i class="dropdown icon"></i>
                                 <div class="menu herald" data-value="{{ link.pk }}">
                                     <div class="item" data-val="accept">

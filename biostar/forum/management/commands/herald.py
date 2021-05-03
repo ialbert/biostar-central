@@ -51,7 +51,7 @@ def create_blog(heralds):
     return
 
 
-def herald_editor(limit=20):
+def run_publisher(limit=20):
     """
     Publish most recently accepted herald_list submissions.
     """
@@ -82,5 +82,5 @@ class Command(BaseCommand):
         publish = options['publish']
 
         if publish:
-            herald_editor()
+            run_publisher()
             return

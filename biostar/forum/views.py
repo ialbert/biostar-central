@@ -636,7 +636,7 @@ def herald_issue(request, blog_pk):
     blogpost = BlogPost.objects.filter(pk=blog_pk).first()
 
     # Get herald posts belonging to this blog post issue.
-    heralds = blogpost.herald_set.all()
+    heralds = blogpost.herald_set.order_by('-date').all()
 
     context = dict(heralds=heralds, tab='planet', blogpost=blogpost)
 

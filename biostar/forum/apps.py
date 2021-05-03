@@ -54,7 +54,7 @@ def init_herald(sender, **kwargs):
     hblog = Blog.objects.filter(link=link).first()
 
     if hblog:
-        Blog.objects.fitler(pk=hblog.pk).update(desc=desc, title=title, remote=False)
+        Blog.objects.filter(pk=hblog.pk).update(desc=desc, title=title, remote=False)
     else:
         Blog.objects.create(title=title, remote=False, link=link)
         logger.info("created the biostar herald blog")
