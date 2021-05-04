@@ -522,6 +522,7 @@ def post_view(request, uid):
         messages.error(request, "Post does not exist.")
         return redirect("post_list")
 
+    # Redirect to post view
     if not post.is_toplevel:
         return redirect(post.get_absolute_url())
 
@@ -545,7 +546,6 @@ def post_view(request, uid):
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
-    # user string
 
     # Bump post views.
     models.update_post_views(post=post, request=request, timeout=settings.POST_VIEW_TIMEOUT)
@@ -613,7 +613,7 @@ def view_logs(request):
     return render(request, "view_logs.html", context=context)
 
 
-@authenticated
+@is_moderator
 def herald_list(request):
     """
     List latest herald_list items
@@ -621,28 +621,43 @@ def herald_list(request):
 
     # List newly submitted links.
     stories = Herald.objects.order_by('-date')
-    stories = stories.select_related('user', 'user__profile')
+    stories = stories.select_related('author', 'author__profile')
 
     # Add pagination.
     context = dict(stories=stories, tab='herald_list')
     return render(request, 'herald/herald_list.html', context)
 
 
+def herald_publish(request):
+
+    if request.user.is_anonymous or not (request.user.is_staff or request.user.is_superuser):
+        messages.error(request, "You can not preform this action")
+        return redirect(reverse('post_list'))
+
+    post = auth.herald_publisher()
+    #Herald.objects.update(status=Herald.ACCEPTED)
+    if not post:
+        messages.error(request, "Not enough submissions to publish.")
+        return redirect(reverse('post_list'))
+
+    #Herald.objects.update(status=Herald.ACCEPTED)
+
+    return redirect(reverse('post_view', kwargs=dict(uid=post.uid)))
+
+
 @authenticated
-def herald_issue(request, blog_pk):
+def herald_issue(request, uid):
     """
     Return a list publications given a
     """
 
     # Get a blog post.
-    blogpost = BlogPost.objects.filter(pk=blog_pk).first()
+    post = Post.objects.filter(uid=uid).first()
 
     # Get herald posts belonging to this blog post issue.
-    heralds = blogpost.herald_set.order_by('-date').all()
+    heralds = post.herald_set.order_by('-date').all()
 
-    #users = heralds.objects.all().values_list('user', flat=True)
-
-    context = dict(heralds=heralds, tab='planet', blogpost=blogpost)
+    context = dict(heralds=heralds, post=post)
 
     return render(request, 'herald/herald_issue.html', context)
 
@@ -661,7 +676,7 @@ def herald_submit(request):
             link = form.cleaned_data['url']
             text = form.cleaned_data['text']
             # Create the herald_list objects.
-            herald = Herald.objects.create(user=user, text=text, url=link)
+            herald = Herald.objects.create(author=user, text=text, url=link)
 
             return redirect(reverse('herald_list'))
 

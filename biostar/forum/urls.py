@@ -85,6 +85,7 @@ forum_patterns = [
     path('herald/issue/<int:blog_pk>/', views.herald_issue, name="herald_issue"),
     path('herald/submit/', views.herald_submit, name="herald_submit"),
     path('herald/update/<int:pk>/', ajax.herald_update, name="herald_update"),
+    path('herald/publish', views.herald_publish, name="herald_publish"),
 
     # RSS feeds
     path(r'feeds/latest/', feed.LatestFeed(), name='latest_feed'),

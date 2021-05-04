@@ -111,7 +111,7 @@ def required_tags(lst):
 
 
 class PostLongForm(forms.Form):
-    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
+    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL and opt[0] != Post.HERALD]
 
     if settings.ALLOWED_POST_TYPES:
         choices = [opt for opt in choices if opt[1] in settings.ALLOWED_POST_TYPES]

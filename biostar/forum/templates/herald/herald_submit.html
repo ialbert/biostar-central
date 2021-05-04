@@ -3,6 +3,7 @@
 
 {% block inner %}
 
+
     <div class="ui segment form-wrap" style="width: 61%;margin:auto;margin-top:30px;">
 
         <form method="post" class="ui form" action="{% url 'herald_submit' %}">
@@ -28,7 +29,9 @@
             <button href="{% url 'herald_list' %}" class="ui button">
                 <i class="times icon"></i>Cancel
             </button>
-
+            {% if request.user.profile.is_moderator %}
+                <a class="ui blue button" href="{% url 'herald_list' %}"> View Submissions</a>
+            {% endif %}
         </form>
 
     </div>
@@ -38,14 +41,14 @@
 
 {% block sidebar %}
 
-        <h4 class="ui header muted">
-            Community Guidelines
-        </h4>
-        <ol style="list-style-type: upper-roman;">
-            <li>Share code, videos, tweets, papers relating to biological sciences.</li>
-            <li>Moderators can accept submitted topics.</li>
-            <li>Accepted submissions are auto-published every day.</li>
-        </ol>
+    <h4 class="ui header muted">
+        Community Guidelines
+    </h4>
+    <ol style="list-style-type: upper-roman;">
+        <li>Share code, videos, tweets, papers relating to biological sciences.</li>
+        <li>Moderators can accept submitted topics.</li>
+        <li>Accepted submissions are auto-published every day.</li>
+    </ol>
 
 
 {% endblock %}

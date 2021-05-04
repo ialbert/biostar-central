@@ -216,6 +216,7 @@ function herald_update(hpk, status, elem) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status, 1000);
                 } else {
+                    elem.find('.current').html('<i class=" ' + data.icon + ' icon" style="margin-right: 0"></i>'+ data.display)
                     // Replace current item with the select one.
                     // active.text($item.text());
                 }
@@ -319,7 +320,12 @@ $(document).ready(function () {
 
     $("[data-value='accept']").popup({
         on: 'hover',
-        content: 'Accept answer '
+        content: 'Accept'
+    });
+
+     $("[data-value='decline']").popup({
+        on: 'hover',
+        content: 'Decline'
     });
     $('.voting button').each(function (event) {
 
@@ -364,10 +370,10 @@ $(document).ready(function () {
         $('.hidden-answer').toggle()
     });
 
-    $(".herald.menu .item").click(function () {
-        var elem = $(this).closest('.menu').closest('.item');
-        var hpk = $(this).closest('.menu').data('value');
-        var status = $(this).data('val');
+    $(".herald.item [data-value='accept'],[data-value='decline']").click(function () {
+        var elem = $(this).closest('.herald');
+        var hpk = elem.data('value');
+        var status = $(this).data('value');
         herald_update(hpk, status, elem)
     });
 

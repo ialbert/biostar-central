@@ -1,4 +1,4 @@
-{% extends "herald/herald_list.html" %}
+{% extends "forum_list.html" %}
 {% load forum_tags %}
 {% load static %}
 {% load humanize %}
@@ -9,15 +9,29 @@
 {% endblock %}
 
 {% block headtitle %}
-    Biostar Herald
+    {{ post.title }}
 {% endblock %}
 
 {% block heraldtitle %}
-    {{ blogpost.title }}
+    {{ post.title }}
 {% endblock %}
 
-{% block inner %}
+{% block body %}
+
     <div class="ui vertical segment">
+
+        <h2 class="ui header">
+            <img src="{% static 'images/news-herald.png' %}">
+            <div class="content">
+                {{ post.title }}
+                <div class="sub header">Share bioinformatics resources from across the web.</div>
+            </div>
+        </h2>
+
+    </div>
+
+    <div class="ui vertical segment">
+
         <div class="ui relaxed divided list">
 
             {% for herald in heralds %}
@@ -36,7 +50,7 @@
 {% endblock %}
 
 {% block sidebar %}
-    
+
 
 
 {% endblock %}
