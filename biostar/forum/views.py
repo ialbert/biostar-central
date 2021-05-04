@@ -635,7 +635,7 @@ def herald_publish(request):
         return redirect(reverse('post_list'))
 
     post = auth.herald_publisher()
-    #Herald.objects.update(status=Herald.ACCEPTED)
+    Herald.objects.update(status=Herald.ACCEPTED)
     if not post:
         messages.error(request, "Not enough submissions to publish.")
         return redirect(reverse('post_list'))

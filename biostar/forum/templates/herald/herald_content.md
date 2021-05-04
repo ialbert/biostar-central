@@ -11,16 +11,14 @@ Biostar Herald
 <div class="sub header">Share bioinformatics resources from across the web.</div>
 </div>
 </h2>
-<p>
-Here are the latest things shared by our user base.
-</p>
+
 </div>
 
 {% for herald in heralds %}
  
-<div class="ui vertical segment">
+<div class="ui container">
 
-written by <img class="ui avatar image" src="{% gravatar user=herald.author size=50 %}"/>
+<img class="ui avatar image" src="{% gravatar user=herald.author size=50 %}"/>
 <a href="{{ herald.author.profile.get_absolute_url }}">
 {{herald.author.profile.name}}
 </a>&bull; 
@@ -29,7 +27,7 @@ accepted by <a href="{{ herald.editor.profile.get_absolute_url }}">
  {{herald.editor.profile.name}}
 </a>
 
-<p>{{herald.text}}</p>
+<div class='ui basic segment'>{{herald.text}}</div>
 </div>
 
 {% endfor %}
