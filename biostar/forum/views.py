@@ -646,23 +646,6 @@ def herald_publish(request):
 
 
 @authenticated
-def herald_issue(request, uid):
-    """
-    Return a list publications given a
-    """
-
-    # Get a blog post.
-    post = Post.objects.filter(uid=uid).first()
-
-    # Get herald posts belonging to this blog post issue.
-    heralds = post.herald_set.order_by('-date').all()
-
-    context = dict(heralds=heralds, post=post)
-
-    return render(request, 'herald/herald_issue.html', context)
-
-
-@authenticated
 def herald_submit(request):
     user = request.user
     form = forms.HeraldSubmit(user=user)
