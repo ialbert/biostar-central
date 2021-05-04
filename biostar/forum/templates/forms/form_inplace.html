@@ -2,7 +2,6 @@
 {% load static %}
 
 
-
 <link href="{% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
 <link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
 
@@ -74,11 +73,11 @@
                 <i class="undo icon"></i>Cancel
             </a>
 
-          {% if post and not new%}
-           <a class="ui right floated button delete">
-                <i class="trash icon"></i>Delete
-            </a>
-        {% endif %}
+            {% if post and not new %}
+                <a class="ui right floated button delete">
+                    <i class="trash icon"></i>Delete
+                </a>
+            {% endif %}
         </div>
 
     </form>
@@ -115,12 +114,28 @@
         });
         $('#inplace #wmd-input').keyup(function (event) {
 
-        // Submit form with CTRL-ENTER
-        if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
-            var save = $('#inplace').find('.save, .create');
-            save.click();
-        }
-    });
+            // Submit form with CTRL-ENTER
+            if (event.ctrlKey && (event.keyCode === 13 || event.keyCode === 10)) {
+                var save = $('#inplace').find('.save, .create');
+                save.click();
+            }
+        });
+        $("body").on("click", '.pagedown-image-upload.show .submit-input', function () {
+
+            var form = $(this).closest('form');
+            setTimeout(
+                function () {
+                    var text = form.find('.wmd-input').val();
+                    highligh_preview(form, text);
+                }, 500);
+        });
+
+        $("#wmd-button-bar").click(function (event) {
+            var text = $(this).closest('form').find('.wmd-input').val();
+            var form = $(this).closest('form');
+            highligh_preview(form, text);
+
+        });
 
     })
 </script>
