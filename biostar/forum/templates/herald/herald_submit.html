@@ -30,7 +30,7 @@
                 <i class="times icon"></i>Cancel
             </button>
             {% if request.user.profile.is_moderator %}
-                <a class="ui blue button" href="{% url 'herald_list' %}"> View Submissions</a>
+                <a class="ui blue button" href="{% url 'herald_list' %}"><i class="eye icon"></i> View Submissions</a>
             {% endif %}
         </form>
 

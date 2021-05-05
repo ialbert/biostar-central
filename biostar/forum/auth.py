@@ -15,7 +15,7 @@ from django.conf import settings
 
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
-from biostar.planet.models import BlogPost
+from biostar.planet.models import BlogPost, Blog
 # Needed for historical reasons.
 from biostar.accounts.models import Profile
 from biostar.utils.helpers import get_ip
@@ -233,6 +233,8 @@ def herald_planet(post):
     Create a herald blog post from a post.
     """
 
+    blog = Blog.objects.filter()
+
     return
 
 
@@ -255,7 +257,6 @@ def herald_publisher(limit=20, nmin=3):
 
     context = dict(heralds=heralds, title=title)
     content = render_template(template="herald/herald_content.md", context=context)
-    #html = render_template(template="herald/herald_content.md", context=context)
 
     # Create post user
     user = User.objects.filter(is_superuser=True).first()
@@ -352,7 +353,7 @@ def post_tree(user, root):
         if user.is_authenticated:
             post.can_accept = not post.is_toplevel and (user == post.root.author or user.profile.is_moderator)
             post.can_moderate = user.profile.is_moderator
-            post.is_editable = (user == post.author or user.profile.is_moderator)
+            post.is_editable = (user == post.author or user.profile.is_moderator) and not post.is_herald
         else:
             post.can_accept = False
             post.is_editable = False

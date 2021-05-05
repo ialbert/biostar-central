@@ -21,6 +21,7 @@
     --post-title-shadow: rgba(0, 0, 0, 0.1);
     --post-title-border: #ececec;
     --popover-color: #3c763d;
+    --herald-color:#df6cbc;
     --on-color: green;
     --disabled: red;
     --popover-error-background: #f2dede;
@@ -786,6 +787,11 @@ img {
 
 .ui.forum.label {
     background-color: var(--forum-background);
+    color: var(--label-color);
+}
+
+.ui.herald.label {
+    background-color: var(--herald-color);
     color: var(--label-color);
 }
 

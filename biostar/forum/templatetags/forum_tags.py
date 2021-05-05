@@ -711,6 +711,8 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
         style = "forum"
     elif root_type == Post.NEWS:
         style = "news"
+    elif root_type == Post.HERALD:
+        style = "herald"
     else:
         style = "question"
 

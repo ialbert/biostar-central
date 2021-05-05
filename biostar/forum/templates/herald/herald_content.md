@@ -2,17 +2,7 @@
 {% load humanize %}
 {% load static %}
 
-<div class="ui basic segment">
-
-<h2 class="ui header">
-<img src="{% static 'images/news-herald.png' %}">
-<div class="content">
-Biostar Herald
-<div class="sub header">Share bioinformatics resources from across the web.</div>
-</div>
-</h2>
-
-</div>
+{% include 'herald/herald_top.md' %}
 
 {% for herald in heralds %}
  
@@ -31,3 +21,5 @@ accepted by <a href="{{ herald.editor.profile.get_absolute_url }}">
 </div>
 
 {% endfor %}
+
+{% include 'herald/herald_bottom.md' %}
