@@ -1,7 +1,7 @@
 :root {
     --active-item-color: #663b72;
     --active-item-bg-color: white;
-    --root-font: Helvetica, Arial, sans-serif;
+    --root-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --page-width: 1200px;
     --page-bg-color: #f8f8f9;
     --menu-bg-color: white;
@@ -88,7 +88,7 @@ body {
     font-family: var(--root-font);
     color: #333;
     line-height: 1.428571429;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 #sidebar .title {
