@@ -381,16 +381,12 @@ def apply_vote(post, user, vote_type):
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
         msg = f"{vote.get_type_display()} added"
 
-    if post.author == user:
-        # Author making the change
-        change = 0
-        return msg, vote, change
-
-    # Fetch update the user score.
-    Profile.objects.filter(user=post.author).update(score=F('score') + change)
+    # Fetch update the post author score.
+    if not post.author == user:
+        Profile.objects.filter(user=post.author).update(score=F('score') + change)
 
     # Calculate counts for the current post
-    votes = list(Vote.objects.filter(post=post).exclude(author=post.author))
+    votes = list(Vote.objects.filter(post=post))
     vote_count = len(votes)
     bookcount = len(list(filter(lambda v: v.type == Vote.BOOKMARK, votes)))
     accept_count = len(list(filter(lambda v: v.type == Vote.ACCEPT, votes)))
