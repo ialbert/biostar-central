@@ -75,6 +75,14 @@ def add_blogpost(blogs, count=3):
     return
 
 
+def blog_from_link(link, user):
+    """
+    Create a Planet blog post from a Link object.
+    """
+
+    return
+
+
 def add_blog(feed):
     try:
         logger.debug(f"processing {feed}")

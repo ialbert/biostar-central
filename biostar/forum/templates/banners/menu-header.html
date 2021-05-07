@@ -6,13 +6,11 @@
     <a class="item {% activate tab "latest" %} " href="{% url 'post_list' %}">
         <i class="list icon"></i> Latest
     </a>
+
     <a class="item {% activate tab "open" %} " href="{% url 'post_topic' 'open' %}">
         <i class="envelope open icon"></i> Open
     </a>
 
-    <!-- <a class="item {% activate tab "news" %} " href="{% url 'post_topic' 'news' %}">
-        <i class="newspaper icon"></i> News
-    </a> -->
     <a class="item {% activate tab "jobs" %} " href="{% url 'post_topic' 'jobs' %}">
         <i class="briefcase icon"></i> Jobs
     </a>
@@ -33,9 +31,16 @@
         <i class="info circle icon"></i>About
     </a>
 
-        <a class="item  {% activate tab "faq" %}" href="/info/faq/">
+    <a class="item  {% activate tab "faq" %}" href="/info/faq/">
         <i class="info recycle icon"></i>FAQ
     </a>
+
+    {% if request.user.is_authenticated %}
+        <a class="item {% activate tab "submit" %} " href="{% url 'herald_list' %}">
+            <i class="newspaper icon"></i> Submit
+        </a>
+    {% endif %}
+
 
 </div>
 
@@ -53,18 +58,17 @@
     </a>
 
     <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
-        <i class="rss icon"></i> Planet  {% count_badge counts.planet_count %}
+        <i class="rss icon"></i> Planet {% count_badge counts.planet_count %}
     </a>
 
     {% if request.user.profile.is_moderator %}
         <a class="item {% activate tab 'spam' %} " href="{% url 'post_topic' 'spam' %}">
-            <i class="bug icon"></i> Spam  {% count_badge counts.spam_count %}
+            <i class="bug icon"></i> Spam {% count_badge counts.spam_count %}
         </a>
         <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
             <i class="chess queen icon"></i> Mods {% count_badge counts.mod_count %}
         </a>
     {% endif %}
-
 
     <a class="item {% activate tab "new" %}" href="{% url 'post_create' %}">
         <i class="edit icon"></i> New Post

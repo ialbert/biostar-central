@@ -13,6 +13,7 @@ from taggit.managers import TaggableManager
 
 from biostar.utils import helpers
 from biostar.accounts.models import Profile
+from biostar.planet.models import BlogPost
 from . import util
 
 User = get_user_model()
@@ -86,16 +87,16 @@ class Post(models.Model):
                       (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
-    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS, HERALD = range(13)
 
     # Valid post types.
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
         (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"),
         (DATA, "Data"), (PAGE, "Page"), (TOOL, "Tool"), (NEWS, "News"),
-        (BLOG, "Blog"), (BOARD, "Bulletin Board")
+        (BLOG, "Blog"), (BOARD, "Bulletin Board"), (HERALD, "Herald")
     ]
-    TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
+    TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS, HERALD}
 
     # Possible spam states.
     SPAM, NOT_SPAM, DEFAULT = range(3)
@@ -217,6 +218,9 @@ class Post(models.Model):
             prefix = f"{self.get_type_display()}:" if self.is_open else f"{self.get_status_display()}:"
 
         return prefix
+
+    def is_herald(self):
+        return self.type == self.HERALD
 
     @property
     def is_open(self):
@@ -495,6 +499,69 @@ class Subscription(models.Model):
     @property
     def uid(self):
         return self.pk
+
+
+class SharedLink(models.Model):
+
+    # User submitting the herald
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # User that accepted/decline this submission.
+    editor = models.ForeignKey(User, related_name='herald_editor', on_delete=models.SET_NULL, null=True)
+
+    # URL of the given herald_list
+    url = models.URLField(max_length=MAX_TEXT_LEN)
+
+    # Text ( markdown ) description and html representation.
+    text = models.TextField(max_length=MAX_TEXT_LEN, blank=True, default='')
+
+    # Date this herald_list was created.
+    creation_date = models.DateTimeField()
+    lastedit_date = models.DateTimeField()
+
+    # Gains a post once published, assumed none until then.
+    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
+
+    SUBMITTED, DECLINED, ACCEPTED, PUBLISHED = range(4)
+    CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Rejected'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
+    status = models.IntegerField(choices=CHOICES, default=SUBMITTED, db_index=True)
+
+    def save(self, *args, **kwargs):
+        # Needs to be imported here to avoid circular imports.
+
+        self.creation_date = self.creation_date or util.now()
+        self.lastedit_date = self.lastedit_date or self.creation_date or util.now()
+
+        super(SharedLink, self).save(*args, **kwargs)
+        return
+
+    @property
+    def declined(self):
+        return self.status == self.DECLINED
+
+    @property
+    def published(self):
+        return self.status == self.PUBLISHED
+
+    @property
+    def submitted(self):
+        return self.status == self.SUBMITTED
+
+    @property
+    def accepted(self):
+        return self.status == self.ACCEPTED
+
+    @property
+    def icon(self):
+
+        if self.accepted:
+            return 'green check'
+        elif self.published:
+            return 'purple book'
+        elif self.declined:
+            return 'orange times'
+        else:
+            return 'blue paper plane'
 
 
 class Badge(models.Model):

@@ -1,7 +1,7 @@
 :root {
     --active-item-color: #663b72;
     --active-item-bg-color: white;
-    --root-font: Helvetica, Arial, sans-serif;
+    --root-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --page-width: 1200px;
     --page-bg-color: #f8f8f9;
     --menu-bg-color: white;
@@ -21,6 +21,7 @@
     --post-title-shadow: rgba(0, 0, 0, 0.1);
     --post-title-border: #ececec;
     --popover-color: #3c763d;
+    --herald-color:#df6cbc;
     --on-color: green;
     --disabled: red;
     --popover-error-background: #f2dede;
@@ -88,7 +89,7 @@ body {
     font-family: var(--root-font);
     color: #333;
     line-height: 1.428571429;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 #sidebar .title {
@@ -135,6 +136,9 @@ tr.message > td{
 / / background-color: var(--logo-background);
 }
 
+.links-form{
+    display: none;
+}
 
 .message td {
     padding-bottom: 0ex !important;
@@ -322,8 +326,8 @@ i.icon {
 }
 
 .user_box {
-    width: 150px;
-    margin: 0em 0em 0.5em 0.5em;
+    width: 140px;
+    margin: 0em 0em 0em 0em;
     padding: 10px 0px 10px 0px;
     background-color: var(--user-box-backgound);
     font-size: small;
@@ -783,6 +787,11 @@ img {
 
 .ui.forum.label {
     background-color: var(--forum-background);
+    color: var(--label-color);
+}
+
+.ui.herald.label {
+    background-color: var(--herald-color);
     color: var(--label-color);
 }
 

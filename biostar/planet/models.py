@@ -4,10 +4,12 @@ import os, logging, datetime
 from urllib import request
 import feedparser
 from django.utils.timezone import utc
+from biostar.accounts.models import User
 import uuid
 
 logger = logging.getLogger("engine")
 
+MAX_TEXT_LEN = 10000
 
 def now():
     return datetime.datetime.utcnow().replace(tzinfo=utc)
@@ -34,7 +36,6 @@ class Blog(models.Model):
     link = models.URLField()
     active = models.BooleanField(default=True)
     list_order = models.IntegerField(default=0)
-
     # Adding field that indicates a remote blog
     remote = models.BooleanField(default=True)
 
@@ -80,7 +81,7 @@ class BlogPost(models.Model):
     # The content of the feed
     content = models.TextField(default='', max_length=20000)
 
-    # Santizied HTML
+    # Sanitized HTML
     html = models.TextField(default='')
 
     # Date related fields.
@@ -97,6 +98,7 @@ class BlogPost(models.Model):
 
     # Posts should be ranked by this.
     rank = models.DateTimeField(db_index=True, null=True)
+
     @property
     def get_title(self):
         return f"BLOG: {self.title}"
@@ -110,7 +112,9 @@ class BlogPost(models.Model):
 
         # Set the rank
         self.rank = self.rank or self.insert_date
-
+        #self.html = self.hmtl or
+        # SET THE HTML
+        #self.html = ''
         self.uid = self.uid or get_uuid(10)
 
         super(BlogPost, self).save(*args, **kwargs)

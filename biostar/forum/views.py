@@ -14,19 +14,18 @@ from django.http import Http404
 from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
-
+from biostar.planet.models import Blog, BlogPost
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models, moderate
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Log
-from biostar.utils.decorators import is_moderator, check_params, reset_count
+from biostar.forum.models import Post, Vote, Badge, Subscription, Log, SharedLink
+from biostar.utils.decorators import is_moderator, check_params, reset_count, authenticated
 
 User = get_user_model()
 
 logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
-
 
 CREATE_PARAMS = {'title', 'tag_val'}
 CREATE_PARAMS.update(ALLOWED_PARAMS)
@@ -69,18 +68,6 @@ def post_exists(func):
     return _wrapper_
 
 
-def authenticated(func):
-
-    def _wrapper_(request, **kwargs):
-        if request.user.is_anonymous:
-            messages.error(request, "You need to be logged in to view this page.")
-            return redirect(reverse('post_list'))
-
-        return func(request, **kwargs)
-
-    return _wrapper_
-
-
 class CachedPaginator(Paginator):
     """
     Paginator that caches the count call.
@@ -107,7 +94,7 @@ class CachedPaginator(Paginator):
             value = cache.get(self.cache_key)
             if value is None:
                 value = super(CachedPaginator, self).count
-                #logger.debug(f'setting the cache for "{self.cache_key}"')
+                # logger.debug(f'setting the cache for "{self.cache_key}"')
                 cache.set(self.cache_key, value, self.ttl)
         else:
             value = super(CachedPaginator, self).count
@@ -116,7 +103,6 @@ class CachedPaginator(Paginator):
 
 
 def apply_sort(posts, limit=None, order=None):
-
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
         ordering = ORDER_MAPPER.get(order)
@@ -379,7 +365,6 @@ def bookmarks(request):
 @ensure_csrf_cookie
 @authenticated
 def mytags(request):
-
     posts = post_list(request, topic=MYTAGS)
 
     context = dict(posts=posts, topic=MYTAGS, tab=MYTAGS)
@@ -463,7 +448,6 @@ def tags_list(request):
 
 @check_params(allowed=ALLOWED_PARAMS)
 def community_list(request):
-
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
@@ -538,6 +522,7 @@ def post_view(request, uid):
         messages.error(request, "Post does not exist.")
         return redirect("post_list")
 
+    # Redirect to post view
     if not post.is_toplevel:
         return redirect(post.get_absolute_url())
 
@@ -561,7 +546,6 @@ def post_view(request, uid):
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
-    # user string
 
     # Bump post views.
     models.update_post_views(post=post, request=request, timeout=settings.POST_VIEW_TIMEOUT)
@@ -569,8 +553,6 @@ def post_view(request, uid):
     context = dict(post=root, tree=comment_tree, form=form, answers=answers)
 
     return render(request, "post_view.html", context=context)
-
-
 
 @check_params(allowed=CREATE_PARAMS)
 @login_required
@@ -622,14 +604,16 @@ def view_logs(request):
     else:
         logs = Log.objects.filter(pk=0)
 
-    logs = logs.select_related("user", "post", "post__root","user__profile", "target", "target__profile", "post__author")
+    logs = logs.select_related("user", "post", "post__root", "user__profile", "target", "target__profile",
+                               "post__author")
 
     context = dict(logs=logs)
 
     return render(request, "view_logs.html", context=context)
 
+
 def error(request):
     """
     Checking error propagation and logging
     """
-    1/0
+    1 / 0

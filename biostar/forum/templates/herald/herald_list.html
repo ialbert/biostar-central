@@ -1,0 +1,18 @@
+{% load forum_tags %}
+{% load humanize %}
+
+        <div class="ui vertical segment">
+            <h4 class="ui header">Recently Stories </h4>
+
+            <div class="ui relaxed divided list">
+
+                {% for story in stories %}
+                    <div class="item herald" data-value="{{ story.pk }}">
+                    {% herald_item item=story %}
+                    </div>
+                {% empty %}
+                    <div class="ui blue message">No results found.</div>
+                {% endfor %}
+
+            </div>
+        </div>

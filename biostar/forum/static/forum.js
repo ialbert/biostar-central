@@ -205,6 +205,30 @@ function tags_dropdown() {
 
 }
 
+
+function herald_update(hpk, status, elem) {
+    $.ajax('/herald/update/' + hpk + '/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {'status': status},
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(elem, data.msg, data.status, 1000);
+                } else {
+                    elem.html(data.tmpl);
+                    // Replace current item with the select one.
+                    // active.text($item.text());
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
+
+}
+
 function highligh_preview(form, text) {
     var highlighted = highlight(text);
 
@@ -315,8 +339,14 @@ $(document).ready(function () {
 
     $("[data-value='accept']").popup({
         on: 'hover',
-        content: 'Accept answer '
+        content: 'Accept'
     });
+
+     $("[data-value='decline']").popup({
+        on: 'hover',
+        content: 'Decline'
+    });
+
     $('.voting button').each(function (event) {
 
         var elem = $(this);
@@ -337,15 +367,20 @@ $(document).ready(function () {
         var elem = $(this);
         // Get errored out field id and label
         var field_id = elem.attr('data-value');
-        var field_label = elem.attr('label');
         // Get the error message
         var message = elem.attr("message");
         // Select field in the form using it's id
-        var field = $(field_id);
-        // Add an 'error' to '.ui.field' to turn it red.
-        field.closest(".field").addClass("error");
+
+        try {
+            var field = $(field_id);
+            // Add an 'error' to '.ui.field' to turn it red.
+            field.closest(".field").addClass("error");
+        } catch (err) {
+            field = $('#form-errors');
+        }
+
         // Insert the error message
-        field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
+        field.before('<div class="ui small red message">' + message + '</div>')
     });
 
 
@@ -355,6 +390,24 @@ $(document).ready(function () {
         $('.hidden-answer').toggle()
     });
 
+    $(".herald.item [data-value='accept'],[data-value='decline']").click(function () {
+        var elem = $(this).closest('.herald');
+        var hpk = elem.data('value');
+        var status = $(this).data('value');
+        herald_update(hpk, status, elem)
+    });
+
+    $(this).on('click', ".herald.item [data-value='accept'],[data-value='decline']", function (event) {
+        var elem = $(this).closest('.herald');
+        var hpk = elem.data('value');
+        var status = $(this).data('value');
+        herald_update(hpk, status, elem)
+    });
+
+
+    $('#planet_suggest').click(function () {
+        $('.links-form').toggle(300)
+    });
     tags_dropdown();
 
     $('pre').addClass('language-bash');

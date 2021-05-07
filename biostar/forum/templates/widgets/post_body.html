@@ -53,10 +53,10 @@
                 </div>
 
                 <div class="wrap magnify">
-
+                    {#% if not post.is_herald %#}
                     {# Display post author. #}
-                    {% post_user_box target_user=post.author post=post %}
-
+                        {% post_user_box target_user=post.author post=post %}
+                    {#% endif %#}
                     {# Display post content. #}
                 <span  itemprop="text">
                     {% if post.is_editable %}
@@ -76,7 +76,9 @@
                 <time itemprop="dateCreated" datetime="{{ post.creation_date|date:"Y-m-d" }}"></time>
 
                 {# Show the post actions #}
+
                 {% post_actions post=post %}
+
 
             </div>
 

@@ -14,12 +14,13 @@ from django.db.models import Q, Count
 from django.shortcuts import reverse, redirect
 from django.template import loader
 from django.http import JsonResponse
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views, const, moderate
-from .models import Post, Vote, Subscription, delete_post_cache
+from .models import Post, Vote, Subscription, delete_post_cache, SharedLink
+
 
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
@@ -46,11 +47,10 @@ def ajax_limited(key, rate):
     """
     Make a blocking rate limiter that does not raise an exception
     """
-    def outer(func):
 
+    def outer(func):
         @ratelimit(key=key, rate=rate)
         def inner(request, **kwargs):
-
             was_limited = getattr(request, 'limited', False)
             if was_limited:
                 return ajax_error(msg="Too many requests from same IP address. Temporary ban.")
@@ -67,9 +67,10 @@ class ajax_error_wrapper:
     Used as decorator to trap/display  errors in the ajax calls
     """
 
-    def __init__(self, method, login_required=True):
+    def __init__(self, method, login_required=True, is_mod=False):
         self.method = method
         self.login_required = login_required
+        self.is_mod = is_mod
 
     def __call__(self, func, *args, **kwargs):
 
@@ -81,6 +82,9 @@ class ajax_error_wrapper:
 
             if not request.user.is_authenticated and self.login_required:
                 return ajax_error('You must be logged in.')
+
+            if self.is_mod and (request.user.is_anonymous or not request.user.profile.is_moderator):
+                return ajax_error('You must be a moderator to perform this action.')
 
             if request.user.is_authenticated and request.user.profile.is_spammer:
                 return ajax_error('You must be logged in.')
@@ -113,7 +117,6 @@ def user_image(request, username):
 @ajax_limited(key=RATELIMIT_KEY, rate=VOTE_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
-
     user = request.user
     type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
@@ -129,7 +132,10 @@ def ajax_vote(request):
     if post.author == user and vote_type == Vote.UP:
         return ajax_error("You can not upvote your own post.")
 
-    if post.author == user and vote_type == Vote.ACCEPT:
+    # Can not accept if user wrote the answer and not top level post.
+    not_allowed = post.author == user and not post.root.author == user
+
+    if vote_type == Vote.ACCEPT and not_allowed:
         return ajax_error("You can not accept your own post.")
 
     not_moderator = user.is_authenticated and not user.profile.is_moderator
@@ -137,7 +143,6 @@ def ajax_vote(request):
         return ajax_error("Only moderators or the person asking the question may accept answers.")
 
     msg, vote, change = auth.apply_vote(post=post, user=user, vote_type=vote_type)
-
     # Expire post cache upon vote.
     delete_post_cache(post)
 
@@ -147,7 +152,6 @@ def ajax_vote(request):
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
-
     parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
     user = request.user
@@ -174,7 +178,6 @@ def drag_and_drop(request):
 @ajax_limited(key=RATELIMIT_KEY, rate=SUBS_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_subs(request):
-
     type_map = dict(messages=Subscription.LOCAL_MESSAGE, email=Subscription.EMAIL_MESSAGE,
                     unfollow=Subscription.NO_MESSAGES)
 
@@ -195,7 +198,6 @@ def ajax_subs(request):
 @ajax_limited(key=RATELIMIT_KEY, rate=DIGEST_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_digest(request):
-
     user = request.user
 
     type_map = dict(daily=Profile.DAILY_DIGEST, weekly=Profile.WEEKLY_DIGEST,
@@ -234,7 +236,6 @@ def get_fields(request, post=None):
 
 
 def set_post(post, user, fields):
-
     # Set the fields for this post.
     if post.is_toplevel:
         post.title = fields.get('title', post.title)
@@ -303,7 +304,6 @@ def ajax_delete(request):
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_comment_create(request):
-
     # Fields common to all posts
     user = request.user
     content = request.POST.get("content", "")
@@ -324,6 +324,46 @@ def ajax_comment_create(request):
     else:
         msg = [field.errors for field in form if field.errors]
         return ajax_error(msg=msg)
+
+
+@ajax_error_wrapper(method="POST", is_mod=True)
+@ensure_csrf_cookie
+def herald_update(request, pk):
+    """
+    Update the given herald status, moderators action only.
+    """
+
+    herald = SharedLink.objects.filter(pk=pk).first()
+    user = request.user
+
+    if not herald:
+        return ajax_error(msg="Herald not found")
+
+    status = request.POST.get('status')
+    mapper = dict(accept=SharedLink.ACCEPTED, decline=SharedLink.DECLINED)
+    status = mapper.get(status)
+
+    if status is None:
+        return ajax_error(msg="Invalid status.")
+
+    # If herald is already published, do not accept again.
+    if herald.published:
+        return ajax_error(msg=f"submission is already published.")
+
+    herald.status = status
+    herald.editor = user
+    herald.lastedit_date = util.now()
+    context = dict(story=herald, user=request.user)
+    tmpl = loader.get_template(template_name='herald/herald_item.html')
+    tmpl = tmpl.render(context)
+
+    SharedLink.objects.filter(pk=herald.pk).update(status=herald.status, editor=herald.editor,
+                                                   lastedit_date=herald.lastedit_date)
+
+    logmsg = f"{herald.get_status_display().lower()} herald story {herald.url[:100]}"
+    auth.db_logger(user=herald.editor, target=herald.author, text=logmsg)
+
+    return ajax_success(msg="changed herald state", icon=herald.icon, tmpl=tmpl)
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

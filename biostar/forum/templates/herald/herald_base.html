@@ -1,0 +1,86 @@
+{% extends "forum_list.html" %}
+{% load forum_tags %}
+{% load static %}
+{% load humanize %}
+{% load cache %}
+
+{% block title %}
+    Biostar Herald
+{% endblock %}
+
+{% block headtitle %}
+    Biostar Herald
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui vertical segment">
+
+        <h2 class="ui header">
+            <img src="{% static 'images/news-herald.png' %}">
+            <div class="content">
+                {% block heraldtitle %}
+                    Biostar Herald
+                {% endblock %}
+                <div class="sub header">Share bioinformatics resources from across the web.</div>
+            </div>
+
+        </h2>
+
+    </div>
+
+    <div class="ui segment form-wrap" style="width: 61%;margin:auto;margin-top:30px;">
+
+        <form method="post" class="ui form" action="{% url 'herald_list' %}">
+            {% form_errors form %}
+
+            {% csrf_token %}
+
+            <div class="required field">
+                <label>Source link</label>
+                {{ form.url }}
+                <p class="muted">The URL containing the video, tweet, code, or paper.</p>
+            </div>
+
+            <div class="field">
+                <label>Description ( optional )</label>
+                {{ form.text }}
+                <p class="muted">Short description of the above shared link. </p>
+            </div>
+
+            <button type="submit" class="ui submit green button">
+                <i class="check icon"></i>Submit
+            </button>
+            <button href="{% url 'herald_list' %}" class="ui button">
+                <i class="times icon"></i>Cancel
+            </button>
+
+        </form>
+
+    </div>
+    {% if request.user.is_staff or  request.user.is_superuser %}
+        <a class="ui blue button" href="{% url 'herald_publish' %}"><i class="book icon"></i> Publish</a>
+
+    {% endif %}
+    {% if request.user.profile.is_moderator %}
+
+        {% include 'herald/herald_list.html' %}
+
+    {% endif %}
+
+
+{% endblock %}
+
+{% block sidebar %}
+
+    <h4 class="ui header muted">
+        Community Guidelines
+    </h4>
+    <ol style="list-style-type: upper-roman;">
+        <li>Share code, videos, tweets, papers relating to biological sciences.</li>
+        <li>Moderators can accept submitted topics.</li>
+        <li>Accepted submissions are auto-published every day.</li>
+    </ol>
+
+
+{% endblock %}

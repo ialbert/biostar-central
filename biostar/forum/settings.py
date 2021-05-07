@@ -39,7 +39,7 @@ REQUIRED_TAGS_URL = "/"
 
 # How to run tasks in the background.
 # Valid options; block, disable, threaded, uwsgi, celery.
-TASK_RUNNER = 'block'
+TASK_RUNNER = 'threaded'
 
 # Threshold to classify spam
 SPAM_THRESHOLD = .5
