@@ -10,7 +10,7 @@ from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User
-from .models import Post, Herald
+from .models import Post, SharedLink
 from biostar.forum import models, auth
 
 from .const import *
@@ -220,7 +220,7 @@ class HeraldSubmit(forms.Form):
     def clean(self):
         cleaned_data = super(HeraldSubmit, self).clean()
         url = cleaned_data['url']
-        exists = Herald.objects.filter(url=url).first()
+        exists = SharedLink.objects.filter(url=url).first()
 
         if self.user.is_anonymous:
             raise forms.ValidationError("You need to be logged in.")

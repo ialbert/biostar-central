@@ -1,67 +1,14 @@
-{% extends "forum_list.html" %}
 {% load forum_tags %}
-{% load static %}
 {% load humanize %}
-{% load cache %}
 
-{% block title %}
-    Biostar Herald
-{% endblock %}
-
-{% block headtitle %}
-    Biostar Herald
-{% endblock %}
-
-{% block body %}
-
-    <div class="ui vertical segment">
-
-        <h2 class="ui header">
-            <img src="{% static 'images/news-herald.png' %}">
-            <div class="content">
-                {% block heraldtitle %}
-                    Biostar Herald
-                {% endblock %}
-                <div class="sub header">Share bioinformatics resources from across the web.</div>
-            </div>
-
-        </h2>
-
-    </div>
-
-    {% block inner %}
         <div class="ui vertical segment">
             <h4 class="ui header">Recently Stories </h4>
-
-            {% if request.user.is_staff or  request.user.is_superuser %}
-                <a class="ui button" href="{% url 'herald_publish' %}"> <i class="paper plane icon"></i>Publish</a>
-            {% endif %}
 
             <div class="ui relaxed divided list">
 
                 {% for story in stories %}
                     <div class="item herald" data-value="{{ story.pk }}">
-                        <img class="ui avatar image" src="{% gravatar user=story.author size=80 %}"/>
-                        <div class="content">
-                            <em>{{ story.date|naturaltime }}</em> &bull;
-                            <a href="{{ story.author.profile.get_absolute_url }}">{{ story.author.profile.name }}</a>shared
-                            <a href="{{ story.url }}">{{ story.url|truncatechars:50 }}</a>
-                            <span class="current"><i class="{{ story.icon }} icon"
-                                                     style="margin-right: 0"></i>{{ story.get_status_display }}</span>
-                            &bull;
-                            {% if user.profile.is_moderator and not story.published %}
-
-                                <a class="ui basic mini label" data-value="accept"><i class="green check icon"></i></a>
-                                &bull;
-                                <a class="ui basic  mini label" data-value="decline"><i
-                                        class="orange times icon"></i></a>
-                            {% endif %}
-
-                            {% if story.text %}
-                                <p class="muted">{{ story.text|truncatechars:100 }}</p>
-                            {% endif %}
-
-                        </div>
+                    {% story_detail story=story %}
                     </div>
                 {% empty %}
                     <div class="ui blue message">No results found.</div>
@@ -69,12 +16,3 @@
 
             </div>
         </div>
-    {% endblock %}
-
-
-{% endblock %}
-
-{% block sidebar %}
-
-
-{% endblock %}

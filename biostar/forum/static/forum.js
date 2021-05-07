@@ -217,7 +217,7 @@ function herald_update(hpk, status, elem) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status, 1000);
                 } else {
-                    elem.find('.current').html('<i class=" ' + data.icon + ' icon" style="margin-right: 0"></i>'+ data.display)
+                    elem.html(data.tmpl);
                     // Replace current item with the select one.
                     // active.text($item.text());
                 }
@@ -346,6 +346,7 @@ $(document).ready(function () {
         on: 'hover',
         content: 'Decline'
     });
+
     $('.voting button').each(function (event) {
 
         var elem = $(this);
@@ -395,6 +396,14 @@ $(document).ready(function () {
         var status = $(this).data('value');
         herald_update(hpk, status, elem)
     });
+
+    $(this).on('click', ".herald.item [data-value='accept'],[data-value='decline']", function (event) {
+        var elem = $(this).closest('.herald');
+        var hpk = elem.data('value');
+        var status = $(this).data('value');
+        herald_update(hpk, status, elem)
+    });
+
 
     $('#planet_suggest').click(function () {
         $('.links-form').toggle(300)

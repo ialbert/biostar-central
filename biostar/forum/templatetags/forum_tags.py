@@ -727,6 +727,14 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
     return f"{style} {modifier}"
 
 
+@register.inclusion_tag('herald/story.html', takes_context=True)
+def story_detail(context, story):
+    request = context['request']
+    user = request.user
+    context = dict(story=story, request=request, user=user)
+    return context
+
+
 @register.simple_tag
 def search_boxclass(root_type, answer_count, root_has_accepted):
     return post_boxclass(root_type=root_type,

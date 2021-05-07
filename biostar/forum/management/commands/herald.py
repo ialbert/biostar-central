@@ -3,7 +3,7 @@ from typing import Any
 import os, sys
 from django.template import loader
 from django.core.management.base import BaseCommand
-from biostar.forum.models import Post, Herald
+from biostar.forum.models import Post, SharedLink
 from biostar.forum.util import now
 from biostar.accounts.models import User
 from biostar.planet.models import BlogPost, Blog

@@ -21,7 +21,7 @@ from biostar.accounts.models import Profile
 from biostar.utils.helpers import get_ip
 from . import util, awards
 from .const import *
-from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log, Herald
+from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log, SharedLink
 
 User = get_user_model()
 
@@ -219,57 +219,6 @@ def create_post(author, title, content, root=None, parent=None, ptype=Post.QUEST
                                type=ptype, tag_val=tag_val, author=author)
 
     delete_cache(MYPOSTS, author)
-    return post
-
-
-def render_template(template, context):
-    tmpl = loader.get_template(template_name=template)
-    content = tmpl.render(context)
-    return content
-
-
-def herald_planet(post):
-    """
-    Create a herald blog post from a post.
-    """
-
-    blog = Blog.objects.filter()
-
-    return
-
-
-def herald_publisher(limit=20, nmin=3):
-    """
-    Create one publication from Herald accepted submissions ( up to 'limit' ).
-    """
-
-    # Slice heralds and
-    # re-fetch query so we can apply .update() later
-    heralds = Herald.objects.filter(status=Herald.ACCEPTED)[:limit]
-
-    if heralds.count() < nmin:
-        logger.warning(f"There aren't enough stories to publish, minimum of {nmin} required.")
-        return
-
-    # Create herald issue
-    date = util.now().date()
-    title = f"Biostar Herald {date}"
-
-    context = dict(heralds=heralds, title=title)
-    content = render_template(template="herald/herald_content.md", context=context)
-
-    # Create post user
-    user = User.objects.filter(is_superuser=True).first()
-    post = create_post(title=title, content=content, author=user, tag_val='BiostarHerald', ptype=Post.HERALD)
-
-    # Tie these submissions to a post
-    hpks = heralds.values_list('pk', flat=True)
-    Herald.objects.filter(pk__in=hpks).update(status=Herald.PUBLISHED, post=post)
-
-    # Log the action
-    db_logger(user=user, text=f"published {hpks.count()} submissions in {title}")
-
-    # Create planet blog post linking to this herald issue.
     return post
 
 

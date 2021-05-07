@@ -18,7 +18,7 @@ from biostar.planet.models import Blog, BlogPost
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models, moderate
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Log, Herald
+from biostar.forum.models import Post, Vote, Badge, Subscription, Log, SharedLink
 from biostar.utils.decorators import is_moderator, check_params, reset_count, authenticated
 
 User = get_user_model()
@@ -611,58 +611,6 @@ def view_logs(request):
     context = dict(logs=logs)
 
     return render(request, "view_logs.html", context=context)
-
-
-@is_moderator
-def herald_list(request):
-    """
-    List latest herald_list items
-    """
-
-    # List newly submitted links.
-    stories = Herald.objects.order_by('-date')
-    stories = stories.select_related('author', 'author__profile')
-
-    # Add pagination.
-    context = dict(stories=stories, tab='herald_list')
-    return render(request, 'herald/herald_list.html', context)
-
-
-def herald_publish(request):
-
-    if request.user.is_anonymous or not (request.user.is_staff or request.user.is_superuser):
-        messages.error(request, "You can not preform this action")
-        return redirect(reverse('post_list'))
-
-    post = auth.herald_publisher()
-    #Herald.objects.update(status=Herald.ACCEPTED)
-    if not post:
-        messages.error(request, "Not enough submissions to publish.")
-        return redirect(reverse('post_list'))
-
-    return redirect(reverse('post_view', kwargs=dict(uid=post.uid)))
-
-
-@authenticated
-def herald_submit(request):
-    user = request.user
-    form = forms.HeraldSubmit(user=user)
-
-    if request.method == 'POST':
-
-        form = forms.HeraldSubmit(data=request.POST, user=user)
-
-        if form.is_valid():
-            # Add the Link attribute.
-            link = form.cleaned_data['url']
-            text = form.cleaned_data['text']
-            # Create the herald_list objects.
-            herald = Herald.objects.create(author=user, text=text, url=link)
-
-            return redirect(reverse('herald_list'))
-
-    context = dict(form=form, tab='submit')
-    return render(request, 'herald/herald_submit.html', context)
 
 
 def error(request):

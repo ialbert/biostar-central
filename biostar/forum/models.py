@@ -501,7 +501,7 @@ class Subscription(models.Model):
         return self.pk
 
 
-class Herald(models.Model):
+class SharedLink(models.Model):
 
     # User submitting the herald
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -513,32 +513,26 @@ class Herald(models.Model):
     url = models.URLField(max_length=MAX_TEXT_LEN)
 
     # Text ( markdown ) description and html representation.
-    text = models.TextField(max_length=MAX_TEXT_LEN)
-    html = models.TextField(max_length=MAX_TEXT_LEN)
+    text = models.TextField(max_length=MAX_TEXT_LEN, blank=True, default='')
 
     # Date this herald_list was created.
-    date = models.DateTimeField()
-
-    # Gains a blog post once published, assumed none until then.
-    #blog_post = models.ForeignKey(BlogPost, on_delete=models.SET_NULL, null=True)
+    creation_date = models.DateTimeField()
+    lastedit_date = models.DateTimeField()
 
     # Gains a post once published, assumed none until then.
     post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
 
     SUBMITTED, DECLINED, ACCEPTED, PUBLISHED = range(4)
-    CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Declined'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
+    CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Rejected'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
     status = models.IntegerField(choices=CHOICES, default=SUBMITTED, db_index=True)
 
     def save(self, *args, **kwargs):
         # Needs to be imported here to avoid circular imports.
-        from biostar.forum import markdown
 
-        self.date = self.date or util.now()
+        self.creation_date = self.creation_date or util.now()
+        self.lastedit_date = self.lastedit_date or self.creation_date or util.now()
 
-        self.text = f"{self.text}\n\n{self.url}\n"
-        self.html = markdown.parse(self.text, clean=True, escape=True)
-
-        super(Herald, self).save(*args, **kwargs)
+        super(SharedLink, self).save(*args, **kwargs)
         return
 
     @property
