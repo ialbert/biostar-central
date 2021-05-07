@@ -35,8 +35,6 @@
 
 </span>
 
-    {% if post.is_herald %}
-
     {# Display the newanswer form #}
     {% elif request.user.is_authenticated and post.is_open %}
         {# Render form used to submit answers  #}
@@ -53,7 +51,6 @@
                 <i class="sign in icon"></i>Login</a> before adding your answer.</p>
         </div>
 
-    {% endif %}
 
 
     <script>

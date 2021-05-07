@@ -11,11 +11,11 @@
                                  style="margin-right: 0"></i>{{ story.get_status_display }}</span>
         &bull;
         {% if user.profile.is_moderator and not story.published %}
-            <a class="ui basic mini label" data-value="accept"><i class="green check icon"></i>
+            <a class="ui basic label" data-value="accept"><i class="green check icon"></i>
                 Accept
             </a>
             &bull;
-            <a class="ui basic  mini label" data-value="decline"><i class="orange times icon"></i>
+            <a class="ui basic label" data-value="decline"><i class="orange times icon"></i>
                 Reject
             </a>
         {% endif %}
