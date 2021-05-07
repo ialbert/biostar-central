@@ -302,7 +302,7 @@ def post_tree(user, root):
         if user.is_authenticated:
             post.can_accept = not post.is_toplevel and (user == post.root.author or user.profile.is_moderator)
             post.can_moderate = user.profile.is_moderator
-            post.is_editable = (user == post.author or user.profile.is_moderator) and not post.is_herald
+            post.is_editable = (user == post.author or user.profile.is_moderator)
         else:
             post.can_accept = False
             post.is_editable = False
