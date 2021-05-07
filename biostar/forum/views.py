@@ -570,8 +570,6 @@ def post_view(request, uid):
 
     return render(request, "post_view.html", context=context)
 
-
-
 @check_params(allowed=CREATE_PARAMS)
 @login_required
 def new_post(request):

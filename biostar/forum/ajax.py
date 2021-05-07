@@ -129,7 +129,10 @@ def ajax_vote(request):
     if post.author == user and vote_type == Vote.UP:
         return ajax_error("You can not upvote your own post.")
 
-    if post.author == user and vote_type == Vote.ACCEPT:
+    # Can not accept if user wrote the answer and not top level post.
+    not_allowed = post.author == user and not post.root.author == user
+
+    if vote_type == Vote.ACCEPT and not_allowed:
         return ajax_error("You can not accept your own post.")
 
     not_moderator = user.is_authenticated and not user.profile.is_moderator
@@ -137,7 +140,6 @@ def ajax_vote(request):
         return ajax_error("Only moderators or the person asking the question may accept answers.")
 
     msg, vote, change = auth.apply_vote(post=post, user=user, vote_type=vote_type)
-
     # Expire post cache upon vote.
     delete_post_cache(post)
 
