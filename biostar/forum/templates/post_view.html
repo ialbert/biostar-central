@@ -36,7 +36,7 @@
 </span>
 
     {# Display the newanswer form #}
-    {% elif request.user.is_authenticated and post.is_open %}
+    {% if request.user.is_authenticated and post.is_open %}
         {# Render form used to submit answers  #}
         {% include 'forms/form_answers.html' %}
 
@@ -50,7 +50,7 @@
             <p><a class="ui small label" href="{% url 'login' %}">
                 <i class="sign in icon"></i>Login</a> before adding your answer.</p>
         </div>
-
+    {% endif %}
 
 
     <script>
