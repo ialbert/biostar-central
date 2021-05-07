@@ -727,11 +727,11 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
     return f"{style} {modifier}"
 
 
-@register.inclusion_tag('herald/story.html', takes_context=True)
-def story_detail(context, story):
+@register.inclusion_tag('herald/herald_item.html', takes_context=True)
+def herald_item(context, item):
     request = context['request']
     user = request.user
-    context = dict(story=story, request=request, user=user)
+    context = dict(story=item, request=request, user=user)
     return context
 
 

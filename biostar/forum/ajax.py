@@ -354,7 +354,7 @@ def herald_update(request, pk):
     herald.editor = user
     herald.lastedit_date = util.now()
     context = dict(story=herald, user=request.user)
-    tmpl = loader.get_template(template_name='herald/story.html')
+    tmpl = loader.get_template(template_name='herald/herald_item.html')
     tmpl = tmpl.render(context)
 
     SharedLink.objects.filter(pk=herald.pk).update(status=herald.status, editor=herald.editor,

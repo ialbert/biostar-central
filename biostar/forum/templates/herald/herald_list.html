@@ -8,7 +8,7 @@
 
                 {% for story in stories %}
                     <div class="item herald" data-value="{{ story.pk }}">
-                    {% story_detail story=story %}
+                    {% herald_item item=story %}
                     </div>
                 {% empty %}
                     <div class="ui blue message">No results found.</div>
