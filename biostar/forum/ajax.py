@@ -387,24 +387,26 @@ def inplace_form(request):
     return ajax_success(msg="success", inplace_form=form)
 
 
-@ajax_error_wrapper(method="POST",)
+@ajax_error_wrapper(method="POST")
 def email_disable(request, uid):
 
     target = User.objects.filter(pk=uid).first()
-
-    if not (target.profile.is_staff or target.profile.is_superuser) or target.pk != request.user.pk:
+    user = request.user
+    if not (user.is_staff or user.is_superuser or target.pk == user.pk):
         return ajax_error(msg="You can not preform this action")
 
     # Disable watched tags
     profile = Profile.objects.filter(pk=target.pk).first()
-
+    # Update subs
+    Subscription.objects.filter(user=target).update(type=Subscription.NO_MESSAGES)
     profile.watched_tags = ''
     profile.email_verified = False
     profile.message_prefs = Profile.NO_MESSAGES
     profile.digest_prefs = Profile.NO_DIGEST
     profile.save()
 
-    auth.db_logger(user=request.user, target=target, text='disabled emails')
+    auth.db_logger(user=user, target=target, text='Disabled messages')
+    return ajax_success(msg='Disabled messages')
 
 
 def similar_posts(request, uid):

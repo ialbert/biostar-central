@@ -110,19 +110,15 @@ function disable_emails(user_id, elem){
 
         success: function (data) {
             if (data.status === 'error') {
-
                 popup_message(elem, data.msg, data.status);
                 return
             }
-
             // Success
             popup_message(elem, data.msg, data.status);
-
-
         },
         error: function (xhr, status, text) {
             //icon.toggleClass("on");
-            error_message(vote_elem, xhr, status, text)
+            error_message(elem, xhr, status, text)
         }
     });
 
@@ -315,12 +311,11 @@ $(document).ready(function () {
         moderate(uid, container, url)
 
     });
-    $(".profile .disable-email").click(function (event) {
+    $(".profile .disable-emails").click(function (event) {
         event.preventDefault();
         var profile = $(this).closest('.profile');
         var uid = profile.data("value");
-
-        disable_emails(uid, elem)
+        disable_emails(uid, profile)
 
     });
     $(".post .moderate").click(function (event) {

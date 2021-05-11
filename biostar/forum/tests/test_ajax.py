@@ -106,6 +106,19 @@ class PostTest(TestCase):
 
         self.process_response(json_response)
 
+    def test_disable(self):
+        """
+        Test project disabling function
+        """
+
+        url = reverse('email_disable', kwargs=dict(uid=self.owner.pk))
+
+        request = fake_request(url=url, data={}, user=self.owner)
+        json_response = ajax.email_disable(request, uid=self.owner.pk)
+        response_data = json.loads(json_response.content)
+
+        self.process_response(json_response)
+
     def test_inplace_create(self):
         """
         Test AJAX function used to preform
