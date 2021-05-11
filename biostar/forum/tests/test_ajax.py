@@ -115,8 +115,6 @@ class PostTest(TestCase):
 
         request = fake_request(url=url, data={}, user=self.owner)
         json_response = ajax.email_disable(request, uid=self.owner.pk)
-        response_data = json.loads(json_response.content)
-
         self.process_response(json_response)
 
     def test_inplace_create(self):
