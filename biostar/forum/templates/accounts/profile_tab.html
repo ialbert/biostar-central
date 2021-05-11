@@ -12,7 +12,7 @@
         </div>
 
         <div class="ui center aligned basic segment">
-
+        <div class="ui mini buttons">
             {% if target == request.user %}
                 <a class="ui mini button" href="{% url 'edit_profile' %}">
                     <i class="write icon"></i>Edit profile
@@ -26,11 +26,19 @@
                 </div>
             {% endif %}
 
+            {% if request.user.is_superuser or request.user.is_staff %}
+               <div class="ui mini button blue disable-emails">
+                    <i class="mail icon"></i>
+                    Disable Emails
+                </div>
+            {% endif %}
+
             {% if allow_debug %}
                 <a class="ui mini red button" href="{% url 'debug_user' %}?uid={{ target.profile.uid }}">
                     <i class="sign in icon"></i> Log in
                 </a>
             {% endif %}
+</div>
 
         </div>
 

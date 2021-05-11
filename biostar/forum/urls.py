@@ -51,6 +51,7 @@ forum_patterns = [
     path('inplace/form/', ajax.inplace_form, name='inplace_form'),
     path('ajax/user/image/<str:username>/', ajax.user_image, name='user_image'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
+    path('emails/disable/<int:uid>/', ajax.similar_posts, name='similar_posts'),
 
     path('moderate/<str:uid>/', moderate.post_moderate, name="post_moderate"),
 
