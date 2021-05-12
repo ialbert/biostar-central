@@ -99,6 +99,31 @@ function moderate(uid, container, url) {
 
 }
 
+
+function disable_emails(user_id, elem){
+
+    var url = '/email/disable/{0}/'.format(user_id);
+    $.ajax(url, {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+
+        success: function (data) {
+            if (data.status === 'error') {
+                popup_message(elem, data.msg, data.status);
+                return
+            }
+            // Success
+            popup_message(elem, data.msg, data.status);
+        },
+        error: function (xhr, status, text) {
+            //icon.toggleClass("on");
+            error_message(elem, xhr, status, text)
+        }
+    });
+
+}
+
 function similar_posts(elem) {
     var uid = elem.attr('post_uid');
     // Construct the similar posts link.
@@ -284,6 +309,13 @@ $(document).ready(function () {
         var container = profile.find("#mod");
         var url = '/accounts/moderate/{0}/'.format(uid);
         moderate(uid, container, url)
+
+    });
+    $(".profile .disable-emails").click(function (event) {
+        event.preventDefault();
+        var profile = $(this).closest('.profile');
+        var uid = profile.data("value");
+        disable_emails(uid, profile)
 
     });
     $(".post .moderate").click(function (event) {

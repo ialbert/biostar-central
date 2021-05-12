@@ -1,8 +1,14 @@
 # Database JSON dump files.
 SAVE_FILE=export/backup/db.last.json
 
+# Back up directory.
+BACKUP_DIR=export/backup/
+
+# Snapshot database name
+SNAP=snap
+
 # Backup file.
-BACKUP_FILE=export/backup/db.`date +'%Y-%m-%d-%H%M'`.json
+BACKUP_FILE=${BACKUP_DIR}db.`date +'%Y-%m-%d-%H%M'`.json
 
 # Default settings module.
 DJANGO_SETTINGS_MODULE := biostar.server.settings
@@ -195,3 +201,10 @@ forum_deploy:
 
 clear_cache:
 	echo 'flush_all' | nc localhost 11211
+
+
+snapshot:
+	@echo "Creating psql snapshot db (${SNAP}) from most recent backup"
+	dropdb ${SNAP} --if-exists
+	createdb ${SNAP}
+	gunzip -c ${BACKUP_DIR}$(shell ls -tr ${BACKUP_DIR} | tail -n 1) | psql ${SNAP}

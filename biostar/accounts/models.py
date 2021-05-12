@@ -1,5 +1,5 @@
 import os
-
+import logging
 import mistune
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -10,6 +10,7 @@ from taggit.models import Tag
 
 from biostar.accounts import util
 
+logger = logging.getLogger("engine")
 
 def fixcase(name):
     return name.upper() if len(name) == 1 else name.lower()
@@ -200,9 +201,12 @@ class Profile(models.Model):
         return [tag.lower() for tag in self.watched_tags.split(",") if tag]
 
     def add_watched(self):
-        tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
-        self.watched.clear()
-        self.watched.add(*tags)
+        try:
+            tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
+            self.watched.clear()
+            self.watched.add(*tags)
+        except Exception as exc:
+            logger.error(f"recomputing watched tags={exc}")
 
     def set_upload_size(self):
         """

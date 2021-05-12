@@ -216,19 +216,7 @@ being only one person. What should you do? Well 1st of all you should get set
 up with the account that you normally use. If you have not logged in before
 this may mean going straight to password recovery.
 
-Once you can log in, you will want to click on your name and then go to the
-little blue button that is called 'Social Login'. Here you should be able to
-link in other social accounts that you may have used before (such as gmail) to
-your primary account email.
-
-If it turns out that your previous aliases are not listed as optional social
-logins (as may happen if they were associated with different academic
-institutions) then you will need to email us at webmaster@bioconductor.org and
-send us a file. This file needs to contain a single line that looks like this:
-email1 email2 email3 etc. Essentially, this file should contain one email for
-each account you wish to merge (separated by whitespace). And the very first
-email that it lists must be the one that you want to regularly use as your
-primary account for this site.
+After setting up the primary account, that contact the site admins to resolve the issue. 
 
 <a name="a2"></a>
 

@@ -21,6 +21,7 @@ from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views, const, moderate
 from .models import Post, Vote, Subscription, delete_post_cache
 
+
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
     payload.update(kwargs)
@@ -46,11 +47,10 @@ def ajax_limited(key, rate):
     """
     Make a blocking rate limiter that does not raise an exception
     """
-    def outer(func):
 
+    def outer(func):
         @ratelimit(key=key, rate=rate)
         def inner(request, **kwargs):
-
             was_limited = getattr(request, 'limited', False)
             if was_limited:
                 return ajax_error(msg="Too many requests from same IP address. Temporary ban.")
@@ -113,7 +113,6 @@ def user_image(request, username):
 @ajax_limited(key=RATELIMIT_KEY, rate=VOTE_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_vote(request):
-
     user = request.user
     type_map = dict(upvote=Vote.UP, bookmark=Vote.BOOKMARK, accept=Vote.ACCEPT)
 
@@ -149,7 +148,6 @@ def ajax_vote(request):
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST", login_required=True)
 def drag_and_drop(request):
-
     parent_uid = request.POST.get("parent", '')
     uid = request.POST.get("uid", '')
     user = request.user
@@ -176,7 +174,6 @@ def drag_and_drop(request):
 @ajax_limited(key=RATELIMIT_KEY, rate=SUBS_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_subs(request):
-
     type_map = dict(messages=Subscription.LOCAL_MESSAGE, email=Subscription.EMAIL_MESSAGE,
                     unfollow=Subscription.NO_MESSAGES)
 
@@ -197,7 +194,6 @@ def ajax_subs(request):
 @ajax_limited(key=RATELIMIT_KEY, rate=DIGEST_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_digest(request):
-
     user = request.user
 
     type_map = dict(daily=Profile.DAILY_DIGEST, weekly=Profile.WEEKLY_DIGEST,
@@ -236,7 +232,6 @@ def get_fields(request, post=None):
 
 
 def set_post(post, user, fields):
-
     # Set the fields for this post.
     if post.is_toplevel:
         post.title = fields.get('title', post.title)
@@ -305,7 +300,6 @@ def ajax_delete(request):
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
 @ajax_error_wrapper(method="POST")
 def ajax_comment_create(request):
-
     # Fields common to all posts
     user = request.user
     content = request.POST.get("content", "")
@@ -385,6 +379,23 @@ def inplace_form(request):
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)
+
+
+@ajax_error_wrapper(method="POST")
+def email_disable(request, uid):
+    target = User.objects.filter(pk=uid).first()
+    user = request.user
+    if not (user.is_staff or user.is_superuser or target.pk == user.pk):
+        return ajax_error(msg="You can not preform this action")
+
+    # Diable subs, and empty all emailing options.
+    Subscription.objects.filter(user=target).update(type=Subscription.NO_MESSAGES)
+    Profile.objects.filter(pk=target.pk).update(watched_tags='', email_verified=False,
+                                                message_prefs=Profile.NO_MESSAGES, digest_prefs=Profile.NO_DIGEST)
+    # Empty the watched tags
+    Profile.objects.filter(pk=target.pk).first().add_watched()
+    auth.db_logger(user=user, target=target, text='Disabled messages')
+    return ajax_success(msg='Disabled messages')
 
 
 def similar_posts(request, uid):
