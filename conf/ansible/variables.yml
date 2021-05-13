@@ -5,6 +5,9 @@
 # The git location that will be cloned.
 engine_git:  "{{ repo | default('https://github.com/ialbert/biostar-central.git') }}"
 
+# The git location that will be cloned.
+engine_branch:  "{{ branch | default('master') }}"
+
 # The directory the site is deployed to.
 engine_dir:  "{{ main_dir | default('/export/www/biostar-central') }}"
 

@@ -7,26 +7,29 @@ REPO := https://github.com/ialbert/biostar-central.git
 
 USER := root
 
+# Github branch to work from
+BRANCH := master
+
 # Target host must be set.
 ifndef TARGET
 $(error TARGET parameter must be set)
 endif
 
 setup:
-	ansible-playbook -i hosts.ini -l ${TARGET} server-setup.yml --extra-vars "repo=${REPO} username=${USER}"
+	ansible-playbook -i hosts.ini -l ${TARGET} server-setup.yml --extra-vars "repo=${REPO} username=${USER} branch=${BRANCH}"
 
 install:
-	ansible-playbook -i hosts.ini -l ${TARGET} server-install.yml  --extra-vars "repo=${REPO} username=${USER}"
+	ansible-playbook -i hosts.ini -l ${TARGET} server-install.yml  --extra-vars "repo=${REPO} username=${USER} branch=${BRANCH}"
 
 restart:
-	ansible-playbook -i hosts.ini -l ${TARGET} server-restart.yml --extra-vars "repo=${REPO} username=${USER}"
+	ansible-playbook -i hosts.ini -l ${TARGET} server-restart.yml --extra-vars "repo=${REPO} username=${USER} branch=${BRANCH}"
 
 transfer:
 	echo LOCAL_OLD=${LOCAL_OLD_DB}
-	ansible-playbook -i hosts.ini -l ${TARGET} server-transfer.yml --extra-vars "local_old=${LOCAL_OLD_DB} repo=${REPO} username=${USER}"  -vv
+	ansible-playbook -i hosts.ini -l ${TARGET} server-transfer.yml --extra-vars "local_old=${LOCAL_OLD_DB} repo=${REPO} username=${USER} branch=${BRANCH}"  -vv
 
 deploy-code:
-	ansible-playbook -i hosts.ini -l ${TARGET} server-deploy.yml  --extra-vars "repo=${REPO} username=${USER}"
+	ansible-playbook -i hosts.ini -l ${TARGET} server-deploy.yml  --extra-vars "repo=${REPO} username=${USER} branch=${BRANCH}"
 
 deploy: deploy-code restart
 
