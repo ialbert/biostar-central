@@ -80,7 +80,7 @@ forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
-	$(eval TARGET := new)
+	$(eval TARGET := forum)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TASKS_MODULE := biostar.forum.tasks)
 	$(eval WSGI_FILE := biostar/forum/wsgi.py)
@@ -90,6 +90,9 @@ echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
 	@echo DJANGO_APP=${DJANGO_APP}
 	@echo DATABASE_NAME=${DATABASE_NAME}
+
+beta:
+	$(eval TARGET := beta)
 
 serve: init
 	python manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}

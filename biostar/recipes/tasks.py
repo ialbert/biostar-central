@@ -35,15 +35,19 @@ def send_emails(*args ,**kwargs):
 
 @timer(30)
 def scheduler(*args, **kwargs):
-    from biostar.recipes.models import Job
-    # Check for queued jobs.
-    jobs = Job.objects.filter(state=Job.QUEUED)
-    if jobs:
-        # Put the jobs in SPOOLED state so that it do not get respooled.
-        for job in jobs:
-            execute_job.spool(job_id=job.id)
+    try:
+        from biostar.recipes.models import Job
+        # Check for queued jobs.
+        jobs = Job.objects.filter(state=Job.QUEUED)
+        if jobs:
+            # Put the jobs in SPOOLED state so that it do not get respooled.
+            for job in jobs:
+                execute_job.spool(job_id=job.id)
 
-        jobs.update(state=Job.SPOOLED)
+            jobs.update(state=Job.SPOOLED)
+    except Exception as exc:
+        logger.error(exc)
+
 
 #@timer(10)
 # def spool_demo(args):
