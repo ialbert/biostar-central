@@ -112,7 +112,19 @@ or via the playbook:
 ## Restart remote 
 
     make restart TARGET=test
+   
+
+## Deploying from different branches
+
+To deploy from different branches, log into remote server:
+
+    git checkout < branch >
     
+
+Then locally run `make deploy TARGET=<target>` with the target set to the remote server.
+
+This will apply all changes found in a branch.
+ 
 ## Migrating from Biostar 1.0 (TODO)
 
 To migrate from an older version of biostar to a server deploying Biostar 2.0
