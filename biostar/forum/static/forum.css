@@ -71,6 +71,10 @@
     width: 80%;
 }
 
+.ui.items>.item>.content> .mini.header{
+    font-size: 1.15em;
+}
+
 /* Needed for syntax highlighting */
 :not(pre) > code {
     color: orangered !important;

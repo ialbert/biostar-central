@@ -1,16 +1,32 @@
 {% load humanize %}
 {% load forum_tags %}
 
+<div class="content">
 
-    <img class="ui avatar image" src="{% gravatar user=story.author size=80 %}"/>
-    <div class="content">
-        <em>{{ story.creation_date|naturaltime }}</em> &bull;
-        <a href="{{ story.author.profile.get_absolute_url }}">{{ story.author.profile.name }}</a> shared
-        <a href="{{ story.url }}">{{ story.url|truncatechars:50 }}</a>
-        <span class="current"><i class="{{ story.icon }} icon"
-                                 style="margin-right: 0"></i>{{ story.get_status_display }}</span>
-        &bull;
-        {% if user.profile.is_moderator and not story.published %}
+    <em>{{ story.creation_date|naturaltime }}</em>
+
+    <a href="{{ story.author.profile.get_absolute_url }}">{{ story.author.profile.name }}</a> submitted
+    <a href="{{ story.url }}">{{ story.url }}</a>
+
+    {#  Story text #}
+    {% if story.text %}
+        <div class="description">
+            {{ story.text }}
+        </div>
+    {% endif %}
+
+    {#  Story status #}
+    <div class="description">
+        State: <b>{{ story.get_status_display }}</b>
+        {% if story.editor %}
+            &bull; <em>{{ story.lastedit_date|naturaltime }} </em>
+            by <a href="{{ story.editor.profile.get_absolute_url }}">{{ story.editor.profile.name }}</a>
+        {% endif %}
+    </div>
+
+    {# Action buttons #}
+    {% if user.profile.is_moderator and not story.published %}
+        <div class="description">
             <a class="ui basic label" data-value="accept"><i class="green check icon"></i>
                 Accept
             </a>
@@ -18,20 +34,5 @@
             <a class="ui basic label" data-value="decline"><i class="orange times icon"></i>
                 Reject
             </a>
-        {% endif %}
-
-        {% if story.editor %}
-            <p class="muted">
-            {{ story.get_status_display|lower }}
-            <em>{{ story.lastedit_date|naturaltime }}</em> by
-            <a href="{{  story.editor.profile.get_absolute_url }}">{{  story.editor.profile.name }}</a>
-            </p>
-
-        {% endif %}
-
-        {% if story.text %}
-            <p class="muted">{{ story.text|truncatechars:100 }}</p>
-        {% endif %}
-
-    </div>
-
+        </div>
+    {% endif %}

@@ -74,6 +74,17 @@ forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
+	$(eval TARGET := forum)
+	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
+	$(eval TASKS_MODULE := biostar.forum.tasks)
+	$(eval WSGI_FILE := biostar/forum/wsgi.py)
+	$(eval TEST:=biostar.forum)
+
+new:
+	@echo "*** Setting variables for new app."
+	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
+	$(eval DJANGO_APP := biostar.forum)
+	$(eval LOAD_COMMAND := populate)
 	$(eval TARGET := new)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TASKS_MODULE := biostar.forum.tasks)

@@ -208,11 +208,13 @@ def create_post_from_json(**json_data):
     return
 
 
-def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
+def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val="", nodups=True):
     # Check if a post with this exact content already exists.
     post = Post.objects.filter(content=content, author=author, is_toplevel=True).first()
-    if post:
-        logger.info("Post with this content already exists.")
+
+    # Checks for duplicate top level posts.
+    if nodups and post:
+        logger.info("Post with this exact content already exists.")
         return post
 
     post = Post.objects.create(title=title, content=content, root=root, parent=parent,

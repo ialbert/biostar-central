@@ -66,24 +66,29 @@ def herald_planet(post):
 
     return
 
-
 def herald_publisher(limit=20, nmin=1):
     """
     Create one publication from Herald accepted submissions ( up to 'limit' ).
     """
 
-    # Slice heralds and
-    # re-fetch query so we can apply .update() later
+    # Allow resubmitting
+    SharedLink.objects.all().update(status=SharedLink.ACCEPTED)
+
     heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED)[:limit]
 
     if heralds.count() < nmin:
-        logger.warning(f"There are noe enough stories to publish, minimum of {nmin} required.")
+        logger.warning(f"Not enough stories to publish, minimum of {nmin} required.")
         return
 
     # Create herald content
     date = util.now()
-    title = f"Biostar Herald {date.date()}"
+
+    date_fmt = date.strftime("%A, %B %d, %Y")
+
+    title = f"The Biostar Herald for {date_fmt}"
+
     port = f':{settings.HTTP_PORT}' if settings.HTTP_PORT else ''
+
     base_url = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{port}"
     context = dict(heralds=heralds, title=title, site_domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
                    base_url=base_url)
@@ -91,7 +96,7 @@ def herald_publisher(limit=20, nmin=1):
 
     # Create herald post
     user = User.objects.filter(is_superuser=True).first()
-    post = auth.create_post(title=title, content=content, author=user, tag_val='BiostarHerald', ptype=Post.HERALD)
+    post = auth.create_post(title=title, content=content, author=user, tag_val='herald', ptype=Post.HERALD, nodups=False)
 
     # Tie these submissions to herald post
     hpks = heralds.values_list('pk', flat=True)
@@ -137,10 +142,8 @@ def herald_list(request):
     return render(request, 'herald/herald_base.html', context)
 
 
+@is_moderator
 def herald_publish(request):
-    if request.user.is_anonymous or not (request.user.is_staff or request.user.is_superuser):
-        messages.error(request, "You can not preform this action")
-        return redirect(reverse('post_list'))
 
     post = herald_publisher()
 

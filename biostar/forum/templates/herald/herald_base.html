@@ -12,6 +12,14 @@
     Biostar Herald
 {% endblock %}
 
+{% block css %}
+    <style>
+        .item.herald .description {
+            padding-top: 1em;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
 
     <div class="ui vertical segment">
@@ -19,14 +27,16 @@
         <h2 class="ui header">
             <img src="{% static 'images/news-herald.png' %}">
             <div class="content">
-                {% block heraldtitle %}
-                    Biostar Herald
-                {% endblock %}
-                <div class="sub header">Share bioinformatics resources from across the web.</div>
+                Biostar Herald
+                <div class="sub header">Share bioinformatics links from across the web.</div>
             </div>
 
         </h2>
 
+        <p>
+            Moderators will review each submission and may accept or reject them.
+            Accepted submissions will be published in the next edition of the Biostar Herald.
+        </p>
     </div>
 
     <div class="ui segment form-wrap" style="width: 61%;margin:auto;margin-top:30px;">
@@ -37,15 +47,16 @@
             {% csrf_token %}
 
             <div class="required field">
-                <label>Source link</label>
+                <label>Link</label>
                 {{ form.url }}
-                <p class="muted">The URL containing the video, tweet, code, or paper.</p>
+                <p class="muted">The URL to the content: tweet, repository, paper etc. Must be bioinformatics
+                    related!</p>
             </div>
 
             <div class="field">
-                <label>Description ( optional )</label>
+                <label>Optional Description</label>
                 {{ form.text }}
-                <p class="muted">Short description of the above shared link. </p>
+                <p class="muted">You may provide more context of why the link is interesting (recommended)</p>
             </div>
 
             <button type="submit" class="ui submit green button">
@@ -55,31 +66,40 @@
                 <i class="times icon"></i>Cancel
             </button>
 
+
         </form>
 
     </div>
+
+
     {% if request.user.is_staff or  request.user.is_superuser %}
-        <a class="ui blue button" href="{% url 'herald_publish' %}"><i class="book icon"></i> Publish</a>
+        {#  unused for wno #}
+    {%  endif %}
+    <div class="ui divider"></div>
 
-    {% endif %}
     {% if request.user.profile.is_moderator %}
-
-        {% include 'herald/herald_list.html' %}
-
+        <a class="ui blue button" href="{% url 'herald_publish' %}"><i class="book icon"></i> Publish</a> (this will happend automatically in the future, we have it here for testing)
     {% endif %}
 
+    <div class="ui divider"></div>
+
+    {% if request.user.profile.is_moderator %}
+        {% include 'herald/herald_list.html' %}
+    {% endif %}
 
 {% endblock %}
 
 {% block sidebar %}
 
-    <h4 class="ui header muted">
+    <h3 class="ui header muted">
         Community Guidelines
-    </h4>
+    </h3>
     <ol style="list-style-type: upper-roman;">
-        <li>Share code, videos, tweets, papers relating to biological sciences.</li>
+        <li>Share code, videos, tweets, papers relating to bioinformatics.</li>
         <li>Moderators can accept submitted topics.</li>
-        <li>Accepted submissions are auto-published every day.</li>
+        <li>Accepted submissions are auto-published on a regular basis
+            .
+        </li>
     </ol>
 
 
