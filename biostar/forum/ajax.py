@@ -369,7 +369,8 @@ def inplace_form(request):
 
     nlines = post.num_lines(offset=3)
     rows = nlines if nlines >= MIN_LINES else MIN_LINES
-    form = forms.PostLongForm(user=request.user)
+    initial = dict(tag_val=post.tag_val)
+    form = forms.PostLongForm(user=request.user, initial=initial)
 
     content = '' if add_comment else post.content
     context = dict(user=user, post=post, new=add_comment, html=html,

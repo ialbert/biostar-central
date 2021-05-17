@@ -50,8 +50,9 @@
             </div>
             {# Edit the tags #}
             {% if post.is_toplevel %}
-                <div class="field">
-                    {% tags_field form_field=form.tag_val initial=post.tag_val %}
+                <div class="required field">
+                    {{ form.tag_val }}
+                    <p class="muted">{{ form.tag_val.help_text }}</p>
                 </div>
             {% endif %}
 
