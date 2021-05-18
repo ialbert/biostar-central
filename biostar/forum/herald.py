@@ -148,7 +148,6 @@ def herald_publish(request):
     post = herald_publisher()
 
     if settings.DEBUG:
-        # TODO: DEBUG
         SharedLink.objects.update(status=SharedLink.ACCEPTED)
 
     if not post:

@@ -10,8 +10,7 @@ This edition of the Herald was brought to you by: *TODO (authors)* and was audit
 {% for herald in heralds %}
 
 <div class="ui divider"></div>
-
-[{{herald.url|truncatechars:50}}]({{herald.url}})
+{{herald.url}}
 
 {% if herald.text %}
 {{herald.text}}
