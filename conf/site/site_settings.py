@@ -1,5 +1,5 @@
 import logging
-#from biostar.forum.settings import *
+from biostar.forum.settings import *
 #from biostar.recipes.settings import *
 
 logger = logging.getLogger("biostar")
