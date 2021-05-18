@@ -107,7 +107,7 @@ def herald_publisher(limit=20, nmin=1):
 
     # Bump user scores.
     user_pks = set(h.author.pk for h in heralds)
-    Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
+    #Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
 
     return post
 
