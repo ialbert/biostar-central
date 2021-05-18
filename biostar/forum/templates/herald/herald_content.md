@@ -10,7 +10,7 @@ This edition of the Herald was brought to you by contribution from *TODO (author
 
 <div class="ui divider"></div>
 
-[{{herald.url|truncatechars:100}}]({{herald.url}})
+{{herald.url}}
 
 {% if herald.text %}
 {{herald.text}}
