@@ -49,7 +49,7 @@
 
                         <div class="required field">
                             <label>{{ form.tag_val.label }}</label>
-                            {% tags_field form_field=form.tag_val initial=tag_val %}
+                            {{ form.tag_val }}
                             <p class="muted">{{ form.tag_val.help_text }}</p>
                         </div>
 

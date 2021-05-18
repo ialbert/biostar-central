@@ -22,6 +22,7 @@ from . import auth, util, forms, tasks, search, views, const, moderate
 from .models import Post, Vote, Subscription, delete_post_cache, SharedLink
 
 
+
 def ajax_msg(msg, status, **kwargs):
     payload = dict(status=status, msg=msg)
     payload.update(kwargs)
@@ -413,7 +414,8 @@ def inplace_form(request):
 
     nlines = post.num_lines(offset=3)
     rows = nlines if nlines >= MIN_LINES else MIN_LINES
-    form = forms.PostLongForm(user=request.user)
+    initial = dict(tag_val=post.tag_val)
+    form = forms.PostLongForm(user=request.user, initial=initial)
 
     content = '' if add_comment else post.content
     context = dict(user=user, post=post, new=add_comment, html=html,
@@ -423,6 +425,23 @@ def inplace_form(request):
     form = tmpl.render(context)
 
     return ajax_success(msg="success", inplace_form=form)
+
+
+@ajax_error_wrapper(method="POST")
+def email_disable(request, uid):
+    target = User.objects.filter(pk=uid).first()
+    user = request.user
+    if not (user.is_staff or user.is_superuser or target.pk == user.pk):
+        return ajax_error(msg="You can not preform this action")
+
+    # Diable subs, and empty all emailing options.
+    Subscription.objects.filter(user=target).update(type=Subscription.NO_MESSAGES)
+    Profile.objects.filter(pk=target.pk).update(watched_tags='', email_verified=False,
+                                                message_prefs=Profile.NO_MESSAGES, digest_prefs=Profile.NO_DIGEST)
+    # Empty the watched tags
+    Profile.objects.filter(pk=target.pk).first().add_watched()
+    auth.db_logger(user=user, target=target, text='Disabled messages')
+    return ajax_success(msg='Disabled messages')
 
 
 def similar_posts(request, uid):

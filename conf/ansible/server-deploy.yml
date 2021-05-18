@@ -16,6 +16,7 @@
         repo: "{{ engine_git }}"
         dest: "{{ engine_dir }}"
         update: yes
+        #version: "{{ engine_branch }}"
 
     - name: Install python requirements
       shell: "source {{conda_dir}}/etc/profile.d/conda.sh &&

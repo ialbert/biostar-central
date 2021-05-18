@@ -23,6 +23,7 @@ MAX_CONTENT = 15000
 MIN_CONTENT = 5
 MAX_TITLE = 400
 MAX_TAGS = 5
+MAX_TAG_LEN = 200
 
 
 def valid_language(text):
@@ -124,11 +125,10 @@ class PostLongForm(forms.Form):
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
                             validators=[valid_title],
                             help_text="Enter a descriptive title to promote better answers.")
-    tag_val = forms.CharField(label="Post Tags", max_length=50, required=True, validators=[valid_tag],
-                              help_text="""
-                              Create a new tag by typing a word then adding a comma or press ENTER or SPACE.
-                              """,
-                              widget=forms.HiddenInput())
+    tag_val = forms.CharField(label="Post Tags", max_length=MAX_TAG_LEN, required=True, validators=[valid_tag],
+
+                              widget=forms.TextInput(attrs={'id': 'tag_val'}),
+                              help_text="""Create a new tag by typing a word then adding a comma.""")
 
     content = forms.CharField(widget=forms.Textarea,
                               validators=[valid_language],
@@ -191,7 +191,7 @@ class PostShortForm(forms.Form):
     content = forms.CharField(widget=forms.Textarea,
                               min_length=MIN_LEN, max_length=MAX_LEN, strip=False)
 
-    def __init__(self, user=None, post=None,  *args, **kwargs):
+    def __init__(self, user=None, post=None, *args, **kwargs):
         self.user = user
         self.post = post
         super().__init__(*args, **kwargs)

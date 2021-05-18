@@ -99,6 +99,31 @@ function moderate(uid, container, url) {
 
 }
 
+
+function disable_emails(user_id, elem){
+
+    var url = '/email/disable/{0}/'.format(user_id);
+    $.ajax(url, {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+
+        success: function (data) {
+            if (data.status === 'error') {
+                popup_message(elem, data.msg, data.status);
+                return
+            }
+            // Success
+            popup_message(elem, data.msg, data.status);
+        },
+        error: function (xhr, status, text) {
+            //icon.toggleClass("on");
+            error_message(elem, xhr, status, text)
+        }
+    });
+
+}
+
 function similar_posts(elem) {
     var uid = elem.attr('post_uid');
     // Construct the similar posts link.
@@ -169,41 +194,6 @@ function activate_prism(elem) {
     Prism.highlightAll();
 }
 
-function tags_dropdown() {
-
-    $('.tags').dropdown({
-        allowAdditions: true,
-        // Get form field to add to
-        onChange: function (value, text, $selectedItem) {
-            // Get form field to add to
-            var field = $(this).find("select").data("value");
-            var tag_field = $('#{0}'.f(field));
-            // Add selected tag to field
-            // Set text instead of value
-            value = $('<div/>').text(value).html();
-            tag_field.val(value);
-        }
-    });
-    $('.tags > input.search').keydown(function (event) {
-
-        // Prevent submitting form when adding tag by pressing ENTER.
-        var ek = event.keyCode || event.which;
-        var value = $(this).val().trim();
-
-        // Get a list of delimiters
-        var delimiters = $('#field-tags').data('delimiters').split(',');
-
-        if (delimiters.indexOf(String(ek)) !== -1) {
-            // Escape the text before settings value.
-            value = $('<div/>').text(value).html();
-            event.preventDefault();
-            $(this).closest('.tags').dropdown('set selected', value);
-            $(this).val('');
-            return value
-        }
-    })
-
-}
 
 
 function herald_update(hpk, status, elem) {
@@ -310,6 +300,13 @@ $(document).ready(function () {
         moderate(uid, container, url)
 
     });
+    $(".profile .disable-emails").click(function (event) {
+        event.preventDefault();
+        var profile = $(this).closest('.profile');
+        var uid = profile.data("value");
+        disable_emails(uid, profile)
+
+    });
     $(".post .moderate").click(function (event) {
         event.preventDefault();
         var post = $(this).closest('.post');
@@ -380,7 +377,8 @@ $(document).ready(function () {
         }
 
         // Insert the error message
-        field.before('<div class="ui small red message">' + message + '</div>')
+        message = $('<div/>').text(message).html();
+        field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
 
@@ -403,12 +401,6 @@ $(document).ready(function () {
         var status = $(this).data('value');
         herald_update(hpk, status, elem)
     });
-
-
-    $('#planet_suggest').click(function () {
-        $('.links-form').toggle(300)
-    });
-    tags_dropdown();
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');

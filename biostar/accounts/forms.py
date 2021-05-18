@@ -184,12 +184,11 @@ class EditProfile(forms.Form):
                                                  initial=self.user.profile.my_tags, validators=[valid_tag],
                                                  help_text="""
                                   Add a tag by typing a word then adding a comma or press ENTER or SPACE.
-                                  """, widget=forms.HiddenInput())
+                                  """)
         self.fields['watched_tags'] = forms.CharField(label="Watched tags", max_length=500, required=False,
                                                       help_text="""
                                   Add a tag by typing a word then adding a comma or press ENTER or SPACE.
-                                  """, widget=forms.HiddenInput(),
-                                                      initial=self.user.profile.watched_tags, validators=[valid_tag])
+                                  """,initial=self.user.profile.watched_tags, validators=[valid_tag])
 
     def clean_handle(self):
 
