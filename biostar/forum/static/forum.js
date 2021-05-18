@@ -194,41 +194,6 @@ function activate_prism(elem) {
     Prism.highlightAll();
 }
 
-function tags_dropdown() {
-
-    $('.tags').dropdown({
-        allowAdditions: true,
-        // Get form field to add to
-        onChange: function (value, text, $selectedItem) {
-            // Get form field to add to
-            var field = $(this).find("select").data("value");
-            var tag_field = $('#{0}'.f(field));
-            // Add selected tag to field
-            // Set text instead of value
-            value = $('<div/>').text(value).html();
-            tag_field.val(value);
-        }
-    });
-    $('.tags > input.search').keydown(function (event) {
-
-        // Prevent submitting form when adding tag by pressing ENTER.
-        var ek = event.keyCode || event.which;
-        var value = $(this).val().trim();
-
-        // Get a list of delimiters
-        var delimiters = $('#field-tags').data('delimiters').split(',');
-
-        if (delimiters.indexOf(String(ek)) !== -1) {
-            // Escape the text before settings value.
-            value = $('<div/>').text(value).html();
-            event.preventDefault();
-            $(this).closest('.tags').dropdown('set selected', value);
-            $(this).val('');
-            return value
-        }
-    })
-
-}
 
 function highligh_preview(form, text) {
     var highlighted = highlight(text);
@@ -377,6 +342,7 @@ $(document).ready(function () {
         // Add an 'error' to '.ui.field' to turn it red.
         field.closest(".field").addClass("error");
         // Insert the error message
+        message = $('<div/>').text(message).html();
         field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
@@ -386,8 +352,6 @@ $(document).ready(function () {
     $('#show-answer').click(function () {
         $('.hidden-answer').toggle()
     });
-
-    tags_dropdown();
 
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');

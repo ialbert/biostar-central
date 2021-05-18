@@ -201,7 +201,7 @@ function edit_post(post) {
     var title = form.find('#title');
     var content = form.find('#wmd-input');
     var type = form.find('#type').dropdown('get value');//.val();
-    var tags = form.find('.tags').dropdown('get value');//.val();
+    var tags = form.find('#tag_val').val();
 
     title = title.val() || '';
     if (!($.isNumeric(type))) {

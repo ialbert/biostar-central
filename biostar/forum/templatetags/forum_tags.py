@@ -346,27 +346,6 @@ def file_tags_options(selected):
     return opts
 
 
-@register.inclusion_tag('forms/field_tags.html', takes_context=True)
-def tags_field(context, form_field, initial=''):
-    """Render multi-select dropdown options for tags. """
-
-    # Read from tags file
-    tags_file = getattr(settings, "TAGS_OPTIONS_FILE", None)
-    # Get currently selected tags from the post or request
-    selected = initial.split(",") if initial else []
-    selected = {(val, True) for val in selected}
-    if tags_file:
-        opts = file_tags_options(selected)
-    else:
-        opts = {}
-
-    options = itertools.chain(selected, opts)
-
-    context = dict(initial=initial, form_field=form_field, dropdown_options=options)
-
-    return context
-
-
 @register.inclusion_tag('forms/form_errors.html')
 def form_errors(form, wmd_prefix='', override_content=False):
     """
