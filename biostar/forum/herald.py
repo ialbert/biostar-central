@@ -72,7 +72,7 @@ def herald_publisher(limit=20, nmin=1):
     """
 
     # Reset status on published links.
-    SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
+    #SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
 
     heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED)[:limit]
 
@@ -100,6 +100,7 @@ def herald_publisher(limit=20, nmin=1):
 
     # Tie these submissions to herald post
     hpks = heralds.values_list('pk', flat=True)
+
     SharedLink.objects.filter(pk__in=hpks).update(status=SharedLink.PUBLISHED, post=post, lastedit_date=date)
 
     # Log the action
@@ -107,7 +108,7 @@ def herald_publisher(limit=20, nmin=1):
 
     # Bump user scores.
     user_pks = set(h.author.pk for h in heralds)
-    Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
+    #Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
 
     return post
 
