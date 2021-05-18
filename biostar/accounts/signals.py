@@ -47,8 +47,4 @@ def create_profile(sender, instance, created, raw, using, **kwargs):
         except Exception as exc:
             logger.error(f"{exc}")
 
-    # Recompute watched tags
-    try:
-        instance.profile.add_watched()
-    except Exception as exc:
-        logger.error(f"recomputing watched tags={exc}")
+    instance.profile.add_watched()

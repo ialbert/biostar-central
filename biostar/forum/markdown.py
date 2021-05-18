@@ -80,7 +80,7 @@ ALLOWED_ATTRIBUTES = {
 
 ALLOWED_TAGS = ['p', 'div', 'br', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'hr', 'span', 's',
                 'sub', 'sup', 'b', 'i', 'img', 'strong', 'strike', 'em', 'underline',
-                'super', 'table', 'thead', 'tr', 'th', 'td', 'tbody']
+                'super', 'table', 'thead', 'tr', 'th', 'td', 'tbody', 'del', 'details', 'summary']
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + ALLOWED_TAGS
 
 ALLOWED_PROTOCOLS = ['ftp', 'http']
