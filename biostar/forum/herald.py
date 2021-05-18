@@ -72,11 +72,11 @@ def herald_publisher(limit=20, nmin=1):
     """
 
     # Reset status on published links.
-    SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
+    #SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
 
     heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED)[:limit]
-
-    if heralds.count() < nmin:
+    count = heralds.count()
+    if count < nmin:
         logger.warning(f"Not enough stories to publish, minimum of {nmin} required.")
         return
 
@@ -103,7 +103,7 @@ def herald_publisher(limit=20, nmin=1):
     SharedLink.objects.filter(pk__in=hpks).update(status=SharedLink.PUBLISHED, post=post, lastedit_date=date)
 
     # Log the action
-    auth.db_logger(user=user, text=f"published {hpks.count()} submissions in {title}")
+    auth.db_logger(user=user, text=f"published {count} submissions in {title}")
 
     # Bump user scores.
     user_pks = set(h.author.pk for h in heralds)

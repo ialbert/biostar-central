@@ -1,15 +1,5 @@
-We have your submission below and are reviewing it. 
-
-Once reviewed, we will let you know of it's status. 
-
-**Submission**
-
-
-{{shared.text}}
-
+We have received your submission for the **Biostar Herald**.
 
 {{ shared.url }} 
 
-Sincerely,
-
-Biostar Herald
+If the link is accepted by a moderator it will appear in the next issue of the **Biostar Herald**. Thank you for your contribution!

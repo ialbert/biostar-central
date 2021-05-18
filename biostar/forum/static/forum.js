@@ -197,6 +197,7 @@ function activate_prism(elem) {
 
 
 function herald_update(hpk, status, elem) {
+
     $.ajax('/herald/update/' + hpk + '/',
         {
             type: 'POST',
@@ -208,6 +209,7 @@ function herald_update(hpk, status, elem) {
                     popup_message(elem, data.msg, data.status, 1000);
                 } else {
                     elem.html(data.tmpl);
+                    elem.attr('class', 'item herald ' + data.state)
                     // Replace current item with the select one.
                     // active.text($item.text());
                 }
@@ -388,12 +390,6 @@ $(document).ready(function () {
         $('.hidden-answer').toggle()
     });
 
-    $(".herald.item [data-value='accept'],[data-value='decline']").click(function () {
-        var elem = $(this).closest('.herald');
-        var hpk = elem.data('value');
-        var status = $(this).data('value');
-        herald_update(hpk, status, elem)
-    });
 
     $(this).on('click', ".herald.item [data-value='accept'],[data-value='decline']", function (event) {
         var elem = $(this).closest('.herald');

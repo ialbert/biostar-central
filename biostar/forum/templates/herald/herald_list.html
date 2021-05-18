@@ -9,16 +9,11 @@
 
         {% for story in stories %}
 
-            <div class="item herald" data-value="{{ story.pk }}">
-
+            <div class="item herald {{ story.get_status_display }}" data-value="{{ story.pk }}">
                {% herald_item item=story %}
-
-                </div>
             </div>
             {% empty %}
-
             <div class="ui blue message">No results found.</div>
-
 
         {% endfor %}
 

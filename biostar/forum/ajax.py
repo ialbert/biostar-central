@@ -364,7 +364,7 @@ def herald_update(request, pk):
     logmsg = f"{herald.get_status_display().lower()} herald story {herald.url[:100]}"
     auth.db_logger(user=herald.editor, target=herald.author, text=logmsg)
 
-    return ajax_success(msg="changed herald state", icon=herald.icon, tmpl=tmpl)
+    return ajax_success(msg="changed herald state", icon=herald.icon, tmpl=tmpl, state=herald.get_status_display())
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)
