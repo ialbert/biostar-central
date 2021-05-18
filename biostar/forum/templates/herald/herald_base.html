@@ -78,7 +78,15 @@
     <div class="ui divider"></div>
 
     {% if request.user.profile.is_moderator %}
-        <a class="ui blue button" href="{% url 'herald_publish' %}"><i class="book icon"></i> Publish</a> (this will happend automatically in the future, we have it here for testing)
+
+        <p><a class="ui blue button" href="{% url 'herald_publish' %}"><i class="book icon"></i>Publish new Issue</a></p>
+
+        <p>Publishing will collate the accepted items and generates a post out of them</p>
+
+        <p>Publishing will happen automatically in the future, we have it here for testing</p>
+
+        <p>During testing already published items will be republished (set items to rejected to not include them)</p>
+
     {% endif %}
 
     <div class="ui divider"></div>

@@ -71,8 +71,8 @@ def herald_publisher(limit=20, nmin=1):
     Create one publication from Herald accepted submissions ( up to 'limit' ).
     """
 
-    # Allow resubmitting
-    SharedLink.objects.all().update(status=SharedLink.ACCEPTED)
+    # Reset status on published links.
+    SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
 
     heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED)[:limit]
 
