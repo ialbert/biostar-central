@@ -2,7 +2,7 @@
 {% load humanize %}
 {% load static %}
 
-The **Biostar Herald** publishes user submitted links with bioinformatics relevance. It attempts to be as a snapshot of interesting and relevant information you may have missed, served in a "digest" format. You too can submit [interesting links here](/herald/) and with that you can help publish the next issue.
+The **Biostar Herald** publishes user submitted links of bioinformatics relevance. It aims to provide a summary of interesting and relevant information you may have missed. You too can submit [links here](/herald/).
 
 This edition of the Herald was brought to you by contribution from *TODO (authors)* and was edited by *TODO (mods)*
 
@@ -10,7 +10,11 @@ This edition of the Herald was brought to you by contribution from *TODO (author
 
 <div class="ui divider"></div>
 
+{% if herald.title %}
+[{{herald.title}}](herald.url)
+{% else %}
 {{herald.url}}
+{% endif %}
 
 {% if herald.text %}
 {{herald.text}}
