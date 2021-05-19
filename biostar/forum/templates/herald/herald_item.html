@@ -8,7 +8,6 @@
     <a href="{{ story.author.profile.get_absolute_url }}">{{ story.author.profile.name }}</a> submitted
 
 
-
     {#  Story text #}
     {% if story.title %}
         <a href="{{ story.url }}">{{ story.title }}</a> ({{story.domain }})
@@ -41,7 +40,7 @@
             </a>
             &bull;
             <a class="ui basic label" data-value="decline"><i class="orange times icon"></i>
-                Reject
+                Decline
             </a>
         </div>
     {% endif %}

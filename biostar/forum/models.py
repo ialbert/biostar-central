@@ -527,7 +527,7 @@ class SharedLink(models.Model):
     post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
 
     SUBMITTED, DECLINED, ACCEPTED, PUBLISHED = range(4)
-    CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Rejected'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
+    CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Declined'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
     status = models.IntegerField(choices=CHOICES, default=SUBMITTED, db_index=True)
 
     @property
