@@ -147,8 +147,8 @@ def herald_publish(request):
 
     post = herald_publisher()
 
-    #if settings.DEBUG:
-    #    SharedLink.objects.update(status=SharedLink.ACCEPTED)
+    if settings.DEBUG:
+        SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
 
     if not post:
         messages.error(request, "Not enough submissions to publish.")
