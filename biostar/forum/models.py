@@ -10,6 +10,7 @@ from django.db.models import F
 from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
+from urllib.parse import urlparse
 
 from biostar.utils import helpers
 from biostar.accounts.models import Profile
@@ -528,6 +529,19 @@ class SharedLink(models.Model):
     SUBMITTED, DECLINED, ACCEPTED, PUBLISHED = range(4)
     CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Rejected'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
     status = models.IntegerField(choices=CHOICES, default=SUBMITTED, db_index=True)
+
+    @property
+    def domain(self):
+        """
+        Returns the domain of the url
+        """
+        try:
+            domain = urlparse(self.url).netloc
+        except Exception as exc:
+            domain = ''
+
+        return domain
+
 
     def save(self, *args, **kwargs):
         # Needs to be imported here to avoid circular imports.
