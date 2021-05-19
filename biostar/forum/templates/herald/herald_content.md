@@ -8,12 +8,12 @@ This edition of the Herald was brought to you by contribution from *TODO (author
 
 {% for herald in heralds %}
 
-<div class="ui divider"></div>
+---
 
 {% if herald.title %}
-[{{herald.title}}](herald.url)
+### [{{herald.title}}]({{herald.url}}) ({{herald.domain}})
 {% else %}
-{{herald.url}}
+### {{herald.url}}
 {% endif %}
 
 {% if herald.text %}
@@ -24,7 +24,7 @@ submitted by: [{{herald.author.profile.name}}]({{base_url}}{{ herald.author.prof
 
 {% endfor %}
 
-<div class="ui divider"></div>
+---
 
 Want to get the **Biostar Herald** in your email? Who wouldn't? Sign up righ'ere: *link goes here*
 
