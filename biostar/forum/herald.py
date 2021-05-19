@@ -26,7 +26,9 @@ class HeraldSubmit(forms.Form):
     url = forms.CharField(min_length=10, max_length=MAX_CONTENT, required=True)
     text = forms.CharField(widget=forms.Textarea(attrs=dict(rows='5')), max_length=MAX_CONTENT, required=False,
                            strip=False)
-    LOWER_LIMIT = 1
+
+    # Maximum amount of submissions.
+    MAX = 5
 
     def __init__(self, user=None, *args, **kwargs):
         self.user = user
@@ -34,19 +36,18 @@ class HeraldSubmit(forms.Form):
 
     def clean(self):
         cleaned_data = super(HeraldSubmit, self).clean()
-        url = cleaned_data['url']
-        exists = SharedLink.objects.filter(url=url).first()
 
         if self.user.is_anonymous:
             raise forms.ValidationError("You need to be logged in.")
 
-        #if exists:
+        # if exists:
         #    raise forms.ValidationError("This link already exists.")
 
-        # Low rep users can submit one link for consideration.
-        count = SharedLink.objects.filter(author=self.user).count()
-        if self.user.profile.low_rep and count >= self.LOWER_LIMIT:
-            raise forms.ValidationError(f"Your reputation is too low to share more than {self.LOWER_LIMIT} links.")
+        # Check if non mode user is over max submissions
+        count = SharedLink.objects.filter(author=self.user, status=SharedLink.SUBMITTED).count()
+        if not self.user.profile.is_moderator and count >= self.MAX:
+            raise forms.ValidationError(
+                f"You already have {count} links submitted, please wait until some are accepted.")
 
         return cleaned_data
 
@@ -66,13 +67,14 @@ def herald_planet(post):
 
     return
 
+
 def herald_publisher(limit=20, nmin=1):
     """
     Create one publication from Herald accepted submissions ( up to 'limit' ).
     """
 
     # Reset status on published links.
-    #SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
+    # SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
 
     heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED)[:limit]
     count = heralds.count()
@@ -97,7 +99,8 @@ def herald_publisher(limit=20, nmin=1):
 
     # Create herald post
     user = User.objects.filter(is_superuser=True).first()
-    post = auth.create_post(title=title, content=content, author=user, tag_val='herald', ptype=Post.HERALD, nodups=False)
+    post = auth.create_post(title=title, content=content, author=user, tag_val='herald', ptype=Post.HERALD,
+                            nodups=False)
 
     # Tie these submissions to herald post
     hpks = heralds.values_list('pk', flat=True)
@@ -107,8 +110,8 @@ def herald_publisher(limit=20, nmin=1):
     auth.db_logger(user=user, text=f"published {count} submissions in {title}")
 
     # Bump user scores.
-    #user_pks = set(h.author.pk for h in heralds)
-    #Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
+    # user_pks = set(h.author.pk for h in heralds)
+    # Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
 
     return post
 
@@ -138,14 +141,17 @@ def herald_list(request):
             messages.success(request, 'Submitted for review.')
             return redirect(reverse('herald_list'))
 
-    # Add pagination.
-    context = dict(stories=stories, tab='herald_list', form=form)
+    # Apply a limit
+    stories = stories[:settings.HERALD_LIST_COUNT]
+    count = SharedLink.objects.filter(author=user, status=SharedLink.SUBMITTED).count()
+    allow_submit = count < form.MAX
+    context = dict(stories=stories, tab='herald_list', form=form, allow_submit=allow_submit)
+
     return render(request, 'herald/herald_base.html', context)
 
 
 @is_moderator
 def herald_publish(request):
-
     post = herald_publisher()
 
     if not post:

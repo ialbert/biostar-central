@@ -22,7 +22,7 @@
             padding-top: 1em;
         }
 
-        .herald.Rejected {
+        .herald.Declined {
             background-color: #fedce0;
         }
 
@@ -81,14 +81,19 @@
                 <p class="muted">Provide more context of why the link is interesting. Give
                     readers a reason to visit the site. Help curate the information on the web. (Markdown OK) </p>
             </div>
-
+            {% if allow_submit %}
             <button type="submit" class="ui submit green button">
                 <i class="check icon"></i>Submit
             </button>
-            <button href="{% url 'herald_list' %}" class="ui button">
-                <i class="times icon"></i>Cancel
-            </button>
+            {% else %}
+            <div class="ui disabled green button">
+                <i class="check icon"></i>Submit
+            </div>
 
+            <div class="ui compact message">
+                <i class="exclamation circle icon"></i>You have to wait until your current submissions are accepted.
+            </div>
+            {% endif %}
 
         </form>
 
@@ -113,9 +118,9 @@
 
     <div class="ui divider"></div>
 
-    {% if request.user.profile.is_moderator %}
-        {% include 'herald/herald_list.html' %}
-    {% endif %}
+
+    {% include 'herald/herald_list.html' %}
+
 
 {% endblock %}
 

@@ -83,6 +83,9 @@ SESSION_UPDATE_SECONDS = 10
 # Maximum number of awards every SESSION_UPDATE_SECONDS.
 MAX_AWARDS = 2
 
+# How many stories to show
+HERALD_LIST_COUNT = 100
+
 # Search index name
 INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")
 # Relative index directory

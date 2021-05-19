@@ -8,7 +8,6 @@
     <a href="{{ story.author.profile.get_absolute_url }}">{{ story.author.profile.name }}</a> submitted
 
 
-
     {#  Story text #}
     {% if story.title %}
         <a href="{{ story.url }}">{{ story.title }}</a> ({{story.domain }})
@@ -26,11 +25,18 @@
 
     {#  Story status #}
     <div class="description">
-        State: <b>{{ story.get_status_display }}</b>
+        State: 
+        {% if story.post %}
+            <a href="{{ story.post.get_absolute_url }}">{{ story.get_status_display }}</a>
+        {% else %}
+            <b>{{ story.get_status_display }}</b>
+        {% endif %}
+
         {% if story.editor %}
             &bull; <em>{{ story.lastedit_date|naturaltime }} </em>
             by <a href="{{ story.editor.profile.get_absolute_url }}">{{ story.editor.profile.name }}</a>
         {% endif %}
+
     </div>
 
     {# Action buttons #}
@@ -41,7 +47,7 @@
             </a>
             &bull;
             <a class="ui basic label" data-value="decline"><i class="orange times icon"></i>
-                Reject
+                Decline
             </a>
         </div>
     {% endif %}
