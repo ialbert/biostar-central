@@ -205,6 +205,7 @@ def set_link_title(pk):
         if title:
             title = title.strip()
             SharedLink.objects.filter(pk=pk).update(title=title)
+            break
 
 @task
 def spam_check(uid):
