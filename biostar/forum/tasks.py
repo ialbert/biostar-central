@@ -196,7 +196,7 @@ def set_link_title(pk):
     # Fetch the page.
     resp = requests.get(link.url)
 
-    # Parese the content
+    # Parse the content
     soup = BeautifulSoup(resp.text, 'html.parser')
 
     # Set the title
