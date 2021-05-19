@@ -203,6 +203,7 @@ def set_link_title(pk):
     for elem in soup.find_all('title'):
         title = elem.get_text()
         if title:
+            title = title.strip()
             SharedLink.objects.filter(pk=pk).update(title=title)
 
 @task
