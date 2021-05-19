@@ -168,3 +168,9 @@ def finalize_post(sender, instance, created, **kwargs):
 def check_spam(sender, instance, created, **kwargs):
     # Classify post as spam/ham.
     tasks.spam_check.spool(uid=instance.uid)
+
+@receiver(post_save, sender=SharedLink)
+def link_title(sender, instance, created, **kwargs):
+    # Set the title of each link upon creation
+    if created:
+        tasks.set_link_title.spool(pk=instance.pk)

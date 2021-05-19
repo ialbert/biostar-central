@@ -181,6 +181,30 @@ def high_trust(user, minscore=50):
 def low_trust(user, minscore=50):
     return not high_trust(user, minscore=minscore)
 
+@task
+def set_link_title(pk):
+    """
+    Sets the title of a shared link.
+    """
+    import requests
+    from bs4 import BeautifulSoup
+    from biostar.forum.models import SharedLink
+    link = SharedLink.objects.filter(pk=pk).first()
+
+    logger.info(f"getting link title for {link.url}")
+
+    # Fetch the page.
+    resp = requests.get(link.url)
+
+    # Parse the content
+    soup = BeautifulSoup(resp.text, 'html.parser')
+
+    # Set the title
+    for elem in soup.find_all('title'):
+        title = elem.get_text()
+        if title:
+            title = title.strip()
+            SharedLink.objects.filter(pk=pk).update(title=title)
 
 @task
 def spam_check(uid):

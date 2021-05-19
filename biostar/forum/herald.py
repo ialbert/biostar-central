@@ -40,8 +40,8 @@ class HeraldSubmit(forms.Form):
         if self.user.is_anonymous:
             raise forms.ValidationError("You need to be logged in.")
 
-        if exists:
-            raise forms.ValidationError("This link already exists.")
+        #if exists:
+        #    raise forms.ValidationError("This link already exists.")
 
         # Low rep users can submit one link for consideration.
         count = SharedLink.objects.filter(author=self.user).count()
@@ -76,6 +76,7 @@ def herald_publisher(limit=20, nmin=1):
 
     heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED)[:limit]
     count = heralds.count()
+
     if count < nmin:
         logger.warning(f"Not enough stories to publish, minimum of {nmin} required.")
         return
@@ -106,7 +107,7 @@ def herald_publisher(limit=20, nmin=1):
     auth.db_logger(user=user, text=f"published {count} submissions in {title}")
 
     # Bump user scores.
-    user_pks = set(h.author.pk for h in heralds)
+    #user_pks = set(h.author.pk for h in heralds)
     #Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
 
     return post
@@ -152,6 +153,6 @@ def herald_publish(request):
 
     if not post:
         messages.error(request, "Not enough submissions to publish.")
-        return redirect(reverse('post_list'))
+        return redirect(reverse('herald_list'))
 
     return redirect(reverse('post_view', kwargs=dict(uid=post.uid)))

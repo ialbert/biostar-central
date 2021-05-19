@@ -506,6 +506,9 @@ class SharedLink(models.Model):
     # User submitting the herald
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    # Sets title
+    title = models.CharField(max_length=200, blank=True, default='')
+
     # User that accepted/decline this submission.
     editor = models.ForeignKey(User, related_name='herald_editor', on_delete=models.SET_NULL, null=True)
 
@@ -531,7 +534,7 @@ class SharedLink(models.Model):
 
         self.creation_date = self.creation_date or util.now()
         self.lastedit_date = self.lastedit_date or self.creation_date or util.now()
-
+        self.title = self.title or ''
         super(SharedLink, self).save(*args, **kwargs)
         return
 
