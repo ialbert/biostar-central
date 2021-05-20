@@ -289,7 +289,7 @@ def post_list(request, topic=None, tag="", cutoff=None, ordering=None):
 
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
-    order = ordering or request.GET.get("order", "rank") or "rank"
+    order = request.GET.get("order", ordering) or 'rank'
     topic = topic or request.GET.get("type", LATEST) or LATEST
     limit = request.GET.get("limit", "all") or "all"
 
