@@ -5,7 +5,7 @@ from django.conf import settings
 from biostar.accounts.models import User, Profile
 from django.contrib import messages
 from django.shortcuts import render, redirect, reverse
-from biostar.planet.models import Blog
+from biostar.planet.models import Blog, BlogPost
 from django.db.models import F
 from biostar.forum import auth, util
 from biostar.forum.models import Post, SharedLink
@@ -58,12 +58,19 @@ def render_template(template, context):
     return content
 
 
-def herald_planet(post):
+def herald_blog(post):
     """
     Create a herald blog post from a post.
+
     """
 
-    blog = Blog.objects.filter()
+    # Get the Biostar herald blog.
+    blog = Blog.objects.filter(link=reverse('herald_list')).first()
+
+    # Create the blog post
+    BlogPost.objects.create(title=post.title, blog=blog, link=post.get_absolute_url(), remote=False,
+                            uid=post.uid, content=post.content, html=post.html,
+                            creation_date=post.creation_date, insert_date='', published=True)
 
     return
 
@@ -109,6 +116,8 @@ def herald_publisher(limit=20, nmin=1):
     # Log the action
     auth.db_logger(user=user, text=f"published {count} submissions in {title}")
 
+    # Create a herald blog post
+    herald_blog(post=post)
     # Bump user scores.
     # user_pks = set(h.author.pk for h in heralds)
     # Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
