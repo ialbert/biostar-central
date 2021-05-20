@@ -1,8 +1,8 @@
 
 # Filter actions
-RANK, VIEWS, REPLIES, TAGGED, \
+VOTE_DATE, RANK, VIEWS, REPLIES, TAGGED, \
 VOTES, VISIT, REPUTATION, JOINED, \
-ACTIVITY, UPDATE, ANSWERS, BOOKED, CREATION = ("rank", "views", "replies",
+ACTIVITY, UPDATE, ANSWERS, BOOKED, CREATION = ('vote_date', "rank", "views", "replies",
                     "tagged", "votes", "visit", "reputation",
                     "joined", "activity", "update", "answers", "bookmark", "creation")
 
@@ -20,7 +20,9 @@ ORDER_MAPPER = {
     VISIT: '-profile__last_login',
     REPUTATION: '-profile__score',
     JOINED: '-profile__date_joined',
-    ACTIVITY: '-profile__date_joined'
+    ACTIVITY: '-profile__date_joined',
+    VOTE_DATE: '-votes__date'
+
 }
 
 ALLOWED_PARAMS = {"page", "order", "type", "limit", "query", "user", "active"}

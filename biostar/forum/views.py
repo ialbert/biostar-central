@@ -122,7 +122,7 @@ def apply_sort(posts, limit=None, order=None):
         ordering = ORDER_MAPPER.get(order)
         posts = posts.order_by(ordering)
     else:
-        posts = posts.order_by("-rank")
+        posts = posts.order_by('-rank')
 
     days = LIMIT_MAP.get(limit, 0)
     # Apply time limit if required.
@@ -282,14 +282,14 @@ def release_quar(request, uid):
     return redirect('/')
 
 
-def post_list(request, topic=None, tag="", cutoff=None):
+def post_list(request, topic=None, tag="", cutoff=None, ordering=None):
     """
     Post listing. Filters, orders and paginates posts based on GET parameters.
     """
 
     # Parse the GET parameters for filtering information
     page = request.GET.get('page', 1)
-    order = request.GET.get("order", "rank") or "rank"
+    order = ordering or request.GET.get("order", "rank") or "rank"
     topic = topic or request.GET.get("type", LATEST) or LATEST
     limit = request.GET.get("limit", "all") or "all"
 
@@ -370,8 +370,9 @@ def bookmarks(request):
     Show posts bookmarked by user.
     """
 
-    posts = post_list(request, topic=BOOKMARKS)
+    posts = post_list(request, topic=BOOKMARKS, ordering=VOTE_DATE)
 
+    # Order by vote date.
     context = dict(posts=posts, topic=BOOKMARKS, tab=BOOKMARKS)
     return render(request, template_name="user_bookmarks.html", context=context)
 
