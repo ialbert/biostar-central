@@ -64,14 +64,13 @@ def herald_blog(post):
 
     """
 
-    # Get the Biostar herald blog.
+    # Get the Biostar Herald blog.
     blog = Blog.objects.filter(link=reverse('herald_list')).first()
 
     # Create the blog post
-    BlogPost.objects.create(title=post.title, blog=blog, link=post.get_absolute_url(), remote=False,
+    BlogPost.objects.create(title=post.title, blog=blog, link=post.get_absolute_url(),
                             uid=post.uid, content=post.content, html=post.html,
                             creation_date=post.creation_date, insert_date='', published=True)
-
     return
 
 
