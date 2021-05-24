@@ -7,7 +7,8 @@ from urllib import request as builtin_request
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 from urllib.parse import quote
-
+from django.contrib import messages
+from biostar.emailer.models import EmailGroup, EmailSubscription
 from django.core.cache import cache
 from django.conf import settings
 from django.db.models import Q, Count
@@ -365,6 +366,20 @@ def herald_update(request, pk):
     auth.db_logger(user=herald.editor, target=herald.author, text=logmsg)
 
     return ajax_success(msg="changed herald state", icon=herald.icon, tmpl=tmpl, state=herald.get_status_display())
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+@ensure_csrf_cookie
+def herald_subscribe(request):
+
+    user = request.user
+
+    # Get the herald email group
+    group = EmailGroup.objects.filter(uid='herald').first()
+
+    EmailSubscription.objects.create(email=user.email, group=group)
+
+    return ajax_success(msg="Subscribed to Biostar Herald")
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

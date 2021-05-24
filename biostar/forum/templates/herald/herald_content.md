@@ -4,7 +4,9 @@
 
 The **Biostar Herald** publishes user submitted links of bioinformatics relevance. It aims to provide a summary of interesting and relevant information you may have missed. You too can submit [links here](/herald/).
 
-This edition of the Herald was brought to you by contribution from *TODO (authors)* and was edited by *TODO (mods)*
+This edition of the Herald was brought to you by contribution from {% for author in authors %} [{{author.profile.name}}]({{base_url}}{{ author.profile.get_absolute_url }}),
+{% endfor %} and was edited by {% for editor in editors %} [{{editor.profile.name}}]({{base_url}}{{ editor.profile.get_absolute_url }}),
+{% endfor %}
 
 {% for herald in heralds %}
 
@@ -26,7 +28,7 @@ submitted by: [{{herald.author.profile.name}}]({{base_url}}{{ herald.author.prof
 
 ---
 
-Want to get the **Biostar Herald** in your email? Who wouldn't? Sign up righ'ere: *link goes here*
+Want to get the **Biostar Herald** in your email? Who wouldn't? Sign up righ'ere: <a class="herald-sub">subscribe</a>
 
 
 

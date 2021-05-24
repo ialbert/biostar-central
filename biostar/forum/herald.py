@@ -9,7 +9,9 @@ from biostar.planet.models import Blog, BlogPost
 from django.db.models import F
 from biostar.forum import auth, util
 from biostar.forum.models import Post, SharedLink
+from biostar.emailer.models import EmailGroup, EmailSubscription
 from biostar.utils.decorators import is_moderator, authenticated
+from biostar.forum.tasks import herald_emails
 
 from .const import *
 
@@ -99,8 +101,13 @@ def herald_publisher(limit=20, nmin=1):
     port = f':{settings.HTTP_PORT}' if settings.HTTP_PORT else ''
 
     base_url = f"{settings.PROTOCOL}://{settings.SITE_DOMAIN}{port}"
+    authors = set(h.author for h in heralds)
+    editors = set(h.editor for h in heralds)
+
+    subscribe_url = reverse('herald_subscribe')
     context = dict(heralds=heralds, title=title, site_domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL,
-                   base_url=base_url)
+                   base_url=base_url, authors=authors, editors=editors, subscribe_url=subscribe_url)
+
     content = render_template(template="herald/herald_content.md", context=context)
 
     # Create herald post
@@ -117,9 +124,9 @@ def herald_publisher(limit=20, nmin=1):
 
     # Create a herald blog post
     herald_blog(post=post)
-    # Bump user scores.
-    # user_pks = set(h.author.pk for h in heralds)
-    # Profile.objects.filter(user__id__in=user_pks).update(score=F('score') + 1)
+
+    # Send out herald emails
+    herald_emails.spool(uid=post.uid)
 
     return post
 
@@ -130,6 +137,7 @@ def herald_list(request):
     List latest herald_list items
     """
 
+    SharedLink.objects.update(status=SharedLink.ACCEPTED)
     # List newly submitted links.
     stories = SharedLink.objects.order_by('-creation_date')
     stories = stories.select_related('author', 'author__profile')

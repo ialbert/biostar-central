@@ -542,6 +542,8 @@ class SharedLink(models.Model):
 
         return domain
 
+    def __str__(self):
+        return self.url
 
     def save(self, *args, **kwargs):
         # Needs to be imported here to avoid circular imports.

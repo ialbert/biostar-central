@@ -42,21 +42,29 @@ def init_awards(sender, **kwargs):
 
 def init_herald(sender, **kwargs):
     """
-    Initialize the Biostar Herald Blog.
+    Initialize the Biostar Herald Blog and Email Group.
     """
     from biostar.planet.models import Blog
     from django.shortcuts import reverse
+    from biostar.emailer.models import EmailGroup
 
     title = "Biostar Herald"
     link = reverse('herald_list')
     desc = "Share bioinformatics resources from across the web."
 
-    hblog = Blog.objects.filter(link=link).first()
+    uid = 'herald'
+
+    hblog = Blog.objects.filter(link=link)
+    group = EmailGroup.objects.filter(uid=uid)
 
     if hblog:
-        Blog.objects.filter(pk=hblog.pk).update(desc=desc, title=title, remote=False)
+        hblog.update(desc=desc, title=title, remote=False)
     else:
         Blog.objects.create(title=title, remote=False, link=link)
         logger.info("created the biostar herald blog")
 
-    return
+    if group:
+        group.update(uid=uid, name=title, text=desc)
+    else:
+        EmailGroup.objects.create(uid=uid)
+        logger.info("created the biostar herald email group")
