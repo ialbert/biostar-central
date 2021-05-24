@@ -1,20 +1,16 @@
 import logging
-from .models import EmailAddress, Subscription
+from .models import EmailSubscription, EmailGroup
 
 logger = logging.getLogger("engine")
 
 
 def add_subscription(email, group, name=''):
 
-    # Get the address from the database.
-    address = EmailAddress.objects.filter(email=email).first()
-    if not address:
-        address = EmailAddress.objects.create(name=name, email=email)
-
     # Fetch the subscriptions if these may exists.
-    query = Subscription.objects.filter(group=group, address=address)
+    query = EmailSubscription.objects.filter(group=group, email=email)
 
     # Drop subscription if it exists.
     query.delete()
+
     # Create the new subscription.
-    Subscription.objects.create(group=group, address=address)
+    EmailSubscription.objects.create(group=group, email=email)

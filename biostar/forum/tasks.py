@@ -181,6 +181,7 @@ def high_trust(user, minscore=50):
 def low_trust(user, minscore=50):
     return not high_trust(user, minscore=minscore)
 
+
 @task
 def set_link_title(pk):
     """
@@ -206,6 +207,7 @@ def set_link_title(pk):
             title = title.strip()
             SharedLink.objects.filter(pk=pk).update(title=title)
             break
+
 
 @task
 def spam_check(uid):
@@ -264,7 +266,8 @@ def spam_check(uid):
 
             spam_count = Post.objects.filter(spam=Post.SPAM, author=author).count()
 
-            db_logger(user=user, action=Log.CLASSIFY, target=post.author, text=f"classified the post as spam", post=post)
+            db_logger(user=user, action=Log.CLASSIFY, target=post.author, text=f"classified the post as spam",
+                      post=post)
 
             if spam_count > 1 and low_trust(post.author):
                 # Suspend the user
@@ -276,6 +279,43 @@ def spam_check(uid):
         logger.error(exc)
 
     return False
+
+
+@task
+def herald_emails(uid):
+    """
+    Send emails to herald subscribers
+    """
+    from biostar.emailer.models import EmailSubscription, EmailGroup
+    from biostar.forum.models import Post
+    post = Post.objects.filter(uid=uid).first()
+    group = EmailGroup.objects.filter(uid='herald').first()
+    # Get active subscriptions to herald.
+    subs = EmailSubscription.objects.filter(group=group, state=EmailSubscription.ACTIVE)
+
+    if not subs:
+        return
+
+    emails = subs.values_list('email', flat=True)
+    context = dict(post=post)
+    # Prepare the templates and emails
+    email_template = "herald/herald_email.html"
+    author = post.author.profile.name
+    from_email = settings.DEFAULT_NOREPLY_EMAIL
+
+    # Total number of recipients allowed per open connection,
+    # Amazon SES has limit of 50
+    batch_size = 40
+
+    # Iterate through recipients and send emails in batches.
+    for idx in range(0, len(emails), batch_size):
+        # Get the next set of emails
+        end = idx + batch_size
+        rec_list = emails[idx:end]
+        send_email(template_name=email_template, extra_context=context, name=author, from_email=from_email,
+                   recipient_list=rec_list, mass=True)
+
+    return
 
 
 @task

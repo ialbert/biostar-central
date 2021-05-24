@@ -221,6 +221,24 @@ function herald_update(hpk, status, elem) {
 
 }
 
+function herald_subscribe(elem) {
+
+    $.ajax('/herald/subscribe/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {'status': status},
+            success: function (data) {
+                popup_message(elem, data.msg, data.status, 1000);
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
+
+}
+
 function highligh_preview(form, text) {
     var highlighted = highlight(text);
 
@@ -396,6 +414,10 @@ $(document).ready(function () {
         var hpk = elem.data('value');
         var status = $(this).data('value');
         herald_update(hpk, status, elem)
+    });
+
+    $(this).on('click', ".herald-sub", function (event) {
+        herald_subscribe($(this))
     });
 
     $('pre').addClass('language-bash');

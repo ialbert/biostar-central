@@ -795,6 +795,9 @@ img {
     color: var(--label-color);
 }
 
+.herald-sub{
+    cursor: pointer;
+}
 
 .ui.forum.label {
     background-color: var(--forum-background);
