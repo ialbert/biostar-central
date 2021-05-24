@@ -331,7 +331,7 @@ def off_topic(request, post, **kwargs):
         context = dict(post=post)
         content = tmpl.render(context)
 
-        auth.create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
+        auth.create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user, request=request)
         msg = "off topic"
         messages.info(request, mark_safe(msg))
         auth.db_logger(user=user, text=f"{msg}", post=post)
