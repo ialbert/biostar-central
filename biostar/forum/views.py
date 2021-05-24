@@ -40,6 +40,7 @@ POST_TYPE = dict(
     tools=Post.TOOL,
     news=Post.NEWS,
     pages=Post.PAGE,
+    herald=Post.HERALD
 )
 
 LIMIT_MAP = dict(

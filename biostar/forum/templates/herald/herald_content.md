@@ -28,7 +28,7 @@ submitted by: [{{herald.author.profile.name}}]({{base_url}}{{ herald.author.prof
 
 ---
 
-Want to get the **Biostar Herald** in your email? Who wouldn't? Sign up righ'ere: <a class="herald-sub">subscribe</a>
+Want to get the **Biostar Herald** in your email? Who wouldn't? Sign up righ'ere: <a class="herald-sub">toggle subscription</a>
 
 
 

@@ -417,8 +417,6 @@ $(document).ready(function () {
     });
 
     $(this).on('click', ".herald-sub", function (event) {
-        //alert('foo');
-
         herald_subscribe($(this))
     });
 

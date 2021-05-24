@@ -290,22 +290,30 @@ def herald_emails(uid):
     from biostar.forum.models import Post
     post = Post.objects.filter(uid=uid).first()
     group = EmailGroup.objects.filter(uid='herald').first()
-    subs = EmailSubscription.objects.filter(group=group)
+    # Get active subscriptions to herald.
+    subs = EmailSubscription.objects.filter(group=group, state=EmailSubscription.ACTIVE)
 
     if not subs:
         return
 
     emails = subs.values_list('email', flat=True)
-
     context = dict(post=post)
-
     # Prepare the templates and emails
     email_template = "herald/herald_email.html"
     author = post.author.profile.name
     from_email = settings.DEFAULT_NOREPLY_EMAIL
-    if emails:
+
+    # Total number of recipients allowed per open connection,
+    # Amazon SES has limit of 50
+    batch_size = 40
+
+    # Iterate through recipients and send emails in batches.
+    for idx in range(0, len(emails), batch_size):
+        # Get the next set of emails
+        end = idx + batch_size
+        rec_list = emails[idx:end]
         send_email(template_name=email_template, extra_context=context, name=author, from_email=from_email,
-                   recipient_list=emails, mass=True)
+                   recipient_list=rec_list, mass=True)
 
     return
 

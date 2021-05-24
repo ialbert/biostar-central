@@ -33,8 +33,8 @@ class EmailSubscription(models.Model):
     """
     Connects email groups to email addresses.
     """
-    ACTIVE, DELETED, INACTIVE, UNSUBSCRIBE = 1, 2, 3, 4
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (INACTIVE, "Inactive"), (UNSUBSCRIBE, "Unsubscirbed")]
+    ACTIVE, DELETED, UNSUBSCRIBE = 1, 2, 3
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (UNSUBSCRIBE, "Unsubscirbed")]
 
     uid = models.CharField(max_length=32, unique=True)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
@@ -47,3 +47,6 @@ class EmailSubscription(models.Model):
     def save(self, *args, **kwargs):
         self.uid = self.uid or get_uuid(16)
         super(EmailSubscription, self).save()
+
+    def active(self):
+        return self.state == self.ACTIVE

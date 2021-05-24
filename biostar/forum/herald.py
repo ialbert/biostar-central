@@ -67,11 +67,15 @@ def herald_blog(post):
     """
 
     # Get the Biostar Herald blog.
-    blog = Blog.objects.filter(link=reverse('herald_list')).first()
+    hlink = reverse('post_topic', kwargs=dict(topic='herald'))
+    blog = Blog.objects.filter(link=hlink).first()
+
+    content = post.content.split('.')[:2]
+    content = '.'.join(content) + '...'
 
     # Create the blog post
     BlogPost.objects.create(title=post.title, blog=blog, link=post.get_absolute_url(),
-                            uid=post.uid, content=post.content, html=post.html,
+                            uid=post.uid, content=content,
                             creation_date=post.creation_date, insert_date='', published=True)
     return
 
@@ -137,7 +141,6 @@ def herald_list(request):
     List latest herald_list items
     """
 
-    SharedLink.objects.update(status=SharedLink.ACCEPTED)
     # List newly submitted links.
     stories = SharedLink.objects.order_by('-creation_date')
     stories = stories.select_related('author', 'author__profile')

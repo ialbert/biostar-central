@@ -371,15 +371,23 @@ def herald_update(request, pk):
 @ajax_error_wrapper(method="POST", login_required=True)
 @ensure_csrf_cookie
 def herald_subscribe(request):
-
+    """
+    Toggle user subscription to Biostar Herald.
+    """
     user = request.user
 
     # Get the herald email group
     group = EmailGroup.objects.filter(uid='herald').first()
+    sub = EmailSubscription.objects.filter(email=user.email, group=group)
 
-    EmailSubscription.objects.create(email=user.email, group=group)
+    if sub:
+        sub.delete()
+        msg = "Unsubscribed to Biostar Herald"
+    else:
+        EmailSubscription.objects.create(email=user.email, group=group)
+        msg = "Subscribed to Biostar Herald"
 
-    return ajax_success(msg="Subscribed to Biostar Herald")
+    return ajax_success(msg=msg)
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

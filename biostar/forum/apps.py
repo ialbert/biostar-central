@@ -49,7 +49,7 @@ def init_herald(sender, **kwargs):
     from biostar.emailer.models import EmailGroup
 
     title = "Biostar Herald"
-    link = reverse('herald_list')
+    link = reverse('post_topic', kwargs=dict(topic='herald'))
     desc = "Share bioinformatics resources from across the web."
 
     uid = 'herald'
