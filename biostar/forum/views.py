@@ -27,7 +27,6 @@ logger = logging.getLogger('engine')
 
 RATELIMIT_KEY = settings.RATELIMIT_KEY
 
-
 CREATE_PARAMS = {'title', 'tag_val'}
 CREATE_PARAMS.update(ALLOWED_PARAMS)
 
@@ -70,7 +69,6 @@ def post_exists(func):
 
 
 def authenticated(func):
-
     def _wrapper_(request, **kwargs):
         if request.user.is_anonymous:
             messages.error(request, "You need to be logged in to view this page.")
@@ -107,7 +105,7 @@ class CachedPaginator(Paginator):
             value = cache.get(self.cache_key)
             if value is None:
                 value = super(CachedPaginator, self).count
-                #logger.debug(f'setting the cache for "{self.cache_key}"')
+                # logger.debug(f'setting the cache for "{self.cache_key}"')
                 cache.set(self.cache_key, value, self.ttl)
         else:
             value = super(CachedPaginator, self).count
@@ -116,7 +114,6 @@ class CachedPaginator(Paginator):
 
 
 def apply_sort(posts, limit=None, order=None):
-
     # Apply post ordering.
     if ORDER_MAPPER.get(order):
         ordering = ORDER_MAPPER.get(order)
@@ -380,7 +377,6 @@ def bookmarks(request):
 @ensure_csrf_cookie
 @authenticated
 def mytags(request):
-
     posts = post_list(request, topic=MYTAGS)
 
     context = dict(posts=posts, topic=MYTAGS, tab=MYTAGS)
@@ -464,7 +460,6 @@ def tags_list(request):
 
 @check_params(allowed=ALLOWED_PARAMS)
 def community_list(request):
-
     page = request.GET.get("page", 1)
     ordering = request.GET.get("order", "visit")
     limit_to = request.GET.get("limit", "time")
@@ -556,7 +551,8 @@ def post_view(request, uid):
             author = request.user
             content = form.cleaned_data.get("content")
             answer = auth.create_post(title=post.title, parent=post, author=author,
-                                      content=content, ptype=Post.ANSWER, root=post.root)
+                                      content=content, ptype=Post.ANSWER, root=post.root,
+                                      request=request)
             return redirect(answer.get_absolute_url())
         messages.error(request, form.errors)
 
@@ -596,7 +592,8 @@ def new_post(request):
             content = form.cleaned_data.get("content")
             ptype = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
-            post = auth.create_post(title=title, content=content, ptype=ptype, tag_val=tag_val, author=author)
+            post = auth.create_post(title=title, content=content, ptype=ptype, tag_val=tag_val, author=author,
+                                    request=request)
 
             tasks.created_post.spool(pid=post.id)
 
@@ -622,14 +619,16 @@ def view_logs(request):
     else:
         logs = Log.objects.filter(pk=0)
 
-    logs = logs.select_related("user", "post", "post__root","user__profile", "target", "target__profile", "post__author")
+    logs = logs.select_related("user", "post", "post__root", "user__profile", "target", "target__profile",
+                               "post__author")
 
     context = dict(logs=logs)
 
     return render(request, "view_logs.html", context=context)
 
+
 def error(request):
     """
     Checking error propagation and logging
     """
-    1/0
+    1 / 0
