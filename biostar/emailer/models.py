@@ -34,7 +34,7 @@ class EmailSubscription(models.Model):
     Connects email groups to email addresses.
     """
     ACTIVE, DELETED, UNSUBSCRIBE = 1, 2, 3
-    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (UNSUBSCRIBE, "Unsubscirbed")]
+    STATE_CHOICES = [(ACTIVE, "Active"), (DELETED, "Deleted"), (UNSUBSCRIBE, "Unsubscribed")]
 
     uid = models.CharField(max_length=32, unique=True)
     state = models.IntegerField(default=ACTIVE, choices=STATE_CHOICES)
