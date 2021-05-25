@@ -21,7 +21,7 @@ from biostar.accounts.models import Profile
 from biostar.utils.helpers import get_ip
 from . import util, awards
 from .const import *
-from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log
+from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log, Award
 
 User = get_user_model()
 
@@ -226,6 +226,35 @@ def create_post(author, title, content, request, root=None, parent=None, ptype=P
 
     delete_cache(MYPOSTS, author)
     return post
+
+
+def merge_profiles(main, alias):
+    """
+    Merge alias profile into main
+    """
+
+    # Transfer posts
+    Post.objects.filter(author=alias).update(author=main)
+
+    Post.objects.filter(lastedit_user=alias).update(lastedit_user=main)
+
+    # Transfer votes
+    Vote.objects.filter(author=alias).update(author=main)
+
+    # Transfer subscriptions
+    Subscription.objects.filter(user=alias).update(user=main)
+
+    # Transfer awards
+    Award.objects.filter(user=alias).update(user=main)
+
+    # Transfer messages
+    Message.objects.filter(sender=alias).update(sender=main)
+    Message.objects.filter(recipient=alias).update(recipient=main)
+
+    # Remove alias profile.
+    #Profile.objects.filter(user=alias).update(state=Profile.SUSPENDED)
+
+    return
 
 
 def create_subscription(post, user, sub_type=None, update=False):

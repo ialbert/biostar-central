@@ -206,3 +206,48 @@ class PostShortForm(forms.Form):
         if self.user.is_anonymous:
             raise forms.ValidationError("You need to be logged in.")
         return cleaned_data
+
+
+class MergeProfiles(forms.Form):
+
+    main = forms.CharField(label='Main user email', max_length=100, required=True)
+    alias = forms.CharField(label='Alias email to merge to main', max_length=100, required=True)
+
+    def clean_main(self):
+        cleaned_data = super(MergeProfiles, self).clean()
+        main = cleaned_data['main']
+        if not User.objects.filter(email=main).first():
+            raise forms.ValidationError(f'{main} email does not exist.')
+
+        return main
+
+    def clean_alias(self):
+        cleaned_data = super(MergeProfiles, self).clean()
+        alias = cleaned_data['alias']
+        if not User.objects.filter(email=alias).first():
+            raise forms.ValidationError(f'{alias} email does not exist.')
+
+        return alias
+
+    def clean(self):
+        cleaned_data = super(MergeProfiles, self).clean()
+        alias = cleaned_data['alias']
+        main = cleaned_data['main']
+
+        if main == alias:
+            raise forms.ValidationError('Main and alias profiles are the same.')
+
+        return cleaned_data
+
+    def save(self):
+
+        alias = self.cleaned_data['alias']
+        main = self.cleaned_data['main']
+
+        main = User.objects.filter(email=main).first()
+        alias = User.objects.filter(email=alias).first()
+
+        # Merge the two accounts.
+        auth.merge_profiles(main=main, alias=alias)
+
+        return main

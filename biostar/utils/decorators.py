@@ -23,6 +23,20 @@ def is_moderator(f):
     return inner
 
 
+def is_staff(f):
+    """
+    Only run functions with the
+    """
+    def inner(request, **kwargs):
+        user = request.user
+        if user.is_authenticated and (user.is_staff or user.is_superuser):
+            return f(request, **kwargs)
+        messages.warning(request, "You need to be a staff member to perform this action.")
+        return redirect('/')
+
+    return inner
+
+
 def reset_count(key):
     """
     Set value of given key in settings.SESSION_COUNT_KEY to 0.
