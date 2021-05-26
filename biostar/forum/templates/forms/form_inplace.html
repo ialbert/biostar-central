@@ -44,9 +44,7 @@
                 {% if post.is_toplevel %}
                     {% include 'widgets/post_message.html' %}
                 {% endif %}
-
                 {% include 'widgets/textarea.html' %}
-
             </div>
             {# Edit the tags #}
             {% if post.is_toplevel %}
@@ -98,7 +96,7 @@
         });
         // initialize autocomplete
         autocomplete_users();
-        
+
         $(this).on('click', '#inplace .cancel', function () {
             cancel_inplace()
         });
@@ -119,6 +117,17 @@
                 save.click();
             }
         });
+
+        $(this).on('keyup keypress', '#inplace #tag_val', function () {
+
+            // Submit form when pressing enter on tags field.
+            if (event.keyCode === 13 || event.keyCode === 10) {
+                event.preventDefault();
+                var save = $('#inplace').find('.save, .create');
+                save.click();
+            }
+        });
+
         $("body").on("click", '.pagedown-image-upload.show .submit-input', function () {
 
             var form = $(this).closest('form');
