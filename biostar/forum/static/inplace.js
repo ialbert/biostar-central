@@ -79,15 +79,15 @@ function cancel_inplace() {
 
 }
 
-function delete_post(post){
-        var uid = post.data('value');
+function delete_post(post) {
+    var uid = post.data('value');
 
-        $.ajax('/ajax/delete/',
+    $.ajax('/ajax/delete/',
         {
             type: 'POST',
             dataType: 'json',
             ContentType: 'application/json',
-            data: {'uid': uid },
+            data: {'uid': uid},
             success: function (data) {
 
                 if (data.status === 'error') {
