@@ -16,13 +16,6 @@
     <script async src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
 {% endblock %}
 
-{% block jsfile %}
-    <script src="{% static 'semantic.min.js' %}"></script>
-    <script src="{% static 'prism.js' %}"></script>
-    <script src="{% static 'setup.js' %}{% randparam %}"></script>
-    <script src="{% static 'forum.js' %}{% randparam %}"></script>
-{% endblock %}
-
 
 {% block content %}
     <div class="ui vertical segment">
