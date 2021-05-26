@@ -235,24 +235,17 @@ def merge_profiles(main, alias):
 
     # Transfer posts
     Post.objects.filter(author=alias).update(author=main)
-
     Post.objects.filter(lastedit_user=alias).update(lastedit_user=main)
-
-    # Transfer votes
-    Vote.objects.filter(author=alias).update(author=main)
-
-    # Transfer subscriptions
-    Subscription.objects.filter(user=alias).update(user=main)
-
-    # Transfer awards
-    Award.objects.filter(user=alias).update(user=main)
 
     # Transfer messages
     Message.objects.filter(sender=alias).update(sender=main)
     Message.objects.filter(recipient=alias).update(recipient=main)
 
-    # Remove alias profile.
+    # change names to delete( alias) and keep ( main)
+    #TODO: sanity check; alias can only be reg low-score user,
+    # alias can not be newer then main
     #Profile.objects.filter(user=alias).update(state=Profile.SUSPENDED)
+    alias.delete()
 
     return
 
