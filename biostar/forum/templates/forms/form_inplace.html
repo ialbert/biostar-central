@@ -120,12 +120,11 @@
 
         $(this).on('keyup keypress', '#inplace #tag_val', function () {
 
-            // Submit form when pressing enter with tags.
+            // Submit form when pressing enter on tags field.
             if (event.keyCode === 13 || event.keyCode === 10) {
                 event.preventDefault();
                 var save = $('#inplace').find('.save, .create');
                 save.click();
-                return false;
             }
         });
 
