@@ -213,13 +213,13 @@ def create_post(author, title, content, request, root=None, parent=None, ptype=P
     post = Post.objects.filter(content=content, author=author).order_by('-creation_date').first()
 
     # How many seconds since the last post should we disallow duplicates.
-    since = 60
+    time_frame = 60
     if post:
-        # Check to see if this post was made within the last minute.
+        # Check to see if this post was made within given timeframe
         delta_secs = (util.now() - post.creation_date).seconds
-        if delta_secs < since:
+        if delta_secs < time_frame:
             messages.warning(request, "Post with this content was created recently.")
-            return post.root
+            return post
 
     post = Post.objects.create(title=title, content=content, root=root, parent=parent,
                                type=ptype, tag_val=tag_val, author=author)
