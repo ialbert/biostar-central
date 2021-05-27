@@ -55,7 +55,7 @@ Every moderation action generates a log entry in the moderation log.
 Users may post commercially motivated posts to the Forum section as long as the topic aligns with the main focus of this
 site. 
 
-## Marking post as spam
+### Marking post as spam
 
 Marking a post as spam suspends the author of the post.
 
