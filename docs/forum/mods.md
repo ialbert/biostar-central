@@ -12,18 +12,32 @@ The Moderator Log page has an invite to the **Biostar Moderator Slack Channel**.
 
 ### Moderator rights
 
-- You may edit other readers' posts (for formatting purposes only!)
-- You may delete and restore content
-- You may suspend and reinstate users
-- You may reorganize content on the site (answers/comments)
-- You may bump posts to higher visibility
-- You may mark posts as spam. 
+Moderators may:
+
+- Edit other readers' posts (for formatting purposes only!)
+- Delete and restore content
+- Suspend and reinstate users
+- Reorganize content on the site (answers/comments)
+- Bump posts to higher visibility
+- Mark posts as off-topic
+- Mark posts as spam. 
 
 Please be generous with your powers and use them only when necessary and in a minimally obtrusive manner. No action is destructive and every action may be reverted.
 
-## Editing a post
+### Editing posts
+
+Moderators may only edit a post to:
+
+1. fix a typo in a command, a URL or an image
+2. format code or content to become more readable
+
+The author of the post should be responsible for the readability and tone of the post. 
 
 Editing a post generates a diff.  The diff is not visible to the site's users, it is stored in a file as a log, and would be used only to resolve potential disagreements with regards to what a post originally contained. These diffs may be periodically removed and are not archived long term.
+
+### Deleting posts
+
+Posts that break the rules of civil communication will be deleted. Users that submit such posts may be suspended or banned with no prior notice.
 
 ### Post moderation
 
@@ -36,11 +50,12 @@ Every moderation action generates a log entry in the moderation log.
 * Spam - marks post as spam, suspends post author
 * Not spam - unmarks post from spam, reinstates post author 
  
-### Moderation guidelines
+### Commercial posts
 
-Users may post commercially motivated posts to
-the Forum section as long as the topic aligns with the main focus of this
+Users may post commercially motivated posts to the Forum section as long as the topic aligns with the main focus of this
 site. 
+
+### Marking post as spam
 
 Marking a post as spam suspends the author of the post.
 
@@ -48,7 +63,7 @@ Marking a post as spam suspends the author of the post.
 
 Try to be generous in your assesment on what constitutes "off-topic" content.
  
- Bioinformatics is a broad field, often it is hard to tell what is a bioinformatics and what is "pure programming" or "statistics". Usually it is effective and more constructive to point readers to the appropriate source instead of informing them that the post is off topic.
+Bioinformatics is a broad field, often it is hard to tell what is a bioinformatics and what is "pure programming" or "statistics". Usually it is effective and more constructive to point readers to the appropriate source instead of informing them that the post is off topic.
 
 Marking a post off topic generates a comment (and a notification to the user).
 
@@ -56,8 +71,7 @@ Off topic content may be periodically removed.
 
 ### User reputation
 
-The number next to a user's name is the sum of upvotes and accepted answers
-that user has collected.
+The number next to a user's name is the sum of upvotes and accepted answers that user has collected.
 
 ### Becoming a moderator
 
