@@ -241,7 +241,7 @@ def merge_profiles(main, alias):
     Message.objects.filter(sender=alias).update(sender=main)
     Message.objects.filter(recipient=alias).update(recipient=main)
 
-    # Do not delete 'alias' if it is older than main profile.
+    # Do not delete older accounts.
     older = (alias.profile.date_joined < main.profile.date_joined)
 
     if alias.profile.is_moderator or alias.profile.high_rep or older:
