@@ -633,10 +633,11 @@ def merge_profile(request):
     Merge two profiles into one.
     """
 
-    form = forms.MergeProfiles()
+    user = request.user
+    form = forms.MergeProfiles(user=user)
 
     if request.method == 'POST':
-        form = forms.MergeProfiles(data=request.POST)
+        form = forms.MergeProfiles(user=user, data=request.POST)
 
         if form.is_valid():
             merged = form.save()

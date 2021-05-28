@@ -241,10 +241,10 @@ def merge_profiles(main, alias):
     Message.objects.filter(sender=alias).update(sender=main)
     Message.objects.filter(recipient=alias).update(recipient=main)
 
-    # change names to delete( alias) and keep ( main)
-    #TODO: sanity check; alias can only be reg low-score user,
-    # alias can not be newer then main
-    #Profile.objects.filter(user=alias).update(state=Profile.SUSPENDED)
+    # Do not delete alias is older than main.
+    if alias.profile.is_moderator or alias.profile.high_rep or (alias.profile.date_joined < main.profile.date_joined):
+        return
+
     alias.delete()
 
     return

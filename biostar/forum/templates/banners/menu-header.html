@@ -37,12 +37,6 @@
         <i class="info recycle icon"></i>FAQ
     </a>
 
-    {% if request.user.is_staff or request.user.is_superuser %}
-        <a class="item  {% activate tab "merge" %}" href="{% url 'merge_profile' %}">
-            <i class="user plus icon"></i>Merge
-        </a>
-
-    {% endif %}
 
 </div>
 
