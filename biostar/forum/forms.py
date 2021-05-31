@@ -208,6 +208,7 @@ class PostShortForm(forms.Form):
         return cleaned_data
 
 
+
 class HeraldSubmit(forms.Form):
     url = forms.CharField(min_length=10, max_length=MAX_CONTENT, required=True)
     text = forms.CharField(widget=forms.Textarea(attrs=dict(rows='5')), max_length=MAX_CONTENT, required=False,
@@ -234,3 +235,47 @@ class HeraldSubmit(forms.Form):
 
         return cleaned_data
 
+
+class MergeProfiles(forms.Form):
+
+    main = forms.CharField(label='Main user email', max_length=100, required=True)
+    alias = forms.CharField(label='Alias email to merge to main', max_length=100, required=True)
+
+    def __init__(self, user=None, *args, **kwargs):
+        self.user = user
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(MergeProfiles, self).clean()
+        alias = cleaned_data['alias']
+        main = cleaned_data['main']
+
+        to_delete = User.objects.filter(email=alias).first()
+        merge_to = User.objects.filter(email=main).first()
+
+        if self.user and not (self.user.is_staff or self.user.is_superuser):
+            raise forms.ValidationError(f'Only staff member can perform this action.')
+
+        if not to_delete:
+            raise forms.ValidationError(f'{alias} email does not exist.')
+
+        if not merge_to:
+            raise forms.ValidationError(f'{main} email does not exist.')
+
+        if main == alias:
+            raise forms.ValidationError('Main and alias profiles are the same.')
+
+        return cleaned_data
+
+    def save(self):
+
+        alias = self.cleaned_data['alias']
+        main = self.cleaned_data['main']
+
+        main = User.objects.filter(email=main).first()
+        alias = User.objects.filter(email=alias).first()
+
+        # Merge the two accounts.
+        auth.merge_profiles(main=main, alias=alias)
+
+        return main

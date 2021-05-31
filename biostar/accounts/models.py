@@ -313,6 +313,12 @@ class Profile(models.Model):
         """
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
 
+    @property
+    def high_rep(self):
+        """
+        """
+
+        return not self.low_rep
 
 class UserLog(models.Model):
     DEFAULT, ACTION = 1, 2

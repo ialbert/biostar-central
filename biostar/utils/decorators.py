@@ -23,6 +23,7 @@ def is_moderator(f):
     return inner
 
 
+
 def authenticated(func):
 
     def _wrapper_(request, **kwargs):
@@ -33,6 +34,19 @@ def authenticated(func):
         return func(request, **kwargs)
 
     return _wrapper_
+
+def is_staff(f):
+    """
+    Only run functions with the
+    """
+    def inner(request, **kwargs):
+        user = request.user
+        if user.is_authenticated and (user.is_staff or user.is_superuser):
+            return f(request, **kwargs)
+        messages.warning(request, "You need to be a staff member to perform this action.")
+        return redirect('/')
+
+    return inner
 
 
 def reset_count(key):

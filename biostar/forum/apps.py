@@ -60,7 +60,7 @@ def init_herald(sender, **kwargs):
     if hblog:
         hblog.update(desc=desc, title=title, remote=False)
     else:
-        Blog.objects.create(title=title, remote=False, link=link)
+        Blog.objects.create(title=title, desc=desc, remote=False, link=link)
         logger.info("created the biostar herald blog")
 
     if group:

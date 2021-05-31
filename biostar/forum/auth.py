@@ -213,19 +213,43 @@ def create_post(author, title, content, request, root=None, parent=None, ptype=P
     post = Post.objects.filter(content=content, author=author).order_by('-creation_date').first()
 
     # How many seconds since the last post should we disallow duplicates.
-    since = 60
+    time_frame = 60
     if nodups and post:
-        # Check to see if this post was made within the last minute.
+        # Check to see if this post was made within given timeframe
         delta_secs = (util.now() - post.creation_date).seconds
-        if delta_secs < since:
+        if delta_secs < time_frame:
             messages.warning(request, "Post with this content was created recently.")
-            return post.root
+            return post
 
     post = Post.objects.create(title=title, content=content, root=root, parent=parent,
                                type=ptype, tag_val=tag_val, author=author)
 
     delete_cache(MYPOSTS, author)
     return post
+
+
+def merge_profiles(main, alias):
+    """
+    Merge alias profile into main
+    """
+
+    # Transfer posts
+    Post.objects.filter(author=alias).update(author=main)
+    Post.objects.filter(lastedit_user=alias).update(lastedit_user=main)
+
+    # Transfer messages
+    Message.objects.filter(sender=alias).update(sender=main)
+    Message.objects.filter(recipient=alias).update(recipient=main)
+
+    # Do not delete older accounts.
+    older = (alias.profile.date_joined < main.profile.date_joined)
+
+    if alias.profile.is_moderator or alias.profile.high_rep or older:
+        return
+
+    alias.delete()
+
+    return
 
 
 def create_subscription(post, user, sub_type=None, update=False):

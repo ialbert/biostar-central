@@ -18,8 +18,9 @@ from biostar.planet.models import Blog, BlogPost
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models, moderate
 from biostar.forum.const import *
-from biostar.forum.models import Post, Vote, Badge, Subscription, Log, SharedLink
-from biostar.utils.decorators import is_moderator, check_params, reset_count, authenticated
+
+from biostar.forum.models import Post, Vote, Badge, Subscription, Log
+from biostar.utils.decorators import is_moderator, check_params, reset_count, is_staff, authenticated
 
 User = get_user_model()
 
@@ -615,6 +616,27 @@ def view_logs(request):
     context = dict(logs=logs)
 
     return render(request, "view_logs.html", context=context)
+
+
+@is_staff
+def merge_profile(request):
+    """
+    Merge two profiles into one.
+    """
+
+    user = request.user
+    form = forms.MergeProfiles(user=user)
+
+    if request.method == 'POST':
+        form = forms.MergeProfiles(user=user, data=request.POST)
+
+        if form.is_valid():
+            merged = form.save()
+            messages.success(request, "Merged profiles")
+            return redirect(reverse('user_profile', kwargs=dict(uid=merged.profile.uid)))
+
+    context = dict(form=form)
+    return render(request, "accounts/merge_profile.html", context=context)
 
 
 def error(request):

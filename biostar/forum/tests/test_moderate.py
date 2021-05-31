@@ -19,7 +19,8 @@ class PostTest(TestCase):
         logger.setLevel(logging.WARNING)
         self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com",
                                          password="tested", is_superuser=True, is_staff=True)
-
+        self.user2 = User.objects.create(username=f"test{get_uuid(10)}", email="test@test.com",
+                                         password="test", is_superuser=True, is_staff=True)
         # Create an existing tested post
         self.post = models.Post.objects.create(title="Test", author=self.owner, content="Test", type=models.Post.QUESTION, uid='foo')
         self.uid = 'foo'
@@ -78,6 +79,18 @@ class PostTest(TestCase):
 
         self.moderate(choices=choices, post=comment, extra={'pid': self.post.uid})
 
+    def test_merge_profile(self):
+        "Test merging two profiles"
+
+        # Create fake request
+        data = {'main': self.owner.email, 'alias': self.user2.email}
+
+        request = fake_request(url=reverse('merge_profile'), data=data, user=self.owner)
+        response = views.merge_profile(request=request)
+
+        self.process_response(response)
+
+        pass
 
     def process_response(self, response):
         "Check the response on POST request is redirected"
