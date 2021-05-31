@@ -39,7 +39,7 @@ REQUIRED_TAGS_URL = "/"
 
 # How to run tasks in the background.
 # Valid options; block, disable, threaded, uwsgi, celery.
-TASK_RUNNER = 'block'
+TASK_RUNNER = 'threaded'
 
 # Threshold to classify spam
 SPAM_THRESHOLD = .5
@@ -82,6 +82,9 @@ SESSION_UPDATE_SECONDS = 10
 
 # Maximum number of awards every SESSION_UPDATE_SECONDS.
 MAX_AWARDS = 2
+
+# How many stories to show
+HERALD_LIST_COUNT = 100
 
 # Search index name
 INDEX_NAME = os.environ.setdefault("INDEX_NAME", "index")

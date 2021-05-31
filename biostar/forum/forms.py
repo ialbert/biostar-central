@@ -10,7 +10,7 @@ from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User
-from .models import Post
+from .models import Post, SharedLink
 from biostar.forum import models, auth
 
 from .const import *
@@ -112,7 +112,7 @@ def required_tags(lst):
 
 
 class PostLongForm(forms.Form):
-    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL]
+    choices = [opt for opt in Post.TYPE_CHOICES if opt[0] in Post.TOP_LEVEL and opt[0] != Post.HERALD]
 
     if settings.ALLOWED_POST_TYPES:
         choices = [opt for opt in choices if opt[1] in settings.ALLOWED_POST_TYPES]
@@ -205,6 +205,34 @@ class PostShortForm(forms.Form):
         cleaned_data = super(PostShortForm, self).clean()
         if self.user.is_anonymous:
             raise forms.ValidationError("You need to be logged in.")
+        return cleaned_data
+
+
+
+class HeraldSubmit(forms.Form):
+    url = forms.CharField(min_length=10, max_length=MAX_CONTENT, required=True)
+    text = forms.CharField(widget=forms.Textarea(attrs=dict(rows='5')), max_length=MAX_CONTENT, required=False,
+                           strip=False)
+
+    def __init__(self, user=None,  *args, **kwargs):
+        self.user = user
+        super(HeraldSubmit, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(HeraldSubmit, self).clean()
+        url = cleaned_data['url']
+        exists = SharedLink.objects.filter(url=url).first()
+
+        if self.user.is_anonymous:
+            raise forms.ValidationError("You need to be logged in.")
+
+        if exists:
+            raise forms.ValidationError("This link already exists.")
+
+        # Low rep users can submit one link for consideration.
+        if self.user.profile.low_rep:
+            raise forms.ValidationError("Your reputation is too low .")
+
         return cleaned_data
 
 

@@ -55,7 +55,7 @@
                 <div class="wrap magnify">
 
                     {# Display post author. #}
-                    {% post_user_box target_user=post.author post=post %}
+                        {% post_user_box target_user=post.author post=post %}
 
                     {# Display post content. #}
                 <span  itemprop="text">
@@ -76,7 +76,9 @@
                 <time itemprop="dateCreated" datetime="{{ post.creation_date|date:"Y-m-d" }}"></time>
 
                 {# Show the post actions #}
+
                 {% post_actions post=post %}
+
 
             </div>
 

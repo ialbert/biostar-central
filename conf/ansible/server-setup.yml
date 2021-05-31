@@ -45,9 +45,9 @@
     - name: Install required packages
       become: yes
       vars:
-        packages: [ 'aptitude', 'nginx', 'certbot', 'postgresql', 'software-properties-common', 'python3-pip', 'libpq-dev',
+        packages: [ 'aptitude', 'nginx', 'postgresql', 'software-properties-common', 'python3-pip', 'libpq-dev',
                     'curl', 'git', 'ufw', 'fail2ban', 'byacc', 'zlib1g-dev', 'cmake', 'build-essential', 'supervisor',
-                     'acl', 'python3-psycopg2', 'redis-server']
+                     'acl', 'python3-psycopg2', 'redis-server', 'memcached']
       apt:
         name: "{{ packages }}"
 

@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from taggit.models import Tag
 from django.db.models import F, Q
 from biostar.accounts.models import Profile, Message, User
-from biostar.forum.models import Post, Award, Subscription
+from biostar.forum.models import Post, Award, Subscription, SharedLink
 from biostar.forum import tasks, auth, util
 
 
@@ -24,6 +24,21 @@ def send_award_message(sender, instance, created, **kwargs):
         if instance.user.profile.score < 1000:
             # Send local message
             tasks.create_messages(template=template, extra_context=context, user_ids=[instance.user.pk])
+
+    return
+
+
+@receiver(post_save, sender=SharedLink)
+def send_award_message(sender, instance, created, **kwargs):
+    """
+    Send message to users when they receive an award.
+    """
+    if created:
+        template = "messages/shared_link.md"
+        context = dict(shared=instance)
+
+        # Let the user know we have received.
+        tasks.create_messages(template=template, extra_context=context, user_ids=[instance.author.pk])
 
     return
 
@@ -153,3 +168,9 @@ def finalize_post(sender, instance, created, **kwargs):
 def check_spam(sender, instance, created, **kwargs):
     # Classify post as spam/ham.
     tasks.spam_check.spool(uid=instance.uid)
+
+@receiver(post_save, sender=SharedLink)
+def link_title(sender, instance, created, **kwargs):
+    # Set the title of each link upon creation
+    if created:
+        tasks.set_link_title.spool(pk=instance.pk)

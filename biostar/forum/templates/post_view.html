@@ -45,13 +45,11 @@
         <div class="ui warning message">
             This thread is not open. No new answers may be added
         </div>
-
     {% else %}
         <div class="ui info message">
             <p><a class="ui small label" href="{% url 'login' %}">
                 <i class="sign in icon"></i>Login</a> before adding your answer.</p>
         </div>
-
     {% endif %}
 
 
@@ -104,21 +102,21 @@
 
 {% block sidebar %}
 
-        {#  Cache every hour #}
-        <div class="ui large wrap-text" id="sidebar">
+    {#  Cache every hour #}
+    <div class="ui large wrap-text" id="sidebar">
 
-            <div class="title">Similar Posts</div>
+        <div class="title">Similar Posts</div>
 
-            <div class="ui basic segment similar" id="similar">
-                <div id="similar-feed" post_uid="{{ post.uid }}"></div>
-                <div class="ui inverted dimmer">
-                    <div class="content">
-                        <div class="ui text loader">
-                            <div class="muted">Loading Similar Posts</div>
-                        </div>
+        <div class="ui basic segment similar" id="similar">
+            <div id="similar-feed" post_uid="{{ post.uid }}"></div>
+            <div class="ui inverted dimmer">
+                <div class="content">
+                    <div class="ui text loader">
+                        <div class="muted">Loading Similar Posts</div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
 {% endblock %}

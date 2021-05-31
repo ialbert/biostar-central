@@ -7,19 +7,21 @@ from urllib import request as builtin_request
 from urllib.parse import urlencode
 from datetime import datetime, timedelta
 from urllib.parse import quote
-
+from django.contrib import messages
+from biostar.emailer.models import EmailGroup, EmailSubscription
 from django.core.cache import cache
 from django.conf import settings
 from django.db.models import Q, Count
 from django.shortcuts import reverse, redirect
 from django.template import loader
 from django.http import JsonResponse
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views, const, moderate
-from .models import Post, Vote, Subscription, delete_post_cache
+from .models import Post, Vote, Subscription, delete_post_cache, SharedLink
+
 
 
 def ajax_msg(msg, status, **kwargs):
@@ -67,9 +69,10 @@ class ajax_error_wrapper:
     Used as decorator to trap/display  errors in the ajax calls
     """
 
-    def __init__(self, method, login_required=True):
+    def __init__(self, method, login_required=True, is_mod=False):
         self.method = method
         self.login_required = login_required
+        self.is_mod = is_mod
 
     def __call__(self, func, *args, **kwargs):
 
@@ -81,6 +84,9 @@ class ajax_error_wrapper:
 
             if not request.user.is_authenticated and self.login_required:
                 return ajax_error('You must be logged in.')
+
+            if self.is_mod and (request.user.is_anonymous or not request.user.profile.is_moderator):
+                return ajax_error('You must be a moderator to perform this action.')
 
             if request.user.is_authenticated and request.user.profile.is_spammer:
                 return ajax_error('You must be logged in.')
@@ -320,6 +326,68 @@ def ajax_comment_create(request):
     else:
         msg = [field.errors for field in form if field.errors]
         return ajax_error(msg=msg)
+
+
+@ajax_error_wrapper(method="POST", is_mod=True)
+@ensure_csrf_cookie
+def herald_update(request, pk):
+    """
+    Update the given herald status, moderators action only.
+    """
+
+    herald = SharedLink.objects.filter(pk=pk).first()
+    user = request.user
+
+    if not herald:
+        return ajax_error(msg="Herald not found")
+
+    status = request.POST.get('status')
+    mapper = dict(accept=SharedLink.ACCEPTED, decline=SharedLink.DECLINED)
+    status = mapper.get(status)
+
+    if status is None:
+        return ajax_error(msg="Invalid status.")
+
+    # If herald is already published, do not accept again.
+    if herald.published:
+        return ajax_error(msg=f"submission is already published.")
+
+    herald.status = status
+    herald.editor = user
+    herald.lastedit_date = util.now()
+    context = dict(story=herald, user=request.user)
+    tmpl = loader.get_template(template_name='herald/herald_item.html')
+    tmpl = tmpl.render(context)
+
+    SharedLink.objects.filter(pk=herald.pk).update(status=herald.status, editor=herald.editor,
+                                                   lastedit_date=herald.lastedit_date)
+
+    logmsg = f"{herald.get_status_display().lower()} herald story {herald.url[:100]}"
+    auth.db_logger(user=herald.editor, target=herald.author, text=logmsg)
+
+    return ajax_success(msg="changed herald state", icon=herald.icon, tmpl=tmpl, state=herald.get_status_display())
+
+
+@ajax_error_wrapper(method="POST", login_required=True)
+@ensure_csrf_cookie
+def herald_subscribe(request):
+    """
+    Toggle user subscription to Biostar Herald.
+    """
+    user = request.user
+
+    # Get the herald email group
+    group = EmailGroup.objects.filter(uid='herald').first()
+    sub = EmailSubscription.objects.filter(email=user.email, group=group)
+
+    if sub:
+        sub.delete()
+        msg = "Unsubscribed to Biostar Herald"
+    else:
+        EmailSubscription.objects.create(email=user.email, group=group)
+        msg = "Subscribed to Biostar Herald"
+
+    return ajax_success(msg=msg)
 
 
 @ajax_limited(key=RATELIMIT_KEY, rate=EDIT_RATE)

@@ -15,13 +15,13 @@ from django.conf import settings
 
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
-from biostar.planet.models import BlogPost
+from biostar.planet.models import BlogPost, Blog
 # Needed for historical reasons.
 from biostar.accounts.models import Profile
 from biostar.utils.helpers import get_ip
 from . import util, awards
 from .const import *
-from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log, Award
+from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log, SharedLink
 
 User = get_user_model()
 
@@ -208,13 +208,13 @@ def create_post_from_json(**json_data):
     return
 
 
-def create_post(author, title, content, request, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
+def create_post(author, title, content, request, root=None, parent=None, ptype=Post.QUESTION, tag_val="", nodups=True):
     # Check if a post with this exact content already exists.
     post = Post.objects.filter(content=content, author=author).order_by('-creation_date').first()
 
     # How many seconds since the last post should we disallow duplicates.
     time_frame = 60
-    if post:
+    if nodups and post:
         # Check to see if this post was made within given timeframe
         delta_secs = (util.now() - post.creation_date).seconds
         if delta_secs < time_frame:

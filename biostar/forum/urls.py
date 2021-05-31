@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import include, path, re_path  # For django versions from 2.0 and up
 import debug_toolbar
-from biostar.forum import views, moderate
+from biostar.forum import views, moderate, herald
 from biostar.accounts.views import image_upload_view
 from biostar.forum import ajax, api, feed
 import biostar.accounts.views as account_views
@@ -80,6 +80,12 @@ forum_patterns = [
 
     # Error check.
     path(r'error/', views.error, name="error"),
+
+    # Herald url
+    path('herald/', herald.herald_list, name="herald_list"),
+    path('herald/update/<int:pk>/', ajax.herald_update, name="herald_update"),
+    path('herald/publish/', herald.herald_publish, name="herald_publish"),
+    path('herald/subscribe/', ajax.herald_subscribe, name="herald_subscribe"),
 
     # RSS feeds
     path(r'feeds/latest/', feed.LatestFeed(), name='latest_feed'),

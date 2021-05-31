@@ -53,11 +53,3 @@ class ModelTests(TestCase):
 
         print(test)
 
-    def test_email_address(self):
-        from biostar.emailer.models import EmailAddress
-
-        test = EmailAddress(name="tested", uid="tested")
-        test.save()
-
-        print(test)
-        pass

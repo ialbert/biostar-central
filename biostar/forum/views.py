@@ -14,12 +14,13 @@ from django.http import Http404
 from django.shortcuts import render, redirect, reverse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from taggit.models import Tag
-
+from biostar.planet.models import Blog, BlogPost
 from biostar.accounts.models import Profile
 from biostar.forum import forms, auth, tasks, util, search, models, moderate
 from biostar.forum.const import *
+
 from biostar.forum.models import Post, Vote, Badge, Subscription, Log
-from biostar.utils.decorators import is_moderator, check_params, reset_count, is_staff
+from biostar.utils.decorators import is_moderator, check_params, reset_count, is_staff, authenticated
 
 User = get_user_model()
 
@@ -40,6 +41,7 @@ POST_TYPE = dict(
     tools=Post.TOOL,
     news=Post.NEWS,
     pages=Post.PAGE,
+    herald=Post.HERALD
 )
 
 LIMIT_MAP = dict(
@@ -63,17 +65,6 @@ def post_exists(func):
         if not post:
             messages.error(request, "Post does not exist.")
             return redirect(reverse("post_list"))
-        return func(request, **kwargs)
-
-    return _wrapper_
-
-
-def authenticated(func):
-    def _wrapper_(request, **kwargs):
-        if request.user.is_anonymous:
-            messages.error(request, "You need to be logged in to view this page.")
-            return redirect(reverse('post_list'))
-
         return func(request, **kwargs)
 
     return _wrapper_
@@ -534,6 +525,7 @@ def post_view(request, uid):
         messages.error(request, "Post does not exist.")
         return redirect("post_list")
 
+    # Redirect to post view
     if not post.is_toplevel:
         return redirect(post.get_absolute_url())
 
@@ -558,7 +550,6 @@ def post_view(request, uid):
 
     # Build the comment tree .
     root, comment_tree, answers, thread = auth.post_tree(user=request.user, root=post.root)
-    # user string
 
     # Bump post views.
     models.update_post_views(post=post, request=request, timeout=settings.POST_VIEW_TIMEOUT)

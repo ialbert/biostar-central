@@ -1,6 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
-
+from django import forms
 from django.utils.timezone import utc
 from django.shortcuts import render
 from django.db.models import Max, Count
@@ -11,9 +11,7 @@ from django.shortcuts import reverse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import Http404
-from django.core.cache import cache
 
-from biostar.utils.helpers import get_ip
 
 
 def now():
@@ -26,29 +24,6 @@ def reset_planet_counts(request):
         counts = request.session.get(settings.SESSION_COUNT_KEY, {})
         counts['planet_count'] = 0
         request.session[settings.SESSION_COUNT_KEY] = counts
-
-
-def set_planet_count(request):
-    """
-    """
-    # Get the ip
-    ip = get_ip(request)
-
-    # Try to fetch count from cache.
-    planets = cache.get(ip)
-
-    if planets is None:
-        # Get latest blog posts
-        date = now() - timedelta(weeks=1)
-        planets = BlogPost.objects.filter(rank__gte=date)[:100].count()
-
-        # Expire counts cache in 24 hours
-        expire = 3600 * 24
-        cache.set(ip, planets, expire)
-
-    counts = dict(planet_count=planets)
-    # Set the session.
-    request.session[settings.SESSION_COUNT_KEY] = counts
 
 
 def blog_list(request):
@@ -68,6 +43,11 @@ def blog_list(request):
     context = dict(blogposts=blogposts, tab='planet', blogs=blogs)
     return render(request, 'planet/blog_list.html', context)
 
+
+def biostar_herald():
+    blog, created = Blog.objects.get_or_create(title="Biostar Herald",
+                                               desc="Share bioinformatics resources from across the web.", remote=False)
+    return blog
 
 def blog_bump(request, id):
     post = BlogPost.objects.filter(id=id).update(rank=now())

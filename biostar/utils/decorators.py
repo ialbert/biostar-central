@@ -23,6 +23,18 @@ def is_moderator(f):
     return inner
 
 
+
+def authenticated(func):
+
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+            return redirect("/")
+
+        return func(request, **kwargs)
+
+    return _wrapper_
+
 def is_staff(f):
     """
     Only run functions with the

@@ -124,6 +124,11 @@ def gravatar(user=None, user_uid=None, size=80):
     return auth.gravatar(user=user, size=size)
 
 
+@register.filter
+def embed(text):
+    return markdown.parse(text, clean=True, escape=True)
+
+
 @register.inclusion_tag('widgets/filter_dropdown.html', takes_context=True)
 def filter_dropdown(context):
 
@@ -685,6 +690,8 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
         style = "forum"
     elif root_type == Post.NEWS:
         style = "news"
+    elif root_type == Post.HERALD:
+        style = "herald"
     else:
         style = "question"
 
@@ -697,6 +704,14 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
         modifier = "open"
 
     return f"{style} {modifier}"
+
+
+@register.inclusion_tag('herald/herald_item.html', takes_context=True)
+def herald_item(context, item):
+    request = context['request']
+    user = request.user
+    context = dict(story=item, request=request, user=user)
+    return context
 
 
 @register.simple_tag
