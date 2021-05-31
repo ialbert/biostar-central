@@ -2,7 +2,7 @@ from .settings import *
 
 # Do not multi-thread tests.
 
-TASK_RUNNER = "disable"
+TASK_RUNNER = "block"
 
 INIT_PLANET = False
 

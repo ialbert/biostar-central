@@ -1,0 +1,64 @@
+{% extends "forum_base.html" %}
+{% load forum_tags %}
+{% load socialaccount %}
+{% block headtitle %}Login{% endblock %}
+
+{% block content %}
+  <form class="ui form" method="post" action="{% url 'merge_profile' %}">
+
+        <div class="ui segment inputcolor socialbox">
+
+            <div class="ui center aligned header">
+                Merge Profiles
+            </div>
+
+            {% csrf_token %}
+
+            {{ form.errors }}
+
+            <div class="fields">
+
+                    <div class="field">
+
+                        <label><i class="trash can icon"></i> Delete Profile</label>
+                        {{ form.alias }}
+                        <div class="muted">
+                            Email to delete
+                        </div>
+
+                    </div>
+                <div class="field" style="margin: auto">
+                    <i class="angle double right icon"></i>
+                </div>
+
+                    <div class="field">
+
+                        <label><i class="user icon"></i> Main Profile</label>
+                        {{ form.main }}
+                        <div class="muted">
+                            Email to merge into
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            <div class="field">
+                <button class="ui primary button" type="submit">
+                    <i class="user plus icon"></i>Merge
+                </button>
+
+                <a class="ui right floated button" href="#" onclick="window.history.back()">
+                    <i class="chevron left icon"></i>Back
+                </a>
+            </div>
+
+        </div>
+
+
+    </form>
+
+
+
+{% endblock %}

@@ -88,6 +88,7 @@ forum_patterns = [
     path(r'feeds/post/<str:text>/', feed.PostFeed(), name='post_feed' ),
     path(r'feeds/type/<str:text>/', feed.PostTypeFeed(), name='post_type'),
     #path(r'^feeds/planet/$', feed.PlanetFeed(), name='planet-feed'),
+    path(r'merge/', views.merge_profile, name="merge_profile"),
 
 ]
 

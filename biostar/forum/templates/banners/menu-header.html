@@ -33,9 +33,10 @@
         <i class="info circle icon"></i>About
     </a>
 
-        <a class="item  {% activate tab "faq" %}" href="/info/faq/">
+    <a class="item  {% activate tab "faq" %}" href="/info/faq/">
         <i class="info recycle icon"></i>FAQ
     </a>
+
 
 </div>
 
@@ -53,12 +54,12 @@
     </a>
 
     <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
-        <i class="rss icon"></i> Planet  {% count_badge counts.planet_count %}
+        <i class="rss icon"></i> Planet {% count_badge counts.planet_count %}
     </a>
 
     {% if request.user.profile.is_moderator %}
         <a class="item {% activate tab 'spam' %} " href="{% url 'post_topic' 'spam' %}">
-            <i class="bug icon"></i> Spam  {% count_badge counts.spam_count %}
+            <i class="bug icon"></i> Spam {% count_badge counts.spam_count %}
         </a>
         <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
             <i class="chess queen icon"></i> Mods {% count_badge counts.mod_count %}
