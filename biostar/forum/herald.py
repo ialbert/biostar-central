@@ -80,7 +80,7 @@ def herald_blog(post):
     return
 
 
-def herald_publisher(limit=20, nmin=1):
+def herald_publisher(request, limit=20, nmin=1):
     """
     Create one publication from Herald accepted submissions ( up to 'limit' ).
     """
@@ -117,7 +117,7 @@ def herald_publisher(limit=20, nmin=1):
     # Create herald post
     user = User.objects.filter(is_superuser=True).first()
     post = auth.create_post(title=title, content=content, author=user, tag_val='herald', ptype=Post.HERALD,
-                            nodups=False)
+                            nodups=False, request=request)
 
     # Tie these submissions to herald post
     hpks = heralds.values_list('pk', flat=True)
@@ -171,7 +171,7 @@ def herald_list(request):
 
 @is_moderator
 def herald_publish(request):
-    post = herald_publisher()
+    post = herald_publisher(request)
 
     if not post:
         messages.error(request, "Not enough submissions to publish.")
