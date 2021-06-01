@@ -67,4 +67,3 @@ zipp==3.4.0
 plac
 pymemcache
 bs4
-requests
