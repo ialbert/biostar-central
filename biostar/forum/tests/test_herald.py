@@ -21,6 +21,7 @@ class HeraldTest(TestCase):
         self.staff_user = User.objects.create(username=f"test2", is_superuser=True, is_staff=True,
                                               email="tested@staff.com", password="tested")
 
+        # Create one accepted link.
         self.link = models.SharedLink.objects.create(author=self.owner, text='test', url='http://bing.com',
                                                      status=models.SharedLink.ACCEPTED)
 

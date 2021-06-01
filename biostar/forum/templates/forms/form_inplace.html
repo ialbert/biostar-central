@@ -1,21 +1,8 @@
 {% load forum_tags %}
 {% load static %}
 
-
-<link href="{% static 'pagedown.css' %}" type="text/css" media="all" rel="stylesheet">
-<link href="{% static 'pagedown/demo/browser/demo.css' %}" type="text/css" media="all" rel="stylesheet">
-
-<script type="text/javascript" src="{% static 'pagedown/Markdown.Converter.js' %}"></script>
-<script type="text/javascript" src="{% static 'pagedown-extra/pagedown/Markdown.Converter.js' %}"></script>
-<script type="text/javascript" src="{% static 'pagedown/Markdown.Sanitizer.js' %}"></script>
-<script type="text/javascript" src="{% static 'pagedown/Markdown.Editor.js' %}"></script>
-<script type="text/javascript" src="{% static 'pagedown-extra/Markdown.Extra.js' %}"></script>
 <script type="text/javascript" src="{% static 'inplace_pagedown.js' %}{% randparam %}"></script>
 
-
-<script src="{% static 'markdown-it.js' %}"></script>
-<script src="{% static 'effects.js' %}{% randparam %}"></script>
-<script src="{% static 'inplace.js' %}{% randparam %}"></script>
 
 <div class="ui basic form-wrap segment fit" id="inplace">
 
