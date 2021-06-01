@@ -1,13 +1,13 @@
 {% load accounts_tags %}
 {%  block subject %}
 
-    [Biostar] {{ post.title|truncatechars:60 }}
+    {{ post.title }}
 
 {% endblock %}
 
 {% block html %}
 
-    A new issue of the <a href="{{ protocol }}://{{ domain }}{{ http_port }}">Biostar Herald</a> was published.
+    A new issue of the <a href="{{ protocol }}://{{ domain }}{{ port }}">Biostar Herald</a> was published.
 
     <p>
      <a href="{{ protocol }}://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>

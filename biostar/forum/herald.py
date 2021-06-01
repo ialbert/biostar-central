@@ -25,7 +25,7 @@ MAX_TAGS = 5
 
 
 class HeraldSubmit(forms.Form):
-    url = forms.CharField(min_length=10, max_length=MAX_CONTENT, required=True)
+    url = forms.URLField(required=True)
     text = forms.CharField(widget=forms.Textarea(attrs=dict(rows='5')), max_length=MAX_CONTENT, required=False,
                            strip=False)
 
@@ -47,6 +47,7 @@ class HeraldSubmit(forms.Form):
 
         # Check if non mode user is over max submissions
         count = SharedLink.objects.filter(author=self.user, status=SharedLink.SUBMITTED).count()
+
         if not self.user.profile.is_moderator and count >= self.MAX:
             raise forms.ValidationError(
                 f"You already have {count} links submitted, please wait until some are accepted.")

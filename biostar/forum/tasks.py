@@ -194,19 +194,23 @@ def set_link_title(pk):
 
     logger.info(f"getting link title for {link.url}")
 
-    # Fetch the page.
-    resp = requests.get(link.url)
+    try:
+        # Fetch the page.
+        resp = requests.get(link.url)
 
-    # Parse the content
-    soup = BeautifulSoup(resp.text, 'html.parser')
+        # Parse the content
+        soup = BeautifulSoup(resp.text, 'html.parser')
 
-    # Set the title
-    for elem in soup.find_all('title'):
-        title = elem.get_text()
-        if title:
-            title = title.strip()
-            SharedLink.objects.filter(pk=pk).update(title=title)
-            break
+        # Set the title
+        for elem in soup.find_all('title'):
+            title = elem.get_text()
+            if title:
+                title = title.strip()
+                SharedLink.objects.filter(pk=pk).update(title=title)
+                break
+
+    except Exception as exc:
+        logger.warning(exc)
 
 
 @task
