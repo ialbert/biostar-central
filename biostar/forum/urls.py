@@ -121,7 +121,6 @@ urlpatterns = [
 
 ]
 
-
 if settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
 
     urlpatterns += [

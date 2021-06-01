@@ -61,6 +61,7 @@ class ForumNavigation(TestCase):
             reverse('api_traffic'),
             reverse('latest_feed'),
             reverse('merge_profile'),
+            reverse('herald_list'),
             reverse('post_tags', kwargs=dict(tag='tag1')),
             reverse('tag_feed', kwargs=dict(text='tag1')),
             reverse('post_feed', kwargs=dict(text=self.post.uid)),
