@@ -143,7 +143,11 @@ def herald_list(request):
     """
 
     # List newly submitted links.
-    stories = SharedLink.objects.order_by('-creation_date')
+    show = request.GET.get('show')
+    mapper = dict(submitted=SharedLink.SUBMITTED, accepted=SharedLink.ACCEPTED, rejected=SharedLink.DECLINED)
+    status = mapper.get(show, SharedLink.SUBMITTED)
+    stories = SharedLink.objects.filter(status=status).order_by('-creation_date')
+
     stories = stories.select_related('author', 'author__profile')
     user = request.user
     form = HeraldSubmit(user=user)
@@ -165,7 +169,8 @@ def herald_list(request):
     stories = stories[:settings.HERALD_LIST_COUNT]
     count = SharedLink.objects.filter(author=user, status=SharedLink.SUBMITTED).count()
     allow_submit = count < form.MAX
-    context = dict(stories=stories, tab='herald_list', form=form, allow_submit=allow_submit)
+    status_display = dict(SharedLink.CHOICES).get(status, 'Submitted')
+    context = dict(stories=stories, tab='herald_list', status=status_display, form=form, allow_submit=allow_submit)
 
     return render(request, 'herald/herald_base.html', context)
 

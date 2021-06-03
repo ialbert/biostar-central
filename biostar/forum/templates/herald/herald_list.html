@@ -3,9 +3,19 @@
 
 <div class="ui vertical segment">
 
+<div class="ui dropdown">
+  Filtering for <div class="text"> {{ status }}</div>
+  <i class="dropdown icon"></i>
+  <div class="menu">
+    <a class="item" href="{% url 'herald_list'%}?show=accepted#list">Accepted</a>
+    <a class="item" href="{% url 'herald_list'%}?show=submitted#list">Submitted</a>
+    <a class="item" href="{% url 'herald_list'%}?show=rejected#list">Rejected</a>
+  </div>
+</div>
+
     <div class="ui header">Latest Submissions</div>
 
-    <div class="ui relaxed divided list">
+    <div class="ui relaxed divided list" id="list">
 
         {% for story in stories %}
 
