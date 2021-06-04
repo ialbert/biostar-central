@@ -352,9 +352,12 @@ def herald_update(request, pk):
     if herald.published:
         return ajax_error(msg=f"submission is already published.")
 
-    herald.status = status
-    herald.editor = user
-    herald.lastedit_date = util.now()
+    # Update fields only when change is detected.
+    if status != herald.status:
+        herald.status = status
+        herald.editor = user
+        herald.lastedit_date = util.now()
+
     context = dict(story=herald, user=request.user)
     tmpl = loader.get_template(template_name='herald/herald_item.html')
     tmpl = tmpl.render(context)
