@@ -631,6 +631,37 @@ class Award(models.Model):
     def uid(self):
         return self.pk
 
+
+class Diff(models.Model):
+
+    # Initial content state
+    initial = models.TextField(default='')
+
+    # Current content state
+    current = models.TextField(default='')
+
+    # Date the initial content was created
+    created = models.DateTimeField(auto_now_add=True)
+
+    # Date the current content was created
+    edited = models.DateTimeField(auto_now=True)
+
+    # Post this diff belongs to
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+
+        self.initial = self.initial or self.post.content
+        self.current = self.current or self.initial
+
+        self.created = self.created or self.post.lastedit_date
+        self.edited = self.edited or self.created
+
+        super(Diff, self).save(*args, **kwargs)
+
+
+
+
 class Log(models.Model):
     """
     Represents moderation actions

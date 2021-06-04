@@ -20,7 +20,7 @@ from whoosh.searching import Results
 
 from biostar.accounts.models import Profile, User
 from . import auth, util, forms, tasks, search, views, const, moderate
-from .models import Post, Vote, Subscription, delete_post_cache, SharedLink
+from .models import Post, Vote, Subscription, delete_post_cache, SharedLink, Diff
 
 
 
@@ -468,6 +468,19 @@ def email_disable(request, uid):
     Profile.objects.filter(pk=target.pk).first().add_watched()
     auth.db_logger(user=user, target=target, text='Disabled messages')
     return ajax_success(msg='Disabled messages')
+
+
+def view_diff(request, uid):
+    """
+    View diffs made to a post.
+    """
+
+    # View changes made in a post
+    post = Post.objects.filter(uid=uid).first()
+    
+    diff = Diff.objects.filter(post=post)
+
+    return
 
 
 def similar_posts(request, uid):

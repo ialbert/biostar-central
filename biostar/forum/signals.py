@@ -1,10 +1,10 @@
 import logging
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from taggit.models import Tag
 from django.db.models import F, Q
 from biostar.accounts.models import Profile, Message, User
-from biostar.forum.models import Post, Award, Subscription, SharedLink
+from biostar.forum.models import Post, Award, Subscription, SharedLink, Diff
 from biostar.forum import tasks, auth, util
 
 
@@ -41,6 +41,19 @@ def send_award_message(sender, instance, created, **kwargs):
         tasks.create_messages(template=template, extra_context=context, user_ids=[instance.author.pk])
 
     return
+
+
+@receiver(post_save, sender=Post)
+def create_diffs(sender, instance, created, **kwargs):
+    """
+    Create a diff for given post
+    """
+
+    # Create initial diff using post content
+    diff, created = Diff.objects.get_or_create(post=instance)
+
+    # Update existing diff to current post content
+    Diff.objects.filter(pk=diff.pk).update(current=instance.content, editted=instance.lastedit_date)
 
 
 @receiver(post_save, sender=Profile)
