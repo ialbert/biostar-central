@@ -4,13 +4,12 @@
 <div class="ui vertical segment">
 
     <div class="ui dropdown">
-        Showing
-        <div class="text"> {{ status }}</div>
+
+        <div class="text"> {{ show|capfirst }} Issues</div>
         <i class="dropdown icon"></i>
         <div class="menu">
-            <a class="item" href="{% url 'herald_list' %}?show=accepted#list">Accepted</a>
-            <a class="item" href="{% url 'herald_list' %}?show=submitted#list">Submitted</a>
-            <a class="item" href="{% url 'herald_list' %}?show=declined#list">Declined</a>
+            <a class="item" href="{% url 'herald_list' %}#list">Upcoming Issues</a>
+            <a class="item" href="{% url 'herald_list' %}?show=published#list">Published Issues</a>
         </div>
     </div>
 
