@@ -147,7 +147,10 @@ class PostLongForm(forms.Form):
             raise forms.ValidationError("Only the author or a moderator can edit a post.")
         data = self.cleaned_data
         self.post.title = data.get('title')
+        # TODO: make trasaction safe
+        #  Compute/save diff here
         self.post.content = data.get("content")
+       
         self.post.type = data.get('post_type')
         self.post.tag_val = data.get('tag_val')
         self.post.lastedit_user = self.user

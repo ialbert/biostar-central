@@ -635,21 +635,19 @@ class Award(models.Model):
 class Diff(models.Model):
 
     # Initial content state
-    initial = models.TextField(default='')
-
-    # Current content state
-    current = models.TextField(default='')
+    diff = models.TextField(default='')
 
     # Date the initial content was created
     created = models.DateTimeField(auto_now_add=True)
 
-    # Date the current content was created
-    edited = models.DateTimeField(auto_now=True)
-
     # Post this diff belongs to
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
+    # Person who created the diff
+    author = ''
+
     def save(self, *args, **kwargs):
+
 
         self.initial = self.initial or self.post.content
         self.current = self.current or self.initial

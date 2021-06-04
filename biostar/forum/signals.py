@@ -49,6 +49,10 @@ def create_diffs(sender, instance, created, **kwargs):
     Create a diff for given post
     """
 
+    # TODO: testout
+    if created:
+        return
+
     # Create initial diff using post content
     diff, created = Diff.objects.get_or_create(post=instance)
 
