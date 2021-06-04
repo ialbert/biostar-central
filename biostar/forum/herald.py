@@ -144,7 +144,7 @@ def herald_list(request):
 
     # List newly submitted links.
     show = request.GET.get('show')
-    mapper = dict(submitted=SharedLink.SUBMITTED, accepted=SharedLink.ACCEPTED, rejected=SharedLink.DECLINED)
+    mapper = dict(submitted=SharedLink.SUBMITTED, accepted=SharedLink.ACCEPTED, declined=SharedLink.DECLINED)
     status = mapper.get(show, SharedLink.SUBMITTED)
     stories = SharedLink.objects.filter(status=status).order_by('-creation_date')
 
