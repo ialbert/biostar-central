@@ -10,7 +10,7 @@
 
     {#  Story text #}
     {% if story.title %}
-        <a href="{{ story.url }}">{{ story.title }}</a> ({{story.domain }})
+        <a href="{{ story.url }}">{{ story.title }}</a> ({{ story.domain }})
     {% else %}
         <a href="{{ story.url }}">{{ story.url }}</a>
     {% endif %}
@@ -25,15 +25,16 @@
 
     {#  Story status #}
     <div class="description">
-        State: 
+        State:
         {% if story.post %}
             <a href="{{ story.post.get_absolute_url }}">{{ story.get_status_display }}</a>
+            <em>{{ story.lastedit_date|naturaltime }} </em> &bull;
+            reviewed
         {% else %}
-            <b>{{ story.get_status_display }}</b>
+            <b>{{ story.get_status_display }}</b>&bull; <em>{{ story.lastedit_date|naturaltime }} </em>
         {% endif %}
 
         {% if story.editor %}
-            &bull; <em>{{ story.lastedit_date|naturaltime }} </em>
             by <a href="{{ story.editor.profile.get_absolute_url }}">{{ story.editor.profile.name }}</a>
         {% endif %}
 

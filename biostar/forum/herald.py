@@ -81,6 +81,17 @@ def herald_blog(post):
     return
 
 
+def remove_declined(limit=50):
+    """
+    Remove rejected post herald
+    """
+
+    declined = SharedLink.objects.filter(status=SharedLink.DECLINED)[:limit]
+
+    # Can not apply .delete() to sliced query set
+    SharedLink.objects.filter(pk__in=declined.values_list('pk')).delete()
+
+
 def herald_publisher(request, limit=20, nmin=1):
     """
     Create one publication from Herald accepted submissions ( up to 'limit' ).
@@ -89,7 +100,7 @@ def herald_publisher(request, limit=20, nmin=1):
     # Reset status on published links.
     # SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
 
-    heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED)[:limit]
+    heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED).order_by('-creation_date')[:limit]
     count = heralds.count()
 
     if count < nmin:
@@ -133,6 +144,9 @@ def herald_publisher(request, limit=20, nmin=1):
     # Send out herald emails
     herald_emails.spool(uid=post.uid)
 
+    # Clean up declined links
+    remove_declined()
+
     return post
 
 
@@ -143,11 +157,14 @@ def herald_list(request):
     """
 
     # List newly submitted links.
-    show = request.GET.get('show')
-    mapper = dict(submitted=SharedLink.SUBMITTED, accepted=SharedLink.ACCEPTED, rejected=SharedLink.DECLINED)
-    status = mapper.get(show, SharedLink.SUBMITTED)
-    stories = SharedLink.objects.filter(status=status).order_by('-creation_date')
+    show = request.GET.get('show', 'upcoming')
+    # Filter for or exclude published links
+    if show == 'published':
+        stories = SharedLink.objects.filter(status=SharedLink.PUBLISHED)
+    else:
+        stories = SharedLink.objects.exclude(status=SharedLink.PUBLISHED)
 
+    stories = stories.order_by('-creation_date')
     stories = stories.select_related('author', 'author__profile')
     user = request.user
     form = HeraldSubmit(user=user)
@@ -169,8 +186,7 @@ def herald_list(request):
     stories = stories[:settings.HERALD_LIST_COUNT]
     count = SharedLink.objects.filter(author=user, status=SharedLink.SUBMITTED).count()
     allow_submit = count < form.MAX
-    status_display = dict(SharedLink.CHOICES).get(status, 'Submitted')
-    context = dict(stories=stories, tab='herald_list', status=status_display, form=form, allow_submit=allow_submit)
+    context = dict(stories=stories, tab='herald_list', show=show, form=form, allow_submit=allow_submit)
 
     return render(request, 'herald/herald_base.html', context)
 
