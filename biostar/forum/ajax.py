@@ -459,19 +459,20 @@ def email_disable(request, uid):
 @ajax_error_wrapper(method="POST", login_required=True)
 def view_diff(request, pk):
     """
-    View specific diffs made to a post.
+    View most recent diff to a post.
     """
 
-    # View changes made by this user.
-    user = request.user
-    diffobj = Diff.objects.filter(pk=pk).first()
+    # View most recent diff made to a post
+    post = Post.objects.fitler(pk=pk).first()
+
+    diffobj = Diff.objects.filter(post=post).order_by('-pk').first()
 
     if not diffobj:
-        return ajax_error(msg='Post dot not have a diff')
+        return ajax_error(msg='Post has no recorded changes')
 
-    # Change new line chars to breakline tags.
+    # Change new line chars to break line tags.
     diff = diffobj.diff
-    diff = diff.replace('\n', '<br>')
+    #diff = diff.replace('\n', '<br>')
 
     # Return newly created diff
     return ajax_success(msg='Disabled messages', diff=diff)

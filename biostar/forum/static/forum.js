@@ -26,8 +26,9 @@ function view_diffs(pk, elem) {
                 return
             }
             // Success
-            elem.html(data.diff);
-            elem.addClass('ui segment');
+            var insert = "<div class='ui segment' style='white-space: pre-line'>" + data.diff +" </div>";
+            elem.html(insert);
+            //elem.addClass('ui segment');
         },
         error: function (xhr, status, text) {
             error_message(elem, xhr, status, text)
