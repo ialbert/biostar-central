@@ -19,7 +19,7 @@ This edition of the Herald was brought to you by contribution from {% for author
 {% endif %}
 
 {% if herald.text %}
-{{herald.text}}
+{{herald.text|safe}}
 {% endif %}
 
 submitted by: [{{herald.author.profile.name}}]({{base_url}}{{ herald.author.profile.get_absolute_url }})
