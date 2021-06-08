@@ -463,12 +463,12 @@ def view_diff(request, pk):
     """
 
     # View most recent diff made to a post
-    post = Post.objects.fitler(pk=pk).first()
+    post = Post.objects.filter(pk=pk).first()
 
     diffobj = Diff.objects.filter(post=post).order_by('-pk').first()
 
     if not diffobj:
-        return ajax_error(msg='Post has no recorded changes')
+        return ajax_success(msg='Post has no recorded changes')
 
     # Change new line chars to break line tags.
     diff = diffobj.diff

@@ -12,10 +12,10 @@ function captcha() {
     }
 }
 
-function view_diffs(pk, elem) {
+function view_diffs(uid, elem) {
     // View post diff given associated Diff.pk
 
-    $.ajax("/view/diffs/" + pk + '/', {
+    $.ajax("/view/diffs/" + uid + '/', {
         type: 'POST',
         dataType: 'json',
         ContentType: 'application/json',
@@ -447,9 +447,11 @@ $(document).ready(function () {
         herald_subscribe($(this))
     });
     $(this).on('click', ".view-diffs", function (event) {
-        var pk = $(this).data('value');
-        var elem =  $('#diff-cont');
-        view_diffs(pk, elem);
+        var post = $(this).closest('.post');
+        var uid = post.data('value');
+        var elem =  post.find('.diff-cont');
+
+        view_diffs(uid, elem);
 
     });
     $('pre').addClass('language-bash');
