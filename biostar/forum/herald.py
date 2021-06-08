@@ -177,6 +177,7 @@ def herald_list(request):
             # Add the Link attribute.
             link = form.cleaned_data['url']
             text = form.cleaned_data['text']
+
             # Create the herald_list objects.
             herald = SharedLink.objects.create(author=user, text=text, url=link)
             messages.success(request, 'Submitted for review.')

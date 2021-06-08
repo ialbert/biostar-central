@@ -12,6 +12,30 @@ function captcha() {
     }
 }
 
+function view_diffs(pk, elem) {
+    // View post diff given associated Diff.pk
+
+    $.ajax("/view/diffs/" + pk + '/', {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+
+        success: function (data) {
+            if (data.status === 'error') {
+                popup_message(elem, data.msg, data.status);
+                return
+            }
+            // Success
+            elem.html(data.diff);
+            elem.addClass('ui segment');
+        },
+        error: function (xhr, status, text) {
+            error_message(elem, xhr, status, text)
+        }
+    });
+
+
+}
 
 function apply_vote(vote_elem) {
 
@@ -100,7 +124,7 @@ function moderate(uid, container, url) {
 }
 
 
-function disable_emails(user_id, elem){
+function disable_emails(user_id, elem) {
 
     var url = '/email/disable/{0}/'.format(user_id);
     $.ajax(url, {
@@ -193,7 +217,6 @@ function activate_prism(elem) {
     elem.each('code').addClass('language-bash');
     Prism.highlightAll();
 }
-
 
 
 function herald_update(hpk, status, elem) {
@@ -348,7 +371,10 @@ $(document).ready(function () {
         on: 'hover',
         content: 'Drag and Drop'
     });
-
+    $(".view-diffs").popup({
+        on: 'hover',
+        content: 'View Changes'
+    });
     $("[data-value='bookmark']").popup({
         on: 'hover',
         content: 'Bookmark '
@@ -359,7 +385,7 @@ $(document).ready(function () {
         content: 'Accept'
     });
 
-     $("[data-value='decline']").popup({
+    $("[data-value='decline']").popup({
         on: 'hover',
         content: 'Decline'
     });
@@ -419,7 +445,12 @@ $(document).ready(function () {
     $(this).on('click', ".herald-sub", function (event) {
         herald_subscribe($(this))
     });
+    $(this).on('click', ".view-diffs", function (event) {
+        var pk = $(this).data('value');
+        var elem =  $('#diff-cont');
+        view_diffs(pk, elem);
 
+    });
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();

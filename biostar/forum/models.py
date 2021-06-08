@@ -644,20 +644,13 @@ class Diff(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
 
     # Person who created the diff
-    author = ''
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
 
-
-        self.initial = self.initial or self.post.content
-        self.current = self.current or self.initial
-
-        self.created = self.created or self.post.lastedit_date
-        self.edited = self.edited or self.created
+        self.created = self.created or util.now()
 
         super(Diff, self).save(*args, **kwargs)
-
-
 
 
 class Log(models.Model):

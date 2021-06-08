@@ -11,7 +11,7 @@ from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User
 from .models import Post, SharedLink
-from biostar.forum import models, auth
+from biostar.forum import models, auth, util
 
 from .const import *
 
@@ -146,13 +146,16 @@ class PostLongForm(forms.Form):
         if self.user != self.post.author and not self.user.profile.is_moderator:
             raise forms.ValidationError("Only the author or a moderator can edit a post.")
         data = self.cleaned_data
+
         self.post.title = data.get('title')
-        # TODO: make trasaction safe
-        #  Compute/save diff here
-        self.post.content = data.get("content")
-       
+        content = data.get('content', self.post.content)
+        # Calculate diff and save to db
+        auth.compute_diff(text=content, post=self.post, user=self.user)
+        self.post.content = content
+
         self.post.type = data.get('post_type')
         self.post.tag_val = data.get('tag_val')
+        self.post.lastedit_date = util.now()
         self.post.lastedit_user = self.user
         self.post.save()
         return self.post
@@ -190,13 +193,12 @@ class PostLongForm(forms.Form):
 
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
-    parent_uid = forms.CharField(widget=forms.HiddenInput(), min_length=2, max_length=32, required=False)
-    content = forms.CharField(widget=forms.Textarea,
-                              min_length=MIN_LEN, max_length=MAX_LEN, strip=False)
+    content = forms.CharField(widget=forms.Textarea, min_length=MIN_LEN, max_length=MAX_LEN, strip=False)
 
-    def __init__(self, user=None, post=None, *args, **kwargs):
+    def __init__(self, post, user=None, request=None, ptype=Post.COMMENT, *args, **kwargs):
         self.user = user
         self.post = post
+        self.ptype = ptype
         super().__init__(*args, **kwargs)
         self.fields['content'].strip = False
 
@@ -210,9 +212,23 @@ class PostShortForm(forms.Form):
             raise forms.ValidationError("You need to be logged in.")
         return cleaned_data
 
+    def edit(self):
+        # Set the fields for this post.
+        self.post.lastedit_user = self.user
+        self.post.lastedit_date = util.now()
+        content = self.cleaned_data.get('content', self.post.content)
+        auth.compute_diff(text=content, post=self.post, user=self.user)
+        self.post.content = content
+        self.post.save()
+
+    def save(self):
+        content = self.cleaned_data.get('content', self.post.content)
+        post = auth.create_post(parent=self.post, author=self.user, content=content, ptype=self.ptype,
+                                root=self.post.root, title=self.post.title)
+        return post
+
 
 class MergeProfiles(forms.Form):
-
     main = forms.CharField(label='Main user email', max_length=100, required=True)
     alias = forms.CharField(label='Alias email to merge to main', max_length=100, required=True)
 

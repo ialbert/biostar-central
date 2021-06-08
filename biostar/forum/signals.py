@@ -43,23 +43,6 @@ def send_award_message(sender, instance, created, **kwargs):
     return
 
 
-@receiver(post_save, sender=Post)
-def create_diffs(sender, instance, created, **kwargs):
-    """
-    Create a diff for given post
-    """
-
-    # TODO: testout
-    if created:
-        return
-
-    # Create initial diff using post content
-    diff, created = Diff.objects.get_or_create(post=instance)
-
-    # Update existing diff to current post content
-    Diff.objects.filter(pk=diff.pk).update(current=instance.content, editted=instance.lastedit_date)
-
-
 @receiver(post_save, sender=Profile)
 def ban_user(sender, instance, created, **kwargs):
     """
