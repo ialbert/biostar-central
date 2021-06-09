@@ -20,7 +20,7 @@
 
     {% if post.is_editable %}
         &bull;
-        <a class="view-diffs"><i class="exchange icon"></i></a>
+        <a class="view-diffs"><i class="window restore outline icon"></i></a>
     {% endif %}
     {% if not post.is_toplevel  and post.is_editable %}
         &bull;
@@ -43,11 +43,11 @@
         </div>
 
     {% endif %}
-
+<div class="diff-cont"></div>
     <span class="status muted user-info">
         {% post_user_line post=post avatar=avatar %}
     </span>
-    <div class="diff-cont"></div>
+
 
 </div>
 

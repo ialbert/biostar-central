@@ -254,14 +254,24 @@ def compute_diff(text, post, user):
         return
 
     # Compute diff between text and post.
-    content = post.content.splitlines(keepends=True)
-    text = text.splitlines(keepends=True)
+    content = post.content.splitlines()
+    text = text.splitlines()
 
     diff = unified_diff(content, text)
+    diff = [f"{line}\n" if not line.endswith('\n') else line for line in diff]
     diff = ''.join(diff)
 
-    # Create diff object for this user.
-    dobj = Diff.objects.create(diff=diff, post=post, author=user)
+    # See if a diff has been made by this user in the past 10 minutes
+    dobj = Diff.objects.filter(post=post, author=post.author).first()
+
+    frame = 60 * 10
+    delta = (util.now() - dobj.creation).seconds if dobj else frame
+
+    print(post, delta, frame)
+    # Create diff object within time frame
+    if delta >= frame:
+        # Create diff object for this user.
+        dobj = Diff.objects.create(diff=diff, post=post, author=user)
 
     return dobj
 

@@ -12,8 +12,12 @@ function captcha() {
     }
 }
 
-function view_diffs(uid, elem) {
-    // View post diff given associated Diff.pk
+function view_diffs(uid, elem, post) {
+
+    if (elem.children().length > 0){
+         elem.html('');
+         return
+    }
 
     $.ajax("/view/diffs/" + uid + '/', {
         type: 'POST',
@@ -22,19 +26,20 @@ function view_diffs(uid, elem) {
 
         success: function (data) {
             if (data.status === 'error') {
-                popup_message(elem, data.msg, data.status);
+                popup_message(post, data.msg, data.status);
                 return
             }
             // Success
-            var insert = "<div class='ui segment' style='white-space: pre-line'>" + data.diff +" </div>";
-            elem.html(insert);
+            // TODO change to insert data.html
+            var insert = "<div class='diffs' style='white-space: pre-line'>" + data.diff +" </div>";
+            //elem.html(insert);
+            elem.html(insert)
             //elem.addClass('ui segment');
         },
         error: function (xhr, status, text) {
-            error_message(elem, xhr, status, text)
+            error_message(post, xhr, status, text)
         }
     });
-
 
 }
 
@@ -449,9 +454,9 @@ $(document).ready(function () {
     $(this).on('click', ".view-diffs", function (event) {
         var post = $(this).closest('.post');
         var uid = post.data('value');
-        var elem =  post.find('.diff-cont');
+        var elem =  post.find('.diff-cont').first();
 
-        view_diffs(uid, elem);
+        view_diffs(uid, elem, post);
 
     });
     $('pre').addClass('language-bash');

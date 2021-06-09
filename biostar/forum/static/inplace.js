@@ -61,6 +61,7 @@ function cancel_inplace() {
     //if (inplace.length){}
     // Remove inplace item
     inplace.remove();
+    $('.diff-cont').html('');
 
     // Find the hidden items
     var hidden = hidden_selector();
