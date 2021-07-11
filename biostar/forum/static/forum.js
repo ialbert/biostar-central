@@ -14,9 +14,9 @@ function captcha() {
 
 function view_diffs(uid, elem, post) {
 
-    if (elem.children().length > 0){
-         elem.html('');
-         return
+    if (elem.children().length > 0) {
+        elem.html('');
+        return
     }
 
     $.ajax("/view/diffs/" + uid + '/', {
@@ -29,12 +29,14 @@ function view_diffs(uid, elem, post) {
                 popup_message(post, data.msg, data.status);
                 return
             }
-            // Success
-            // TODO change to insert data.html
-            var insert = "<div class='diffs' style='white-space: pre-line'>" + data.diff +" </div>";
-            //elem.html(insert);
-            elem.html(insert)
-            //elem.addClass('ui segment');
+            if (data.has_changes) {
+                elem.html(data.diff)
+
+            } else {
+                popup_message(elem, data.msg, data.status);
+
+            }
+
         },
         error: function (xhr, status, text) {
             error_message(post, xhr, status, text)
@@ -454,7 +456,7 @@ $(document).ready(function () {
     $(this).on('click', ".view-diffs", function (event) {
         var post = $(this).closest('.post');
         var uid = post.data('value');
-        var elem =  post.find('.diff-cont').first();
+        var elem = post.find('.diff-cont').first();
 
         view_diffs(uid, elem, post);
 

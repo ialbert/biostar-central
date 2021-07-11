@@ -264,10 +264,10 @@ def compute_diff(text, post, user):
     # See if a diff has been made by this user in the past 10 minutes
     dobj = Diff.objects.filter(post=post, author=post.author).first()
 
-    frame = 60 * 10
-    delta = (util.now() - dobj.creation).seconds if dobj else frame
+    # 10 minute time frame between
+    frame = 1 * 10
+    delta = (util.now() - dobj.created).seconds if dobj else frame
 
-    print(post, delta, frame)
     # Create diff object within time frame
     if delta >= frame:
         # Create diff object for this user.

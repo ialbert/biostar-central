@@ -637,7 +637,7 @@ class Diff(models.Model):
     # Initial content state
     diff = models.TextField(default='')
 
-    # Date the initial content was created
+    # Date this change was made.
     created = models.DateTimeField(auto_now_add=True)
 
     # Post this diff belongs to
@@ -651,6 +651,12 @@ class Diff(models.Model):
         self.created = self.created or util.now()
 
         super(Diff, self).save(*args, **kwargs)
+
+    @property
+    def breakline(self):
+        diff = self.diff
+        diff = diff.replace('\n', '<br>')
+        return diff
 
 
 class Log(models.Model):

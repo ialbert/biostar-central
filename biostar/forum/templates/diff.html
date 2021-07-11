@@ -1,3 +1,9 @@
-
-{{ diff|safe }}
-changes made by  <a href="{{ dobj.author.get_absoulute_url }}">{{ dobj.author.profile.name }}</a>
+<div class="ui vertical segment">
+    {% for dobj in diffs %}
+        {{ dobj.breakline|safe }}
+        <div class="muted">
+            changes made by <a href="{{ dobj.author.get_absoulute_url }}">{{ dobj.author.profile.name }}</a>
+            {{ dobj.created|timesince }} ago
+        </div>
+    {% endfor %}
+</div>

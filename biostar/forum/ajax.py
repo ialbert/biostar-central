@@ -465,21 +465,19 @@ def view_diff(request, uid):
     # View most recent diff made to a post
     post = Post.objects.filter(uid=uid).first()
 
-    diffobj = Diff.objects.filter(post=post).order_by('-pk').first()
+    diffs = Diff.objects.filter(post=post).order_by('-pk')
 
-    print(post, diffobj, uid)
-    if not diffobj:
-        return ajax_error(msg='Post has no recorded changes')
+    # Post has no recorded changes,
+    if not diffs.exists():
+        return ajax_success(has_changes=False, msg='Post has no recorded changes')
 
     # Change new line chars to break line tags.
-    diff = diffobj.diff
-    diff = diff.replace('\n', '<br>')
-    context = dict(dobj=diffobj, diff=diff)
+    context = dict(diffs=diffs)
     tmpl = loader.get_template(template_name='diff.html')
     tmpl = tmpl.render(context)
 
     # Return newly created diff
-    return ajax_success(msg='Disabled messages', diff=tmpl)
+    return ajax_success(has_changes=True, msg='Showing changes', diff=tmpl)
 
 
 def similar_posts(request, uid):
