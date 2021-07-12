@@ -265,7 +265,7 @@ def compute_diff(text, post, user):
     dobj = Diff.objects.filter(post=post, author=post.author).first()
 
     # 10 minute time frame between
-    frame = 1 * 10
+    frame = 6 * 10
     delta = (util.now() - dobj.created).seconds if dobj else frame
 
     # Create diff object within time frame
