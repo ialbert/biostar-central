@@ -11,15 +11,22 @@
 
     {% if post.is_editable %}
         &bull; <a class="edit-button" href="#">edit</a>
+
     {% endif %}
 
     {% if post.can_moderate %}
         &bull; <a class="moderate" href="#">moderate</a>
     {% endif %}
+
+    {% if post.is_editable %}
+        &bull;
+        <a class="view-diffs"><i class="window restore outline icon"></i></a>
+    {% endif %}
     {% if not post.is_toplevel  and post.is_editable %}
         &bull;
         {# Draggable element #}
         <a class="draggable"><i class="hand lizard outline icon"></i></a>
+
     {% endif %}
 
     {#  Show title on top level posts #}
@@ -34,14 +41,17 @@
                 <a class="item" data-value="unfollow"><i class="close icon"></i> stop following</a>
             </div>
         </div>
+
     {% endif %}
 
     <span class="status muted user-info">
         {% post_user_line post=post avatar=avatar %}
     </span>
 
+
 </div>
 
+<span class="diff-cont"></span>
 
 
 

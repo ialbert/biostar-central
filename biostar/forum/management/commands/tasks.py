@@ -6,7 +6,7 @@ from datetime import datetime
 from biostar import VERSION
 from django.core.management.base import BaseCommand
 from biostar.forum import models, util, tasks
-from biostar.forum.models import Post
+from biostar.forum.models import Post, Diff
 from django.conf import settings
 from biostar.accounts.models import User
 from biostar.utils.decorators import timeit
@@ -17,8 +17,8 @@ logger = logging.getLogger('engine')
 
 BACKUP_DIR = os.path.join(settings.BASE_DIR, 'export', 'backup')
 
-BUMP, UNBUMP, AWARD = 'bump', 'unbump', 'award'
-CHOICES = [BUMP, UNBUMP, AWARD]
+CHOICES = ['bump', 'unbump', 'award']
+BUMP, UNBUMP, AWARD = CHOICES
 
 
 def bump(uids, **kwargs):
@@ -83,8 +83,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--uids', '-u', type=str, required=False, default='', help='List of uids')
-        parser.add_argument('--action', '-a', type=str, required=True, choices=CHOICES, default='',help='Action to take.')
-        parser.add_argument('--limit', dest='limit', type=int, default=100, help='Limit how many users/posts to process.'),
+        parser.add_argument('--action', '-a', type=str, required=True, choices=CHOICES, default='',
+                            help='Action to take.')
+        parser.add_argument('--limit', dest='limit', type=int, default=100,
+                            help='Limit how many users/posts to process.'),
 
     def handle(self, *args, **options):
         action = options['action']

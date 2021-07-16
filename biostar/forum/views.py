@@ -537,15 +537,11 @@ def post_view(request, uid):
     form = forms.PostShortForm(user=request.user, post=post)
 
     if request.method == "POST":
-
-        form = forms.PostShortForm(data=request.POST, user=request.user, post=post)
+        form = forms.PostShortForm(data=request.POST, ptype=Post.ANSWER, user=request.user, post=post)
         if form.is_valid():
-            author = request.user
-            content = form.cleaned_data.get("content")
-            answer = auth.create_post(title=post.title, parent=post, author=author,
-                                      content=content, ptype=Post.ANSWER, root=post.root,
-                                      request=request)
+            answer = form.save()
             return redirect(answer.get_absolute_url())
+
         messages.error(request, form.errors)
 
     # Build the comment tree .
