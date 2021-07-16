@@ -274,10 +274,10 @@ function highligh_preview(form, text) {
     var highlighted = highlight(text);
 
     form.find('.preview').html(highlighted);
-    form.find('pre').addClass('language-bash');
-    form.find('code').addClass('language-bash');
-
-    Prism.highlightAll();
+    // form.find('pre').addClass('language-bash');
+    // form.find('code').addClass('language-bash');
+    //
+    // Prism.highlightAll();
 
 
 }
@@ -292,13 +292,6 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
 
-    $('#form .preview').each(function () {
-        var text = $(this).closest('form').find('.wmd-input').val();
-        var form = $(this).closest('form');
-        setTimeout(function () {
-            highligh_preview(form, text);
-        }, 150)
-    });
 
     $(this).on('keyup', 'textarea', function (event) {
         var text = $(this).val();
@@ -309,13 +302,6 @@ $(document).ready(function () {
     });
 
     $(this).on('click', '#wmd-button-bar', function (event) {
-        var form = $(this).closest('form');
-        var text = form.find('textarea').val();
-        highligh_preview(form, text);
-
-    });
-
-    $("#wmd-button-bar").click(function (event) {
         var form = $(this).closest('form');
         var text = form.find('textarea').val();
         highligh_preview(form, text);
