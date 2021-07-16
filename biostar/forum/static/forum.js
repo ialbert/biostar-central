@@ -292,7 +292,7 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
 
-    $('form .preview').each(function () {
+    $('#form .preview').each(function () {
         var text = $(this).closest('form').find('.wmd-input').val();
         var form = $(this).closest('form');
         setTimeout(function () {
