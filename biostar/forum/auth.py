@@ -272,7 +272,10 @@ def compute_diff(text, post, user):
     if delta >= frame or user != post.author:
         # Create diff object for this user.
         dobj = Diff.objects.create(diff=diff, post=post, author=user)
-        db_logger(user=user, action=Log.EDIT, text=f'changed post by {ratio}', post=post)
+
+        # Only log when anyone but the author commits changes.
+        if user != post.author:
+            db_logger(user=user, action=Log.EDIT, text=f'edited post', target=post.author, post=post)
 
     return dobj
 
