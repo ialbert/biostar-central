@@ -116,13 +116,6 @@ blockquote.twitter-tweet {
     background: white;
 }
 
-.diff-plus{
-        background: #aee4ae;
-}
-
-.diff-minus{
-    background: #ffc5c5;
-}
 
 #topicbar {
     border: none;
@@ -557,7 +550,7 @@ i.icon {
     padding-bottom: 10px;
 }
 
-.draggable, .view-diffs {
+.draggable {
     cursor: pointer;
     font-size: 85%;
 }

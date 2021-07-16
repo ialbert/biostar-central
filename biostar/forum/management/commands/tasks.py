@@ -17,8 +17,8 @@ logger = logging.getLogger('engine')
 
 BACKUP_DIR = os.path.join(settings.BASE_DIR, 'export', 'backup')
 
-CHOICES = ['bump', 'unbump', 'award', 'diffs']
-BUMP, UNBUMP, AWARD, DIFFS = CHOICES
+CHOICES = ['bump', 'unbump', 'award']
+BUMP, UNBUMP, AWARD = CHOICES
 
 
 def bump(uids, **kwargs):
@@ -77,22 +77,6 @@ def awards(limit=50, **kwargs):
     return
 
 
-def create_diffs(nbatch=100000, **kwargs):
-    """
-    Bulk create diffs
-    """
-
-    targets = Post.objects.all()
-
-    def batch():
-        for post in targets:
-            diff = Diff(post=post, initial=post.content, current=post.content, created=post.creation_date,
-                        edited=post.lastedit_date)
-
-            yield diff
-
-    models.Diff.objects.bulk_create(objs=batch(), batch_size=nbatch)
-
 
 class Command(BaseCommand):
     help = 'Preform action on list of posts.'
@@ -107,7 +91,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         action = options['action']
 
-        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards, DIFFS: create_diffs}
+        opts = {BUMP: bump, UNBUMP: unbump, AWARD: awards}
 
         func = opts[action]
         # print()
