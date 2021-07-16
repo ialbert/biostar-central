@@ -210,6 +210,11 @@ class Post(models.Model):
             return self.thread_votecount
         return self.vote_count
 
+    @property
+    def has_diff(self):
+
+        return self.creation_date != self.lastedit_date
+
     def title_prefix(self):
 
         prefix = ""

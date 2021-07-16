@@ -18,9 +18,9 @@
         &bull; <a class="moderate" href="#">moderate</a>
     {% endif %}
 
-    {% if post.is_editable %}
+    {% if post.has_diff %}
         &bull;
-        <a class="view-diffs"><i class="window restore outline icon"></i></a>
+        <a class="view-diffs"><i class=" angle down icon"></i></a>
     {% endif %}
     {% if not post.is_toplevel  and post.is_editable %}
         &bull;
