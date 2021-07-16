@@ -631,6 +631,34 @@ class Award(models.Model):
     def uid(self):
         return self.pk
 
+
+class Diff(models.Model):
+
+    # Initial content state
+    diff = models.TextField(default='')
+
+    # Date this change was made.
+    created = models.DateTimeField(auto_now_add=True)
+
+    # Post this diff belongs to
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    # Person who created the diff
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+
+        self.created = self.created or util.now()
+
+        super(Diff, self).save(*args, **kwargs)
+
+    @property
+    def breakline(self):
+        diff = self.diff
+        diff = diff.replace('\n', '<br>')
+        return diff
+
+
 class Log(models.Model):
     """
     Represents moderation actions

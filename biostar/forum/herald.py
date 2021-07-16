@@ -100,7 +100,7 @@ def herald_publisher(request, limit=20, nmin=1):
     # Reset status on published links.
     # SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
 
-    heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED).order_by('-creation_date')[:limit]
+    heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED).order_by('-pk')[:limit]
     count = heralds.count()
 
     if count < nmin:
@@ -177,6 +177,7 @@ def herald_list(request):
             # Add the Link attribute.
             link = form.cleaned_data['url']
             text = form.cleaned_data['text']
+
             # Create the herald_list objects.
             herald = SharedLink.objects.create(author=user, text=text, url=link)
             messages.success(request, 'Submitted for review.')

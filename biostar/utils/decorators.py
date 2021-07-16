@@ -424,8 +424,8 @@ except Exception as exc:
     # Disable tasks when there are errors, raising exceptions breaks migration.
     WORKER = d_worker()
     TIMER = d_timer()
-    logger.error(f'Error initializing task: {settings.TASK_RUNNER}.')
-    logger.error(f'Tasks disabled: {exc}.')
+    logger.warning(f'Error initializing task: {settings.TASK_RUNNER}.')
+    logger.warning(f'Tasks disabled: {exc}.')
 
 
 def task(f):

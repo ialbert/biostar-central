@@ -12,6 +12,38 @@ function captcha() {
     }
 }
 
+function view_diffs(uid, elem, post) {
+
+    if (elem.children().length > 0) {
+        elem.html('');
+        return
+    }
+
+    $.ajax("/view/diffs/" + uid + '/', {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+
+        success: function (data) {
+            if (data.status === 'error') {
+                popup_message(post, data.msg, data.status);
+                return
+            }
+            if (data.has_changes) {
+                elem.html(data.diff)
+
+            } else {
+                popup_message(elem, data.msg, data.status);
+
+            }
+
+        },
+        error: function (xhr, status, text) {
+            error_message(post, xhr, status, text)
+        }
+    });
+
+}
 
 function apply_vote(vote_elem) {
 
@@ -100,7 +132,7 @@ function moderate(uid, container, url) {
 }
 
 
-function disable_emails(user_id, elem){
+function disable_emails(user_id, elem) {
 
     var url = '/email/disable/{0}/'.format(user_id);
     $.ajax(url, {
@@ -193,7 +225,6 @@ function activate_prism(elem) {
     elem.each('code').addClass('language-bash');
     Prism.highlightAll();
 }
-
 
 
 function herald_update(hpk, status, elem) {
@@ -348,7 +379,10 @@ $(document).ready(function () {
         on: 'hover',
         content: 'Drag and Drop'
     });
-
+    $(".view-diffs").popup({
+        on: 'hover',
+        content: 'View Changes'
+    });
     $("[data-value='bookmark']").popup({
         on: 'hover',
         content: 'Bookmark '
@@ -359,7 +393,7 @@ $(document).ready(function () {
         content: 'Accept'
     });
 
-     $("[data-value='decline']").popup({
+    $("[data-value='decline']").popup({
         on: 'hover',
         content: 'Decline'
     });
@@ -419,7 +453,14 @@ $(document).ready(function () {
     $(this).on('click', ".herald-sub", function (event) {
         herald_subscribe($(this))
     });
+    $(this).on('click', ".view-diffs", function (event) {
+        var post = $(this).closest('.post');
+        var uid = post.data('value');
+        var elem = post.find('.diff-cont').first();
 
+        view_diffs(uid, elem, post);
+
+    });
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
