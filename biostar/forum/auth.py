@@ -265,13 +265,14 @@ def compute_diff(text, post, user):
     dobj = Diff.objects.filter(post=post, author=post.author).first()
 
     # 10 minute time frame between
-    frame = 6 * 10
+    frame = 6 * 100
     delta = (util.now() - dobj.created).seconds if dobj else frame
 
-    # Create diff object within time frame
-    if delta >= frame:
+    # Create diff object within time frame or the person editing is a mod.
+    if delta >= frame or user != post.author:
         # Create diff object for this user.
         dobj = Diff.objects.create(diff=diff, post=post, author=user)
+        db_logger(user=user, action=Log.EDIT, text=f'changed post by {ratio}', post=post)
 
     return dobj
 

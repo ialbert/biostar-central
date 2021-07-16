@@ -29,7 +29,7 @@ def send_award_message(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=SharedLink)
-def send_award_message(sender, instance, created, **kwargs):
+def send_herald_message(sender, instance, created, **kwargs):
     """
     Send message to users when they receive an award.
     """
@@ -39,6 +39,8 @@ def send_award_message(sender, instance, created, **kwargs):
 
         # Let the user know we have received.
         tasks.create_messages(template=template, extra_context=context, user_ids=[instance.author.pk])
+        logmsg = f"{instance.get_status_display().lower()} herald story {instance.url[:100]}"
+        auth.db_logger(user=instance.author, text=logmsg)
 
     return
 
