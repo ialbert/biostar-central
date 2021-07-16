@@ -100,7 +100,7 @@ def herald_publisher(request, limit=20, nmin=1):
     # Reset status on published links.
     # SharedLink.objects.filter(status=SharedLink.PUBLISHED).update(status=SharedLink.ACCEPTED)
 
-    heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED).order_by('-creation_date')[:limit]
+    heralds = SharedLink.objects.filter(status=SharedLink.ACCEPTED).order_by('-pk')[:limit]
     count = heralds.count()
 
     if count < nmin:
