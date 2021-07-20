@@ -198,6 +198,9 @@ class Post(models.Model):
     # Unique id for the post.
     uid = models.CharField(max_length=32, unique=True, db_index=True)
 
+    # This post has been indexed by the search engine.
+    has_diff = models.BooleanField(default=False)
+
     objects = PostManager()
 
     def parse_tags(self):
@@ -209,11 +212,6 @@ class Post(models.Model):
         if self.is_toplevel:
             return self.thread_votecount
         return self.vote_count
-
-    @property
-    def has_diff(self):
-
-        return self.creation_date != self.lastedit_date
 
     def title_prefix(self):
 

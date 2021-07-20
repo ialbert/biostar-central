@@ -149,8 +149,10 @@ class PostLongForm(forms.Form):
 
         self.post.title = data.get('title')
         content = data.get('content', self.post.content)
+
         # Calculate diff and save to db
-        auth.compute_diff(text=content, post=self.post, user=self.user)
+        auth.create_diff(text=content, post=self.post, user=self.user)
+
         self.post.content = content
 
         self.post.type = data.get('post_type')
@@ -217,7 +219,7 @@ class PostShortForm(forms.Form):
         self.post.lastedit_user = self.user
         self.post.lastedit_date = util.now()
         content = self.cleaned_data.get('content', self.post.content)
-        auth.compute_diff(text=content, post=self.post, user=self.user)
+        auth.create_diff(text=content, post=self.post, user=self.user)
         self.post.content = content
         self.post.save()
 
