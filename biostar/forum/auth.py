@@ -238,7 +238,7 @@ def diff_ratio(text1, text2):
     return round(s.ratio(), 5)
 
 
-def compute_diff(text, post, user):
+def create_diff(text, post, user):
     """
     Compute and return Diff object for diff between text and post.content
     """
@@ -265,17 +265,19 @@ def compute_diff(text, post, user):
     dobj = Diff.objects.filter(post=post, author=post.author).first()
 
     # 10 minute time frame between
-    frame = 6 * 100
+    frame = 60 * 10
     delta = (util.now() - dobj.created).seconds if dobj else frame
 
     # Create diff object within time frame or the person editing is a mod.
     if delta >= frame or user != post.author:
         # Create diff object for this user.
         dobj = Diff.objects.create(diff=diff, post=post, author=user)
-
+        post.has_diff = True
         # Only log when anyone but the author commits changes.
         if user != post.author:
             db_logger(user=user, action=Log.EDIT, text=f'edited post', target=post.author, post=post)
+
+    Post.objects.filter(pk=post.pk).update(has_diff=post.has_diff)
 
     return dobj
 
