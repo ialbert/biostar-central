@@ -249,7 +249,11 @@ class BiostarInlineLexer(MonkeyPatch):
             # Subscribe mentioned users to post.
             if self.root:
                 # Create user subscription if it does not already exist.
-                auth.create_subscription(post=self.root, user=user, update=True)
+                #TODO: make seperate template
+                # check rep in ping users.
+                #auth.ping_user(user , target, post)
+                sub_type = Subscription.EMAIL_MESSAGE
+                auth.create_subscription(post=self.root, sub_type=sub_type, user=user, update=True)
         else:
             link = m.group(0)
 
