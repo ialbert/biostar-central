@@ -81,18 +81,6 @@
             $(this).on('click', ".add-comment", function () {
                 inplace_form($(this), true);
             });
-
-            $(this).on('click', '.editable', function (event) {
-                // Insert inplace form with CMD + click
-                if (event.metaKey || event.ctrlKey) {
-                    inplace_form($(this))
-                }
-            });
-
-            $(this).on('dblclick', '.editable', function (event) {
-                // Insert inplace form with double click.
-                //inplace_form($(this))
-            });
         });
 
     </script>
