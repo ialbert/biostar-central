@@ -54,7 +54,7 @@ rjsmin==1.1.0
 sgmllib3k==1.0.0
 six==1.15.0
 soupsieve==2.2
-sqlparse==0.4.1
+sqlparse==0.4.2
 toml==0.10.2
 typing-extensions==3.7.4.3
 urllib3==1.26.5
