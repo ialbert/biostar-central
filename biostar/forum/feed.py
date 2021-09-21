@@ -76,7 +76,7 @@ class PostTypeFeed(PostBase):
 
     def items(self, obj):
         codes, text = obj
-        posts = Post.objects.filter(type__in=codes).order_by('-creation_date')
+        posts = Post.objects.valid_posts(type__in=codes).order_by('-creation_date')
         return posts[:FEED_COUNT]
 
 
@@ -93,7 +93,7 @@ class PostFeed(PostBase):
 
     def items(self, text):
         ids = split(text)
-        posts = Post.objects.filter(root__uid__in=ids).order_by('-creation_date')
+        posts = Post.objects.valid_posts(root__uid__in=ids).order_by('-creation_date')
         return posts[:FEED_COUNT]
 
 
@@ -111,7 +111,7 @@ class TagFeed(PostBase):
         return "Post Feed"
 
     def items(self, obj):
-        posts = Post.objects.filter(tags__name__in=obj)
+        posts = Post.objects.valid_posts(tags__name__in=obj)
         return posts[:FEED_COUNT]
 
 
@@ -128,6 +128,5 @@ class UserFeed(PostBase):
 
     def items(self, text):
         ids = split(text)
-        posts = Post.objects.filter(author__profile__uid__in=ids).order_by('-creation_date')
+        posts = Post.objects.valid_posts(author__profile__uid__in=ids).order_by('-creation_date')
         return posts[:FEED_COUNT]
-
