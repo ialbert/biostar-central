@@ -21,13 +21,19 @@ import sys, os
 
 import plac
 from joblib import dump, load
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import make_pipeline
 
 logger = logging.getLogger("engine")
+
+try:
+    from sklearn.feature_extraction.text import CountVectorizer
+    from sklearn.metrics import classification_report
+    from sklearn.model_selection import train_test_split
+    from sklearn.naive_bayes import MultinomialNB
+    from sklearn.pipeline import make_pipeline
+    has_sklearn = True
+except ImportError as exc:
+    logger.error("sklearn not installed, no predictions are generated")
+    has_sklearn = False
 
 def load_model(model="spam.model"):
     nb = load(model)
@@ -38,6 +44,9 @@ def classify_content(content, model):
     """
     Classify content
     """
+    if not has_sklearn:
+        return 0
+
     try:
         nb = load_model(model)
         y_pred = nb.predict([content])
