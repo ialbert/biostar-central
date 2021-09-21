@@ -70,7 +70,7 @@ def generate_sitemap(index, batch):
         # Defers all fields beyond uid!
         start = (batch-1) * N
         end = batch * N
-        posts = Post.objects.filter(is_toplevel=True, root__status=Post.OPEN) \
+        posts = Post.objects.valid_posts(is_toplevel=True, root__status=Post.OPEN) \
             .exclude(type=Post.BLOG).order_by("-pk").only("uid", "lastedit_date")[start:end]
 
         print(URLSET_START, end='')
