@@ -9,9 +9,6 @@ DEBUG = True
 # Should the site allow signup.
 ALLOW_SIGNUP = False
 
-# Private key used to validate external logins. Must be changed in production
-LOGIN_PRIVATE_KEY = "private-key"
-
 ADMINS = [
     ("Admin User", "admin@localhost")
 ]
@@ -151,4 +148,3 @@ SOCIAL_CLIENTS = [
 ]
 
 GOOGLE_TRACKER = ""
-

@@ -181,7 +181,7 @@ def traffic(request):
     """
     now = datetime.now()
     start = now - timedelta(minutes=60)
-
+    start = start.now()
     post_views = PostView.objects.filter(date__gt=start).exclude(date__gt=now).distinct('ip').count()
 
     data = {

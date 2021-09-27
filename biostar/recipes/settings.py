@@ -5,9 +5,6 @@ from biostar.emailer.settings import *
 # Django debug flag.
 DEBUG = True
 
-# Private key used to validate external logins
-LOGIN_PRIVATE_KEY = SECRET_KEY
-
 SEARCH_CHAR_MIN = 2
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = None
