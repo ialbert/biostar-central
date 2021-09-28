@@ -362,7 +362,7 @@ def form_errors(form, wmd_prefix='', override_content=False):
         for field in form:
             for error in field.errors:
                 # wmd_prefix is required when dealing with 'content' field.
-                field_id = wmd_prefix if (override_content and field.name is 'content') else field.id_for_label
+                field_id = wmd_prefix if (override_content and field.name == 'content') else field.id_for_label
                 errorlist.append((f'{field.name}:', error, field_id))
 
     except Exception as exc:

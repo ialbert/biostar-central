@@ -57,7 +57,7 @@
     </a>
 
     <a class="item {% activate tab "planet" %} " href="{% url 'blog_list' %}">
-        <i class="rss icon"></i> Planet {% count_badge counts.planet_count %}
+        <i class="rss icon"></i> Planet
     </a>
 
     {% if request.user.profile.is_moderator %}

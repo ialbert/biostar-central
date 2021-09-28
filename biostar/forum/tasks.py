@@ -222,6 +222,9 @@ def spam_check(uid):
     post = Post.objects.filter(uid=uid).first()
     author = post.author
 
+    if not settings.CLASSIFY_SPAM:
+        return
+
     # Automated spam disabled in for trusted user
     if author.profile.trusted or author.profile.score > 50:
         return
@@ -316,8 +319,8 @@ def herald_emails(uid):
         # Get the next set of emails
         end = idx + batch_size
         rec_list = emails[idx:end]
-        send_email(template_name=email_template, extra_context=context, name=author, from_email=from_email,
-                   recipient_list=rec_list, mass=True)
+        send_email(template_name=email_template, extra_context=context, name=author,
+        from_email=from_email,recipient_list=rec_list, mass=True)
 
     return
 
