@@ -26,6 +26,11 @@ MAX_TAGS = 5
 MAX_TAG_LEN = 200
 
 
+def log_edits(user, post):
+    if user != post.author:
+        db_logger(user=user, action=Log.EDIT, text=f'edited post', target=post.author, post=post)
+
+
 def valid_language(text):
     supported_languages = settings.LANGUAGE_DETECTION
     if supported_languages:
@@ -150,9 +155,7 @@ class PostLongForm(forms.Form):
         self.post.title = data.get('title')
         content = data.get('content', self.post.content)
 
-        # Calculate diff and save to db
-        auth.create_diff(text=content, post=self.post, user=self.user)
-
+        log_edits(user=self.user, post=self.post)
         self.post.content = content
 
         self.post.type = data.get('post_type')
@@ -219,7 +222,7 @@ class PostShortForm(forms.Form):
         self.post.lastedit_user = self.user
         self.post.lastedit_date = util.now()
         content = self.cleaned_data.get('content', self.post.content)
-        auth.create_diff(text=content, post=self.post, user=self.user)
+        log_edits(user=self.user, post=self.post)
         self.post.content = content
         self.post.save()
 
