@@ -28,7 +28,7 @@ MAX_TAG_LEN = 200
 
 def log_edits(user, post):
     if user != post.author:
-        db_logger(user=user, action=Log.EDIT, text=f'edited post', target=post.author, post=post)
+        auth.db_logger(user=user, text=f'edited post', target=post.author, post=post)
 
 
 def valid_language(text):
