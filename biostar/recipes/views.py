@@ -411,18 +411,22 @@ def data_edit(request, uid):
 @write_access(type=Project, fallback_view="data_list")
 def data_upload(request, uid):
     "Data upload view routed through auth.create_data."
+    logger.info("Entering data upload view.")
 
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
     form = forms.DataUploadForm(user=owner, project=project)
 
     if request.method == "POST":
+        logger.info("Initating data upload with POST.")
         form = forms.DataUploadForm(data=request.POST, files=request.FILES, user=owner, project=project)
         if form.is_valid():
             data = form.save()
+            logger.info("Data upload complete, redirecting.")
             messages.info(request, f"Uploaded: {data.name}. Edit the data to set its type.")
             return redirect(reverse("data_list", kwargs={'uid': project.uid}))
-
+        
+    logger.info(f"Computing context values.")
     uploaded_files = Data.objects.filter(owner=owner, method=Data.UPLOAD)
     # The current size of the existing data
     current_size = uploaded_files.aggregate(Sum("size"))["size__sum"] or 0
@@ -434,9 +438,9 @@ def data_upload(request, uid):
                    current_size=current_size)
 
     counts = get_counts(project)
-
     context.update(counts)
-
+    
+    logger.info(f"Rendering data upload template. ")
     return render(request, 'data_upload.html', context)
 
 
