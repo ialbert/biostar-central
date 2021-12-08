@@ -411,6 +411,7 @@ def data_edit(request, uid):
 @write_access(type=Project, fallback_view="data_list")
 def data_upload(request, uid):
     "Data upload view routed through auth.create_data."
+    logger.info("Starting data upload ")
 
     owner = request.user
     project = Project.objects.filter(uid=uid).first()
