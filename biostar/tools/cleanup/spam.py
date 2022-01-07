@@ -57,7 +57,7 @@ def main(apply=False, days=7, limit=10, verbose=False):
             text = f"spammer: user={user.profile.name}, spam_count={spam_count}"
             logger.info(text)
             if apply:
-                user.delete()
+                posts.filter(spam=Post.SPAM).delete()
 
     if apply and delete_count:
         msg = f"spam cleanup, removed {user_count} spammers and {delete_count} spam posts"
