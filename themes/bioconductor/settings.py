@@ -109,6 +109,7 @@ EMAIL_USE_TLS = False
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 
+DROPDOWN_TAGS = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Tries to load up secret settings from a predetermined module

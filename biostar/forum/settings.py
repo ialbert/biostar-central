@@ -164,6 +164,7 @@ CACHES = {
 # Strict rules applied to post tags
 STRICT_TAGS = True
 
+DROPDOWN_TAGS = False
 TASK_MODULES = ("biostar.forum.tasks", )
 
 # Enable debug toolbar specific functions
@@ -172,6 +173,3 @@ if DEBUG_TOOLBAR:
         'debug_toolbar',
     ])
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
-
-
-
