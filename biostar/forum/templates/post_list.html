@@ -25,20 +25,14 @@
 
     {% block listing %}
 
-        {% if topic %}
-            <div class="ui blue filter message">
-                Filtering for: <b>{{ topic }}</b> &bull;
-                <a href="{% url 'post_list' %}">
-                    reset <i class="undo small icon"></i>
-                </a>
-            </div>
-        {% endif %}
+        {% block filtermsg %}
 
+        {% endblock %}
 
         <div class="ui divided items">
             {% for post in posts %}
                 {% post_details post=post user=request.user avatar=avatar %}
-                {% empty %}
+            {% empty %}
                 <div class="ui warn message">
                     No posts found.
                 </div>
@@ -54,10 +48,10 @@
 
 {% block sidebar %}
 
-     {% include "banners/insert-sidebar-top.html" %}
+    {% include "banners/insert-sidebar-top.html" %}
 
-     {% cache 600 "default" request.user.pk %}
+    {% cache 600 "default" request.user.pk %}
         {% default_feed user=request.user %}
-     {% endcache %}
+    {% endcache %}
 
 {% endblock %}

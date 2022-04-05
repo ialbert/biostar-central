@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from biostar.forum.models import Post, Subscription, Vote, Log
+from biostar.forum.models import Post, Subscription, Vote, Log, SharedLink
 
 
 @admin.register(Post)
@@ -39,4 +39,9 @@ class LoggerAdmin(admin.ModelAdmin):
     search_fields = ('user__email', 'user__profile__name', 'user__profile__uid', 'log_text')
 
 
+@admin.register(SharedLink)
+class SharedLinkAdmin(admin.ModelAdmin):
+    list_display = ('url',  'status', 'author', 'title')
+    search_fields = ('author__email', 'author__profile__name', 'url', 'title')
 
+    pass

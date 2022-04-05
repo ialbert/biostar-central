@@ -3,20 +3,22 @@ import inspect
 import functools
 from urllib.request import urlopen, Request
 from functools import partial
-import toml as hjson
+import json
 import mistune
 from django.conf import settings
 from django.template import loader
 from biostar.utils.decorators import task
 
+
 #
 # Do not use logging in tasks! Deadlocking may occur!
 #
 # https://github.com/unbit/uwsgi/issues/1369
-
+#
 
 def message(msg, level=0):
     print(f"{msg}")
+
 
 @task
 def detect_location(ip, user_id):
@@ -31,10 +33,11 @@ def detect_location(ip, user_id):
         message(f"skip {msg}")
         return
 
-    message(f"execute {msg}")
+    message(f"{msg}")
 
     # Get the profile for the user
     profile = Profile.objects.filter(user__id=user_id).first()
+    template = "messages/location-set.md"
 
     # Skip value if it has the word unknown in it
     def get(data, attr):
@@ -44,25 +47,35 @@ def detect_location(ip, user_id):
     # Check and log location.
     if not profile.location:
         try:
-            url = f"http://api.hostip.info/get_json.php?ip={ip}"
+            url = f"http://ip-api.com/json/{ip}"
             message(url)
             message(f"{ip}, {profile.user}, {url}")
             req = Request(url=url, headers={'User-Agent': 'Mozilla/5.0'})
             resp = urlopen(req, timeout=3).read()
-            data = hjson.loads(resp)
+            data = json.loads(resp)
 
-            city = get(data, "city")
-            country = get(data, "country_name")
-            location = city or country
+            # Add the userid to the json
+            data['uid'] = user_id
+
+            # Log the return data.
+            message(data)
+
+            # city = get(data, "city")
+            # region = get(data, "regionName")
+            # country = get(data, "country")
+            location = get(data, "country")
 
             msg = f"location result for \tid={user_id}\tip={ip}\tloc={location}"
             if location:
-                Profile.objects.filter(user=profile.user).update(location=location)
-                message(f"updated profile {msg}")
+                Profile.objects.filter(user__id=user_id).update(location=location)
+                context = dict(profile=profile, location=location)
+                create_messages(template=template, user_ids=[user_id], extra_context=context)
+                message(f"updated profile: {msg}")
             else:
-                message(f"empty location {msg}")
+                message(f"empty location: {msg}")
 
         except Exception as exc:
+
             message(exc)
 
 
@@ -89,12 +102,14 @@ def create_messages(template, user_ids, sender=None, extra_context={}):
     sender = sender or User.objects.filter(email=email).first() or User.objects.filter(is_superuser=True).first()
     # Load the template and context
     tmpl = loader.get_template(template_name=template)
-    context = dict(sender=sender)
+
+    # Default context added to each template.
+    context = dict(sender=sender, domain=settings.SITE_DOMAIN, protocol=settings.PROTOCOL)
+
     context.update(extra_context)
     body = tmpl.render(context)
     html = mistune.markdown(body, escape=False)
+    body = MessageBody.objects.create(body=body, html=html)
 
     for rec in rec_list:
-        body = MessageBody.objects.create(body=body, html=html)
         Message.objects.create(sender=sender, recipient=rec, body=body)
-

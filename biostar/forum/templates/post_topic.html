@@ -1,0 +1,17 @@
+{% extends 'post_list.html' %}
+
+{% block title %}
+    Biostar {{ topic|capfirst }}
+{% endblock %}
+
+{% block headtitle %}
+    Biostar {{ topic|capfirst }}
+{% endblock %}
+
+{% block filtermsg %}
+
+    {% if not topic %}
+        <div class="ui filter message">Topic contains no posts.</div>
+    {% endif %}
+
+{% endblock %}

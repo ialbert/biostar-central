@@ -2,6 +2,7 @@ import logging
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from django.contrib import auth
+from django.template import loader
 from django.conf import settings
 
 
@@ -46,10 +47,13 @@ def send_verification_email(user):
     from_email = settings.DEFAULT_FROM_EMAIL
     userid = urlsafe_base64_encode(force_bytes(user.pk))
     token = account_verification_token.make_token(user)
+
     template = "accounts/email_verify.html"
     email_list = [user.email]
     context = dict(token=token, userid=userid, user=user)
-    subject = "Welcome to Bioinformatics Recipes!"
+    subject = "accounts/email_verify_subject.md"
+    subject = loader.get_template(template_name=subject).render(dict())
+
     # Send the verification email
     send_email(template_name=template, recipient_list=email_list,
                extra_context=context, from_email=from_email, subject=subject)

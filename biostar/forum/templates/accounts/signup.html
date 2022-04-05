@@ -16,7 +16,7 @@
 
 {% block content %}
 
-        {% show_messages messages %}
+    {% show_messages messages %}
 
      {% if  social_login %}
         <div class="ui segment inputcolor socialbox">
@@ -43,7 +43,12 @@
         </div>
     {% endif %}
 
+
         <form method="post" class="ui form attached fluid" action="{% url 'signup' %}">
+
+            {{ form.errors }}
+
+
             <div class="ui segment inputcolor socialbox">
 
                 <div class="ui header" >

@@ -9,9 +9,6 @@ DEBUG = True
 # Should the site allow signup.
 ALLOW_SIGNUP = False
 
-# Private key used to validate external logins. Must be changed in production
-LOGIN_PRIVATE_KEY = "private-key"
-
 ADMINS = [
     ("Admin User", "admin@localhost")
 ]
@@ -123,7 +120,7 @@ ACCOUNTS_APPS = [
 ]
 
 # Should the server look up locations in a task.
-LOCATION_LOOKUP = False
+LOCATION_LOOKUP = True
 
 INSTALLED_APPS = DEFAULT_APPS + ACCOUNTS_APPS + EMAILER_APP + PAGEDOWN_APP
 

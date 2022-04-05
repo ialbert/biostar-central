@@ -111,25 +111,6 @@ class LoginTest(TestCase):
 
             self.assertEqual(resp.status_code, 200)
 
-    def test_external_login(self):
-        """Test login with external login"""
-
-        signer = signing.Signer(settings.LOGIN_PRIVATE_KEY)
-        payload = signer.sign("tested@tested.com")
-
-        data = {"payload": payload}
-        url = reverse("external")
-
-        request = fake_request(url=url, data=data, user=self.user, method="GET")
-        response = views.external_login(request=request)
-
-        self.assertEqual(response.status_code, 302)
-
-        user = models.User.objects.filter(email="tested@tested.com")
-        self.assertTrue(user.exists())
-
-        return
-
 
 @override_settings(RECAPTCHA_PRIVATE_KEY="", RECAPTCHA_PUBLIC_KEY="")
 class SignUpTest(TestCase):
@@ -193,7 +174,7 @@ class ProfileTest(TestCase):
     def test_edit_profile(self):
         "Test editing profile with POST request."
 
-        data = {"email":"new@new.com", "name":"new name", "username":"new",
+        data = {"email":"new@new.com", "name":"new name", "handle":"new",
                 "digest_prefs" : models.Profile.DAILY_DIGEST,
                 "message_prefs" : models.Profile.LOCAL_MESSAGE}
 

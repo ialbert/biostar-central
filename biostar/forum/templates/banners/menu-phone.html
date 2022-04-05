@@ -9,7 +9,7 @@
 
 <div class="ui labeled icon attached fluid pointing menu" id="menu-header">
 
-    <div class="ui left simple dropdown item" >
+    <div class="ui left simple dropdown item">
 
         <i class="bars icon"><i class="dropdown icon"></i></i>
         <div class="menu">
@@ -20,17 +20,20 @@
             <a class="item {% activate tab "latest" %} " href="{% url 'post_list' %}">
                 <i class=" list icon"></i> Latest
             </a>
-            <a class="item  {% activate tab "news" %} " href="{% url 'post_list' %}?type=news">
+            <a class="item {% activate tab "open" %} " href="{% url 'post_topic' 'open' %}">
+                <i class="envelope open icon"></i> Open
+            </a>
+            <a class="item  {% activate tab "news" %} " href="{% url 'post_topic' 'news' %}">
                 <i class=" newspaper icon"></i> News
             </a>
-            <a class="item {% activate tab "job" %} " href="{% url 'post_list' %}?type=job">
+            <a class="item {% activate tab "jobs" %} " href="{% url 'post_topic' 'jobs' %}">
                 <i class=" briefcase icon"></i> Jobs
             </a>
 
-            <a class="item {% activate tab "tutorial" %} " href="{% url 'post_list' %}?type=tutorial">
+            <a class="item {% activate tab "tutorial" %} " href="{% url 'post_topic' 'tutorials' %}">
                 <i class=" info circle icon"></i> Tutorials
             </a>
-            <a class="item {% activate tab "forum" %} " href="{% url 'post_list' %}?type=forum">
+            <a class="item {% activate tab "forum" %} " href="{% url 'post_topic' 'forum' %}">
                 <i class="file icon"></i> Forum
             </a>
 
@@ -54,10 +57,20 @@
             <i class="plus icon"><i class="dropdown icon"></i></i>
             <div class=" menu">
                 <a class="item  {% activate tab "messages" %}" href="{% url 'inbox' %}">
-                    <i class="envelope icon"></i>Messages {{ counts.message_count }}
+                    {% if counts.message_count %}
+                        <div class="ui green button"><i class="envelope icon"></i>Messages {{ counts.message_count }}
+                        </div>
+                    {% else %}
+                        <i class="envelope icon"></i>Messages
+                    {% endif %}
                 </a>
                 <a class="item {% activate tab "myvotes" %}" href="{% url 'myvotes' %}">
-                    <i class="thumbs up icon"></i>Votes {{ counts.vote_count }}
+                    {% if counts.vote_count %}
+                        <div class="ui pink button"><i class="heart icon"></i> Votes {{ counts.vote_count }}</div>
+                    {% else %}
+                        <i class="heart icon"></i> Votes
+                    {% endif %}
+
                 </a>
 
                 <a class="item {% activate tab "myposts" %}" href="{% url 'myposts' %}">
@@ -92,7 +105,8 @@
             {% else %}
                 <a class="item {% activate tab "login" %}" href="{% url 'login' %}"><i class="sign-in icon"></i>
                     Log In</a>
-                <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i class="arrow circle up icon"></i>
+                <a class="item {% activate tab "signup" %}" href="{% url 'signup' %}"><i
+                        class="arrow circle up icon"></i>
                     Sign Up</a>
             {% endif %}
 

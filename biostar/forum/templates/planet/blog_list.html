@@ -1,6 +1,7 @@
 {% extends 'forum_list.html' %}
 {% load humanize %}
 {% load forum_tags %}
+{% load static %}
 {% load cache %}
 
 {% block title %}Biostar Planet{% endblock %}
@@ -29,7 +30,6 @@
 {% endblock %}
 
 
-
 {% block body %}
 
     <div class="ui page-bar segment">
@@ -45,16 +45,26 @@
                 <img class="ui avatar image" src="{% planet_gravatar planet_author=post.blog.title %}">
 
                 <div class="content">
-                    <a class="header" href="{{ post.link }}">{{ post.title }}</a>
+                    {% if post.blog.remote %}
+                        <a class="header" href="{% url "blog_view" post.id %}">{{ post.title }}</a>
+                    {% else %}
+                        <a class="header" href="{{ post.link }}">{{ post.title }}</a>
+                    {% endif %}
+                </div>
+                <div>
+
+                    <div class="content">
+                        {{ post.content|truncatewords:80 }}
+                        <a href="{{ post.link }}">go to blog</a>
+                        {% if user.profile.is_moderator %}
+                            &bull; <a class="muted" href="{% url "blog_bump" post.id %}">mod bump</a>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <div class="content">
-                    {{ post.content|truncatewords:200 }} <a href="{{ post.link }}">go to blog</a>
-                </div>
-
-                 <div class="right floated content">
+                <div class="right floated content">
                     <div class="description byline">
-                        posted {{ post.creation_date|timesince }} ago on
+                        posted <!-- {{ post.creation_date|timesince }} ago -->on
                         <a href="{{ post.blog.link }}">{{ post.blog.title|safe }}</a>
                     </div>
                 </div>

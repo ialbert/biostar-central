@@ -16,9 +16,12 @@ from django.shortcuts import reverse
 from django.utils.safestring import mark_safe
 from django.utils.timezone import utc
 from taggit.models import Tag
+from re import IGNORECASE, compile, escape
+import html2markdown
 
 from biostar.accounts.models import Profile, Message
 from biostar.forum import const, auth
+from biostar.utils import helpers
 from biostar.forum import markdown
 from biostar.forum.models import Post, Vote, Award, Subscription, Badge
 
@@ -55,7 +58,7 @@ def count_badge(count):
         count = int(count)
     except ValueError as exc:
         # TODO: this is to catch ongoing stale sessions, may be removed later
-        logger.error(f"invalid count (stale session?) {count}")
+        logger.info(f"invalid count (stale session?) {count}")
         count = 0
 
     return dict(count=count)
@@ -94,6 +97,9 @@ def bignum(number):
         pass
     return str(number)
 
+@register.filter
+def htmltomarkdown(text):
+    return helpers.htmltomarkdown(text)
 
 @register.inclusion_tag('widgets/post_details.html', takes_context=True)
 def post_details(context, post, user, avatar=True):
@@ -118,8 +124,19 @@ def gravatar(user=None, user_uid=None, size=80):
     return auth.gravatar(user=user, size=size)
 
 
+@register.filter
+def embed(text):
+    return markdown.parse(text, clean=True, escape=True)
+
+
 @register.inclusion_tag('widgets/filter_dropdown.html', takes_context=True)
 def filter_dropdown(context):
+
+    request = context['request']
+    order = request.GET.get("order", 'rank') or 'rank'
+    limit = request.GET.get("limit", 'all') or 'all'
+    # TODO will be refactored out.
+    context.update(dict(order=order, limit=limit))
     return context
 
 
@@ -320,44 +337,18 @@ def read_tags(exclude=[], limit=5000):
     return tags_opts
 
 
-def get_dropdown_options(selected_list):
+def file_tags_options(selected):
     """
     Present tags tags in a multi-select dropdown format.
     """
-    limit = 50
-
-    # Gather already selected tags
-    selected = {(val, True) for val in selected_list}
-
     # Read tags from file.
     try:
-        opts = read_tags(exclude=selected_list)
+        opts = read_tags(exclude=selected)
     except Exception as exc:
         logger.error(f"Error reading tags from file.:{exc}")
         opts = []
 
-    # Read tags from database if none found in file.
-    if not opts:
-        query = Tag.objects.exclude(name__in=selected_list)[:limit].values_list("name", flat=True)
-        opts = {(name.strip(), False) for name in query}
-
-    # Chain the selected and rest of the options
-    opts = itertools.chain(selected, opts)
-
     return opts
-
-
-@register.inclusion_tag('forms/field_tags.html', takes_context=True)
-def tags_field(context, form_field, initial=''):
-    """Render multi-select dropdown options for tags. """
-
-    # Get currently selected tags from the post or request
-    selected = initial.split(",") if initial else []
-    options = get_dropdown_options(selected_list=selected)
-
-    context = dict(initial=initial, form_field=form_field, dropdown_options=options)
-
-    return context
 
 
 @register.inclusion_tag('forms/form_errors.html')
@@ -367,11 +358,11 @@ def form_errors(form, wmd_prefix='', override_content=False):
     """
 
     try:
-        errorlist = [('', message) for message in form.non_field_errors()]
+        errorlist = [('', message, '') for message in form.non_field_errors()]
         for field in form:
             for error in field.errors:
                 # wmd_prefix is required when dealing with 'content' field.
-                field_id = wmd_prefix if (override_content and field.name is 'content') else field.id_for_label
+                field_id = wmd_prefix if (override_content and field.name == 'content') else field.id_for_label
                 errorlist.append((f'{field.name}:', error, field_id))
 
     except Exception as exc:
@@ -411,6 +402,17 @@ def custom_feed(objs, ftype='', title=''):
         users = set(o.author for o in objs)
 
     context = dict(users=users, title=title)
+    return context
+
+
+@register.inclusion_tag(takes_context=True, filename='search/search_pages.html')
+def search_pages(context, results):
+    previous_page = results.pagenum - 1
+    next_page = results.pagenum + 1 if not results.is_last_page() else results.pagenum
+    request = context['request']
+    query = request.GET.get('query', '')
+    order = request.GET.get('order', 'relevance')
+    context = dict(results=results, previous_page=previous_page, query=query,next_page=next_page, order=order)
     return context
 
 
@@ -688,6 +690,8 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
         style = "forum"
     elif root_type == Post.NEWS:
         style = "news"
+    elif root_type == Post.HERALD:
+        style = "herald"
     else:
         style = "question"
 
@@ -700,6 +704,14 @@ def post_boxclass(root_type, answer_count, root_has_accepted):
         modifier = "open"
 
     return f"{style} {modifier}"
+
+
+@register.inclusion_tag('herald/herald_item.html', takes_context=True)
+def herald_item(context, item):
+    request = context['request']
+    user = request.user
+    context = dict(story=item, request=request, user=user)
+    return context
 
 
 @register.simple_tag

@@ -7,6 +7,7 @@ import os
 # The logging configuration
 from biostar.logconf import LOGGING
 
+
 # Helper function for building absolute paths.
 def join(*args):
     return os.path.abspath(os.path.join(*args))
@@ -15,9 +16,7 @@ def join(*args):
 # Pagedown
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = False
 
-
 LANGUAGE_DETECTION = ["en"]
-
 
 # Set the home page to the engine or forum
 INTERNAL_IPS = ['127.0.0.1']
@@ -109,10 +108,14 @@ SECRET_KEY = 'secret-key'
 # Change this in production!
 API_KEY = "api-key"
 
+# Used during testing
+#TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'themes', 'biostar')]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'APP_DIRS': True,
+        #'DIRS': TEMPLATE_DIRS,
         'OPTIONS': {
             'string_if_invalid': "**MISSING**",
             'context_processors': [
@@ -124,6 +127,7 @@ TEMPLATES = [
                 'biostar.context.main',
             ],
         },
+
     },
 ]
 
@@ -148,6 +152,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 DATABASE_DIR = os.path.join(BASE_DIR, 'export', 'db')
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 os.makedirs(DATABASE_DIR, exist_ok=True)
 
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
@@ -163,7 +169,6 @@ DATABASES = {
 
 ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
 
-
 # The URL configuration.
 ROOT_URLCONF = 'biostar.urls'
 
@@ -178,7 +183,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # The static URL start.
 STATIC_URL = '/static/'
@@ -222,7 +226,6 @@ SESSION_ENGINE = "django.contrib.sessions.backends.db"
 
 # Session key name.
 SESSION_KEY = "session"
-
 
 # Session key to keep track of counts
 SESSION_COUNT_KEY = "counts"

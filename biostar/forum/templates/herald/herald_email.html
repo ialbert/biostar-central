@@ -1,0 +1,40 @@
+{% load accounts_tags %}
+{%  block subject %}
+
+    {{ post.title }}
+
+{% endblock %}
+
+{% block html %}
+
+    A new issue of the <a href="{{ protocol }}://{{ domain }}{{ port }}">Biostar Herald</a> was published.
+
+    <p>
+     <a href="{{ protocol }}://{{ domain }}{{ post.get_absolute_url }}">{{ post.title }}</a>
+        {{ post.html|safe }}
+    </p>
+
+    <hr>
+    <p class="muted" >
+        You may visit {{ protocol }}://{{ domain }}{{ post.get_absolute_url }}
+    </p>
+
+    <p>The Biostar Team</p>
+
+{% endblock %}
+
+{% block text %}
+
+    A new issue of the Biostar Herald was published.
+
+    {{ post.title }}:
+
+    {{ post.content }}
+
+    You may visit {{ protocol }}://{{ domain }}{{ post.get_absolute_url }}
+
+    The Biostar Team
+
+
+{% endblock %}
+

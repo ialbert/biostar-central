@@ -23,6 +23,32 @@ def is_moderator(f):
     return inner
 
 
+
+def authenticated(func):
+
+    def _wrapper_(request, **kwargs):
+        if request.user.is_anonymous:
+            messages.error(request, "You need to be logged in to view this page.")
+            return redirect("/")
+
+        return func(request, **kwargs)
+
+    return _wrapper_
+
+def is_staff(f):
+    """
+    Only run functions with the
+    """
+    def inner(request, **kwargs):
+        user = request.user
+        if user.is_authenticated and (user.is_staff or user.is_superuser):
+            return f(request, **kwargs)
+        messages.warning(request, "You need to be a staff member to perform this action.")
+        return redirect('/')
+
+    return inner
+
+
 def reset_count(key):
     """
     Set value of given key in settings.SESSION_COUNT_KEY to 0.
@@ -32,12 +58,16 @@ def reset_count(key):
     def outer(func):
         @wraps(func)
         def inner(request, **kwargs):
-            # Get the count from sessions
-            counts = request.session.get(session_key, {})
-            counts[key] = 0
-            request.session[session_key] = counts
 
-            return func(request, **kwargs)
+            if request.user.is_authenticated:
+                # Get the count from sessions
+                counts = request.session.get(session_key, {})
+                counts[key] = 0
+                request.session[session_key] = counts
+
+            results = func(request, **kwargs)
+
+            return results
 
         return inner
 
@@ -55,7 +85,7 @@ def check_params(allowed):
             # Expected parameter names.
             diff = incoming - allowed
             if diff:
-                logger.error(f"invalid get request parameters {diff}")
+                logger.warning(f"invalid get request parameters {diff}")
                 raise Http404("Parameter does not exist.")
 
             return func(request, **kwargs)
@@ -394,8 +424,8 @@ except Exception as exc:
     # Disable tasks when there are errors, raising exceptions breaks migration.
     WORKER = d_worker()
     TIMER = d_timer()
-    logger.error(f'Error initializing task: {settings.TASK_RUNNER}.')
-    logger.error(f'Tasks disabled: {exc}.')
+    logger.warning(f'Error initializing task: {settings.TASK_RUNNER}.')
+    logger.warning(f'Tasks disabled: {exc}.')
 
 
 def task(f):

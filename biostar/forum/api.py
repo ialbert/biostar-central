@@ -181,7 +181,7 @@ def traffic(request):
     """
     now = datetime.now()
     start = now - timedelta(minutes=60)
-
+    start = start.now()
     post_views = PostView.objects.filter(date__gt=start).exclude(date__gt=now).distinct('ip').count()
 
     data = {
@@ -205,7 +205,7 @@ def api_tag(request, tag):
 
 @json_response
 def user_email(request, email):
-    user = User.objects.filter(email__iexact=email.lower())
+    user = User.objects.filter(email=email.lower())
     if user.exists():
         return True
 
@@ -256,13 +256,10 @@ def post_details(request, uid):
 def watched_tags(request, email):
     """
     Show watched tags for a user, given API key.
-
     Parameters:
     uid -- the id of the `User`.
-
     """
-
-    user = User.objects.filter(email=email).first()
+    user = User.objects.filter(email=email.lower()).first()
     if user:
         data = {'watched_tags': user.profile.watched_tags}
     else:

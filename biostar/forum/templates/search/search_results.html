@@ -12,8 +12,21 @@
         {% search_bar %}
 
     {% endblock %}
+    {% search_pages indexed %}
 
-    <div class="ui message"><i class="search icon"></i>{{ total }} posts containing: <b>{{ query }}</b></div>
+  <div class="ui simple compact dropdown item">
+      Order by: {{ order|capfirst }}
+
+    <i class="dropdown icon"></i>
+    <div class="menu">
+      <a class="item" href="{% url 'post_search' %}?query={{ query }}&order=relevance">
+          <i class="star icon"></i> Relevance</a>
+      <a class="item" href="{% url 'post_search' %}?query={{ query }}&order=date">
+          <i class="calendar icon"></i>Date</a>
+
+    </div>
+  </div>
+
 
     <div class="ui divided items">
         {% for result in results %}
@@ -33,7 +46,7 @@
                             {% post_tags tags_str=result.tags spaced=False %}
                         </div>
                         <div class="right floated muted">
-                            {{ result.author|truncatechars:40 }}
+                             updated {{ result.lastedit_date|time_ago }} &bull; {{ result.author|truncatechars:40 }}
                         </div>
                     </div>
                 </div>
@@ -45,7 +58,7 @@
             </div>
         {% endfor %}
     </div>
-
+ {% search_pages indexed %}
 {% endblock %}
 
 

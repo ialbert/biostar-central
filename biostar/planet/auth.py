@@ -30,8 +30,7 @@ def create_blogpost(entry, blog):
     body = entry.description
     content = strip_tags(body)
     try:
-        post = BlogPost.objects.create(title=entry.title, blog=blog, uid=entry.id,
-                                       content=content, html=body,
+        post = BlogPost.objects.create(title=entry.title, blog=blog, uid=entry.id, content=content, html=body,
                                        creation_date=date, link=entry.link)
 
     except Exception as exc:
@@ -47,7 +46,7 @@ def create_blogpost(entry, blog):
 def add_blogpost(blogs, count=3):
     import html
     for blog in blogs:
-        logger.info(f"parsing blog: {blog.id}: {blog.title}")
+        logger.debug(f"parsing blog: {blog.id}: {blog.title}")
         try:
             seen = [e.uid for e in BlogPost.objects.filter(blog=blog)]
             seen = set(seen)
@@ -63,7 +62,7 @@ def add_blogpost(blogs, count=3):
                 entry.title = entry.title.strip()
                 # entry.title = html.strip_tags(entry.title)
                 entry.title = entry.title.strip()[:200]
-                desc =smart_text(entry.description)
+                desc = smart_text(entry.description)
                 desc = html.unescape(desc)
                 entry.description = desc
 
@@ -76,10 +75,17 @@ def add_blogpost(blogs, count=3):
     return
 
 
+def blog_from_link(link, user):
+    """
+    Create a Planet blog post from a Link object.
+    """
+
+    return
+
+
 def add_blog(feed):
-
     try:
-
+        logger.debug(f"processing {feed}")
         text = request.urlopen(feed).read().decode(errors="surrogatepass")
         doc = feedparser.parse(text)
         title = doc.feed.title
@@ -91,29 +97,28 @@ def add_blog(feed):
         link = doc.feed.link
         blog = Blog.objects.create(title=smart_text(title), feed=feed, link=link, desc=smart_text(desc))
 
-        add_blogpost(blogs=Blog.objects.filter(id=blog.id))
-
+        #add_blogpost(blogs=Blog.objects.filter(id=blog.id))
+        blog.download()
         logger.info(f"adding {blog.title}")
         logger.debug(f"link: {blog.link}")
         logger.debug(blog.desc)
 
     except Exception as exc:
-       logger.error(f"error {exc} parsing {feed}")
-       blog = None
+        logger.error(f"error {exc} parsing {feed}")
+        blog = None
 
-    logger.info('-' * 10)
     return blog
 
 
 def download_blogs():
-    blogs = Blog.objects.filter(active=True)
+    blogs = Blog.objects.filter(active=True, remote=True)
     for blog in blogs:
         logger.info(f"downloading: {blog.title}")
         blog.download()
 
 
 def update_entries(count=3):
-    blogs = Blog.objects.filter(active=True)
+    blogs = Blog.objects.filter(active=True, remote=True)
 
     # Update blog posts for active blogs
     add_blogpost(blogs=blogs, count=count)
@@ -123,10 +128,12 @@ def add_blogs(add_fname):
     # Strip newlines
     urls = map(str.strip, open(add_fname))
 
-    # Keep feeds with urls that do not yet exists
-    urls = filter(lambda url: len(url) or not Blog.objects.filter(feed=url), urls)
-
     # Attempt to populate the database with the feeds
     for feed in urls:
-        logger.debug(f"parsing {feed}")
-        add_blog(feed)
+
+        exists = Blog.objects.filter(feed=feed).first()
+
+        if exists:
+            logger.info(f"Blog already exists feed={feed}")
+        else:
+            add_blog(feed)

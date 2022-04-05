@@ -15,11 +15,9 @@
 {% endblock %}
 
 {% block js %}
-
     <script src="{% static 'semantic.min.js' %}"></script>
     <script src="{% static 'prism.js' %}"></script>
     <script src="{% static 'setup.js' %}{% randparam %}"></script>
-    <script src="{% static 'forum.js' %}{% randparam %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -60,7 +58,7 @@
                     <div class="required form-field field">
 
                         <label><i class="at icon"></i> Handle</label>
-                        {{ form.username }}
+                        {{ form.handle }}
                         <div class="muted">
                             People use it to to tag you: <code>@foo</code>.
                         </div>
@@ -169,13 +167,14 @@
                     <div class="field">
 
                         <label><i class="tags icon"></i> My Tags </label>
-
-                        {% tags_field form_field=form.my_tags initial=user.profile.my_tags %}
-
-                        <div class="muted">
-                            Post with tags listed here will show up in the My Tags tab.
-                            Example: <code>bwa</code>, <code>bedops</code>
+                        <div class="field">
+                            {{ form.my_tags }}
+                            <div class="muted">
+                                Post with tags listed here will show up in the My Tags tab.
+                                Example: <code>bwa</code>, <code>bedops</code>
+                            </div>
                         </div>
+
 
                     </div>
                 </div>
@@ -183,16 +182,17 @@
                 <div class="fields">
                     <div class="field">
 
-                            <label><i class="tags icon"></i> Watched Tags </label>
-
-                            {% tags_field form_field=form.watched_tags initial=user.profile.watched_tags %}
-
+                        <label><i class="tags icon"></i> Watched Tags </label>
+                        <div class="field">
+                            {{ form.watched_tags }}
                             <div class="muted">
                                 Get email when a post matching the tag is posted. Limit of 10.
                                 Example: <code>minia</code>, <code>bedops</code>, <code>breakdancer</code>,
                                 <code>music</code>.
                             </div>
 
+                        </div>
+
                     </div>
                 </div>
 
@@ -200,11 +200,11 @@
 
                     <div class="field">
 
-                            <label><i class="info circle icon"></i> Profile information (markdown)</label>
-                            {{ form.text }}
-                            <div class="muted">
-                                {{ form.text.help_text }}
-                            </div>
+                        <label><i class="info circle icon"></i> Profile information (markdown)</label>
+                        {{ form.text }}
+                        <div class="muted">
+                            {{ form.text.help_text }}
+                        </div>
 
                     </div>
 

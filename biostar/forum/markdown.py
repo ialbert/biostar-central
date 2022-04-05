@@ -63,9 +63,9 @@ rec = re.compile
 # Biostar patterns
 PORT = ':' + settings.HTTP_PORT if settings.HTTP_PORT else ''
 SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
-USER_PATTERN = rec(fr"^http(s)?://{SITE_URL}/u/(?P<uid>[\w_.-]+)(/)?")
-POST_TOPLEVEL = rec(fr"^http(s)?://{SITE_URL}/p/(?P<uid>(\w+))(/)?$")
-POST_ANCHOR = rec(fr"^http(s)?://{SITE_URL}/p/\w+/\#(?P<uid>(\w+))(/)?")
+USER_PATTERN = rec(fr"http(s)?://{SITE_URL}/u/(?P<uid>[\w_.-]+)(/)?")
+POST_TOPLEVEL = rec(fr"http(s)?://{SITE_URL}/p/(?P<uid>(\w+))(/)?")
+POST_ANCHOR = rec(fr"http(s)?://{SITE_URL}/p/\w+/\#(?P<uid>(\w+))(/)?")
 
 # Match any alphanumeric characters after the @.
 # These characters are allowed in handles: _  .  -
@@ -80,7 +80,7 @@ ALLOWED_ATTRIBUTES = {
 
 ALLOWED_TAGS = ['p', 'div', 'br', 'code', 'pre', 'h1', 'h2', 'h3', 'h4', 'hr', 'span', 's',
                 'sub', 'sup', 'b', 'i', 'img', 'strong', 'strike', 'em', 'underline',
-                'super', 'table', 'thead', 'tr', 'th', 'td', 'tbody']
+                'super', 'table', 'thead', 'tr', 'th', 'td', 'tbody', 'del', 'details', 'summary']
 ALLOWED_TAGS = bleach.ALLOWED_TAGS + ALLOWED_TAGS
 
 ALLOWED_PROTOCOLS = ['ftp', 'http']
@@ -105,7 +105,7 @@ GIST_HTML = '<script src="https://gist.github.com/%s.js"></script>'
 
 # Twitter pattern.
 # https://twitter.com/Linux/status/2311234267
-TWITTER_PATTERN = rec(r"http(s)?://(www)?.?twitter.com/\w+/status(es)?/(?P<uid>([\d]+))")
+TWITTER_PATTERN = rec(r"http(s)?://(www)?.?twitter.com/\w+/status(es)?/(?P<uid>([\d]+))(/)?([^\s]+)?")
 
 
 def get_tweet(tweet_id):
@@ -242,7 +242,7 @@ class BiostarInlineLexer(MonkeyPatch):
 
         handle = m.group("handle")
         # Query user and get the link
-        user = User.objects.filter(username=handle).first()
+        user = User.objects.filter(profile__handle=handle).first()
         if user:
             profile = reverse("user_profile", kwargs=dict(uid=user.profile.uid))
             link = f'<a href="{profile}">{user.profile.name}</a>'
@@ -257,9 +257,10 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_post_link(self, m):
         uid = m.group("uid")
-        post = Post.objects.filter(uid=uid).first() or Post(title=f"Invalid post uid: {uid}")
         link = m.group(0)
-        return f'<a href="{link}">{post.title}</a>'
+        post = Post.objects.filter(uid=uid).first()
+        title = post.root.title if post else "Post not found"
+        return f'<a href="{link}">{title}</a>'
 
     def enable_anchor_link(self):
         self.rules.anchor_link = POST_ANCHOR
@@ -267,9 +268,9 @@ class BiostarInlineLexer(MonkeyPatch):
 
     def output_anchor_link(self, m):
         uid = m.group("uid")
-        alt, link = f"{uid}", m.group(0)
+        link = m.group(0)
         post = Post.objects.filter(uid=uid).first()
-        title = post.title if post else "Post not found"
+        title = post.root.title if post else "Post not found"
         return f'<a href="{link}">{title}</a>'
 
     def enable_user_link(self):
@@ -345,7 +346,7 @@ def embedder(attrs, new, embed=None):
         return attrs
 
     href = attrs['_text']
-    linkable = href[:4] in ('http', 'ftp:', 'https')
+    linkable = href.startswith(('http', 'ftp:', 'https'))
 
     # Don't linkify non http links
     if not linkable:
@@ -376,16 +377,13 @@ def embedder(attrs, new, embed=None):
 def linkify(text):
     # List of links to embed
     embed = []
-    html = bleach.linkify(text=text, callbacks=[partial(embedder, embed=embed)], skip_tags=['pre', 'code'])
+    html = bleach.linkify(text=text, callbacks=[partial(embedder, embed=embed), nofollow], skip_tags=['pre', 'code'])
 
     # Embed links into html.
     for em in embed:
         source, target = em
-        emb = f'<a href="{source}">{source}</a>'
+        emb = f'<a href="{source}" rel="nofollow">{source}</a>'
         html = html.replace(emb, target)
-
-    # Add nofollow to each link.
-    html = bleach.linkify(text=html, callbacks=[nofollow], skip_tags=['pre', 'code'])
 
     return html
 

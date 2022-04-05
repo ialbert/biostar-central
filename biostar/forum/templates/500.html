@@ -1,5 +1,15 @@
 {% extends "forum_base.html" %}
 
+
+{% block title %}Server Error{% endblock %}
+
 {% block content %}
-    <div class="ui error message">  <i class="exclamation icon"> </i>500 Error: Server Error. </div>
+
+    <div class="ui segment">
+
+        <h2 class="ui red header"> <i class="exclamation icon"></i> Server Error</h2>
+
+        We apologize! A server error has occurred. If the problem persist please contact us.
+    </div>
+
 {% endblock %}

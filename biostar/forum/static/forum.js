@@ -12,6 +12,38 @@ function captcha() {
     }
 }
 
+function view_diffs(uid, elem, post) {
+
+    if (elem.children().length > 0) {
+        elem.html('');
+        return
+    }
+
+    $.ajax("/view/diffs/" + uid + '/', {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+
+        success: function (data) {
+            if (data.status === 'error') {
+                popup_message(post, data.msg, data.status);
+                return
+            }
+            if (data.has_changes) {
+                elem.html(data.diff)
+
+            } else {
+                popup_message(elem, data.msg, data.status);
+
+            }
+
+        },
+        error: function (xhr, status, text) {
+            error_message(post, xhr, status, text)
+        }
+    });
+
+}
 
 function apply_vote(vote_elem) {
 
@@ -60,8 +92,8 @@ function remove_trigger() {
 function highlight(text) {
 
     var con = markdownit({
-        // ESCAPES when html=true
-        html: true,
+        // escape html in previews with html=false.
+        html: false,
         highlight: function (str, lang) {
             if (lang && hljs.getLanguage(lang)) {
                 try {
@@ -99,6 +131,31 @@ function moderate(uid, container, url) {
 
 }
 
+
+function disable_emails(user_id, elem) {
+
+    var url = '/email/disable/{0}/'.format(user_id);
+    $.ajax(url, {
+        type: 'POST',
+        dataType: 'json',
+        ContentType: 'application/json',
+
+        success: function (data) {
+            if (data.status === 'error') {
+                popup_message(elem, data.msg, data.status);
+                return
+            }
+            // Success
+            popup_message(elem, data.msg, data.status);
+        },
+        error: function (xhr, status, text) {
+            //icon.toggleClass("on");
+            error_message(elem, xhr, status, text)
+        }
+    });
+
+}
+
 function similar_posts(elem) {
     var uid = elem.attr('post_uid');
     // Construct the similar posts link.
@@ -111,9 +168,6 @@ function similar_posts(elem) {
             type: 'GET',
             dataType: 'json',
             ContentType: 'application/json',
-            data: {
-                'uid': uid
-            },
             success: function (data) {
                 if (data.status === 'error') {
                     popup_message(elem, data.msg, data.status);
@@ -172,41 +226,47 @@ function activate_prism(elem) {
     Prism.highlightAll();
 }
 
-function tags_dropdown() {
 
-    $('.tags').dropdown({
-        allowAdditions: true,
-        // Get form field to add to
-        onChange: function (value, text, $selectedItem) {
-            // Get form field to add to
-            var field = $(this).find("select").data("value");
-            var tag_field = $('#{0}'.f(field));
-            // Add selected tag to field
-            tag_field.val(value);
+function herald_update(hpk, status, elem) {
 
-        }
-    });
-    $('.tags > input.search').keydown(function (event) {
+    $.ajax('/herald/update/' + hpk + '/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {'status': status},
+            success: function (data) {
+                if (data.status === 'error') {
+                    popup_message(elem, data.msg, data.status, 1000);
+                } else {
+                    elem.html(data.tmpl);
+                    elem.attr('class', 'item herald ' + data.state)
+                    // Replace current item with the select one.
+                    // active.text($item.text());
+                }
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
 
-        // Prevent submitting form when adding tag by pressing ENTER.
-        var ek = event.keyCode || event.which;
-        var value = $(this).val().trim();
-        if (ek === 13 || ek === 10) {
-            event.preventDefault();
-            //alert($(this).closest('.tags').html());
-            $(this).closest('.tags').dropdown('set selected', value);
-            $(this).val('');
-            return value
-        }
-        // // Set value with SPACE bar
-        // if (ek === 32) {
-        //     event.preventDefault();
-        //     //alert( $(this).val().trim());
-        //     //alert($(this).closest('.tags').html());
-        //     $(this).closest('.tags').dropdown('set selected', value);
-        //     $(this).val('');
-        // }
-    })
+}
+
+function herald_subscribe(elem) {
+
+    $.ajax('/herald/subscribe/',
+        {
+            type: 'POST',
+            dataType: 'json',
+            ContentType: 'application/json',
+            data: {'status': status},
+            success: function (data) {
+                popup_message(elem, data.msg, data.status, 1000);
+            },
+            error: function (xhr, status, text) {
+                error_message(elem, xhr, status, text)
+            }
+        })
 
 }
 
@@ -214,19 +274,14 @@ function highligh_preview(form, text) {
     var highlighted = highlight(text);
 
     form.find('.preview').html(highlighted);
-    form.find('pre').addClass('language-bash');
-    form.find('code').addClass('language-bash');
-
-    Prism.highlightAll();
-    // Enable mathjax in preview.
-    const content = document.createElement('p');
-    content.textContent = text;
-    MathJax.typesetPromise().then(() => {
-        MathJax.typesetPromise();
-    }).catch((err) => console.log(err.message));
+    // form.find('pre').addClass('language-bash');
+    // form.find('code').addClass('language-bash');
+    //
+    // Prism.highlightAll();
 
 
 }
+
 
 $(document).ready(function () {
 
@@ -237,13 +292,6 @@ $(document).ready(function () {
 
     $('.ui.dropdown').dropdown();
 
-    $('form .preview').each(function () {
-        var text = $(this).closest('form').find('.wmd-input').val();
-        var form = $(this).closest('form');
-        setTimeout(function () {
-            highligh_preview(form, text);
-        }, 150)
-    });
 
     $(this).on('keyup', 'textarea', function (event) {
         var text = $(this).val();
@@ -259,6 +307,17 @@ $(document).ready(function () {
         highligh_preview(form, text);
 
     });
+
+    $("body").on("click", '.pagedown-image-upload.show .submit-input', function () {
+
+        var form = $(this).closest('form');
+        setTimeout(
+            function () {
+                var text = form.find('textarea').val();
+                highligh_preview(form, text);
+            }, 500);
+    });
+
     $('#subscribe').dropdown();
 
     $(this).unbind("click").on('click', '#subscribe .item', function (event) {
@@ -276,6 +335,13 @@ $(document).ready(function () {
         var container = profile.find("#mod");
         var url = '/accounts/moderate/{0}/'.format(uid);
         moderate(uid, container, url)
+
+    });
+    $(".profile .disable-emails").click(function (event) {
+        event.preventDefault();
+        var profile = $(this).closest('.profile');
+        var uid = profile.data("value");
+        disable_emails(uid, profile)
 
     });
     $(".post .moderate").click(function (event) {
@@ -299,7 +365,10 @@ $(document).ready(function () {
         on: 'hover',
         content: 'Drag and Drop'
     });
-
+    $(".view-diffs").popup({
+        on: 'hover',
+        content: 'View Changes'
+    });
     $("[data-value='bookmark']").popup({
         on: 'hover',
         content: 'Bookmark '
@@ -307,8 +376,14 @@ $(document).ready(function () {
 
     $("[data-value='accept']").popup({
         on: 'hover',
-        content: 'Accept answer '
+        content: 'Accept'
     });
+
+    $("[data-value='decline']").popup({
+        on: 'hover',
+        content: 'Decline'
+    });
+
     $('.voting button').each(function (event) {
 
         var elem = $(this);
@@ -329,14 +404,20 @@ $(document).ready(function () {
         var elem = $(this);
         // Get errored out field id and label
         var field_id = elem.attr('data-value');
-        var field_label = elem.attr('label');
         // Get the error message
         var message = elem.attr("message");
         // Select field in the form using it's id
-        var field = $(field_id);
-        // Add an 'error' to '.ui.field' to turn it red.
-        field.closest(".field").addClass("error");
+
+        try {
+            var field = $(field_id);
+            // Add an 'error' to '.ui.field' to turn it red.
+            field.closest(".field").addClass("error");
+        } catch (err) {
+            field = $('#form-errors');
+        }
+
         // Insert the error message
+        message = $('<div/>').text(message).html();
         field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
     });
 
@@ -347,11 +428,28 @@ $(document).ready(function () {
         $('.hidden-answer').toggle()
     });
 
+
+    $(this).on('click', ".herald.item [data-value='accept'],[data-value='decline']", function (event) {
+        var elem = $(this).closest('.herald');
+        var hpk = elem.data('value');
+        var status = $(this).data('value');
+        herald_update(hpk, status, elem)
+    });
+
+    $(this).on('click', ".herald-sub", function (event) {
+        herald_subscribe($(this))
+    });
+    $(this).on('click', ".view-diffs", function (event) {
+        var post = $(this).closest('.post');
+        var uid = post.data('value');
+        var elem = post.find('.diff-cont').first();
+
+        view_diffs(uid, elem, post);
+
+    });
     $('pre').addClass('language-bash');
     $('code').addClass('language-bash');
     Prism.highlightAll();
-
-    tags_dropdown();
 
 
 })

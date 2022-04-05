@@ -33,9 +33,9 @@
 
         <div class="content">
 
-            <div class="title header ">
+            <div class="title mini header">
                 {{ post.title_prefix }}
-                <a href="{% url 'post_view' post.uid %}" class="ui mini blue title header">
+                <a href="{% url 'post_view' post.uid %}">
                     {{ post.title|truncatechars:150 }}
                 </a>
             </div>

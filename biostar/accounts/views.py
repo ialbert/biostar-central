@@ -168,18 +168,22 @@ def toggle_notify(request):
     return redirect(reverse('user_profile', kwargs=dict(uid=user.profile.uid)))
 
 
-@limited(key=RATELIMIT_KEY, rate=SIGNUP_RATE)
+#@limited(key=RATELIMIT_KEY, rate=SIGNUP_RATE)
 def user_signup(request):
 
     if request.method == 'POST':
 
         form = forms.SignUpWithCaptcha(request.POST)
         if form.is_valid():
+
             user = form.save()
             login(request, user, backend="django.contrib.auth.backends.ModelBackend")
             Profile.objects.filter(user=user).update(last_login=now())
             tasks.verification_email.spool(user_id=user.pk)
+
             return redirect("/")
+        else:
+            messages.error(request, "Invalid form submission")
 
     else:
         form = forms.SignUpWithCaptcha()
@@ -230,7 +234,7 @@ def debug_user(request):
     user = profile.user
     login(request, user, backend="django.contrib.auth.backends.ModelBackend")
 
-    logger.info(f"""uid={request.user.profile.uid} impersonated 
+    logger.info(f"""uid={request.user.profile.uid} impersonated
                     uid={profile.uid}.""")
 
     return redirect("/")
@@ -313,36 +317,8 @@ def email_verify_account(request, uidb64, token):
     return redirect("/")
 
 
-def external_login(request):
-    """Login or signup a user."""
-    payload = request.GET.get("payload", "")
 
-    try:
-        signer = signing.Signer(settings.LOGIN_PRIVATE_KEY)
-        user_email = signer.unsign(payload)
-        user = User.objects.filter(email=user_email).first()
-
-        if not user:
-            name = user_email.split("@")[0]
-            user = User.objects.create(email=user_email, first_name=name,
-                                       password=str(get_uuid(16)))
-            user.username = name.split()[0] + str(get_uuid(8))
-            user.save()
-            msg = f"Signed up, <a href={reverse('password_reset')}><b> Please reset your password.</b></a>"
-            messages.success(request, mark_safe(msg))
-
-        login(request, user, backend="django.contrib.auth.backends.ModelBackend")
-        messages.success(request, "Logged in!")
-        return redirect("/")
-
-    except Exception as exc:
-        logger.error(f"Error:{exc}")
-        messages.error(request, "Error unsigning.")
-
-    return redirect("/")
-
-
-@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
+#@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def password_reset(request):
 
     return PasswordResetView.as_view(template_name="accounts/password_reset_form.html",
@@ -351,7 +327,7 @@ def password_reset(request):
                                      )(request=request)
 
 
-@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
+#@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def password_reset_done(request):
 
     context = dict()
@@ -360,7 +336,7 @@ def password_reset_done(request):
                                          template_name="accounts/password_reset_done.html")(request=request)
 
 
-@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
+#@limited(key=RATELIMIT_KEY, rate=PASSWORD_RESET_RATE)
 def pass_reset_confirm(request, uidb64, token):
 
     context = dict()
@@ -376,4 +352,3 @@ def password_reset_complete(request):
 
     return PasswordResetCompleteView.as_view(extra_context=context,
                                              template_name="accounts/password_reset_complete.html")(request=request)
-

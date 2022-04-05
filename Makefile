@@ -74,11 +74,16 @@ forum:
 	$(eval DJANGO_SETTINGS_MODULE := biostar.forum.settings)
 	$(eval DJANGO_APP := biostar.forum)
 	$(eval LOAD_COMMAND := populate)
-	$(eval TARGET := new)
 	$(eval UWSGI_INI := conf/site/site_uwsgi.ini)
 	$(eval TASKS_MODULE := biostar.forum.tasks)
 	$(eval WSGI_FILE := biostar/forum/wsgi.py)
 	$(eval TEST:=biostar.forum)
+
+biostar: forum
+	$(eval TARGET := biostar)
+
+test:
+	$(eval TARGET := test)
 
 echo:
 	@echo DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
@@ -92,7 +97,7 @@ init: echo
 	python manage.py collectstatic --noinput -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 	python manage.py migrate -v 0  --settings ${DJANGO_SETTINGS_MODULE}
 
-test:
+runtest:
 	@echo DJANGO_SETTINGS_MODULE=biostar.server.test_settings
 	@echo DJANGO_APP=${DJANGO_APP}
 	$(eval DJANGO_SETTINGS_MODULE=biostar.server.test_settings)
@@ -102,7 +107,7 @@ test:
 	# Remove files associated with tests
 	rm -rf export/tested
 
-test_all:test
+test_all:runtest
 
 index:
 	@echo INDEX_NAME=${INDEX_NAME}

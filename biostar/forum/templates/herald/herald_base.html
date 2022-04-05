@@ -1,0 +1,135 @@
+{% extends "forum_list.html" %}
+{% load forum_tags %}
+{% load static %}
+{% load humanize %}
+{% load cache %}
+
+{% block title %}
+    Biostar Herald
+{% endblock %}
+
+{% block headtitle %}
+    Biostar Herald
+{% endblock %}
+
+{% block css %}
+    <style>
+        .item.herald {
+            padding: 1em;
+        }
+
+        .item.herald .description {
+            padding-top: 1em;
+        }
+
+        .herald.Declined {
+            background-color: #fedce0;
+        }
+
+        .herald.Accepted {
+            background-color: #e8ffe1;
+        }
+
+        .herald.Submitted {
+            background-color: #ffefd9;
+        }
+
+        .herald.Published {
+            background-color: #ececec;
+        }
+
+
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="ui vertical segment">
+
+        <h2 class="ui header">
+            <img src="{% static 'images/news-herald.png' %}">
+            <div class="content">
+                Biostar Herald
+                <div class="sub header">Share bioinformatics links from across the web.</div>
+            </div>
+
+        </h2>
+
+        <p>
+            Moderators will review each submission and may accept or reject them.
+            Accepted submissions will be published in the next edition of the Biostar Herald.
+        </p>
+    </div>
+
+    <div class="ui segment form-wrap" style="width: 61%;margin:auto;margin-top:30px;">
+
+        <form method="post" class="ui form" action="{% url 'herald_list' %}">
+            {% form_errors form %}
+
+            {% csrf_token %}
+
+            <div class="required field">
+                <label>Link</label>
+                {{ form.url }}
+                <p class="muted">The URL to the content: tweet, repository, paper etc. Must be bioinformatics
+                    related!</p>
+            </div>
+
+            <div class="field">
+                <label>Why is the link interesting? (optional description)</label>
+                {{ form.text }}
+                <p class="muted">Provide more context of why the link is interesting. Give
+                    readers a reason to visit the site. Help curate the information on the web. (Markdown OK) </p>
+            </div>
+            {% if allow_submit %}
+            <button type="submit" class="ui submit green button">
+                <i class="check icon"></i>Submit
+            </button>
+            {% else %}
+            <div class="ui disabled green button">
+                <i class="check icon"></i>Submit
+            </div>
+
+            <div class="ui compact message">
+                <i class="exclamation circle icon"></i>You have submitted the maximum number of pending links.
+                Please wait until your current submissions are accepted.
+            </div>
+            {% endif %}
+
+        </form>
+
+    </div>
+
+
+    {% if request.user.is_staff or  request.user.is_superuser %}
+        <div class="ui divider"></div>
+        <p><a class="ui blue button" href="{% url 'herald_publish' %}"><i class="book icon"></i>Publish new Issue</a>
+        <a class="herald-sub ui button"><i class="mail icon"></i>Toggle Email Subscription</a>
+        </p>
+
+        <p>Publishing will collate the accepted items and generates a post out of them</p>
+
+        <p>Publishing will happen automatically in the future, this button here is available during testing</p>
+        <div class="ui divider"></div>
+    {% endif %}
+
+    {% include 'herald/herald_list.html' %}
+
+
+{% endblock %}
+
+{% block sidebar %}
+
+    <h3 class="ui header muted">
+        Community Guidelines
+    </h3>
+    <ol style="list-style-type: upper-roman;">
+        <li>Share code, videos, tweets, papers relating to bioinformatics.</li>
+        <li>Moderators can accept submitted topics.</li>
+        <li>Accepted submissions are auto-published on a regular basis
+            .
+        </li>
+    </ol>
+
+
+{% endblock %}

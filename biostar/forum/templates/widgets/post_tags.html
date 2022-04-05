@@ -2,8 +2,8 @@
 
     {% for tag in tags %}
         {% if tag %}
-        <a class="ptag" href="{% url 'post_topic' tag|lower %}">
-            {{ tag }}
+        <a class="ptag" href="{% url 'post_tags' tag %}">
+            {{ tag |safe}}
         </a>
         {% endif %}
     {% endfor %}

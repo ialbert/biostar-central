@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import include, path, re_path  # For django versions from 2.0 and up
 import debug_toolbar
-from biostar.forum import views
+from biostar.forum import views, moderate, herald
 from biostar.accounts.views import image_upload_view
 from biostar.forum import ajax, api, feed
 import biostar.accounts.views as account_views
@@ -33,6 +33,7 @@ forum_patterns = [
 
     path('b/list/', views.badge_list, name='badge_list'),
     path('t/', views.tags_list, name='tags_list'),
+    re_path(r'^tag/(?P<tag>.+)/$', views.post_tags, name='post_tags'),
 
     path('b/view/<str:uid>/', views.badge_view, name='badge_view'),
 
@@ -50,8 +51,10 @@ forum_patterns = [
     path('inplace/form/', ajax.inplace_form, name='inplace_form'),
     path('ajax/user/image/<str:username>/', ajax.user_image, name='user_image'),
     path('similar/posts/<str:uid>/', ajax.similar_posts, name='similar_posts'),
+    path('view/diffs/<str:uid>/', ajax.view_diff, name='view_diff'),
+    path('email/disable/<int:uid>/', ajax.email_disable, name='email_disable'),
 
-    path('moderate/<str:uid>/', views.post_moderate, name="post_moderate"),
+    path('moderate/<str:uid>/', moderate.post_moderate, name="post_moderate"),
 
     path(r'mark/spam/<str:uid>/', views.mark_spam, name='mark_spam'),
     path(r'mark/spam/<str:uid>/', views.release_quar, name='release_quar'),
@@ -73,9 +76,17 @@ forum_patterns = [
     path(r'api/stats/date/<int:year>/<int:month>/<int:day>/', api.daily_stats_on_date,
          name='api_stats_on_date'),
 
-    # Loggin view
+    # Log view
     path(r'view/logs/', views.view_logs, name='view_logs'),
 
+    # Error check.
+    path(r'error/', views.error, name="error"),
+
+    # Herald url
+    path('herald/', herald.herald_list, name="herald_list"),
+    path('herald/update/<int:pk>/', ajax.herald_update, name="herald_update"),
+    path('herald/publish/', herald.herald_publish, name="herald_publish"),
+    path('herald/subscribe/', ajax.herald_subscribe, name="herald_subscribe"),
 
     # RSS feeds
     path(r'feeds/latest/', feed.LatestFeed(), name='latest_feed'),
@@ -84,6 +95,7 @@ forum_patterns = [
     path(r'feeds/post/<str:text>/', feed.PostFeed(), name='post_feed' ),
     path(r'feeds/type/<str:text>/', feed.PostTypeFeed(), name='post_type'),
     #path(r'^feeds/planet/$', feed.PlanetFeed(), name='planet-feed'),
+    path(r'merge/', views.merge_profile, name="merge_profile"),
 
 ]
 
@@ -94,7 +106,7 @@ urlpatterns = [
     path('', include(forum_patterns)),
 
     # Override the moderate
-    path(r'accounts/moderate/<str:uid>/', views.user_moderate, name="user_moderate"),
+    path(r'accounts/moderate/<str:uid>/', moderate.user_moderate, name="user_moderate"),
 
     # Include the accounts urls
     path('accounts/', include(account_patterns)),
@@ -109,7 +121,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
 ]
-
 
 if settings.PAGEDOWN_IMAGE_UPLOAD_ENABLED:
 

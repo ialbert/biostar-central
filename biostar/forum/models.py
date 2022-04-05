@@ -1,5 +1,5 @@
 import logging
-
+from datetime import timedelta
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -10,9 +10,11 @@ from django.db.models import F
 from django.db.models import Q
 from django.shortcuts import reverse
 from taggit.managers import TaggableManager
+from urllib.parse import urlparse
 
 from biostar.utils import helpers
 from biostar.accounts.models import Profile
+from biostar.planet.models import BlogPost
 from . import util
 
 User = get_user_model()
@@ -86,16 +88,16 @@ class Post(models.Model):
                       (DELETED, "Deleted")]
 
     # Question types. Answers should be listed before comments.
-    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS = range(12)
+    QUESTION, ANSWER, JOB, FORUM, PAGE, BLOG, COMMENT, DATA, TUTORIAL, BOARD, TOOL, NEWS, HERALD = range(13)
 
     # Valid post types.
     TYPE_CHOICES = [
         (QUESTION, "Question"), (ANSWER, "Answer"), (COMMENT, "Comment"),
         (JOB, "Job"), (FORUM, "Forum"), (TUTORIAL, "Tutorial"),
         (DATA, "Data"), (PAGE, "Page"), (TOOL, "Tool"), (NEWS, "News"),
-        (BLOG, "Blog"), (BOARD, "Bulletin Board")
+        (BLOG, "Blog"), (BOARD, "Bulletin Board"), (HERALD, "Herald")
     ]
-    TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS}
+    TOP_LEVEL = {QUESTION, JOB, FORUM, BLOG, TUTORIAL, TOOL, NEWS, HERALD}
 
     # Possible spam states.
     SPAM, NOT_SPAM, DEFAULT = range(3)
@@ -196,6 +198,9 @@ class Post(models.Model):
     # Unique id for the post.
     uid = models.CharField(max_length=32, unique=True, db_index=True)
 
+    # This post has been indexed by the search engine.
+    has_diff = models.BooleanField(default=False)
+
     objects = PostManager()
 
     def parse_tags(self):
@@ -217,6 +222,9 @@ class Post(models.Model):
             prefix = f"{self.get_type_display()}:" if self.is_open else f"{self.get_status_display()}:"
 
         return prefix
+
+    def is_herald(self):
+        return self.type == self.HERALD
 
     @property
     def is_open(self):
@@ -497,6 +505,87 @@ class Subscription(models.Model):
         return self.pk
 
 
+class SharedLink(models.Model):
+
+    # User submitting the herald
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    # Sets title
+    title = models.CharField(max_length=200, blank=True, default='')
+
+    # User that accepted/decline this submission.
+    editor = models.ForeignKey(User, related_name='herald_editor', on_delete=models.SET_NULL, null=True)
+
+    # URL of the given herald_list
+    url = models.URLField(max_length=MAX_TEXT_LEN)
+
+    # Text ( markdown ) description and html representation.
+    text = models.TextField(max_length=MAX_TEXT_LEN, blank=True, default='')
+
+    # Date this herald_list was created.
+    creation_date = models.DateTimeField()
+    lastedit_date = models.DateTimeField()
+
+    # Gains a post once published, assumed none until then.
+    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True)
+
+    SUBMITTED, DECLINED, ACCEPTED, PUBLISHED = range(4)
+    CHOICES = [(SUBMITTED, 'Submitted'), (DECLINED, 'Declined'), (PUBLISHED, 'Published'), (ACCEPTED, 'Accepted')]
+    status = models.IntegerField(choices=CHOICES, default=SUBMITTED, db_index=True)
+
+    @property
+    def domain(self):
+        """
+        Returns the domain of the url
+        """
+        try:
+            domain = urlparse(self.url).netloc
+        except Exception as exc:
+            domain = ''
+
+        return domain
+
+    def __str__(self):
+        return self.url
+
+    def save(self, *args, **kwargs):
+        # Needs to be imported here to avoid circular imports.
+
+        self.creation_date = self.creation_date or util.now()
+        self.lastedit_date = self.lastedit_date or self.creation_date or util.now()
+        self.title = self.title or ''
+        super(SharedLink, self).save(*args, **kwargs)
+        return
+
+    @property
+    def declined(self):
+        return self.status == self.DECLINED
+
+    @property
+    def published(self):
+        return self.status == self.PUBLISHED
+
+    @property
+    def submitted(self):
+        return self.status == self.SUBMITTED
+
+    @property
+    def accepted(self):
+        return self.status == self.ACCEPTED
+
+    @property
+    def icon(self):
+
+        if self.accepted:
+            return 'green check'
+        elif self.published:
+            return 'purple book'
+        elif self.declined:
+            return 'orange times'
+        else:
+            return 'blue paper plane'
+
+
 class Badge(models.Model):
     BRONZE, SILVER, GOLD = range(3)
     CHOICES = ((BRONZE, 'Bronze'), (SILVER, 'Silver'), (GOLD, 'Gold'))
@@ -544,6 +633,34 @@ class Award(models.Model):
     @property
     def uid(self):
         return self.pk
+
+
+class Diff(models.Model):
+
+    # Initial content state
+    diff = models.TextField(default='')
+
+    # Date this change was made.
+    created = models.DateTimeField(auto_now_add=True)
+
+    # Post this diff belongs to
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+    # Person who created the diff
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+
+        self.created = self.created or util.now()
+
+        super(Diff, self).save(*args, **kwargs)
+
+    @property
+    def breakline(self):
+        diff = self.diff
+        diff = diff.replace('\n', '<br>')
+        return diff
+
 
 class Log(models.Model):
     """

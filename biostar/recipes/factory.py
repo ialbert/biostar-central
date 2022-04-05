@@ -259,7 +259,6 @@ def get_field_types(project=None):
         const.TEXTBOX: char_field,
         const.FLOAT: float_field,
         const.CHECKBOX: checkbox_field,
-        const.SQL: sqlfield,
         const.UPLOAD: upload_field
     }
 

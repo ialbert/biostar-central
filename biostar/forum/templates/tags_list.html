@@ -1,6 +1,8 @@
 {% extends "forum_base.html" %}
 {% load forum_tags %}
-
+{% block title %}
+    Biostar Tags
+{% endblock %}
 {% block content %}
 
     {% search_bar tags=True %}
@@ -14,11 +16,11 @@
     </div>
         {% endblock %}
 
-    <div class="ui seven column tags grid">
+    <div class="ui seven column tag-list grid">
         {% for tag in tags %}
-            <div class="column" style="font-size: larger;">
+            <div class="column">
                 <div class="item">
-                    <a class="ptag" href="{% url 'post_topic' tag %}">
+                    <a class="ptag" href="{% url 'post_tags' tag %}">
                         {{ tag }}
                     </a>
                     &times; {{ tag.nitems }}

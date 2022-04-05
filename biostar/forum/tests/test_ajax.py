@@ -104,9 +104,17 @@ class PostTest(TestCase):
         json_response = ajax.ajax_edit(request, uid=self.post.uid)
         response_data = json.loads(json_response.content)
 
-        for tag in data['tag_val']:
-            self.assertTrue(tag in response_data['tag_html'], 'Tag not working')
+        self.process_response(json_response)
 
+    def test_disable(self):
+        """
+        Test project disabling function
+        """
+
+        url = reverse('email_disable', kwargs=dict(uid=self.owner.pk))
+
+        request = fake_request(url=url, data={}, user=self.owner)
+        json_response = ajax.email_disable(request, uid=self.owner.pk)
         self.process_response(json_response)
 
     def test_inplace_create(self):

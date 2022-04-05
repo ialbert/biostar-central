@@ -8,9 +8,9 @@ from collections import defaultdict
 from django.conf import settings
 from django.db.models import Q
 from whoosh import writing, classify
-from whoosh.analysis import StemmingAnalyzer
+from whoosh.analysis import StemmingAnalyzer, StopFilter
 from whoosh.writing import AsyncWriter, BufferedWriter
-from whoosh.searching import Results
+from whoosh.searching import Results, ResultsPage
 import html2markdown
 import bleach
 from whoosh.qparser import MultifieldParser, OrGroup
@@ -18,12 +18,16 @@ from whoosh.analysis import STOP_WORDS
 from whoosh.index import create_in, open_dir, exists_in
 from whoosh.fields import ID, TEXT, KEYWORD, Schema, BOOLEAN, NUMERIC, DATETIME
 
+from biostar.utils.helpers import htmltomarkdown
 from biostar.forum.models import Post
 
 logger = logging.getLogger('engine')
 
 # Stop words ignored where searching.
-STOP = ['there', 'where', 'who', 'that'] + [w for w in STOP_WORDS]
+STOP = ['there', 'where', 'who', 'that', 'to', 'do', 'my', 'only', 'but', 'about',
+        'our', 'able', 'how', 'am', 'so', 'want']
+
+STOP += [w for w in STOP_WORDS]
 STOP = set(STOP)
 
 
@@ -56,19 +60,20 @@ def copy_hits(result, highlight=False):
     """
     # Highlight title and content
     if highlight:
-        title = result.highlights("title", minscore=0)
-        title = title or result.get('title')
-        content = result.highlights("content", top=5, minscore=0)
-        content = content or result.get('content')
+        title = result.highlights("title", minscore=0) or result.get('title')
+        content = result.highlights("content", top=5, minscore=0) or result.get('content')
+        tags = result.highlights("tags", minscore=0) or result.get('tags')
     else:
         title = result.get('title')
         content = result.get('content')
+        tags = result.get('tags')
 
     bunched = dict(title=title,
                    content=content,
                    uid=result.get('uid'),
-                   tags=result.get('tags'),
-                   author=result.get('author'))
+                   tags=tags,
+                   author=result.get('author'),
+                   lastedit_date=result.get('lastedit_date'))
     return bunched
 
 
@@ -77,65 +82,26 @@ def index_exists(dirname=settings.INDEX_DIR, indexname=settings.INDEX_NAME):
 
 
 def add_index(post, writer):
-
     # Ensure the content is stripped of any html.
-    content = bleach.clean(post.content, styles=[], attributes={}, tags=[], strip=True)
+    content = htmltomarkdown(post.content)
+
     writer.update_document(title=post.title,
                            content=content,
                            tags=post.tag_val,
                            author=post.author.profile.name,
-                           uid=post.uid)
+                           uid=post.uid,
+                           lastedit_date=post.lastedit_date)
 
 
 def get_schema():
-    analyzer = StemmingAnalyzer(stoplist=STOP)
+    analyzer = StemmingAnalyzer(stoplist=STOP) | StopFilter(stoplist=STOP)
     schema = Schema(title=TEXT(analyzer=analyzer, stored=True, sortable=True),
                     content=TEXT(analyzer=analyzer, stored=True, sortable=True),
                     tags=KEYWORD(commas=True, stored=True),
                     author=TEXT(stored=True),
-                    uid=ID(stored=True))
+                    uid=ID(unique=True, stored=True),
+                    lastedit_date=DATETIME(sortable=True, stored=True))
     return schema
-
-#
-# def get_schema():
-#    """
-#    This is the issue!!!!!!
-#    """
-#     analyzer = StemmingAnalyzer(stoplist=STOP)
-#     schema = Schema(title=TEXT(analyzer=analyzer, sortable=True),
-#                     url=ID(stored=True),
-#                     content_length=NUMERIC(sortable=True),
-#                     thread_votecount=NUMERIC(stored=True, sortable=True),
-#                     vote_count=NUMERIC(stored=True, sortable=True),
-#                     content=TEXT(stored=True, analyzer=analyzer, sortable=True),
-#                     tags=KEYWORD(stored=True, commas=True),
-#                     is_toplevel=BOOLEAN(stored=True),
-#                     author_is_moderator=BOOLEAN(stored=True),
-#                     lastedit_user_is_moderator=BOOLEAN(stored=True),
-#                     lastedit_user_is_suspended=BOOLEAN(stored=True),
-#                     author_is_suspended=BOOLEAN(stored=True),
-#                     lastedit_date=DATETIME(stored=True, sortable=True),
-#                     creation_date=DATETIME(stored=True, sortable=True),
-#                     rank=NUMERIC(stored=True, sortable=True),
-#                     author=TEXT(stored=True),
-#                     lastedit_user=TEXT(stored=True),
-#                     lastedit_user_email=TEXT(stored=True),
-#                     lastedit_user_score=NUMERIC(stored=True, sortable=True),
-#                     lastedit_user_uid=ID(stored=True),
-#                     lastedit_user_url=ID(stored=True),
-#                     author_score=NUMERIC(stored=True, sortable=True),
-#                     author_handle=TEXT(stored=True),
-#                     author_email=TEXT(stored=True),
-#                     author_uid=ID(stored=True),
-#                     author_url=ID(stored=True),
-#                     root_has_accepted=BOOLEAN(stored=True),
-#                     reply_count=NUMERIC(stored=True, sortable=True),
-#                     view_count=NUMERIC(stored=True, sortable=True),
-#                     answer_count=NUMERIC(stored=True, sortable=True),
-#                     uid=ID(stored=True),
-#                     type=NUMERIC(stored=True, sortable=True),
-#                     type_display=TEXT(stored=True))
-#     return schema
 
 
 def init_index(dirname=None, indexname=None, schema=None):
@@ -231,7 +197,7 @@ def crawl(reindex=False, overwrite=False, limit=1000):
     return
 
 
-def whoosh_search(query, limit=10, ix=None, fields=None, sortedby=[], **kwargs):
+def whoosh_search(query, limit=10, page=1, ix=None, fields=None, reverse=False, sortedby=[], **kwargs):
     """
     Query search index
     """
@@ -246,38 +212,30 @@ def whoosh_search(query, limit=10, ix=None, fields=None, sortedby=[], **kwargs):
 
     parser = MultifieldParser(fieldnames=fields, schema=ix.schema, group=orgroup).parse(query)
 
-    hits = searcher.search(parser,
-                           sortedby=sortedby,
-                           terms=True,
-                           limit=limit)
-
-    # Allow larger fragments
-    hits.fragmenter.maxchars = 100
-    hits.fragmenter.surround = 100
+    hits = searcher.search_page(parser,pagenum=page, pagelen=limit, reverse=reverse, sortedby=sortedby, **kwargs)
+    hits.results.fragmenter.maxchars = 100
+    hits.results.fragmenter.surround = 100
 
     return hits
 
 
-def perform_search(query, fields=None, sortedby=[], limit=None):
+def perform_search(query, page=1, fields=None, reverse=False, sortedby=[], limit=None):
     """
     Utility functions to search whoosh index, collect results and closes
     """
 
     limit = limit or settings.SEARCH_LIMIT
 
-    hits = whoosh_search(query=query,
-                         fields=fields,
-                         sortedby=sortedby,
-                         limit=limit)
+    indexed = whoosh_search(query=query, fields=fields, page=page, reverse=reverse, sortedby=sortedby, limit=limit)
 
     # Highlight the whoosh results.
     copier = lambda r: copy_hits(r, highlight=True)
 
-    final = list(map(copier, hits))
-    # Ensure searcher object gets closed.
-    hits.searcher.close()
+    final = list(map(copier, indexed))
 
-    return final
+    indexed.results.searcher.close()
+
+    return final, indexed
 
 
 def more_like_this(uid, top=0, sortedby=[]):
@@ -287,17 +245,16 @@ def more_like_this(uid, top=0, sortedby=[]):
 
     top = top or settings.SIMILAR_FEED_COUNT
     fields = ['uid']
-    results = whoosh_search(query=uid, sortedby=sortedby, fields=fields)
+    found = whoosh_search(query=uid, sortedby=sortedby, fields=fields)
 
-    if len(results):
-        results = results[0].more_like_this("content", top=top)
+    if len(found):
+        hits = found[0].more_like_this("content", top=top)
         # Copy hits to list and close searcher object.
-        final = list(map(copy_hits, results))
+        final = list(map(copy_hits, hits))
     else:
         final = []
 
-    # Ensure searcher object gets closed.
-    results.searcher.close()
+    found.results.searcher.close()
 
     return final
 
@@ -313,5 +270,5 @@ def remove_post(post, ix=None):
     writer = AsyncWriter(ix)
     writer.delete_by_term('uid', text=post.uid)
     writer.commit()
-    logger.debug(f"Removing {post.uid} from index")
+    logger.debug(f"Removing uid={post.uid} from index")
     return

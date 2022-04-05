@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
         stream = csv.DictReader(open(fname, 'rU'))
 
-        before_count = models.Subscription.objects.all().count()
+        before_count = models.EmailSubscription.objects.all().count()
 
         for no, row in enumerate(stream):
             email, name = row.get("Email"), row.get("Name")

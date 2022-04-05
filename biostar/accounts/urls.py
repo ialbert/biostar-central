@@ -33,9 +33,6 @@ account_patterns = [
     # Message urls
     path(r'inbox/', views.message_list, name='inbox'),
 
-    # External url login
-    path(r'external/', views.external_login, name="external"),
-
     # Used for 3rd party logins.
     path("social/", include('allauth.urls')),
 

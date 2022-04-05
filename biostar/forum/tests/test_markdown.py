@@ -15,19 +15,19 @@ SITE_URL = f"{settings.SITE_DOMAIN}{PORT}"
 TEST_CASES = [
 
     # Top level Post anchors
-    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/" rel="nofollow">Test</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/ ", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/" rel="nofollow">Test</a></p>'),
 
     # Non-toplevel post anchors
-    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/#2", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/#2" rel="nofollow">Comment: Test</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/p/1/#2 ", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/p/1/#2" rel="nofollow">Comment: Test</a></p>'),
 
     # User profile url pattern
-    (f"{settings.PROTOCOL}://{SITE_URL}/u/5", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/u/5" rel="nofollow">tested2</a></p>'),
+    (f"{settings.PROTOCOL}://{SITE_URL}/u/5 ", f'<p><a href="{settings.PROTOCOL}://{SITE_URL}/u/5" rel="nofollow">tested2</a></p>'),
 
     # Twitter link
-    ("https://twitter.com/Linux/status/2311234267", '<p></p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">w00t! 10,000 followers!</p>— Linux (@Linux) <a href="https://twitter.com/Linux/status/2311234267?ref_src=twsrc%5Etfw" rel="nofollow">June 24, 2009</a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script><p></p>'),
+    ("https://twitter.com/Linux/status/2311234267", '<p><blockquote class="twitter-tweet"><p lang="en" dir="ltr">w00t! 10,000 followers!</p>&mdash; Linux (@Linux) <a href="https://twitter.com/Linux/status/2311234267?ref_src=twsrc%5Etfw">June 24, 2009</a></blockquote><script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script></p>'),
 
     # Youtube link
-    ("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '<p><iframe width="420" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen=""></iframe></p>'),
+    ("https://www.youtube.com/watch?v=dQw4w9WgXcQ", '<p><iframe width="420" height="315" src="//www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></p>'),
 
     # Gist link
     ("https://gist.github.com/afrendeiro/6732a46b949e864d6803", '<p><script src="https://gist.github.com/afrendeiro/6732a46b949e864d6803.js"></script></p>'),
@@ -77,6 +77,7 @@ class MarkdownTest(TestCase):
         self.owner = User.objects.create(username="test", email="tested2@tested.com", password="tested")
 
         self.owner.profile.uid = "5"
+        self.owner.profile.handle = "test"
         self.owner.profile.save()
         self.owner.save()
 

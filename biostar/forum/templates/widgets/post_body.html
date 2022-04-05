@@ -9,11 +9,17 @@
     {#  Post title. #}
     {% if post.is_toplevel %}
         {# Show author message about their quarantied post. #}
-        <div class="title">{{ post.title_prefix }}{{ post.title }}</div>
+        <div class="title" itemprop="name">{{ post.title_prefix }}{{ post.title }}</div>
+        <span itemprop="answerCount" style="display: none">{{ post.answer_count }}</span>
     {% endif %}
 
     {#  Post body #}
-    <div class="body">
+    <div class="body"
+            {% if post.accept_count and post.is_answer %}
+                itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer"
+            {% elif post.is_answer %}
+                itemprop="suggestedAnswer" itemscope itemtype="https://schema.org/Answer"
+            {% endif %}>
 
         {#  Voting buttons #}
         <div class="voting">
@@ -21,7 +27,7 @@
                     data-state="{{ post.has_upvote }}"><i class="thumbs up icon"></i>
             </button>
 
-            <div class="score">{{ post.vote_count }}</div>
+            <div class="score" itemprop="upvoteCount">{{ post.vote_count }}</div>
 
             <button class="ui icon button" data-value="bookmark"
                     data-state="{{ post.has_bookmark }}"><i class="bookmark icon"></i>
@@ -32,7 +38,7 @@
                         data-state="{{ post.accept_count }}"><i class="check circle icon"></i>
                 </button>
             {% elif post.accept_count and post.is_answer %}
-                    <div class="ui icon" ><i class="check green circle icon"></i> </div>
+                <div class="ui icon"><i class="check green circle icon"></i></div>
             {% endif %}
         </div>
 
@@ -49,14 +55,16 @@
                 <div class="wrap magnify">
 
                     {# Display post author. #}
-                    {% post_user_box target_user=post.author post=post %}
+                        {% post_user_box target_user=post.author post=post %}
 
                     {# Display post content. #}
+                <span  itemprop="text">
                     {% if post.is_editable %}
                         <div class="editable">{{ post.html|safe }}</div>
                     {% else %}
                         {{ post.html|safe }}
                     {% endif %}
+                </span>
                 </div>
 
                 {# Show tags #}
@@ -65,8 +73,12 @@
                     <span class="inplace-tags">{% post_tags post=post show_views=True %}</span>
                 {% endif %}
 
+                <time itemprop="dateCreated" datetime="{{ post.creation_date|date:"Y-m-d" }}"></time>
+
                 {# Show the post actions #}
+
                 {% post_actions post=post %}
+
 
             </div>
 

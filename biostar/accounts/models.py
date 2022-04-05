@@ -1,5 +1,5 @@
 import os
-
+import logging
 import mistune
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -10,6 +10,7 @@ from taggit.models import Tag
 
 from biostar.accounts import util
 
+logger = logging.getLogger("engine")
 
 def fixcase(name):
     return name.upper() if len(name) == 1 else name.lower()
@@ -141,6 +142,9 @@ class Profile(models.Model):
     # The state of the user email verification.
     email_verified = models.BooleanField(default=False)
 
+    # The user handle
+    handle = models.CharField(max_length=MAX_NAME_LEN, null=True, unique=True, db_index=True)
+
     # Automatic notification
     notify = models.BooleanField(default=False)
 
@@ -168,6 +172,7 @@ class Profile(models.Model):
 
     def save(self, *args, **kwargs):
         self.uid = self.uid or util.get_uuid(8)
+        self.handle = self.handle or util.get_uuid(8)
         self.max_upload_size = self.max_upload_size or self.set_upload_size()
         self.name = self.name or self.user.first_name or self.user.email.split("@")[0]
         self.date_joined = self.date_joined or util.now()
@@ -196,9 +201,12 @@ class Profile(models.Model):
         return [tag.lower() for tag in self.watched_tags.split(",") if tag]
 
     def add_watched(self):
-        tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
-        self.watched.clear()
-        self.watched.add(*tags)
+        try:
+            tags = [Tag.objects.get_or_create(name=name)[0] for name in self.parse_tags()]
+            self.watched.clear()
+            self.watched.add(*tags)
+        except Exception as exc:
+            logger.error(f"recomputing watched tags={exc}")
 
     def set_upload_size(self):
         """
@@ -227,6 +235,10 @@ class Profile(models.Model):
         threshold = settings.MAX_DATA_ADMINS if self.is_moderator else settings.MAX_DATA_USERS
 
         return threshold
+
+    def edit_url(self):
+
+        return reverse('edit_profile')
 
     @property
     def mailing_list(self):
@@ -290,7 +302,7 @@ class Profile(models.Model):
 
         # Bump the score by smallest values to get over the low rep threshold.
         score = self.score
-        score += 1 + (settings.LOW_REP_THRESHOLD - self.score)
+        score += abs(settings.LOW_REP_THRESHOLD - self.score)
 
         Profile.objects.filter(id=self.id).update(score=score)
 
@@ -300,6 +312,44 @@ class Profile(models.Model):
         User has a low score
         """
         return self.score <= settings.LOW_REP_THRESHOLD and not self.is_moderator
+
+    @property
+    def high_rep(self):
+        """
+        """
+
+        return not self.low_rep
+
+class UserLog(models.Model):
+    DEFAULT, ACTION = 1, 2
+    CHOICES = [
+        (DEFAULT, "Default"),
+        (ACTION, "Action"),
+    ]
+    # User that performed the action.
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE)
+
+    # A potential subject user (it may be null)
+    subject = models.ForeignKey(User, related_name="subject", null=True, blank=True, on_delete=models.CASCADE)
+
+    # The IP address associated with the log.
+    ipaddr = models.GenericIPAddressField(null=True, blank=True)
+
+    # Actions that the user took.
+    action = models.IntegerField(choices=CHOICES, default=DEFAULT, db_index=True)
+
+    # The logging information.
+    text = models.TextField(null=True, blank=True)
+
+    # Data attached to the logging info.
+    data = models.TextField(null=True, blank=True)
+
+    # Date this log was created.
+    date = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        self.date = self.date or util.now()
+        super(UserLog, self).save(*args, **kwargs)
 
 
 def is_moderator(user):

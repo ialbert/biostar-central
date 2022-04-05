@@ -1,0 +1,55 @@
+{% load humanize %}
+{% load forum_tags %}
+
+<div class="content">
+
+    <em>{{ story.creation_date|naturaltime }}</em>
+
+    <a href="{{ story.author.profile.get_absolute_url }}">{{ story.author.profile.name }}</a> submitted
+
+
+    {#  Story text #}
+    {% if story.title %}
+        <a href="{{ story.url }}">{{ story.title }}</a> ({{ story.domain }})
+    {% else %}
+        <a href="{{ story.url }}">{{ story.url }}</a>
+    {% endif %}
+
+
+    {#  Story text #}
+    {% if story.text %}
+        <div class="description">
+            {{ story.text }}
+        </div>
+    {% endif %}
+
+    {#  Story status #}
+    <div class="description">
+        State:
+        {% if story.post %}
+            <a href="{{ story.post.get_absolute_url }}">{{ story.get_status_display }}</a>
+            <em>{{ story.lastedit_date|naturaltime }} </em> &bull;
+            reviewed
+        {% else %}
+            <b>{{ story.get_status_display }}</b>&bull; <em>{{ story.lastedit_date|naturaltime }} </em>
+        {% endif %}
+
+        {% if story.editor %}
+            by <a href="{{ story.editor.profile.get_absolute_url }}">{{ story.editor.profile.name }}</a>
+        {% endif %}
+
+    </div>
+
+    {# Action buttons #}
+    {% if user.profile.is_moderator and not story.published %}
+        <div class="description">
+            <a class="ui basic label" data-value="accept"><i class="green check icon"></i>
+                Accept
+            </a>
+            &bull;
+            <a class="ui basic label" data-value="decline"><i class="orange times icon"></i>
+                Decline
+            </a>
+        </div>
+    {% endif %}
+</div>

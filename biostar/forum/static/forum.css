@@ -1,7 +1,7 @@
 :root {
     --active-item-color: #663b72;
     --active-item-bg-color: white;
-    --root-font: Helvetica, Arial, sans-serif;
+    --root-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     --page-width: 1200px;
     --page-bg-color: #f8f8f9;
     --menu-bg-color: white;
@@ -21,6 +21,7 @@
     --post-title-shadow: rgba(0, 0, 0, 0.1);
     --post-title-border: #ececec;
     --popover-color: #3c763d;
+    --herald-color:#df6cbc;
     --on-color: green;
     --disabled: red;
     --popover-error-background: #f2dede;
@@ -70,6 +71,17 @@
     width: 80%;
 }
 
+.ui.items>.item>.content> .mini.header{
+    font-size: 1.15em;
+}
+
+hr {
+    border: 0;
+    height: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
 /* Needed for syntax highlighting */
 :not(pre) > code {
     color: orangered !important;
@@ -88,7 +100,7 @@ body {
     font-family: var(--root-font);
     color: #333;
     line-height: 1.428571429;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 #sidebar .title {
@@ -103,6 +115,7 @@ body > .main.container {
 blockquote.twitter-tweet {
     background: white;
 }
+
 
 #topicbar {
     border: none;
@@ -125,11 +138,19 @@ blockquote.twitter-tweet {
     padding-bottom: 1ex;
 }
 
+tr.message > td{
+    overflow-x: auto;
+    max-width: 780px;
+}
+
 #logo {
     padding: 0px 5px 5px 5px;
 / / background-color: var(--logo-background);
 }
 
+.links-form{
+    display: none;
+}
 
 .message td {
     padding-bottom: 0ex !important;
@@ -281,6 +302,10 @@ i.icon.mycomment:before {
     content: "\f075";
 }
 
+.filter.message .ptag{
+    float: none !important;
+}
+
 .ui.items > .post.item > .image:not(.ui) {
     width: max-content;
 }
@@ -313,8 +338,8 @@ i.icon {
 }
 
 .user_box {
-    width: 150px;
-    margin: 0em 0em 0.5em 0.5em;
+    width: 140px;
+    margin: 0em 0em 0em 0em;
     padding: 10px 0px 10px 0px;
     background-color: var(--user-box-backgound);
     font-size: small;
@@ -530,6 +555,17 @@ i.icon {
     font-size: 85%;
 }
 
+.diffs > .diff {
+    font-family: monospace;
+
+}
+
+.diffs > .context {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    color: var(--muted-color);
+}
+
 .voteicon {
     opacity: 0.5;
     color: var(--voteicon-color);
@@ -662,9 +698,13 @@ figure {
 }
 
 
-.tags.grid {
+.tag-list.grid {
     padding-top: 20px;
     padding-bottom: 20px;
+}
+
+.tag-list .column{
+    font-size: larger;
 }
 
 .user_box.muted {
@@ -767,9 +807,17 @@ img {
     color: var(--label-color);
 }
 
+.herald-sub{
+    cursor: pointer;
+}
 
 .ui.forum.label {
     background-color: var(--forum-background);
+    color: var(--label-color);
+}
+
+.ui.herald.label {
+    background-color: var(--herald-color);
     color: var(--label-color);
 }
 

@@ -1,6 +1,7 @@
 {% extends "base_view.html" %}
 {% load forum_tags %}
 {% load static %}
+{% load cache %}
 
 {% block title %}
     {{ post.title }}
@@ -19,19 +20,20 @@
 
     {% include "banners/insert-post-top.html" %}
 
-<span itemscope itemtype="http://schema.org/QAPage">
-
+    <span itemprop="mainEntity" itemscope itemtype="https://schema.org/Question">
     {# The toplevel post #}
-    <div class="ui vertical segment" itemscope itemtype="http://schema.org/Question">
+    <div class="ui vertical segment">
             {% post_body post=post user=request.user tree=tree %}
     </div>
 
     {# Render each answer for the post #}
-    {% for answer in answers %}
-        <div class="ui vertical segment" itemscope itemtype="http://schema.org/Answer">
+        {% for answer in answers %}
+            <div class="ui vertical segment">
                 {% post_body post=answer user=request.user tree=tree %}
         </div>
-    {% endfor %}
+        {% endfor %}
+
+</span>
 
     {# Display the newanswer form #}
     {% if request.user.is_authenticated and post.is_open %}
@@ -43,15 +45,12 @@
         <div class="ui warning message">
             This thread is not open. No new answers may be added
         </div>
-
     {% else %}
         <div class="ui info message">
             <p><a class="ui small label" href="{% url 'login' %}">
                 <i class="sign in icon"></i>Login</a> before adding your answer.</p>
         </div>
-
     {% endif %}
-
 
     <script>
 
@@ -82,23 +81,9 @@
             $(this).on('click', ".add-comment", function () {
                 inplace_form($(this), true);
             });
-
-            $(this).on('click', '.editable', function (event) {
-                // Insert inplace form with CMD + click
-                if (event.metaKey || event.ctrlKey) {
-                    inplace_form($(this))
-                }
-            });
-
-            $(this).on('dblclick', '.editable', function (event) {
-                // Insert inplace form with double click.
-                //inplace_form($(this))
-            });
         });
 
     </script>
-
-</span>
 
 {% endblock %}
 

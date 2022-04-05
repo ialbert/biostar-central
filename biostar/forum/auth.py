@@ -1,8 +1,10 @@
 import hashlib
 import logging
+import re
 import urllib.parse as urlparse
 from datetime import timedelta
-
+from difflib import Differ, SequenceMatcher, HtmlDiff, unified_diff
+import bs4
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -14,13 +16,13 @@ from django.conf import settings
 
 from biostar.accounts.const import MESSAGE_COUNT
 from biostar.accounts.models import Message
-from biostar.planet.models import BlogPost
+from biostar.planet.models import BlogPost, Blog
 # Needed for historical reasons.
 from biostar.accounts.models import Profile
 from biostar.utils.helpers import get_ip
 from . import util, awards
 from .const import *
-from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log
+from .models import Post, Vote, Subscription, Badge, delete_post_cache, Log, SharedLink, Diff
 
 User = get_user_model()
 
@@ -64,8 +66,21 @@ def delete_cache(prefix, user):
     return
 
 
+import datetime
+
+ICONS = ["monsterid", "robohash", "wavatar", "retro"]
+
+
 def gravatar_url(email, style='mp', size=80, force=None):
+    global ICONS
     hash_num = hashlib.md5(email).hexdigest()
+
+    # April fools gimmick. Swap icons every hour.
+    now = datetime.datetime.now()
+    if now.month == 4 and now.day == 1:
+        index = now.hour % len(ICONS)
+        style = ICONS[index]
+        force = True
 
     data = dict(s=str(size), d=style)
 
@@ -195,11 +210,18 @@ def create_post_from_json(**json_data):
     return
 
 
-def create_post(author, title, content, root=None, parent=None, ptype=Post.QUESTION, tag_val=""):
+def create_post(author, title, content, request=None, root=None, parent=None, ptype=Post.QUESTION, tag_val="",
+                nodups=True):
     # Check if a post with this exact content already exists.
-    post = Post.objects.filter(content=content, author=author, is_toplevel=True).first()
-    if post:
-        logger.info("Post with this content already exists.")
+    post = Post.objects.filter(content=content, author=author).order_by('-creation_date').first()
+
+    # How many seconds since the last post should we disallow duplicates.
+    frame = 60
+    delta = (util.now() - post.creation_date).seconds if post else frame
+
+    if nodups and delta < frame:
+        if request:
+            messages.warning(request, "Post with this content was created recently.")
         return post
 
     post = Post.objects.create(title=title, content=content, root=root, parent=parent,
@@ -207,6 +229,81 @@ def create_post(author, title, content, root=None, parent=None, ptype=Post.QUEST
 
     delete_cache(MYPOSTS, author)
     return post
+
+
+def diff_ratio(text1, text2):
+
+    # Do not match on spaces
+    s = SequenceMatcher(lambda char: re.match(r'\w+', char), text1, text2)
+    return round(s.ratio(), 5)
+
+
+def create_diff(text, post, user):
+    """
+    Compute and return Diff object for diff between text and post.content
+    """
+
+    # Skip on post creation
+    if not post:
+        return
+
+    ratio = diff_ratio(text1=text, text2=post.content)
+
+    # Skip no changes detected
+    if ratio == 1:
+        return
+
+    # Compute diff between text and post.
+    content = post.content.splitlines()
+    text = text.splitlines()
+
+    diff = unified_diff(content, text)
+    diff = [f"{line}\n" if not line.endswith('\n') else line for line in diff]
+    diff = ''.join(diff)
+
+    # See if a diff has been made by this user in the past 10 minutes
+    dobj = Diff.objects.filter(post=post, author=post.author).first()
+
+    # 10 minute time frame between
+    frame = 60 * 10
+    delta = (util.now() - dobj.created).seconds if dobj else frame
+
+    # Create diff object within time frame or the person editing is a mod.
+    if delta >= frame or user != post.author:
+        # Create diff object for this user.
+        dobj = Diff.objects.create(diff=diff, post=post, author=user)
+        post.has_diff = True
+        # Only log when anyone but the author commits changes.
+        if user != post.author:
+            db_logger(user=user, action=Log.EDIT, text=f'edited post', target=post.author, post=post)
+
+    Post.objects.filter(pk=post.pk).update(has_diff=post.has_diff)
+
+    return dobj
+
+
+def merge_profiles(main, alias):
+    """
+    Merge alias profile into main
+    """
+
+    # Transfer posts
+    Post.objects.filter(author=alias).update(author=main)
+    Post.objects.filter(lastedit_user=alias).update(lastedit_user=main)
+
+    # Transfer messages
+    Message.objects.filter(sender=alias).update(sender=main)
+    Message.objects.filter(recipient=alias).update(recipient=main)
+
+    # Do not delete older accounts.
+    older = (alias.profile.date_joined < main.profile.date_joined)
+
+    if alias.profile.is_moderator or alias.profile.high_rep or older:
+        return
+
+    alias.delete()
+
+    return
 
 
 def create_subscription(post, user, sub_type=None, update=False):
@@ -340,7 +437,7 @@ def get_counts(user):
         author=user)[:1000].count()
 
     # Planet count since last visit
-    planet_count = BlogPost.objects.filter(creation_date__gte=user.profile.last_login)[:100].count()
+    planet_count = BlogPost.objects.filter(rank__gte=user.profile.last_login)[:100].count()
 
     # Spam count since last visit.
     spam_count = Post.objects.filter(spam=Post.SPAM, creation_date__gte=user.profile.last_login)[:1000].count()
@@ -368,16 +465,12 @@ def apply_vote(post, user, vote_type):
         vote = Vote.objects.create(author=user, post=post, type=vote_type)
         msg = f"{vote.get_type_display()} added"
 
-    if post.author == user:
-        # Author making the change
-        change = 0
-        return msg, vote, change
-
-    # Fetch update the user score.
-    Profile.objects.filter(user=post.author).update(score=F('score') + change)
+    # Fetch update the post author score.
+    if not post.author == user:
+        Profile.objects.filter(user=post.author).update(score=F('score') + change)
 
     # Calculate counts for the current post
-    votes = list(Vote.objects.filter(post=post).exclude(author=post.author))
+    votes = list(Vote.objects.filter(post=post))
     vote_count = len(votes)
     bookcount = len(list(filter(lambda v: v.type == Vote.BOOKMARK, votes)))
     accept_count = len(list(filter(lambda v: v.type == Vote.ACCEPT, votes)))
@@ -402,183 +495,6 @@ def apply_vote(post, user, vote_type):
     return msg, vote, change
 
 
-def mod_rationale(post, user, template, ptype=Post.ANSWER, extra_context=dict()):
-    tmpl = loader.get_template(template)
-    context = dict(user=post.author)
-    context.update(extra_context)
-    content = tmpl.render(context)
-
-    # Load answer explaining post being off topic.
-    post = Post.objects.create(content=content, type=ptype, parent=post, root=post.root, author=user)
-
-    return post
-
-
-def removal_condition(post, user, age=1):
-    """
-    Removal condition for the post.
-    """
-
-    # Only authors may remove their own posts
-    if post.author != user:
-        return False
-
-    # Post older than a day may not be removed
-    if post.age_in_days > age:
-        return False
-
-    # If the post has children it may not be removed
-    if Post.objects.filter(parent=post).exclude(pk=post.id):
-        return False
-
-    # If the post has votes it may not be removed
-    if post.vote_count:
-        return False
-
-    return True
-
-
-def delete_post(request, post, **kwargs):
-    """
-    Post may be marked as deleted or removed entirely
-    """
-    user = request.user
-
-    # Decide on the removal
-    remove = removal_condition(post, user)
-
-    if remove:
-        msg = f"removed post"
-        messages.info(request, mark_safe(msg))
-        db_logger(user=user, post=post, text=msg)
-        post.delete()
-        url = "/"
-    else:
-        Post.objects.filter(uid=post.uid).update(status=Post.DELETED)
-        post.recompute_scores()
-        msg = f"deleted post"
-        messages.info(request, mark_safe(msg))
-        db_logger(user=user, post=post, text=msg)
-        url = post.get_absolute_url()
-
-    # Recompute post score.
-    if not post.is_toplevel:
-        post.root.recompute_scores()
-
-    return url
-
-
-def open(request, post, **kwargs):
-    if post.is_spam and post.author.profile.low_rep:
-        post.author.profile.bump_over_threshold()
-
-    user = request.user
-    Post.objects.filter(uid=post.uid).update(status=Post.OPEN, spam=Post.NOT_SPAM)
-    post.recompute_scores()
-
-    post.root.recompute_scores()
-    msg = f"opened post"
-    url = post.get_absolute_url()
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg}", post=post)
-    return url
-
-
-def bump(request, post, **kwargs):
-    now = util.now()
-    user = request.user
-
-    Post.objects.filter(uid=post.uid).update(lastedit_date=now, rank=now.timestamp())
-    msg = f"bumped post"
-    url = post.get_absolute_url()
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg}", post=post)
-
-    return url
-
-
-def change_user_state(mod, target, state):
-    """
-    Changes user state.
-    """
-
-    # Only moderators may change user states.
-    if not mod.profile.is_moderator:
-        logger.error(f"{mod} is not a moderator")
-        return
-
-    # Cannot moderate self.
-    if mod == target:
-        logger.error(f"{mod} cannot moderate themselves")
-        return
-
-    # The target may not be a moderator.
-    if target.profile.is_moderator:
-        logger.info(f"{mod} cannot alter state on a moderator {target}")
-        return
-
-    # Set the new state.
-    target.profile.state = state
-    target.profile.save()
-
-    # Generate the logging message.
-    msg = f"changed user state to {target.profile.get_state_display()}"
-    db_logger(user=mod, action=Log.MODERATE, target=target, text=msg, post=None)
-
-
-def toggle_spam(request, post, **kwargs):
-    """
-    Toggles spam status on post based on a status
-    """
-
-    url = post.get_absolute_url()
-
-    # Moderators may only be suspended by admins (TODO).
-    if post.author.profile.is_moderator and post.spam in (Post.DEFAULT, Post.NOT_SPAM):
-        messages.warning(request, "cannot toggle spam on a post created by a moderator")
-        return url
-
-    # The user performing the action.
-    user = request.user
-
-    # Drop the cache for the post.
-    delete_post_cache(post)
-
-    # Current state of the toggle.
-    if post.is_spam:
-        Post.objects.filter(id=post.id).update(spam=Post.NOT_SPAM, status=Post.OPEN)
-    else:
-        Post.objects.filter(id=post.id).update(spam=Post.SPAM, status=Post.CLOSED)
-
-    # Refetch up to date state of the post.
-    post = Post.objects.filter(id=post.id).get()
-
-    # Set the state for the user (only non moderators are affected)
-    state = Profile.SUSPENDED if post.is_spam else Profile.NEW
-
-    # Apply the user change.
-    change_user_state(mod=user, target=post.author, state=state)
-
-    # Generate logging messages.
-    if post.is_spam:
-        text = f"marked post as spam"
-    else:
-        text = f"restored post from spam"
-
-        # Set indexed flag to False, so it's removed from spam index
-        Post.objects.filter(id=post.id).update(indexed=False)
-
-    # Set a logging message.
-    messages.success(request, text)
-
-    # Submit the log into the database.
-    db_logger(user=user, action=Log.MODERATE, target=post.author, text=text, post=post)
-
-    url = post.get_absolute_url()
-
-    return url
-
-
 def move(request, parent, source, ptype=Post.COMMENT, msg="moved"):
     user = request.user
     url = source.get_absolute_url()
@@ -589,7 +505,9 @@ def move(request, parent, source, ptype=Post.COMMENT, msg="moved"):
     # Move this post to comment of parent
     source.parent = parent
     source.type = ptype
-    source.save()
+
+    title = f"{source.get_type_display()}: {source.root.title[:80]}"
+    Post.objects.filter(uid=source.uid).update(parent=parent, type=ptype, title=title)
 
     # Log action and let user know
     messages.info(request, mark_safe(msg))
@@ -603,7 +521,7 @@ def move_post(request, post, parent, **kwargs):
     Move one post to another
     """
     ptype = Post.COMMENT
-    msg = f"moved post"
+    msg = f"dragged post to comment"
     return move(request=request,
                 parent=parent,
                 source=post,
@@ -611,23 +529,19 @@ def move_post(request, post, parent, **kwargs):
                 msg=msg)
 
 
-def close(request, post, comment, **kwargs):
+def move_to_answer(request, post, **kwargs):
     """
-    Close this post and provide a rationale for closing as well.
+    Move this post to be an answer
     """
-    user = request.user
-    Post.objects.filter(uid=post.uid).update(status=Post.CLOSED)
-    # Generate a rationale post on why this post is closed.
-    context = dict(comment=comment)
-    rationale = mod_rationale(post=post, user=user,
-                              template="messages/closed.md",
-                              extra_context=context)
-    msg = "closed"
-    url = rationale.get_absolute_url()
-    messages.info(request, mark_safe(msg))
-    db_logger(user=user, text=f"{msg}", post=post)
-    return url
 
+    parent = post.root
+    ptype = Post.ANSWER
+    msg = "dragged post to answer"
+    return move(request=request,
+                parent=parent,
+                source=post,
+                ptype=ptype,
+                msg=msg)
 
 
 def validate_move(user, source, target):
@@ -667,77 +581,6 @@ def validate_move(user, source, target):
         return True
 
     return False
-
-
-def off_topic(request, post, **kwargs):
-    """
-    Marks post as off topic. Generate off topic comment.
-    """
-    user = request.user
-    if "offtopic" not in post.tag_val:
-        post.tag_val += ",offtopic "
-        post.save()
-
-        # Generate off comment.
-        content = "This post is off topic."
-        create_post(ptype=Post.COMMENT, parent=post, content=content, title='', author=request.user)
-        msg = "off topic"
-        messages.info(request, mark_safe(msg))
-        db_logger(user=user, text=f"{msg}", post=post)
-    else:
-        messages.warning(request, "post has been already tagged as off topic")
-
-    url = post.get_absolute_url()
-    return url
-
-
-def relocate(request, post, **kwds):
-    """
-    Moves an answer to a comment and viceversa.
-    """
-    url = post.get_absolute_url()
-
-    if post.is_toplevel:
-        messages.warning(request, "cannot relocate a top level post")
-        return url
-
-    if post.type == Post.COMMENT:
-        msg = f"moved comment to answer"
-        post.type = Post.ANSWER
-    else:
-        msg = f"moved answer to comment"
-        post.type = Post.COMMENT
-
-    post.parent = post.root
-    post.save()
-
-    db_logger(user=request.user, post=post, text=f"{msg}")
-    messages.info(request, msg)
-    return url
-
-
-def moderate(request, post, action):
-
-    # Bind an action to a function.
-    action_map = {
-        REPORT_SPAM: toggle_spam,
-        BUMP: bump,
-        OPEN_POST: open,
-        OFF_TOPIC: off_topic,
-        DELETE: delete_post,
-        CLOSE: close,
-        RELOCATE: relocate,
-    }
-
-    if action in action_map:
-        mod_func = action_map[action]
-        url = mod_func(request=request, post=post)
-    else:
-        url = post.get_absolute_url()
-        msg = "Unknown moderation action given."
-        logger.error(msg)
-
-    return url
 
 
 def db_logger(user=None, action=Log.MODERATE, text='', target=None, ipaddr=None, post=None):

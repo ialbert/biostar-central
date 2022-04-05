@@ -10,6 +10,9 @@ MAILTO="foo@bar.com"
 # Post bumping
 10  */6 * * * $DIR/bump.sh >> $LOG 2>&1
 
+# Clean logs
+1 2 * * * $DIR/clean-logs.sh >> $LOG 2>&1
+
 # Index posts every 5 minutes
 */5 * * * * $DIR/search-index.sh >> $LOG 2>&1
 

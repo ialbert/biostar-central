@@ -41,9 +41,12 @@
                     Off topic
                 </button>
 
-                <button class="ui grey mini button" name="action" value="close">
-                    Close
-                </button>
+                {% if ALLOW_POST_CLOSING %}
+                    <button class="ui grey mini button" name="action" value="close">
+                        Close
+                    </button>
+                {% endif %}
+
 
                 {% if not post.is_toplevel %}
                     <button class="ui grey mini button" name="action" value="relocate">

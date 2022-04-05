@@ -1,0 +1,11 @@
+<div class="diffs">
+    {% for diff in diffs %}
+        <div class="diff">
+        {{ diff.breakline|safe }}
+        </div>
+        <div class="context">
+            changes made by <a href="{{ diff.author.get_absoulute_url }}">{{ diff.author.profile.name }}</a>
+            {{ diff.created|timesince }} ago
+        </div>
+    {% endfor %}
+</div>

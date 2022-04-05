@@ -7,7 +7,7 @@
 <head>
 
     <title>
-        {% block title %}{{ site_name }}{% endblock %}
+        {% block title %}Biostar{% endblock %}
     </title>
 
     <meta charset="UTF-8">
@@ -18,6 +18,7 @@
         <link rel="icon" href="{% static 'forum_favicon.ico' %}" type="image/x-icon"/>
     {% endblock %}
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     {# Optional block header content. #}
     {% block head %}
     {% endblock %}
@@ -40,21 +41,6 @@
 
     {% endif %}
 
-    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script"></script>
-
-    <script>
-        MathJax = {
-            tex: {
-                // \$ fixes php conflicting with Mathjax delimiter
-                inlineMath: [['\$', '\$'], ['\\(', '\\)']]
-            },
-            svg: {
-                fontCache: 'global'
-            }
-        };
-
-    </script>
-
     {#  CSS compression. #}
     {% compress css %}
 
@@ -69,9 +55,14 @@
     {# Javascript compression. #}
     {% compress js %}
         <script src="{% static 'semantic.min.js' %}"></script>
+        <script src="{% static 'setup.js' %}{% randparam %}"></script>
+        <script src="{% static 'forum.js' %}{% randparam %}"></script>
+        <script src="{% static 'inplace.js' %}{% randparam %}"></script>
         {% block jsfile %}
         {% endblock %}
 
+        {% block themesjs %}
+        {% endblock %}
     {% endcompress %}
 
     {% block extrajs %}
@@ -88,7 +79,7 @@
 </head>
 
 
-<body>
+<body itemscope itemtype="https://schema.org/QAPage">
 
 <div class="ui inverted container main">
 
@@ -106,7 +97,9 @@
     </span>
 
     {% block container %}
-        {% show_messages messages %}
+        {% if messages %}
+            {% show_messages messages %}
+        {% endif %}
         <div class="ui bottom attached segment block">
 
             {% block content %}

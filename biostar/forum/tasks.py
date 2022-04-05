@@ -5,7 +5,6 @@ from biostar.emailer.tasks import send_email
 from django.conf import settings
 import time, random
 from biostar.utils.decorators import task, timer
-from biostar.forum.auth import db_logger
 
 from django.db.models import Q
 
@@ -184,12 +183,47 @@ def low_trust(user, minscore=50):
 
 
 @task
+def set_link_title(pk):
+    """
+    Sets the title of a shared link.
+    """
+    import requests
+    from bs4 import BeautifulSoup
+    from biostar.forum.models import SharedLink
+    link = SharedLink.objects.filter(pk=pk).first()
+
+    logger.info(f"getting link title for {link.url}")
+
+    try:
+        # Fetch the page.
+        resp = requests.get(link.url)
+
+        # Parse the content
+        soup = BeautifulSoup(resp.text, 'html.parser')
+
+        # Set the title
+        for elem in soup.find_all('title'):
+            title = elem.get_text()
+            if title:
+                title = title.strip()
+                SharedLink.objects.filter(pk=pk).update(title=title)
+                break
+
+    except Exception as exc:
+        logger.warning(exc)
+
+
+@task
 def spam_check(uid):
     from biostar.forum.models import Post, Log, delete_post_cache
     from biostar.accounts.models import User, Profile
+    from biostar.forum.auth import db_logger
 
     post = Post.objects.filter(uid=uid).first()
     author = post.author
+
+    if not settings.CLASSIFY_SPAM:
+        return
 
     # Automated spam disabled in for trusted user
     if author.profile.trusted or author.profile.score > 50:
@@ -208,6 +242,10 @@ def spam_check(uid):
         if not os.path.isfile(settings.SPAM_MODEL):
             spamlib.build_model(fname=settings.SPAM_DATA, model=settings.SPAM_MODEL)
 
+        # Short posts do not get classified too many false positives
+        if len(post.content) < 150:
+            return
+
         # Classify the content.
         flag = spamlib.classify_content(post.content, model=settings.SPAM_MODEL)
 
@@ -221,6 +259,7 @@ def spam_check(uid):
         for word in spam_words:
             flag = flag or (word in post.title)
 
+        # Handle the spam.
         if flag:
 
             Post.objects.filter(uid=post.uid).update(spam=Post.SPAM, status=Post.CLOSED)
@@ -234,7 +273,8 @@ def spam_check(uid):
 
             spam_count = Post.objects.filter(spam=Post.SPAM, author=author).count()
 
-            db_logger(user=user, action=Log.CLASSIFY, target=post.author, text=f"classified the post as spam", post=post)
+            db_logger(user=user, action=Log.CLASSIFY, target=post.author, text=f"classified the post as spam",
+                      post=post)
 
             if spam_count > 1 and low_trust(post.author):
                 # Suspend the user
@@ -246,6 +286,43 @@ def spam_check(uid):
         logger.error(exc)
 
     return False
+
+
+@task
+def herald_emails(uid):
+    """
+    Send emails to herald subscribers
+    """
+    from biostar.emailer.models import EmailSubscription, EmailGroup
+    from biostar.forum.models import Post
+    post = Post.objects.filter(uid=uid).first()
+    group = EmailGroup.objects.filter(uid='herald').first()
+    # Get active subscriptions to herald.
+    subs = EmailSubscription.objects.filter(group=group, state=EmailSubscription.ACTIVE)
+
+    if not subs:
+        return
+
+    emails = subs.values_list('email', flat=True)
+    context = dict(post=post)
+    # Prepare the templates and emails
+    email_template = "herald/herald_email.html"
+    author = post.author.profile.name
+    from_email = settings.DEFAULT_NOREPLY_EMAIL
+
+    # Total number of recipients allowed per open connection,
+    # Amazon SES has limit of 50
+    batch_size = 40
+
+    # Iterate through recipients and send emails in batches.
+    for idx in range(0, len(emails), batch_size):
+        # Get the next set of emails
+        end = idx + batch_size
+        rec_list = emails[idx:end]
+        send_email(template_name=email_template, extra_context=context, name=author,
+        from_email=from_email,recipient_list=rec_list, mass=True)
+
+    return
 
 
 @task

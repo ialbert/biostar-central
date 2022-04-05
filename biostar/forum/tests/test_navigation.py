@@ -22,7 +22,7 @@ class ForumNavigation(TestCase):
     def setUp(self):
         logger.setLevel(logging.WARNING)
 
-        self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com")
+        self.owner = User.objects.create(username=f"tested{get_uuid(10)}", email="tested@tested.com", is_staff=True)
         self.owner.set_password("tested")
         self.badge = Badge.objects.first()
         # Create a tested post
@@ -60,8 +60,10 @@ class ForumNavigation(TestCase):
             reverse("myvotes"),
             reverse('api_traffic'),
             reverse('latest_feed'),
-            reverse('latest_feed'),
-            reverse('tag_feed', kwargs=dict(text='tage1')),
+            reverse('merge_profile'),
+            reverse('herald_list'),
+            reverse('post_tags', kwargs=dict(tag='tag1')),
+            reverse('tag_feed', kwargs=dict(text='tag1')),
             reverse('post_feed', kwargs=dict(text=self.post.uid)),
             reverse('post_type', kwargs=dict(text="job")),
 

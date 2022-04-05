@@ -1,12 +1,8 @@
-# Moderation action codes.
-
-MOD_ACTIONS = ('bump', 'open', 'relocate', 'offtopic', 'delete', 'close', 'spam')
-BUMP, OPEN_POST, RELOCATE, OFF_TOPIC, DELETE, CLOSE, REPORT_SPAM = MOD_ACTIONS
 
 # Filter actions
-RANK, VIEWS, REPLIES, TAGGED, \
+VOTE_DATE, RANK, VIEWS, REPLIES, TAGGED, \
 VOTES, VISIT, REPUTATION, JOINED, \
-ACTIVITY, UPDATE, ANSWERS, BOOKED, CREATION = ("rank", "views", "replies",
+ACTIVITY, UPDATE, ANSWERS, BOOKED, CREATION = ('vote_date', "rank", "views", "replies",
                     "tagged", "votes", "visit", "reputation",
                     "joined", "activity", "update", "answers", "bookmark", "creation")
 
@@ -24,7 +20,9 @@ ORDER_MAPPER = {
     VISIT: '-profile__last_login',
     REPUTATION: '-profile__score',
     JOINED: '-profile__date_joined',
-    ACTIVITY: '-profile__date_joined'
+    ACTIVITY: '-profile__date_joined',
+    VOTE_DATE: '-votes__date'
+
 }
 
 ALLOWED_PARAMS = {"page", "order", "type", "limit", "query", "user", "active"}
@@ -32,7 +30,7 @@ ALLOWED_PARAMS = {"page", "order", "type", "limit", "query", "user", "active"}
 # Cache keys used to cache objects.
 LATEST_CACHE_KEY = "LATEST"
 TAGS_CACHE_KEY = "TAGS"
-SIMILAR_CACHE_KEY = "SIMILAR"
+SIMILAR_CACHE_KEY = "similar"
 USERS_LIST_KEY = "USERS_LIST"
 
 # The name of the session count data.

@@ -2,6 +2,9 @@ from django.contrib.messages.storage import fallback
 from django.test import RequestFactory, client
 from django.conf import settings
 import logging
+import traceback
+import html
+import html2markdown
 from datetime import datetime
 from biostar import VERSION
 import os
@@ -51,6 +54,21 @@ def get_ip(request):
     ip = meta.get(key, simple_meta.get(key, '0.0.0.0'))
 
     return ip
+
+
+def htmltomarkdown(text):
+    """
+    Safely convert html to markdown
+    """
+
+    try:
+        content = html2markdown.convert(text)
+    except Exception as exc:
+        logger.warning(f"error={exc};text={text[:100]}")
+        # Return escaped text
+        content = html.escape(text)
+
+    return content
 
 
 def ip_triplet(request):
