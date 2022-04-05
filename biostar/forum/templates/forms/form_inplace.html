@@ -35,10 +35,12 @@
             </div>
             {# Edit the tags #}
             {% if post.is_toplevel %}
+
                 <div class="required field">
                     {{ form.tag_val }}
                     <p class="muted">{{ form.tag_val.help_text }}</p>
                 </div>
+
             {% endif %}
 
         {% endif %}
@@ -135,4 +137,3 @@
 
     })
 </script>
-
