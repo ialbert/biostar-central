@@ -19,7 +19,8 @@
     <script src="{% static 'prism.js' %}"></script>
     <script src="{% static 'setup.js' %}{% randparam %}"></script>
 {% endblock %}
-
+{% block themesjs %}
+{% endblock %}
 {% block content %}
 
 
@@ -167,6 +168,7 @@
                     <div class="field">
 
                         <label><i class="tags icon"></i> My Tags </label>
+                        {% block my_tags %}
                         <div class="field">
                             {{ form.my_tags }}
                             <div class="muted">
@@ -174,6 +176,7 @@
                                 Example: <code>bwa</code>, <code>bedops</code>
                             </div>
                         </div>
+                        {% endblock %}
 
 
                     </div>
@@ -183,6 +186,7 @@
                     <div class="field">
 
                         <label><i class="tags icon"></i> Watched Tags </label>
+                        {% block watched_tags %}
                         <div class="field">
                             {{ form.watched_tags }}
                             <div class="muted">
@@ -192,7 +196,7 @@
                             </div>
 
                         </div>
-
+                        {% endblock %}
                     </div>
                 </div>
 

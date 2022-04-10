@@ -183,6 +183,7 @@ class PostLongForm(forms.Form):
             tag_val = self.cleaned_data["tag_val"].split(',')
 
         tags = set(tag_val)
+        required_tags(tags)
         tags = ",".join(tags)
 
         return tags

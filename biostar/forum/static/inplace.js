@@ -189,7 +189,7 @@ function inplace_form(elem, add_comment) {
 }
 
 
-function edit_post(post) {
+function edit_post(post, tags) {
 
     var uid = post.data('value');
 
@@ -202,7 +202,7 @@ function edit_post(post) {
     var title = form.find('#title');
     var content = form.find('#wmd-input');
     var type = form.find('#type').dropdown('get value');//.val();
-    var tags = form.find('#tag_val').val();
+    var tags = tags || form.find('#tag_val').val();
 
     title = title.val() || '';
     if (!($.isNumeric(type))) {
@@ -244,55 +244,11 @@ function edit_post(post) {
 
 function edit_dropdown_post(post) {
 
-    var uid = post.data('value');
-
-    var edit_url = '/ajax/edit/{0}/'.format(uid);
-
     // Get the element being
     var form = $('#new-content');
 
-    // Form elements to submit.
-    var title = form.find('#title');
-    var content = form.find('#wmd-input');
-    var type = form.find('#type').dropdown('get value');//.val();
     var tags = form.find('.tags').dropdown('get value');
-
-    title = title.val() || '';
-    if (!($.isNumeric(type))) {
-        type = -1
-    }
-    content = content.val();
-
-    var cap_response = captcha();
-
-    $.ajax(edit_url,
-        {
-            type: 'POST',
-            dataType: 'json',
-            ContentType: 'application/json',
-            traditional: true,
-            data: {
-                'content': content,
-                'title': title,
-                'type': type,
-                'tag_val': tags,
-                'recaptcha_response': cap_response
-            },
-            success: function (data) {
-                if (data.status === 'error') {
-
-                    popup_message(post, data.msg, data.status, 3000);
-                    popup_message(form.find(".save,.create"), data.msg, data.status, 3000);
-                } else {
-                    // Update post with latest
-                    window.location = data.redirect;
-                    window.location.reload();
-                }
-            },
-            error: function (xhr, status, text) {
-                error_message(form, xhr, status, text)
-            }
-        })
+    edit_post(post, tags);
 }
 
 $(document).on(function () {

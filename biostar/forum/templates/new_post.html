@@ -12,7 +12,6 @@
 
 <script async src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
-
 {% block container %}
     <div class="ui bottom attached create-post segment">
         {% show_messages messages %}
@@ -49,7 +48,9 @@
 
                         <div class="required field">
                             <label>{{ form.tag_val.label }}</label>
+                            {% block new_tag_val %}
                             {{ form.tag_val }}
+                            {% endblock %}
                             <p class="muted">{{ form.tag_val.help_text }}</p>
                         </div>
 
