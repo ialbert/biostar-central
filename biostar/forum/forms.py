@@ -10,6 +10,7 @@ from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 from biostar.accounts.models import User
+from biostar.accounts.forms import get_tags_widget
 from .models import Post, SharedLink
 from biostar.forum import models, auth, util
 
@@ -132,7 +133,7 @@ class PostLongForm(forms.Form):
                             help_text="Enter a descriptive title to promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=MAX_TAG_LEN, required=True, validators=[valid_tag],
 
-                              widget=forms.TextInput(attrs={'id': 'tag_val'}),
+                              widget=get_tags_widget(attrs={'id': 'tag_val'}),
                               help_text="""Create a new tag by typing a word then adding a comma.""")
 
     content = forms.CharField(widget=forms.Textarea,
@@ -182,6 +183,7 @@ class PostLongForm(forms.Form):
             tag_val = self.cleaned_data["tag_val"].split(',')
 
         tags = set(tag_val)
+        required_tags(tags)
         tags = ",".join(tags)
 
         return tags

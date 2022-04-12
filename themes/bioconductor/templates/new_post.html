@@ -1,0 +1,10 @@
+{% extends "new_post.html" %}
+{% load forum_tags %}
+{% load static %}
+
+{% block themesjs %}
+<script src="{% static 'theme.js' %}{% randparam %}"></script>
+{% endblock %}
+{% block new_tag_val %}
+{% tags_field form_field=form.tag_val initial=tag_val %}
+{% endblock %}

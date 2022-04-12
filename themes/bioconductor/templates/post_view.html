@@ -1,0 +1,110 @@
+{% extends "base_view.html" %}
+{% load forum_tags %}
+{% load static %}
+{% load cache %}
+
+{% block title %}
+    {{ post.title }}
+{% endblock %}
+
+
+{% block headtitle %}
+    {{ post.title }}
+{% endblock %}
+
+<script async src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script async src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+{% block body %}
+
+    {% include "banners/insert-post-top.html" %}
+
+    <span itemprop="mainEntity" itemscope itemtype="https://schema.org/Question">
+    {# The toplevel post #}
+    <div class="ui vertical segment">
+            {% post_body post=post user=request.user tree=tree %}
+    </div>
+
+    {# Render each answer for the post #}
+        {% for answer in answers %}
+            <div class="ui vertical segment">
+                {% post_body post=answer user=request.user tree=tree %}
+        </div>
+        {% endfor %}
+
+</span>
+
+    {# Display the newanswer form #}
+    {% if request.user.is_authenticated and post.is_open %}
+        {# Render form used to submit answers  #}
+        {% include 'forms/form_answers.html' %}
+
+        {# Answers not displayed for non open posts  #}
+    {% elif not post.is_open %}
+        <div class="ui warning message">
+            This thread is not open. No new answers may be added
+        </div>
+    {% else %}
+        <div class="ui info message">
+            <p><a class="ui small label" href="{% url 'login' %}">
+                <i class="sign in icon"></i>Login</a> before adding your answer.</p>
+        </div>
+    {% endif %}
+
+    <script>
+
+        $(document).ready(function () {
+            $('#subscribe').dropdown();
+            drag_and_drop();
+            $('.ui.dropdown').dropdown();
+            //var users = "{{ users_str }}".split(',');
+            autocomplete_users();
+            //init_pagedown();
+
+            $(this).on('click', '#inplace .save', function () {
+                event.preventDefault();
+                var post = $(this).closest('.post');
+                edit_dropdown_post(post);
+            });
+
+            $(this).on('click', '#inplace .create', function () {
+                event.preventDefault();
+                create_comment();
+            });
+
+            $(this).on('click', '.edit-button', function (event) {
+                event.preventDefault();
+                inplace_form($(this));
+            });
+
+            $(this).on('click', ".add-comment", function () {
+                inplace_form($(this), true);
+            });
+            
+        });
+
+    </script>
+
+{% endblock %}
+
+{% block sidebar %}
+
+    {#  Cache every hour #}
+    <div class="ui large wrap-text" id="sidebar">
+
+        <div class="title">Similar Posts</div>
+
+        <div class="ui basic segment similar" id="similar">
+            <div id="similar-feed" post_uid="{{ post.uid }}"></div>
+            <div class="ui inverted dimmer">
+                <div class="content">
+                    <div class="ui text loader">
+                        <div class="muted">Loading Similar Posts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

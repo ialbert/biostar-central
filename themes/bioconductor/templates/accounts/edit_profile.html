@@ -1,0 +1,25 @@
+{% extends "accounts/edit_profile.html" %}
+{% load forum_tags %}
+{% load static %}
+
+{% block themesjs %}
+     <script src="{% static 'theme.js' %}{% randparam %}"></script>
+{% endblock %}
+{% block my_tags %}
+{% tags_field form_field=form.my_tags initial=user.profile.my_tags %}
+
+<div class="muted">
+Post with tags listed here will show up in the My Tags tab.
+Example: <code>bwa</code>, <code>bedops</code>
+</div>
+{% endblock %}
+
+{% block watched_tags %}
+{% tags_field form_field=form.watched_tags initial=user.profile.watched_tags %}
+
+<div class="muted">
+    Get email when a post matching the tag is posted. Limit of 10.
+    Example: <code>minia</code>, <code>bedops</code>, <code>breakdancer</code>,
+    <code>music</code>.
+</div>
+{% endblock %}

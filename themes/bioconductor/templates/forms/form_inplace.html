@@ -1,0 +1,9 @@
+{% extends 'forms/form_inplace.html' %}
+
+{% load forum_tags %}
+
+{% block tags_field %}
+<div class="field">
+    {% tags_field form_field=form.tag_val initial=post.tag_val %}
+</div>
+{% endblock %}

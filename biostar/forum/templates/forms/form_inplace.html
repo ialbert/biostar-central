@@ -35,10 +35,12 @@
             </div>
             {# Edit the tags #}
             {% if post.is_toplevel %}
+             {% block tags_field %}
                 <div class="required field">
                     {{ form.tag_val }}
                     <p class="muted">{{ form.tag_val.help_text }}</p>
                 </div>
+              {% endblock %}
             {% endif %}
 
         {% endif %}
@@ -132,7 +134,6 @@
             highligh_preview(form, text);
 
         });
-
+        tags_dropdown();
     })
 </script>
-

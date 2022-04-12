@@ -189,7 +189,7 @@ function inplace_form(elem, add_comment) {
 }
 
 
-function edit_post(post) {
+function edit_post(post, tags) {
 
     var uid = post.data('value');
 
@@ -202,7 +202,7 @@ function edit_post(post) {
     var title = form.find('#title');
     var content = form.find('#wmd-input');
     var type = form.find('#type').dropdown('get value');//.val();
-    var tags = form.find('#tag_val').val();
+    var tags = tags || form.find('#tag_val').val();
 
     title = title.val() || '';
     if (!($.isNumeric(type))) {
@@ -242,6 +242,14 @@ function edit_post(post) {
         })
 }
 
+function edit_dropdown_post(post) {
+
+    // Get the element being
+    var form = $('#new-content');
+
+    var tags = form.find('.tags').dropdown('get value');
+    edit_post(post, tags);
+}
 
 $(document).on(function () {
 

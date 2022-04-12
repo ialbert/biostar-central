@@ -229,3 +229,5 @@ SESSION_KEY = "session"
 
 # Session key to keep track of counts
 SESSION_COUNT_KEY = "counts"
+
+DROPDOWN_TAGS = False

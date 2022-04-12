@@ -47,7 +47,7 @@
     {% endif %}
     {% if request.user.profile.is_moderator %}
         <a class="item {% activate tab 'activity' %} " href="{% url 'view_logs' %}">
-            <i class="info circle icon"></i> Activity
+            <i class="info circle icon"></i> Activity {% if counts.mod_count %}{{ counts.mod_count }}{% endif %}
         </a>
     {% endif %}
 
