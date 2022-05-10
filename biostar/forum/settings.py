@@ -23,6 +23,8 @@ AWARDS_PER_PAGE = 50
 
 STATS_DIR = os.path.join(BASE_DIR, "export", "stats")
 
+# Json dump directory.
+JSON_DIR = os.path.join(BASE_DIR, "export", "json")
 
 # Enable image upload
 PAGEDOWN_IMAGE_UPLOAD_ENABLED = True

@@ -165,11 +165,19 @@ def finalize_post(sender, instance, created, **kwargs):
                                  uid=instance.uid,
                                  extra_context=extra_context)
 
-
 @receiver(post_save, sender=Post)
 def check_spam(sender, instance, created, **kwargs):
     # Classify post as spam/ham.
     tasks.spam_check.spool(uid=instance.uid)
+
+@receiver(post_save, sender=Post)
+def save_thread(sender, instance, created, **kwargs):
+    """
+    Saves thread as a JSON file.
+    """
+    # The thread
+    root = instance.root or instance
+
 
 @receiver(post_save, sender=SharedLink)
 def link_title(sender, instance, created, **kwargs):

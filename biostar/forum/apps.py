@@ -1,4 +1,4 @@
-import logging
+import logging, os
 from django.db.models.signals import post_migrate
 from django.conf import settings
 from django.apps import AppConfig
@@ -16,6 +16,10 @@ class ForumConfig(AppConfig):
         post_migrate.connect(init_awards, sender=self)
         post_migrate.connect(init_herald, sender=self)
 
+        try:
+            os.makedirs(settings.JSON_DIR, exist_ok=True)
+        except Exception as exc:
+            logger.error(f"Failed to create json directory {settings.JSON_DIR}: %s" % exc)
 
 def init_awards(sender, **kwargs):
     "Initializes the badges"
