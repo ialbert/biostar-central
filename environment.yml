@@ -1,0 +1,7 @@
+name: engine
+channels:
+        - r
+        - conda-forge
+        - bioconda
+dependencies:
+        - python=3.7
