@@ -1,23 +1,43 @@
 """
 Saves a thread to a file.
 """
+import json
+import logging
 import os
 from django.conf import settings
+from django.contrib import sitemaps
 from django.contrib.sitemaps import GenericSitemap
 from django.contrib.sites.models import Site
-from biostar.forum.models import Post
-from django.utils.encoding import smart_str
-from django.template import loader
 from django.core.management.base import BaseCommand, CommandError
-import logging
-from django.contrib import sitemaps
-import json
+from django.template import loader
+from django.utils.encoding import smart_str
+from django.core import serializers
+import tempfile
+from biostar.forum.models import Post
 
 logger = logging.getLogger("engine")
 
-def save_threead(uid):
-    post = Post.objects.select_related("author__profile", "lastedit_user__profile").get(uid=uid)
+def atomic_save(fname, data):
 
+    # Create the directory if it does not exist.
+    path = os.path.dirname(fname)
+
+    if not os.path.exists(path):
+        logger.info(f"Creating directory {path}")
+        os.makedirs(path, exist_ok=True)
+
+    # Atomic write
+    temp_file = tempfile.NamedTemporaryFile(delete=False, dir=path, suffix=".tmp")
+
+    with open(temp_file.name, mode="w") as f:
+        f.write(data)
+        f.flush()
+        os.fsync(f.fileno())
+
+    # Move the file to the final location
+    os.replace(temp_file.name, fname)
+
+def create_path(post):
     creation_date = post.creation_date
     year = creation_date.strftime("%Y")
     month = creation_date.strftime("%m")
@@ -25,26 +45,26 @@ def save_threead(uid):
 
     print(year, month, day)
 
-    data = dict(
-        id=post.id,
-        root_id=post.root_id,
-        parent_id=post.parent_id,
-        uid=post.uid,
-        path = f"{year}/{month}/{day}",
-        title=post.title,
-        type=post.type,
-        type_name = post.get_type_display(),
-        creation_date=post.creation_date.isoformat(),
-        lastedit_date=post.lastedit_date.isoformat(),
-        lastedit_user=post.lastedit_user_id,
-        author_id=post.author_id,
-        author_name=post.author.profile.name,
-        content=post.content,
-        html=post.html,
-    )
+    path = f"posts/{year}/{month}/{day}/{post.root.uid}/{post.uid}.json"
 
+    full_path = os.path.join(settings.JSON_DIR, path)
+
+    return full_path
+
+def save_thread(uid):
+    post = Post.objects.select_related("author__profile", "root", "lastedit_user__profile").get(uid=uid)
+
+    fname = create_path(post)
+
+    text = serializers.serialize('json', [ post, ])
+    data = json.loads(text)
     text = json.dumps(data, indent=4)
-    print(text)
+
+    #print(text)
+
+    logger.info(f"Saving {post.uid} to {fname}")
+
+    atomic_save(fname, data=text)
 
 
 class Command(BaseCommand):
@@ -55,4 +75,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         pid = int(options['uid'])
-        save_threead(uid=pid)
+        save_thread(uid=pid)
