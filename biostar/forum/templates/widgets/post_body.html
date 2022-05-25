@@ -56,6 +56,11 @@
 
                     {# Display post author. #}
                         {% post_user_box target_user=post.author post=post %}
+                        {% if post.anon %}
+                          <p>Hey I was anonymous</p>
+                        {% else %}
+                          <p>I as not anonymous FROWNIE</p>
+                        {% endif %}
 
                     {# Display post content. #}
                 <span  itemprop="text">
@@ -89,7 +94,3 @@
     </div>
 
 </div>
-
-
-
-

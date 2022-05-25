@@ -35,6 +35,7 @@ class Migration(migrations.Migration):
                 ('status', models.IntegerField(choices=[(0, 'Pending'), (1, 'Open'), (2, 'Closed'), (3, 'Deleted')], db_index=True, default=1)),
                 ('type', models.IntegerField(choices=[(0, 'Question'), (1, 'Answer'), (6, 'Comment'), (2, 'Job'), (3, 'Forum'), (8, 'Tutorial'), (7, 'Data'), (4, 'Page'), (10, 'Tool'), (11, 'News'), (5, 'Blog'), (9, 'Bulletin Board')], db_index=True)),
                 ('title', models.CharField(db_index=True, max_length=200)),
+                ('anon', models.BooleanField(default=False)),
                 ('rank', models.FloatField(blank=True, db_index=True, default=0)),
                 ('answer_count', models.IntegerField(blank=True, db_index=True, default=0)),
                 ('accept_count', models.IntegerField(blank=True, default=0)),

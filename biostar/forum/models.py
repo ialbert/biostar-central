@@ -135,6 +135,9 @@ class Post(models.Model):
     # This post has been indexed by the search engine.
     indexed = models.BooleanField(default=False)
 
+    # Is the post anonymous?
+    anon = models.BooleanField(default=False)
+
     # Show that post is top level
     is_toplevel = models.BooleanField(default=False, db_index=True)
 
@@ -223,6 +226,10 @@ class Post(models.Model):
 
         return prefix
 
+    @property
+    def is_anonymous(self):
+        return self.anon
+
     def is_herald(self):
         return self.type == self.HERALD
 
@@ -245,6 +252,7 @@ class Post(models.Model):
             'id': self.id,
             'uid': self.uid,
             'title': self.title,
+            'anon': self.anon,
             'type': self.get_type_display(),
             'type_id': self.type,
             'creation_date': util.datetime_to_iso(self.creation_date),
