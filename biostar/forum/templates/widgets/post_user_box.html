@@ -5,11 +5,17 @@
 
 
 <div class="user_box tablet right">
-
+  {% if post.anon %}
+    <div>Anonymous</div>
+    {% if user.profile.is_moderator %}
+      <p>Mod view: Anonymous user is:</p>
+      <a href="{% url "user_profile" target_user.profile.uid %}">{{ target_user.profile.name|truncatechars:40 }}</a>
+    {% endif %}
+  {% else %}
     <div>
-        <a class="" href="{% url "user_profile" target_user.profile.uid %}">
-            <img class="ui centered circular image" src="{% gravatar user=target_user size=80 %}">
-        </a>
+      <a class="" href="{% url "user_profile" target_user.profile.uid %}">
+          <img class="ui centered circular image" src="{% gravatar user=target_user size=80 %}">
+      </a>
     </div>
 
     <div class="muted">
@@ -19,11 +25,6 @@
         <div><a href="{% url "user_profile" target_user.profile.uid %}">{{ target_user.profile.name|truncatechars:40 }}</a>
         {% user_icon user=target_user %}</div>
     </div>
+  {% endif %}
 
 </div>
-
-
-
-
-
-
