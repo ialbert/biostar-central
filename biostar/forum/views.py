@@ -579,7 +579,9 @@ def new_post(request):
             content = form.cleaned_data.get("content")
             ptype = form.cleaned_data.get('post_type')
             tag_val = form.cleaned_data.get('tag_val')
-            post = auth.create_post(title=title, content=content, ptype=ptype, tag_val=tag_val, author=author,
+            anon = form.cleaned_data.get('anon')
+            post = auth.create_post(title=title, anon=anon, content=content,
+                                    ptype=ptype, tag_val=tag_val, author=author,
                                     request=request)
 
             tasks.created_post.spool(pid=post.id)

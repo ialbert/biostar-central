@@ -702,4 +702,3 @@ class Log(models.Model):
     def save(self, *args, **kwargs):
         self.date = self.date or util.now()
         super(Log, self).save(*args, **kwargs)
-

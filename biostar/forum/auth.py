@@ -211,7 +211,7 @@ def create_post_from_json(**json_data):
 
 
 def create_post(author, title, content, request=None, root=None, parent=None, ptype=Post.QUESTION, tag_val="",
-                nodups=True):
+                nodups=True, anon=False):
     # Check if a post with this exact content already exists.
     post = Post.objects.filter(content=content, author=author).order_by('-creation_date').first()
 
@@ -225,7 +225,7 @@ def create_post(author, title, content, request=None, root=None, parent=None, pt
         return post
 
     post = Post.objects.create(title=title, content=content, root=root, parent=parent,
-                               type=ptype, tag_val=tag_val, author=author)
+                               type=ptype, tag_val=tag_val, author=author, anon=anon)
 
     delete_cache(MYPOSTS, author)
     return post

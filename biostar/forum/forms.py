@@ -140,6 +140,10 @@ class PostLongForm(forms.Form):
                               validators=[valid_language],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
+    anon = forms.BooleanField(label="Anonymous",
+                              required=False,
+                              help_text="Post anonymously?")
+
     def __init__(self, post=None, user=None, *args, **kwargs):
         self.post = post
         self.user = user
@@ -154,6 +158,7 @@ class PostLongForm(forms.Form):
         data = self.cleaned_data
 
         self.post.title = data.get('title')
+        self.post.anon = data.get('anon')
         content = data.get('content', self.post.content)
 
         log_edits(user=self.user, post=self.post)
