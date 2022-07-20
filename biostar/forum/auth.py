@@ -583,7 +583,7 @@ def validate_move(user, source, target):
     return False
 
 
-def db_logger(user=None, action=Log.MODERATE, text='', target=None, ipaddr=None, post=None):
+def db_logger(user, action=Log.MODERATE, text='', target=None, ipaddr=None, post=None):
     """
     Creates a database log.
     """

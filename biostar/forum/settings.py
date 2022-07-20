@@ -173,3 +173,7 @@ if DEBUG_TOOLBAR:
         'debug_toolbar',
     ])
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
+
+INSTA_BAN = """
+"""

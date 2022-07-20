@@ -13,7 +13,7 @@ click-repl==0.1.6
 coverage==5.4
 cryptography==3.4.4
 defusedxml==0.6.0
-Django==3.2.13
+Django==3.2.14
 django-allauth==0.44.0
 django-appconf==1.0.4
 django-compressor==2.4

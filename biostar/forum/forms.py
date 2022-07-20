@@ -9,7 +9,7 @@ from django.shortcuts import reverse
 from django.conf import settings
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
-from biostar.accounts.models import User
+from biostar.accounts.models import User, Profile
 from biostar.accounts.forms import get_tags_widget
 from .models import Post, SharedLink
 from biostar.forum import models, auth, util
@@ -203,6 +203,30 @@ class PostLongForm(forms.Form):
         return content
 
 
+def check_spam(content):
+
+    ## Certain words lead to insta ban.
+    insta_ban = settings.INSTA_BAN.splitlines()
+    insta_ban = map(lambda x: x.strip(), insta_ban)
+    insta_ban = filter(None, insta_ban)
+
+    is_spam = False
+    for line in insta_ban:
+        is_spam = is_spam or line in content
+
+    return is_spam
+
+def suspend_user(user):
+
+    if user.profile.trusted:
+        return
+
+    if user.profile.state == Profile.NEW:
+        user.profile.state = Profile.SUSPENDED
+        user.profile.save()
+        admin = User.objects.filter(is_superuser=True).order_by("pk").first()
+        auth.db_logger(user=admin, target=user, text=f'insta banned')
+
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
     content = forms.CharField(widget=forms.Textarea, min_length=MIN_LEN, max_length=MAX_LEN, strip=False)
@@ -216,6 +240,11 @@ class PostShortForm(forms.Form):
 
     def clean_content(self):
         content = self.cleaned_data["content"]
+        is_spam = check_spam(content)
+
+        if is_spam:
+            suspend_user(self.user)
+            raise forms.ValidationError("Spam words detected in the content")
         return content
 
     def clean(self):
