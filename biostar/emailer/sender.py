@@ -1,7 +1,6 @@
 import logging
 import re
 import textwrap
-import string
 
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail, send_mass_mail, get_connection
