@@ -1,6 +1,7 @@
 import logging
 import re
 import textwrap
+import string
 
 from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail, send_mass_mail, get_connection
@@ -50,6 +51,21 @@ def first_line(text):
     return first
 
 
+def clean_address(email):
+    """
+    Strip special chars from the ``name`` portion of a given mail.
+    """
+    split = email.split()
+    parsed_email = split[-1]
+    name = ' '.join(split[:-1])
+    # Remove punctuation from name
+    table = str.maketrans('', '', string.punctuation)
+    name = name.translate(table)
+    # patch name and email back together
+    from_email = f'{name} {parsed_email}'
+    return from_email
+
+
 class EmailTemplate(object):
     """
     Generates a subject, text and html based email from a single template.
@@ -72,6 +88,7 @@ class EmailTemplate(object):
     def send(self, context, from_email, recipient_list):
 
         recipients = ", ".join(recipient_list)
+        from_email = clean_address(from_email)
 
         # Skip sending emails during data migration
         if settings.DATA_MIGRATION:
@@ -104,6 +121,7 @@ class EmailTemplate(object):
         Send mass individual mail to list of recipients
         """
         subject, text, html = self.render(context)
+        from_email = clean_address(from_email)
 
         # Text may be indented in template.
         text = textwrap.dedent(text)
