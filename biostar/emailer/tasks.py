@@ -1,11 +1,26 @@
 import logging
 import os
+import string
 
 from django.conf import settings
 
 from biostar.emailer import sender
 
 logger = logging.getLogger("engine")
+
+
+def clean_name(name):
+    """
+    Strip special chars from the ``name`` portion of a given mail.
+    """
+    try:
+        # Remove punctuation from name
+        table = str.maketrans('', '', string.punctuation)
+        name = name.translate(table)
+    except Exception as exc:
+        logger.error(f"Error cleaning name: {name}, {exc}")
+
+    return name
 
 
 def send_all():
@@ -41,6 +56,7 @@ def send_email(template_name, recipient_list, extra_context={}, name="", from_em
 
     # Final sender email
     from_email = from_email or settings.DEFAULT_FROM_EMAIL
+    name = clean_name(name)
     from_email = patt % (name, from_email)
 
     # Test the templates exists
