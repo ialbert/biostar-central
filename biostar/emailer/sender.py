@@ -55,15 +55,19 @@ def clean_address(email):
     """
     Strip special chars from the ``name`` portion of a given mail.
     """
-    split = email.split()
-    parsed_email = split[-1]
-    name = ' '.join(split[:-1])
-    # Remove punctuation from name
-    table = str.maketrans('', '', string.punctuation)
-    name = name.translate(table)
-    # patch name and email back together
-    from_email = f'{name} {parsed_email}'
-    return from_email
+    try:
+        split = email.split()
+        parsed_email = split[-1]
+        name = ' '.join(split[:-1])
+        # Remove punctuation from name
+        table = str.maketrans('', '', string.punctuation)
+        name = name.translate(table)
+        # patch name and email back together
+        email = f'{name} {parsed_email}'
+    except Exception as exc:
+        logger.error(f"Error cleaning email address: {email}, {exc}")
+
+    return email
 
 
 class EmailTemplate(object):
