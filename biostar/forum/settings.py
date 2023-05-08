@@ -175,5 +175,21 @@ if DEBUG_TOOLBAR:
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 
-INSTA_BAN = """
+# Words when present in the content get you banned.
+BANNED_WORDS_CONTENT = r"""
+cialis
+viagra
+money
+loan
 """
+
+# Words, that when present in the title get you banned.
+BANNED_WORDS_TITLE  = r"""
+cash
+money
+loan
+http 
+https
+"""
+
+

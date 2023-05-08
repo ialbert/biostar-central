@@ -213,32 +213,6 @@ def set_link_title(pk):
         logger.warning(exc)
 
 
-SPAM = "?? cash loan customer ".split()
-
-
-def decode(text):
-    out = line.encode('ascii', 'ignore').decode('ascii', 'ignore')
-    out = out.lower()
-    out = out.replace("-", " ")
-    return out
-
-def spam_check_words(text):
-
-    # count the number of ?
-    text = decode(text)
-
-    if text.count('?') > 5:
-        print("Too many ?")
-        return True
-
-    words = text.split()
-
-    for word in SPAM:
-        if word in words:
-            print("Word", word)
-            return True
-
-    return False
 
 @task
 def spam_check(uid):
@@ -282,15 +256,13 @@ def spam_check(uid):
             return
 
         ## Links in title usually mean spam.
-        spam_words = ["http://", "https://", "loan", "money", "kredit", "credit", "cash", "helpline", "customer" ]
+        spam_words = ["http://", "https://" ]
         for word in spam_words:
             flag = flag or (word in post.title.lower())
         
-        spam_words2 = ["cialis", "viagra", "money"]
+        spam_words2 = ["cialis", "viagra" ]
         for word in spam_words2:
             flag = flag or (word in post.title.lower() + post.content.lower())
-
-        flag = flag or spam_check_words(post.content)
 
         # Handle the spam.
         if flag:
