@@ -255,9 +255,13 @@ def spam_check(uid):
             return
 
         ## Links in title usually mean spam.
-        spam_words = ["http://", "https://"]
+        spam_words = ["http://", "https://", "loan", "money", "kredit", "credit", "cash", "helpline", "customer" ]
         for word in spam_words:
-            flag = flag or (word in post.title)
+            flag = flag or (word in post.title.lower())
+        
+        spam_words2 = ["cialis", "viagra", "money"]
+        for word in spam_words2:
+            flag = flag or (word in post.title.lower() + post.content.lower())
 
         # Handle the spam.
         if flag:
