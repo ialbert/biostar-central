@@ -206,6 +206,8 @@ def check_spam(content):
     insta_ban = filter(None, insta_ban)
 
     is_spam = False
+    content = " ".join(content.split()).lower()
+    content = content.replace("-", " ")
     for line in insta_ban:
         is_spam = is_spam or line in content
 
