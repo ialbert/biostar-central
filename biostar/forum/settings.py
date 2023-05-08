@@ -177,17 +177,20 @@ if DEBUG_TOOLBAR:
 
 # Words when present in the content get you banned.
 BANNED_WORDS_CONTENT = r"""
-cialis
-viagra
-money
-loan
+\bcialis
+\bviagra
+\bmoney
+\bloan
+\bcustomer
+\bcash 
 """
 
 # Words, that when present in the title get you banned.
 BANNED_WORDS_TITLE  = r"""
-cash
-money
-loan
+\bcash
+\bmoney
+\bloan
+\d{6,}
 http 
 https
 """

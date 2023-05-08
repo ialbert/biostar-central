@@ -220,10 +220,14 @@ class PostLongForm(forms.Form):
 def spam_check(value, target, user):
     words = target.split()
     content = " ".join(value.split())
-    for word in words:
-        if re.search(word, content):
+    content = content.replace("-", " ")
+    content = content.replace("_", " ")
+    for patt in words:
+        patt = r'%s' % patt
+        if re.search(patt, content, flags=re.IGNORECASE):
             suspend_user(user)
 
+from biostar.utils import helpers
 
 def suspend_user(user):
 
@@ -237,6 +241,7 @@ def suspend_user(user):
         user.profile.save()
         admin = User.objects.filter(is_superuser=True).order_by("pk").first()
         auth.db_logger(user=admin, target=user, text=f'insta banned')
+        raise forms.ValidationError(f"This account has been suspended")
 
     raise forms.ValidationError("Spam words detected in the content")
 
