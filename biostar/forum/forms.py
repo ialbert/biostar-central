@@ -80,21 +80,7 @@ MAX_ORD = 383
 def validate_ascii(value):
     for c in value:
         if ord(c) > MAX_ORD:
-            raise ValidationError(f"Only limited ASCII characters are allowed invalid character {c}, ({ord(c)})")
-
-
-def pattern_check(value, target):
-    words = target.split()
-    content = " ".join(value.split())
-    for word in words:
-        if re.search(word, content):
-            raise ValidationError(f"Spam words detected in content: {word}")
-
-def content_spam_check(value):
-    pattern_check(value, settings.BANNED_WORDS_CONTENT)
-
-def title_spam_check(value):
-    pattern_check(value, settings.BANNED_WORDS_TITLE)
+            raise ValidationError(f"Only ASCII characters are allowed. Invalid character {c}, ({ord(c)})")
 
 
 def informative_choices(choices):
@@ -155,7 +141,7 @@ class PostLongForm(forms.Form):
                                    widget=forms.Select(choices=choices, attrs={'class': "ui dropdown"}),
                                    help_text="Select a post type.")
     title = forms.CharField(label="Post Title", max_length=200, min_length=2,
-                            validators=[valid_title, validate_ascii, title_spam_check],
+                            validators=[valid_title, validate_ascii],
 
                             help_text="Enter a descriptive title to promote better answers.")
     tag_val = forms.CharField(label="Post Tags", max_length=MAX_TAG_LEN, required=True, validators=[valid_tag],
@@ -164,7 +150,7 @@ class PostLongForm(forms.Form):
                               help_text="""Create a new tag by typing a word then adding a comma.""")
 
     content = forms.CharField(widget=forms.Textarea,
-                              validators=[valid_language, validate_ascii, content_spam_check],
+                              validators=[valid_language, validate_ascii],
                               min_length=MIN_CONTENT, max_length=MAX_CONTENT, label="Post Content", strip=False)
 
     def __init__(self, post=None, user=None, *args, **kwargs):
@@ -218,6 +204,9 @@ class PostLongForm(forms.Form):
     def clean_content(self):
         content = self.cleaned_data["content"]
         length = len(content.replace(" ", ""))
+
+        spam_check(content, user=self.user, target=settings.BANNED_WORDS_CONTENT)
+
         if length < MIN_CHARS:
             raise forms.ValidationError(f"Too short, place add more than {MIN_CHARS}")
 
@@ -225,9 +214,18 @@ class PostLongForm(forms.Form):
 
     def clean_title(self):
         title = self.cleaned_data["title"]
+        spam_check(title, user=self.user, target=settings.BANNED_WORDS_TITLE)
         return title
 
-def Xsuspend_user(user):
+def spam_check(value, target, user):
+    words = target.split()
+    content = " ".join(value.split())
+    for word in words:
+        if re.search(word, content):
+            suspend_user(user)
+
+
+def suspend_user(user):
 
     if user.profile.trusted:
         auth.db_logger(user=user, target=user, text=f'NOT insta banned because trusted')
@@ -243,14 +241,11 @@ def Xsuspend_user(user):
     raise forms.ValidationError("Spam words detected in the content")
 
 
-
-
-
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
 
     content = forms.CharField(widget=forms.Textarea, min_length=MIN_LEN, max_length=MAX_LEN, strip=False,
-                              validators=[valid_language, validate_ascii, content_spam_check],)
+                              validators=[valid_language, validate_ascii],)
 
     def __init__(self, post, user=None, request=None, ptype=Post.COMMENT, *args, **kwargs):
         self.user = user
@@ -261,7 +256,7 @@ class PostShortForm(forms.Form):
 
     def clean_content(self):
         content = self.cleaned_data["content"]
-
+        spam_check(content, user=self.user, target=settings.BANNED_WORDS_CONTENT)
         return content
 
     def clean(self):
