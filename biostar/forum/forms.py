@@ -231,9 +231,10 @@ from biostar.utils import helpers
 
 def suspend_user(user):
 
+    # This can be turned on if we want to be stricter
     if user.profile.trusted:
         auth.db_logger(user=user, target=user, text=f'NOT insta banned because trusted')
-        raise forms.ValidationError("Spam words by trusted user.")
+        #raise forms.ValidationError("Spam words by trusted user.")
         return
 
     if user.profile.state == Profile.NEW:
@@ -243,8 +244,8 @@ def suspend_user(user):
         auth.db_logger(user=admin, target=user, text=f'insta banned')
         raise forms.ValidationError(f"This account has been suspended")
 
-    raise forms.ValidationError("Spam words detected in the content")
-
+    #raise forms.ValidationError("Spam words detected in the content")
+    return
 
 class PostShortForm(forms.Form):
     MIN_LEN, MAX_LEN = 10, 10000
