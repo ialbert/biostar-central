@@ -233,7 +233,7 @@ def suspend_user(user):
 
     # This can be turned on if we want to be stricter
     if user.profile.trusted:
-        auth.db_logger(user=user, target=user, text=f'NOT insta banned because trusted')
+        #auth.db_logger(user=user, target=user, text=f'NOT insta banned because trusted')
         #raise forms.ValidationError("Spam words by trusted user.")
         return
 
