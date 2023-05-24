@@ -77,9 +77,15 @@ def valid_tag(text):
         raise ValidationError('You have too many tags (5 allowed)')
 
 MAX_ORD = 383
+
+# Additional valid characters
+VALID_ORDS = list(range(1, MAX_ORD)) + list(range(8208, 8255))
+VALID_ORDS = set(VALID_ORDS)
+
 def validate_ascii(value):
+    
     for c in value:
-        if ord(c) > MAX_ORD:
+        if ord(c) not in VALID_ORDS:
             raise ValidationError(f"Only ASCII characters are allowed. Invalid character {c}, ({ord(c)})")
 
 
