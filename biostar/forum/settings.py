@@ -175,3 +175,26 @@ if DEBUG_TOOLBAR:
         'debug_toolbar',
     ])
     MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
+
+# Words when present in the content get you banned.
+BANNED_WORDS_CONTENT = r"""
+\bcialis
+\bviagra
+\bmoney
+\bloan
+\bcustomer
+\bcash 
+"""
+
+# Words, that when present in the title get you banned.
+BANNED_WORDS_TITLE  = r"""
+\bcash
+\bmoney
+\bloan
+\d{6,}
+http 
+https
+"""
+
+

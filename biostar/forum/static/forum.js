@@ -415,10 +415,10 @@ $(document).ready(function () {
         } catch (err) {
             field = $('#form-errors');
         }
-
+        
         // Insert the error message
-        message = $('<div/>').text(message).html();
-        field.before('<div class="ui small red message"> {1}</div>'.f(field_label, message))
+        message = $('<div class="ui small red message">').text(message);
+        field.before(message)
     });
 
 

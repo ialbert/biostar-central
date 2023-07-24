@@ -212,6 +212,8 @@ def create_post_from_json(**json_data):
 
 def create_post(author, title, content, request=None, root=None, parent=None, ptype=Post.QUESTION, tag_val="",
                 nodups=True):
+
+
     # Check if a post with this exact content already exists.
     post = Post.objects.filter(content=content, author=author).order_by('-creation_date').first()
 
@@ -583,7 +585,7 @@ def validate_move(user, source, target):
     return False
 
 
-def db_logger(user=None, action=Log.MODERATE, text='', target=None, ipaddr=None, post=None):
+def db_logger(user, action=Log.MODERATE, text='', target=None, ipaddr=None, post=None):
     """
     Creates a database log.
     """

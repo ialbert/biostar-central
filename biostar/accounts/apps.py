@@ -91,6 +91,9 @@ def init_users():
         else:
 
             User.objects.filter(pk=user.pk).update(is_superuser=True, is_staff=True)
+
+            #Profile.objects.filter(user__pk=user.pk).update(state=Profile.TRUSTED)
+
             # You might want to reapply the default ADMIN password on migration.
             # This will log out the user from their current session.
             #user.set_password(settings.DEFAULT_ADMIN_PASSWORD)
