@@ -157,15 +157,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 os.makedirs(DATABASE_DIR, exist_ok=True)
 
 DATABASE_NAME = os.environ.setdefault("DATABASE_NAME", "database.db")
+
 # Ensure database is inside database directory.
 DATABASE_NAME = os.path.join(DATABASE_DIR, DATABASE_NAME)
+
+# The JSON database.
+DATABASE_JSON = os.path.join(DATABASE_DIR, "json.db")
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': DATABASE_NAME,
+    },
+
+    'json_db': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': DATABASE_JSON,
     }
 }
+
+DATABASE_ROUTERS = ["biostar.forum.models.JsonRouter"]
+
 
 ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']
 
