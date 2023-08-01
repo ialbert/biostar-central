@@ -1,5 +1,5 @@
 amqp==5.0.5
-asgiref==3.3.2
+asgiref
 beautifulsoup4==4.9.3
 billiard==3.6.3.0
 bleach==3.3.0
@@ -13,7 +13,7 @@ click-repl==0.1.6
 coverage==5.4
 cryptography==3.4.4
 defusedxml==0.6.0
-Django==3.2.15
+Django==4.2.4
 django-allauth==0.44.0
 django-appconf==1.0.4
 django-compressor==2.4
@@ -23,7 +23,7 @@ django-pagedown==2.2.0
 django-ratelimit==3.0.1
 django-recaptcha2==1.4.1
 django-sendfile==0.3.11
-django-taggit==1.3.0
+django-taggit==4.0.0
 django-timezone-field==4.1.1
 feedparser==6.0.2
 hjson==3.0.2
