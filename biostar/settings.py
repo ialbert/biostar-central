@@ -170,13 +170,7 @@ DATABASES = {
         'NAME': DATABASE_NAME,
     },
 
-    'json_db': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': DATABASE_JSON,
-    }
 }
-
-DATABASE_ROUTERS = ["biostar.forum.models.JsonRouter"]
 
 
 ALLOWED_HOSTS = ['www.lvh.me', 'localhost', '127.0.0.1']

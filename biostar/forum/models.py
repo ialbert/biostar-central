@@ -703,33 +703,3 @@ class Log(models.Model):
         self.date = self.date or util.now()
         super(Log, self).save(*args, **kwargs)
 
-
-class JsonRouter:
-    """
-    A router to control all database operations on models in the
-    auth and contenttypes applications.
-    """
-
-    route_app_labels = { "JsonPost" }
-
-    def db_for_read(self, model, **hints):
-        if model._meta.app_label in self.route_app_labels:
-            return "json_db"
-        return None
-
-    def db_for_write(self, model, **hints):
-        if model._meta.app_label in self.route_app_labels:
-            return "json_db"
-        return None
-
-import json
-
-# Create a JSONFiled for storing arbitrary data.
-class JsonPost(models.Model):
-
-    # Use the jsondb database
-    data = models.JSONField(default=dict)
-
-    def __str__(self):
-        payload = json.dumps(self.data, indent=4)
-        return f"JsonPost (pk={self.pk})\ndata={payload}"
