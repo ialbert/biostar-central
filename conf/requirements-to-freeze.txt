@@ -9,7 +9,7 @@ django-debug-toolbar
 django-mailer
 django-pagedown
 django-ratelimit
-django-recaptcha2
+django-recaptcha
 django-sendfile
 django-taggit
 feedparser

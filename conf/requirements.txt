@@ -16,12 +16,12 @@ defusedxml==0.6.0
 Django==4.2.4
 django-allauth==0.44.0
 django-appconf==1.0.4
-django-compressor==2.4
+django-compressor==4.4
 django-debug-toolbar==3.2.1
 django-mailer==2.1
 django-pagedown==2.2.0
 django-ratelimit==3.0.1
-django-recaptcha2==1.4.1
+django-recaptcha==4.0.0
 django-sendfile==0.3.11
 django-taggit==4.0.0
 django-timezone-field==4.1.1
@@ -46,11 +46,9 @@ python-crontab==2.5.1
 python-dateutil==2.8.1
 python3-openid==3.2.0
 pytz==2021.1
-rcssmin==1.0.6
 redis==3.5.3
 requests==2.25.1
 requests-oauthlib==1.3.0
-rjsmin==1.1.0
 sgmllib3k==1.0.0
 six==1.15.0
 soupsieve==2.2

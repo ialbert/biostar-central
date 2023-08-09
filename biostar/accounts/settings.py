@@ -72,8 +72,11 @@ SIGNUP_RATE = '50/h'
 PASSWORD_RESET_RATE = '50/h'
 
 # Set RECAPTCH keys here.
-RECAPTCHA_PUBLIC_KEY = ""
-RECAPTCHA_PRIVATE_KEY = ""
+# The values below are the Google provided test keys that always validate to true.
+RECAPTCHA_PUBLIC_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
+RECAPTCHA_PRIVATE_KEY = "6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe"
+
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 
 # Django allauth settings.
 SOCIALACCOUNT_EMAIL_VERIFICATION = None

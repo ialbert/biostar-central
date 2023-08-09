@@ -9,8 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
 from django.template.defaultfilters import slugify
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+from captcha.fields import ReCaptchaField
 
 from .models import Profile, UserImage
 
@@ -117,7 +116,7 @@ class SignUpWithCaptcha(SignUpForm):
         super(SignUpWithCaptcha, self).__init__(*args, **kwargs)
 
         if settings.RECAPTCHA_PRIVATE_KEY:
-            self.fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
+            self.fields["captcha"] = ReCaptchaField()
 
 
 class LogoutForm(forms.Form):

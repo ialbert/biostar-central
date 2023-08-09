@@ -5,13 +5,19 @@ import os, logging, subprocess, pprint
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.template import Template, Context
-from django.utils.encoding import force_text
+
 
 from biostar.recipes.models import Job
 from biostar.recipes import auth
 from django.conf import settings
 from django.utils import timezone
 from biostar.emailer.tasks import send_email
+
+# Monkeypatch the translation module to avoid errors in Django 4.2
+import django.utils.encoding
+django.utils.encoding.force_text = django.utils.encoding.force_str
+django.utils.encoding.smart_text = django.utils.encoding.smart_str
+
 
 logger = logging.getLogger('engine')
 

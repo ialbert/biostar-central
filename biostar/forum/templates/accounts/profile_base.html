@@ -2,8 +2,6 @@
 {% load compress %}
 {% load accounts_tags %}
 
-{% load recaptcha2 %}
-
 <html>
 <head>
 
@@ -21,8 +19,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{% static 'forum_favicon.ico' %}" type="image/x-icon"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    {% recaptcha_init %}
-
 
     {% block js %}
     {% endblock %}

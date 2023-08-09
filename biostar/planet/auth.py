@@ -4,7 +4,7 @@ from datetime import datetime
 import logging
 
 import feedparser
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.utils import timezone
 from django.conf import settings
 
@@ -58,11 +58,11 @@ def add_blogpost(blogs, count=3):
             # Only list a few entries
             entries = entries[:count]
             for entry in entries:
-                entry.title = smart_text(entry.title)
+                entry.title = smart_str(entry.title)
                 entry.title = entry.title.strip()
                 # entry.title = html.strip_tags(entry.title)
                 entry.title = entry.title.strip()[:200]
-                desc = smart_text(entry.description)
+                desc = smart_str(entry.description)
                 desc = html.unescape(desc)
                 entry.description = desc
 
@@ -95,7 +95,7 @@ def add_blog(feed):
             desc = ""
 
         link = doc.feed.link
-        blog = Blog.objects.create(title=smart_text(title), feed=feed, link=link, desc=smart_text(desc))
+        blog = Blog.objects.create(title=smart_str(title), feed=feed, link=link, desc=smart_str(desc))
 
         #add_blogpost(blogs=Blog.objects.filter(id=blog.id))
         blog.download()

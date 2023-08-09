@@ -7,8 +7,7 @@ from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
 from django.shortcuts import reverse
 from django.conf import settings
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+
 from biostar.accounts.models import User, Profile
 from biostar.accounts.forms import get_tags_widget
 from .models import Post, SharedLink
@@ -26,11 +25,23 @@ MAX_TITLE = 400
 MAX_TAGS = 5
 MAX_TAG_LEN = 200
 
+from captcha.fields import ReCaptchaField
 
 def log_edits(user, post):
     if user != post.author:
         auth.db_logger(user=user, text=f'edited post', target=post.author, post=post)
 
+
+def add_captcha_field(request, fields):
+    """Used to dynamically load captcha field into forms"""
+
+    # Trusted users do not need a captcha check
+    if request.user.is_authenticated and request.user.profile.trusted:
+        return
+    # Mutates the fields dict to add captcha field.
+    if settings.RECAPTCHA_PRIVATE_KEY:
+        fields["captcha"] = ReCaptchaField()
+    return
 
 def valid_language(text):
     supported_languages = settings.LANGUAGE_DETECTION

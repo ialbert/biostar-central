@@ -14,8 +14,8 @@ from django.urls import reverse
 from django.core.validators import validate_slug
 from pagedown.widgets import PagedownWidget
 from django.conf import settings
-from snowpenguin.django.recaptcha2.fields import ReCaptchaField
-from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
+from captcha.fields import ReCaptchaField
+
 from biostar.accounts.models import User, Profile, UserImage
 from . import models, auth, factory, util
 from .const import *
@@ -113,7 +113,7 @@ def add_captcha_field(request, fields):
         return
     # Mutates the fields dict to add captcha field.
     if settings.RECAPTCHA_PRIVATE_KEY:
-        fields["captcha"] = ReCaptchaField(widget=ReCaptchaWidget())
+        fields["captcha"] = ReCaptchaField()
     return
 
 

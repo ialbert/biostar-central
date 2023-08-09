@@ -18,7 +18,7 @@ from ratelimit.decorators import ratelimit
 from django.core import signing
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from django.utils.safestring import mark_safe
 from ratelimit.decorators import ratelimit
@@ -304,7 +304,7 @@ def send_email_verify(request):
 def email_verify_account(request, uidb64, token):
     "Verify one time link sent to a users email"
 
-    uid = force_text(urlsafe_base64_decode(uidb64))
+    uid = force_str(urlsafe_base64_decode(uidb64))
     user = User.objects.filter(pk=uid).first()
 
     if user and account_verification_token.check_token(user, token):
