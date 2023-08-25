@@ -370,7 +370,7 @@ def is_moderator(user):
         return True
 
     # Local roles that permit moderation.
-    role_check = user.profile.role in (Profile.MODERATOR, Profile.MANAGER)
+    role_check = user.profile.PSQL_ROLE in (Profile.MODERATOR, Profile.MANAGER)
 
     return role_check
 

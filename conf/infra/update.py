@@ -11,10 +11,20 @@ DJANGO_SETTINGS_MODULE = 'biostar.forum.settings'
 
 #'conf.run.site_settings'
 
+# Pull the original.
+git.repo(
+    name="Pull from the repository",
+    src="git@github.com:ialbert/biostar-central.git",
+    branch="master",
+    dest=f"{DEST}",
+    pull=True,
+)
+
 # Pull from the repository.
 git.repo(
     name="Pull from the repository",
     src="git@github.com:ialbert/biostar-central.git",
+    branch="update",
     dest=f"{DEST}",
     pull=True,
 )

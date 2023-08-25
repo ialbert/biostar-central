@@ -20,6 +20,9 @@ init:
 serve:
 	python manage.py runserver --settings ${DJANGO_SETTINGS_MODULE}
 
+pg:
+	(cd conf/infra && pyinfra @local postgres.py -vvv)
+
 # Run tests.
 test:
 	# Override the settings module.

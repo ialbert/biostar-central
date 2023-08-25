@@ -1,19 +1,18 @@
 #
 # pyinfra backup.py file
 #
-from pyinfra.operations import server, files, apt, git
+from pyinfra.operations import files
 
+from vars import *
 
-backup_src = '/export/www/biostar-central/export/backup/foo.gz'
-
-backup_dest = '/export/www/biostar-central/export/backup/foo.gz'
-
-
-# Copy over the latest backup file
-files.rsync(
-    src=backup_src,
-    dest=dest,
-    flags=['-a',]
+files.directory(
+    name="Create the directory",
+    path=dirname(PG_DATA_DEST),
 )
 
-
+files.rsync(
+    name="Copy over the latest backup file",
+    src=PG_DATA_SRC,
+    dest=PG_DATA_DEST,
+    flags=['-a', ]
+)
