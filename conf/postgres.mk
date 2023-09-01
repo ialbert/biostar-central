@@ -59,6 +59,11 @@ pg_import:
 # Resets the postgres database
 pg_reset: pg_drop pg_create pg_role  pg_import
 
+# Allow a user to create databases and roles.
+pg_setup:
+	psql -c "ALTER ROLE www CREATEDB;"
+	psql -c "ALTER ROLE www CREATEROLE;"
+
 # Various make related variables
 SHELL := bash
 .ONESHELL:
