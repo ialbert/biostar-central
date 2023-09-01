@@ -21,7 +21,7 @@ django-debug-toolbar==3.2.1
 django-mailer==2.1
 django-pagedown==2.2.0
 django-ratelimit==3.0.1
-django-recaptcha==4.0.0
+django-recaptcha==3.0.0
 django-sendfile==0.3.11
 django-taggit==4.0.0
 django-timezone-field==4.1.1
