@@ -42,18 +42,22 @@ pg_drop:
 	dropuser ${PG_USER} || true
 
 # Initialize the postgres database.
-pg_init:
-	createdb ${DATABASE_NAME} -E utf8 --template template0 -O ${PG_USER}
+pg_init:  pg_create pg_role
+
+# Creates the postgres database.
+pg_create:
+	createdb ${DATABASE_NAME} -E utf8 --template template0 || true
 
 # Create a postgres user.
 pg_role:
-	echo "CREATE ROLE ${PG_USER} WITH LOGIN PASSWORD '${PG_PASSWD}';" | psql
+	psql -c "CREATE ROLE ${PG_USER} WITH LOGIN PASSWORD '${PG_PASSWD}'" -d ${DATABASE_NAME} || true
 
 # Import the postgres data dump.
 pg_import:
 	gunzip -c ${PGDATA_PATH} | psql ${DATABASE_NAME} -U ${PG_USER}
 
-pg_reset: pg_drop pg_role pg_init pg_import
+# Resets the postgres database
+pg_reset: pg_drop pg_create pg_role  pg_import
 
 # Various make related variables
 SHELL := bash
