@@ -29,7 +29,7 @@ feedparser==6.0.2
 hjson==3.0.2
 html2markdown==0.1.7
 html2text==2020.1.16
-idna==2.10
+idna==3.7
 importlib-metadata==3.4.0
 kombu==5.0.2
 langdetect==1.0.8
