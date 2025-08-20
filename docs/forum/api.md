@@ -277,13 +277,13 @@ Example
 Return a list of tags with corresponding counts of posts. Can also pass down a time range.
 
 #### Parameters
-- __data__: a file listing the tags, with 
-- __months__: 6
+- __data__: a list of valid tags 
+- __months__: 6 (prior to the current date, default is 6)
 
 
 Given 
 
-    curl -X POST -F "tags=@/Users/natay/Desktop/apps/biostar-central/tags.txt" http://localhost:8000/api/tags/list/?trange=year
+    curl -X POST -F "tags=@tag_list.txt" "http://localhost:8000/api/tags/list/?trange=months"
     
 
 Returns 
