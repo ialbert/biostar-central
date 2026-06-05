@@ -10,4 +10,5 @@ __pycache__/
 *secrets*.py
 .pyc
 *.so
+*.log
 

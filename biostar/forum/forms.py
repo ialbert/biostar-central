@@ -232,6 +232,15 @@ def spam_check(value, target, user):
         patt = r'%s' % patt
         if re.search(patt, content, flags=re.IGNORECASE):
             suspend_user(user)
+    
+    # ban user if content is URL only
+    URL_PATTERN = re.compile(
+        r'^https?://[^\s/$.?#].[^\s]*$',
+        re.IGNORECASE
+    )
+    url_only = bool(URL_PATTERN.fullmatch(content))
+    if url_only:
+        suspend_user(user)
 
 from biostar.utils import helpers
 
