@@ -12,11 +12,19 @@ from django.template.defaultfilters import slugify
 from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget
 
+
 from .models import Profile, UserImage
 
 logger = logging.getLogger("engine")
 
 MAX_TAGS = 50
+
+# Twitter/X handle: 1-15 letters, digits or underscores.
+TWITTER_ID = re.compile(r'\w{1,15}', re.ASCII)
+
+# Google Scholar user id, base64url alphabet, typically 12 characters.
+SCHOLAR_ID = re.compile(r'[\w-]{8,24}', re.ASCII)
+
 IMG_EXTENTIONS = ['jpg',
                   'jpeg',
                   'png',
@@ -210,6 +218,22 @@ class EditProfile(forms.Form):
 
         return data
 
+    def clean_twitter(self):
+        data = self.cleaned_data['twitter'].strip().lstrip('@')
+
+        if data and not TWITTER_ID.fullmatch(data):
+            raise forms.ValidationError("Enter a Twitter ID: up to 15 letters, digits or underscores.")
+
+        return data
+
+    def clean_scholar(self):
+        data = self.cleaned_data['scholar'].strip()
+
+        if data and not SCHOLAR_ID.fullmatch(data):
+            raise forms.ValidationError("Enter a Google Scholar ID, the 12 character code found in the profile link.")
+
+        return data
+
     def clean_email(self):
         cleaned_data = self.cleaned_data['email']
         email = User.objects.filter(email=cleaned_data).exclude(pk=self.user.pk).first()
@@ -267,6 +291,8 @@ class EditProfile(forms.Form):
             user_icon=self.cleaned_data['user_icon'],
             message_prefs=self.cleaned_data["message_prefs"],
             digest_prefs=self.cleaned_data['digest_prefs'])
+
+   
         # Recompute watched tags
         Profile.objects.filter(user=self.user).first().add_watched()
 
