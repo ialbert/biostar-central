@@ -93,7 +93,7 @@
                     <td>{{ target.profile.date_joined|time_ago }}</td>
                 </tr>
 
-                {% if target.profile.twitter %}
+                {% if target.profile.twitter and show_info %}
                     <tr>
                         <td>Twitter:</td>
                         <td>
@@ -104,7 +104,7 @@
                 {% endif %}
 
 
-                {% if target.profile.scholar %}
+                {% if target.profile.scholar and show_info %}
                     <tr>
                         <td>Google Scholar:</td>
                         <td>
@@ -113,6 +113,7 @@
                         </td>
                     </tr>
                 {% endif %}
+
                 {% if target == request.user %}
                     <tr>
                         <td>Notifications:</td>
@@ -147,7 +148,7 @@
                         <p>{{ target.profile.html |safe }}</p>
                     {% else %}
                         <p>
-                            Profile information, website and location are not shown for new users.
+                            Profile information, twitter, Google Scholar, website and location are not displayed for new users.
                         </p>
                         <p>
                             This helps us discourage the inappropriate use of our site.

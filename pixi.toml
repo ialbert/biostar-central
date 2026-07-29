@@ -1,0 +1,13 @@
+[workspace]
+authors = ["Istvan Albert <?.?@gmail.com>"]
+channels = ["conda-forge"]
+name = "biostar-central"
+platforms = ["osx-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "3.8.*"
+pip = "20.0.2.*"
+setuptools = "46.1.3.*"
